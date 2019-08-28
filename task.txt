@@ -1,0 +1,21 @@
+git init
+
+## file list
+1 - evaluate table versus list for file output
+   a - pad child lists (expanded sub directories)
+2 - recursive directory is only one level down if command is server
+3 - populate parent directory
+4 - select files from list
+5 - display selected files by agent
+
+## gui
+1 - capture gui settings
+2 - write settings into file (test with refresh, then cross browser, then cross computer)
+3 - maximize
+4 - minimize
+
+## system log
+1 - toggle message modal
+2 - separate system messages from errors
+3 - write errors as a list where details (stack trace) is available by click expansion
+4 - add date/time [] to each item in list

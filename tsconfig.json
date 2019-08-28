@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "js",
+        "pretty": true,
+        "target": "ES6",
+        "types": ["@types/node"]
+    },
+    "exclude": [
+        "js",
+        "node_modules"
+    ],
+    "include": [
+        "*.ts",
+        "**/*.ts"
+    ]
+}

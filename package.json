@@ -1,0 +1,33 @@
+{
+    "author": "Austin Cheney",
+    "bugs": {
+        "url": "https://github.com/prettydiff/freshapp/issues"
+    },
+    "dependencies": {
+        "@types/node": "^12.7.1",
+        "ws": "^7.1.2"
+    },
+    "description": "A simple application and general utility primer for quickly starting new Node projects.",
+    "directories": {
+        "test": "test"
+    },
+    "keywords": [
+        "application",
+        "build",
+        "node",
+        "test"
+    ],
+    "license": "CC0-1.0",
+    "main": "js/application.js",
+    "name": "freshapp",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/prettydiff/freshapp.git"
+    },
+    "scripts": {
+        "prepublishOnly": "node js/application test",
+        "start": "node js/application build",
+        "test": "node js/application test"
+    },
+    "version": "0.0.1"
+}
