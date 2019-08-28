@@ -29,6 +29,7 @@ interface flags {
 interface localService {
     action: string;
     agent: string;
+    depth: number;
     location: string;
 }
 interface nodeCopyParams {
@@ -54,6 +55,7 @@ interface nodeLists {
 }
 interface readDirectory {
     callback: Function;
+    depth: number;
     exclusions: string[];
     path: string;
     recursive: boolean;
@@ -64,6 +66,12 @@ interface readFile {
     index: number;
     path: string;
     stat: Stats;
+}
+interface readFS{
+    agent: string;
+    callback: Function;
+    depth: number;
+    location: string;
 }
 interface serverError {
     stack: string[];
@@ -77,12 +85,12 @@ interface simulationItem {
     test: string;
 }
 interface Stats {
-    dev: number,
-    ino: number,
-    mode: number,
-    nlink: number,
-    uid: number,
-    gid: number,
+    dev: number;
+    ino: number;
+    mode: number;
+    nlink: number;
+    uid: number;
+    gid: number;
     rdev: number;
     size: number;
     blksize: number;
@@ -126,11 +134,6 @@ interface ui_data {
     };
     modalTypes: string[];
     zIndex: number;
-}
-interface updateFS{
-    agent: string;
-    callback: Function;
-    location: string;
 }
 interface version {
     command: string;

@@ -146,6 +146,11 @@
                 test: `,"ctime":`
             },
             {
+                command: `directory ${projectPath} list depth:1`,
+                qualifier: "not contains",
+                test: `bin${superSep}spaces`
+            },
+            {
                 command: `directory ${projectPath}js typeof`,
                 qualifier: "is",
                 test: "directory"

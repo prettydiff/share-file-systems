@@ -54,18 +54,28 @@
     ui.fs.expand = function local_ui_fs_expand(event:MouseEvent):void {
         const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             li:HTMLElement = <HTMLElement>button.parentNode;
-        li.removeChild(button);
-        network.fs({
-            agent: "self",
-            callback: function local_ui_fs_expand_callback(files:HTMLElement) {
-                li.appendChild(files);
-            },
-            location: li.firstChild.textContent
-        });
+        if (button.innerHTML.indexOf("+") === 0) {
+            button.innerHTML = "-<span>Collapse this folder</span>";
+            network.fs({
+                agent: "self",
+                depth: 2,
+                callback: function local_ui_fs_expand_callback(files:HTMLElement) {
+                    li.appendChild(files);
+                },
+                location: li.firstChild.nextSibling.textContent
+            });
+        } else {
+            const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
+            button.innerHTML = "+<span>Expand this folder</span>";
+            if (ul.length > 0) {
+                li.removeChild(li.getElementsByTagName("ul")[0]);
+            }
+        }
     };
     ui.fs.open = function local_ui_fs_open():void {
         network.fs({
             agent: "self",
+            depth: 2,
             callback: function local_ui_fs_open_callback(files:HTMLElement) {
                 const value:string = files.getAttribute("title");
                 files.removeAttribute("title");
@@ -77,26 +87,59 @@
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: value,
                     title: "Select a file or directory",
-                    type: "openFS",
+                    type: "fileSystem",
                     width: 800
                 });
             },
             location: "default"
         });
     };
-    ui.fs.text = function local_ui_fs_text(event:MouseEvent):void {
+    ui.fs.parent = function local_ui_fs_parent():boolean {
+        const element:HTMLElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+            input:HTMLInputElement = <HTMLInputElement>element.nextSibling,
+            slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
+                ? "/"
+                : "\\",
+            value:string = input.value;
+        let body:HTMLElement = <HTMLElement>element.parentNode;
+        if (input.value === "\\" || input.value === "/") {
+            return false;
+        }
+        body = <HTMLElement>body.parentNode;
+        body = body.getElementsByTagName("div")[0];
+        if ((/^\w:\\$/).test(value) === true) {
+            input.value = "\\";
+        } else if (value.indexOf(slash) === value.lastIndexOf(slash)) {
+            input.value = value.slice(0, value.lastIndexOf(slash) + 1);
+        } else {
+            input.value = value.slice(0, value.lastIndexOf(slash));
+        }
+        network.fs({
+            agent: "self",
+            depth: 2,
+            callback: function local_ui_fs_parent_callback(files:HTMLElement) {
+                body.innerHTML = "";
+                body.appendChild(files);
+            },
+            location: input.value
+        });
+    };
+    ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
         const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
         let parent:HTMLElement = <HTMLElement>element.parentNode;
         parent = <HTMLElement>parent.parentNode;
         parent = parent.getElementsByTagName("div")[0];
-        network.fs({
-            agent: "self",
-            callback: function local_ui_fs_text_callback(files:HTMLElement) {
-                parent.innerHTML = "";
-                parent.appendChild(files);
-            },
-            location: element.value
-        });
+        if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
+            network.fs({
+                agent: "self",
+                depth: 2,
+                callback: function local_ui_fs_text_callback(files:HTMLElement) {
+                    parent.innerHTML = "";
+                    parent.appendChild(files);
+                },
+                location: element.value
+            });
+        }
     };
     ui.modal.close = function local_ui_modal_close(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
@@ -272,11 +315,19 @@
             }
             if (options.inputs.indexOf("text") > -1) {
                 extra = document.createElement("p");
+                if (options.type === "fileSystem") {
+                    button = document.createElement("button");
+                    button.innerHTML = "▲<span>Parent directory</span>";
+                    button.setAttribute("class", "parentDirectory");
+                    button.onclick = ui.fs.parent;
+                    extra.appendChild(button);
+                }
                 input = document.createElement("input");
                 input.type = "text";
                 input.spellcheck = false;
                 if (options.text_event !== undefined) {
                     input.onblur = options.text_event;
+                    input.onkeyup = options.text_event;
                 }
                 if (options.text_placeholder !== undefined) {
                     input.placeholder = options.text_placeholder;
@@ -399,7 +450,7 @@
                 },
                 bl: function local_ui_modal_resize_sizeBL(f:MouseEvent):void {
                     computedWidth = left + (f.clientX - offX);
-                    if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 30) {
+                    if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 35) {
                         box.style.left = `${computedWidth / 10}em`;
                         body.style.width  = `${((bodyWidth - offsetWidth) + (left - computedWidth)) / 10}em`;
                     }
@@ -411,7 +462,7 @@
                 },
                 br: function local_ui_modal_resize_sizeBR(f:MouseEvent):void {
                     computedWidth = (bodyWidth + ((f.clientX - offsetWidth) - offX)) / 10;
-                    if (computedWidth > 30) {
+                    if (computedWidth > 35) {
                         body.style.width = `${computedWidth}em`;
                     }
                     computedHeight = (bodyHeight + ((f.clientY - offsetHeight) - offY)) / 10;
@@ -422,7 +473,7 @@
                 },
                 l: function local_ui_modal_resize_sizeL(f:MouseEvent):void {
                     computedWidth = left + (f.clientX - offX);
-                    if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 30) {
+                    if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 35) {
                         box.style.left = `${computedWidth / 10}em`;
                         body.style.width  = `${((bodyWidth - offsetWidth) + (left - computedWidth)) / 10}em`;
                     }
@@ -430,7 +481,7 @@
                 },
                 r: function local_ui_modal_resize_sizeR(f:MouseEvent):void {
                     computedWidth = (bodyWidth + ((f.clientX - offsetWidth) - offX)) / 10;
-                    if (computedWidth > 30) {
+                    if (computedWidth > 35) {
                         body.style.width = `${computedWidth}em`;
                     }
                     document.onmouseup = drop;
@@ -450,7 +501,7 @@
                         body.style.height  = `${((bodyHeight - offsetHeight) + (top - computedHeight)) / 10}em`;
                     }
                     computedWidth = left + (f.clientX - offX);
-                    if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 30) {
+                    if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 35) {
                         box.style.left = `${computedWidth / 10}em`;
                         body.style.width  = `${((bodyWidth - offsetWidth) + (left - computedWidth)) / 10}em`;
                     }
@@ -463,7 +514,7 @@
                         body.style.height  = `${((bodyHeight - offsetHeight) + (top - computedHeight)) / 10}em`;
                     }
                     computedWidth = (bodyWidth + ((f.clientX - offsetWidth) - offX)) / 10;
-                    if (computedWidth > 30) {
+                    if (computedWidth > 35) {
                         body.style.width = `${computedWidth}em`;
                     }
                     document.onmouseup = drop;
@@ -479,7 +530,7 @@
         data.zIndex = data.zIndex + 1;
         x.style.zIndex = data.zIndex.toString();
     };
-    network.fs = function local_network_fs(configuration:updateFS): void {
+    network.fs = function local_network_fs(configuration:readFS): void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_fs_callback():void {
@@ -490,6 +541,9 @@
                         length:number = list.length,
                         output:HTMLElement = document.createElement("ul"),
                         buildItem = function local_network_fs_callback_buildItem():void {
+                            const driveLetter = function local_network_fs_callback_driveLetter(drive:string):string {
+                                return drive.replace("\\\\", "\\");
+                            };
                             li = document.createElement("li");
                             if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
                                 li.setAttribute("class", `${local[a][1]} last`);
@@ -501,7 +555,7 @@
                             } else {
                                 li.setAttribute("class", `${li.getAttribute("class")} odd`);
                             }
-                            li.textContent = local[a][0];
+                            li.textContent = local[a][0].replace(/^\w:\\\\/, driveLetter);
                             if (local[a][1] === "file") {
                                 span = document.createElement("span");
                                 if (local[a][4].size === 1) {
@@ -512,11 +566,21 @@
                                 span.textContent = `file - ${ui.commas(local[a][4].size)} byte${plural}`;
                                 li.appendChild(span);
                             } else if (local[a][1] === "directory") {
-                                button = document.createElement("button");
-                                button.setAttribute("class", "expansion");
-                                button.innerHTML = "+<span>Expand this folder</span>";
-                                button.onclick = ui.fs.expand;
-                                li.insertBefore(button, li.firstChild);
+                                if (local[a][3] > 0) {
+                                    button = document.createElement("button");
+                                    button.setAttribute("class", "expansion");
+                                    button.innerHTML = "+<span>Expand this folder</span>";
+                                    button.onclick = ui.fs.expand;
+                                    li.insertBefore(button, li.firstChild);
+                                }
+                                span = document.createElement("span");
+                                if (local[a][3] === 1) {
+                                    plural = "";
+                                } else {
+                                    plural = "s";
+                                }
+                                span.textContent = `directory - ${ui.commas(local[a][3])} item${plural}`;
+                                li.appendChild(span);
                             } else {
                                 span = document.createElement("span");
                                 if (local[a][1] === "link") {
@@ -557,11 +621,17 @@
                         }
                         return 1;
                     });
-                    a = 1;
+                    if (configuration.location === "\\" || configuration.location === "/") {
+                        a = 0;
+                    } else {
+                        a = 1;
+                    }
                     localLength = local.length;
                     do {
-                        buildItem();
-                        output.appendChild(li);
+                        if (local[a][0] !== "\\" && local[a][0] !== "/") {
+                            buildItem();
+                            output.appendChild(li);
+                        }
                         a = a + 1;
                     } while (a < localLength);
                     output.setAttribute("class", "fileList");
@@ -575,7 +645,7 @@
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`{"action":"fs-read","agent":"${configuration.agent}","location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
+        xhr.send(`{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
     };
     ws.addEventListener("message", function dom_load_webSockets(event) {
         if (event.data === "reload") {

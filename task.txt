@@ -1,12 +1,3 @@
-git init
-
-## file list
-1 - evaluate table versus list for file output
-   a - pad child lists (expanded sub directories)
-2 - recursive directory is only one level down if command is server
-3 - populate parent directory
-4 - select files from list
-5 - display selected files by agent
 
 ## gui
 1 - capture gui settings
@@ -14,8 +5,20 @@ git init
 3 - maximize
 4 - minimize
 
+## file list
+1 - evaluate table versus list for file output
+   a - pad child lists (expanded sub directories)
+3 - select files from list
+4 - display selected files by agent
+5 - normalize, such that a file is ignored from selection list if already shared in a directory
+6 - validate directory item count after completing error messaging
+
 ## system log
 1 - toggle message modal
 2 - separate system messages from errors
 3 - write errors as a list where details (stack trace) is available by click expansion
 4 - add date/time [] to each item in list
+
+
+radical construction grammar
+bastard tongues

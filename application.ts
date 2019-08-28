@@ -134,6 +134,10 @@ import { Hash } from "crypto";
                             defined: "Does not traverse child directories."
                         },
                         {
+                            code: `${version.command} directory source:"my/directory/path" depth:9`,
+                            defined: "The depth of child directories to traverse. The default value of 0 ignores any limit."
+                        },
+                        {
                             code: `${version.command} directory source:"my/directory/path" list`,
                             defined: "Returns an array of strings where each index is an absolute path"
                         },
@@ -1094,7 +1098,7 @@ import { Hash } from "crypto";
             // * symbolic - boolean - if symbolic links should be identified
             // -
             // output: []
-            // 0. absolute ath (string)
+            // 0. absolute path (string)
             // 1. type (string)
             // 2. parent index (number)
             // 3. child item count (number)
@@ -1129,6 +1133,16 @@ import { Hash } from "crypto";
                                     apps.log([JSON.stringify(result)]);
                                 }
                             },
+                            depth: (function node_apps_directory_startPath_depth():number {
+                                let b:number = 0;
+                                do {
+                                    if ((/^depth:\d+$/).test(process.argv[b]) === true) {
+                                        return Number(process.argv[b].replace("depth:", ""));
+                                    }
+                                    b = b + 1;
+                                } while (b < process.argv.length);
+                                return 0;
+                            }()),
                             exclusions: exclusions,
                             path: "",
                             recursive: (process.argv.indexOf("shallow") > -1)
@@ -1147,7 +1161,7 @@ import { Hash } from "crypto";
                         if (process.argv.length < 1) {
                             apps.error([
                                 "No path supplied for the directory command. For an example please see:",
-                                `    ${text.cyan + version.name} commands directory${text.none}`
+                                `    ${text.cyan + version.command} commands directory${text.none}`
                             ]);
                             return "";
                         }
@@ -1289,7 +1303,7 @@ import { Hash } from "crypto";
                                 apps.log(["directory"]);
                                 return;
                             }
-                            if ((args.recursive === true || dirTest === false) && exclusions.indexOf(filePath.replace(startPath + sep, "")) < 0) {
+                            if (((args.recursive === true && (args.depth < 1 || filePath.replace(startPath + sep, "").split(sep).length < args.depth)) || dirTest === false) && exclusions.indexOf(filePath.replace(startPath + sep, "")) < 0) {
                                 dirTest = true;
                                 dir(filePath);
                             } else {
@@ -1330,6 +1344,9 @@ import { Hash } from "crypto";
                     });
                 };
             statWrapper(startPath, 0);
+            if (args.depth === undefined) {
+                args.depth = 0;
+            }
         };
         // uniform error formatting
         apps.error = function node_apps_error(errText:string[]):void {
@@ -1664,6 +1681,7 @@ import { Hash } from "crypto";
                         callback: function node_apps_hash_localCallback(list:directoryList) {
                             dirComplete(list);
                         },
+                        depth: 0,
                         exclusions: exclusions,
                         path: filePath,
                         recursive: true,
@@ -1917,6 +1935,7 @@ import { Hash } from "crypto";
                     console.log(`${apps.humanTime(false)}Gathering JavaScript files from directory: ${text.green + lintPath + text.none}`);
                     apps.directory({
                         callback: lintRun,
+                        depth: 0,
                         exclusions: (command === "lint" && process.argv[0] !== undefined)
                             ? exclusions
                             : [],
@@ -2291,6 +2310,7 @@ import { Hash } from "crypto";
             }
             apps.directory({
                 callback: removeItems,
+                depth: 0,
                 exclusions: [],
                 path: filePath,
                 recursive: true,
@@ -2423,12 +2443,77 @@ import { Hash } from "crypto";
                                             response.write(JSON.stringify(result));
                                             response.end();
                                         };
-                                    apps.directory({
-                                        callback: callback,
-                                        path: path,
-                                        recursive: true,
-                                        symbolic: true
-                                    });
+                                    if (path === "\\") {
+                                        node.child("wmic logicaldisk get name", function node_apps_server_create_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                            if (erw !== null) {
+                                                apps.error([erw.toString()]);
+                                            } else if (stderr !== "") {
+                                                apps.error([stderr]);
+                                            }
+                                            const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
+                                                length:number = drives.length,
+                                                date:Date = new Date(),
+                                                driveList = function node_apps_server_create_windowsRoot_driveList(result:directoryList):void {
+                                                    let b:number = 1;
+                                                    const resultLength:number = result.length,
+                                                        masterIndex:number = masterList.length;
+                                                    do {
+                                                        result[b][2] = masterIndex; 
+                                                        b = b + 1;
+                                                    } while (b < resultLength);
+                                                    a = a + 1;
+                                                    masterList = masterList.concat(result);
+                                                    if (a === length) {
+                                                        callback(masterList);
+                                                    }
+                                                };
+                                            let masterList:directoryList = [["\\", "directory", 0, length, {
+                                                    dev: 0,
+                                                    ino: 0,
+                                                    mode: 0,
+                                                    nlink: 0,
+                                                    uid: 0,
+                                                    gid: 0,
+                                                    rdev: 0,
+                                                    size: 0,
+                                                    blksize: 0,
+                                                    blocks: 0,
+                                                    atimeMs: 0,
+                                                    mtimeMs: 0,
+                                                    ctimeMs: 0,
+                                                    birthtimeMs: 0,
+                                                    atime: date,
+                                                    mtime: date,
+                                                    ctime: date,
+                                                    birthtime: date,
+                                                    isBlockDevice: function node_apps_server_create_windowsRoot_isBlockDevice() {},
+                                                    isCharacterDevice: function node_apps_server_create_windowsRoot_isCharacterDevice() {},
+                                                    isDirectory: function node_apps_server_create_windowsRoot_isDirectory() {},
+                                                    isFIFO: function node_apps_server_create_windowsRoot_isFIFO() {},
+                                                    isFile: function node_apps_server_create_windowsRoot_isFile() {},
+                                                    isSocket: function node_apps_server_create_windowsRoot_isSocket() {},
+                                                    isSymbolicLink: function node_apps_server_create_windowsRoot_isSymbolicLink() {}
+                                                }]],
+                                                a:number = 0;
+                                            drives.forEach(function node_apps_server_create_windowsRoot_each(value:string) {
+                                                apps.directory({
+                                                    callback: driveList,
+                                                    depth: 1,
+                                                    path: `${value}\\`,
+                                                    recursive: true,
+                                                    symbolic: true
+                                                });
+                                            });
+                                        });
+                                    } else {
+                                        apps.directory({
+                                            callback: callback,
+                                            depth: data.depth,
+                                            path: path,
+                                            recursive: true,
+                                            symbolic: true
+                                        });
+                                    }
                                 }
                             }
                         });
