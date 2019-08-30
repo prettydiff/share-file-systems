@@ -2347,8 +2347,11 @@ import { Hash } from "crypto";
                             : projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, sep);
                         node.fs.stat(localPath, function node_apps_server_create_stat(ers:nodeError, stat:Stats):void {
                             const random:number = Math.random(),
+                                // navigating a file structure in the browser by direct address, like apache HTTP
                                 page:string = [
+                                    //cspell:disable
                                     `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><title>${version.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="application/xhtml+xml;charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
+                                    //cspell:enable
                                     `<h1>${version.name}</h1><div class="section">insertMe</div></body></html>`
                                 ].join("");
                             if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
@@ -2356,11 +2359,7 @@ import { Hash } from "crypto";
                                     if (ers.code === "ENOENT") {
                                         console.log(`${text.angry}404${text.none} for ${uri}`);
                                         response.writeHead(200, {"Content-Type": "text/html"});
-                                        if (request.headers.referer.indexOf("http") === 0 && request.headers.referer.indexOf("/demo") > 0) {
-                                            response.write("");
-                                        } else {
-                                            response.write(page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`));
-                                        }
+                                        response.write(page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`));
                                         response.end();
                                     } else {
                                         apps.error([ers.toString()]);
@@ -2390,6 +2389,7 @@ import { Hash } from "crypto";
                                 }
                                 if (stat.isFile() === true) {
                                     node.fs.readFile(localPath, "utf8", function node_apps_server_create_readFile(err:Error, data:string):void {
+                                        let tool:boolean = false;
                                         if (err !== undefined && err !== null) {
                                             if (err.toString().indexOf("no such file or directory") > 0) {
                                                 response.writeHead(404, {"Content-Type": "text/plain"});
@@ -2408,13 +2408,45 @@ import { Hash } from "crypto";
                                             response.writeHead(200, {"Content-Type": "text/css"});
                                         } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
                                             response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
+                                            if (localPath === `${projectPath}index.xhtml`) {
+                                                let list:string[] = [],
+                                                    appliedData = function node_apps_server_create_readFile_appliedData():string {
+                                                        const start:string = "<!--storage:-->",
+                                                            startLength:number = data.indexOf(start) + start.length - 3;
+                                                        return `${data.slice(0, startLength)}{${list.join(",")}}${data.slice(startLength)}`;
+                                                    };
+                                                tool = true;
+                                                node.fs.stat(`${projectPath}storage${sep}settings.json`, function node_apps_server_create_readFile_statSettings(erSettings:nodeError, statSettings:Stats):void {
+                                                    if (erSettings !== null) {
+                                                        if (erSettings.code !== "ENOENT") {
+                                                            apps.error([erSettings.toString()]);
+                                                        }
+                                                        response.write(data);
+                                                        response.end();
+                                                    } else {
+                                                        node.fs.readFile(`${projectPath}storage${sep}settings.json`, "utf8", function node_apps_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
+                                                            if (errSettings !== null) {
+                                                                apps.error([errSettings.toString()]);
+                                                                response.write(data);
+                                                                response.end();
+                                                            } else {
+                                                                list.push(`"settings":${settings}`);
+                                                                response.write(appliedData());
+                                                                response.end();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
                                         } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
                                             response.writeHead(200, {"Content-Type": "text/html"});
                                         } else {
                                             response.writeHead(200, {"Content-Type": "text/plain"});
                                         }
-                                        response.write(data);
-                                        response.end();
+                                        if (tool === false) {
+                                            response.write(data);
+                                            response.end();
+                                        }
                                     });
                                 } else {
                                     response.end();
@@ -2432,89 +2464,104 @@ import { Hash } from "crypto";
                         });
 
                         request.on('end', function () {
-                            let data:localService = JSON.parse(body);
-                            if (data.agent === "self") {
-                                if (data.action === "fs-read") {
-                                    const path:string = (data.location === "default")
-                                            ? projectPath
-                                            : data.location,
-                                        callback = function node_apps_server_create_putCallback(result:string[]|directoryList):void {
-                                            response.writeHead(200, {"Content-Type": "application/json"});
-                                            response.write(JSON.stringify(result));
-                                            response.end();
-                                        };
-                                    if (path === "\\") {
-                                        node.child("wmic logicaldisk get name", function node_apps_server_create_windowsRoot(erw:Error, stdout:string, stderr:string):void {
-                                            if (erw !== null) {
-                                                apps.error([erw.toString()]);
-                                            } else if (stderr !== "") {
-                                                apps.error([stderr]);
-                                            }
-                                            const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
-                                                length:number = drives.length,
-                                                date:Date = new Date(),
-                                                driveList = function node_apps_server_create_windowsRoot_driveList(result:directoryList):void {
-                                                    let b:number = 1;
-                                                    const resultLength:number = result.length,
-                                                        masterIndex:number = masterList.length;
-                                                    do {
-                                                        result[b][2] = masterIndex; 
-                                                        b = b + 1;
-                                                    } while (b < resultLength);
-                                                    a = a + 1;
-                                                    masterList = masterList.concat(result);
-                                                    if (a === length) {
-                                                        callback(masterList);
-                                                    }
-                                                };
-                                            let masterList:directoryList = [["\\", "directory", 0, length, {
-                                                    dev: 0,
-                                                    ino: 0,
-                                                    mode: 0,
-                                                    nlink: 0,
-                                                    uid: 0,
-                                                    gid: 0,
-                                                    rdev: 0,
-                                                    size: 0,
-                                                    blksize: 0,
-                                                    blocks: 0,
-                                                    atimeMs: 0,
-                                                    mtimeMs: 0,
-                                                    ctimeMs: 0,
-                                                    birthtimeMs: 0,
-                                                    atime: date,
-                                                    mtime: date,
-                                                    ctime: date,
-                                                    birthtime: date,
-                                                    isBlockDevice: function node_apps_server_create_windowsRoot_isBlockDevice() {},
-                                                    isCharacterDevice: function node_apps_server_create_windowsRoot_isCharacterDevice() {},
-                                                    isDirectory: function node_apps_server_create_windowsRoot_isDirectory() {},
-                                                    isFIFO: function node_apps_server_create_windowsRoot_isFIFO() {},
-                                                    isFile: function node_apps_server_create_windowsRoot_isFile() {},
-                                                    isSocket: function node_apps_server_create_windowsRoot_isSocket() {},
-                                                    isSymbolicLink: function node_apps_server_create_windowsRoot_isSymbolicLink() {}
-                                                }]],
-                                                a:number = 0;
-                                            drives.forEach(function node_apps_server_create_windowsRoot_each(value:string) {
-                                                apps.directory({
-                                                    callback: driveList,
-                                                    depth: 1,
-                                                    path: `${value}\\`,
-                                                    recursive: true,
-                                                    symbolic: true
+                            let task:string = body.slice(0, body.indexOf(":")),
+                                dataString:string = body.slice(body.indexOf(":") + 1);
+                            if (task === "fs") {
+                                const data:localService = JSON.parse(dataString);
+                                if (data.agent === "self") {
+                                    if (data.action === "fs-read") {
+                                        const path:string = (data.location === "default")
+                                                ? projectPath
+                                                : data.location,
+                                            callback = function node_apps_server_create_putCallback(result:string[]|directoryList):void {
+                                                response.writeHead(200, {"Content-Type": "application/json"});
+                                                response.write(JSON.stringify(result));
+                                                response.end();
+                                            };
+                                        if (path === "\\") {
+                                            //cspell:disable
+                                            node.child("wmic logicaldisk get name", function node_apps_server_create_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                            //cspell:enable
+                                                if (erw !== null) {
+                                                    apps.error([erw.toString()]);
+                                                } else if (stderr !== "") {
+                                                    apps.error([stderr]);
+                                                }
+                                                const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
+                                                    length:number = drives.length,
+                                                    date:Date = new Date(),
+                                                    driveList = function node_apps_server_create_windowsRoot_driveList(result:directoryList):void {
+                                                        let b:number = 1;
+                                                        const resultLength:number = result.length,
+                                                            masterIndex:number = masterList.length;
+                                                        do {
+                                                            result[b][2] = masterIndex; 
+                                                            b = b + 1;
+                                                        } while (b < resultLength);
+                                                        a = a + 1;
+                                                        masterList = masterList.concat(result);
+                                                        if (a === length) {
+                                                            callback(masterList);
+                                                        }
+                                                    };
+                                                let masterList:directoryList = [["\\", "directory", 0, length, {
+                                                        dev: 0,
+                                                        ino: 0,
+                                                        mode: 0,
+                                                        nlink: 0,
+                                                        uid: 0,
+                                                        gid: 0,
+                                                        rdev: 0,
+                                                        size: 0,
+                                                        blksize: 0,
+                                                        blocks: 0,
+                                                        atimeMs: 0,
+                                                        mtimeMs: 0,
+                                                        ctimeMs: 0,
+                                                        birthtimeMs: 0,
+                                                        atime: date,
+                                                        mtime: date,
+                                                        ctime: date,
+                                                        birthtime: date,
+                                                        isBlockDevice: function node_apps_server_create_windowsRoot_isBlockDevice() {},
+                                                        isCharacterDevice: function node_apps_server_create_windowsRoot_isCharacterDevice() {},
+                                                        isDirectory: function node_apps_server_create_windowsRoot_isDirectory() {},
+                                                        isFIFO: function node_apps_server_create_windowsRoot_isFIFO() {},
+                                                        isFile: function node_apps_server_create_windowsRoot_isFile() {},
+                                                        isSocket: function node_apps_server_create_windowsRoot_isSocket() {},
+                                                        isSymbolicLink: function node_apps_server_create_windowsRoot_isSymbolicLink() {}
+                                                    }]],
+                                                    a:number = 0;
+                                                drives.forEach(function node_apps_server_create_windowsRoot_each(value:string) {
+                                                    apps.directory({
+                                                        callback: driveList,
+                                                        depth: 1,
+                                                        path: `${value}\\`,
+                                                        recursive: true,
+                                                        symbolic: true
+                                                    });
                                                 });
                                             });
-                                        });
-                                    } else {
-                                        apps.directory({
-                                            callback: callback,
-                                            depth: data.depth,
-                                            path: path,
-                                            recursive: true,
-                                            symbolic: true
-                                        });
+                                        } else {
+                                            apps.directory({
+                                                callback: callback,
+                                                depth: data.depth,
+                                                path: path,
+                                                recursive: true,
+                                                symbolic: true
+                                            });
+                                        }
                                     }
                                 }
+                            } else if (task === "settings") {
+                                node.fs.writeFile(`${projectPath}storage${sep}settings.json`, dataString, "utf8", function node_apps_server_create_writeSettings(erSettings:Error):void {
+                                    if (erSettings !== null) {
+                                        apps.error([erSettings.toString()]);
+                                    }
+                                    response.writeHead(200, {"Content-Type": "text/plain"});
+                                    response.write("Settings written.");
+                                    response.end();
+                                });
                             }
                         });
                     }
@@ -2736,7 +2783,9 @@ import { Hash } from "crypto";
                             flag.write = tests[a].artifact;
                         }
                         if (errs !== null) {
+                            //cspell:disable
                             if (errs.toString().indexOf("getaddrinfo ENOTFOUND") > -1) {
+                            //cspell:enable
                                 increment("no internet connection");
                                 return;
                             }

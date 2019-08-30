@@ -62,6 +62,7 @@
                 callback: function local_ui_fs_expand_callback(files:HTMLElement) {
                     li.appendChild(files);
                 },
+                id: "",
                 location: li.firstChild.nextSibling.textContent
             });
         } else {
@@ -91,6 +92,7 @@
                     width: 800
                 });
             },
+            id: "",
             location: "default"
         });
     };
@@ -101,11 +103,15 @@
                 ? "/"
                 : "\\",
             value:string = input.value;
-        let body:HTMLElement = <HTMLElement>element.parentNode;
+        let body:HTMLElement = <HTMLElement>element.parentNode,
+            box:HTMLElement,
+            id:string = "";
         if (input.value === "\\" || input.value === "/") {
             return false;
         }
         body = <HTMLElement>body.parentNode;
+        box = <HTMLElement>body.parentNode;
+        id = box.getAttribute("id");
         body = body.getElementsByTagName("div")[0];
         if ((/^\w:\\$/).test(value) === true) {
             input.value = "\\";
@@ -120,14 +126,21 @@
             callback: function local_ui_fs_parent_callback(files:HTMLElement) {
                 body.innerHTML = "";
                 body.appendChild(files);
+                data.modals[id].text_value = input.value;
+                network.settings();
             },
+            id: "",
             location: input.value
         });
     };
     ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
         const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
-        let parent:HTMLElement = <HTMLElement>element.parentNode;
+        let parent:HTMLElement = <HTMLElement>element.parentNode,
+            box:HTMLElement,
+            id:string;
         parent = <HTMLElement>parent.parentNode;
+        box = <HTMLElement>parent.parentNode;
+        id = box.getAttribute("id");
         parent = parent.getElementsByTagName("div")[0];
         if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
             network.fs({
@@ -136,7 +149,10 @@
                 callback: function local_ui_fs_text_callback(files:HTMLElement) {
                     parent.innerHTML = "";
                     parent.appendChild(files);
+                    data.modals[id].text_value = element.value;
+                    network.settings();
                 },
+                id: "",
                 location: element.value
             });
         }
@@ -144,13 +160,18 @@
     ui.modal.close = function local_ui_modal_close(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         let parent:HTMLElement = <HTMLElement>element.parentNode,
-            id:string;
+            id:string,
+            type:string;
         do {
             parent = <HTMLElement>parent.parentNode;
         } while (parent.getAttribute("class") !== "box");
+        parent.onclick = null;
         parent.parentNode.removeChild(parent);
-        id = parent.getAttribute("id").split("-")[0];
-        data.modalTypes.splice(data.modalTypes.indexOf(id), 1);
+        id = parent.getAttribute("id");
+        type = id.split("-")[0];
+        data.modalTypes.splice(data.modalTypes.indexOf(type), 1);
+        delete data.modals[id];
+        network.settings();
     };
     // drag and drop, or if minimized then resize
     ui.modal.move = function local_ui_modal_move(event:Event):boolean {
@@ -202,6 +223,7 @@
                 box.style.height   = "auto";
                 settings.top = boxTop;
                 settings.left = boxLeft;
+                network.settings();
                 e.preventDefault();
                 return false;
             },
@@ -233,7 +255,6 @@
             //minButton.click();
             return false;
         }
-        ui.zTop(box);
         event.preventDefault();
         border.style.opacity = ".5";
         //heading.style.top  = `${box.clientHeight / 20}0em`;
@@ -253,7 +274,8 @@
             h2:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement;
-        const box:HTMLElement = document.createElement("div"),
+        const id:string = `${options.type}-${data.zIndex + 1}`,
+            box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
             border:HTMLElement = document.createElement("div"),
             left:number = (options.left || 200),
@@ -274,8 +296,12 @@
         button.onblur  = function local_ui_modal_create_blur():void {
             button.onclick = null;
         };
-        box.setAttribute("id", `${options.type}-${data.zIndex}`);
-        data.modals[`${options.type}-${data.zIndex}`] = options;
+        box.setAttribute("id", id);
+        box.onclick = ui.zTop;
+        data.zIndex = data.zIndex + 1;
+        options.zIndex = data.zIndex;
+        data.modals[id] = options;
+        box.style.zIndex = data.zIndex.toString();
         box.setAttribute("class", "box");
         border.setAttribute("class", "border");
         body.setAttribute("class", "body");
@@ -316,6 +342,7 @@
             if (options.inputs.indexOf("text") > -1) {
                 extra = document.createElement("p");
                 if (options.type === "fileSystem") {
+                    extra.style.paddingLeft = "5em";
                     button = document.createElement("button");
                     button.innerHTML = "▲<span>Parent directory</span>";
                     button.setAttribute("class", "parentDirectory");
@@ -408,7 +435,7 @@
         }
         box.appendChild(border);
         content.appendChild(box);
-        // update settings
+        network.settings();
     };
     ui.modal.resize = function local_ui_modal_resize(e:MouseEvent):void {
         let bodyWidth:number  = 0,
@@ -439,6 +466,7 @@
                 bodyHeight           = body.clientHeight;
                 settings.width = bodyWidth;
                 settings.height = bodyHeight;
+                network.settings();
             },
             side:any    = {
                 b: function local_ui_modal_resize_sizeB(f:MouseEvent):void {
@@ -520,17 +548,25 @@
                     document.onmouseup = drop;
                 }
             };
-        bodyWidth  = body.clientWidth,
-        bodyHeight = body.clientHeight
-        ui.zTop(box);
+        bodyWidth  = body.clientWidth;
+        bodyHeight = body.clientHeight;
         document.onmousemove = side[direction];
         document.onmousedown = null;
     };
-    ui.zTop     = function local_ui_zTop(x:HTMLElement):void {
+    ui.zTop     = function local_ui_zTop(event:MouseEvent):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+        let box:HTMLElement = element;
+        if (element.getAttribute("class") !== "box") {
+            do {
+                box = <HTMLElement>box.parentNode;
+            } while (box.getAttribute("class") !== "box" && box !== document.documentElement);
+        }
         data.zIndex = data.zIndex + 1;
-        x.style.zIndex = data.zIndex.toString();
+        data.modals[box.getAttribute("id")].zIndex = data.zIndex;
+        box.style.zIndex = data.zIndex.toString();
     };
-    network.fs = function local_network_fs(configuration:readFS): void {
+    network.error = function local_network_error():void {};
+    network.fs = function local_network_fs(configuration:readFS):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_fs_callback():void {
@@ -636,23 +672,199 @@
                     } while (a < localLength);
                     output.setAttribute("class", "fileList");
                     output.title = local[0][0];
-                    configuration.callback(output);
+                    configuration.callback(output, configuration.id);
                 } else {
-                    //error message
+                    network.error("something");
                 }
             }
         };
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
+        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
     };
-    ws.addEventListener("message", function dom_load_webSockets(event) {
+    network.settings = function local_network_settings():void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.onreadystatechange = function local_network_settings_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    
+                } else {
+                    network.error("something");
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`settings:${JSON.stringify(data)}`);
+    };
+    ws.addEventListener("message", function local_webSockets(event) {
         if (event.data === "reload") {
             location.reload();
         }
     });
     ui.fixHeight();
     window.onresize = ui.fixHeight;
+    (function local_nodes():void {
+        const getNodesByType = function local_nodes_getNodesByType(typeValue:string|number):Node[] {
+                "use strict";
+                let types:number     = 0;
+                const valueTest:string = (typeof typeValue === "string") ? typeValue.toUpperCase() : "",
+                    root:HTMLElement = (this === document)
+                        ? document.documentElement
+                        : this;
+    
+                // Normalize string input for case insensitivity.
+                if (typeof typeValue === "string") {
+                    typeValue = typeValue.toLowerCase();
+                }
+    
+                // If input is a string and supported standard value
+                // associate to the standard numeric type
+                if (typeValue === "all") {
+                    types = 0;
+                } else if (typeValue === "element_node") {
+                    types = 1;
+                } else if (typeValue === "attribute_node") {
+                    types = 2;
+                } else if (typeValue === "text_node") {
+                    types = 3;
+                } else if (typeValue === "cdata_section_node") {
+                    types = 4;
+                } else if (typeValue === "entity_reference_node") {
+                    types = 5;
+                } else if (typeValue === "entity_node") {
+                    types = 6;
+                } else if (typeValue === "processing_instruction_node") {
+                    types = 7;
+                } else if (typeValue === "comment_node") {
+                    types = 8;
+                } else if (typeValue === "document_node") {
+                    types = 9;
+                } else if (typeValue === "document_type_node") {
+                    types = 10;
+                } else if (typeValue === "document_fragment_node") {
+                    types = 11;
+                } else if (typeValue === "notation_node") {
+                    types = 12;
+                }
+    
+                // If input is type string but the value is a supported number
+                if (isNaN(Number(valueTest)) === false && (valueTest.length === 1 || valueTest === "10" || valueTest === "11" || valueTest === "12")) {
+                    types = Number(valueTest);
+                }
+    
+                // If input is a supported number
+                if (valueTest === "" && (typeValue === 0 || typeValue === 1 || typeValue === 2 || typeValue === 3 || typeValue === 4 || typeValue === 5 || typeValue === 6 || typeValue === 7 || typeValue === 8 || typeValue === 9 || typeValue === 10 || typeValue === 11 || typeValue === 12)) {
+                    types = typeValue;
+                }
+    
+                // A handy dandy function to trap all the DOM walking
+                return (function local_nodes_getNodesByType_walking():Node[] {
+                    var output:Node[] = [],
+                        child  = function local_nodes_getNodesByType_walking_child(x:HTMLElement):void {
+                            const children:NodeListOf<ChildNode> = x.childNodes;
+                            let a:NamedNodeMap    = x.attributes,
+                                b:number    = a.length,
+                                c:number    = 0;
+                            // Special functionality for attribute types.
+                            if (b > 0 && (types === 2 || types === 0)) {
+                                do {
+                                    output.push(a[c]);
+                                    c = c + 1;
+                                } while (c < b);
+                            }
+                            b = children.length;
+                            c = 0;
+                            if (b > 0) {
+                                do {
+                                    if (children[c].nodeType === types || types === 0) {
+                                        output.push(<HTMLElement>children[c]);
+                                    }
+                                    if (children[c].nodeType === 1) {
+                                        //recursion magic
+                                        local_nodes_getNodesByType_walking_child(<HTMLElement>children[c]);
+                                    }
+                                    c = c + 1;
+                                } while (c < b);
+                            }
+                        };
+                    child(root);
+                    return output;
+                }());
+            },
+            getElementsByAttribute = function local_nodes_getElementsByAttribute(name:string, value:string):Element[] {
+                const attrs:Attr[] = this.getNodesByType(2),
+                    out:Element[]   = [];
+                if (typeof name !== "string") {
+                    name = "";
+                }
+                if (typeof value !== "string") {
+                    value = "";
+                }
+                attrs.forEach(function local_nodes_getElementsByAttribute_loop(item) {
+                    if (item.name === name || name === "") {
+                        if (item.value === value || value === "") {
+                            out.push(item.ownerElement);
+                        }
+                    }
+                });
+                return out;
+            };
+    
+        // Create a document method
+        document.getNodesByType         = getNodesByType;
+        document.getElementsByAttribute = getElementsByAttribute;
+    
+        (function local_nodes_addToExistingElements() {
+            var el = document.getNodesByType(1);
+            el.forEach(function local_nodes_addToExistingElements_loop(item) {
+                item.getNodesByType         = getNodesByType;
+                item.getElementsByAttribute = getElementsByAttribute;
+            });
+        }());
+        // Add this code as a method onto each DOM element
+    
+        // Ensure dynamically created elements get this method too
+        Element.prototype.getNodesByType         = getNodesByType;
+        Element.prototype.getElementsByAttribute = getElementsByAttribute;
+    
+    }());
+    (function local_restore():void {
+        const comments:Comment[] = document.getNodesByType(8),
+            commentLength:number = comments.length;
+        let a:number = 0,
+            cString:string = "";
+        do {
+            cString = comments[a].substringData(0, comments[a].length);
+            if (cString.indexOf("storage:") === 0) {
+                const storage:any = JSON.parse(cString.replace("storage:", "")),
+                    modalKeys:string[] = Object.keys(storage.settings.modals);
+                //data.modalTypes = storage.settings.modalTypes;
+                data.zIndex = storage.settings.zIndex;
+                modalKeys.forEach(function local_restore_modalKeys(value:string) {
+                    network.fs({
+                        agent: "self",
+                        depth: 2,
+                        callback: function local_ui_fs_open_callback(files:HTMLElement, id:string) {
+                            const textValue:string = files.getAttribute("title");
+                            files.removeAttribute("title");
+                            storage.settings.modals[id].content = files;
+                            storage.settings.modals[id].text_value = textValue;
+                            if (storage.settings.modals[id].type === "fileSystem") {
+                                storage.settings.modals[id].text_event = ui.fs.text;
+                            }
+                            ui.modal.create(storage.settings.modals[id]);
+                        },
+                        id: value,
+                        location: storage.settings.modals[value].text_value
+                    });
+                });
+            }
+            a = a + 1;
+        } while (a < commentLength);
+    }());
     document.getElementById("open-fs").onclick = ui.fs.open;
 }());

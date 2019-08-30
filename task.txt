@@ -1,9 +1,7 @@
 
 ## gui
-1 - capture gui settings
-2 - write settings into file (test with refresh, then cross browser, then cross computer)
-3 - maximize
-4 - minimize
+4 - maximize
+5 - minimize
 
 ## file list
 1 - evaluate table versus list for file output
@@ -11,13 +9,47 @@
 3 - select files from list
 4 - display selected files by agent
 5 - normalize, such that a file is ignored from selection list if already shared in a directory
-6 - validate directory item count after completing error messaging
+6 - allow file selections to be read only by default
+7 - validate directory item count after completing error messaging
 
 ## system log
 1 - toggle message modal
 2 - separate system messages from errors
 3 - write errors as a list where details (stack trace) is available by click expansion
 4 - add date/time [] to each item in list
+
+
+## ui tests
+### modal
+* can drag and drop from button in h2
+* top left corner allows box resize only up and to the left of the box and does not move the bottom or right sides of box
+* top right corner allows box resize only up and to the right of the box and does not move the bottom or left sides of box
+* bottom left corner allows box resize only down and to the left of the box and does not move the top or right sides of box
+* bottom right corner allows box resize only down and to the right of the box and does not move the top or left sides of box
+* top side allows box resize only up and does not move the bottom, left, or right sides
+* right side allows box resize only right and does not move the bottom, left, or top sides
+* bottom side allows box resize only down and does not move the top, left, or right sides
+* left side allows box resize only left and does not move the bottom, top, or right sides
+* any form of resize does not jump the box away from the mouse cursor
+* cancel button removes parent box from dom
+* close button removes parent box from dom
+* minimize button minimizes box if not minimized
+* clicking on minimize box restores box to prior size and location
+* maximize button will maximize box to content area if not maximized
+* maximize button will restore box to prior size and location if maximized
+* parent directory button changes directory text to parent directory and changes directory output to corresponding output for the new directory text
+* changing directory text changes directory output after loosing focus
+* changing directory text changes directory output after pressing enter key
+* file system modal contains buttons: text, close, cancel, confirm, maximize (not minimize)
+* clicking the file system expansion button when "+" changes the button to "-" and shows child elements
+* clicking the file system expansion button when "-" changes the button to "+" and removes child "ul" element from dom
+* there can be only 1 file system modal at a time
+
+### settings restore (refresh browser and try different browser)
+* modals in same places
+* modals same size
+* modals contain same functionality
+* modals repopulate same content (depending on modal)
 
 
 radical construction grammar

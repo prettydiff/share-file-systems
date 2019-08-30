@@ -22,6 +22,15 @@ interface commandList {
 interface directoryList extends Array<directoryItem> {
     [key:number]: directoryItem;
 }
+interface children<T> extends Array<T> {}
+interface Document {
+    getNodesByType: Function;
+    getElementsByAttribute: Function;
+}
+interface Element {
+    getNodesByType: Function;
+    getElementsByAttribute: Function;
+}
 interface flags {
     error: boolean;
     write: string;
@@ -71,6 +80,7 @@ interface readFS{
     agent: string;
     callback: Function;
     depth: number;
+    id?: string;
     location: string;
 }
 interface serverError {
@@ -127,6 +137,7 @@ interface ui_modal {
     top?: number;
     type: string;
     width?: number;
+    zIndex?: number;
 }
 interface ui_data {
     modals: {
