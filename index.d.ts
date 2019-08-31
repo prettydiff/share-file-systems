@@ -124,6 +124,7 @@ interface Stats {
 interface ui_modal {
     content: HTMLElement;
     height?: number;
+    id?: string;
     inputs?: ui_input[];
     left?: number;
     move?: boolean;

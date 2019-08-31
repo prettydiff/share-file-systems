@@ -1,7 +1,6 @@
 
 ## gui
-4 - maximize
-5 - minimize
+1 - periodic corruption of settings.json.  Fix this first!!!
 
 ## file list
 1 - evaluate table versus list for file output

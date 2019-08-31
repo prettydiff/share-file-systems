@@ -49,7 +49,7 @@
     };
     ui.fixHeight = function local_ui_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
-        content.style.height = `${(height / 10) - 10}em`;
+        content.style.height = `${(height - 51) / 10}em`;
     };
     ui.fs.expand = function local_ui_fs_expand(event:MouseEvent):void {
         const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -83,7 +83,7 @@
                 ui.modal.create({
                     content: files,
                     inputs: ["cancel", "close", "confirm", "maximize", "minimize", "text"],
-                    single: true,
+                    //single: true,
                     text_event: ui.fs.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: value,
@@ -173,121 +173,40 @@
         delete data.modals[id];
         network.settings();
     };
-    // drag and drop, or if minimized then resize
-    ui.modal.move = function local_ui_modal_move(event:Event):boolean {
-        const x:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            heading:HTMLElement = <HTMLElement>x.parentNode,
-            box:HTMLElement        = <HTMLElement>heading.parentNode.parentNode,
-            settings:ui_modal = data.modals[box.getAttribute("id")],
-            border:HTMLElement = box.getElementsByTagName("div")[0],
-            body:HTMLElement = border.getElementsByTagName("div")[0],
-            minifyTest:boolean = (border.style.display === "none"),
-            touch:boolean      = (event !== null && event.type === "touchstart"),
-            mouseEvent = <MouseEvent>event,
-            touchEvent = <TouchEvent>event,
-            mouseX = (touch === true)
-                ? 0
-                : mouseEvent.clientX,
-            mouseY = (touch === true)
-                ? 0
-                : mouseEvent.clientY,
-            touchX = (touch === true)
-                ? touchEvent.touches[0].clientX
-                : 0,
-            touchY = (touch === true)
-                ? touchEvent.touches[0].clientY
-                : 0,
-            filled:boolean     = (body.innerHTML.length > 50000),    
-            drop       = function local_ui_modal_move_drop(e:Event):boolean {
-                const headingWidth:number = box.getElementsByTagName("h2")[0].clientWidth;
-                boxLeft = box.offsetLeft;
-                boxTop  = box.offsetTop;
-                if (touch === true) {
-                    document.ontouchmove = null;
-                    document.ontouchend  = null;
-                } else {
-                    document.onmousemove = null;
-                    document.onmouseup   = null;
-                }
-                if (boxTop < 10) {
-                    boxTop = 10;
-                } else if (boxTop > (max - 40)) {
-                    boxTop = max - 40;
-                }
-                if (boxLeft < ((headingWidth * -1) + 40)) {
-                    boxLeft = (headingWidth * -1) + 40;
-                }
-                box.style.top = `${boxTop / 10}em`;
-                box.style.left = `${boxLeft / 10}em`;
-                border.style.opacity = "1";
-                box.style.height   = "auto";
-                settings.top = boxTop;
-                settings.left = boxLeft;
-                network.settings();
-                e.preventDefault();
-                return false;
-            },
-            boxMoveTouch    = function local_ui_modal_move_touch(f:TouchEvent):boolean {
-                f.preventDefault();
-                box.style.right = "auto";
-                box.style.left      = `${(boxLeft + (f.touches[0].clientX - touchX)) / 10}em`;
-                box.style.top       = `${(boxTop + (f.touches[0].clientY - touchY)) / 10}em`;
-                document.ontouchend = drop;
-                return false;
-            },
-            boxMoveClick = function local_ui_modal_move_click(f:MouseEvent):boolean {
-                f.preventDefault();
-                box.style.right = "auto";
-                box.style.left     = `${(boxLeft + (f.clientX - mouseX)) / 10}em`;
-                box.style.top      = `${(boxTop + (f.clientY - mouseY)) / 10}em`;
-                document.onmouseup = drop;
-                return false;
-            };
-        let boxLeft:number    = box.offsetLeft,
-            boxTop:number     = box.offsetTop,
-            max:number        = content.clientHeight;
-        if (minifyTest === true) {
-            if (filled === true) {
-                box.style.right = "auto";
-            } else {
-                box.style.left = "auto";
-            }
-            //minButton.click();
-            return false;
-        }
-        event.preventDefault();
-        border.style.opacity = ".5";
-        //heading.style.top  = `${box.clientHeight / 20}0em`;
-        box.style.height   = ".1em";
-        if (touch === true) {
-            document.ontouchmove  = boxMoveTouch;
-            document.ontouchstart = null;
-        } else {
-            document.onmousemove = boxMoveClick;
-            document.onmousedown = null;
-        }
-        // update settings
-        return false;
-    };
     ui.modal.create = function local_ui_modal_create(options:ui_modal):void {
         let button:HTMLElement = document.createElement("button"),
             h2:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement;
-        const id:string = `${options.type}-${data.zIndex + 1}`,
+        const id:string = (options.id || `${options.type}-${data.zIndex + 1}`),
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
-            border:HTMLElement = document.createElement("div"),
-            left:number = (options.left || 200),
-            top:number = (options.top || 200),
-            width:number = (options.width || 400),
-            height:number = (options.height || 400);
+            border:HTMLElement = document.createElement("div");
+        data.zIndex = data.zIndex + 1;
+        if (options.zIndex === undefined) {
+            options.zIndex = data.zIndex;
+        }
         if (data.modalTypes.indexOf(options.type) > -1) {
             if (options.single === true) {
                 return;
             }
         } else {
             data.modalTypes.push(options.type);
+        }
+        if (options.left === undefined) {
+            options.left = 200;
+        }
+        if (options.top === undefined) {
+            options.top = 200;
+        }
+        if (options.width === undefined) {
+            options.width = 400;
+        }
+        if (options.height === undefined) {
+            options.height = 400;
+        }
+        if (options.status === undefined) {
+            options.status = "normal";
         }
         button.innerHTML = options.title;
         button.onmousedown = ui.modal.move;
@@ -297,18 +216,16 @@
             button.onclick = null;
         };
         box.setAttribute("id", id);
-        box.onclick = ui.zTop;
-        data.zIndex = data.zIndex + 1;
-        options.zIndex = data.zIndex;
+        box.onmousedown = ui.zTop;
         data.modals[id] = options;
         box.style.zIndex = data.zIndex.toString();
         box.setAttribute("class", "box");
         border.setAttribute("class", "border");
         body.setAttribute("class", "body");
-        body.style.height = `${height / 10}em`;
-        body.style.width = `${width / 10}em`;
-        box.style.left = `${left / 10}em`;
-        box.style.top = `${top / 10}em`;
+        body.style.height = `${options.height / 10}em`;
+        body.style.width = `${options.width / 10}em`;
+        box.style.left = `${options.left / 10}em`;
+        box.style.top = `${options.top / 10}em`;
         h2.appendChild(button);
         h2.setAttribute("class", "heading");
         border.appendChild(h2);
@@ -320,14 +237,14 @@
                     button = document.createElement("button");
                     button.innerHTML = "🗕 <span>Minimize</span>";
                     button.setAttribute("class", "minimize");
-                    button.onclick = ui.minimize;
+                    button.onclick = ui.modal.minimize;
                     h2.appendChild(button);
                 }
                 if (options.inputs.indexOf("maximize") > -1) {
                     button = document.createElement("button");
                     button.innerHTML = "🗖 <span>Maximize</span>";
                     button.setAttribute("class", "maximize");
-                    button.onclick = ui.maximize;
+                    button.onclick = ui.modal.maximize;
                     h2.appendChild(button);
                 }
                 if (options.inputs.indexOf("close") > -1) {
@@ -392,25 +309,25 @@
             button = document.createElement("button");
             button.innerHTML = "resize box height";
             button.setAttribute("class", "side-t");
-            button.style.width = `${(width / 10) + 1}em`;
+            button.style.width = `${(options.width / 10) + 1}em`;
             button.onmousedown = ui.modal.resize;
             border.appendChild(button);
             button = document.createElement("button");
             button.innerHTML = "resize box width";
             button.setAttribute("class", "side-r");
-            button.style.height = `${(height / 10) + 3}em`;
+            button.style.height = `${(options.height / 10) + 3}em`;
             button.onmousedown = ui.modal.resize;
             border.appendChild(button);
             button = document.createElement("button");
             button.innerHTML = "resize box height";
             button.setAttribute("class", "side-b");
-            button.style.width = `${(width / 10) + 1}em`;
+            button.style.width = `${(options.width / 10) + 1}em`;
             button.onmousedown = ui.modal.resize;
             border.appendChild(button);
             button = document.createElement("button");
             button.innerHTML = "resize box width";
             button.setAttribute("class", "side-l");
-            button.style.height = `${(height / 10) + 3}em`;
+            button.style.height = `${(options.height / 10) + 3}em`;
             button.onmousedown = ui.modal.resize;
             border.appendChild(button);
         }
@@ -436,6 +353,193 @@
         box.appendChild(border);
         content.appendChild(box);
         network.settings();
+    };
+    ui.modal.maximize = function local_ui_modal_maximize(event:Event):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            contentArea:HTMLElement = document.getElementById("content-area");
+        let box:HTMLElement = element,
+            body:HTMLElement,
+            title:HTMLElement,
+            id:string;
+        do {
+            box = <HTMLElement>box.parentNode;
+        } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+        if (box === document.documentElement) {
+            return;
+        }
+        id = box.getAttribute("id");
+        body = box.getElementsByTagName("div")[1];
+        title = <HTMLElement>box.getElementsByTagName("h2")[0];
+        if (title !== undefined) {
+            title = title.getElementsByTagName("button")[0];
+        }
+        if (data.modals[id].status === "normal") {
+            data.modals[id].status = "maximized";
+            title.style.cursor = "default";
+            title.onmousedown = null;
+            box.style.top = "0em";
+            box.style.left = "0em";
+            body.style.width = `${(contentArea.clientWidth - 40) / 10}em`;
+            body.style.height = (function local_ui_modal_maximize_maxHeight():string {
+                let height:number = contentArea.clientHeight,
+                    footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+                    header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0];
+                height = (height - title.clientHeight) - 47;
+                if (footer !== undefined) {
+                    height = height - footer.clientHeight;
+                }
+                if (header !== undefined) {
+                    height = height - header.clientHeight;
+                }
+                return `${height / 10}em`;
+            }());
+        } else {
+            title.style.cursor = "move";
+            title.onmousedown = ui.modal.move;
+            data.modals[id].status = "normal";
+            box.style.top = `${data.modals[id].top / 10}em`;
+            box.style.left = `${data.modals[id].left / 10}em`;
+            body.style.width = `${data.modals[id].width / 10}em`;
+            body.style.height = `${data.modals[id].height / 10}em`;
+        }
+        network.settings();
+    };
+    ui.modal.minimize = function local_ui_modal_minimize(event:Event):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+        let border:HTMLElement = element,
+            box:HTMLElement,
+            title:HTMLElement,
+            id:string,
+            children:NodeListOf<ChildNode>,
+            child:HTMLElement,
+            a:number = 1;
+        do {
+            border = <HTMLElement>border.parentNode;
+        } while (border !== document.documentElement && border.getAttribute("class") !== "border");
+        if (border === document.documentElement) {
+            return;
+        }
+        box = <HTMLElement>border.parentNode;
+        id = box.getAttribute("id");
+        title = <HTMLElement>border.getElementsByTagName("h2")[0];
+        children = border.childNodes;
+        if (data.modals[id].status === "normal") {
+            const li:HTMLLIElement = document.createElement("li");
+            do {
+                child = <HTMLElement>children[a];
+                child.style.display = "none";
+                a = a + 1;
+            } while (a < children.length);
+            box.style.zIndex = "0";
+            box.parentNode.removeChild(box);
+            title.getElementsByTagName("button")[0].style.cursor = "pointer";
+            li.appendChild(box);
+            document.getElementById("tray").appendChild(li);
+            data.modals[id].status = "minimized";
+        } else {
+            const li:HTMLElement = <HTMLElement>box.parentNode;
+            do {
+                child = <HTMLElement>children[a];
+                child.style.display = "block";
+                a = a + 1;
+            } while (a < children.length);
+            document.getElementById("tray").removeChild(li);
+            li.removeChild(box);
+            box.style.zIndex = data.modals[id].zIndex.toString();
+            title.getElementsByTagName("button")[0].style.cursor = "move";
+            content.appendChild(box);
+            data.modals[id].status = "normal";
+        }
+    };
+    // drag and drop, or if minimized then resize
+    ui.modal.move = function local_ui_modal_move(event:Event):boolean {
+        const x:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            heading:HTMLElement = <HTMLElement>x.parentNode,
+            box:HTMLElement        = <HTMLElement>heading.parentNode.parentNode,
+            settings:ui_modal = data.modals[box.getAttribute("id")],
+            border:HTMLElement = box.getElementsByTagName("div")[0],
+            minifyTest:boolean = (box.parentNode.nodeName === "li"),
+            touch:boolean      = (event !== null && event.type === "touchstart"),
+            mouseEvent = <MouseEvent>event,
+            touchEvent = <TouchEvent>event,
+            mouseX = (touch === true)
+                ? 0
+                : mouseEvent.clientX,
+            mouseY = (touch === true)
+                ? 0
+                : mouseEvent.clientY,
+            touchX = (touch === true)
+                ? touchEvent.touches[0].clientX
+                : 0,
+            touchY = (touch === true)
+                ? touchEvent.touches[0].clientY
+                : 0,   
+            drop       = function local_ui_modal_move_drop(e:Event):boolean {
+                const headingWidth:number = box.getElementsByTagName("h2")[0].clientWidth;
+                boxLeft = box.offsetLeft;
+                boxTop  = box.offsetTop;
+                if (touch === true) {
+                    document.ontouchmove = null;
+                    document.ontouchend  = null;
+                } else {
+                    document.onmousemove = null;
+                    document.onmouseup   = null;
+                }
+                if (boxTop < 10) {
+                    boxTop = 10;
+                } else if (boxTop > (max - 40)) {
+                    boxTop = max - 40;
+                }
+                if (boxLeft < ((headingWidth * -1) + 40)) {
+                    boxLeft = (headingWidth * -1) + 40;
+                }
+                box.style.top = `${boxTop / 10}em`;
+                box.style.left = `${boxLeft / 10}em`;
+                border.style.opacity = "1";
+                box.style.height   = "auto";
+                settings.top = boxTop;
+                settings.left = boxLeft;
+                network.settings();
+                e.preventDefault();
+                return false;
+            },
+            boxMoveTouch    = function local_ui_modal_move_touch(f:TouchEvent):boolean {
+                f.preventDefault();
+                box.style.right = "auto";
+                box.style.left      = `${(boxLeft + (f.touches[0].clientX - touchX)) / 10}em`;
+                box.style.top       = `${(boxTop + (f.touches[0].clientY - touchY)) / 10}em`;
+                document.ontouchend = drop;
+                return false;
+            },
+            boxMoveClick = function local_ui_modal_move_click(f:MouseEvent):boolean {
+                f.preventDefault();
+                box.style.right = "auto";
+                box.style.left     = `${(boxLeft + (f.clientX - mouseX)) / 10}em`;
+                box.style.top      = `${(boxTop + (f.clientY - mouseY)) / 10}em`;
+                document.onmouseup = drop;
+                return false;
+            };
+        let boxLeft:number    = box.offsetLeft,
+            boxTop:number     = box.offsetTop,
+            max:number        = content.clientHeight;
+        if (minifyTest === true) {
+            const button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+            button.click();
+            return false;
+        }
+        event.preventDefault();
+        border.style.opacity = ".5";
+        //heading.style.top  = `${box.clientHeight / 20}0em`;
+        box.style.height   = ".1em";
+        if (touch === true) {
+            document.ontouchmove  = boxMoveTouch;
+            document.ontouchstart = null;
+        } else {
+            document.onmousemove = boxMoveClick;
+            document.onmousedown = null;
+        }
+        // update settings
+        return false;
     };
     ui.modal.resize = function local_ui_modal_resize(e:MouseEvent):void {
         let bodyWidth:number  = 0,
@@ -839,28 +943,62 @@
             cString:string = "";
         do {
             cString = comments[a].substringData(0, comments[a].length);
-            if (cString.indexOf("storage:") === 0) {
+            if (cString.indexOf("storage:") === 0 && cString.length > 12) {
                 const storage:any = JSON.parse(cString.replace("storage:", "")),
-                    modalKeys:string[] = Object.keys(storage.settings.modals);
-                //data.modalTypes = storage.settings.modalTypes;
-                data.zIndex = storage.settings.zIndex;
+                    modalKeys:string[] = Object.keys(storage.settings.modals),
+                    indexes:[number, string][] = [],
+                    z = function local_restore_modalKeys_z(id:string) {
+                        count = count + 1;
+                        indexes.push([storage.settings.modals[id].zIndex, id]);
+                        if (count === modalKeys.length) {
+                            let cc:number = 0;
+                            data.zIndex = modalKeys.length;
+                            indexes.sort(function local_restore_modalKeys_z_sort(aa:[number, string], bb:[number, string]):number {
+                                if (aa[0] < bb[0]) {
+                                    return -1;
+                                }
+                                return 1;
+                            });
+                            do {
+                                if (storage.settings.modals[indexes[cc][1]] !== undefined) {
+                                    storage.settings.modals[indexes[cc][1]].zIndex = cc + 1;
+                                    document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
+                                }
+                                cc = cc + 1;
+                            } while (cc < modalKeys.length);
+                        }
+                    };
+                let count:number = 0;
                 modalKeys.forEach(function local_restore_modalKeys(value:string) {
-                    network.fs({
-                        agent: "self",
-                        depth: 2,
-                        callback: function local_ui_fs_open_callback(files:HTMLElement, id:string) {
-                            const textValue:string = files.getAttribute("title");
-                            files.removeAttribute("title");
-                            storage.settings.modals[id].content = files;
-                            storage.settings.modals[id].text_value = textValue;
-                            if (storage.settings.modals[id].type === "fileSystem") {
-                                storage.settings.modals[id].text_event = ui.fs.text;
-                            }
-                            ui.modal.create(storage.settings.modals[id]);
-                        },
-                        id: value,
-                        location: storage.settings.modals[value].text_value
-                    });
+                    if (storage.settings.modals[value].type === "fileSystem") {
+                        network.fs({
+                            agent: "self",
+                            depth: 2,
+                            callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {
+                                const textValue:string = files.getAttribute("title");
+                                files.removeAttribute("title");
+                                storage.settings.modals[id].content = files;
+                                storage.settings.modals[id].id = id;
+                                storage.settings.modals[id].text_value = textValue;
+                                if (storage.settings.modals[id].type === "fileSystem") {
+                                    storage.settings.modals[id].text_event = ui.fs.text;
+                                }
+                                ui.modal.create(storage.settings.modals[id]);
+                                z(id);
+                                if (storage.settings.modals[id].status === "maximized") {
+                                    const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
+                                    data.modals[id].status = "normal";
+                                    button.click();
+                                } else if (storage.settings.modals[id].status === "minimized") {
+                                    const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
+                                    data.modals[id].status = "normal";
+                                    button.click();
+                                }
+                            },
+                            id: value,
+                            location: storage.settings.modals[value].text_value
+                        });
+                    }
                 });
             }
             a = a + 1;
