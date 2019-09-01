@@ -32,6 +32,7 @@
             fs: {},
             modal: {}
         };
+    let loadTest:boolean = true;
     ui.commas = function local_ui_commas(number:number):string {
         const str:string = String(number);
         let arr:string[] = [],
@@ -73,22 +74,21 @@
             }
         }
     };
-    ui.fs.open = function local_ui_fs_open():void {
+    ui.fs.navigate = function local_ui_fs_navigate():void {
         network.fs({
             agent: "self",
             depth: 2,
-            callback: function local_ui_fs_open_callback(files:HTMLElement) {
+            callback: function local_ui_fs_navigate_callback(files:HTMLElement) {
                 const value:string = files.getAttribute("title");
                 files.removeAttribute("title");
                 ui.modal.create({
                     content: files,
-                    inputs: ["cancel", "close", "confirm", "maximize", "minimize", "text"],
-                    //single: true,
+                    inputs: ["close", "maximize", "minimize", "text"],
                     text_event: ui.fs.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: value,
-                    title: "Select a file or directory",
-                    type: "fileSystem",
+                    title: "File Navigator",
+                    type: "fileNavigate",
                     width: 800
                 });
             },
@@ -133,6 +133,29 @@
             location: input.value
         });
     };
+    ui.fs.share = function local_ui_fs_share():void {
+        network.fs({
+            agent: "self",
+            depth: 2,
+            callback: function local_ui_fs_share_callback(files:HTMLElement) {
+                const value:string = files.getAttribute("title");
+                files.removeAttribute("title");
+                ui.modal.create({
+                    content: files,
+                    inputs: ["cancel", "close", "confirm", "maximize", "minimize", "text"],
+                    single: true,
+                    text_event: ui.fs.text,
+                    text_placeholder: "Optionally type a file system address here.",
+                    text_value: value,
+                    title: "Share a File",
+                    type: "fileShare",
+                    width: 800
+                });
+            },
+            id: "",
+            location: "default"
+        });
+    };
     ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
         const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
         let parent:HTMLElement = <HTMLElement>element.parentNode,
@@ -157,11 +180,27 @@
             });
         }
     };
+    ui.menu = function local_ui_menu():void {
+        const menu:HTMLElement = document.getElementById("menu"),
+            move = function local_ui_menu_move(event:MouseEvent):void {
+                const menu:HTMLElement = document.getElementById("menu");
+                if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
+                    menu.style.display = "none";
+                    document.onmousemove = null;
+                }
+            };
+        menu.style.display = "block";
+        document.onmousemove = move;
+    };
     ui.modal.close = function local_ui_modal_close(event:MouseEvent):void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            keys:string[] = Object.keys(data.modals),
+            keyLength:number = keys.length;
         let parent:HTMLElement = <HTMLElement>element.parentNode,
             id:string,
-            type:string;
+            type:string,
+            a:number = 0,
+            count:number = 0;
         do {
             parent = <HTMLElement>parent.parentNode;
         } while (parent.getAttribute("class") !== "box");
@@ -169,7 +208,18 @@
         parent.parentNode.removeChild(parent);
         id = parent.getAttribute("id");
         type = id.split("-")[0];
-        data.modalTypes.splice(data.modalTypes.indexOf(type), 1);
+        do {
+            if (data.modals[keys[a]].type === type) {
+                count = count + 1;
+                if (count > 1) {
+                    break;
+                }
+            }
+            a = a + 1;
+        } while (a < keyLength);
+        if (count === 1) {
+            data.modalTypes.splice(data.modalTypes.indexOf(type), 1);
+        }
         delete data.modals[id];
         network.settings();
     };
@@ -178,7 +228,7 @@
             h2:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
             extra:HTMLElement;
-        const id:string = (options.id || `${options.type}-${data.zIndex + 1}`),
+        const id:string = (options.id || `${options.type}-${Math.random().toString() + data.zIndex + 1}`),
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
             border:HTMLElement = document.createElement("div");
@@ -211,12 +261,11 @@
         button.innerHTML = options.title;
         button.onmousedown = ui.modal.move;
         button.ontouchstart = ui.modal.move;
-        //button.onfocus  = ui.minimize;
         button.onblur  = function local_ui_modal_create_blur():void {
             button.onclick = null;
         };
         box.setAttribute("id", id);
-        box.onmousedown = ui.zTop;
+        box.onmousedown = ui.modal.zTop;
         data.modals[id] = options;
         box.style.zIndex = data.zIndex.toString();
         box.setAttribute("class", "box");
@@ -258,7 +307,7 @@
             }
             if (options.inputs.indexOf("text") > -1) {
                 extra = document.createElement("p");
-                if (options.type === "fileSystem") {
+                if (options.type === "fileNavigate" || options.type === "fileShare") {
                     extra.style.paddingLeft = "5em";
                     button = document.createElement("button");
                     button.innerHTML = "▲<span>Parent directory</span>";
@@ -450,6 +499,7 @@
             content.appendChild(box);
             data.modals[id].status = "normal";
         }
+        network.settings();
     };
     // drag and drop, or if minimized then resize
     ui.modal.move = function local_ui_modal_move(event:Event):boolean {
@@ -657,7 +707,7 @@
         document.onmousemove = side[direction];
         document.onmousedown = null;
     };
-    ui.zTop     = function local_ui_zTop(event:MouseEvent):void {
+    ui.modal.zTop     = function local_ui_zTop(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         let box:HTMLElement = element;
         if (element.getAttribute("class") !== "box") {
@@ -788,13 +838,14 @@
         xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
     };
     network.settings = function local_network_settings():void {
+        if (loadTest === true) {
+            return;
+        }
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_settings_callback():void {
             if (xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    
-                } else {
+                if (xhr.status !== 200 && xhr.status !== 0) {
                     network.error("something");
                 }
             }
@@ -811,198 +862,206 @@
     });
     ui.fixHeight();
     window.onresize = ui.fixHeight;
-    (function local_nodes():void {
-        const getNodesByType = function local_nodes_getNodesByType(typeValue:string|number):Node[] {
-                "use strict";
-                let types:number     = 0;
-                const valueTest:string = (typeof typeValue === "string") ? typeValue.toUpperCase() : "",
-                    root:HTMLElement = (this === document)
-                        ? document.documentElement
-                        : this;
-    
-                // Normalize string input for case insensitivity.
-                if (typeof typeValue === "string") {
-                    typeValue = typeValue.toLowerCase();
-                }
-    
-                // If input is a string and supported standard value
-                // associate to the standard numeric type
-                if (typeValue === "all") {
-                    types = 0;
-                } else if (typeValue === "element_node") {
-                    types = 1;
-                } else if (typeValue === "attribute_node") {
-                    types = 2;
-                } else if (typeValue === "text_node") {
-                    types = 3;
-                } else if (typeValue === "cdata_section_node") {
-                    types = 4;
-                } else if (typeValue === "entity_reference_node") {
-                    types = 5;
-                } else if (typeValue === "entity_node") {
-                    types = 6;
-                } else if (typeValue === "processing_instruction_node") {
-                    types = 7;
-                } else if (typeValue === "comment_node") {
-                    types = 8;
-                } else if (typeValue === "document_node") {
-                    types = 9;
-                } else if (typeValue === "document_type_node") {
-                    types = 10;
-                } else if (typeValue === "document_fragment_node") {
-                    types = 11;
-                } else if (typeValue === "notation_node") {
-                    types = 12;
-                }
-    
-                // If input is type string but the value is a supported number
-                if (isNaN(Number(valueTest)) === false && (valueTest.length === 1 || valueTest === "10" || valueTest === "11" || valueTest === "12")) {
-                    types = Number(valueTest);
-                }
-    
-                // If input is a supported number
-                if (valueTest === "" && (typeValue === 0 || typeValue === 1 || typeValue === 2 || typeValue === 3 || typeValue === 4 || typeValue === 5 || typeValue === 6 || typeValue === 7 || typeValue === 8 || typeValue === 9 || typeValue === 10 || typeValue === 11 || typeValue === 12)) {
-                    types = typeValue;
-                }
-    
-                // A handy dandy function to trap all the DOM walking
-                return (function local_nodes_getNodesByType_walking():Node[] {
-                    var output:Node[] = [],
-                        child  = function local_nodes_getNodesByType_walking_child(x:HTMLElement):void {
-                            const children:NodeListOf<ChildNode> = x.childNodes;
-                            let a:NamedNodeMap    = x.attributes,
-                                b:number    = a.length,
-                                c:number    = 0;
-                            // Special functionality for attribute types.
-                            if (b > 0 && (types === 2 || types === 0)) {
-                                do {
-                                    output.push(a[c]);
-                                    c = c + 1;
-                                } while (c < b);
+    (function local_load():void {
+        (function local_nodes():void {
+            const getNodesByType = function local_nodes_getNodesByType(typeValue:string|number):Node[] {
+                    "use strict";
+                    let types:number     = 0;
+                    const valueTest:string = (typeof typeValue === "string") ? typeValue.toUpperCase() : "",
+                        root:HTMLElement = (this === document)
+                            ? document.documentElement
+                            : this;
+        
+                    // Normalize string input for case insensitivity.
+                    if (typeof typeValue === "string") {
+                        typeValue = typeValue.toLowerCase();
+                    }
+        
+                    // If input is a string and supported standard value
+                    // associate to the standard numeric type
+                    if (typeValue === "all") {
+                        types = 0;
+                    } else if (typeValue === "element_node") {
+                        types = 1;
+                    } else if (typeValue === "attribute_node") {
+                        types = 2;
+                    } else if (typeValue === "text_node") {
+                        types = 3;
+                    } else if (typeValue === "cdata_section_node") {
+                        types = 4;
+                    } else if (typeValue === "entity_reference_node") {
+                        types = 5;
+                    } else if (typeValue === "entity_node") {
+                        types = 6;
+                    } else if (typeValue === "processing_instruction_node") {
+                        types = 7;
+                    } else if (typeValue === "comment_node") {
+                        types = 8;
+                    } else if (typeValue === "document_node") {
+                        types = 9;
+                    } else if (typeValue === "document_type_node") {
+                        types = 10;
+                    } else if (typeValue === "document_fragment_node") {
+                        types = 11;
+                    } else if (typeValue === "notation_node") {
+                        types = 12;
+                    }
+        
+                    // If input is type string but the value is a supported number
+                    if (isNaN(Number(valueTest)) === false && (valueTest.length === 1 || valueTest === "10" || valueTest === "11" || valueTest === "12")) {
+                        types = Number(valueTest);
+                    }
+        
+                    // If input is a supported number
+                    if (valueTest === "" && (typeValue === 0 || typeValue === 1 || typeValue === 2 || typeValue === 3 || typeValue === 4 || typeValue === 5 || typeValue === 6 || typeValue === 7 || typeValue === 8 || typeValue === 9 || typeValue === 10 || typeValue === 11 || typeValue === 12)) {
+                        types = typeValue;
+                    }
+        
+                    // A handy dandy function to trap all the DOM walking
+                    return (function local_nodes_getNodesByType_walking():Node[] {
+                        var output:Node[] = [],
+                            child  = function local_nodes_getNodesByType_walking_child(x:HTMLElement):void {
+                                const children:NodeListOf<ChildNode> = x.childNodes;
+                                let a:NamedNodeMap    = x.attributes,
+                                    b:number    = a.length,
+                                    c:number    = 0;
+                                // Special functionality for attribute types.
+                                if (b > 0 && (types === 2 || types === 0)) {
+                                    do {
+                                        output.push(a[c]);
+                                        c = c + 1;
+                                    } while (c < b);
+                                }
+                                b = children.length;
+                                c = 0;
+                                if (b > 0) {
+                                    do {
+                                        if (children[c].nodeType === types || types === 0) {
+                                            output.push(<HTMLElement>children[c]);
+                                        }
+                                        if (children[c].nodeType === 1) {
+                                            //recursion magic
+                                            local_nodes_getNodesByType_walking_child(<HTMLElement>children[c]);
+                                        }
+                                        c = c + 1;
+                                    } while (c < b);
+                                }
+                            };
+                        child(root);
+                        return output;
+                    }());
+                },
+                getElementsByAttribute = function local_nodes_getElementsByAttribute(name:string, value:string):Element[] {
+                    const attrs:Attr[] = this.getNodesByType(2),
+                        out:Element[]   = [];
+                    if (typeof name !== "string") {
+                        name = "";
+                    }
+                    if (typeof value !== "string") {
+                        value = "";
+                    }
+                    attrs.forEach(function local_nodes_getElementsByAttribute_loop(item) {
+                        if (item.name === name || name === "") {
+                            if (item.value === value || value === "") {
+                                out.push(item.ownerElement);
                             }
-                            b = children.length;
-                            c = 0;
-                            if (b > 0) {
+                        }
+                    });
+                    return out;
+                };
+        
+            // Create a document method
+            document.getNodesByType         = getNodesByType;
+            document.getElementsByAttribute = getElementsByAttribute;
+        
+            (function local_nodes_addToExistingElements() {
+                var el = document.getNodesByType(1);
+                el.forEach(function local_nodes_addToExistingElements_loop(item) {
+                    item.getNodesByType         = getNodesByType;
+                    item.getElementsByAttribute = getElementsByAttribute;
+                });
+            }());
+            // Add this code as a method onto each DOM element
+        
+            // Ensure dynamically created elements get this method too
+            Element.prototype.getNodesByType         = getNodesByType;
+            Element.prototype.getElementsByAttribute = getElementsByAttribute;
+        
+        }());
+        (function local_restore():void {
+            const comments:Comment[] = document.getNodesByType(8),
+                commentLength:number = comments.length;
+            let a:number = 0,
+                cString:string = "";
+            do {
+                cString = comments[a].substringData(0, comments[a].length);
+                if (cString.indexOf("storage:") === 0 && cString.length > 12) {
+                    const storage:any = JSON.parse(cString.replace("storage:", "")),
+                        modalKeys:string[] = Object.keys(storage.settings.modals),
+                        indexes:[number, string][] = [],
+                        z = function local_restore_modalKeys_z(id:string) {
+                            count = count + 1;
+                            indexes.push([storage.settings.modals[id].zIndex, id]);
+                            if (count === modalKeys.length) {
+                                let cc:number = 0;
+                                data.zIndex = modalKeys.length;
+                                indexes.sort(function local_restore_modalKeys_z_sort(aa:[number, string], bb:[number, string]):number {
+                                    if (aa[0] < bb[0]) {
+                                        return -1;
+                                    }
+                                    return 1;
+                                });
                                 do {
-                                    if (children[c].nodeType === types || types === 0) {
-                                        output.push(<HTMLElement>children[c]);
+                                    if (storage.settings.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
+                                        storage.settings.modals[indexes[cc][1]].zIndex = cc + 1;
+                                        document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
                                     }
-                                    if (children[c].nodeType === 1) {
-                                        //recursion magic
-                                        local_nodes_getNodesByType_walking_child(<HTMLElement>children[c]);
-                                    }
-                                    c = c + 1;
-                                } while (c < b);
+                                    cc = cc + 1;
+                                } while (cc < modalKeys.length);
+                                loadTest = false;
                             }
                         };
-                    child(root);
-                    return output;
-                }());
-            },
-            getElementsByAttribute = function local_nodes_getElementsByAttribute(name:string, value:string):Element[] {
-                const attrs:Attr[] = this.getNodesByType(2),
-                    out:Element[]   = [];
-                if (typeof name !== "string") {
-                    name = "";
-                }
-                if (typeof value !== "string") {
-                    value = "";
-                }
-                attrs.forEach(function local_nodes_getElementsByAttribute_loop(item) {
-                    if (item.name === name || name === "") {
-                        if (item.value === value || value === "") {
-                            out.push(item.ownerElement);
-                        }
+                    let count:number = 0;
+                    if (modalKeys.length < 1) {
+                        loadTest = false;
                     }
-                });
-                return out;
-            };
-    
-        // Create a document method
-        document.getNodesByType         = getNodesByType;
-        document.getElementsByAttribute = getElementsByAttribute;
-    
-        (function local_nodes_addToExistingElements() {
-            var el = document.getNodesByType(1);
-            el.forEach(function local_nodes_addToExistingElements_loop(item) {
-                item.getNodesByType         = getNodesByType;
-                item.getElementsByAttribute = getElementsByAttribute;
-            });
-        }());
-        // Add this code as a method onto each DOM element
-    
-        // Ensure dynamically created elements get this method too
-        Element.prototype.getNodesByType         = getNodesByType;
-        Element.prototype.getElementsByAttribute = getElementsByAttribute;
-    
-    }());
-    (function local_restore():void {
-        const comments:Comment[] = document.getNodesByType(8),
-            commentLength:number = comments.length;
-        let a:number = 0,
-            cString:string = "";
-        do {
-            cString = comments[a].substringData(0, comments[a].length);
-            if (cString.indexOf("storage:") === 0 && cString.length > 12) {
-                const storage:any = JSON.parse(cString.replace("storage:", "")),
-                    modalKeys:string[] = Object.keys(storage.settings.modals),
-                    indexes:[number, string][] = [],
-                    z = function local_restore_modalKeys_z(id:string) {
-                        count = count + 1;
-                        indexes.push([storage.settings.modals[id].zIndex, id]);
-                        if (count === modalKeys.length) {
-                            let cc:number = 0;
-                            data.zIndex = modalKeys.length;
-                            indexes.sort(function local_restore_modalKeys_z_sort(aa:[number, string], bb:[number, string]):number {
-                                if (aa[0] < bb[0]) {
-                                    return -1;
-                                }
-                                return 1;
+                    modalKeys.forEach(function local_restore_modalKeys(value:string) {
+                        if (storage.settings.modals[value].type === "fileNavigate" || storage.settings.modals[value].type === "fileShare") {
+                            network.fs({
+                                agent: "self",
+                                depth: 2,
+                                callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {
+                                    const textValue:string = files.getAttribute("title");
+                                    files.removeAttribute("title");
+                                    storage.settings.modals[id].content = files;
+                                    storage.settings.modals[id].id = id;
+                                    storage.settings.modals[id].text_value = textValue;
+                                    if (storage.settings.modals[id].type === "fileNavigate" || storage.settings.modals[id].type === "fileShare") {
+                                        storage.settings.modals[id].text_event = ui.fs.text;
+                                    }
+                                    ui.modal.create(storage.settings.modals[id]);
+                                    z(id);
+                                    if (storage.settings.modals[id].status === "maximized") {
+                                        const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
+                                        data.modals[id].status = "normal";
+                                        button.click();
+                                    } else if (storage.settings.modals[id].status === "minimized") {
+                                        const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
+                                        data.modals[id].status = "normal";
+                                        button.click();
+                                    }
+                                },
+                                id: value,
+                                location: storage.settings.modals[value].text_value
                             });
-                            do {
-                                if (storage.settings.modals[indexes[cc][1]] !== undefined) {
-                                    storage.settings.modals[indexes[cc][1]].zIndex = cc + 1;
-                                    document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
-                                }
-                                cc = cc + 1;
-                            } while (cc < modalKeys.length);
                         }
-                    };
-                let count:number = 0;
-                modalKeys.forEach(function local_restore_modalKeys(value:string) {
-                    if (storage.settings.modals[value].type === "fileSystem") {
-                        network.fs({
-                            agent: "self",
-                            depth: 2,
-                            callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {
-                                const textValue:string = files.getAttribute("title");
-                                files.removeAttribute("title");
-                                storage.settings.modals[id].content = files;
-                                storage.settings.modals[id].id = id;
-                                storage.settings.modals[id].text_value = textValue;
-                                if (storage.settings.modals[id].type === "fileSystem") {
-                                    storage.settings.modals[id].text_event = ui.fs.text;
-                                }
-                                ui.modal.create(storage.settings.modals[id]);
-                                z(id);
-                                if (storage.settings.modals[id].status === "maximized") {
-                                    const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
-                                    data.modals[id].status = "normal";
-                                    button.click();
-                                } else if (storage.settings.modals[id].status === "minimized") {
-                                    const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
-                                    data.modals[id].status = "normal";
-                                    button.click();
-                                }
-                            },
-                            id: value,
-                            location: storage.settings.modals[value].text_value
-                        });
-                    }
-                });
-            }
-            a = a + 1;
-        } while (a < commentLength);
+                    });
+                }
+                a = a + 1;
+            } while (a < commentLength);
+        }());
+        document.getElementById("menuToggle").onclick = ui.menu;
+        document.getElementById("shareFiles").onclick = ui.fs.share;
+        document.getElementById("fileNavigator").onclick = ui.fs.navigate;
     }());
-    document.getElementById("open-fs").onclick = ui.fs.open;
 }());

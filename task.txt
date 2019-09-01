@@ -1,15 +1,14 @@
 
 ## gui
-1 - periodic corruption of settings.json.  Fix this first!!!
+1 - intro asking for name and displaying IPv6 address
+2 - user/shared items section
 
 ## file list
-1 - evaluate table versus list for file output
-   a - pad child lists (expanded sub directories)
-3 - select files from list
-4 - display selected files by agent
-5 - normalize, such that a file is ignored from selection list if already shared in a directory
-6 - allow file selections to be read only by default
-7 - validate directory item count after completing error messaging
+1 - file selection: shift key (sequential group), control key (non-sequential group), click without shift/control (no group)
+2 - display selected files by agent
+3 - normalize, such that a file is ignored from selection list if already shared in a directory
+4 - allow file selections to be read only by default
+5 - validate directory item count after completing error messaging
 
 ## system log
 1 - toggle message modal

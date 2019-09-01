@@ -24,11 +24,17 @@
     <body>
         <div id="spaces">
             <div class="title">
+                <button id="menuToggle">&#9776;<span>Application Menu</span></button>
                 <h1>Shared Spaces</h1>
                 <p>A tool for interactive collaboration.</p>
             </div>
             <div id="content-area">
-                <button id="open-fs">Select a directory</button>
+                <ul id="menu">
+                    <li><button id="shareFiles">Share Files</button></li>
+                    <li><button id="fileNavigator">File Navigator</button></li>
+                    <li><button id="systemLog">System Log</button></li>
+                    <li><button id="textPad">Text Pad</button></li>
+                </ul>
                 <ul id="tray"></ul>
             </div>
         </div>

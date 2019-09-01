@@ -2554,13 +2554,34 @@ import { Hash } from "crypto";
                                     }
                                 }
                             } else if (task === "settings") {
-                                node.fs.writeFile(`${projectPath}storage${sep}settings.json`, dataString, "utf8", function node_apps_server_create_writeSettings(erSettings:Error):void {
+                                const fileName:string = `${projectPath}storage${sep}settings-${Math.random()}.json`;
+                                node.fs.writeFile(fileName, dataString, "utf8", function node_apps_server_create_writeSettings(erSettings:Error):void {
                                     if (erSettings !== null) {
                                         apps.error([erSettings.toString()]);
+                                        console.log(erSettings);
+                                        response.writeHead(200, {"Content-Type": "text/plain"});
+                                        response.write(erSettings.toString());
+                                        response.end();
+                                        return;
                                     }
-                                    response.writeHead(200, {"Content-Type": "text/plain"});
-                                    response.write("Settings written.");
-                                    response.end();
+                                    node.fs.rename(fileName, `${projectPath}storage${sep}settings.json`, function node_apps_server_create_writeStorage_rename(erName:Error) {
+                                        if (erName !== null) {
+                                            apps.error([erName.toString()]);
+                                            console.log(erName);
+                                            node.fs.unlink(fileName, function node_apps_server_create_writeStorage_rename_unlink(erUnlink:Error) {
+                                                if (erUnlink !== null) {
+                                                    apps.error([erUnlink.toString()]);
+                                                }
+                                            });
+                                            response.writeHead(200, {"Content-Type": "text/plain"});
+                                            response.write(erName.toString());
+                                            response.end();
+                                            return;
+                                        }
+                                        response.writeHead(200, {"Content-Type": "text/plain"});
+                                        response.write("Settings written.");
+                                        response.end();
+                                    });
                                 });
                             }
                         });
