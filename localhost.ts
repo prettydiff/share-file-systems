@@ -25,32 +25,151 @@
         data:ui_data = {
             modals: {},
             modalTypes: [],
+            name: "",
             zIndex: 0
         },
         network:any = {},
         ui:any = {
             fs: {},
-            modal: {}
+            modal: {},
+            util: {}
         };
     let loadTest:boolean = true;
-    ui.commas = function local_ui_commas(number:number):string {
-        const str:string = String(number);
-        let arr:string[] = [],
-            a:number   = str.length;
-        if (a < 4) {
-            return str;
-        }
-        arr = String(number).split("");
-        a   = arr.length;
-        do {
-            a      = a - 3;
-            arr[a] = "," + arr[a];
-        } while (a > 3);
-        return arr.join("");
+    network.error = function local_network_error():void {};
+    network.fs = function local_network_fs(configuration:readFS):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.onreadystatechange = function local_network_fs_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    const list:directoryList = JSON.parse(xhr.responseText),
+                        local:directoryList = [],
+                        length:number = list.length,
+                        output:HTMLElement = document.createElement("ul"),
+                        buildItem = function local_network_fs_callback_buildItem():void {
+                            const driveLetter = function local_network_fs_callback_driveLetter(drive:string):string {
+                                return drive.replace("\\\\", "\\");
+                            };
+                            li = document.createElement("li");
+                            if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
+                                li.setAttribute("class", `${local[a][1]} last`);
+                            } else {
+                                li.setAttribute("class", local[a][1]);
+                            }
+                            if (a % 2 === 0) {
+                                li.setAttribute("class", `${li.getAttribute("class")} even`);
+                            } else {
+                                li.setAttribute("class", `${li.getAttribute("class")} odd`);
+                            }
+                            li.textContent = local[a][0].replace(/^\w:\\\\/, driveLetter);
+                            if (local[a][1] === "file") {
+                                span = document.createElement("span");
+                                if (local[a][4].size === 1) {
+                                    plural = "";
+                                } else {
+                                    plural = "s";
+                                }
+                                span.textContent = `file - ${ui.util.commas(local[a][4].size)} byte${plural}`;
+                                li.appendChild(span);
+                            } else if (local[a][1] === "directory") {
+                                if (local[a][3] > 0) {
+                                    button = document.createElement("button");
+                                    button.setAttribute("class", "expansion");
+                                    button.innerHTML = "+<span>Expand this folder</span>";
+                                    button.onclick = ui.fs.expand;
+                                    li.insertBefore(button, li.firstChild);
+                                }
+                                span = document.createElement("span");
+                                if (local[a][3] === 1) {
+                                    plural = "";
+                                } else {
+                                    plural = "s";
+                                }
+                                span.textContent = `directory - ${ui.util.commas(local[a][3])} item${plural}`;
+                                li.appendChild(span);
+                            } else {
+                                span = document.createElement("span");
+                                if (local[a][1] === "link") {
+                                    span.textContent = "symbolic link";
+                                } else {
+                                    span.textContent = local[a][1];
+                                }
+                                li.appendChild(span);
+                            }
+                        };
+                    let a:number = 0,
+                        button:HTMLElement,
+                        li:HTMLElement,
+                        span:HTMLElement,
+                        plural:string,
+                        localLength:number = 0;
+                    do {
+                        if (list[a][2] === 0) {
+                            local.push(list[a]);
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    local.sort(function local_network_fs_callback_sort(a:directoryItem, b:directoryItem):number {
+                        // when types are the same
+                        if (a[1] === b[1]) {
+                            if (a[0] < b[0]) {
+                                return -1;
+                            }
+                            return 1;
+                        }
+
+                        // when types are different
+                        if (a[1] === "directory") {
+                            return -1;
+                        }
+                        if (a[1] === "link" && b[1] === "file") {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    if (configuration.location === "\\" || configuration.location === "/") {
+                        a = 0;
+                    } else {
+                        a = 1;
+                    }
+                    localLength = local.length;
+                    do {
+                        if (local[a][0] !== "\\" && local[a][0] !== "/") {
+                            buildItem();
+                            output.appendChild(li);
+                        }
+                        a = a + 1;
+                    } while (a < localLength);
+                    output.setAttribute("class", "fileList");
+                    output.title = local[0][0];
+                    configuration.callback(output, configuration.id);
+                } else {
+                    network.error("something");
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
     };
-    ui.fixHeight = function local_ui_fixHeight():void {
-        const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
-        content.style.height = `${(height - 51) / 10}em`;
+    network.settings = function local_network_settings():void {
+        if (loadTest === true) {
+            return;
+        }
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.onreadystatechange = function local_network_settings_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    network.error("something");
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`settings:${JSON.stringify(data)}`);
     };
     ui.fs.expand = function local_ui_fs_expand(event:MouseEvent):void {
         const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -179,18 +298,6 @@
                 location: element.value
             });
         }
-    };
-    ui.menu = function local_ui_menu():void {
-        const menu:HTMLElement = document.getElementById("menu"),
-            move = function local_ui_menu_move(event:MouseEvent):void {
-                const menu:HTMLElement = document.getElementById("menu");
-                if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
-                    menu.style.display = "none";
-                    document.onmousemove = null;
-                }
-            };
-        menu.style.display = "block";
-        document.onmousemove = move;
     };
     ui.modal.close = function local_ui_modal_close(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -422,7 +529,15 @@
         if (title !== undefined) {
             title = title.getElementsByTagName("button")[0];
         }
-        if (data.modals[id].status === "normal") {
+        if (data.modals[id].status === "maximized") {
+            title.style.cursor = "move";
+            title.onmousedown = ui.modal.move;
+            data.modals[id].status = "normal";
+            box.style.top = `${data.modals[id].top / 10}em`;
+            box.style.left = `${data.modals[id].left / 10}em`;
+            body.style.width = `${data.modals[id].width / 10}em`;
+            body.style.height = `${data.modals[id].height / 10}em`;
+        } else {
             data.modals[id].status = "maximized";
             title.style.cursor = "default";
             title.onmousedown = null;
@@ -442,14 +557,6 @@
                 }
                 return `${height / 10}em`;
             }());
-        } else {
-            title.style.cursor = "move";
-            title.onmousedown = ui.modal.move;
-            data.modals[id].status = "normal";
-            box.style.top = `${data.modals[id].top / 10}em`;
-            box.style.left = `${data.modals[id].left / 10}em`;
-            body.style.width = `${data.modals[id].width / 10}em`;
-            body.style.height = `${data.modals[id].height / 10}em`;
         }
         network.settings();
     };
@@ -471,8 +578,27 @@
         box = <HTMLElement>border.parentNode;
         id = box.getAttribute("id");
         title = <HTMLElement>border.getElementsByTagName("h2")[0];
+        title.getElementsByTagName("button")[0].onmousedown = ui.modal.move;
         children = border.childNodes;
-        if (data.modals[id].status === "normal") {
+        if (data.modals[id].status === "minimized") {
+            const li:HTMLElement = <HTMLElement>box.parentNode,
+                body:HTMLElement = <HTMLElement>border.getElementsByClassName("body")[0];
+            do {
+                child = <HTMLElement>children[a];
+                child.style.display = "block";
+                a = a + 1;
+            } while (a < children.length);
+            document.getElementById("tray").removeChild(li);
+            li.removeChild(box);
+            box.style.zIndex = data.modals[id].zIndex.toString();
+            title.getElementsByTagName("button")[0].style.cursor = "move";
+            content.appendChild(box);
+            data.modals[id].status = "normal";
+            box.style.top = `${data.modals[id].top / 10}em`;
+            box.style.left = `${data.modals[id].left / 10}em`;
+            body.style.width = `${data.modals[id].width / 10}em`;
+            body.style.height = `${data.modals[id].height / 10}em`;
+        } else {
             const li:HTMLLIElement = document.createElement("li");
             do {
                 child = <HTMLElement>children[a];
@@ -485,19 +611,6 @@
             li.appendChild(box);
             document.getElementById("tray").appendChild(li);
             data.modals[id].status = "minimized";
-        } else {
-            const li:HTMLElement = <HTMLElement>box.parentNode;
-            do {
-                child = <HTMLElement>children[a];
-                child.style.display = "block";
-                a = a + 1;
-            } while (a < children.length);
-            document.getElementById("tray").removeChild(li);
-            li.removeChild(box);
-            box.style.zIndex = data.modals[id].zIndex.toString();
-            title.getElementsByTagName("button")[0].style.cursor = "move";
-            content.appendChild(box);
-            data.modals[id].status = "normal";
         }
         network.settings();
     };
@@ -707,7 +820,7 @@
         document.onmousemove = side[direction];
         document.onmousedown = null;
     };
-    ui.modal.zTop     = function local_ui_zTop(event:MouseEvent):void {
+    ui.modal.zTop     = function local_ui_modal_zTop(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         let box:HTMLElement = element;
         if (element.getAttribute("class") !== "box") {
@@ -719,149 +832,65 @@
         data.modals[box.getAttribute("id")].zIndex = data.zIndex;
         box.style.zIndex = data.zIndex.toString();
     };
-    network.error = function local_network_error():void {};
-    network.fs = function local_network_fs(configuration:readFS):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_fs_callback():void {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    const list:directoryList = JSON.parse(xhr.responseText),
-                        local:directoryList = [],
-                        length:number = list.length,
-                        output:HTMLElement = document.createElement("ul"),
-                        buildItem = function local_network_fs_callback_buildItem():void {
-                            const driveLetter = function local_network_fs_callback_driveLetter(drive:string):string {
-                                return drive.replace("\\\\", "\\");
-                            };
-                            li = document.createElement("li");
-                            if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
-                                li.setAttribute("class", `${local[a][1]} last`);
-                            } else {
-                                li.setAttribute("class", local[a][1]);
-                            }
-                            if (a % 2 === 0) {
-                                li.setAttribute("class", `${li.getAttribute("class")} even`);
-                            } else {
-                                li.setAttribute("class", `${li.getAttribute("class")} odd`);
-                            }
-                            li.textContent = local[a][0].replace(/^\w:\\\\/, driveLetter);
-                            if (local[a][1] === "file") {
-                                span = document.createElement("span");
-                                if (local[a][4].size === 1) {
-                                    plural = "";
-                                } else {
-                                    plural = "s";
-                                }
-                                span.textContent = `file - ${ui.commas(local[a][4].size)} byte${plural}`;
-                                li.appendChild(span);
-                            } else if (local[a][1] === "directory") {
-                                if (local[a][3] > 0) {
-                                    button = document.createElement("button");
-                                    button.setAttribute("class", "expansion");
-                                    button.innerHTML = "+<span>Expand this folder</span>";
-                                    button.onclick = ui.fs.expand;
-                                    li.insertBefore(button, li.firstChild);
-                                }
-                                span = document.createElement("span");
-                                if (local[a][3] === 1) {
-                                    plural = "";
-                                } else {
-                                    plural = "s";
-                                }
-                                span.textContent = `directory - ${ui.commas(local[a][3])} item${plural}`;
-                                li.appendChild(span);
-                            } else {
-                                span = document.createElement("span");
-                                if (local[a][1] === "link") {
-                                    span.textContent = "symbolic link";
-                                } else {
-                                    span.textContent = local[a][1];
-                                }
-                                li.appendChild(span);
-                            }
-                        };
-                    let a:number = 0,
-                        button:HTMLElement,
-                        li:HTMLElement,
-                        span:HTMLElement,
-                        plural:string,
-                        localLength:number = 0;
-                    do {
-                        if (list[a][2] === 0) {
-                            local.push(list[a]);
-                        }
-                        a = a + 1;
-                    } while (a < length);
-                    local.sort(function local_network_fs_callback_sort(a:directoryItem, b:directoryItem):number {
-                        // when types are the same
-                        if (a[1] === b[1]) {
-                            if (a[0] < b[0]) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    if (configuration.location === "\\" || configuration.location === "/") {
-                        a = 0;
-                    } else {
-                        a = 1;
-                    }
-                    localLength = local.length;
-                    do {
-                        if (local[a][0] !== "\\" && local[a][0] !== "/") {
-                            buildItem();
-                            output.appendChild(li);
-                        }
-                        a = a + 1;
-                    } while (a < localLength);
-                    output.setAttribute("class", "fileList");
-                    output.title = local[0][0];
-                    configuration.callback(output, configuration.id);
-                } else {
-                    network.error("something");
-                }
-            }
-        };
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
-    };
-    network.settings = function local_network_settings():void {
-        if (loadTest === true) {
-            return;
+    ui.util.addUser = function local_ui_util_addUser(userName:string, ip:string):void {
+        const li:HTMLLIElement = document.createElement("li");
+        li.innerHTML = `${userName}@${ip}`;
+        if (ip === "localhost") {
+            li.setAttribute("class", "local");
+        } else {
+            li.setAttribute("class", "offline");
         }
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_settings_callback():void {
-            if (xhr.readyState === 4) {
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    network.error("something");
+        document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
+    };
+    ui.util.commas = function local_ui_util_commas(number:number):string {
+        const str:string = String(number);
+        let arr:string[] = [],
+            a:number   = str.length;
+        if (a < 4) {
+            return str;
+        }
+        arr = String(number).split("");
+        a   = arr.length;
+        do {
+            a      = a - 3;
+            arr[a] = "," + arr[a];
+        } while (a > 3);
+        return arr.join("");
+    };
+    ui.util.fixHeight = function local_ui_util_fixHeight():void {
+        const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
+        content.style.height = `${(height - 51) / 10}em`;
+        document.getElementById("users").style.height = `${(height - 102) / 10}em`;
+    };
+    ui.util.login = function local_ui_util_login():void {
+        const input:HTMLInputElement = document.getElementById("login").getElementsByTagName("input")[0];
+        if (input.value === "") {
+            input.focus();
+        } else {
+            data.name = input.value;
+            ui.util.addUser(input.value, "localhost");
+            document.getElementsByTagName("body")[0].removeAttribute("class");
+        }
+    };
+    ui.util.menu = function local_ui_util_menu():void {
+        const menu:HTMLElement = document.getElementById("menu"),
+            move = function local_ui_util_menu_move(event:MouseEvent):void {
+                const menu:HTMLElement = document.getElementById("menu");
+                if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
+                    menu.style.display = "none";
+                    document.onmousemove = null;
                 }
-            }
-        };
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`settings:${JSON.stringify(data)}`);
+            };
+        menu.style.display = "block";
+        document.onmousemove = move;
     };
     ws.addEventListener("message", function local_webSockets(event) {
         if (event.data === "reload") {
             location.reload();
         }
     });
-    ui.fixHeight();
-    window.onresize = ui.fixHeight;
+    ui.util.fixHeight();
+    window.onresize = ui.util.fixHeight;
     (function local_load():void {
         (function local_nodes():void {
             const getNodesByType = function local_nodes_getNodesByType(typeValue:string|number):Node[] {
@@ -1022,6 +1051,12 @@
                             }
                         };
                     let count:number = 0;
+                    if (storage.settings.name === undefined || storage.settings.name === "") {
+                        document.getElementsByTagName("body")[0].setAttribute("class", "login");
+                    } else {
+                        data.name = storage.settings.name;
+                        ui.util.addUser(storage.settings.name, "localhost");
+                    }
                     if (modalKeys.length < 1) {
                         loadTest = false;
                     }
@@ -1060,7 +1095,8 @@
                 a = a + 1;
             } while (a < commentLength);
         }());
-        document.getElementById("menuToggle").onclick = ui.menu;
+        document.getElementById("login").getElementsByTagName("button")[0].onclick = ui.util.login;
+        document.getElementById("menuToggle").onclick = ui.util.menu;
         document.getElementById("shareFiles").onclick = ui.fs.share;
         document.getElementById("fileNavigator").onclick = ui.fs.navigate;
     }());

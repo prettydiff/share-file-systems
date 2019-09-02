@@ -1,7 +1,7 @@
 
 ## gui
-1 - intro asking for name and displaying IPv6 address
-2 - user/shared items section
+1 - user/shared items section
+2 - modal titles should be menu titles including icon
 
 ## file list
 1 - file selection: shift key (sequential group), control key (non-sequential group), click without shift/control (no group)

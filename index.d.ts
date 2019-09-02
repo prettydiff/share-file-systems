@@ -145,6 +145,7 @@ interface ui_data {
         [key:string]: ui_modal;
     };
     modalTypes: string[];
+    name: string;
     zIndex: number;
 }
 interface version {
