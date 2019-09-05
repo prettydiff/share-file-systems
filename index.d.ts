@@ -1,5 +1,9 @@
 
+type characterKey = "" | "control" | "shift";
 type directoryItem = [string, "error" | "file" | "directory" | "link" | "screen", number, number, Stats];
+type messageList = [string, string];
+type messageListError = [string, string, string[]];
+type messageType = "errors" | "status" | "users";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
@@ -40,6 +44,15 @@ interface localService {
     agent: string;
     depth: number;
     location: string;
+}
+interface messageError {
+    error:string;
+    stack:string[];
+}
+interface messages {
+    status: messageList[];
+    users: messageList[];
+    errors: messageListError[];
 }
 interface nodeCopyParams {
     callback:Function;
@@ -85,7 +98,7 @@ interface readFS{
 }
 interface serverError {
     stack: string[];
-    error: string[];
+    error: string;
 }
 interface simulationItem {
     artifact?: string;
@@ -123,6 +136,7 @@ interface Stats {
 }
 interface ui_modal {
     content: HTMLElement;
+    focus?: HTMLElement;
     height?: number;
     id?: string;
     inputs?: ui_input[];
@@ -130,7 +144,7 @@ interface ui_modal {
     move?: boolean;
     resize?: boolean;
     single?: boolean;
-    status?: "maximized" | "minimized" | "normal";
+    status?: "hidden" | "maximized" | "minimized" | "normal";
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;
     text_value?: string;

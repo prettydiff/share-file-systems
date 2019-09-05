@@ -26,20 +26,17 @@ body{background:#cdf;margin:0;padding:0}
 #spaces #menuToggle span{position:absolute;top:-200em}
 #spaces #content-area{overflow:scroll;margin:0;padding:0;position:relative}
 #spaces button{font-family:inherit}
+#spaces .icon-shareFiles{color:#09f}
+#spaces .icon-fileNavigator{color:#3a3}
+#spaces .icon-systemLog{color:#a00}
+#spaces .icon-textPad{color:#c0f}
+#spaces .icon-export{color:#aa0}
 
-#spaces #menu{border:0.1em solid #000;box-shadow:0.1em 0.1em 0.25em #999;display:none;left:0;margin:0;padding:0;position:absolute;top:0}
+#spaces #menu{border:0.1em solid #000;box-shadow:0.1em 0.1em 0.25em #999;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
 #spaces #menu li{display:block;padding:0}
 #spaces #menu button{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
 #spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
-#spaces #shareFiles::before{content:"⌗ "}
-#spaces #fileNavigator::before{content:"⌹ "}
-#spaces #systemLog::before{content:"⌬ "}
-#spaces #textPad::before{content:"⌶ "}
-#spaces #shareFiles:hover::before{color:#0c0}
-#spaces #fileNavigator:hover::before{color:#66f}
-#spaces #systemLog:hover::before{color:#c00}
-#spaces #textPad:hover::before{color:#990}
 
 #spaces #users{border-color:#000;border-style:solid;border-width:0 0 0 0.1em;padding:1em;position:absolute;right:0;width:23em}
 #spaces #users h2{background:#ccc;border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:-0.5em -0.5em 0;padding:0.5em;position:relative;z-index:2}
@@ -58,6 +55,7 @@ body{background:#cdf;margin:0;padding:0}
 #spaces #tray h2{width:20em}
 
 #spaces .box{border-style:none;box-shadow:0.15em 0.15em 1em #99c;left:auto;margin:0;padding:0;position:absolute;z-index:10}
+#spaces .messageList .expansion span,
 #spaces .box .parentDirectory span,
 #spaces .fileList .expansion span,
 #spaces .box .buttons span{display:block;height:0.05em;position:absolute;top:-200em;width:0.05em}
@@ -74,7 +72,7 @@ body{background:#cdf;margin:0;padding:0}
 #spaces .box .buttons button.close{background:#fdd;border-color:#900;color:#900}
 #spaces .box h2.heading{border-style:none;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
 #spaces .box h2.heading button{background:#eee;border-color:#000;border-radius:0;border-style:solid;border-width:0.0555em;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
-#spaces .box .body{background:#fff;border-color:#000;border-style:solid;border-width:0.1em;clear:both;height:20em;margin-top:-.1em;overflow:scroll;padding:1em;position:relative;right:0;top:0;width:75em;z-index:5}
+#spaces .box .body{background:#fff;border-color:#000;border-style:solid;border-width:0.1em;clear:both;height:20em;margin-top:-.1em;overflow:scroll;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
 #spaces .box .border{background:#ccc;border-color:#000;border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
 #spaces .box .corner-tl{background:transparent;border-color:#000;border-style:solid;border-width:0 0.1em 0.1em 0;cursor:nw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;top:0;width:2em;z-index:4}
 #spaces .box .corner-tr{background:transparent;border-color:#000;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;top:0;width:2em;z-index:4}
@@ -92,15 +90,41 @@ body{background:#cdf;margin:0;padding:0}
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
 
-#spaces .fileList li{display:block;font-size:1.4em;list-style-type:none;padding:1em 0;white-space:pre}
+#spaces .box .body > textarea{background:#fff;border-style:none;color:#000;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;white-space:pre;width:100%}
+
+#spaces .box .tabs{background:#999;height:5.7em;margin:0;padding:0}
+#spaces .box .tabs li{border-style:none;display:block;margin:0;padding:0}
+#spaces .box .tabs button{background:#ddd;border-color:#000;border-style:solid solid solid none;border-width:0.05em;display:block;float:left;font-size:2em;font-weight:bold;list-style:none;margin:0.25em 0 -0.1em 0;padding:0.5em 2%;width:33.3%}
+#spaces .box .tabs button.active{background:#fff;border-style:none solid none none;margin:0 0 -0.1em 0;padding:0.8em 2% 0.55em;text-decoration:underline}
+#spaces .box .tabs .status{color:#00c}
+#spaces .box .tabs .users{color:#060}
+#spaces .box .tabs .errors{color:#c00}
+#spaces .messageList{border-color:#000;border-style:solid none none;border-width:0.1em;display:none;margin:-0.1em 0 0;padding:1em}
+#spaces .messageList.active{display:block}
+#spaces .messageList li{border-color:#ccc;border-style:none none solid;border-width:0 0 0.05em;font-family:monospace;font-size:2em;padding:0.25em 0;white-space:pre}
+#spaces .messageList span{display:inline-block;font-weight:bold;margin:0 1em 0 0}
+#spaces .messageList li .expansion{margin:0 0.5em 0 0}
+#spaces .messageList li ul{display:none}
+#spaces .messageList li li{font-size:1em}
+#spaces #system-status,
+#spaces #system-user,
+#spaces #system-errors{clear:both;float:none}
+#spaces #system-errors span{color:#c00;}
+
+#spaces .fileList{margin:0;padding:0.25em 0 0 5em;}
+#spaces .fileList li{border-color:#eee;border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
+#spaces .fileList li ul{border-color:#eee;border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}
 #spaces .fileList li label:hover{background:#ffc}
 #spaces .fileList .directory::before{content: "📂 "}
 #spaces .fileList .file::before{content: "📃 "}
 #spaces .fileList .link::before{content: "🔗 "}
-#spaces .fileList .last {border-color:#000;border-style:none none solid;border-width:0 0 0.1em}
-#spaces .fileList .even{background:#f8f8f8}
+#spaces .fileList .lastType{border-color:#000}
+#spaces .fileList .last{border-style:none;padding:0}
+#spaces .fileList li.selected{background:#cfc}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 2em 0 0;white-space:normal;width:14em}
+#spaces .fileList li label{position:absolute;top:-200em}
+#spaces .messageList .expansion,
 #spaces .fileList .expansion{background:#eee;border-color:#333;color:#333;font-size:1.075em;line-height:1;margin:0 2.4em 0 -3.9em}
 
 /* code for testing */

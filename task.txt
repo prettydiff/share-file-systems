@@ -1,21 +1,18 @@
 
 ## gui
-1 - user/shared items section
-2 - modal titles should be menu titles including icon
+2 - user/shared items section
+3 - right click context menus (possibly oncontextmenu)
+    a - top/left corner to mouse cursor normally
+    b - bottom/left corner if menu flows below viewport or top/right if right of viewport
 
 ## file list
-1 - file selection: shift key (sequential group), control key (non-sequential group), click without shift/control (no group)
 2 - display selected files by agent
 3 - normalize, such that a file is ignored from selection list if already shared in a directory
 4 - allow file selections to be read only by default
 5 - validate directory item count after completing error messaging
 
-## system log
-1 - toggle message modal
-2 - separate system messages from errors
-3 - write errors as a list where details (stack trace) is available by click expansion
-4 - add date/time [] to each item in list
-
+## service
+1 - menu item for connecting to a user/port
 
 ## ui tests
 ### modal

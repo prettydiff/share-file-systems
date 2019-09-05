@@ -1363,10 +1363,10 @@ import { Hash } from "crypto";
                 },
                 error = function node_apps_error_error():void {
                     if (command === "server") {
-                        const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/, "splitMe").split("splitMe"),
+                        const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
                             server:serverError = {
-                                stack: stackTrace,
-                                error: errText
+                                stack: stackTrace.slice(1),
+                                error: errText.join(" ")
                             };
                         ws.broadcast(`error-${JSON.stringify(server)}`);
                     } else {
@@ -2409,6 +2409,10 @@ import { Hash } from "crypto";
                                         } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
                                             response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
                                             if (localPath === `${projectPath}index.xhtml`) {
+                                                const flag:any = {
+                                                    settings: false,
+                                                    messages: false
+                                                };
                                                 let list:string[] = [],
                                                     appliedData = function node_apps_server_create_readFile_appliedData():string {
                                                         const start:string = "<!--storage:-->",
@@ -2418,11 +2422,17 @@ import { Hash } from "crypto";
                                                 tool = true;
                                                 node.fs.stat(`${projectPath}storage${sep}settings.json`, function node_apps_server_create_readFile_statSettings(erSettings:nodeError, statSettings:Stats):void {
                                                     if (erSettings !== null) {
-                                                        if (erSettings.code !== "ENOENT") {
+                                                        if (erSettings.code === "ENOENT") {
+                                                            flag.settings = true;
+                                                            if (flag.messages === true) {
+                                                                response.write(appliedData());
+                                                                response.end();
+                                                            }
+                                                        } else {
                                                             apps.error([erSettings.toString()]);
+                                                            response.write(data);
+                                                            response.end();
                                                         }
-                                                        response.write(data);
-                                                        response.end();
                                                     } else {
                                                         node.fs.readFile(`${projectPath}storage${sep}settings.json`, "utf8", function node_apps_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
                                                             if (errSettings !== null) {
@@ -2431,8 +2441,41 @@ import { Hash } from "crypto";
                                                                 response.end();
                                                             } else {
                                                                 list.push(`"settings":${settings}`);
+                                                                flag.settings = true;
+                                                                if (flag.messages === true) {
+                                                                    response.write(appliedData());
+                                                                    response.end();
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                                node.fs.stat(`${projectPath}storage${sep}messages.json`, function node_apps_server_create_readFile_statMessages(erMessages:nodeError, statMessages:Stats):void {
+                                                    if (erMessages !== null) {
+                                                        if (erMessages.code === "ENOENT") {
+                                                            flag.messages = true;
+                                                            if (flag.settings === true) {
                                                                 response.write(appliedData());
                                                                 response.end();
+                                                            }
+                                                        } else {
+                                                            apps.error([erMessages.toString()]);
+                                                            response.write(data);
+                                                            response.end();
+                                                        }
+                                                    } else {
+                                                        node.fs.readFile(`${projectPath}storage${sep}messages.json`, "utf8", function node_apps_server_create_readFile_statMessages(errMessages:Error, messages:string):void {
+                                                            if (errMessages !== null) {
+                                                                apps.error([errMessages.toString()]);
+                                                                response.write(data);
+                                                                response.end();
+                                                            } else {
+                                                                list.push(`"messages":${messages}`);
+                                                                flag.messages = true;
+                                                                if (flag.settings === true) {
+                                                                    response.write(appliedData());
+                                                                    response.end();
+                                                                }
                                                             }
                                                         });
                                                     }
@@ -2553,9 +2596,9 @@ import { Hash } from "crypto";
                                         }
                                     }
                                 }
-                            } else if (task === "settings") {
-                                const fileName:string = `${projectPath}storage${sep}settings-${Math.random()}.json`;
-                                node.fs.writeFile(fileName, dataString, "utf8", function node_apps_server_create_writeSettings(erSettings:Error):void {
+                            } else if (task === "settings" || task === "messages") {
+                                const fileName:string = `${projectPath}storage${sep + task}-${Math.random()}.json`;
+                                node.fs.writeFile(fileName, dataString, "utf8", function node_apps_server_create_writeStorage(erSettings:Error):void {
                                     if (erSettings !== null) {
                                         apps.error([erSettings.toString()]);
                                         console.log(erSettings);
@@ -2564,7 +2607,7 @@ import { Hash } from "crypto";
                                         response.end();
                                         return;
                                     }
-                                    node.fs.rename(fileName, `${projectPath}storage${sep}settings.json`, function node_apps_server_create_writeStorage_rename(erName:Error) {
+                                    node.fs.rename(fileName, `${projectPath}storage${sep + task}.json`, function node_apps_server_create_writeStorage_rename(erName:Error) {
                                         if (erName !== null) {
                                             apps.error([erName.toString()]);
                                             console.log(erName);
@@ -2579,7 +2622,7 @@ import { Hash } from "crypto";
                                             return;
                                         }
                                         response.writeHead(200, {"Content-Type": "text/plain"});
-                                        response.write("Settings written.");
+                                        response.write(`${task} written.`);
                                         response.end();
                                     });
                                 });
