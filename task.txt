@@ -1,7 +1,4 @@
-today
-details array
-rename -- replace path text with input text and give focus
-
+#### details array
 
 ## gui
 1 - change message times to use ui.util.dateFormat
@@ -17,6 +14,8 @@ rename -- replace path text with input text and give focus
 3 - normalize, such that a file is ignored from selection list if already shared in a directory
 4 - allow file selections to be read only by default
 5 - validate directory item count after completing error messaging
+6 - new directory/file --- from context menu on directories only
+7 - fs.watch to update modal contents 
 
 ## service
 1 - menu item for connecting to a user/port

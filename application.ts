@@ -2507,7 +2507,7 @@ import { Hash } from "crypto";
                             }
                         });
 
-                        request.on('end', function () {
+                        request.on('end', function node_apps_server_create_end():void {
                             let task:string = body.slice(0, body.indexOf(":")),
                                 dataString:string = body.slice(body.indexOf(":") + 1);
                             if (task === "fs") {
@@ -2517,7 +2517,7 @@ import { Hash } from "crypto";
                                         const path:string = (data.location === "default")
                                                 ? projectPath
                                                 : data.location,
-                                            callback = function node_apps_server_create_putCallback(result:string[]|directoryList):void {
+                                            callback = function node_apps_server_create_end_putCallback(result:string[]|directoryList):void {
                                                 response.writeHead(200, {"Content-Type": "application/json"});
                                                 response.write(JSON.stringify(result));
                                                 response.end();
@@ -2587,7 +2587,7 @@ import { Hash } from "crypto";
                                                 });
                                             });
                                         } else {
-                                            node.fs.stat(path, function node_apps_server_create_putStat(erp:nodeError):void {
+                                            node.fs.stat(path, function node_apps_server_create_end_putStat(erp:nodeError):void {
                                                 if (erp !== null) {
                                                     if (erp.code === "ENOENT") {
                                                         response.writeHead(404, {"Content-Type": "application/json"});
@@ -2606,6 +2606,23 @@ import { Hash } from "crypto";
                                                 });
                                             });
                                         }
+                                    } else if (data.action === "fs-rename") {
+                                        const newPath:string[] = data.location.split(sep);
+                                        newPath.pop();
+                                        newPath.push(data.name);
+                                        node.fs.rename(data.location, newPath.join(sep), function node_apps_server_create_end_rename(erRename:Error):void {
+                                            if (erRename === null) {
+                                                response.writeHead(200, {"Content-Type": "text/plain"});
+                                                response.write(`Path ${data.location} renamed to ${newPath.join(sep)}.`);
+                                                response.end();
+                                            } else {
+                                                apps.error([erRename.toString()]);
+                                                console.log(erRename);
+                                                response.writeHead(500, {"Content-Type": "text/plain"});
+                                                response.write(erRename.toString());
+                                                response.end();
+                                            }
+                                        });
                                     }
                                 }
                             } else if (task === "settings" || task === "messages") {
@@ -2628,7 +2645,7 @@ import { Hash } from "crypto";
                                                     apps.error([erUnlink.toString()]);
                                                 }
                                             });
-                                            response.writeHead(200, {"Content-Type": "text/plain"});
+                                            response.writeHead(500, {"Content-Type": "text/plain"});
                                             response.write(erName.toString());
                                             response.end();
                                             return;

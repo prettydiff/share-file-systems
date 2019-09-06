@@ -23,8 +23,8 @@ It can be a headache to start a new Node.js project and application architecture
 ```
 npm install typescript -g
 npm install eslint -g
-git clone https://github.com/prettydiff/freshapp.git
-cd freshapp
+git clone https://github.com/prettydiff/spaces.git
+cd spaces
 tsc
 npm install
 node js/application build

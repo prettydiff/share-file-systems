@@ -199,7 +199,7 @@ import { unlink } from "fs";
     };
     
     /* Retries file system data and builds an HTML artifact */
-    network.fs = function local_network_fs(configuration:readFS):void {
+    network.fs = function local_network_fs(configuration:fsRead):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_fs_callback():void {
@@ -215,6 +215,7 @@ import { unlink } from "fs";
                                     return drive.replace("\\\\", "\\");
                                 },
                                 label:HTMLLabelElement = document.createElement("label"),
+                                text:HTMLElement = document.createElement("label"),
                                 input:HTMLInputElement = document.createElement("input");
                             li = document.createElement("li");
                             if (a === localLength - 1) {
@@ -228,7 +229,11 @@ import { unlink } from "fs";
                             input.checked = false;
                             label.innerHTML = "Selected";
                             label.appendChild(input);
-                            li.textContent = local[a][0].replace(/^\w:\\\\/, driveLetter);
+                            label.setAttribute("class", "selection");
+                            text.innerHTML = local[a][0].replace(/^\w:\\\\/, driveLetter);
+                            text.oncontextmenu = ui.context.menu;
+                            text.onclick = ui.fs.select;
+                            li.appendChild(text);
                             if (local[a][1] === "file") {
                                 span = document.createElement("span");
                                 if (local[a][4].size === 1) {
@@ -260,6 +265,7 @@ import { unlink } from "fs";
                                     span.textContent = local[a][1];
                                 }
                             }
+                            span.onclick = ui.fs.select;
                             span.oncontextmenu = ui.context.menu;
                             li.appendChild(span);
                             li.oncontextmenu = ui.context.menu;
@@ -272,7 +278,9 @@ import { unlink } from "fs";
                         span:HTMLElement,
                         plural:string,
                         localLength:number = 0;
-                    configuration.element.removeAttribute("class");
+                    if (configuration.element.nodeName === "input") {
+                        configuration.element.removeAttribute("class");
+                    }
                     if (elementParent !== undefined) {
                         const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
                         if (span !== undefined) {
@@ -357,6 +365,27 @@ import { unlink } from "fs";
         xhr.send(`messages:${JSON.stringify(messages)}`);
     };
 
+    /* Rename a single file system artifact */
+    network.fsRename = function local_network_fsRename(configuration:fsRename):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.onreadystatechange = function local_network_fs_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    configuration.callback();
+                } else {
+                    configuration.element.setAttribute("class", "error");
+                    configuration.element.value = configuration.original;
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`fs:{"action":"fs-rename","agent":"${configuration.agent}","location":"${configuration.location.replace(/\\/g, "\\\\")}","name":"${configuration.name}"}`);
+    };
+
     /* Stores settings data to a storage/settings.json file */
     network.settings = function local_network_settings():void {
         if (loadTest === true) {
@@ -384,10 +413,10 @@ import { unlink } from "fs";
         let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             parent:HTMLElement = <HTMLElement>element.parentNode,
             item:HTMLElement,
-            button:HTMLElement,
+            button:HTMLButtonElement,
             reverse:boolean = false,
             a:number = 0;
-        if (element.nodeName === "span") {
+        if (element.nodeName === "span" || element.nodeName === "label") {
             element = <HTMLElement>element.parentNode;
             parent = <HTMLElement>parent.parentNode;
         }
@@ -396,6 +425,12 @@ import { unlink } from "fs";
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
         if (parent.getAttribute("class") === "fileList") {
+            let input:HTMLInputElement = <HTMLInputElement>parent;
+            do {
+                input = <HTMLInputElement>input.parentNode;
+            } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+            input = input.getElementsByTagName("input")[0];
+
             // details
             item = document.createElement("li");
             button = document.createElement("button");
@@ -441,7 +476,13 @@ import { unlink } from "fs";
             item = document.createElement("li");
             button = document.createElement("button");
             button.innerHTML = "Rename";
-            //button.onclick = wrap network.fs and open it to do more than generate file list
+            if (input.value === "/" || input.value === "\\") {
+                button.disabled = true;
+            } else {
+                button.onclick = function local_ui_context_menu_rename():void {
+                    ui.fs.rename(event);
+                };
+            }
             item.appendChild(button);
             itemList.push(item);
 
@@ -450,7 +491,11 @@ import { unlink } from "fs";
             button = document.createElement("button");
             button.innerHTML = "Destroy";
             button.setAttribute("class", "destroy");
-            //button.onclick = wrap network.fs and open it to do more than generate file list
+            if (input.value === "/" || input.value === "\\") {
+                button.disabled = true;
+            } else {
+                //button.onclick = function local_ui_context_menu_destroy():void {};
+            }
             item.appendChild(button);
             itemList.push(item);
         }
@@ -544,7 +589,8 @@ import { unlink } from "fs";
     /* Request file system information of the parent directory */
     ui.fs.parent = function local_ui_fs_parent(event:MouseEvent):boolean {
         const element:HTMLElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-            input:HTMLInputElement = <HTMLInputElement>element.nextSibling,
+            label:HTMLElement = <HTMLElement>element.nextSibling,
+            input:HTMLInputElement = label.getElementsByTagName("input")[0],
             slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
                 ? "/"
                 : "\\",
@@ -581,12 +627,64 @@ import { unlink } from "fs";
         });
     };
 
+    /* The front-side of renaming a file system object */
+    ui.fs.rename = function local_ui_fs_rename(event:MouseEvent):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            input:HTMLInputElement = document.createElement("input"),
+            action = <EventHandlerNonNull>function local_ui_fs_rename_action(action:KeyboardEvent):void {
+                if (action.type === "blur" || (action.type === "keyup" && action.keyCode === 13)) {
+                    input.value = input.value.replace(/(\s+|\.)$/, "");
+                    network.fsRename({
+                        agent: "self",
+                        callback: function local_ui_fs_rename_action_callback():void {
+                            label.removeChild(input);
+                            label.innerHTML = label.innerHTML + input.value;
+                        },
+                        element: input,
+                        location: text,
+                        name: input.value,
+                        original: last
+                    });
+                } else if (action.type === "keyup") {
+                    input.value = input.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
+                }
+            };
+        let li:HTMLElement = element,
+            label:HTMLElement,
+            slash:"\\" | "/" = "/",
+            last:string,
+            text:string,
+            dirs:string[];
+        if (li.nodeName !== "li") {
+            do {
+                li = <HTMLElement>li.parentNode;
+            } while (li !== document.documentElement && li.nodeName !== "li");
+        }
+        label = li.getElementsByTagName("label")[0];
+        text = label.innerHTML;
+        if (text.indexOf("/") < 0 || (text.indexOf("\\") < text.indexOf("/") && text.indexOf("\\") > -1 && text.indexOf("/") > -1)) {
+            slash = "\\";
+        }
+        dirs = text.split(slash);
+        last = dirs.pop();
+        input.type = "text";
+        input.value = last;
+        input.onblur = action;
+        input.onkeyup = action;
+        label.innerHTML = dirs.join(slash) + slash;
+        label.appendChild(input);
+        input.focus();
+    };
+
     /* Select a file system item for an action */
     ui.fs.select = function local_ui_fs_select(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            input:HTMLInputElement = element.getElementsByTagName("input")[0];
+            li:HTMLElement = (element.nodeName === "li")
+                ? element
+                : <HTMLElement>element.parentNode,
+            input:HTMLInputElement = li.getElementsByTagName("input")[0];
         let state:boolean = input.checked,
-            body:HTMLElement = element,
+            body:HTMLElement = li,
             box:HTMLElement;
         event.stopPropagation();
         ui.context.menuRemove();
@@ -598,26 +696,26 @@ import { unlink } from "fs";
             const inputs = body.getElementsByTagName("input"),
                 inputsLength = inputs.length;
             let a:number = 0,
-                li:HTMLElement;
+                item:HTMLElement;
             do {
                 if (inputs[a].checked === true) {
                     inputs[a].checked = false;
-                    li = <HTMLElement>inputs[a].parentNode.parentNode;
-                    li.setAttribute("class", li.getAttribute("class").replace(/\s*selected/, ""));
+                    item = <HTMLElement>inputs[a].parentNode.parentNode;
+                    item.setAttribute("class", item.getAttribute("class").replace(/\s*selected/, ""));
                 }
                 a = a + 1;
             } while (a < inputsLength);
             if (state === false) {
                 input.checked = true;
-                element.setAttribute("class", `${element.getAttribute("class")} selected`);
+                li.setAttribute("class", `${li.getAttribute("class")} selected`);
             }
         } else if (characterKey === "control") {
             if (state === true) {
                 input.checked = false;
-                element.setAttribute("class", element.getAttribute("class").replace(/\s*selected/, ""));
+                li.setAttribute("class", li.getAttribute("class").replace(/\s*selected/, ""));
             } else {
                 input.checked = true;
-                element.setAttribute("class", `${element.getAttribute("class")} selected`);
+                li.setAttribute("class", `${li.getAttribute("class")} selected`);
             }
         } else if (characterKey === "shift") {
             const liList = body.getElementsByTagName("li"),
@@ -646,7 +744,7 @@ import { unlink } from "fs";
                 focus = liList[0];
             }
             do {
-                if (liList[a] === element) {
+                if (liList[a] === li) {
                     elementIndex = a;
                     if (focusIndex > -1) {
                         break;
@@ -662,10 +760,10 @@ import { unlink } from "fs";
             if (focusIndex === elementIndex) {
                 if (state === true) {
                     input.checked = false;
-                    element.setAttribute("class", element.getAttribute("class").replace(/\s*selected/, ""));
+                    li.setAttribute("class", li.getAttribute("class").replace(/\s*selected/, ""));
                 } else {
                     input.checked = true;
-                    element.setAttribute("class", `${element.getAttribute("class")} selected`);
+                    li.setAttribute("class", `${li.getAttribute("class")} selected`);
                 }
             } else if (focusIndex > elementIndex) {
                 shift(elementIndex, focusIndex);
@@ -673,7 +771,7 @@ import { unlink } from "fs";
                 shift(focusIndex + 1, elementIndex + 1);
             }
         }
-        data.modals[box.getAttribute("id")].focus = element;
+        data.modals[box.getAttribute("id")].focus = li;
     };
 
     /* Creates a "share file system" modal */
@@ -1935,7 +2033,7 @@ import { unlink } from "fs";
                         }
                     };
             
-                    // building logging utility
+                    // building logging utility (systems log)
                     if (document.getElementById("systems-modal") === null) {
                         ui.modal.create({
                             content: systems,
@@ -1946,6 +2044,8 @@ import { unlink } from "fs";
                             width: 800
                         });
                     }
+
+                    // systems log messages
                     if (storage !== undefined && storage.messages !== undefined) {
                         if (storage.messages.status.length > 0) {
                             storage.messages.status.forEach(function local_restore_statusEach(value:messageList):void {
@@ -2022,7 +2122,9 @@ import { unlink } from "fs";
                                         files.removeAttribute("title");
                                         storage.settings.modals[id].content = files;
                                         storage.settings.modals[id].id = id;
-                                        storage.settings.modals[id].text_value = textValue;
+                                        if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
+                                            storage.settings.modals[id].text_value = textValue;
+                                        }
                                         storage.settings.modals[id].text_event = ui.fs.text;
                                         ui.modal.create(storage.settings.modals[id]);
                                         z(id);

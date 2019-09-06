@@ -45,6 +45,22 @@ interface fsDetails {
     links: number;
     size: number;
 }
+interface fsRead{
+    agent: string;
+    callback: Function;
+    depth: number;
+    element: HTMLElement;
+    id?: string;
+    location: string;
+}
+interface fsRename {
+    agent: string;
+    callback: Function;
+    element: HTMLInputElement;
+    location: string;
+    name: string;
+    original: string;
+}
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
@@ -53,6 +69,7 @@ interface localService {
     agent: string;
     depth: number;
     location: string;
+    name?: string;
 }
 interface messageError {
     error:string;
@@ -67,6 +84,7 @@ interface network {
     fileDetails?: Function;
     fs?: Function;
     messages?: Function;
+    fsRename?: Function;
     settings?: Function;
 }
 interface nodeCopyParams {
@@ -103,14 +121,6 @@ interface readFile {
     index: number;
     path: string;
     stat: Stats;
-}
-interface readFS{
-    agent: string;
-    callback: Function;
-    depth: number;
-    element: HTMLElement;
-    id?: string;
-    location: string;
 }
 interface serverError {
     stack: string[];
@@ -159,6 +169,7 @@ interface ui {
         expand?: EventHandlerNonNull;
         navigate?: EventHandlerNonNull;
         parent?: EventHandlerNonNull;
+        rename?: EventHandlerNonNull;
         select?: EventHandlerNonNull;
         share?: EventHandlerNonNull;
         text?: EventHandlerNonNull;
