@@ -102,6 +102,7 @@ body{background:#cdf;margin:0;padding:0}
 #spaces .box .footer{background:#eee;border-color:#000;border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;text-align:right;z-index:4}
 #spaces .box .footer button{border-width:0.05em;font-weight:bold;margin:0 0 0 2em}
 #spaces .box .header{background:#fff;border-color:#000;border-style:none solid;border-width:0 0.1em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
+#spaces .box .header span{display:block;position:absolute;top:-200em}
 #spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.2em;margin:0;padding:0;vertical-align:middle;width:100%}
 #spaces .box .header .error{background:#fdd;color:#900;}

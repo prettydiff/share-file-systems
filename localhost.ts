@@ -204,6 +204,7 @@ import { unlink } from "fs";
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_fs_callback():void {
             if (xhr.readyState === 4) {
+                const elementParent:HTMLElement = <HTMLElement>configuration.element.parentNode;
                 if (xhr.status === 200 || xhr.status === 0) {
                     const list:directoryList = JSON.parse(xhr.responseText),
                         local:directoryList = [],
@@ -272,6 +273,12 @@ import { unlink } from "fs";
                         plural:string,
                         localLength:number = 0;
                     configuration.element.removeAttribute("class");
+                    if (elementParent !== undefined) {
+                        const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
+                        if (span !== undefined) {
+                            span.innerHTML = "Text of file system address.";
+                        }
+                    }
                     do {
                         if (list[a][2] === 0) {
                             local.push(list[a]);
@@ -314,6 +321,12 @@ import { unlink } from "fs";
                     configuration.callback(output, configuration.id);
                 } else {
                     configuration.element.setAttribute("class", "error");
+                    if (elementParent !== undefined) {
+                        const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
+                        if (span !== undefined) {
+                            span.innerHTML = "Address not found.";
+                        }
+                    }
                     ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
             }
@@ -693,7 +706,7 @@ import { unlink } from "fs";
     /* Requests file system data from a text field */
     ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
         const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
-        let parent:HTMLElement = <HTMLElement>element.parentNode,
+        let parent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
             box:HTMLElement,
             id:string;
         parent = <HTMLElement>parent.parentNode;
@@ -857,6 +870,10 @@ import { unlink } from "fs";
                 border.appendChild(h2);
             }
             if (options.inputs.indexOf("text") > -1) {
+                const label:HTMLElement = document.createElement("label"),
+                    span:HTMLElement = document.createElement("span");
+                span.innerHTML = "Text of file system address.";
+                label.appendChild(span);
                 extra = document.createElement("p");
                 if (options.type === "fileNavigate" || options.type === "fileShare") {
                     extra.style.paddingLeft = "5em";
@@ -880,7 +897,8 @@ import { unlink } from "fs";
                     input.value = options.text_value;
                 }
                 extra.setAttribute("class", "header");
-                extra.appendChild(input);
+                label.appendChild(input);
+                extra.appendChild(label);
                 border.appendChild(extra);
             }
         }

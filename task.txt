@@ -1,3 +1,7 @@
+today
+details array
+rename -- replace path text with input text and give focus
+
 
 ## gui
 1 - change message times to use ui.util.dateFormat
