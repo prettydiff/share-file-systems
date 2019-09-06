@@ -68,7 +68,7 @@ interface localService {
     action: string;
     agent: string;
     depth: number;
-    location: string;
+    location: string[];
     name?: string;
 }
 interface messageError {

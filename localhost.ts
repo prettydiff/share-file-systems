@@ -48,14 +48,14 @@ import { unlink } from "fs";
         characterKey:characterKey = "";
 
     /* Gathers fully recursive file system details and displays to screen */
-    network.fileDetails = function local_network_fileDetails(address:string, callback:Function):void {
+    network.fileDetails = function local_network_fileDetails(address:string[], callback:Function):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         ui.context.menuRemove();
         xhr.onreadystatechange = function local_network_fileDetails_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 0) {
-                    const list:directoryList = JSON.parse(xhr.responseText),
+                    const list:directoryList[] = JSON.parse(xhr.responseText),
                         length:number = list.length,
                         details:fsDetails = {
                             size: 0,
@@ -63,48 +63,77 @@ import { unlink } from "fs";
                             directories: 0,
                             links: 0
                         },
-                        output:HTMLElement = document.createElement("div"),
-                        mTime:Date = new Date(list[0][4].mtimeMs),
-                        aTime:Date = new Date(list[0][4].atimeMs),
-                        cTime:Date = new Date(list[0][4].ctimeMs);
+                        output:HTMLElement = document.createElement("div");
                     let a:number = 0,
+                        b:number = 0,
                         tr:HTMLElement,
                         td:HTMLElement,
+                        childLength:number,
                         heading:HTMLElement = document.createElement("h3"),
                         table:HTMLElement = document.createElement("table"),
-                        tbody:HTMLElement = document.createElement("tbody");
-                    if (list[0][1] === "directory" && length > 0) {
-                        a = 1;
-                        do {
-                            if (list[a][1] === "directory") {
-                                details.directories = details.directories + 1;
-                            } else if (list[a][1] === "link") {
-                                details.links = details.links + 1;
-                            } else {
-                                details.files = details.files + 1;
-                                details.size = details.size + list[a][4].size;
+                        tbody:HTMLElement = document.createElement("tbody"),
+                        mTime:Date,
+                        aTime:Date,
+                        cTime:Date;
+                    list.sort(function local_network_fileDetails_callback_sort(a:directoryList, b:directoryList):number {
+                        // when types are the same
+                        if (a[0][1] === b[0][1]) {
+                            if (a[0][0] < b[0][0]) {
+                                return -1;
                             }
-                            a = a + 1;
-                        } while (a < length);
-                    } else {
-                        details.size = list[0][4].size;
-                    }
-                    output.setAttribute("class", "fileDetailOutput");
-                    heading.innerHTML = address;
-                    output.appendChild(heading);
+                            return 1;
+                        }
 
+                        // when types are different
+                        if (a[0][1] === "directory") {
+                            return -1;
+                        }
+                        if (a[0][1] === "link" && b[0][1] === "file") {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    do {
+                        childLength = list[b].length;
+                        if (list[b][0][1] === "directory" && childLength > 0) {
+                            a = 1;
+                            do {
+                                if (list[b][a][1] === "directory") {
+                                    details.directories = details.directories + 1;
+                                } else if (list[b][a][1] === "link") {
+                                    details.links = details.links + 1;
+                                } else {
+                                    details.files = details.files + 1;
+                                    details.size = details.size + list[b][a][4].size;
+                                }
+                                a = a + 1;
+                            } while (a < childLength);
+                        } else {
+                            details.size = details.size + list[b][0][4].size;
+                        }
+                        b = b + 1;
+                    } while (b < length);
+
+                    output.setAttribute("class", "fileDetailOutput");
+                    heading.innerHTML = `File System Details - ${list.length} items`;
+                    output.appendChild(heading);
+                    a = 0;
+                    childLength = address.length;
+                    do {
+                        tr = document.createElement("tr");
+                        td = document.createElement("th");
+                        td.innerHTML = list[a][0][1];
+                        td.setAttribute("class", list[a][0][1]);
+                        tr.appendChild(td);
+                        td = document.createElement("td");
+                        td.innerHTML = list[a][0][0];
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                        a = a + 1;
+                    } while (a < length);
                     tr = document.createElement("tr");
                     td = document.createElement("th");
-                    td.innerHTML = "Type";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = list[0][1];
-                    td.setAttribute("class", list[0][1]);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Size";
+                    td.innerHTML = "Total Size";
                     tr.appendChild(td);
                     td = document.createElement("td");
                     if (details.size > 1024) {
@@ -117,74 +146,77 @@ import { unlink } from "fs";
                     table.appendChild(tbody);
                     output.appendChild(table);
 
-                    if (list[0][1] === "directory") {
+                    heading = document.createElement("h3");
+                    heading.innerHTML = "Contains";
+                    output.appendChild(heading);
+                    td = document.createElement("p");
+                    td.innerHTML = "Does not count read protected assets.";
+                    output.appendChild(td);
+                    table = document.createElement("table");
+                    tbody = document.createElement("tbody");
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Files";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = ui.util.commas(details.files);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Directories";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = ui.util.commas(details.directories);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Symbolic Links";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = ui.util.commas(details.links);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    table.appendChild(tbody);
+                    output.appendChild(table);
+                    
+                    if (list.length === 1) {
+                        mTime = new Date(list[0][0][4].mtimeMs);
+                        aTime = new Date(list[0][0][4].atimeMs);
+                        cTime = new Date(list[0][0][4].ctimeMs);
                         heading = document.createElement("h3");
-                        heading.innerHTML = "Contains";
+                        heading.innerHTML = "Modified, Accessed, Created";
                         output.appendChild(heading);
-                        td = document.createElement("p");
-                        td.innerHTML = "Does not count read protected assets.";
-                        output.appendChild(td);
                         table = document.createElement("table");
                         tbody = document.createElement("tbody");
                         tr = document.createElement("tr");
                         td = document.createElement("th");
-                        td.innerHTML = "Files";
+                        td.innerHTML = "Modified";
                         tr.appendChild(td);
                         td = document.createElement("td");
-                        td.innerHTML = ui.util.commas(details.files);
+                        td.innerHTML = ui.util.dateFormat(mTime);
                         tr.appendChild(td);
                         tbody.appendChild(tr);
                         tr = document.createElement("tr");
                         td = document.createElement("th");
-                        td.innerHTML = "Directories";
+                        td.innerHTML = "Accessed";
                         tr.appendChild(td);
                         td = document.createElement("td");
-                        td.innerHTML = ui.util.commas(details.directories);
+                        td.innerHTML = ui.util.dateFormat(aTime);
                         tr.appendChild(td);
                         tbody.appendChild(tr);
                         tr = document.createElement("tr");
                         td = document.createElement("th");
-                        td.innerHTML = "Symbolic Links";
+                        td.innerHTML = "Created";
                         tr.appendChild(td);
                         td = document.createElement("td");
-                        td.innerHTML = ui.util.commas(details.links);
+                        td.innerHTML = ui.util.dateFormat(cTime);
                         tr.appendChild(td);
                         tbody.appendChild(tr);
                         table.appendChild(tbody);
                         output.appendChild(table);
                     }
-                    
-                    heading = document.createElement("h3");
-                    heading.innerHTML = "Modified, Accessed, Created";
-                    output.appendChild(heading);
-                    table = document.createElement("table");
-                    tbody = document.createElement("tbody");
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Modified";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = ui.util.dateFormat(mTime);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Accessed";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = ui.util.dateFormat(aTime);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Created";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = ui.util.dateFormat(cTime);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    table.appendChild(tbody);
-                    output.appendChild(table);
 
                     callback(output);
                 } else {
@@ -195,7 +227,14 @@ import { unlink } from "fs";
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-read","agent":"self","depth":0,"location":"${address.replace(/\\/g, "\\\\")}"}`);
+        xhr.send(JSON.stringify({
+            fs: {
+                action: "fs-read",
+                agent: "self",
+                depth: 0,
+                location: address
+            }
+        }));
     };
     
     /* Retries file system data and builds an HTML artifact */
@@ -206,7 +245,7 @@ import { unlink } from "fs";
             if (xhr.readyState === 4) {
                 const elementParent:HTMLElement = <HTMLElement>configuration.element.parentNode;
                 if (xhr.status === 200 || xhr.status === 0) {
-                    const list:directoryList = JSON.parse(xhr.responseText),
+                    const list:directoryList = JSON.parse(xhr.responseText)[0],
                         local:directoryList = [],
                         length:number = list.length,
                         output:HTMLElement = document.createElement("ul"),
@@ -342,7 +381,7 @@ import { unlink } from "fs";
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
+        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":["${configuration.location.replace(/\\/g, "\\\\")}"]}`);
     };
 
     /* Stores systems log messages to storage/messages.json file */
@@ -416,7 +455,7 @@ import { unlink } from "fs";
             button:HTMLButtonElement,
             reverse:boolean = false,
             a:number = 0;
-        if (element.nodeName === "span" || element.nodeName === "label") {
+        if (element.nodeName === "span" || element.nodeName === "label" || element.getAttribute("class") === "expansion") {
             element = <HTMLElement>element.parentNode;
             parent = <HTMLElement>parent.parentNode;
         }
@@ -436,18 +475,34 @@ import { unlink } from "fs";
             button = document.createElement("button");
             button.innerHTML = "Details";
             button.onclick = function local_ui_context_menu_details():void {
-                const addressItem:Node = (element.firstChild.nodeType === 1)
-                        ? element.firstChild.nextSibling
-                        : element.firstChild,
-                    address:string = addressItem.textContent;
-                network.fileDetails(address, function local_ui_context_menu_details_callback(files:HTMLElement) {
-                    const artifact:string[] = address.replace(/\\/g, "/").split("/");
+                const addresses:string[] = (function local_ui_context_menu_details_addresses():string[] {
+                    const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
+                        length:number = itemList.length,
+                        output:string[] = [];
+                    let a:number = 0,
+                        addressItem:HTMLElement;
+                    do {
+                        if (itemList[a].getElementsByTagName("input")[0].checked === true) {
+                            addressItem = (itemList[a].firstChild.nodeName === "button")
+                                ? <HTMLElement>itemList[a].firstChild.nextSibling
+                                : <HTMLElement>itemList[a].firstChild;
+                            output.push(addressItem.innerHTML);
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    if (output.length > 0) {
+                        return output;
+                    }
+                    output.push(element.getElementsByTagName("label")[0].innerHTML);
+                    return output;
+                }());
+                network.fileDetails(addresses, function local_ui_context_menu_details_callback(files:HTMLElement) {
                     ui.modal.create({
                         content: files,
                         height: 500,
                         inputs: ["close"],
                         single: true,
-                        title: `Details - ${artifact[artifact.length - 1]}`,
+                        title: `Details - ${addresses.length} items`,
                         type: "details",
                         width: 500
                     });
@@ -582,7 +637,7 @@ import { unlink } from "fs";
             },
             element: element,
             id: "",
-            location: "default"
+            location: "defaultLocation"
         });
     };
 
@@ -797,7 +852,7 @@ import { unlink } from "fs";
             },
             element: element,
             id: "",
-            location: "default"
+            location: "defaultLocation"
         });
     };
 
@@ -1078,7 +1133,7 @@ import { unlink } from "fs";
     };
 
     /* Creates an import/export modal */
-    ui.modal.export = function local_ui_modal_export():void {
+    ui.modal.export = function local_ui_modal_export(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             textArea:HTMLTextAreaElement = document.createElement("textarea");
         textArea.onblur = ui.modal.textSave;
@@ -1473,9 +1528,10 @@ import { unlink } from "fs";
     /* Manages z-index of modals and moves a modal to the top on interaction */
     ui.modal.zTop     = function local_ui_modal_zTop(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            parent:HTMLElement = <HTMLElement>element.parentNode;
+            parent:HTMLElement = <HTMLElement>element.parentNode,
+            grandParent:HTMLElement = <HTMLElement>parent.parentNode;
         let box:HTMLElement = element;
-        if (element.nodeName === "li" && parent.getAttribute("class") === "fileList" && characterKey === "shift") {
+        if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && characterKey === "shift") {
             event.preventDefault();
         }
         if (element.getAttribute("class") !== "box") {
@@ -1728,14 +1784,17 @@ import { unlink } from "fs";
     };
 
     /* Interaction from the button on the login page */
-    ui.util.login = function local_ui_util_login():void {
-        const input:HTMLInputElement = document.getElementById("login").getElementsByTagName("input")[0];
-        if (input.value.replace(/\s+/, "") === "") {
-            input.focus();
-        } else {
-            data.name = input.value;
-            ui.util.addUser(input.value, "localhost");
-            document.getElementsByTagName("body")[0].removeAttribute("class");
+    ui.util.login = function local_ui_util_login(event:KeyboardEvent):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            input:HTMLInputElement = document.getElementById("login").getElementsByTagName("input")[0];
+        if (element === input || (event.type === "keyup" && event.keyCode === 13)) {
+            if (input.value.replace(/\s+/, "") === "") {
+                input.focus();
+            } else {
+                data.name = input.value;
+                ui.util.addUser(input.value, "localhost");
+                document.getElementsByTagName("body")[0].removeAttribute("class");
+            }
         }
     };
 
@@ -2007,6 +2066,7 @@ import { unlink } from "fs";
                 loadComplete = function load_restore_complete():void {
                     // assign key default events
                     content.onclick = ui.context.menuRemove;
+                    document.getElementById("login-input").onkeyup = ui.util.login;
                     document.getElementById("login").getElementsByTagName("button")[0].onclick = ui.util.login;
                     document.getElementById("menuToggle").onclick = ui.util.menu;
                     document.getElementById("shareFiles").onclick = ui.fs.share;
@@ -2078,104 +2138,108 @@ import { unlink } from "fs";
                 if (cString.indexOf("storage:") === 0) {
                     if (cString.length > 12) {
                         storage = JSON.parse(cString.replace("storage:", ""));
-                        const modalKeys:string[] = Object.keys(storage.settings.modals),
-                            indexes:[number, string][] = [],
-                            z = function local_restore_z(id:string) {
-                                count = count + 1;
-                                indexes.push([storage.settings.modals[id].zIndex, id]);
-                                if (count === modalKeys.length) {
-                                    let cc:number = 0;
-                                    data.zIndex = modalKeys.length;
-                                    indexes.sort(function local_restore_z_sort(aa:[number, string], bb:[number, string]):number {
-                                        if (aa[0] < bb[0]) {
-                                            return -1;
-                                        }
-                                        return 1;
-                                    });
-                                    do {
-                                        if (storage.settings.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
-                                            storage.settings.modals[indexes[cc][1]].zIndex = cc + 1;
-                                            document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
-                                        }
-                                        cc = cc + 1;
-                                    } while (cc < modalKeys.length);
-                                    loadComplete();
-                                }
-                            };
-                        let count:number = 0;
-                        if (storage.settings.name === undefined || storage.settings.name === "") {
-                            document.getElementsByTagName("body")[0].setAttribute("class", "login");
-                        } else {
-                            data.name = storage.settings.name;
-                            ui.util.addUser(storage.settings.name, "localhost");
-                        }
-                        if (modalKeys.length < 1) {
+                        if (Object.keys(storage.settings).length < 1) {
                             loadComplete();
-                        }
-                        modalKeys.forEach(function local_restore_modalKeys(value:string) {
-                            if (storage.settings.modals[value].type === "fileNavigate" || storage.settings.modals[value].type === "fileShare") {
-                                network.fs({
-                                    agent: "self",
-                                    depth: 2,
-                                    callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {
-                                        const textValue:string = files.getAttribute("title");
-                                        files.removeAttribute("title");
-                                        storage.settings.modals[id].content = files;
-                                        storage.settings.modals[id].id = id;
-                                        if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
-                                            storage.settings.modals[id].text_value = textValue;
-                                        }
-                                        storage.settings.modals[id].text_event = ui.fs.text;
-                                        ui.modal.create(storage.settings.modals[id]);
-                                        z(id);
-                                        if (storage.settings.modals[id].status === "maximized") {
-                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
-                                            data.modals[id].status = "normal";
-                                            button.click();
-                                        } else if (storage.settings.modals[id].status === "minimized") {
-                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
-                                            data.modals[id].status = "normal";
-                                            button.click();
-                                        }
-                                    },
-                                    element: content,
-                                    id: value,
-                                    location: storage.settings.modals[value].text_value
-                                });
-                            } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
-                                const textArea:HTMLTextAreaElement = document.createElement("textarea");
-                                if (storage.settings.modals[value].type === "textPad") {
-                                    if (storage.settings.modals[value].text_value !== undefined) {
-                                        textArea.value = storage.settings.modals[value].text_value;
+                        } else {
+                            const modalKeys:string[] = Object.keys(storage.settings.modals),
+                                indexes:[number, string][] = [],
+                                z = function local_restore_z(id:string) {
+                                    count = count + 1;
+                                    indexes.push([storage.settings.modals[id].zIndex, id]);
+                                    if (count === modalKeys.length) {
+                                        let cc:number = 0;
+                                        data.zIndex = modalKeys.length;
+                                        indexes.sort(function local_restore_z_sort(aa:[number, string], bb:[number, string]):number {
+                                            if (aa[0] < bb[0]) {
+                                                return -1;
+                                            }
+                                            return 1;
+                                        });
+                                        do {
+                                            if (storage.settings.modals[indexes[cc][1]] !== undefined && document.getElementById(indexes[cc][1]) !== null) {
+                                                storage.settings.modals[indexes[cc][1]].zIndex = cc + 1;
+                                                document.getElementById(indexes[cc][1]).style.zIndex = `${cc + 1}`;
+                                            }
+                                            cc = cc + 1;
+                                        } while (cc < modalKeys.length);
+                                        loadComplete();
                                     }
-                                    textArea.onblur = ui.modal.textSave;
-                                } else {
-                                    textArea.value = JSON.stringify(storage.settings);
-                                }
-                                storage.settings.modals[value].content = textArea;
-                                storage.settings.modals[value].id = value;
-                                ui.modal.create(storage.settings.modals[value]);
-                                z(value);
-                            } else if (storage.settings.modals[value].type === "systems") {
-                                storage.settings.modals[value].content = systems;
-                                ui.modal.create(storage.settings.modals[value]);
-                                const systemsModal:HTMLElement = document.getElementById("systems-modal");
-                                let button:HTMLButtonElement;
-                                if (storage.settings.modals[value].text_value === "status") {
-                                    button = <HTMLButtonElement>systemsModal.getElementsByClassName("status")[0];
-                                    button.click();
-                                } else if (storage.settings.modals[value].text_value === "users") {
-                                    button = <HTMLButtonElement>systemsModal.getElementsByClassName("users")[0];
-                                    button.click();
-                                } else if (storage.settings.modals[value].text_value === "errors") {
-                                    button = <HTMLButtonElement>systemsModal.getElementsByClassName("errors")[0];
-                                    button.click();
-                                }
-                                z(value);
-                            } else if (storage.settings.modals[value].type === "details") {
-                                z(value);
+                                };
+                            let count:number = 0;
+                            if (storage.settings.name === undefined || storage.settings.name === "") {
+                                document.getElementsByTagName("body")[0].setAttribute("class", "login");
+                            } else {
+                                data.name = storage.settings.name;
+                                ui.util.addUser(storage.settings.name, "localhost");
                             }
-                        });
+                            if (modalKeys.length < 1) {
+                                loadComplete();
+                            }
+                            modalKeys.forEach(function local_restore_modalKeys(value:string) {
+                                if (storage.settings.modals[value].type === "fileNavigate" || storage.settings.modals[value].type === "fileShare") {
+                                    network.fs({
+                                        agent: "self",
+                                        depth: 2,
+                                        callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {
+                                            const textValue:string = files.getAttribute("title");
+                                            files.removeAttribute("title");
+                                            storage.settings.modals[id].content = files;
+                                            storage.settings.modals[id].id = id;
+                                            if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
+                                                storage.settings.modals[id].text_value = textValue;
+                                            }
+                                            storage.settings.modals[id].text_event = ui.fs.text;
+                                            ui.modal.create(storage.settings.modals[id]);
+                                            z(id);
+                                            if (storage.settings.modals[id].status === "maximized") {
+                                                const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
+                                                data.modals[id].status = "normal";
+                                                button.click();
+                                            } else if (storage.settings.modals[id].status === "minimized") {
+                                                const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
+                                                data.modals[id].status = "normal";
+                                                button.click();
+                                            }
+                                        },
+                                        element: content,
+                                        id: value,
+                                        location: storage.settings.modals[value].text_value
+                                    });
+                                } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
+                                    const textArea:HTMLTextAreaElement = document.createElement("textarea");
+                                    if (storage.settings.modals[value].type === "textPad") {
+                                        if (storage.settings.modals[value].text_value !== undefined) {
+                                            textArea.value = storage.settings.modals[value].text_value;
+                                        }
+                                        textArea.onblur = ui.modal.textSave;
+                                    } else {
+                                        textArea.value = JSON.stringify(storage.settings);
+                                    }
+                                    storage.settings.modals[value].content = textArea;
+                                    storage.settings.modals[value].id = value;
+                                    ui.modal.create(storage.settings.modals[value]);
+                                    z(value);
+                                } else if (storage.settings.modals[value].type === "systems") {
+                                    storage.settings.modals[value].content = systems;
+                                    ui.modal.create(storage.settings.modals[value]);
+                                    const systemsModal:HTMLElement = document.getElementById("systems-modal");
+                                    let button:HTMLButtonElement;
+                                    if (storage.settings.modals[value].text_value === "status") {
+                                        button = <HTMLButtonElement>systemsModal.getElementsByClassName("status")[0];
+                                        button.click();
+                                    } else if (storage.settings.modals[value].text_value === "users") {
+                                        button = <HTMLButtonElement>systemsModal.getElementsByClassName("users")[0];
+                                        button.click();
+                                    } else if (storage.settings.modals[value].text_value === "errors") {
+                                        button = <HTMLButtonElement>systemsModal.getElementsByClassName("errors")[0];
+                                        button.click();
+                                    }
+                                    z(value);
+                                } else if (storage.settings.modals[value].type === "details") {
+                                    z(value);
+                                }
+                            });
+                        }
                     } else {
                         loadComplete();
                     }

@@ -1,4 +1,3 @@
-#### details array
 
 ## gui
 1 - change message times to use ui.util.dateFormat

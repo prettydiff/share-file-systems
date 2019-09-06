@@ -19,7 +19,7 @@
     ],
     "license": "CC0-1.0",
     "main": "js/application.js",
-    "name": "freshapp",
+    "name": "spaces",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/prettydiff/freshapp.git"

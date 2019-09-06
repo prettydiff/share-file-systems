@@ -2425,6 +2425,7 @@ import { Hash } from "crypto";
                                                     if (erSettings !== null) {
                                                         if (erSettings.code === "ENOENT") {
                                                             flag.settings = true;
+                                                            list.push(`"settings":{}`);
                                                             if (flag.messages === true) {
                                                                 response.write(appliedData());
                                                                 response.end();
@@ -2455,6 +2456,7 @@ import { Hash } from "crypto";
                                                     if (erMessages !== null) {
                                                         if (erMessages.code === "ENOENT") {
                                                             flag.messages = true;
+                                                            list.push(`"messages":{}`);
                                                             if (flag.settings === true) {
                                                                 response.write(appliedData());
                                                                 response.end();
@@ -2508,106 +2510,122 @@ import { Hash } from "crypto";
                         });
 
                         request.on('end', function node_apps_server_create_end():void {
-                            let task:string = body.slice(0, body.indexOf(":")),
-                                dataString:string = body.slice(body.indexOf(":") + 1);
+                            let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, ""),
+                                dataString:string = (body.charAt(0) === "{")
+                                    ? body.slice(body.indexOf(":") + 1, body.length - 1)
+                                    : body.slice(body.indexOf(":") + 1);
                             if (task === "fs") {
                                 const data:localService = JSON.parse(dataString);
                                 if (data.agent === "self") {
                                     if (data.action === "fs-read") {
-                                        const path:string = (data.location === "default")
-                                                ? projectPath
-                                                : data.location,
-                                            callback = function node_apps_server_create_end_putCallback(result:string[]|directoryList):void {
-                                                response.writeHead(200, {"Content-Type": "application/json"});
-                                                response.write(JSON.stringify(result));
-                                                response.end();
-                                            };
-                                        if (path === "\\") {
-                                            //cspell:disable
-                                            node.child("wmic logicaldisk get name", function node_apps_server_create_windowsRoot(erw:Error, stdout:string, stderr:string):void {
-                                            //cspell:enable
-                                                if (erw !== null) {
-                                                    apps.error([erw.toString()]);
-                                                } else if (stderr !== "") {
-                                                    apps.error([stderr]);
+                                        const callback = function node_apps_server_create_end_putCallback(result:directoryList):void {
+                                                count = count + 1;
+                                                output.push(result);
+                                                if (count === pathLength) {
+                                                    response.writeHead(200, {"Content-Type": "application/json"});
+                                                    response.write(JSON.stringify(output));
+                                                    response.end();
                                                 }
-                                                const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
-                                                    length:number = drives.length,
-                                                    date:Date = new Date(),
-                                                    driveList = function node_apps_server_create_windowsRoot_driveList(result:directoryList):void {
-                                                        let b:number = 1;
-                                                        const resultLength:number = result.length,
-                                                            masterIndex:number = masterList.length;
-                                                        do {
-                                                            result[b][2] = masterIndex; 
-                                                            b = b + 1;
-                                                        } while (b < resultLength);
-                                                        a = a + 1;
-                                                        masterList = masterList.concat(result);
-                                                        if (a === length) {
-                                                            callback(masterList);
+                                            },
+                                            windowsRoot = function node_apps_server_create_end_windowsRoot():void {
+                                                //cspell:disable
+                                                node.child("wmic logicaldisk get name", function node_apps_server_create_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                                //cspell:enable
+                                                    if (erw !== null) {
+                                                        apps.error([erw.toString()]);
+                                                    } else if (stderr !== "") {
+                                                        apps.error([stderr]);
+                                                    }
+                                                    const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
+                                                        length:number = drives.length,
+                                                        date:Date = new Date(),
+                                                        driveList = function node_apps_server_create_windowsRoot_driveList(result:directoryList):void {
+                                                            let b:number = 1;
+                                                            const resultLength:number = result.length,
+                                                                masterIndex:number = masterList.length;
+                                                            do {
+                                                                result[b][2] = masterIndex; 
+                                                                b = b + 1;
+                                                            } while (b < resultLength);
+                                                            a = a + 1;
+                                                            masterList = masterList.concat(result);
+                                                            if (a === length) {
+                                                                callback(masterList);
+                                                            }
+                                                        };
+                                                    let masterList:directoryList = [["\\", "directory", 0, length, {
+                                                            dev: 0,
+                                                            ino: 0,
+                                                            mode: 0,
+                                                            nlink: 0,
+                                                            uid: 0,
+                                                            gid: 0,
+                                                            rdev: 0,
+                                                            size: 0,
+                                                            blksize: 0,
+                                                            blocks: 0,
+                                                            atimeMs: 0,
+                                                            mtimeMs: 0,
+                                                            ctimeMs: 0,
+                                                            birthtimeMs: 0,
+                                                            atime: date,
+                                                            mtime: date,
+                                                            ctime: date,
+                                                            birthtime: date,
+                                                            isBlockDevice: function node_apps_server_create_windowsRoot_isBlockDevice() {},
+                                                            isCharacterDevice: function node_apps_server_create_windowsRoot_isCharacterDevice() {},
+                                                            isDirectory: function node_apps_server_create_windowsRoot_isDirectory() {},
+                                                            isFIFO: function node_apps_server_create_windowsRoot_isFIFO() {},
+                                                            isFile: function node_apps_server_create_windowsRoot_isFile() {},
+                                                            isSocket: function node_apps_server_create_windowsRoot_isSocket() {},
+                                                            isSymbolicLink: function node_apps_server_create_windowsRoot_isSymbolicLink() {}
+                                                        }]],
+                                                        a:number = 0;
+                                                    drives.forEach(function node_apps_server_create_windowsRoot_each(value:string) {
+                                                        apps.directory({
+                                                            callback: driveList,
+                                                            depth: 1,
+                                                            path: `${value}\\`,
+                                                            recursive: true,
+                                                            symbolic: true
+                                                        });
+                                                    });
+                                                });
+                                            },
+                                            pathList:string[] = data.location,
+                                            pathLength:number = pathList.length,
+                                            output:directoryList[] = [];
+                                        let count:number = 0;
+                                        if (pathList[0] === "defaultLocation") {
+                                            pathList[0] = projectPath;
+                                        }
+                                        pathList.forEach(function node_apps_server_create_end_pathEach(value:string) {
+                                            if (value === "\\") {
+                                                windowsRoot();
+                                            } else {
+                                                node.fs.stat(value, function node_apps_server_create_end_putStat(erp:nodeError):void {
+                                                    if (erp !== null) {
+                                                        if (erp.code === "ENOENT") {
+                                                            response.writeHead(404, {"Content-Type": "application/json"});
+                                                            response.write("missing");
+                                                            response.end();
                                                         }
-                                                    };
-                                                let masterList:directoryList = [["\\", "directory", 0, length, {
-                                                        dev: 0,
-                                                        ino: 0,
-                                                        mode: 0,
-                                                        nlink: 0,
-                                                        uid: 0,
-                                                        gid: 0,
-                                                        rdev: 0,
-                                                        size: 0,
-                                                        blksize: 0,
-                                                        blocks: 0,
-                                                        atimeMs: 0,
-                                                        mtimeMs: 0,
-                                                        ctimeMs: 0,
-                                                        birthtimeMs: 0,
-                                                        atime: date,
-                                                        mtime: date,
-                                                        ctime: date,
-                                                        birthtime: date,
-                                                        isBlockDevice: function node_apps_server_create_windowsRoot_isBlockDevice() {},
-                                                        isCharacterDevice: function node_apps_server_create_windowsRoot_isCharacterDevice() {},
-                                                        isDirectory: function node_apps_server_create_windowsRoot_isDirectory() {},
-                                                        isFIFO: function node_apps_server_create_windowsRoot_isFIFO() {},
-                                                        isFile: function node_apps_server_create_windowsRoot_isFile() {},
-                                                        isSocket: function node_apps_server_create_windowsRoot_isSocket() {},
-                                                        isSymbolicLink: function node_apps_server_create_windowsRoot_isSymbolicLink() {}
-                                                    }]],
-                                                    a:number = 0;
-                                                drives.forEach(function node_apps_server_create_windowsRoot_each(value:string) {
+                                                        apps.error([erp.toString()]);
+                                                        count = count + 1;
+                                                        return;
+                                                    }
                                                     apps.directory({
-                                                        callback: driveList,
-                                                        depth: 1,
-                                                        path: `${value}\\`,
+                                                        callback: callback,
+                                                        depth: data.depth,
+                                                        path: value,
                                                         recursive: true,
                                                         symbolic: true
                                                     });
                                                 });
-                                            });
-                                        } else {
-                                            node.fs.stat(path, function node_apps_server_create_end_putStat(erp:nodeError):void {
-                                                if (erp !== null) {
-                                                    if (erp.code === "ENOENT") {
-                                                        response.writeHead(404, {"Content-Type": "application/json"});
-                                                        response.write("missing");
-                                                        response.end();
-                                                    }
-                                                    apps.error([erp.toString()]);
-                                                    return;
-                                                }
-                                                apps.directory({
-                                                    callback: callback,
-                                                    depth: data.depth,
-                                                    path: path,
-                                                    recursive: true,
-                                                    symbolic: true
-                                                });
-                                            });
-                                        }
+                                            }
+                                        });
                                     } else if (data.action === "fs-rename") {
-                                        const newPath:string[] = data.location.split(sep);
+                                        const newPath:string[] = data.location[0].split(sep);
                                         newPath.pop();
                                         newPath.push(data.name);
                                         node.fs.rename(data.location, newPath.join(sep), function node_apps_server_create_end_rename(erRename:Error):void {
