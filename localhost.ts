@@ -25,8 +25,9 @@ import { unlink } from "fs";
             }
             return index;
         }()) + 1}`),
-        network:any = {},
-        ui:any = {
+        network:network = {},
+        ui:ui = {
+            context: {},
             fs: {},
             modal: {},
             systems: {},
@@ -45,7 +46,159 @@ import { unlink } from "fs";
             errors: []
         },
         characterKey:characterKey = "";
-    network.error = function local_network_error():void {};
+
+    /* Gathers fully recursive file system details and displays to screen */
+    network.fileDetails = function local_network_fileDetails(address:string, callback:Function):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        ui.context.menuRemove();
+        xhr.onreadystatechange = function local_network_fileDetails_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    const list:directoryList = JSON.parse(xhr.responseText),
+                        length:number = list.length,
+                        details:fsDetails = {
+                            size: 0,
+                            files: 0,
+                            directories: 0,
+                            links: 0
+                        },
+                        output:HTMLElement = document.createElement("div"),
+                        mTime:Date = new Date(list[0][4].mtimeMs),
+                        aTime:Date = new Date(list[0][4].atimeMs),
+                        cTime:Date = new Date(list[0][4].ctimeMs);
+                    let a:number = 0,
+                        tr:HTMLElement,
+                        td:HTMLElement,
+                        heading:HTMLElement = document.createElement("h3"),
+                        table:HTMLElement = document.createElement("table"),
+                        tbody:HTMLElement = document.createElement("tbody");
+                    if (list[0][1] === "directory" && length > 0) {
+                        a = 1;
+                        do {
+                            if (list[a][1] === "directory") {
+                                details.directories = details.directories + 1;
+                            } else if (list[a][1] === "link") {
+                                details.links = details.links + 1;
+                            } else {
+                                details.files = details.files + 1;
+                                details.size = details.size + list[a][4].size;
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                    } else {
+                        details.size = list[0][4].size;
+                    }
+                    output.setAttribute("class", "fileDetailOutput");
+                    heading.innerHTML = address;
+                    output.appendChild(heading);
+
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Type";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = list[0][1];
+                    td.setAttribute("class", list[0][1]);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Size";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    if (details.size > 1024) {
+                        td.innerHTML = `${ui.util.commas(details.size)} bytes (${ui.util.prettyBytes(details.size)})`;
+                    } else {
+                        td.innerHTML = `${ui.util.commas(details.size)} bytes`;
+                    }
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    table.appendChild(tbody);
+                    output.appendChild(table);
+
+                    if (list[0][1] === "directory") {
+                        heading = document.createElement("h3");
+                        heading.innerHTML = "Contains";
+                        output.appendChild(heading);
+                        td = document.createElement("p");
+                        td.innerHTML = "Does not count read protected assets.";
+                        output.appendChild(td);
+                        table = document.createElement("table");
+                        tbody = document.createElement("tbody");
+                        tr = document.createElement("tr");
+                        td = document.createElement("th");
+                        td.innerHTML = "Files";
+                        tr.appendChild(td);
+                        td = document.createElement("td");
+                        td.innerHTML = ui.util.commas(details.files);
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                        tr = document.createElement("tr");
+                        td = document.createElement("th");
+                        td.innerHTML = "Directories";
+                        tr.appendChild(td);
+                        td = document.createElement("td");
+                        td.innerHTML = ui.util.commas(details.directories);
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                        tr = document.createElement("tr");
+                        td = document.createElement("th");
+                        td.innerHTML = "Symbolic Links";
+                        tr.appendChild(td);
+                        td = document.createElement("td");
+                        td.innerHTML = ui.util.commas(details.links);
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                        table.appendChild(tbody);
+                        output.appendChild(table);
+                    }
+                    
+                    heading = document.createElement("h3");
+                    heading.innerHTML = "Modified, Accessed, Created";
+                    output.appendChild(heading);
+                    table = document.createElement("table");
+                    tbody = document.createElement("tbody");
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Modified";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = ui.util.dateFormat(mTime);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Accessed";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = ui.util.dateFormat(aTime);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    tr = document.createElement("tr");
+                    td = document.createElement("th");
+                    td.innerHTML = "Created";
+                    tr.appendChild(td);
+                    td = document.createElement("td");
+                    td.innerHTML = ui.util.dateFormat(cTime);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+                    table.appendChild(tbody);
+                    output.appendChild(table);
+
+                    callback(output);
+                } else {
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`fs:{"action":"fs-read","agent":"self","depth":0,"location":"${address.replace(/\\/g, "\\\\")}"}`);
+    };
+    
+    /* Retries file system data and builds an HTML artifact */
     network.fs = function local_network_fs(configuration:readFS):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
@@ -83,7 +236,6 @@ import { unlink } from "fs";
                                     plural = "s";
                                 }
                                 span.textContent = `file - ${ui.util.commas(local[a][4].size)} byte${plural}`;
-                                li.appendChild(span);
                             } else if (local[a][1] === "directory") {
                                 if (local[a][3] > 0) {
                                     button = document.createElement("button");
@@ -99,7 +251,6 @@ import { unlink } from "fs";
                                     plural = "s";
                                 }
                                 span.textContent = `directory - ${ui.util.commas(local[a][3])} item${plural}`;
-                                li.appendChild(span);
                             } else {
                                 span = document.createElement("span");
                                 if (local[a][1] === "link") {
@@ -107,8 +258,10 @@ import { unlink } from "fs";
                                 } else {
                                     span.textContent = local[a][1];
                                 }
-                                li.appendChild(span);
                             }
+                            span.oncontextmenu = ui.context.menu;
+                            li.appendChild(span);
+                            li.oncontextmenu = ui.context.menu;
                             li.appendChild(label);
                             li.onclick = ui.fs.select;
                         };
@@ -118,6 +271,7 @@ import { unlink } from "fs";
                         span:HTMLElement,
                         plural:string,
                         localLength:number = 0;
+                    configuration.element.removeAttribute("class");
                     do {
                         if (list[a][2] === 0) {
                             local.push(list[a]);
@@ -159,7 +313,8 @@ import { unlink } from "fs";
                     output.title = local[0][0];
                     configuration.callback(output, configuration.id);
                 } else {
-                    network.error("something");
+                    configuration.element.setAttribute("class", "error");
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
             }
         };
@@ -168,6 +323,8 @@ import { unlink } from "fs";
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":"${configuration.location.replace(/\\/g, "\\\\")}"}`);
     };
+
+    /* Stores systems log messages to storage/messages.json file */
     network.messages = function local_network_messages():void {
         if (loadTest === true) {
             return;
@@ -177,7 +334,7 @@ import { unlink } from "fs";
         xhr.onreadystatechange = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    network.error("something");
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":${new Error().stack}`);
                 }
             }
         };
@@ -186,6 +343,8 @@ import { unlink } from "fs";
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(`messages:${JSON.stringify(messages)}`);
     };
+
+    /* Stores settings data to a storage/settings.json file */
     network.settings = function local_network_settings():void {
         if (loadTest === true) {
             return;
@@ -195,7 +354,7 @@ import { unlink } from "fs";
         xhr.onreadystatechange = function local_network_settings_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    network.error("something");
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending settings.","stack":${new Error().stack}`);
                 }
             }
         };
@@ -204,6 +363,120 @@ import { unlink } from "fs";
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(`settings:${JSON.stringify(data)}`);
     };
+
+    /* Creates context menu */
+    ui.context.menu = function local_ui_context_menu(event:MouseEvent):void {
+        const itemList:HTMLElement[] = [],
+            menu:HTMLElement = document.createElement("ul");
+        let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            parent:HTMLElement = <HTMLElement>element.parentNode,
+            item:HTMLElement,
+            button:HTMLElement,
+            reverse:boolean = false,
+            a:number = 0;
+        if (element.nodeName === "span") {
+            element = <HTMLElement>element.parentNode;
+            parent = <HTMLElement>parent.parentNode;
+        }
+        ui.context.menuRemove();
+        event.preventDefault();
+        event.stopPropagation();
+        menu.setAttribute("id", "contextMenu");
+        if (parent.getAttribute("class") === "fileList") {
+            // details
+            item = document.createElement("li");
+            button = document.createElement("button");
+            button.innerHTML = "Details";
+            button.onclick = function local_ui_context_menu_details():void {
+                const addressItem:Node = (element.firstChild.nodeType === 1)
+                        ? element.firstChild.nextSibling
+                        : element.firstChild,
+                    address:string = addressItem.textContent;
+                network.fileDetails(address, function local_ui_context_menu_details_callback(files:HTMLElement) {
+                    const artifact:string[] = address.replace(/\\/g, "/").split("/");
+                    ui.modal.create({
+                        content: files,
+                        height: 500,
+                        inputs: ["close"],
+                        single: true,
+                        title: `Details - ${artifact[artifact.length - 1]}`,
+                        type: "details",
+                        width: 500
+                    });
+                });
+            }
+            item.appendChild(button);
+            itemList.push(item);
+
+            // copy
+            item = document.createElement("li");
+            button = document.createElement("button");
+            button.innerHTML = "Copy";
+            //button.onclick = wrap network.fs and open it to do more than generate file list
+            item.appendChild(button);
+            itemList.push(item);
+
+            // move
+            item = document.createElement("li");
+            button = document.createElement("button");
+            button.innerHTML = "Move";
+            //button.onclick = wrap network.fs and open it to do more than generate file list
+            item.appendChild(button);
+            itemList.push(item);
+
+            // rename
+            item = document.createElement("li");
+            button = document.createElement("button");
+            button.innerHTML = "Rename";
+            //button.onclick = wrap network.fs and open it to do more than generate file list
+            item.appendChild(button);
+            itemList.push(item);
+
+            // destroy
+            item = document.createElement("li");
+            button = document.createElement("button");
+            button.innerHTML = "Destroy";
+            button.setAttribute("class", "destroy");
+            //button.onclick = wrap network.fs and open it to do more than generate file list
+            item.appendChild(button);
+            itemList.push(item);
+        }
+        menu.style.zIndex = `${data.zIndex + 10}`;
+        if (content.clientHeight < ((itemList.length * 51) + 1) + (event.clientY - 48)) {
+            reverse = true;
+            menu.style.top = `${(event.clientY - 48 - ((itemList.length * 51) + 1)) / 10}em`;;
+        } else {
+            menu.style.top = `${(event.clientY - 48) / 10}em`;
+        }
+        if (content.clientWidth < (200 + event.clientX)) {
+            reverse = true;
+            menu.style.left = `${(event.clientX - 200) / 10}em`;
+        } else {
+            menu.style.left = `${event.clientX / 10}em`;
+        }
+        if (reverse === true) {
+            a = itemList.length;
+            do {
+                a = a - 1;
+                menu.appendChild(itemList[a]);
+            } while (a > 0);
+        } else {
+            do {
+                menu.appendChild(itemList[a]);
+                a = a + 1;
+            } while (a < itemList.length);
+        }
+        content.appendChild(menu);
+    };
+
+    /* Destroys a context menu */
+    ui.context.menuRemove = function local_ui_context_menuRemove():void {
+        if (document.getElementById("contextMenu") !== null) {
+            content.removeChild(document.getElementById("contextMenu"));
+        }
+    }
+
+    /* Shows child elements of a directory */
     ui.fs.expand = function local_ui_fs_expand(event:MouseEvent):void {
         const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             li:HTMLElement = <HTMLElement>button.parentNode;
@@ -215,6 +488,7 @@ import { unlink } from "fs";
                 callback: function local_ui_fs_expand_callback(files:HTMLElement) {
                     li.appendChild(files);
                 },
+                element: button,
                 id: "",
                 location: li.firstChild.nextSibling.textContent
             });
@@ -227,6 +501,8 @@ import { unlink } from "fs";
         }
         event.stopPropagation();
     };
+
+    /* Create a file navigator modal */
     ui.fs.navigate = function local_ui_fs_navigate(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         network.fs({
@@ -246,11 +522,14 @@ import { unlink } from "fs";
                     width: 800
                 });
             },
+            element: element,
             id: "",
             location: "default"
         });
     };
-    ui.fs.parent = function local_ui_fs_parent():boolean {
+
+    /* Request file system information of the parent directory */
+    ui.fs.parent = function local_ui_fs_parent(event:MouseEvent):boolean {
         const element:HTMLElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
             input:HTMLInputElement = <HTMLInputElement>element.nextSibling,
             slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
@@ -283,10 +562,13 @@ import { unlink } from "fs";
                 data.modals[id].text_value = input.value;
                 network.settings();
             },
+            element: element,
             id: "",
             location: input.value
         });
     };
+
+    /* Select a file system item for an action */
     ui.fs.select = function local_ui_fs_select(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             input:HTMLInputElement = element.getElementsByTagName("input")[0];
@@ -294,6 +576,7 @@ import { unlink } from "fs";
             body:HTMLElement = element,
             box:HTMLElement;
         event.stopPropagation();
+        ui.context.menuRemove();
         do {
             body = <HTMLElement>body.parentNode;
         } while (body !== document.documentElement && body.getAttribute("class") !== "body");
@@ -379,6 +662,8 @@ import { unlink } from "fs";
         }
         data.modals[box.getAttribute("id")].focus = element;
     };
+
+    /* Creates a "share file system" modal */
     ui.fs.share = function local_ui_fs_share(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         network.fs({
@@ -399,10 +684,13 @@ import { unlink } from "fs";
                     width: 800
                 });
             },
+            element: element,
             id: "",
             location: "default"
         });
     };
+
+    /* Requests file system data from a text field */
     ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
         const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
         let parent:HTMLElement = <HTMLElement>element.parentNode,
@@ -422,11 +710,14 @@ import { unlink } from "fs";
                     data.modals[id].text_value = element.value;
                     network.settings();
                 },
+                element: element,
                 id: "",
                 location: element.value
             });
         }
     };
+
+    /* Removes a modal from the DOM for garbage collection, except systems log is merely hidden */
     ui.modal.close = function local_ui_modal_close(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             keys:string[] = Object.keys(data.modals),
@@ -458,6 +749,8 @@ import { unlink } from "fs";
         delete data.modals[id];
         network.settings();
     };
+
+    /* Modal creation factory */
     ui.modal.create = function local_ui_modal_create(options:ui_modal):void {
         let button:HTMLElement = document.createElement("button"),
             h2:HTMLElement = document.createElement("h2"),
@@ -667,6 +960,8 @@ import { unlink } from "fs";
         content.appendChild(box);
         network.settings();
     };
+
+    /* Creates an import/export modal */
     ui.modal.export = function local_ui_modal_export():void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             textArea:HTMLTextAreaElement = document.createElement("textarea");
@@ -680,6 +975,8 @@ import { unlink } from "fs";
             type: "export"
         });
     };
+
+    /* Modifies saved settings from an imported JSON string then reloads the page */
     ui.modal.import = function local_ui_modal_import(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             dataString:string = JSON.stringify(data);
@@ -700,6 +997,8 @@ import { unlink } from "fs";
             location.replace(location.href);
         }
     };
+
+    /* The given modal consumes the entire view port of the content area */
     ui.modal.maximize = function local_ui_modal_maximize(event:Event):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             contentArea:HTMLElement = document.getElementById("content-area");
@@ -750,6 +1049,8 @@ import { unlink } from "fs";
         }
         network.settings();
     };
+
+    /* Visually minimize a modal to the tray at the bottom of the content area */
     ui.modal.minimize = function local_ui_modal_minimize(event:Event):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         let border:HTMLElement = element,
@@ -804,6 +1105,8 @@ import { unlink } from "fs";
         }
         network.settings();
     };
+
+    /* Drag and drop interaction for modals */
     ui.modal.move = function local_ui_modal_move(event:Event):boolean {
         const x:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             heading:HTMLElement = <HTMLElement>x.parentNode,
@@ -893,6 +1196,8 @@ import { unlink } from "fs";
         // update settings
         return false;
     };
+
+    /* Allows resizing of modals in 1 of 8 directions */
     ui.modal.resize = function local_ui_modal_resize(event:MouseEvent):void {
         let bodyWidth:number  = 0,
             bodyHeight:number = 0,
@@ -1013,6 +1318,8 @@ import { unlink } from "fs";
         document.onmousemove = side[direction];
         document.onmousedown = null;
     };
+
+    /* Shows the system log modal in the correct visual status */
     ui.modal.systems = function local_ui_modal_systems() {
         document.getElementById("systems-modal").style.display = "block";
         if (data.modals["systems-modal"].text_placeholder === "maximized" || data.modals["systems-modal"].text_placeholder === "normal") {
@@ -1021,6 +1328,8 @@ import { unlink } from "fs";
             data.modals["systems-modal"].status = "normal";
         }
     };
+
+    /* Creates a textPad modal */
     ui.modal.textPad = function local_ui_modal_textPad(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             textArea:HTMLTextAreaElement = document.createElement("textarea");
@@ -1033,6 +1342,8 @@ import { unlink } from "fs";
             width: 800
         });
     };
+
+    /* Pushes the text content of a textPad modal into settings so that it is saved */
     ui.modal.textSave = function local_ui_modal_textSave(event:MouseEvent):void {
         const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target;
         let box:HTMLElement = element;
@@ -1042,10 +1353,13 @@ import { unlink } from "fs";
         data.modals[box.getAttribute("id")].text_value = element.value;
         network.settings();
     };
+
+    /* Manages z-index of modals and moves a modal to the top on interaction */
     ui.modal.zTop     = function local_ui_modal_zTop(event:MouseEvent):void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            parent:HTMLElement = <HTMLElement>element.parentNode;
         let box:HTMLElement = element;
-        if (element.nodeName === "li") {
+        if (element.nodeName === "li" && parent.getAttribute("class") === "fileList" && characterKey === "shift") {
             event.preventDefault();
         }
         if (element.getAttribute("class") !== "box") {
@@ -1057,6 +1371,8 @@ import { unlink } from "fs";
         data.modals[box.getAttribute("id")].zIndex = data.zIndex;
         box.style.zIndex = data.zIndex.toString();
     };
+
+    /* Show/hide of stack trace information for error messages in the system log */
     ui.systems.expand = function local_ui_systems_expand(event:MouseEvent):void {
         const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             li:HTMLElement = <HTMLElement>button.parentNode,
@@ -1072,6 +1388,8 @@ import { unlink } from "fs";
         }
         tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
     };
+
+    /* Processes messages into the system log modal */
     ui.systems.message = function local_ui_systems_message(type:messageType, content:string, timeStore?:string):void {
         const date:Date = new Date(),
             time:string[] = [],
@@ -1120,6 +1438,7 @@ import { unlink } from "fs";
             dateString = time.slice(0, 3);
             span.innerHTML = `[${dateString.join(":")}::${time.slice(3).join(":")}]`;
         }
+        content = content.replace(/(\d+m)?\[\d+m/g, "");
         if (type === "errors") {
             const messageContent:messageError = JSON.parse(content),
                 button:HTMLButtonElement = document.createElement("button");
@@ -1162,6 +1481,8 @@ import { unlink } from "fs";
             network.messages();
         }
     };
+
+    /* Toggles tabs in the systems log modal */
     ui.systems.tabs = function local_ui_systems_tabs(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             parent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
@@ -1191,6 +1512,8 @@ import { unlink } from "fs";
         data.modals["systems-modal"].text_value = className;
         network.settings();
     };
+
+    /* Adds users to the user bar */
     ui.util.addUser = function local_ui_util_addUser(userName:string, ip:string):void {
         const li:HTMLLIElement = document.createElement("li");
         li.innerHTML = `${userName}@${ip}`;
@@ -1201,6 +1524,8 @@ import { unlink } from "fs";
         }
         document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
     };
+
+    /* Transforms numbers into a string of 3 digit comma separated groups */
     ui.util.commas = function local_ui_util_commas(number:number):string {
         const str:string = String(number);
         let arr:string[] = [],
@@ -1216,11 +1541,77 @@ import { unlink } from "fs";
         } while (a > 3);
         return arr.join("");
     };
+
+    /* Converts a date object into US Army date format */
+    ui.util.dateFormat = function local_network_fileDetails_callback_dateFormat(date:Date):string {
+        const dateData:string[] = [
+                date.getFullYear().toString(),
+                date.getMonth().toString(),
+                date.getDate().toString(),
+                date.getHours().toString(),
+                date.getMinutes().toString(),
+                date.getSeconds().toString(),
+                date.getMilliseconds().toString()
+            ],
+            output:string[] = [];
+        let month:string;
+        if (dateData[2].length === 1) {
+            dateData[2] = `0${dateData[2]}`;
+        }
+        if (dateData[3].length === 1) {
+            dateData[3] = `0${dateData[3]}`;
+        }
+        if (dateData[4].length === 1) {
+            dateData[4] = `0${dateData[4]}`;
+        }
+        if (dateData[5].length === 1) {
+            dateData[5] = `0${dateData[5]}`;
+        }
+        if (dateData[6].length === 1) {
+            dateData[6] = `00${dateData[6]}`;
+        } else if (dateData[6].length === 2) {
+            dateData[6] = `0${dateData[6]}`;
+        }
+        if (dateData[1] === "0") {
+            month = "JAN";
+        } else if (dateData[1] === "1") {
+            month = "FEB";
+        } else if (dateData[1] === "2") {
+            month = "MAR";
+        } else if (dateData[1] === "3") {
+            month = "APR";
+        } else if (dateData[1] === "4") {
+            month = "MAY";
+        } else if (dateData[1] === "5") {
+            month = "JUN";
+        } else if (dateData[1] === "6") {
+            month = "JUL";
+        } else if (dateData[1] === "7") {
+            month = "AUG";
+        } else if (dateData[1] === "8") {
+            month = "SEP";
+        } else if (dateData[1] === "9") {
+            month = "OCT";
+        } else if (dateData[1] === "10") {
+            month = "NOV";
+        } else if (dateData[1] === "11") {
+            month = "DEC";
+        }
+        output.push(dateData[2]);
+        output.push(month);
+        output.push(`${dateData[0]},`);
+        output.push(`${dateData[3]}:${dateData[4]}:${dateData[5]}.${dateData[6]}`);
+        return output.join(" ");
+    };
+
+    /* Resizes the interactive area to fit the browser viewport */
     ui.util.fixHeight = function local_ui_util_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
         content.style.height = `${(height - 51) / 10}em`;
         document.getElementById("users").style.height = `${(height - 102) / 10}em`;
     };
+
+    /* Interaction from the button on the login page */
     ui.util.login = function local_ui_util_login():void {
         const input:HTMLInputElement = document.getElementById("login").getElementsByTagName("input")[0];
         if (input.value.replace(/\s+/, "") === "") {
@@ -1231,6 +1622,8 @@ import { unlink } from "fs";
             document.getElementsByTagName("body")[0].removeAttribute("class");
         }
     };
+
+    /* Show/hide for the primary application menu that hangs off the title bar */
     ui.util.menu = function local_ui_util_menu():void {
         const menu:HTMLElement = document.getElementById("menu"),
             move = function local_ui_util_menu_move(event:MouseEvent):void {
@@ -1243,6 +1636,65 @@ import { unlink } from "fs";
         menu.style.display = "block";
         document.onmousemove = move;
     };
+
+    /* Round data sizes to human readable powers of 1024 */
+    ui.util.prettyBytes = function local_ui_util_prettyBytes(an_integer:number):string {
+        //find the string length of input and divide into triplets
+        let output:string = "",
+            length:number  = an_integer
+                .toString()
+                .length;
+        const triples:number = (function local_ui_util_prettyBytes_triples():number {
+                if (length < 22) {
+                    return Math.floor((length - 1) / 3);
+                }
+                //it seems the maximum supported length of integer is 22
+                return 8;
+            }()),
+            //each triplet is worth an exponent of 1024 (2 ^ 10)
+            power:number   = (function local_ui_util_prettyBytes_power():number {
+                let a = triples - 1,
+                    b = 1024;
+                if (triples === 0) {
+                    return 0;
+                }
+                if (triples === 1) {
+                    return 1024;
+                }
+                do {
+                    b = b * 1024;
+                    a = a - 1;
+                } while (a > 0);
+                return b;
+            }()),
+            //kilobytes, megabytes, and so forth...
+            unit    = [
+                "",
+                "KB",
+                "MB",
+                "GB",
+                "TB",
+                "PB",
+                "EB",
+                "ZB",
+                "YB"
+            ];
+
+        if (typeof an_integer !== "number" || Number.isNaN(an_integer) === true || an_integer < 0 || an_integer % 1 > 0) {
+            //input not a positive integer
+            output = "0.0B";
+        } else if (triples === 0) {
+            //input less than 1000
+            output = `${an_integer}B`;
+        } else {
+            //for input greater than 999
+            length = Math.floor((an_integer / power) * 100) / 100;
+            output = length.toFixed(1) + unit[triples];
+        }
+        return output;
+    };
+
+    /* Handle Web Socket responses */
     ws.addEventListener("message", function local_webSockets(event) {
         if (event.data === "reload") {
             location.reload();
@@ -1252,11 +1704,16 @@ import { unlink } from "fs";
                 modal:HTMLElement = document.getElementById("systems-modal"),
                 tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
             ui.systems.message("errors", data, "websocket");
-            tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
+            if (modal.clientWidth > 0) {
+                tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
+            }
         }
     });
+
     ui.util.fixHeight();
     window.onresize = ui.util.fixHeight;
+
+    /* Restore state and assign events */
     (function local_load():void {
         const systems:HTMLElement = (function local_systems():HTMLElement {
             const systemsElement:HTMLElement = document.createElement("div");
@@ -1433,6 +1890,7 @@ import { unlink } from "fs";
                 commentLength:number = comments.length,
                 loadComplete = function load_restore_complete():void {
                     // assign key default events
+                    content.onclick = ui.context.menuRemove;
                     document.getElementById("login").getElementsByTagName("button")[0].onclick = ui.util.login;
                     document.getElementById("menuToggle").onclick = ui.util.menu;
                     document.getElementById("shareFiles").onclick = ui.fs.share;
@@ -1560,6 +2018,7 @@ import { unlink } from "fs";
                                             button.click();
                                         }
                                     },
+                                    element: content,
                                     id: value,
                                     location: storage.settings.modals[value].text_value
                                 });
@@ -1592,6 +2051,8 @@ import { unlink } from "fs";
                                     button = <HTMLButtonElement>systemsModal.getElementsByClassName("errors")[0];
                                     button.click();
                                 }
+                                z(value);
+                            } else if (storage.settings.modals[value].type === "details") {
                                 z(value);
                             }
                         });

@@ -18,6 +18,23 @@ body{background:#cdf;margin:0;padding:0}
 #spaces #login button{background:#dfd;border-color:#060;color:#060;font-weight:bold;margin:2em 0 0;padding:1em;}
 #spaces #login{display:none}
 
+#spaces #contextMenu{border-color:#000;border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
+#spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
+#spaces #contextMenu button{background:#ddd;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.5em;text-align:left;width:10em}
+#spaces #contextMenu button:hover{background:#eee;color:#060;text-decoration:underline}
+#spaces #contextMenu .destroy{background:#fdd;color:#c00}
+#spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
+
+#spaces .fileDetailOutput{font-size:1.5em;padding:0.5em}
+#spaces .fileDetailOutput h3{color:#009}
+#spaces .fileDetailOutput h3,
+#spaces .fileDetailOutput p{margin:0}
+#spaces .fileDetailOutput th{font-weight:bold;text-align:left;width:10em}
+#spaces .fileDetailOutput table{border-color:#000;border-style:none none solid;border-width:0.05em;margin:0 0 3em}
+#spaces .fileDetailOutput .directory::before{content: "📂 "}
+#spaces .fileDetailOutput .file::before{content: "📃 "}
+#spaces .fileDetailOutput .link::before{content: "🔗 "}
+
 #spaces .title{background:#ddd;border-color:#666;border-style:none none solid;border-width:0.1em;box-shadow:0 0.05em 0.5em #66c;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
 #spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
@@ -87,6 +104,7 @@ body{background:#cdf;margin:0;padding:0}
 #spaces .box .header{background:#fff;border-color:#000;border-style:none solid;border-width:0 0.1em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
 #spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.2em;margin:0;padding:0;vertical-align:middle;width:100%}
+#spaces .box .header .error{background:#fdd;color:#900;}
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
 

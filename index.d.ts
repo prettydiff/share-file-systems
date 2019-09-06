@@ -39,6 +39,15 @@ interface flags {
     error: boolean;
     write: string;
 }
+interface fsDetails {
+    directories: number;
+    files: number;
+    links: number;
+    size: number;
+}
+interface functionEvent extends EventHandlerNonNull {
+    (Event?:Event): void;
+}
 interface localService {
     action: string;
     agent: string;
@@ -53,6 +62,12 @@ interface messages {
     status: messageList[];
     users: messageList[];
     errors: messageListError[];
+}
+interface network {
+    fileDetails?: Function;
+    fs?: Function;
+    messages?: Function;
+    settings?: Function;
 }
 interface nodeCopyParams {
     callback:Function;
@@ -93,6 +108,7 @@ interface readFS{
     agent: string;
     callback: Function;
     depth: number;
+    element: HTMLElement;
     id?: string;
     location: string;
 }
@@ -133,6 +149,48 @@ interface Stats {
     isFile: Function;
     isSocket: Function;
     isSymbolicLink: Function;
+}
+interface ui {
+    context: {
+        menu?: EventHandlerNonNull;
+        menuRemove?: functionEvent;
+    };
+    fs: {
+        expand?: EventHandlerNonNull;
+        navigate?: EventHandlerNonNull;
+        parent?: EventHandlerNonNull;
+        select?: EventHandlerNonNull;
+        share?: EventHandlerNonNull;
+        text?: EventHandlerNonNull;
+    };
+    modal: {
+        close?: EventHandlerNonNull;
+        create?: (options:ui_modal) => void;
+        export?: EventHandlerNonNull;
+        import?: EventHandlerNonNull;
+        maximize?: EventHandlerNonNull;
+        minimize?: EventHandlerNonNull;
+        move?: EventHandlerNonNull;
+        resize?: EventHandlerNonNull;
+        systems?: EventHandlerNonNull;
+        textPad?: EventHandlerNonNull;
+        textSave?: EventHandlerNonNull;
+        zTop?: EventHandlerNonNull;
+    };
+    systems: {
+        expand?: EventHandlerNonNull;
+        message?: (type:string, content:string, timeStore?:string) => void;
+        tabs?: EventHandlerNonNull;
+    };
+    util: {
+        addUser?: (username:string, ip:string) => void;
+        commas?: (number:number) => string;
+        dateFormat?: (date:Date) => string;
+        fixHeight?: functionEvent;
+        login?: EventHandlerNonNull;
+        menu?: EventHandlerNonNull;
+        prettyBytes?: (an_integer:number) => string;
+    };
 }
 interface ui_modal {
     content: HTMLElement;

@@ -1092,6 +1092,7 @@ import { Hash } from "crypto";
         apps.directory = function node_apps_directory(args:readDirectory):void {
             // arguments:
             // * callback - function - the output is passed into the callback as an argument
+            // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
             // * exclusions - string array - a list of items to exclude
             // * path - string - where to start in the local file system
             // * recursive - boolean - if child directories should be scanned
@@ -2586,12 +2587,23 @@ import { Hash } from "crypto";
                                                 });
                                             });
                                         } else {
-                                            apps.directory({
-                                                callback: callback,
-                                                depth: data.depth,
-                                                path: path,
-                                                recursive: true,
-                                                symbolic: true
+                                            node.fs.stat(path, function node_apps_server_create_putStat(erp:nodeError):void {
+                                                if (erp !== null) {
+                                                    if (erp.code === "ENOENT") {
+                                                        response.writeHead(404, {"Content-Type": "application/json"});
+                                                        response.write("missing");
+                                                        response.end();
+                                                    }
+                                                    apps.error([erp.toString()]);
+                                                    return;
+                                                }
+                                                apps.directory({
+                                                    callback: callback,
+                                                    depth: data.depth,
+                                                    path: path,
+                                                    recursive: true,
+                                                    symbolic: true
+                                                });
                                             });
                                         }
                                     }

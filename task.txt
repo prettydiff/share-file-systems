@@ -1,18 +1,26 @@
 
 ## gui
-2 - user/shared items section
-3 - right click context menus (possibly oncontextmenu)
-    a - top/left corner to mouse cursor normally
-    b - bottom/left corner if menu flows below viewport or top/right if right of viewport
+1 - change message times to use ui.util.dateFormat
+2 - context menu
+    a - copy
+    b - move
+    c - rename
+    d - destroy
 
 ## file list
-2 - display selected files by agent
+1 - notify the window of long running events, like a spinner
+2 - display shared files by agent
 3 - normalize, such that a file is ignored from selection list if already shared in a directory
 4 - allow file selections to be read only by default
 5 - validate directory item count after completing error messaging
 
 ## service
 1 - menu item for connecting to a user/port
+
+## copy/paste via messaging
+1 copy writes to settings
+2 transmits to messaging by agent
+3 paste by agent
 
 ## ui tests
 ### modal
