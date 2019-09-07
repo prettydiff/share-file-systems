@@ -4,7 +4,6 @@
 2 - context menu
     a - copy
     b - move
-    c - rename
     d - destroy
 
 ## file list
@@ -12,7 +11,6 @@
 2 - display shared files by agent
 3 - normalize, such that a file is ignored from selection list if already shared in a directory
 4 - allow file selections to be read only by default
-5 - validate directory item count after completing error messaging
 6 - new directory/file --- from context menu on directories only
 7 - fs.watch to update modal contents 
 

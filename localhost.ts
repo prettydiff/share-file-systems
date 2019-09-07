@@ -321,7 +321,8 @@ import { unlink } from "fs";
                     if (configuration.element.nodeName === "input") {
                         configuration.element.removeAttribute("class");
                     }
-                    if (elementParent !== undefined) {
+
+                    if (elementParent !== undefined && configuration.element.parentNode.parentNode !== document.getElementById("menu")) {
                         const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
                         if (span !== undefined) {
                             span.innerHTML = "Text of file system address.";
@@ -477,29 +478,29 @@ import { unlink } from "fs";
             button.innerHTML = "Details";
             button.onclick = function local_ui_context_menu_details():void {
                 const addresses:string[] = (function local_ui_context_menu_details_addresses():string[] {
-                    const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
-                        length:number = itemList.length,
-                        output:string[] = [];
-                    let a:number = 0,
-                        addressItem:HTMLElement;
-                    do {
-                        if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-                            addressItem = (itemList[a].firstChild.nodeName === "button")
-                                ? <HTMLElement>itemList[a].firstChild.nextSibling
-                                : <HTMLElement>itemList[a].firstChild;
-                            output.push(addressItem.innerHTML);
+                        const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
+                            length:number = itemList.length,
+                            output:string[] = [];
+                        let a:number = 0,
+                            addressItem:HTMLElement;
+                        do {
+                            if (itemList[a].getElementsByTagName("input")[0].checked === true) {
+                                addressItem = (itemList[a].firstChild.nodeName === "button")
+                                    ? <HTMLElement>itemList[a].firstChild.nextSibling
+                                    : <HTMLElement>itemList[a].firstChild;
+                                output.push(addressItem.innerHTML);
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        if (output.length > 0) {
+                            return output;
                         }
-                        a = a + 1;
-                    } while (a < length);
-                    if (output.length > 0) {
+                        output.push(element.getElementsByTagName("label")[0].innerHTML);
                         return output;
-                    }
-                    output.push(element.getElementsByTagName("label")[0].innerHTML);
-                    return output;
-                }());
-                network.fileDetails(addresses, function local_ui_context_menu_details_callback(files:HTMLElement) {
-                    ui.modal.create({
-                        content: files,
+                    }()),
+                    div:HTMLElement = ui.util.delay(),
+                    modal:HTMLElement = ui.modal.create({
+                        content: div,
                         height: 500,
                         inputs: ["close"],
                         single: true,
@@ -507,6 +508,10 @@ import { unlink } from "fs";
                         type: "details",
                         width: 500
                     });
+                network.fileDetails(addresses, function local_ui_context_menu_details_callback(files:HTMLElement) {
+                    const body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    body.appendChild(files);
                 });
             }
             item.appendChild(button);
@@ -600,6 +605,7 @@ import { unlink } from "fs";
         let body:HTMLElement = li,
             box:HTMLElement,
             input:HTMLInputElement;
+        event.preventDefault();
         do {
             body = <HTMLElement>body.parentNode;
         } while (body !== document.documentElement && body.getAttribute("class") !== "body");
@@ -949,7 +955,7 @@ import { unlink } from "fs";
     };
 
     /* Modal creation factory */
-    ui.modal.create = function local_ui_modal_create(options:ui_modal):void {
+    ui.modal.create = function local_ui_modal_create(options:ui_modal):HTMLElement {
         let button:HTMLElement = document.createElement("button"),
             h2:HTMLElement = document.createElement("h2"),
             input:HTMLInputElement,
@@ -1043,6 +1049,7 @@ import { unlink } from "fs";
                                 data.modals["systems-modal"].text_placeholder = data.modals["systems-modal"].status;
                                 data.modals["systems-modal"].status = "hidden";
                             }
+                            network.settings();
                         };
                         if (options.status === "hidden") {
                             box.style.display = "none";
@@ -1162,6 +1169,7 @@ import { unlink } from "fs";
         box.appendChild(border);
         content.appendChild(box);
         network.settings();
+        return box;
     };
 
     /* Creates an import/export modal */
@@ -1747,7 +1755,7 @@ import { unlink } from "fs";
     };
 
     /* Converts a date object into US Army date format */
-    ui.util.dateFormat = function local_network_fileDetails_callback_dateFormat(date:Date):string {
+    ui.util.dateFormat = function local_ui_util_dateFormat(date:Date):string {
         const dateData:string[] = [
                 date.getFullYear().toString(),
                 date.getMonth().toString(),
@@ -1806,6 +1814,19 @@ import { unlink } from "fs";
         output.push(`${dateData[0]},`);
         output.push(`${dateData[3]}:${dateData[4]}:${dateData[5]}.${dateData[6]}`);
         return output.join(" ");
+    };
+
+    /* Create a div element with a spinner and class name of 'delay' */
+    ui.util.delay = function local_ui_util_delay():HTMLElement {
+        const div:HTMLElement = document.createElement("div"),
+            //cspell:disable
+            //delayCircles:string = `<svg viewBox="0 0 57 57" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle cx="5" cy="50" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" values="50;5;50;50" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" begin="0s" dur="2.2s" values="5;27;49;5" calcMode="linear" repeatCount="indefinite"/></circle><circle cx="27" cy="5" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" from="5" to="5" values="5;50;50;5" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" begin="0s" dur="2.2s" from="27" to="27" values="27;49;5;27" calcMode="linear" repeatCount="indefinite"/></circle><circle cx="49" cy="50" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" values="50;50;5;50" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" from="49" to="49" begin="0s" dur="2.2s" values="49;5;27;49" calcMode="linear" repeatCount="indefinite"/></circle></g></g></svg>`,
+            delayPulse:string = `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd" stroke-width="2"><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="0s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"/><animate attributeName="stroke-opacity" begin="0s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"/></circle><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="-0.9s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"/><animate attributeName="stroke-opacity" begin="-0.9s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"/></circle></g></svg>`,
+            //cspell:enable
+            text:string = "<p>Waiting on data.  Please stand by.</p>";
+        div.setAttribute("class", "delay");
+        div.innerHTML = delayPulse + text;
+        return div;
     };
 
     /* Resizes the interactive area to fit the browser viewport */

@@ -177,7 +177,7 @@ interface ui {
     };
     modal: {
         close?: EventHandlerNonNull;
-        create?: (options:ui_modal) => void;
+        create?: (options:ui_modal) => HTMLElement;
         export?: EventHandlerNonNull;
         import?: EventHandlerNonNull;
         maximize?: EventHandlerNonNull;
@@ -198,6 +198,7 @@ interface ui {
         addUser?: (username:string, ip:string) => void;
         commas?: (number:number) => string;
         dateFormat?: (date:Date) => string;
+        delay?: () => HTMLElement;
         fixHeight?: functionEvent;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
