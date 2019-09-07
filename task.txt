@@ -1,13 +1,11 @@
 
 ## gui
-1 - change message times to use ui.util.dateFormat
 2 - context menu
     a - copy
     b - move
     d - destroy
 
 ## file list
-1 - notify the window of long running events, like a spinner
 2 - display shared files by agent
 3 - normalize, such that a file is ignored from selection list if already shared in a directory
 4 - allow file selections to be read only by default

@@ -40,6 +40,7 @@ import { unlink } from "fs";
             name: "",
             zIndex: 0
         },
+        messageTransmit:boolean = true,
         messages:messages = {
             status: [],
             users: [],
@@ -51,6 +52,7 @@ import { unlink } from "fs";
     network.fileDetails = function local_network_fileDetails(address:string[], callback:Function):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
+        messageTransmit = false;
         ui.context.menuRemove();
         xhr.onreadystatechange = function local_network_fileDetails_callback():void {
             if (xhr.readyState === 4) {
@@ -222,6 +224,8 @@ import { unlink } from "fs";
                 } else {
                     ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
+                messageTransmit = true;
+                network.messages();
             }
         };
         xhr.withCredentials = true;
@@ -388,7 +392,7 @@ import { unlink } from "fs";
 
     /* Stores systems log messages to storage/messages.json file */
     network.messages = function local_network_messages():void {
-        if (loadTest === true) {
+        if (loadTest === true || messageTransmit === false) {
             return;
         }
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
@@ -396,7 +400,7 @@ import { unlink } from "fs";
         xhr.onreadystatechange = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":${new Error().stack}`);
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
             }
         };
@@ -1603,52 +1607,16 @@ import { unlink } from "fs";
 
     /* Processes messages into the system log modal */
     ui.systems.message = function local_ui_systems_message(type:messageType, content:string, timeStore?:string):void {
-        const date:Date = new Date(),
-            time:string[] = [],
+        const dateString:string = ui.util.dateFormat(new Date()),
             li:HTMLElement = document.createElement("li"),
             span:HTMLElement = document.createElement("span"),
             text:Text = document.createTextNode("");
-        let dateString:string[],
-            list:HTMLElement,
+        let list:HTMLElement,
             ul:HTMLElement;
         if (loadTest === true) {
             span.innerHTML = timeStore;
         } else {
-            time.push(date.getFullYear().toString());
-            time.push((date.getMonth() + 1).toString());
-            time.push(date.getDate().toString());
-            time.push(date.getHours().toString());
-            time.push(date.getMinutes().toString());
-            time.push(date.getSeconds().toString());
-            time.push(date.getMilliseconds().toString());
-            if (time[1].length === 1) {
-                // month
-                time[1] = `0${time[1]}`;
-            }
-            if (time[2].length === 1) {
-                // day
-                time[2] = `0${time[2]}`;
-            }
-            if (time[3].length === 1) {
-                // hour
-                time[3] = `0${time[3]}`;
-            }
-            if (time[4].length === 1) {
-                // minute
-                time[4] = `0${time[4]}`;
-            }
-            if (time[5].length === 1) {
-                // second
-                time[5] = `0${time[5]}`;
-            }
-            if (time[6].length === 1) {
-                // milliseconds
-                time[6] = `00${time[6]}`;
-            } else if (time[6].length === 2) {
-                time[6] = `0${time[6]}`;
-            }
-            dateString = time.slice(0, 3);
-            span.innerHTML = `[${dateString.join(":")}::${time.slice(3).join(":")}]`;
+            span.innerHTML = `[${dateString}]`;
         }
         content = content.replace(/(\d+m)?\[\d+m/g, "");
         if (type === "errors") {
@@ -1670,17 +1638,17 @@ import { unlink } from "fs";
             li.appendChild(button);
             text.textContent = messageContent.error.replace(/^\s*Error:\s*/, "");
             if (loadTest === false) {
-                messages.errors.push([`[${dateString.join(":")}::${time.slice(3).join(":")}]`, messageContent.error.replace(/^\s*Error:\s*/, ""), messageContent.stack]);
+                messages.errors.push([`[${dateString}]`, messageContent.error.replace(/^\s*Error:\s*/, ""), messageContent.stack]);
             }
         } else {
             text.textContent = content;
             if (loadTest === false) {
-                messages[type].push([`[${dateString.join(":")}::${time.slice(3).join(":")}]`, content]);
+                messages[type].push([`[${dateString}]`, content]);
             }
         }
         li.appendChild(span);
         list = document.getElementById(`system-${type}`);
-        if (loadTest === false && list.getElementsByTagName("li").length > 49) {
+        if (loadTest === false && list.childNodes.length > 49) {
             list.removeChild(list.getElementsByTagName("li")[0]);
             messages[type].splice(0, 1);
         }
@@ -1689,9 +1657,7 @@ import { unlink } from "fs";
             li.appendChild(ul);
         }
         list.appendChild(li);
-        if (loadTest === false) {
-            network.messages();
-        }
+        network.messages();
     };
 
     /* Toggles tabs in the systems log modal */
@@ -2160,19 +2126,19 @@ import { unlink } from "fs";
 
                     // systems log messages
                     if (storage !== undefined && storage.messages !== undefined) {
-                        if (storage.messages.status.length > 0) {
+                        if (storage.messages.status !== undefined && storage.messages.status.length > 0) {
                             storage.messages.status.forEach(function local_restore_statusEach(value:messageList):void {
                                 ui.systems.message("status", value[1], value[0]);
                                 messages.status.push([value[0], value[1]]);
                             });
                         }
-                        if (storage.messages.users.length > 0) {
+                        if (storage.messages.users !== undefined && storage.messages.users.length > 0) {
                             storage.messages.users.forEach(function local_restore_usersEach(value:messageList):void {
                                 ui.systems.message("users", value[1], value[0]);
                                 messages.users.push([value[0], value[1]]);
                             });
                         }
-                        if (storage.messages.errors.length > 0) {
+                        if (storage.messages.errors !== undefined && storage.messages.errors.length > 0) {
                             storage.messages.errors.forEach(function local_restore_errorsEach(value:messageListError):void {
                                 ui.systems.message("errors", JSON.stringify({
                                     error:value[1],
