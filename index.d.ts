@@ -166,6 +166,7 @@ interface ui {
         menuRemove?: functionEvent;
     };
     fs: {
+        directory?: EventHandlerNonNull;
         expand?: EventHandlerNonNull;
         navigate?: EventHandlerNonNull;
         parent?: EventHandlerNonNull;

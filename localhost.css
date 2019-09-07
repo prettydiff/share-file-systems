@@ -31,8 +31,9 @@ body{background:#cdf;margin:0;padding:0}
 #spaces .fileDetailOutput h3{color:#009}
 #spaces .fileDetailOutput h3,
 #spaces .fileDetailOutput p{margin:0}
-#spaces .fileDetailOutput th{font-weight:bold;text-align:left;width:10em}
+#spaces .fileDetailOutput th{font-weight:bold;min-width:10em;text-align:left;width:10em}
 #spaces .fileDetailOutput table{border-color:#000;border-style:none none solid;border-width:0.05em;margin:0 0 3em}
+#spaces .fileDetailOutput td{white-space:pre}
 #spaces .fileDetailOutput .directory::before{content: "📂 "}
 #spaces .fileDetailOutput .file::before{content: "📃 "}
 #spaces .fileDetailOutput .link::before{content: "🔗 "}
@@ -133,7 +134,7 @@ body{background:#cdf;margin:0;padding:0}
 #spaces #system-errors{clear:both;float:none}
 #spaces #system-errors span{color:#c00;}
 
-#spaces .fileList{margin:0;padding:0.25em 0 0 5em;}
+#spaces .fileList{height:100%;margin:0;padding:0 0 0 5em}
 #spaces .fileList label{cursor:text}
 #spaces .fileList li{border-color:#eee;border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
 #spaces .fileList li ul{border-color:#eee;border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}

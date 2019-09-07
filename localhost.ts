@@ -296,6 +296,7 @@ import { unlink } from "fs";
                                     plural = "s";
                                 }
                                 span.textContent = `directory - ${ui.util.commas(local[a][3])} item${plural}`;
+                                li.ondblclick = ui.fs.directory;
                             } else {
                                 span = document.createElement("span");
                                 if (local[a][1] === "link") {
@@ -588,6 +589,37 @@ import { unlink } from "fs";
             content.removeChild(document.getElementById("contextMenu"));
         }
     }
+
+    /* navigate into a directory by double click */
+    ui.fs.directory = function local_ui_fs_directory(event:MouseEvent):void {
+        const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+            li:HTMLElement = (element.nodeName === "li")
+                ? element
+                : <HTMLElement>element.parentNode,
+            path:string = li.getElementsByTagName("label")[0].innerHTML;
+        let body:HTMLElement = li,
+            box:HTMLElement,
+            input:HTMLInputElement;
+        do {
+            body = <HTMLElement>body.parentNode;
+        } while (body !== document.documentElement && body.getAttribute("class") !== "body");
+        box = <HTMLElement>body.parentNode.parentNode;
+        input = box.getElementsByTagName("input")[0];
+        input.value = path;
+        network.fs({
+            agent: "self",
+            depth: 2,
+            callback: function local_ui_fs_text_callback(files:HTMLElement) {
+                body.innerHTML = "";
+                body.appendChild(files);
+                data.modals[box.getAttribute("id")].text_value = path;
+                network.settings();
+            },
+            element: input,
+            id: "",
+            location: path
+        });
+    };
 
     /* Shows child elements of a directory */
     ui.fs.expand = function local_ui_fs_expand(event:MouseEvent):void {
