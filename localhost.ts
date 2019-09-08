@@ -4,7 +4,7 @@ import { unlink } from "fs";
 (function local():void {
     "use strict";
     const content:HTMLElement = document.getElementById("content-area"),
-        ws = new WebSocket(`ws://localhost:${(function local_webSocketsPort() {
+        ws:WebSocket = new WebSocket(`ws://localhost:${(function local_webSocketsPort() {
             const uri:string = location.href;
             let domain:string = uri.slice(location.href.indexOf("host:") + 5),
                 index:number = domain.indexOf("/");
@@ -35,6 +35,7 @@ import { unlink } from "fs";
         };
     let loadTest:boolean = true,
         data:ui_data = {
+            clipboard: "",
             modals: {},
             modalTypes: [],
             name: "",
@@ -1889,7 +1890,7 @@ import { unlink } from "fs";
     };
 
     /* Handle Web Socket responses */
-    ws.addEventListener("message", function local_webSockets(event) {
+    ws.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
         }
@@ -1902,7 +1903,14 @@ import { unlink } from "fs";
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
         }
-    });
+    };
+    ws.onclose = function local_socketClose():void {
+        const p:HTMLElement = document.createElement("p");
+        p.innerHTML = "Local service terminated.";
+        p.style.fontSize = "3em";
+        content.style.background = "#ffc";
+        content.insertBefore(p, content.firstChild);
+    };
 
     ui.util.fixHeight();
     window.onresize = ui.util.fixHeight;

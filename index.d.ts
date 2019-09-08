@@ -133,6 +133,9 @@ interface simulationItem {
     qualifier: qualifier;
     test: string;
 }
+interface SocketEvent extends Event{
+    data: string;
+}
 interface Stats {
     dev: number;
     ino: number;
@@ -226,6 +229,7 @@ interface ui_modal {
     zIndex?: number;
 }
 interface ui_data {
+    clipboard: string;
     modals: {
         [key:string]: ui_modal;
     };
