@@ -58,15 +58,21 @@ body{background:#cdf;margin:0;padding:0}
 #spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
-#spaces #users{border-color:#000;border-style:solid;border-width:0 0 0 0.1em;padding:1em;position:absolute;right:0;width:23em;z-index:1}
-#spaces #users h2{background:#ccc;border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:-0.5em -0.5em 0;padding:0.5em;position:relative;z-index:2}
-#spaces #users ul{padding:0;position:relative;z-index:2}
-#spaces #users li{display:block;font-size:2em;list-style:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#spaces #users li::before{content:"● "}
+#spaces #users{border-color:#000;border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
+#spaces #users h2{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
+#spaces #users ul{margin:0;padding:0;position:relative;z-index:2}
+#spaces #users li{display:block;list-style:none}
+#spaces #users button{background:#ccc;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
+#spaces #users button:hover{background:#eee}
+#spaces #users button::before{content:"● "}
 #spaces #users .active::before{color:#0f0}
+#spaces #users .idle::before{color:#cc0}
 #spaces #users .local::before{color:#999}
 #spaces #users .offline::before{color:#f00}
 #spaces #users span{background:#000;display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
+#spaces #users #all-shares{background:#def;color:#00c}
+#spaces #users #all-shares:hover{background:#fff;}
+#spaces #users #all-shares::before{content:""}
 
 #spaces #tray{background:#ddd;border-color:#666;border-style:solid none none;border-width:0.1em;bottom:0;display:block;height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
 #spaces #tray li{box-shadow:0.15em 0.15em 0.5em #ccc;display:inline-block;margin:1em 1.5em 0}
@@ -74,6 +80,7 @@ body{background:#cdf;margin:0;padding:0}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2{width:20em}
 
+#spaces .box h3{font-size:2em}
 #spaces .box{border-style:none;box-shadow:0.15em 0.15em 1em #99c;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .messageList .expansion span,
 #spaces .box .parentDirectory span,

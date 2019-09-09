@@ -1,3 +1,5 @@
+import { link } from "fs";
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 (function local():void {
     "use strict";
@@ -37,6 +39,9 @@
             modals: {},
             modalTypes: [],
             name: "",
+            shares: {
+                localhost: []
+            },
             zIndex: 0
         },
         messageTransmit:boolean = true,
@@ -358,12 +363,6 @@
                         configuration.element.removeAttribute("class");
                     }
 
-                    if (elementParent !== undefined && elementParent !== null && configuration.element.parentNode.parentNode !== document.getElementById("menu")) {
-                        const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
-                        if (span !== undefined) {
-                            span.innerHTML = "Text of file system address.";
-                        }
-                    }
                     do {
                         if (list[a][2] === 0) {
                             local.push(list[a]);
@@ -419,7 +418,7 @@
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":["${configuration.location.replace(/\\/g, "\\\\")}"],"watch":"${configuration.watch}"}`);
+        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":["${configuration.location.replace(/\\/g, "\\\\")}"],"watch":"${configuration.watch.replace(/\\/g, "\\\\")}"}`);
     };
 
     /* Rename a single file system artifact */
@@ -502,6 +501,45 @@
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
         if (parent.getAttribute("class") === "fileList") {
+            const addresses:string[] = (function local_ui_context_menu_addresses():string[] {
+                    const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
+                        length:number = itemList.length,
+                        output:string[] = [];
+                    let a:number = 0,
+                        addressItem:HTMLElement;
+                    do {
+                        if (itemList[a].getElementsByTagName("input")[0].checked === true) {
+                            addressItem = (itemList[a].firstChild.nodeName === "button")
+                                ? <HTMLElement>itemList[a].firstChild.nextSibling
+                                : <HTMLElement>itemList[a].firstChild;
+                            output.push(addressItem.innerHTML);
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    if (output.length > 0) {
+                        return output;
+                    }
+                    output.push(element.getElementsByTagName("label")[0].innerHTML);
+                    return output;
+                }()),
+                selectNone = function local_ui_context_menu_selectNone():void {
+                    const inputs:HTMLCollectionOf<HTMLInputElement> = parent.getElementsByTagName("input"),
+                        li:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
+                        liLength:number = li.length,
+                        inputLength:number = inputs.length;
+                    let a:number = 0;
+                    do {
+                        if (inputs[a].type === "checkbox") {
+                            inputs[a].checked = false;
+                        }
+                        a = a + 1;
+                    } while (a < inputLength);
+                    a = 0;
+                    do {
+                        li[a].setAttribute("class", li[a].getAttribute("class").replace(" selected", ""));
+                        a = a + 1;
+                    } while (a < liLength);
+                };
             let input:HTMLInputElement = <HTMLInputElement>parent;
             do {
                 input = <HTMLInputElement>input.parentNode;
@@ -513,34 +551,15 @@
             button = document.createElement("button");
             button.innerHTML = "Details";
             button.onclick = function local_ui_context_menu_details():void {
-                const addresses:string[] = (function local_ui_context_menu_details_addresses():string[] {
-                        const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
-                            length:number = itemList.length,
-                            output:string[] = [];
-                        let a:number = 0,
-                            addressItem:HTMLElement;
-                        do {
-                            if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-                                addressItem = (itemList[a].firstChild.nodeName === "button")
-                                    ? <HTMLElement>itemList[a].firstChild.nextSibling
-                                    : <HTMLElement>itemList[a].firstChild;
-                                output.push(addressItem.innerHTML);
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                        if (output.length > 0) {
-                            return output;
-                        }
-                        output.push(element.getElementsByTagName("label")[0].innerHTML);
-                        return output;
-                    }()),
-                    div:HTMLElement = ui.util.delay(),
+                const div:HTMLElement = ui.util.delay(),
                     modal:HTMLElement = ui.modal.create({
                         content: div,
                         height: 500,
                         inputs: ["close"],
+                        left: event.clientX,
                         single: true,
                         title: `Details - ${addresses.length} items`,
+                        top: event.clientY - 60,
                         type: "details",
                         width: 500
                     });
@@ -549,7 +568,43 @@
                     body.innerHTML = "";
                     body.appendChild(files);
                 });
+                selectNone();
             }
+            item.appendChild(button);
+            itemList.push(item);
+
+            // share
+            item = document.createElement("li");
+            button = document.createElement("button");
+            button.innerHTML = "Share";
+            button.onclick = function local_ui_context_menu_share():void {
+                const shareLength:number = data.shares.localhost.length,
+                    addressesLength:number = addresses.length;
+                let a:number = 0,
+                    b:number = 0;
+                if (shareLength > 0) {
+                    do {
+                        b = 0;
+                        do {
+                            if (addresses[a] === data.shares.localhost[b][0] && data.shares.localhost[b][1] === "fileSystem") {
+                                break;
+                            }
+                            b = b + 1;
+                        } while (b < shareLength);
+                        if (b === shareLength) {
+                            data.shares.localhost.push([addresses[a], "fileSystem"]);
+                        }
+                        a = a + 1;
+                    } while (a < addressesLength);
+                } else {
+                    do {
+                        data.shares.localhost.push([addresses[a], "fileSystem"]);
+                        a = a + 1;
+                    } while (a < addressesLength);
+                }
+                selectNone();
+                network.settings();
+            };
             item.appendChild(button);
             itemList.push(item);
 
@@ -936,34 +991,6 @@
         data.modals[box.getAttribute("id")].focus = li;
     };
 
-    /* Creates a "share file system" modal */
-    ui.fs.share = function local_ui_fs_share(event:MouseEvent):void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-        network.fs({
-            agent: "self",
-            depth: 2,
-            callback: function local_ui_fs_share_callback(files:HTMLElement) {
-                const value:string = files.getAttribute("title");
-                files.removeAttribute("title");
-                ui.modal.create({
-                    content: files,
-                    inputs: ["cancel", "close", "confirm", "maximize", "minimize", "text"],
-                    single: true,
-                    text_event: ui.fs.text,
-                    text_placeholder: "Optionally type a file system address here.",
-                    text_value: value,
-                    title: element.innerHTML,
-                    type: "fileShare",
-                    width: 800
-                });
-            },
-            element: element,
-            id: "",
-            location: "defaultLocation",
-            watch: "yes"
-        });
-    };
-
     /* Requests file system data from a text field */
     ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
         const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
@@ -1139,7 +1166,7 @@
                 span.innerHTML = "Text of file system address.";
                 label.appendChild(span);
                 extra = document.createElement("p");
-                if (options.type === "fileNavigate" || options.type === "fileShare") {
+                if (options.type === "fileNavigate") {
                     extra.style.paddingLeft = "5em";
                     button = document.createElement("button");
                     button.innerHTML = "▲<span>Parent directory</span>";
@@ -1602,6 +1629,57 @@
         document.onmousedown = null;
     };
 
+    /* Displays a list of shared items for each user */
+    ui.modal.sharesAll = function local_ui_modal_sharesAll():void {
+        const users:HTMLElement = document.createElement("ul"),
+            userKeys:string[] = Object.keys(data.shares),
+            keyLength:number = userKeys.length;
+        let eachUser:HTMLElement,
+            userName:HTMLElement,
+            itemList:HTMLElement,
+            item:HTMLElement,
+            a:number = 0,
+            b:number = 0,
+            shareLength:number;
+        if (keyLength === 1 && data.shares.localhost.length === 0) {
+            eachUser = document.createElement("h3");
+            eachUser.innerHTML = "There are no shares at this time.";
+            ui.modal.create({
+                content: eachUser,
+                inputs: ["close", "maximize", "minimize"],
+                title: "All Shares",
+                type: "shares",
+                width: 800
+            });
+        } else {
+            do {
+                eachUser = document.createElement("li");
+                userName = document.createElement("h3");
+                userName.innerHTML = userKeys[a];
+                eachUser.appendChild(userName);
+                itemList = document.createElement("ul");
+                b = 0;
+                shareLength = data.shares[userKeys[a]].length;
+                do {
+                    item = document.createElement("li");
+                    item.innerHTML = data.shares[userKeys[a]][b][0];
+                    itemList.appendChild(item);
+                    b = b + 1;
+                } while (b < shareLength);
+                eachUser.appendChild(itemList);
+                users.appendChild(eachUser);
+                a = a + 1;
+            } while (a < keyLength);
+            ui.modal.create({
+                content: users,
+                inputs: ["close", "maximize", "minimize"],
+                title: "All Shares",
+                type: "shares",
+                width: 800
+            });
+        }
+    };
+
     /* Shows the system log modal in the correct visual status */
     ui.modal.systems = function local_ui_modal_systems() {
         document.getElementById("systems-modal").style.display = "block";
@@ -1623,6 +1701,9 @@
             textArea.value = value;
         }
         textArea.onblur = ui.modal.textSave;
+        if (titleText.indexOf("Base64 - ") === 0) {
+            textArea.style.whiteSpace = "normal";
+        }
         ui.modal.create({
             content: textArea,
             inputs: ["close", "maximize", "minimize"],
@@ -1767,13 +1848,17 @@
 
     /* Adds users to the user bar */
     ui.util.addUser = function local_ui_util_addUser(userName:string, ip:string):void {
-        const li:HTMLLIElement = document.createElement("li");
-        li.innerHTML = `${userName}@${ip}`;
+        const li:HTMLLIElement = document.createElement("li"),
+            button:HTMLElement = document.createElement("button");
+        button.innerHTML = `${userName}@${ip}`;
         if (ip === "localhost") {
-            li.setAttribute("class", "local");
+            button.setAttribute("class", "local");
         } else {
-            li.setAttribute("class", "offline");
+            button.setAttribute("class", "offline");
+            data.shares[userName] = [];
         }
+        button.onclick = ui.modal.sharesUser;
+        li.appendChild(button);
         document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
     };
 
@@ -1980,7 +2065,7 @@
                 keyLength:number = modalKeys.length;
             let a:number = 0;
             do {
-                if ((data.modals[modalKeys[a]].type === "fileNavigate" || data.modals[modalKeys[a]].type === "fileShare") && data.modals[modalKeys[a]].text_value === value) {
+                if (data.modals[modalKeys[a]].type === "fileNavigate" && data.modals[modalKeys[a]].text_value === value) {
                     const body:HTMLElement = <HTMLElement>document.getElementById(data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
                     network.fs({
                         agent: "self",
@@ -1999,11 +2084,9 @@
         }
     };
     ws.onclose = function local_socketClose():void {
-        const p:HTMLElement = document.createElement("p");
-        p.innerHTML = "Local service terminated.";
-        p.style.fontSize = "3em";
-        content.style.background = "#ffc";
-        content.insertBefore(p, content.firstChild);
+        const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0];
+        title.style.background = "#ff6";
+        title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
     };
 
     ui.util.fixHeight();
@@ -2187,10 +2270,10 @@
                 loadComplete = function load_restore_complete():void {
                     // assign key default events
                     content.onclick = ui.context.menuRemove;
+                    document.getElementById("all-shares").onclick = ui.modal.sharesAll;
                     document.getElementById("login-input").onkeyup = ui.util.login;
                     document.getElementById("login").getElementsByTagName("button")[0].onclick = ui.util.login;
                     document.getElementById("menuToggle").onclick = ui.util.menu;
-                    document.getElementById("shareFiles").onclick = ui.fs.share;
                     document.getElementById("systemLog").onclick = ui.modal.systems;
                     document.getElementById("fileNavigator").onclick = ui.fs.navigate;
                     document.getElementById("textPad").onclick = ui.modal.textPad;
@@ -2250,6 +2333,21 @@
                             });
                         }
                     }
+
+                    // restore shares
+                    {
+                        data.shares = storage.settings.shares;
+                        const users:string[] = Object.keys(storage.settings.shares),
+                            userLength:number = users.length;
+                        let a:number = 0;
+                        do {
+                            if (users[a] !== "localhost") {
+                                ui.util.addUser(users[a], "xxx");
+                            }
+                            a = a + 1;
+                        } while (a < userLength);
+                    }
+
                     loadTest = false;
                 };
             let a:number = 0,
@@ -2297,7 +2395,7 @@
                                 loadComplete();
                             }
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
-                                if (storage.settings.modals[value].type === "fileNavigate" || storage.settings.modals[value].type === "fileShare") {
+                                if (storage.settings.modals[value].type === "fileNavigate") {
                                     network.fs({
                                         agent: "self",
                                         depth: 2,
@@ -2357,7 +2455,7 @@
                                         button.click();
                                     }
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "details") {
+                                } else if (storage.settings.modals[value].type === "details" || storage.settings.modals[value].type === "shares") {
                                     z(value);
                                 }
                             });

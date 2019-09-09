@@ -182,7 +182,6 @@ interface ui {
         parent?: EventHandlerNonNull;
         rename?: EventHandlerNonNull;
         select?: EventHandlerNonNull;
-        share?: EventHandlerNonNull;
         text?: EventHandlerNonNull;
     };
     modal: {
@@ -194,6 +193,8 @@ interface ui {
         minimize?: EventHandlerNonNull;
         move?: EventHandlerNonNull;
         resize?: EventHandlerNonNull;
+        sharesAll?: EventHandlerNonNull;
+        sharesUser?: EventHandlerNonNull;
         systems?: EventHandlerNonNull;
         textPad?: textPad;
         textSave?: EventHandlerNonNull;
@@ -215,6 +216,18 @@ interface ui {
         prettyBytes?: (an_integer:number) => string;
     };
 }
+interface ui_data {
+    clipboard: string;
+    modals: {
+        [key:string]: ui_modal;
+    };
+    modalTypes: string[];
+    name: string;
+    shares: {
+        [key:string]: [string, string][]
+    };
+    zIndex: number;
+}
 interface ui_modal {
     content: HTMLElement;
     focus?: HTMLElement;
@@ -231,18 +244,9 @@ interface ui_modal {
     text_value?: string;
     title: string;
     top?: number;
-    type: "details" | "export" | "fileNavigate" | "fileShare" | "systems" | "textPad";
+    type: "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
     width?: number;
     zIndex?: number;
-}
-interface ui_data {
-    clipboard: string;
-    modals: {
-        [key:string]: ui_modal;
-    };
-    modalTypes: string[];
-    name: string;
-    zIndex: number;
 }
 interface version {
     command: string;

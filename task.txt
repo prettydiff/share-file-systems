@@ -14,7 +14,7 @@
 ## service
 1 - menu item for connecting to a user/port
 2 - on the otherside accept the request
-3 - 
+3 - add new user to settings
 
 ## copy/paste via messaging
 1 copy writes to settings
