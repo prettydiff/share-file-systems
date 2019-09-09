@@ -3,7 +3,8 @@
         "outDir": "js",
         "pretty": true,
         "target": "ES6",
-        "types": ["@types/node"]
+        "types": ["node"],
+        "typeRoots": ["node_modules/@types"]
     },
     "exclude": [
         "js",

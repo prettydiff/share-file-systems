@@ -262,10 +262,11 @@
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(JSON.stringify({
             fs: {
-                action: "fs-read",
+                action: "fs-details",
                 agent: "self",
                 depth: 0,
-                location: address
+                location: address,
+                watch: "no"
             }
         }));
     };
@@ -276,7 +277,9 @@
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_fs_callback():void {
             if (xhr.readyState === 4) {
-                const elementParent:HTMLElement = <HTMLElement>configuration.element.parentNode;
+                const elementParent:HTMLElement = (configuration.element === null)
+                    ? null
+                    : <HTMLElement>configuration.element.parentNode;
                 if (xhr.status === 200 || xhr.status === 0) {
                     const list:directoryList = JSON.parse(xhr.responseText)[0],
                         local:directoryList = [],
@@ -355,7 +358,7 @@
                         configuration.element.removeAttribute("class");
                     }
 
-                    if (elementParent !== undefined && configuration.element.parentNode.parentNode !== document.getElementById("menu")) {
+                    if (elementParent !== undefined && elementParent !== null && configuration.element.parentNode.parentNode !== document.getElementById("menu")) {
                         const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
                         if (span !== undefined) {
                             span.innerHTML = "Text of file system address.";
@@ -403,7 +406,7 @@
                     configuration.callback(output, configuration.id);
                 } else {
                     configuration.element.setAttribute("class", "error");
-                    if (elementParent !== undefined) {
+                    if (elementParent !== undefined && elementParent !== null) {
                         const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
                         if (span !== undefined) {
                             span.innerHTML = "Address not found.";
@@ -416,27 +419,7 @@
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":["${configuration.location.replace(/\\/g, "\\\\")}"]}`);
-    };
-
-    /* Stores systems log messages to storage/messages.json file */
-    network.messages = function local_network_messages():void {
-        if (loadTest === true || messageTransmit === false) {
-            return;
-        }
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_messages_callback():void {
-            if (xhr.readyState === 4) {
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                }
-            }
-        };
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`messages:${JSON.stringify(messages)}`);
+        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":["${configuration.location.replace(/\\/g, "\\\\")}"],"watch":"${configuration.watch}"}`);
     };
 
     /* Rename a single file system artifact */
@@ -458,6 +441,26 @@
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(`fs:{"action":"fs-rename","agent":"${configuration.agent}","location":"${configuration.location.replace(/\\/g, "\\\\")}","name":"${configuration.name}"}`);
+    };
+
+    /* Stores systems log messages to storage/messages.json file */
+    network.messages = function local_network_messages():void {
+        if (loadTest === true || messageTransmit === false) {
+            return;
+        }
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.onreadystatechange = function local_network_messages_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`messages:${JSON.stringify(messages)}`);
     };
 
     /* Stores settings data to a storage/settings.json file */
@@ -664,13 +667,15 @@
             path:string = li.getElementsByTagName("label")[0].innerHTML;
         let body:HTMLElement = li,
             box:HTMLElement,
-            input:HTMLInputElement;
+            input:HTMLInputElement,
+            watchValue:string;
         event.preventDefault();
         do {
             body = <HTMLElement>body.parentNode;
         } while (body !== document.documentElement && body.getAttribute("class") !== "body");
         box = <HTMLElement>body.parentNode.parentNode;
         input = box.getElementsByTagName("input")[0];
+        watchValue = input.value;
         input.value = path;
         network.fs({
             agent: "self",
@@ -683,7 +688,8 @@
             },
             element: input,
             id: "",
-            location: path
+            location: path,
+            watch: watchValue
         });
     };
 
@@ -701,7 +707,8 @@
                 },
                 element: button,
                 id: "",
-                location: li.firstChild.nextSibling.textContent
+                location: li.firstChild.nextSibling.textContent,
+                watch: "no"
             });
         } else {
             const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
@@ -735,7 +742,8 @@
             },
             element: element,
             id: "",
-            location: "defaultLocation"
+            location: "defaultLocation",
+            watch: "yes"
         });
     };
 
@@ -776,7 +784,8 @@
             },
             element: element,
             id: "",
-            location: input.value
+            location: input.value,
+            watch: value
         });
     };
 
@@ -950,13 +959,15 @@
             },
             element: element,
             id: "",
-            location: "defaultLocation"
+            location: "defaultLocation",
+            watch: "yes"
         });
     };
 
     /* Requests file system data from a text field */
     ui.fs.text = function local_ui_fs_text(event:KeyboardEvent):void {
-        const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
+        const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+            watchValue:string = element.value;
         let parent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
             box:HTMLElement,
             id:string;
@@ -976,7 +987,8 @@
                 },
                 element: element,
                 id: "",
-                location: element.value
+                location: element.value,
+                watch: watchValue
             });
         }
     };
@@ -1954,8 +1966,7 @@
     ws.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
-        }
-        if (event.data.indexOf("error-") === 0) {
+        } else if (event.data.indexOf("error-") === 0) {
             const data:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
                 tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
@@ -1963,6 +1974,28 @@
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
+        } else if (event.data.indexOf("fsUpdate-") === 0) {
+            const value:string = event.data.slice(9),
+                modalKeys:string[] = Object.keys(data.modals),
+                keyLength:number = modalKeys.length;
+            let a:number = 0;
+            do {
+                if ((data.modals[modalKeys[a]].type === "fileNavigate" || data.modals[modalKeys[a]].type === "fileShare") && data.modals[modalKeys[a]].text_value === value) {
+                    const body:HTMLElement = <HTMLElement>document.getElementById(data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
+                    network.fs({
+                        agent: "self",
+                        callback: function local_socketMessage_updateCallback(files:HTMLElement):void {
+                            body.innerHTML = "";
+                            body.appendChild(files);
+                        },
+                        depth: 2,
+                        element: body,
+                        location: value,
+                        watch: "no"
+                    });
+                }
+                a = a + 1;
+            } while (a < keyLength);
         }
     };
     ws.onclose = function local_socketClose():void {
@@ -2291,7 +2324,8 @@
                                         },
                                         element: content,
                                         id: value,
-                                        location: storage.settings.modals[value].text_value
+                                        location: storage.settings.modals[value].text_value,
+                                        watch: "yes"
                                     });
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");

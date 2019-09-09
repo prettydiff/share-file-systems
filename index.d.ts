@@ -24,7 +24,7 @@ interface commandList {
     }
 }
 interface directoryList extends Array<directoryItem> {
-    [key:number]: directoryItem;
+    [index:number]: directoryItem;
 }
 interface children<T> extends Array<T> {}
 interface Document {
@@ -52,6 +52,7 @@ interface fsRead{
     element: HTMLElement;
     id?: string;
     location: string;
+    watch: string;
 }
 interface fsRename {
     agent: string;
@@ -61,6 +62,7 @@ interface fsRename {
     name: string;
     original: string;
 }
+
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
@@ -70,6 +72,7 @@ interface localService {
     depth: number;
     location: string[];
     name?: string;
+    watch: string;
 }
 interface messageError {
     error:string;
@@ -228,7 +231,7 @@ interface ui_modal {
     text_value?: string;
     title: string;
     top?: number;
-    type: string;
+    type: "details" | "export" | "fileNavigate" | "fileShare" | "systems" | "textPad";
     width?: number;
     zIndex?: number;
 }
@@ -247,4 +250,7 @@ interface version {
     name: string;
     number: string;
     port: number;
+}
+interface watches {
+    [key:string]: any;
 }

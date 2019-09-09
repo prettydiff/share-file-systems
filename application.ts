@@ -5,6 +5,7 @@
 import * as http from "http";
 import { Stream, Writable } from "stream";
 import { Hash } from "crypto";
+
 (function init() {
     "use strict";
     let verbose:boolean = false,
@@ -2352,6 +2353,7 @@ import { Hash } from "crypto";
                     : (process.platform === "win32")
                         ? "start"
                         : "xdg-open",
+                watches = {},
                 server = node.http.createServer(function node_apps_server_create(request, response):void {
                     if (request.method === "GET") {
                         let quest:number = request.url.indexOf("?"),
@@ -2532,7 +2534,7 @@ import { Hash } from "crypto";
                             if (task === "fs") {
                                 const data:localService = JSON.parse(dataString);
                                 if (data.agent === "self") {
-                                    if (data.action === "fs-read") {
+                                    if (data.action === "fs-read" || data.action === "fs-details") {
                                         const callback = function node_apps_server_create_end_putCallback(result:directoryList):void {
                                                 count = count + 1;
                                                 output.push(result);
@@ -2628,6 +2630,25 @@ import { Hash } from "crypto";
                                                         apps.error([erp.toString()]);
                                                         count = count + 1;
                                                         return;
+                                                    }
+
+                                                    // please note
+                                                    // watch must be "no" on all operations but fs-read
+                                                    // fs-read must only contain a single path
+                                                    if (data.watch !== "no" && data.watch !== projectPath) {
+                                                        if (data.watch !== "yes" && watches[data.watch] !== undefined) {
+                                                            watches[data.watch].close();
+                                                            delete watches[data.watch];
+                                                        }
+                                                        if (watches[value] === undefined) {
+                                                            watches[value] = node.fs.watch(value, {
+                                                                recursive: false
+                                                            }, function node_apps_server_watch(type:"rename" | "change"):void {
+                                                                if (type === "change") {
+                                                                    ws.broadcast(`fsUpdate-${value}`);
+                                                                }
+                                                            });
+                                                        }
                                                     }
                                                     apps.directory({
                                                         callback: callback,
@@ -2739,7 +2760,7 @@ import { Hash } from "crypto";
                     if (browser === true) {
                         console.log("Launching default web browser...");
                     }
-                    node.fs.watch(projectPath, {
+                    watches[projectPath] = node.fs.watch(projectPath, {
                         recursive: true
                     }, function node_apps_server_watch(type:"rename"|"change", filename:string|null):void {
                         if (filename === null || ignore(filename) === true) {
@@ -2838,6 +2859,8 @@ import { Hash } from "crypto";
                             });
                         } else if (extension === "css" || extension === "xhtml") {
                             ws.broadcast("reload");
+                        } else if (type === "change") {
+                            ws.broadcast(`fsUpdate-${projectPath}`);
                         }
                     });
                     server.on("error", serverError);
