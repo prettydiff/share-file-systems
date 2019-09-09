@@ -1,5 +1,3 @@
-import { start } from "repl";
-import { unlink } from "fs";
 
 (function local():void {
     "use strict";
@@ -48,6 +46,36 @@ import { unlink } from "fs";
             errors: []
         },
         characterKey:characterKey = "";
+
+    /* Gathers a hash or base64 and returns the hash value */
+    network.dataString = function local_network_hash(address:string, type:"hash" | "base64", callback:Function):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        messageTransmit = false;
+        ui.context.menuRemove();
+        xhr.onreadystatechange = function local_network_fileDetails_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    callback(xhr.responseText);
+                } else {
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${type} on ${address}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                }
+                messageTransmit = true;
+                network.messages();
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({
+            fs: {
+                action: `fs-${type}`,
+                agent: "self",
+                depth: 0,
+                location: address
+            }
+        }));
+    };
 
     /* Gathers fully recursive file system details and displays to screen */
     network.fileDetails = function local_network_fileDetails(address:string[], callback:Function):void {
@@ -242,7 +270,7 @@ import { unlink } from "fs";
         }));
     };
     
-    /* Retries file system data and builds an HTML artifact */
+    /* Gathers file system data and builds an HTML artifact */
     network.fs = function local_network_fs(configuration:fsRead):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
@@ -521,6 +549,33 @@ import { unlink } from "fs";
             }
             item.appendChild(button);
             itemList.push(item);
+
+            if (element.getAttribute("class") === "file") {
+                const dataString = function local_ui_context_menu_dataString(stringEvent:MouseEvent):void {
+                    const dataElement:HTMLElement = <HTMLElement>stringEvent.srcElement || <HTMLElement>stringEvent.target,
+                        address:string = element.getElementsByTagName("label")[0].innerHTML,
+                        task:string = dataElement.innerHTML;
+                    network.dataString(address, <"hash"|"base64">task.toLowerCase(), function local_ui_context_menu_dataString_callback(resultString:string):void {
+                        ui.modal.textPad(event, resultString, `${task} - ${address}`);
+                        network.settings();
+                    });
+                };
+                //hash
+                item = document.createElement("li");
+                button = document.createElement("button");
+                button.innerHTML = "Hash";
+                button.onclick = dataString;
+                item.appendChild(button);
+                itemList.push(item);
+                
+                //base64
+                item = document.createElement("li");
+                button = document.createElement("button");
+                button.innerHTML = "Base64";
+                button.onclick = dataString;
+                item.appendChild(button);
+                itemList.push(item);
+            }
 
             // copy
             item = document.createElement("li");
@@ -1546,14 +1601,20 @@ import { unlink } from "fs";
     };
 
     /* Creates a textPad modal */
-    ui.modal.textPad = function local_ui_modal_textPad(event:MouseEvent):void {
+    ui.modal.textPad = function local_ui_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            titleText:string = (typeof title === "string")
+                ? title
+                : element.innerHTML,
             textArea:HTMLTextAreaElement = document.createElement("textarea");
+        if (typeof value === "string") {
+            textArea.value = value;
+        }
         textArea.onblur = ui.modal.textSave;
         ui.modal.create({
             content: textArea,
             inputs: ["close", "maximize", "minimize"],
-            title: element.innerHTML,
+            title: titleText,
             type: "textPad",
             width: 800
         });

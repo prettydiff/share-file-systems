@@ -414,14 +414,16 @@ import { Hash } from "crypto";
             return;
         }
         // simple base64 encode/decode
-        apps.base64 = function node_apps_base64():void {
+        apps.base64 = function node_apps_base64(filePath:string, callback:Function):void {
             let direction:string = (process.argv[0] === "encode" || process.argv[0] === "decode")
                     ? process.argv[0]
                     : "encode",
                 http:boolean = false,
-                path:string = (process.argv[0] === "encode" || process.argv[0] === "decode")
-                    ? process.argv[1]
-                    : process.argv[0];
+                path:string = (typeof filePath === "string")
+                    ? filePath
+                    : (process.argv[0] === "encode" || process.argv[0] === "decode")
+                        ? process.argv[1]
+                        : process.argv[0];
             const screen = function node_apps_base64_screen(string:string) {
                     const output = (direction === "decode")
                         ? Buffer.from(string, "base64").toString("utf8")
@@ -468,13 +470,17 @@ import { Hash } from "crypto";
                                                 const output = (direction === "decode")
                                                     ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                                     : buffer.toString("base64");
-                                                if (verbose === true) {
-                                                    const list:string[] = [output];
-                                                    list.push("");
-                                                    list.push(`from ${text.angry + filePath + text.none}`);
-                                                    apps.log(list);
+                                                if (typeof callback === "function") {
+                                                    callback(output);
                                                 } else {
-                                                    apps.log([output]);
+                                                    if (verbose === true) {
+                                                        const list:string[] = [output];
+                                                        list.push("");
+                                                        list.push(`from ${text.angry + filePath + text.none}`);
+                                                        apps.log(list);
+                                                    } else {
+                                                        apps.log([output]);
+                                                    }
                                                 }
                                             }
                                         );
@@ -1495,7 +1501,7 @@ import { Hash } from "crypto";
             });
         };
         // hash utility for strings or files
-        apps.hash = function node_apps_hash(filePath:string):void {
+        apps.hash = function node_apps_hash(filePath:string, callback:Function):void {
             let limit:number = 0,
                 shortLimit:number = 0,
                 hashList:boolean = false;
@@ -1506,22 +1512,27 @@ import { Hash } from "crypto";
                     const listLength:number = list.length,
                         listObject:any = {},
                         hashes:string[] = [],
-                        hashComplete = function node_apps_hash_dirComplete_hashComplete():void {
-                            const hash:Hash = node.crypto.createHash("sha512");
-                            let hashString:string = "";
-                            if (verbose === true) {
-                                console.log(`${apps.humanTime(false)}File hashing complete. Working on a final hash to represent the directory structure.`);
+                        hashComplete = (typeof callback === "function")
+                            ? function node_apps_hash_dirComplete_callback():void {
+                                const hash:Hash = node.crypto.createHash("sha512");
+                                callback(hash.digest("hex").replace(/\s+$/, ""));
                             }
-                            hash.update(hashes.join(""));
-                            hashString = (hashList === true)
-                                ? JSON.stringify(listObject)
-                                : hash.digest("hex").replace(/\s+$/, "");
-                            if (verbose === true) {
-                                apps.log([`${version.name} hashed ${text.cyan + filePath + text.none}`, hashString]);
-                            } else {
-                                apps.log([hashString]);
-                            }
-                        },
+                            : function node_apps_hash_dirComplete_hashComplete():void {
+                                const hash:Hash = node.crypto.createHash("sha512");
+                                let hashString:string = "";
+                                if (verbose === true) {
+                                    console.log(`${apps.humanTime(false)}File hashing complete. Working on a final hash to represent the directory structure.`);
+                                }
+                                hash.update(hashes.join(""));
+                                hashString = (hashList === true)
+                                    ? JSON.stringify(listObject)
+                                    : hash.digest("hex").replace(/\s+$/, "");
+                                if (verbose === true) {
+                                    apps.log([`${version.name} hashed ${text.cyan + filePath + text.none}`, hashString]);
+                                } else {
+                                    apps.log([hashString]);
+                                }
+                            },
                         hashBack = function node_apps_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                             const hash:Hash = node.crypto.createHash("sha512");
                             hash.on("readable", function node_apps_hash_dirComplete_hashBack_hash():void {
@@ -2644,6 +2655,13 @@ import { Hash } from "crypto";
                                                 response.write(erRename.toString());
                                                 response.end();
                                             }
+                                        });
+                                    } else if (data.action === "fs-hash" || data.action === "fs-base64") {
+                                        const task:string = data.action.replace("fs-", "");
+                                        apps[task](data.location, function node_apps_server_create_end_dataString(dataString:string):void {
+                                            response.writeHead(200, {"Content-Type": "text/plain"});
+                                            response.write(dataString);
+                                            response.end();
                                         });
                                     }
                                 }

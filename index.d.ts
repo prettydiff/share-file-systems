@@ -81,10 +81,11 @@ interface messages {
     errors: messageListError[];
 }
 interface network {
-    fileDetails?: Function;
-    fs?: Function;
+    dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
+    fileDetails?: (address:string[], callback:Function) => void;
+    fs?: (configuration:fsRead) => void;
     messages?: Function;
-    fsRename?: Function;
+    fsRename?: (configuration:fsRename) => void;
     settings?: Function;
 }
 interface nodeCopyParams {
@@ -163,6 +164,9 @@ interface Stats {
     isSocket: Function;
     isSymbolicLink: Function;
 }
+interface textPad extends EventHandlerNonNull {
+    (Event, value?:string, title?:string): void;
+}
 interface ui {
     context: {
         menu?: EventHandlerNonNull;
@@ -188,7 +192,7 @@ interface ui {
         move?: EventHandlerNonNull;
         resize?: EventHandlerNonNull;
         systems?: EventHandlerNonNull;
-        textPad?: EventHandlerNonNull;
+        textPad?: textPad;
         textSave?: EventHandlerNonNull;
         zTop?: EventHandlerNonNull;
     };
