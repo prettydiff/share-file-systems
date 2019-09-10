@@ -2142,7 +2142,9 @@ import { Hash } from "crypto";
         // similar to node's fs.readFile, but determines if the file is binary or text so that it can create either a buffer or text dump
         apps.readFile = function node_apps_readFile(args:readFile):void {
             // arguments
-            // * callback - function - What to do next, the file data is passed into the callback as an argument
+            // * callback - function - What to do next. Args
+            // *    args - the arguments passed in
+            // *    dump - the file data
             // * index - number - if the file is opened as a part of a directory operation then the index represents the index out of the entire directory list
             // * path - string - the file to open
             // * stat - Stats - the Stats object for the given file
@@ -2406,24 +2408,16 @@ import { Hash } from "crypto";
                                     return;
                                 }
                                 if (stat.isFile() === true) {
-                                    node.fs.readFile(localPath, "utf8", function node_apps_server_create_readFile(err:Error, data:string):void {
+                                    const readCallback = function node_apps_server_create_readCallback(args:readFile, data:string|Buffer):void {
                                         let tool:boolean = false;
-                                        if (err !== undefined && err !== null) {
-                                            if (err.toString().indexOf("no such file or directory") > 0) {
-                                                response.writeHead(404, {"Content-Type": "text/plain"});
-                                                if (localPath.indexOf("apple-touch") < 0 && localPath.indexOf("favicon") < 0) {
-                                                    console.log(`${text.angry}404${text.none} for ${localPath}`);
-                                                }
-                                                return;
-                                            }
-                                            response.write(JSON.stringify(err));
-                                            console.log(err);
-                                            return;
-                                        }
                                         if (localPath.indexOf(".js") === localPath.length - 3) {
                                             response.writeHead(200, {"Content-Type": "application/javascript"});
                                         } else if (localPath.indexOf(".css") === localPath.length - 4) {
                                             response.writeHead(200, {"Content-Type": "text/css"});
+                                        } else if (localPath.indexOf(".jpg") === localPath.length - 4) {
+                                            response.writeHead(200, {"Content-Type": "image/jpeg"});
+                                        } else if (localPath.indexOf(".png") === localPath.length - 4) {
+                                            response.writeHead(200, {"Content-Type": "image/png"});
                                         } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
                                             response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
                                             if (localPath === `${projectPath}index.xhtml`) {
@@ -2510,6 +2504,12 @@ import { Hash } from "crypto";
                                             response.write(data);
                                             response.end();
                                         }
+                                    };
+                                    apps.readFile({
+                                        callback: readCallback,
+                                        index: 0,
+                                        path: localPath,
+                                        stat: stat
                                     });
                                 } else {
                                     response.end();

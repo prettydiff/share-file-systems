@@ -1,5 +1,5 @@
 html{font-family:"Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;margin:0;padding:0}
-body{background:#cdf;margin:0;padding:0}
+body{background:#cdf url("../images/background-desert.jpg");background-size:cover;margin:0;padding:0}
 *:focus{outline:0.1em solid #39f;}
 
 .login #spaces .title,
