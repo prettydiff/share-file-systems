@@ -1,5 +1,3 @@
-import { link } from "fs";
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 (function local():void {
     "use strict";
@@ -404,6 +402,16 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                     output.title = local[0][0];
                     configuration.callback(output, configuration.id);
                 } else {
+                    if (loadTest === true) {
+                        const output:HTMLElement = document.createElement("p");
+                        output.setAttribute("class", "error");
+                        if (xhr.status === 404) {
+                            output.innerHTML = "This path is not found.";
+                        } else {
+                            output.innerHTML = `Server error: ${xhr.status}.<hr/>${new Error().stack.replace(/\s+$/, "")}`;
+                        }
+                        configuration.callback(output, configuration.id);
+                    }
                     configuration.element.setAttribute("class", "error");
                     if (elementParent !== undefined && elementParent !== null) {
                         const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
@@ -501,10 +509,10 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
         if (parent.getAttribute("class") === "fileList") {
-            const addresses:string[] = (function local_ui_context_menu_addresses():string[] {
+            const addresses:[string, string][] = (function local_ui_context_menu_addresses():[string, string][] {
                     const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
                         length:number = itemList.length,
-                        output:string[] = [];
+                        output:[string, string][] = [];
                     let a:number = 0,
                         addressItem:HTMLElement;
                     do {
@@ -512,14 +520,14 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                             addressItem = (itemList[a].firstChild.nodeName === "button")
                                 ? <HTMLElement>itemList[a].firstChild.nextSibling
                                 : <HTMLElement>itemList[a].firstChild;
-                            output.push(addressItem.innerHTML);
+                            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(" selected", "")]);
                         }
                         a = a + 1;
                     } while (a < length);
                     if (output.length > 0) {
                         return output;
                     }
-                    output.push(element.getElementsByTagName("label")[0].innerHTML);
+                    output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
                     return output;
                 }()),
                 selectNone = function local_ui_context_menu_selectNone():void {
@@ -562,8 +570,18 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                         top: event.clientY - 60,
                         type: "details",
                         width: 500
-                    });
-                network.fileDetails(addresses, function local_ui_context_menu_details_callback(files:HTMLElement) {
+                    }),
+                    addressList:string[] = (function local_ui_context_menu_details_addressList():string[] {
+                        const output:string[] = [],
+                            length:number = addresses.length;
+                        let a:number = 0;
+                        do {
+                            output.push(addresses[a][0]);
+                            a = a + 1;
+                        } while (a < length);
+                        return output;
+                    }());
+                network.fileDetails(addressList, function local_ui_context_menu_details_callback(files:HTMLElement) {
                     const body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0];
                     body.innerHTML = "";
                     body.appendChild(files);
@@ -586,19 +604,19 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                     do {
                         b = 0;
                         do {
-                            if (addresses[a] === data.shares.localhost[b][0] && data.shares.localhost[b][1] === "fileSystem") {
+                            if (addresses[a][0] === data.shares.localhost[b][0] && data.shares.localhost[b][1] === addresses[a][1]) {
                                 break;
                             }
                             b = b + 1;
                         } while (b < shareLength);
                         if (b === shareLength) {
-                            data.shares.localhost.push([addresses[a], "fileSystem"]);
+                            data.shares.localhost.push(addresses[a]);
                         }
                         a = a + 1;
                     } while (a < addressesLength);
                 } else {
                     do {
-                        data.shares.localhost.push([addresses[a], "fileSystem"]);
+                        data.shares.localhost.push(addresses[a]);
                         a = a + 1;
                     } while (a < addressesLength);
                 }
@@ -776,8 +794,11 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
     };
 
     /* Create a file navigator modal */
-    ui.fs.navigate = function local_ui_fs_navigate(event:MouseEvent):void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+    ui.fs.navigate = function local_ui_fs_navigate(event:MouseEvent, path?:string):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            location:string = (typeof path === "string")
+                ? path
+                : "defaultLocation";
         network.fs({
             agent: "self",
             depth: 2,
@@ -797,7 +818,7 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
             },
             element: element,
             id: "",
-            location: "defaultLocation",
+            location: location,
             watch: "yes"
         });
     };
@@ -1630,17 +1651,31 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
     };
 
     /* Displays a list of shared items for each user */
-    ui.modal.sharesAll = function local_ui_modal_sharesAll():void {
-        const users:HTMLElement = document.createElement("ul"),
-            userKeys:string[] = Object.keys(data.shares),
-            keyLength:number = userKeys.length;
-        let eachUser:HTMLElement,
-            userName:HTMLElement,
-            itemList:HTMLElement,
-            item:HTMLElement,
-            a:number = 0,
-            b:number = 0,
-            shareLength:number;
+    ui.modal.shares = function local_ui_modal_shares(event:MouseEvent, user?:string, configuration?:ui_modal):void {
+        const userKeys:string[] = Object.keys(data.shares),
+            keyLength:number = userKeys.length,
+            fileNavigate = function local_ui_modal_shares_fileNavigate(event:MouseEvent):void {
+                const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                    path:string = element.innerHTML,
+                    type:string = element.getAttribute("class"),
+                    slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
+                        ? "/"
+                        : "\\";
+                let address:string;
+                if (type === "file" || type === "link") {
+                    const dirs:string[] = path.replace(/\\/g, "/").split("/");
+                    dirs.pop();
+                    address = dirs.join(slash);
+                } else {
+                    address = path;
+                }
+                ui.fs.navigate(event, address);
+            };
+        let users:HTMLElement,
+            eachUser:HTMLElement;
+        if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
+            user = "localhost";
+        }
         if (keyLength === 1 && data.shares.localhost.length === 0) {
             eachUser = document.createElement("h3");
             eachUser.innerHTML = "There are no shares at this time.";
@@ -1652,31 +1687,92 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                 width: 800
             });
         } else {
-            do {
-                eachUser = document.createElement("li");
-                userName = document.createElement("h3");
-                userName.innerHTML = userKeys[a];
-                eachUser.appendChild(userName);
-                itemList = document.createElement("ul");
-                b = 0;
-                shareLength = data.shares[userKeys[a]].length;
+            let userName:HTMLElement,
+                itemList:HTMLElement,
+                item:HTMLElement,
+                button:HTMLElement,
+                a:number = 0,
+                b:number = 0,
+                shareLength:number,
+                title:string;
+            if (user === "") {
+                title = "All Shares";
+                users = document.createElement("ul");
+                users.setAttribute("class", "userList");
                 do {
-                    item = document.createElement("li");
-                    item.innerHTML = data.shares[userKeys[a]][b][0];
-                    itemList.appendChild(item);
-                    b = b + 1;
-                } while (b < shareLength);
-                eachUser.appendChild(itemList);
-                users.appendChild(eachUser);
-                a = a + 1;
-            } while (a < keyLength);
-            ui.modal.create({
-                content: users,
-                inputs: ["close", "maximize", "minimize"],
-                title: "All Shares",
-                type: "shares",
-                width: 800
-            });
+                    eachUser = document.createElement("li");
+                    userName = document.createElement("h3");
+                    userName.setAttribute("class", "user");
+                    userName.innerHTML = userKeys[a];
+                    eachUser.appendChild(userName);
+                    shareLength = data.shares[userKeys[a]].length;
+                    if (shareLength > 0) {
+                        b = 0;
+                        itemList = document.createElement("ul");
+                        do {
+                            item = document.createElement("li");
+                            button = document.createElement("button");
+                            button.setAttribute("class", data.shares[userKeys[a]][b][1]);
+                            button.innerHTML = data.shares[userKeys[a]][b][0];
+                            if (data.shares[userKeys[a]][b][1] === "directory" || data.shares[userKeys[a]][b][1] === "file" || data.shares[userKeys[a]][b][1] === "link") {
+                                button.onclick = fileNavigate;
+                            }
+                            item.appendChild(button);
+                            itemList.appendChild(item);
+                            b = b + 1;
+                        } while (b < shareLength);
+                    } else {
+                        itemList = document.createElement("p");
+                        itemList.innerHTML = "This user is not sharing anything.";
+                    }
+                    eachUser.appendChild(itemList);
+                    users.appendChild(eachUser);
+                    a = a + 1;
+                } while (a < keyLength);
+            } else {
+                title = `Shares for user - ${user}`;
+                shareLength = data.shares[user].length;
+                users = document.createElement("div");
+                users.setAttribute("class", "userList");
+                userName = document.createElement("h3");
+                userName.setAttribute("class", "user");
+                userName.innerHTML = user;
+                if (shareLength === 0) {
+                    itemList = document.createElement("p");
+                    itemList.innerHTML = `User ${user} is not sharing anything.`;
+                } else {
+                    itemList = document.createElement("ul");
+                    do {
+                        item = document.createElement("li");
+                        button = document.createElement("button");
+                        button.setAttribute("class", data.shares[userKeys[a]][b][1]);
+                        button.innerHTML = data.shares[userKeys[a]][b][0];
+                        if (data.shares[userKeys[a]][b][1] === "directory" || data.shares[userKeys[a]][b][1] === "file" || data.shares[userKeys[a]][b][1] === "link") {
+                            button.onclick = fileNavigate;
+                        }
+                        item.appendChild(button);
+                        itemList.appendChild(item);
+                        b = b + 1;
+                    } while (b < shareLength);
+                }
+                users.appendChild(userName);
+                users.appendChild(itemList);
+            }
+            if (configuration === undefined || configuration === null) {
+                configuration = {
+                    content: users,
+                    title: title,
+                    type: "shares",
+                    width: 800
+                };
+            } else {
+                configuration.content = users;
+                configuration.title = title;
+                configuration.type = "shares";
+            }
+            configuration.text_value = user;
+            configuration.inputs = ["close", "maximize", "minimize"];
+            ui.modal.create(configuration);
         }
     };
 
@@ -1857,7 +1953,9 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
             button.setAttribute("class", "offline");
             data.shares[userName] = [];
         }
-        button.onclick = ui.modal.sharesUser;
+        button.onclick = function local_ui_util_addUser(event:MouseEvent) {
+            ui.modal.shares(event, button.innerHTML, null);
+        };
         li.appendChild(button);
         document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
     };
@@ -1964,8 +2062,10 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
     /* Interaction from the button on the login page */
     ui.util.login = function local_ui_util_login(event:KeyboardEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            input:HTMLInputElement = document.getElementById("login").getElementsByTagName("input")[0];
-        if (element === input || (event.type === "keyup" && event.keyCode === 13)) {
+            login:HTMLElement = document.getElementById("login"),
+            input:HTMLInputElement = login.getElementsByTagName("input")[0],
+            button:HTMLElement = login.getElementsByTagName("button")[0];
+        if (element === button || (event.type === "keyup" && event.keyCode === 13)) {
             if (input.value.replace(/\s+/, "") === "") {
                 input.focus();
             } else {
@@ -2270,7 +2370,9 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                 loadComplete = function load_restore_complete():void {
                     // assign key default events
                     content.onclick = ui.context.menuRemove;
-                    document.getElementById("all-shares").onclick = ui.modal.sharesAll;
+                    document.getElementById("all-shares").onclick = function local_restore_complete_sharesAll(event:MouseEvent):void {
+                        ui.modal.shares(event, "", null);
+                    };
                     document.getElementById("login-input").onkeyup = ui.util.login;
                     document.getElementById("login").getElementsByTagName("button")[0].onclick = ui.util.login;
                     document.getElementById("menuToggle").onclick = ui.util.menu;
@@ -2334,20 +2436,6 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                         }
                     }
 
-                    // restore shares
-                    {
-                        data.shares = storage.settings.shares;
-                        const users:string[] = Object.keys(storage.settings.shares),
-                            userLength:number = users.length;
-                        let a:number = 0;
-                        do {
-                            if (users[a] !== "localhost") {
-                                ui.util.addUser(users[a], "xxx");
-                            }
-                            a = a + 1;
-                        } while (a < userLength);
-                    }
-
                     loadTest = false;
                 };
             let a:number = 0,
@@ -2385,6 +2473,21 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                                     }
                                 };
                             let count:number = 0;
+                            
+                            // restore shares
+                            {
+                                data.shares = storage.settings.shares;
+                                const users:string[] = Object.keys(storage.settings.shares),
+                                    userLength:number = users.length;
+                                let a:number = 0;
+                                do {
+                                    if (users[a] !== "localhost") {
+                                        ui.util.addUser(users[a], "xxx");
+                                    }
+                                    a = a + 1;
+                                } while (a < userLength);
+                            }
+
                             if (storage.settings.name === undefined || storage.settings.name === "") {
                                 document.getElementsByTagName("body")[0].setAttribute("class", "login");
                             } else {
@@ -2455,7 +2558,10 @@ import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
                                         button.click();
                                     }
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "details" || storage.settings.modals[value].type === "shares") {
+                                } else if (storage.settings.modals[value].type === "shares") {
+                                    ui.modal.shares(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
+                                    z(value);
+                                } else {
                                     z(value);
                                 }
                             });

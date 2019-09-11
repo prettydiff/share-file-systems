@@ -83,6 +83,9 @@ interface messages {
     users: messageList[];
     errors: messageListError[];
 }
+interface navigate extends EventHandlerNonNull {
+    (Event, path?:string): void;
+}
 interface network {
     dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
     fileDetails?: (address:string[], callback:Function) => void;
@@ -129,6 +132,9 @@ interface readFile {
 interface serverError {
     stack: string[];
     error: string;
+}
+interface shares extends EventHandlerNonNull {
+    (Event, user?:string, configuration?:ui_modal): void;
 }
 interface simulationItem {
     artifact?: string;
@@ -178,7 +184,7 @@ interface ui {
     fs: {
         directory?: EventHandlerNonNull;
         expand?: EventHandlerNonNull;
-        navigate?: EventHandlerNonNull;
+        navigate?: navigate;
         parent?: EventHandlerNonNull;
         rename?: EventHandlerNonNull;
         select?: EventHandlerNonNull;
@@ -193,8 +199,7 @@ interface ui {
         minimize?: EventHandlerNonNull;
         move?: EventHandlerNonNull;
         resize?: EventHandlerNonNull;
-        sharesAll?: EventHandlerNonNull;
-        sharesUser?: EventHandlerNonNull;
+        shares?: shares;
         systems?: EventHandlerNonNull;
         textPad?: textPad;
         textSave?: EventHandlerNonNull;

@@ -2,6 +2,7 @@ html{font-family:"Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:
 body{background:#cdf url("../images/background-desert.jpg");background-size:cover;margin:0;padding:0}
 *:focus{outline:0.1em solid #39f;}
 
+/* Login prompt */
 .login #spaces .title,
 .login #spaces #content-area{display:none}
 .login #spaces #login{background:#eee;border-color:#000;border-style:solid;border-width:0.1em;box-shadow:0.15em 0.15em 1em #99c;display:block;margin:8em auto 0;padding:2em;text-align:center;width:50em;}
@@ -18,6 +19,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces #login button{background:#dfd;border-color:#060;color:#060;font-weight:bold;margin:2em 0 0;padding:1em;}
 #spaces #login{display:none}
 
+/* Context menu, right click */
 #spaces #contextMenu{border-color:#000;border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
 #spaces #contextMenu button{background:#ddd;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.5em;text-align:left;width:10em}
@@ -27,6 +29,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces #contextMenu .destroy[disabled],
 #spaces #contextMenu button[disabled]{background:#eee;color:#999;cursor:not-allowed}
 
+/* file system details modal content, accessed from context menu */
 #spaces .fileDetailOutput{font-size:1.5em;padding:0.5em}
 #spaces .fileDetailOutput h3{color:#009}
 #spaces .fileDetailOutput h3,
@@ -38,6 +41,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces .fileDetailOutput .file::before{content: "📃 "}
 #spaces .fileDetailOutput .link::before{content: "🔗 "}
 
+/* Title bar and main menu */
 #spaces .title{background:#ddd;border-color:#666;border-style:none none solid;border-width:0.1em;box-shadow:0 0.05em 0.5em #66c;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
 #spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
@@ -51,13 +55,13 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces .icon-systemLog{color:#a00}
 #spaces .icon-textPad{color:#c0f}
 #spaces .icon-export{color:#aa0}
-
 #spaces #menu{border:0.1em solid #000;box-shadow:0.1em 0.1em 0.25em #999;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
 #spaces #menu li{display:block;padding:0}
 #spaces #menu button{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
 #spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
+/* users list */
 #spaces #users{border-color:#000;border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
 #spaces #users h2{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
 #spaces #users ul{margin:0;padding:0;position:relative;z-index:2}
@@ -74,13 +78,16 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces #users #all-shares:hover{background:#fff;}
 #spaces #users #all-shares::before{content:""}
 
+/* minimize tray at bottom */
 #spaces #tray{background:#ddd;border-color:#666;border-style:solid none none;border-width:0.1em;bottom:0;display:block;height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
 #spaces #tray li{box-shadow:0.15em 0.15em 0.5em #ccc;display:inline-block;margin:1em 1.5em 0}
 #spaces #tray .box{box-shadow:none;position:static}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2{width:20em}
 
+/* modal */
 #spaces .box h3{font-size:2em}
+#spaces .box p.error{color:#c00;font-size:2em}
 #spaces .box{border-style:none;box-shadow:0.15em 0.15em 1em #99c;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .messageList .expansion span,
 #spaces .box .parentDirectory span,
@@ -122,9 +129,9 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;stroke:#cdf;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
-
 #spaces .box .body > textarea{background:#fff;border-style:none;color:#000;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;white-space:pre;width:100%}
 
+/* systems modal content */
 #spaces .box .tabs{background:#999;height:5.7em;margin:0;padding:0}
 #spaces .box .tabs li{border-style:none;display:block;margin:0;padding:0}
 #spaces .box .tabs button{background:#ddd;border-color:#000;border-style:solid solid solid none;border-width:0.05em;cursor:pointer;display:block;float:left;font-size:2em;font-weight:bold;list-style:none;margin:0.25em 0 -0.1em 0;padding:0.5em 2%;width:33.3%}
@@ -142,15 +149,31 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces #system-status,
 #spaces #system-user,
 #spaces #system-errors{clear:both;float:none}
-#spaces #system-errors span{color:#c00;}
+#spaces #system-errors span{color:#c00}
+#spaces #systems-modal{display:none}
 
+/* share list */
+#spaces .userList{margin:1em;padding:0}
+#spaces .userList li{display:block;list-style:none}
+#spaces .userList button{background:transparent;border-style:none none solid;border-width:0.05em;color:#00f;cursor:pointer;display:block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
+#spaces .userList button:hover{text-decoration:underline}
+#spaces ul.userList li{border-color:#000}
+#spaces .userList .user{margin:0 0 1em}
+#spaces .userList .user::before{content:"👤 "}
+#spaces div.userList li,
+#spaces ul.userList li li{border-color:#ccc}
+
+/* file navigator modal content */
 #spaces .fileList{height:100%;margin:0;padding:0 0 0 5em}
 #spaces .fileList label{cursor:text}
 #spaces .fileList li{border-color:#eee;border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
 #spaces .fileList li ul{border-color:#eee;border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}
 #spaces .fileList li:hover{background:#ffc}
+#spaces .userList .directory::before,
 #spaces .fileList .directory::before{content: "📂 "}
+#spaces .userList .file::before,
 #spaces .fileList .file::before{content: "📃 "}
+#spaces .userList .link::before,
 #spaces .fileList .link::before{content: "🔗 "}
 #spaces .fileList .lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
