@@ -1,6 +1,6 @@
 
 type characterKey = "" | "control" | "shift";
-type directoryItem = [string, "error" | "file" | "directory" | "link" | "screen", number, number, Stats];
+type directoryItem = [string, "error" | "file" | "directory" | "link", number, number, Stats];
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
@@ -26,7 +26,6 @@ interface commandList {
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
 }
-interface children<T> extends Array<T> {}
 interface Document {
     getNodesByType: Function;
     getElementsByAttribute: Function;

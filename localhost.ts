@@ -72,10 +72,11 @@
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(JSON.stringify({
             fs: {
-                action: `fs-${type}`,
-                agent: "self",
-                depth: 0,
-                location: address
+                action  : `fs-${type}`,
+                agent   : "self",
+                depth   : 1,
+                location: address,
+                watch   : "no"
             }
         }));
     };
@@ -265,11 +266,11 @@
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(JSON.stringify({
             fs: {
-                action: "fs-details",
-                agent: "self",
-                depth: 0,
+                action  : "fs-details",
+                agent   : "self",
+                depth   : 0,
                 location: address,
-                watch: "no"
+                watch   : "no"
             }
         }));
     };
@@ -426,7 +427,15 @@
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-read","agent":"${configuration.agent}","depth":${configuration.depth},"location":["${configuration.location.replace(/\\/g, "\\\\")}"],"watch":"${configuration.watch.replace(/\\/g, "\\\\")}"}`);
+        xhr.send(JSON.stringify({
+            fs: {
+                action  : "fs-read",
+                agent   : configuration.agent,
+                depth   : configuration.depth,
+                location:[configuration.location.replace(/\\/g, "\\\\")],
+                watch   : configuration.watch.replace(/\\/g, "\\\\")
+            }
+        }));
     };
 
     /* Rename a single file system artifact */
@@ -447,7 +456,16 @@
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`fs:{"action":"fs-rename","agent":"${configuration.agent}","location":"${configuration.location.replace(/\\/g, "\\\\")}","name":"${configuration.name}"}`);
+        xhr.send(JSON.stringify({
+            fs: {
+                action  : "fs-rename",
+                agent   : configuration.agent,
+                depth   : 1,
+                location:[configuration.location.replace(/\\/g, "\\\\")],
+                name    : configuration.name,
+                watch   : "no"
+            }
+        }));
     };
 
     /* Stores systems log messages to storage/messages.json file */
