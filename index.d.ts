@@ -23,6 +23,12 @@ interface commandList {
         }[];
     }
 }
+interface context extends EventHandlerNonNull {
+    (Event, element?:HTMLElement): void;
+}
+interface dataString extends EventHandlerNonNull {
+    (Event, element?:HTMLElement, task?: "Hash" | "Base64"): void;
+}
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
 }
@@ -177,8 +183,16 @@ interface textPad extends EventHandlerNonNull {
 }
 interface ui {
     context: {
+        copy?: context;
+        dataString?: dataString;
+        destroy?: context;
+        details?: context;
         menu?: EventHandlerNonNull;
         menuRemove?: functionEvent;
+        move?: context;
+        newDirectory?: context;
+        newFile?: context;
+        share?: context;
     };
     fs: {
         directory?: EventHandlerNonNull;
@@ -218,6 +232,8 @@ interface ui {
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         prettyBytes?: (an_integer:number) => string;
+        selectedAddresses?: (element:HTMLElement) => [string, string][];
+        selectNone?:(element:HTMLElement) => void;
     };
 }
 interface ui_data {

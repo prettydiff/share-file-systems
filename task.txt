@@ -1,20 +1,19 @@
 
 ## gui
-1 - stop shares (only localhost shares)
+xx - [blocked, adding and removing shares requires messaging to other users] stop shares (only localhost shares)
 2 - context menu
-    a - copy
+    a - new directory (creates file named New Directory in rename mode of current directory)
+    b - new file (creates file named New File in rename mode of current directory)
+    c - copy
         x - using context menu on single item with no selection
         y - using context menu on selected items
-    b - move, by context menu only
-    c - destroy
-    d - new directory (creates file named New Directory in rename mode of current directory)
-    e - new file (creates file named New File in rename mode of current directory)
+    d - move, by context menu only
+    e - destroy
     f - edit file (opens file in textPad)
 3 - copy by drag and drop from one modal to another
 
 ## file list
 1 - allow file selections to be read only by default
-2 - new directory/file --- from context menu on directories only
 
 ## service
 1 - menu item for connecting to a user/port

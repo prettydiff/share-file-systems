@@ -508,6 +508,59 @@
         xhr.send(`settings:${JSON.stringify(data)}`);
     };
 
+    /* Handler for file system artifact copy */
+    ui.context.copy = function local_ui_context_copy(event:MouseEvent, element?:HTMLElement):void {
+
+    };
+
+    /* Handler for hash and base64 operations from the context menu */
+    ui.context.dataString = function local_ui_context_dataString(event:MouseEvent, element?:HTMLElement, task?:"Hash" | "Base64"):void {
+        let address:string = element.getElementsByTagName("label")[0].innerHTML;
+        address = element.getElementsByTagName("label")[0].innerHTML;
+        network.dataString(address, <"hash"|"base64">task.toLowerCase(), function local_ui_context_dataString_callback(resultString:string):void {
+            ui.modal.textPad(event, resultString, `${task} - ${address}`);
+            network.settings();
+        });
+    };
+
+    /* Handler for removing file system artifacts via context menu */
+    ui.context.destroy = function local_ui_context_destroy(event:MouseEvent, element?:HTMLElement):void {
+
+    };
+
+    /* Handler for details action of context menu */
+    ui.context.details = function local_ui_context_details(event:MouseEvent, element?:HTMLElement):void {
+        const div:HTMLElement = ui.util.delay(),
+            addresses:[string, string][] = ui.util.selectedAddresses(element),
+            modal:HTMLElement = ui.modal.create({
+                content: div,
+                height: 500,
+                inputs: ["close"],
+                left: event.clientX,
+                single: true,
+                title: `Details - ${addresses.length} items`,
+                top: event.clientY - 60,
+                type: "details",
+                width: 500
+            }),
+            addressList:string[] = (function local_ui_context_details_addressList():string[] {
+                const output:string[] = [],
+                    length:number = addresses.length;
+                let a:number = 0;
+                do {
+                    output.push(addresses[a][0]);
+                    a = a + 1;
+                } while (a < length);
+                return output;
+            }());
+        network.fileDetails(addressList, function local_ui_context_details_callback(files:HTMLElement) {
+            const body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0];
+            body.innerHTML = "";
+            body.appendChild(files);
+        });
+        ui.util.selectNone(element);
+    }
+
     /* Creates context menu */
     ui.context.menu = function local_ui_context_menu(event:MouseEvent):void {
         const itemList:HTMLElement[] = [],
@@ -527,45 +580,6 @@
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
         if (parent.getAttribute("class") === "fileList") {
-            const addresses:[string, string][] = (function local_ui_context_menu_addresses():[string, string][] {
-                    const itemList:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
-                        length:number = itemList.length,
-                        output:[string, string][] = [];
-                    let a:number = 0,
-                        addressItem:HTMLElement;
-                    do {
-                        if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-                            addressItem = (itemList[a].firstChild.nodeName === "button")
-                                ? <HTMLElement>itemList[a].firstChild.nextSibling
-                                : <HTMLElement>itemList[a].firstChild;
-                            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(" selected", "")]);
-                        }
-                        a = a + 1;
-                    } while (a < length);
-                    if (output.length > 0) {
-                        return output;
-                    }
-                    output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
-                    return output;
-                }()),
-                selectNone = function local_ui_context_menu_selectNone():void {
-                    const inputs:HTMLCollectionOf<HTMLInputElement> = parent.getElementsByTagName("input"),
-                        li:HTMLCollectionOf<HTMLElement> = parent.getElementsByTagName("li"),
-                        liLength:number = li.length,
-                        inputLength:number = inputs.length;
-                    let a:number = 0;
-                    do {
-                        if (inputs[a].type === "checkbox") {
-                            inputs[a].checked = false;
-                        }
-                        a = a + 1;
-                    } while (a < inputLength);
-                    a = 0;
-                    do {
-                        li[a].setAttribute("class", li[a].getAttribute("class").replace(" selected", ""));
-                        a = a + 1;
-                    } while (a < liLength);
-                };
             let input:HTMLInputElement = <HTMLInputElement>parent;
             do {
                 input = <HTMLInputElement>input.parentNode;
@@ -576,36 +590,9 @@
             item = document.createElement("li");
             button = document.createElement("button");
             button.innerHTML = "Details";
-            button.onclick = function local_ui_context_menu_details():void {
-                const div:HTMLElement = ui.util.delay(),
-                    modal:HTMLElement = ui.modal.create({
-                        content: div,
-                        height: 500,
-                        inputs: ["close"],
-                        left: event.clientX,
-                        single: true,
-                        title: `Details - ${addresses.length} items`,
-                        top: event.clientY - 60,
-                        type: "details",
-                        width: 500
-                    }),
-                    addressList:string[] = (function local_ui_context_menu_details_addressList():string[] {
-                        const output:string[] = [],
-                            length:number = addresses.length;
-                        let a:number = 0;
-                        do {
-                            output.push(addresses[a][0]);
-                            a = a + 1;
-                        } while (a < length);
-                        return output;
-                    }());
-                network.fileDetails(addressList, function local_ui_context_menu_details_callback(files:HTMLElement) {
-                    const body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    body.appendChild(files);
-                });
-                selectNone();
-            }
+            button.onclick = function local_ui_context_menu() {
+                ui.context.details(event, element);
+            };
             item.appendChild(button);
             itemList.push(item);
 
@@ -614,51 +601,19 @@
             button = document.createElement("button");
             button.innerHTML = "Share";
             button.onclick = function local_ui_context_menu_share():void {
-                const shareLength:number = data.shares.localhost.length,
-                    addressesLength:number = addresses.length;
-                let a:number = 0,
-                    b:number = 0;
-                if (shareLength > 0) {
-                    do {
-                        b = 0;
-                        do {
-                            if (addresses[a][0] === data.shares.localhost[b][0] && data.shares.localhost[b][1] === addresses[a][1]) {
-                                break;
-                            }
-                            b = b + 1;
-                        } while (b < shareLength);
-                        if (b === shareLength) {
-                            data.shares.localhost.push(addresses[a]);
-                        }
-                        a = a + 1;
-                    } while (a < addressesLength);
-                } else {
-                    do {
-                        data.shares.localhost.push(addresses[a]);
-                        a = a + 1;
-                    } while (a < addressesLength);
-                }
-                selectNone();
-                network.settings();
+                ui.context.share(event, element);
             };
             item.appendChild(button);
             itemList.push(item);
 
             if (element.getAttribute("class") === "file") {
-                const dataString = function local_ui_context_menu_dataString(stringEvent:MouseEvent):void {
-                    const dataElement:HTMLElement = <HTMLElement>stringEvent.srcElement || <HTMLElement>stringEvent.target,
-                        address:string = element.getElementsByTagName("label")[0].innerHTML,
-                        task:string = dataElement.innerHTML;
-                    network.dataString(address, <"hash"|"base64">task.toLowerCase(), function local_ui_context_menu_dataString_callback(resultString:string):void {
-                        ui.modal.textPad(event, resultString, `${task} - ${address}`);
-                        network.settings();
-                    });
-                };
                 //hash
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = "Hash";
-                button.onclick = dataString;
+                button.onclick = function local_ui_context_menu_hash():void {
+                    ui.context.dataString(event, element, "Hash");
+                };
                 item.appendChild(button);
                 itemList.push(item);
                 
@@ -666,7 +621,9 @@
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = "Base64";
-                button.onclick = dataString;
+                button.onclick = function local_ui_context_menu_base64():void {
+                    ui.context.dataString(event, element, "Base64");
+                };
                 item.appendChild(button);
                 itemList.push(item);
             }
@@ -714,6 +671,8 @@
             item.appendChild(button);
             itemList.push(item);
         }
+
+        // menu display position
         menu.style.zIndex = `${data.zIndex + 10}`;
         if (content.clientHeight < ((itemList.length * 51) + 1) + (event.clientY - 48)) {
             reverse = true;
@@ -747,6 +706,52 @@
         if (document.getElementById("contextMenu") !== null) {
             content.removeChild(document.getElementById("contextMenu"));
         }
+    }
+
+    /* Handler for moving file system artifacts from one location to another */
+    ui.context.move = function local_ui_context_move(event:MouseEvent, element?:HTMLElement):void {
+
+    };
+
+    /* Handler for creating new directories */
+    ui.context.newDirectory = function local_ui_context_newDirectory(event:MouseEvent, element?:HTMLElement):void {
+
+    };
+
+    /* Handler for creating new files */
+    ui.context.newFile = function local_ui_context_newFile(event:MouseEvent, element?:HTMLElement):void {
+
+    };
+
+    /* Share utility for the context menu list */
+    ui.context.share = function local_ui_context_share(event:MouseEvent, element?:HTMLElement):void {
+        const shareLength:number = data.shares.localhost.length,
+            addresses:[string, string][] = ui.util.selectedAddresses(element),
+            addressesLength:number = addresses.length;
+        let a:number = 0,
+            b:number = 0;
+        if (shareLength > 0) {
+            do {
+                b = 0;
+                do {
+                    if (addresses[a][0] === data.shares.localhost[b][0] && data.shares.localhost[b][1] === addresses[a][1]) {
+                        break;
+                    }
+                    b = b + 1;
+                } while (b < shareLength);
+                if (b === shareLength) {
+                    data.shares.localhost.push(addresses[a]);
+                }
+                a = a + 1;
+            } while (a < addressesLength);
+        } else {
+            do {
+                data.shares.localhost.push(addresses[a]);
+                a = a + 1;
+            } while (a < addressesLength);
+        }
+        ui.util.selectNone(element);
+        network.settings();
     }
 
     /* navigate into a directory by double click */
@@ -1103,7 +1108,8 @@
                 : (options.id || `${options.type}-${Math.random().toString() + data.zIndex + 1}`),
             box:HTMLElement = document.createElement("div"),
             body:HTMLElement = document.createElement("div"),
-            border:HTMLElement = document.createElement("div");
+            border:HTMLElement = document.createElement("div"),
+            modalCount:number = Object.keys(data.modals).length;
         data.zIndex = data.zIndex + 1;
         if (options.zIndex === undefined) {
             options.zIndex = data.zIndex;
@@ -1116,10 +1122,10 @@
             data.modalTypes.push(options.type);
         }
         if (options.left === undefined) {
-            options.left = 200;
+            options.left = 200 + (modalCount * 5);
         }
         if (options.top === undefined) {
-            options.top = 200;
+            options.top = 200 + (modalCount * 5);
         }
         if (options.width === undefined) {
             options.width = 400;
@@ -2163,6 +2169,63 @@
             output = length.toFixed(1) + unit[triples];
         }
         return output;
+    };
+
+    /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
+    ui.util.selectedAddresses = function local_ui_util_selectedAddresses(element:HTMLElement):[string, string][] {
+        const output:[string, string][] = [];
+        let a:number = 0,
+            length:number = 0,
+            itemList:HTMLCollectionOf<HTMLElement>,
+            addressItem:HTMLElement,
+            box:HTMLElement = element;
+        if (box.getAttribute("class") !== "box") {
+            do {
+                box = <HTMLElement>box.parentNode;
+            } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+        }
+        itemList = box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
+        length = itemList.length;
+        do {
+            if (itemList[a].getElementsByTagName("input")[0].checked === true) {
+                addressItem = (itemList[a].firstChild.nodeName === "button")
+                    ? <HTMLElement>itemList[a].firstChild.nextSibling
+                    : <HTMLElement>itemList[a].firstChild;
+                output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(" selected", "")]);
+            }
+            a = a + 1;
+        } while (a < length);
+        if (output.length > 0) {
+            return output;
+        }
+        output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
+        return output;
+    };
+
+    /* Remove selections of file system artifacts in a given fileNavigator modal */
+    ui.util.selectNone = function local_ui_util_selectNone(element:HTMLElement):void {
+        let a:number = 0,
+            inputLength:number,
+            li:HTMLCollectionOf<HTMLElement>,
+            inputs:HTMLCollectionOf<HTMLInputElement>,
+            box:HTMLElement = element,
+            fileList:HTMLElement;
+        if (box.getAttribute("class") !== "box") {
+            do {
+                box = <HTMLElement>box.parentNode;
+            } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+        }
+        fileList = <HTMLElement>box.getElementsByClassName("fileList")[0];
+        inputs = fileList.getElementsByTagName("input");
+        li = fileList.getElementsByTagName("li");
+        inputLength = inputs.length;
+        do {
+            if (inputs[a].type === "checkbox") {
+                inputs[a].checked = false;
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(" selected", ""));
+            }
+            a = a + 1;
+        } while (a < inputLength);
     };
 
     /* Handle Web Socket responses */
