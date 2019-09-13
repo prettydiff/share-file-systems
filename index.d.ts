@@ -6,7 +6,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceType = "fs-base64" | "fs-close" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
+type serviceType = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -27,6 +27,18 @@ interface commandList {
 }
 interface context extends EventHandlerNonNull {
     (Event, element?:HTMLElement): void;
+}
+interface contextFunctions {
+    base64: Function;
+    copy: Function;
+    destroy: Function;
+    details: Function;
+    hash: Function;
+    move: Function;
+    newDirectory: Function;
+    newFile: Function;
+    rename: Function;
+    share: Function;
 }
 interface contextNew extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?:string): void;
@@ -100,6 +112,7 @@ interface navigate extends EventHandlerNonNull {
 interface network {
     dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
     fsClose?: (agent:string, address:string) => void;
+    fsDestroy?: (agent:string, address:string) => void;
     fsDetails?: (address:string[], callback:Function) => void;
     fsNew?: (agent:string, type:"file" | "directory", address:string) => void;
     fsRead?: (configuration:fsRead) => void;
@@ -193,7 +206,7 @@ interface ui {
     context: {
         copy?: context;
         dataString?: dataString;
-        destroy?: context;
+        destroy?: (HTMLElement) => void;
         details?: context;
         fsNew?: contextNew;
         menu?: EventHandlerNonNull;

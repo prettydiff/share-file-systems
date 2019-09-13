@@ -2620,7 +2620,7 @@ import { Hash } from "crypto";
                                         if (pathList[0] === "defaultLocation") {
                                             pathList[0] = projectPath;
                                         }
-                                        pathList.forEach(function node_apps_server_create_end_pathEach(value:string) {
+                                        pathList.forEach(function node_apps_server_create_end_pathEach(value:string):void {
                                             if (value === "\\") {
                                                 windowsRoot();
                                             } else {
@@ -2665,7 +2665,21 @@ import { Hash } from "crypto";
                                     } else if (data.action === "fs-close") {
                                         if (watches[data.location[0]] !== undefined) {
                                             watches[data.location[0]].close();
+                                            delete watches[data.location[0]];
                                         }
+                                        response.writeHead(200, {"Content-Type": "text/plain"});
+                                        response.write(`Watcher ${data.location[0]} closed.`);
+                                        response.end();
+                                    } else if (data.action === "fs-destroy") {
+                                        if (watches[data.location[0]] !== undefined) {
+                                            watches[data.location[0]].close();
+                                            delete watches[data.location[0]];
+                                        }
+                                        apps.remove(data.location[0], function node_apps_server_create_end_destroy():void {
+                                            response.writeHead(200, {"Content-Type": "text/plain"});
+                                            response.write(`Path ${data.location[0]} destroyed.`);
+                                            response.end();
+                                        });
                                     } else if (data.action === "fs-rename") {
                                         const newPath:string[] = data.location[0].split(sep);
                                         newPath.pop();

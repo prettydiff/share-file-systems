@@ -1,4 +1,7 @@
 
+## defect
+* destroy ignores list of selected items
+
 ## gui
 xx - [blocked, adding and removing shares requires messaging to other users] stop shares (only localhost shares)
 2 - context menu
@@ -13,6 +16,7 @@ xx - [blocked, adding and removing shares requires messaging to other users] sto
 
 ## file list
 1 - allow file selections to be read only by default
+2 - navigation security, do not allow parent navigation beyond a share
 
 ## service
 1 - menu item for connecting to a user/port

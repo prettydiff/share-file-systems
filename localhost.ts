@@ -99,6 +99,24 @@
         }));
     };
 
+    /* Removes a file system artifact */
+    network.fsDestroy = function local_network_fsDestroy(agent:string, address:string):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({
+            fs: {
+                action  : "fs-destroy",
+                agent   : agent,
+                depth   : 1,
+                location:[address.replace(/\\/g, "\\\\")],
+                watch   : "no"
+            }
+        }));
+    };
+
     /* Gathers fully recursive file system details and displays to screen */
     network.fsDetails = function local_network_fsDetails(address:string[], callback:Function):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
@@ -385,6 +403,7 @@
                         a = a + 1;
                     } while (a < localLength);
                     output.title = local[0][0];
+                    output.oncontextmenu = ui.context.menu;
                     output.setAttribute("class", "fileList");
                     configuration.callback(output, configuration.id);
                 } else {
@@ -509,8 +528,12 @@
     };
 
     /* Handler for removing file system artifacts via context menu */
-    ui.context.destroy = function local_ui_context_destroy(event:MouseEvent, element?:HTMLElement):void {
-
+    ui.context.destroy = function local_ui_context_destroy(element:HTMLElement):void {
+        if (element.nodeName !== "li") {
+            element = <HTMLElement>element.parentNode;
+        }
+        element.parentNode.removeChild(element);
+        network.fsDestroy("self", element.firstChild.textContent);
     };
 
     /* Handler for details action of context menu */
@@ -621,8 +644,126 @@
             parent:HTMLElement = <HTMLElement>element.parentNode,
             item:HTMLElement,
             button:HTMLButtonElement,
+            functions:contextFunctions = {
+                base64: function local_ui_context_menu_base64():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Base64";
+                    button.onclick = function local_ui_context_menu_base64_handler():void {
+                        ui.context.dataString(event, element, "Base64");
+                    };
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                copy: function local_ui_context_menu_copy():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Copy";
+                    //button.onclick = wrap network.fs and open it to do more than generate file list
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                destroy: function local_ui_context_menu_destroy():void {
+                    let input:HTMLInputElement = <HTMLInputElement>parent;
+                    do {
+                        input = <HTMLInputElement>input.parentNode;
+                    } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+                    input = input.getElementsByTagName("input")[0];
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Destroy";
+                    button.setAttribute("class", "destroy");
+                    if (input.value === "/" || input.value === "\\") {
+                        button.disabled = true;
+                    } else {
+                        button.onclick = function local_ui_context_menu_destroy():void {
+                            ui.context.destroy(element);
+                        };
+                    }
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                details: function local_ui_context_menu_details():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Details";
+                    button.onclick = function local_ui_context_menu_details_handler():void {
+                        ui.context.details(event, element);
+                    };
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                hash: function local_ui_context_menu_hash():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Hash";
+                    button.onclick = function local_ui_context_menu_hash_handler():void {
+                        ui.context.dataString(event, element, "Hash");
+                    };
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                move: function local_ui_context_menu_move():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Move";
+                    //button.onclick = wrap network.fs and open it to do more than generate file list
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                newDirectory: function local_ui_context_menu_newDirectory():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "New Directory";
+                    button.onclick = function local_ui_context_menu_newDirectory_handler():void {
+                        ui.context.fsNew(event, element, "directory");
+                    };
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                newFile: function local_ui_context_menu_newFile():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "New File";
+                    button.onclick = function local_ui_context_menu_newFile_handler():void {
+                        ui.context.fsNew(event, element, "file");
+                    };
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                rename: function local_ui_context_menu_rename():void {
+                    let input:HTMLInputElement = <HTMLInputElement>parent;
+                    do {
+                        input = <HTMLInputElement>input.parentNode;
+                    } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+                    input = input.getElementsByTagName("input")[0];
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Rename";
+                    if (input.value === "/" || input.value === "\\") {
+                        button.disabled = true;
+                    } else {
+                        button.onclick = function local_ui_context_menu_rename():void {
+                            ui.fs.rename(event);
+                        };
+                    }
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                share: function local_ui_context_menu_share():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Share";
+                    button.onclick = function local_ui_context_menu_share_handler():void {
+                        ui.context.share(event, element);
+                    };
+                    item.appendChild(button);
+                    itemList.push(item);
+                }
+            },
             reverse:boolean = false,
             a:number = 0;
+        event.stopPropagation();
         if (element.nodeName === "input") {
             return;
         }
@@ -634,117 +775,25 @@
         event.preventDefault();
         event.stopPropagation();
         menu.setAttribute("id", "contextMenu");
-        if (parent.getAttribute("class") === "fileList") {
-            let input:HTMLInputElement = <HTMLInputElement>parent;
-            do {
-                input = <HTMLInputElement>input.parentNode;
-            } while (input !== document.documentElement && input.getAttribute("class") !== "border");
-            input = input.getElementsByTagName("input")[0];
+        if (element.getAttribute("class") === "fileList") {
+            functions.newDirectory();
+            functions.newFile();
+        } else if (parent.getAttribute("class") === "fileList") {
 
-            // details
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "Details";
-            button.onclick = function local_ui_context_menu() {
-                ui.context.details(event, element);
-            };
-            item.appendChild(button);
-            itemList.push(item);
-
-            // share
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "Share";
-            button.onclick = function local_ui_context_menu_share():void {
-                ui.context.share(event, element);
-            };
-            item.appendChild(button);
-            itemList.push(item);
+            functions.details();
+            functions.share();
 
             if (element.getAttribute("class").indexOf("file") === 0) {
-                //hash
-                item = document.createElement("li");
-                button = document.createElement("button");
-                button.innerHTML = "Hash";
-                button.onclick = function local_ui_context_menu_hash():void {
-                    ui.context.dataString(event, element, "Hash");
-                };
-                item.appendChild(button);
-                itemList.push(item);
-                
-                //base64
-                item = document.createElement("li");
-                button = document.createElement("button");
-                button.innerHTML = "Base64";
-                button.onclick = function local_ui_context_menu_base64():void {
-                    ui.context.dataString(event, element, "Base64");
-                };
-                item.appendChild(button);
-                itemList.push(item);
+                functions.hash();
+                functions.base64();
             }
 
-            // new Directory
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "New Directory";
-            button.onclick = function local_ui_context_menu_newDirectory():void {
-                ui.context.fsNew(event, element, "directory");
-            };
-            item.appendChild(button);
-            itemList.push(item);
-
-            // new File
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "New File";
-            button.onclick = function local_ui_context_menu_newFile():void {
-                ui.context.fsNew(event, element, "file");
-            };
-            item.appendChild(button);
-            itemList.push(item);
-
-            // copy
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "Copy";
-            //button.onclick = wrap network.fs and open it to do more than generate file list
-            item.appendChild(button);
-            itemList.push(item);
-
-            // move
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "Move";
-            //button.onclick = wrap network.fs and open it to do more than generate file list
-            item.appendChild(button);
-            itemList.push(item);
-
-            // rename
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "Rename";
-            if (input.value === "/" || input.value === "\\") {
-                button.disabled = true;
-            } else {
-                button.onclick = function local_ui_context_menu_rename():void {
-                    ui.fs.rename(event);
-                };
-            }
-            item.appendChild(button);
-            itemList.push(item);
-
-            // destroy
-            item = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "Destroy";
-            button.setAttribute("class", "destroy");
-            if (input.value === "/" || input.value === "\\") {
-                button.disabled = true;
-            } else {
-                //button.onclick = function local_ui_context_menu_destroy():void {};
-            }
-            item.appendChild(button);
-            itemList.push(item);
+            functions.newDirectory();
+            functions.newFile();
+            functions.copy();
+            functions.move();
+            functions.rename();
+            functions.destroy();
         }
 
         // menu display position
@@ -2370,7 +2419,7 @@
     };
 
     /* Handle Web Socket responses */
-    ws.onmessage = function local_socketMessage(event:SocketEvent):void {console.log(event.data);
+    ws.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
         } else if (event.data.indexOf("error-") === 0) {
