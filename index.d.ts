@@ -6,7 +6,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceType = "fs-base64" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
+type serviceType = "fs-base64" | "fs-close" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -99,9 +99,10 @@ interface navigate extends EventHandlerNonNull {
 }
 interface network {
     dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
-    fileDetails?: (address:string[], callback:Function) => void;
-    fs?: (configuration:fsRead) => void;
+    fsClose?: (agent:string, address:string) => void;
+    fsDetails?: (address:string[], callback:Function) => void;
     fsNew?: (agent:string, type:"file" | "directory", address:string) => void;
+    fsRead?: (configuration:fsRead) => void;
     fsRename?: (configuration:fsRename) => void;
     messages?: Function;
     settings?: Function;

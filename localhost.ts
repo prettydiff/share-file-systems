@@ -81,13 +81,31 @@
         }));
     };
 
+    /* Lets the local service know to close out a fs.watcher that is no longer needed */
+    network.fsClose = function local_network_fsClose(agent:string, address:string):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({
+            fs: {
+                action  : "fs-close",
+                agent   : agent,
+                depth   : 1,
+                location:[address.replace(/\\/g, "\\\\")],
+                watch   : "no"
+            }
+        }));
+    };
+
     /* Gathers fully recursive file system details and displays to screen */
-    network.fileDetails = function local_network_fileDetails(address:string[], callback:Function):void {
+    network.fsDetails = function local_network_fsDetails(address:string[], callback:Function):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         messageTransmit = false;
         ui.context.menuRemove();
-        xhr.onreadystatechange = function local_network_fileDetails_callback():void {
+        xhr.onreadystatechange = function local_network_fsDetails_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 0) {
                     const list:directoryList[] = JSON.parse(xhr.responseText),
@@ -110,7 +128,7 @@
                         mTime:Date,
                         aTime:Date,
                         cTime:Date;
-                    list.sort(function local_network_fileDetails_callback_sort(a:directoryList, b:directoryList):number {
+                    list.sort(function local_network_fsDetails_callback_sort(a:directoryList, b:directoryList):number {
                         // when types are the same
                         if (a[0][1] === b[0][1]) {
                             if (a[0][0] < b[0][0]) {
@@ -274,12 +292,32 @@
             }
         }));
     };
-    
-    /* Gathers file system data and builds an HTML artifact */
-    network.fs = function local_network_fs(configuration:fsRead):void {
+
+    /* Service to write new files and directories to the file system */
+    network.fsNew = function local_network_fsNew(agent:string, type:"file" | "directory", address:string):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_fs_callback():void {
+        xhr.onreadystatechange = function local_network_fs_callback():void {};
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({
+            fs: {
+                action  : "fs-new",
+                agent   : agent,
+                depth   : 1,
+                location:[address.replace(/\\/g, "\\\\")],
+                type    : type,
+                watch   : "no"
+            }
+        }));
+    };
+    
+    /* Gathers file system data and builds an HTML artifact */
+    network.fsRead = function local_network_fsRead(configuration:fsRead):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        xhr.onreadystatechange = function local_network_fsRead_callback():void {
             if (xhr.readyState === 4) {
                 const elementParent:HTMLElement = (configuration.element === null)
                     ? null
@@ -312,7 +350,7 @@
                         }
                         a = a + 1;
                     } while (a < length);
-                    local.sort(function local_network_fs_callback_sort(a:directoryItem, b:directoryItem):number {
+                    local.sort(function local_network_fsRead_callback_sort(a:directoryItem, b:directoryItem):number {
                         // when types are the same
                         if (a[1] === b[1]) {
                             if (a[0] < b[0]) {
@@ -381,25 +419,6 @@
                 depth   : configuration.depth,
                 location:[configuration.location.replace(/\\/g, "\\\\")],
                 watch   : configuration.watch.replace(/\\/g, "\\\\")
-            }
-        }));
-    };
-
-    network.fsNew = function local_network_fsNew(agent:string, type:"file" | "directory", address:string):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_fs_callback():void {};
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-new",
-                agent   : agent,
-                depth   : 1,
-                location:[address.replace(/\\/g, "\\\\")],
-                type    : type,
-                watch   : "no"
             }
         }));
     };
@@ -519,7 +538,7 @@
                 } while (a < length);
                 return output;
             }());
-        network.fileDetails(addressList, function local_ui_context_details_callback(files:HTMLElement) {
+        network.fsDetails(addressList, function local_ui_context_details_callback(files:HTMLElement) {
             const body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0];
             body.innerHTML = "";
             body.appendChild(files);
@@ -819,7 +838,7 @@
         input = box.getElementsByTagName("input")[0];
         watchValue = input.value;
         input.value = path;
-        network.fs({
+        network.fsRead({
             agent: "self",
             depth: 2,
             callback: function local_ui_fs_text_callback(files:HTMLElement) {
@@ -841,7 +860,7 @@
             li:HTMLElement = <HTMLElement>button.parentNode;
         if (button.innerHTML.indexOf("+") === 0) {
             button.innerHTML = "-<span>Collapse this folder</span>";
-            network.fs({
+            network.fsRead({
                 agent: "self",
                 depth: 2,
                 callback: function local_ui_fs_expand_callback(files:HTMLElement) {
@@ -868,7 +887,7 @@
             location:string = (typeof path === "string")
                 ? path
                 : "defaultLocation";
-        network.fs({
+        network.fsRead({
             agent: "self",
             depth: 2,
             callback: function local_ui_fs_navigate_callback(files:HTMLElement) {
@@ -918,7 +937,7 @@
         } else {
             input.value = value.slice(0, value.lastIndexOf(slash));
         }
-        network.fs({
+        network.fsRead({
             agent: "self",
             depth: 2,
             callback: function local_ui_fs_parent_callback(files:HTMLElement) {
@@ -1103,7 +1122,7 @@
         id = box.getAttribute("id");
         parent = parent.getElementsByTagName("div")[0];
         if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
-            network.fs({
+            network.fsRead({
                 agent: "self",
                 depth: 2,
                 callback: function local_ui_fs_text_callback(files:HTMLElement) {
@@ -2370,7 +2389,7 @@
             do {
                 if (data.modals[modalKeys[a]].type === "fileNavigate" && data.modals[modalKeys[a]].text_value === value) {
                     const body:HTMLElement = <HTMLElement>document.getElementById(data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
-                    network.fs({
+                    network.fsRead({
                         agent: "self",
                         callback: function local_socketMessage_updateCallback(files:HTMLElement):void {
                             body.innerHTML = "";
@@ -2381,9 +2400,13 @@
                         location: value,
                         watch: "no"
                     });
+                    break;
                 }
                 a = a + 1;
             } while (a < keyLength);
+            if (a === keyLength) {
+                network.fsClose("self", value);
+            }
         }
     };
     ws.onclose = function local_socketClose():void {
@@ -2702,7 +2725,7 @@
                             }
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
-                                    network.fs({
+                                    network.fsRead({
                                         agent: "self",
                                         depth: 2,
                                         callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {

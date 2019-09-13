@@ -2648,9 +2648,7 @@ import { Hash } from "crypto";
                                                             watches[value] = node.fs.watch(value, {
                                                                 recursive: false
                                                             }, function node_apps_server_watch(type:"rename" | "change"):void {
-                                                                if (type === "change") {
-                                                                    ws.broadcast(`fsUpdate-${value}`);
-                                                                }
+                                                                ws.broadcast(`fsUpdate-${value}`);
                                                             });
                                                         }
                                                     }
@@ -2664,6 +2662,10 @@ import { Hash } from "crypto";
                                                 });
                                             }
                                         });
+                                    } else if (data.action === "fs-close") {
+                                        if (watches[data.location[0]] !== undefined) {
+                                            watches[data.location[0]].close();
+                                        }
                                     } else if (data.action === "fs-rename") {
                                         const newPath:string[] = data.location[0].split(sep);
                                         newPath.pop();
@@ -2892,7 +2894,7 @@ import { Hash } from "crypto";
                             });
                         } else if (extension === "css" || extension === "xhtml") {
                             ws.broadcast("reload");
-                        } else if (type === "change") {
+                        } else {
                             ws.broadcast(`fsUpdate-${projectPath}`);
                         }
                     });
@@ -2905,6 +2907,8 @@ import { Hash } from "crypto";
                 apps.error([`Specified port, ${text.angry + process.argv[0] + text.none}, is not a number.`]);
                 return;
             }
+
+            // open a browser from the command line
             if (browser === true) {
                 node.child(`${keyword} http://localhost:${port}/`, {cwd: cwd}, function node_apps_server_create_stat_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
                     if (errs !== null) {
