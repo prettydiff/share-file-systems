@@ -1221,6 +1221,9 @@ import { Hash } from "crypto";
                         const angryPath:string = `File path ${text.angry + filePath + text.none} is not a file or directory.`,
                             dir = function node_apps_directory_wrapper_stat_dir(item:string):void {
                                 node.fs.readdir(item, {encoding: "utf8"}, function node_apps_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                                    if (files.length < 1 && dirCount.length < 1) {
+                                        args.callback([]);
+                                    }
                                     if (erd !== null) {
                                         apps.error([erd.toString()]);
                                         if (command === "server") {
@@ -1355,10 +1358,11 @@ import { Hash } from "crypto";
                         }
                     });
                 };
-            statWrapper(startPath, 0);
+            
             if (args.depth === undefined) {
                 args.depth = 0;
             }
+            statWrapper(startPath, 0);
         };
         // uniform error formatting
         apps.error = function node_apps_error(errText:string[]):void {
@@ -2664,10 +2668,10 @@ import { Hash } from "crypto";
                                         const newPath:string[] = data.location[0].split(sep);
                                         newPath.pop();
                                         newPath.push(data.name);
-                                        node.fs.rename(data.location, newPath.join(sep), function node_apps_server_create_end_rename(erRename:Error):void {
+                                        node.fs.rename(data.location[0], newPath.join(sep), function node_apps_server_create_end_rename(erRename:Error):void {
                                             if (erRename === null) {
                                                 response.writeHead(200, {"Content-Type": "text/plain"});
-                                                response.write(`Path ${data.location} renamed to ${newPath.join(sep)}.`);
+                                                response.write(`Path ${data.location[0]} renamed to ${newPath.join(sep)}.`);
                                                 response.end();
                                             } else {
                                                 apps.error([erRename.toString()]);
@@ -2679,11 +2683,40 @@ import { Hash } from "crypto";
                                         });
                                     } else if (data.action === "fs-hash" || data.action === "fs-base64") {
                                         const task:string = data.action.replace("fs-", "");
-                                        apps[task](data.location, function node_apps_server_create_end_dataString(dataString:string):void {
+                                        apps[task](data.location[0], function node_apps_server_create_end_dataString(dataString:string):void {
                                             response.writeHead(200, {"Content-Type": "text/plain"});
                                             response.write(dataString);
                                             response.end();
                                         });
+                                    } else if (data.action === "fs-new") {
+                                        const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
+                                                ? "\\"
+                                                : "/",
+                                            dirs = data.location[0].split(slash);
+                                        dirs.pop();
+                                        if (data.type === "directory") {
+                                            apps.makeDir(data.location[0], function node_apps_server_create_end_newDirectory():void {
+                                                response.writeHead(200, {"Content-Type": "text/plain"});
+                                                response.write(`${data.location[0]} created.`);
+                                                ws.broadcast(`fsUpdate-${dirs.join(slash)}`);
+                                                response.end();
+                                            });
+                                        } else if (data.type === "file") {
+                                            node.fs.writeFile(data.location[0], "", "utf8", function node_apps_Server_create_end_newFile(erNewFile:Error):void {
+                                                if (erNewFile === null) {
+                                                    response.writeHead(200, {"Content-Type": "text/plain"});
+                                                    response.write(`${data.location[0]} created.`);
+                                                    ws.broadcast(`fsUpdate-${dirs.join(slash)}`);
+                                                    response.end();
+                                                } else {
+                                                    apps.error([erNewFile.toString()]);
+                                                    console.log(erNewFile);
+                                                    response.writeHead(500, {"Content-Type": "text/plain"});
+                                                    response.write(erNewFile.toString());
+                                                    response.end();
+                                                }
+                                            });
+                                        }
                                     }
                                 }
                             } else if (task === "settings" || task === "messages") {

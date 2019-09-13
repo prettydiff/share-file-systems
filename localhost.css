@@ -22,7 +22,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 /* Context menu, right click */
 #spaces #contextMenu{border-color:#000;border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
-#spaces #contextMenu button{background:#ddd;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.5em;text-align:left;width:10em}
+#spaces #contextMenu button{background:#ddd;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:10em}
 #spaces #contextMenu button:hover{background:#eee;color:#060;text-decoration:underline}
 #spaces #contextMenu .destroy{background:#fdd;color:#c00}
 #spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
@@ -31,7 +31,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 
 /* file system details modal content, accessed from context menu */
 #spaces .fileDetailOutput{font-size:1.5em;padding:0.5em}
-#spaces .fileDetailOutput h3{color:#009}
+#spaces .box .fileDetailOutput h3{color:#009;font-size:1em}
 #spaces .fileDetailOutput h3,
 #spaces .fileDetailOutput p{margin:0}
 #spaces .fileDetailOutput th{font-weight:bold;min-width:10em;text-align:left;width:10em}

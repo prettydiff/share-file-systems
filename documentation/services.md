@@ -5,7 +5,8 @@ All services use **localService** TypeScript interface as their data type, which
 * **agent**: string *required*, The agent (user) where the action must be performed.
 * **depth**: number *required*, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
 * **location**: string[] *required*, A list of locations, such as a list of file system paths.
-* **name**: string *optional*, This is the new artifact name as required by service *fs-rename*.
+* **name**: string *optional*, This is the artifact's new name as required by service *fs-rename*.
+* **type**: "file" | "directorY" *optional*, This is the artifact type to create as required by the service *fs-new*.
 * **watch**: "no"|"yes"|string *required*,
    - *"no"* - Do not initiate a file system watch for the given request.
    - *"yes"* - Initiate a new file system watch at the path specified in *location*.
@@ -58,6 +59,17 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * location: string[]
+      * watch   : "no"
+* **fs-new**:
+   - caller     : network.fsNew
+   - description: Creates either a new file or new directory in the file system.
+   - output     : void
+   - parameters
+      * action  : **"fs-new"**
+      * agent   : string
+      * depth   : 1
+      * location: string[]
+      * type    : "file" | "directory"
       * watch   : "no"
 * **fs-read**:
    - caller     : network.fs

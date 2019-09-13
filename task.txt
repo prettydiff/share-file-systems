@@ -1,9 +1,10 @@
 
+## defect
+* fs.watch does not seem to be working unless I invoke it
+
 ## gui
 xx - [blocked, adding and removing shares requires messaging to other users] stop shares (only localhost shares)
 2 - context menu
-    a - new directory (creates file named New Directory in rename mode of current directory)
-    b - new file (creates file named New File in rename mode of current directory)
     c - copy
         x - using context menu on single item with no selection
         y - using context menu on selected items

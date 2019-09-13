@@ -4,7 +4,9 @@ type directoryItem = [string, "error" | "file" | "directory" | "link", number, n
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
+type modalType = "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
+type serviceType = "fs-base64" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -25,6 +27,9 @@ interface commandList {
 }
 interface context extends EventHandlerNonNull {
     (Event, element?:HTMLElement): void;
+}
+interface contextNew extends EventHandlerNonNull {
+    (Event, element?:HTMLElement, type?:string): void;
 }
 interface dataString extends EventHandlerNonNull {
     (Event, element?:HTMLElement, task?: "Hash" | "Base64"): void;
@@ -72,11 +77,12 @@ interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
 interface localService {
-    action: string;
+    action: serviceType;
     agent: string;
     depth: number;
     location: string[];
     name?: string;
+    type?: "file" | "directory";
     watch: string;
 }
 interface messageError {
@@ -95,8 +101,9 @@ interface network {
     dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
     fileDetails?: (address:string[], callback:Function) => void;
     fs?: (configuration:fsRead) => void;
-    messages?: Function;
+    fsNew?: (agent:string, type:"file" | "directory", address:string) => void;
     fsRename?: (configuration:fsRename) => void;
+    messages?: Function;
     settings?: Function;
 }
 interface nodeCopyParams {
@@ -187,11 +194,10 @@ interface ui {
         dataString?: dataString;
         destroy?: context;
         details?: context;
+        fsNew?: contextNew;
         menu?: EventHandlerNonNull;
         menuRemove?: functionEvent;
         move?: context;
-        newDirectory?: context;
-        newFile?: context;
         share?: context;
     };
     fs: {
@@ -229,6 +235,7 @@ interface ui {
         dateFormat?: (date:Date) => string;
         delay?: () => HTMLElement;
         fixHeight?: functionEvent;
+        fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         prettyBytes?: (an_integer:number) => string;
@@ -264,7 +271,7 @@ interface ui_modal {
     text_value?: string;
     title: string;
     top?: number;
-    type: "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
+    type: modalType;
     width?: number;
     zIndex?: number;
 }
