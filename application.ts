@@ -1200,7 +1200,14 @@ import { Hash } from "crypto";
                     dirPath = dirList.join(sep);
                     index = dirNames.indexOf(dirPath);
                     dirCount[index] = dirCount[index] - 1;
-                    if (dirCount[index] < 1) {
+                    if (dirNames.length === 0 && item === startPath) {
+                        // empty directory, nothing to recurse
+                        if (listOnly === true) {
+                            args.callback(fileList.sort());
+                        } else {
+                            args.callback(list);
+                        }
+                    } else if (dirCount[index] < 1) {
                         // dirCount and dirNames are parallel arrays
                         dirCount.splice(index, 1);
                         dirNames.splice(index, 1);
@@ -1221,9 +1228,6 @@ import { Hash } from "crypto";
                         const angryPath:string = `File path ${text.angry + filePath + text.none} is not a file or directory.`,
                             dir = function node_apps_directory_wrapper_stat_dir(item:string):void {
                                 node.fs.readdir(item, {encoding: "utf8"}, function node_apps_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
-                                    if (files.length < 1 && dirCount.length < 1) {
-                                        args.callback([]);
-                                    }
                                     if (erd !== null) {
                                         apps.error([erd.toString()]);
                                         if (command === "server") {
@@ -2671,14 +2675,20 @@ import { Hash } from "crypto";
                                         response.write(`Watcher ${data.location[0]} closed.`);
                                         response.end();
                                     } else if (data.action === "fs-destroy") {
-                                        if (watches[data.location[0]] !== undefined) {
-                                            watches[data.location[0]].close();
-                                            delete watches[data.location[0]];
-                                        }
-                                        apps.remove(data.location[0], function node_apps_server_create_end_destroy():void {
-                                            response.writeHead(200, {"Content-Type": "text/plain"});
-                                            response.write(`Path ${data.location[0]} destroyed.`);
-                                            response.end();
+                                        let count:number = 0;
+                                        data.location.forEach(function node_apps_server_create_end_destroyEach(value:string):void {
+                                            if (watches[value] !== undefined) {
+                                                watches[value].close();
+                                                delete watches[value];
+                                            }
+                                            apps.remove(value, function node_apps_server_create_end_destroy():void {
+                                                count = count + 1;
+                                                if (count === data.location.length) {
+                                                    response.writeHead(200, {"Content-Type": "text/plain"});
+                                                    response.write(`Path(s) ${data.location.join(", ")} destroyed.`);
+                                                    response.end();
+                                                }
+                                            });
                                         });
                                     } else if (data.action === "fs-rename") {
                                         const newPath:string[] = data.location[0].split(sep);

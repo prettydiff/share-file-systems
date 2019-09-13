@@ -112,7 +112,7 @@ interface navigate extends EventHandlerNonNull {
 interface network {
     dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
     fsClose?: (agent:string, address:string) => void;
-    fsDestroy?: (agent:string, address:string) => void;
+    fsDestroy?: (agent:string, address:string[]) => void;
     fsDetails?: (address:string[], callback:Function) => void;
     fsNew?: (agent:string, type:"file" | "directory", address:string) => void;
     fsRead?: (configuration:fsRead) => void;

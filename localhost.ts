@@ -100,7 +100,7 @@
     };
 
     /* Removes a file system artifact */
-    network.fsDestroy = function local_network_fsDestroy(agent:string, address:string):void {
+    network.fsDestroy = function local_network_fsDestroy(agent:string, address:string[]):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.withCredentials = true;
@@ -111,7 +111,7 @@
                 action  : "fs-destroy",
                 agent   : agent,
                 depth   : 1,
-                location:[address.replace(/\\/g, "\\\\")],
+                location:address,
                 watch   : "no"
             }
         }));
@@ -392,16 +392,18 @@
                         a = 1;
                     }
                     localLength = local.length;
-                    do {
-                        if (local[a][0] !== "\\" && local[a][0] !== "/") {
-                            if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
-                                output.appendChild(ui.util.fsObject(local[a], "lastType"));
-                            } else {
-                                output.appendChild(ui.util.fsObject(local[a], ""));
+                    if (localLength > 1) {
+                        do {
+                            if (local[a][0] !== "\\" && local[a][0] !== "/") {
+                                if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
+                                    output.appendChild(ui.util.fsObject(local[a], "lastType"));
+                                } else {
+                                    output.appendChild(ui.util.fsObject(local[a], ""));
+                                }
                             }
-                        }
-                        a = a + 1;
-                    } while (a < localLength);
+                            a = a + 1;
+                        } while (a < localLength);
+                    }
                     output.title = local[0][0];
                     output.oncontextmenu = ui.context.menu;
                     output.setAttribute("class", "fileList");
@@ -529,11 +531,17 @@
 
     /* Handler for removing file system artifacts via context menu */
     ui.context.destroy = function local_ui_context_destroy(element:HTMLElement):void {
+        let selected:[string, string][],
+            addresses:string[] = []; 
         if (element.nodeName !== "li") {
             element = <HTMLElement>element.parentNode;
         }
-        element.parentNode.removeChild(element);
-        network.fsDestroy("self", element.firstChild.textContent);
+        selected = ui.util.selectedAddresses(element);
+        selected.forEach(function local_ui_context_destroy_each(value:[string, string]):void {
+            addresses.push(value[0].replace(/\\/g, "\\\\"));
+        });
+        //element.parentNode.removeChild(element);
+        network.fsDestroy("self", addresses);
     };
 
     /* Handler for details action of context menu */
