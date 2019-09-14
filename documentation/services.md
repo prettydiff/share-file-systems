@@ -1,18 +1,18 @@
 # Services
-All services use **localService** TypeScript interface as their data type, which is defined as follows:
 
-* **action**: string *required*, The service name to execute.
-* **agent**: string *required*, The agent (user) where the action must be performed.
-* **depth**: number *required*, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
-* **location**: string[] *required*, A list of locations, such as a list of file system paths.
-* **name**: string *optional*, This is the artifact's new name as required by service *fs-rename*.
-* **type**: "file" | "directorY" *optional*, This is the artifact type to create as required by the service *fs-new*.
-* **watch**: "no"|"yes"|string *required*,
+## File System
+The file system service is called from *network.fs* and use **localService** TypeScript interface as their data type, which is defined as follows:
+
+* **action**: string, The service name to execute.
+* **agent**: string, The agent (user) where the action must be performed.
+* **depth**: number, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
+* **location**: string[], A list of locations, such as a list of file system paths.
+* **name**: string, *fs-rename* uses this data as an artifact's new name. The *fs-move* and *fs-paste* services use this as the destination address.
+* **watch**: "no"|"yes"|string,
    - *"no"* - Do not initiate a file system watch for the given request.
    - *"yes"* - Initiate a new file system watch at the path specified in *location*.
    - *string* - Any other string value must be a valid file system path. This allows a change of watch, such that the watch specified at this value is terminated and a new watch is initiated at the path indicated by *location*.
 
-## File System
 All file system services begin with *fs-* in their name.  Output format of *directorList* is an array of *directoryItem* types. Please note that *FIFO* and *socket* artifact types are not described.
 
 ### directoryItem Interface Description
@@ -31,7 +31,6 @@ All file system services begin with *fs-* in their name.  Output format of *dire
 
 ### File System services
 * **fs-base64**
-   - caller     : network.dataString
    - description: Returns a base64 string for a given file or symbolic link.
    - output     : string, base64 data
    - parameters
@@ -39,9 +38,29 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * location: string[]
+      * name    : ""
+      * watch   : "no"
+* **fs-close**
+   - description: Lets the local service know to terminate a file system watcher that isn't needed any more.
+   - output     : void
+   - parameters
+      * action  : **"fs-close"**
+      * agent   : string
+      * depth   : 1
+      * location: string[]
+      * name    : ""
+      * watch   : "no"
+* **fs-destroy**
+   - description: Remove file system artifacts from the file system.
+   - output     : void
+   - parameters
+      * action  : **"fs-destroy"**
+      * agent   : string
+      * depth   : 1
+      * location: string[]
+      * name    : ""
       * watch   : "no"
 * **fs-details**
-   - caller     : network.fileDetails
    - description: Returns a fully recursive summary of a given file system artifact or directory tree.
    - output     : directoryList
    - parameter
@@ -49,9 +68,9 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 0
       * location: string[]
+      * name    : ""
       * watch   : "no"
 * **fs-hash**:
-   - caller     : network.dataString
    - description: Returns a SHA512 hash string for a given file or symbolic link.
    - output     : string, hash value
    - parameters
@@ -59,9 +78,9 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * location: string[]
+      * name    : ""
       * watch   : "no"
 * **fs-new**:
-   - caller     : network.fsNew
    - description: Creates either a new file or new directory in the file system.
    - output     : void
    - parameters
@@ -69,10 +88,9 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * location: string[]
-      * type    : "file" | "directory"
+      * name    : "file" | "directory"
       * watch   : "no"
 * **fs-read**:
-   - caller     : network.fs
    - description: Returns a directory listing with a variable amount of recursion. This is similar to fs-details except: it only provides a single location, variable recursion, and it will initiate either a new or change of file system watch.
    - output     : directoryList
    - parameters
@@ -80,9 +98,9 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string,
       * depth   : configuration.depth,
       * location: string[],
+      * name    : ""
       * watch   : "yes" | string (path)
 * **fs-rename**:
-   - caller     : network.fsRename
    - description: Renames a file system artifact.
    - output     : void
    - parameters

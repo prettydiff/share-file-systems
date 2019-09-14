@@ -32,8 +32,8 @@
             util: {}
         };
     let loadTest:boolean = true,
+        clipboard:string = "",
         data:ui_data = {
-            clipboard: "",
             modals: {},
             modalTypes: [],
             name: "",
@@ -50,412 +50,25 @@
         },
         characterKey:characterKey = "";
 
-    /* Gathers a hash or base64 and returns the hash value */
-    network.dataString = function local_network_hash(address:string, type:"hash" | "base64", callback:Function):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        messageTransmit = false;
-        ui.context.menuRemove();
-        xhr.onreadystatechange = function local_network_fileDetails_callback():void {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    callback(xhr.responseText);
-                } else {
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${type} on ${address}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                }
-                messageTransmit = true;
-                network.messages();
-            }
-        };
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : `fs-${type}`,
-                agent   : "self",
-                depth   : 1,
-                location: address,
-                watch   : "no"
-            }
-        }));
-    };
-
-    /* Lets the local service know to close out a fs.watcher that is no longer needed */
-    network.fsClose = function local_network_fsClose(agent:string, address:string):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-close",
-                agent   : agent,
-                depth   : 1,
-                location:[address.replace(/\\/g, "\\\\")],
-                watch   : "no"
-            }
-        }));
-    };
-
     /* Removes a file system artifact */
-    network.fsDestroy = function local_network_fsDestroy(agent:string, address:string[]):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-destroy",
-                agent   : agent,
-                depth   : 1,
-                location:address,
-                watch   : "no"
-            }
-        }));
-    };
-
-    /* Gathers fully recursive file system details and displays to screen */
-    network.fsDetails = function local_network_fsDetails(address:string[], callback:Function):void {
+    network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         messageTransmit = false;
         ui.context.menuRemove();
-        xhr.onreadystatechange = function local_network_fsDetails_callback():void {
+        xhr.onreadystatechange = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    const list:directoryList[] = JSON.parse(xhr.responseText),
-                        length:number = list.length,
-                        details:fsDetails = {
-                            size: 0,
-                            files: 0,
-                            directories: 0,
-                            links: 0
-                        },
-                        output:HTMLElement = document.createElement("div");
-                    let a:number = 0,
-                        b:number = 0,
-                        tr:HTMLElement,
-                        td:HTMLElement,
-                        childLength:number,
-                        heading:HTMLElement = document.createElement("h3"),
-                        table:HTMLElement = document.createElement("table"),
-                        tbody:HTMLElement = document.createElement("tbody"),
-                        mTime:Date,
-                        aTime:Date,
-                        cTime:Date;
-                    list.sort(function local_network_fsDetails_callback_sort(a:directoryList, b:directoryList):number {
-                        // when types are the same
-                        if (a[0][1] === b[0][1]) {
-                            if (a[0][0] < b[0][0]) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-
-                        // when types are different
-                        if (a[0][1] === "directory") {
-                            return -1;
-                        }
-                        if (a[0][1] === "link" && b[0][1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    do {
-                        childLength = list[b].length;
-                        if (list[b][0][1] === "directory" && childLength > 0) {
-                            a = 1;
-                            do {
-                                if (list[b][a][1] === "directory") {
-                                    details.directories = details.directories + 1;
-                                } else if (list[b][a][1] === "link") {
-                                    details.links = details.links + 1;
-                                } else {
-                                    details.files = details.files + 1;
-                                    details.size = details.size + list[b][a][4].size;
-                                }
-                                a = a + 1;
-                            } while (a < childLength);
-                        } else {
-                            details.size = details.size + list[b][0][4].size;
-                        }
-                        b = b + 1;
-                    } while (b < length);
-
-                    output.setAttribute("class", "fileDetailOutput");
-                    heading.innerHTML = `File System Details - ${list.length} items`;
-                    output.appendChild(heading);
-                    a = 0;
-                    childLength = address.length;
-                    do {
-                        tr = document.createElement("tr");
-                        td = document.createElement("th");
-                        td.innerHTML = list[a][0][1];
-                        td.setAttribute("class", list[a][0][1]);
-                        tr.appendChild(td);
-                        td = document.createElement("td");
-                        td.innerHTML = list[a][0][0];
-                        tr.appendChild(td);
-                        tbody.appendChild(tr);
-                        a = a + 1;
-                    } while (a < length);
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Total Size";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    if (details.size > 1024) {
-                        td.innerHTML = `${ui.util.commas(details.size)} bytes (${ui.util.prettyBytes(details.size)})`;
-                    } else {
-                        td.innerHTML = `${ui.util.commas(details.size)} bytes`;
-                    }
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    table.appendChild(tbody);
-                    output.appendChild(table);
-
-                    heading = document.createElement("h3");
-                    heading.innerHTML = "Contains";
-                    output.appendChild(heading);
-                    td = document.createElement("p");
-                    td.innerHTML = "Does not count read protected assets.";
-                    output.appendChild(td);
-                    table = document.createElement("table");
-                    tbody = document.createElement("tbody");
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Files";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = ui.util.commas(details.files);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Directories";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = ui.util.commas(details.directories);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    tr = document.createElement("tr");
-                    td = document.createElement("th");
-                    td.innerHTML = "Symbolic Links";
-                    tr.appendChild(td);
-                    td = document.createElement("td");
-                    td.innerHTML = ui.util.commas(details.links);
-                    tr.appendChild(td);
-                    tbody.appendChild(tr);
-                    table.appendChild(tbody);
-                    output.appendChild(table);
-                    
-                    if (list.length === 1) {
-                        mTime = new Date(list[0][0][4].mtimeMs);
-                        aTime = new Date(list[0][0][4].atimeMs);
-                        cTime = new Date(list[0][0][4].ctimeMs);
-                        heading = document.createElement("h3");
-                        heading.innerHTML = "Modified, Accessed, Created";
-                        output.appendChild(heading);
-                        table = document.createElement("table");
-                        tbody = document.createElement("tbody");
-                        tr = document.createElement("tr");
-                        td = document.createElement("th");
-                        td.innerHTML = "Modified";
-                        tr.appendChild(td);
-                        td = document.createElement("td");
-                        td.innerHTML = ui.util.dateFormat(mTime);
-                        tr.appendChild(td);
-                        tbody.appendChild(tr);
-                        tr = document.createElement("tr");
-                        td = document.createElement("th");
-                        td.innerHTML = "Accessed";
-                        tr.appendChild(td);
-                        td = document.createElement("td");
-                        td.innerHTML = ui.util.dateFormat(aTime);
-                        tr.appendChild(td);
-                        tbody.appendChild(tr);
-                        tr = document.createElement("tr");
-                        td = document.createElement("th");
-                        td.innerHTML = "Created";
-                        tr.appendChild(td);
-                        td = document.createElement("td");
-                        td.innerHTML = ui.util.dateFormat(cTime);
-                        tr.appendChild(td);
-                        tbody.appendChild(tr);
-                        table.appendChild(tbody);
-                        output.appendChild(table);
-                    }
-
-                    callback(output);
-                } else {
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                }
                 messageTransmit = true;
-                network.messages();
-            }
-        };
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-details",
-                agent   : "self",
-                depth   : 0,
-                location: address,
-                watch   : "no"
-            }
-        }));
-    };
-
-    /* Service to write new files and directories to the file system */
-    network.fsNew = function local_network_fsNew(agent:string, type:"file" | "directory", address:string):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_fs_callback():void {};
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-new",
-                agent   : agent,
-                depth   : 1,
-                location:[address.replace(/\\/g, "\\\\")],
-                type    : type,
-                watch   : "no"
-            }
-        }));
-    };
-    
-    /* Gathers file system data and builds an HTML artifact */
-    network.fsRead = function local_network_fsRead(configuration:fsRead):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_fsRead_callback():void {
-            if (xhr.readyState === 4) {
-                const elementParent:HTMLElement = (configuration.element === null)
-                    ? null
-                    : <HTMLElement>configuration.element.parentNode;
-                if (xhr.status === 0) {
-                    const output:HTMLElement = document.createElement("ul");
-                    output.setAttribute("class", "fileList");
-                    output.title = configuration.location;
-                    configuration.callback(output, configuration.id);
-                } else if (xhr.status === 200) {
-                    const list:directoryList = JSON.parse(xhr.responseText)[0],
-                        local:directoryList = [],
-                        length:number = list.length,
-                        output:HTMLElement = document.createElement("ul");
-                    let a:number = 0,
-                        localLength:number = 0;
-                    if (xhr.responseText === "[[]]") {
-                        output.setAttribute("class", "fileList");
-                        output.title = configuration.location;
-                        configuration.callback(output, configuration.id);
-                        return;
-                    }
-                    if (configuration.element.nodeName === "input") {
-                        configuration.element.removeAttribute("class");
-                    }
-
-                    do {
-                        if (list[a][2] === 0) {
-                            local.push(list[a]);
-                        }
-                        a = a + 1;
-                    } while (a < length);
-                    local.sort(function local_network_fsRead_callback_sort(a:directoryItem, b:directoryItem):number {
-                        // when types are the same
-                        if (a[1] === b[1]) {
-                            if (a[0] < b[0]) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    if (configuration.location === "\\" || configuration.location === "/") {
-                        a = 0;
-                    } else {
-                        a = 1;
-                    }
-                    localLength = local.length;
-                    if (localLength > 1) {
-                        do {
-                            if (local[a][0] !== "\\" && local[a][0] !== "/") {
-                                if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
-                                    output.appendChild(ui.util.fsObject(local[a], "lastType"));
-                                } else {
-                                    output.appendChild(ui.util.fsObject(local[a], ""));
-                                }
-                            }
-                            a = a + 1;
-                        } while (a < localLength);
-                    }
-                    output.title = local[0][0];
-                    output.oncontextmenu = ui.context.menu;
-                    output.setAttribute("class", "fileList");
-                    configuration.callback(output, configuration.id);
-                } else {
-                    if (loadTest === true) {
-                        const output:HTMLElement = document.createElement("p");
-                        output.setAttribute("class", "error");
-                        if (xhr.status === 404) {
-                            output.innerHTML = "This path is not found.";
-                        } else {
-                            output.innerHTML = `Server error: ${xhr.status}.<hr/>${new Error().stack.replace(/\s+$/, "")}`;
-                        }
-                        configuration.callback(output, configuration.id);
-                    }
-                    configuration.element.setAttribute("class", "error");
-                    if (elementParent !== undefined && elementParent !== null) {
-                        const span:HTMLElement = elementParent.getElementsByTagName("span")[0];
-                        if (span !== undefined) {
-                            span.innerHTML = "Address not found.";
-                        }
-                    }
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                }
-            }
-        };
-        xhr.withCredentials = true;
-        xhr.open("POST", loc, true);
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-read",
-                agent   : configuration.agent,
-                depth   : configuration.depth,
-                location:[configuration.location.replace(/\\/g, "\\\\")],
-                watch   : configuration.watch.replace(/\\/g, "\\\\")
-            }
-        }));
-    };
-
-    /* Rename a single file system artifact */
-    network.fsRename = function local_network_fsRename(configuration:fsRename):void {
-        const xhr:XMLHttpRequest = new XMLHttpRequest(),
-            loc:string = location.href.split("?")[0];
-        xhr.onreadystatechange = function local_network_fs_callback():void {
-            if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 0) {
-                    configuration.callback();
+                    if (id === undefined) {
+                        callback(xhr.responseText);
+                    } else {
+                        callback(xhr.responseText, id);
+                    }
                 } else {
-                    configuration.element.setAttribute("class", "error");
-                    configuration.element.value = configuration.original;
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting file system.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    callback("");
+                    network.messages();
                 }
             }
         };
@@ -463,14 +76,7 @@
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
         xhr.send(JSON.stringify({
-            fs: {
-                action  : "fs-rename",
-                agent   : configuration.agent,
-                depth   : 1,
-                location:[configuration.location.replace(/\\/g, "\\\\")],
-                name    : configuration.name,
-                watch   : "no"
-            }
+            fs: configuration
         }));
     };
 
@@ -515,16 +121,37 @@
     };
 
     /* Handler for file system artifact copy */
-    ui.context.copy = function local_ui_context_copy(event:MouseEvent, element?:HTMLElement):void {
-
+    ui.context.copy = function local_ui_context_copy(element:HTMLElement):void {
+        let selected:[string, string][],
+            addresses:string[] = []; 
+        if (element.nodeName !== "li") {
+            element = <HTMLElement>element.parentNode;
+        }
+        selected = ui.util.selectedAddresses(element);
+        if (selected.length < 1) {
+            addresses.push(element.getElementsByTagName("label")[0].innerHTML);
+        } else {
+            selected.forEach(function local_ui_context_destroy_each(value:[string, string]):void {
+                addresses.push(value[0]);
+            });
+        }
+        clipboard = JSON.stringify(addresses);
+        ui.util.selectNone(element);
     };
 
     /* Handler for hash and base64 operations from the context menu */
-    ui.context.dataString = function local_ui_context_dataString(event:MouseEvent, element?:HTMLElement, task?:"Hash" | "Base64"):void {
+    ui.context.dataString = function local_ui_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Hash" | "Base64"):void {
         let address:string = element.getElementsByTagName("label")[0].innerHTML;
         address = element.getElementsByTagName("label")[0].innerHTML;
-        network.dataString(address, <"hash"|"base64">task.toLowerCase(), function local_ui_context_dataString_callback(resultString:string):void {
-            ui.modal.textPad(event, resultString, `${task} - ${address}`);
+        network.fs({
+            action: `fs-${type.toLowerCase()}`,
+            agent: "self",
+            depth: 1,
+            location: [address],
+            name: "",
+            watch: "no"
+        }, function local_ui_context_dataString(resultString:string):void {
+            ui.modal.textPad(event, resultString, `${type} - ${address}`);
             network.settings();
         });
     };
@@ -537,11 +164,23 @@
             element = <HTMLElement>element.parentNode;
         }
         selected = ui.util.selectedAddresses(element);
-        selected.forEach(function local_ui_context_destroy_each(value:[string, string]):void {
-            addresses.push(value[0].replace(/\\/g, "\\\\"));
+        if (selected.length < 1) {
+            addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/\\/g, "\\\\"));
+        } else {
+            selected.forEach(function local_ui_context_destroy_each(value:[string, string]):void {
+                addresses.push(value[0].replace(/\\/g, "\\\\"));
+            });
+        }
+        network.fs({
+            action: "fs-destroy",
+            agent: "self",
+            depth: 1,
+            location: addresses,
+            name: "",
+            watch: "no"
+        }, function local_ui_context_destroy_callback():void {
+            // todo: log to systems list
         });
-        //element.parentNode.removeChild(element);
-        network.fsDestroy("self", addresses);
     };
 
     /* Handler for details action of context menu */
@@ -569,16 +208,185 @@
                 } while (a < length);
                 return output;
             }());
-        network.fsDetails(addressList, function local_ui_context_details_callback(files:HTMLElement) {
-            const body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0];
+        network.fs({
+            action: "fs-details",
+            agent: "self",
+            depth: 0,
+            location: addressList,
+            name: "",
+            watch: "no"
+        }, function local_ui_context_details_callback(response:string):void {
+            const list:directoryList[] = JSON.parse(response),
+                body:HTMLElement = <HTMLElement>modal.getElementsByClassName("body")[0],
+                length:number = list.length,
+                details:fsDetails = {
+                    size: 0,
+                    files: 0,
+                    directories: 0,
+                    links: 0
+                },
+                output:HTMLElement = document.createElement("div");
+            let a:number = 0,
+                b:number = 0,
+                tr:HTMLElement,
+                td:HTMLElement,
+                childLength:number,
+                heading:HTMLElement = document.createElement("h3"),
+                table:HTMLElement = document.createElement("table"),
+                tbody:HTMLElement = document.createElement("tbody"),
+                mTime:Date,
+                aTime:Date,
+                cTime:Date;
+            list.sort(function local_network_fsDetails_callback_sort(a:directoryList, b:directoryList):number {
+                // when types are the same
+                if (a[0][1] === b[0][1]) {
+                    if (a[0][0] < b[0][0]) {
+                        return -1;
+                    }
+                    return 1;
+                }
+
+                // when types are different
+                if (a[0][1] === "directory") {
+                    return -1;
+                }
+                if (a[0][1] === "link" && b[0][1] === "file") {
+                    return -1;
+                }
+                return 1;
+            });
+            do {
+                childLength = list[b].length;
+                if (list[b][0][1] === "directory" && childLength > 0) {
+                    a = 1;
+                    do {
+                        if (list[b][a][1] === "directory") {
+                            details.directories = details.directories + 1;
+                        } else if (list[b][a][1] === "link") {
+                            details.links = details.links + 1;
+                        } else {
+                            details.files = details.files + 1;
+                            details.size = details.size + list[b][a][4].size;
+                        }
+                        a = a + 1;
+                    } while (a < childLength);
+                } else {
+                    details.size = details.size + list[b][0][4].size;
+                }
+                b = b + 1;
+            } while (b < length);
+
+            output.setAttribute("class", "fileDetailOutput");
+            heading.innerHTML = `File System Details - ${list.length} items`;
+            output.appendChild(heading);
+            a = 0;
+            childLength = addresses.length;
+            do {
+                tr = document.createElement("tr");
+                td = document.createElement("th");
+                td.innerHTML = list[a][0][1];
+                td.setAttribute("class", list[a][0][1]);
+                tr.appendChild(td);
+                td = document.createElement("td");
+                td.innerHTML = list[a][0][0];
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                a = a + 1;
+            } while (a < length);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Total Size";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            if (details.size > 1024) {
+                td.innerHTML = `${ui.util.commas(details.size)} bytes (${ui.util.prettyBytes(details.size)})`;
+            } else {
+                td.innerHTML = `${ui.util.commas(details.size)} bytes`;
+            }
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            table.appendChild(tbody);
+            output.appendChild(table);
+
+            heading = document.createElement("h3");
+            heading.innerHTML = "Contains";
+            output.appendChild(heading);
+            td = document.createElement("p");
+            td.innerHTML = "Does not count read protected assets.";
+            output.appendChild(td);
+            table = document.createElement("table");
+            tbody = document.createElement("tbody");
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Files";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = ui.util.commas(details.files);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Directories";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = ui.util.commas(details.directories);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Symbolic Links";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = ui.util.commas(details.links);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            table.appendChild(tbody);
+            output.appendChild(table);
+            
+            if (list.length === 1) {
+                mTime = new Date(list[0][0][4].mtimeMs);
+                aTime = new Date(list[0][0][4].atimeMs);
+                cTime = new Date(list[0][0][4].ctimeMs);
+                heading = document.createElement("h3");
+                heading.innerHTML = "Modified, Accessed, Created";
+                output.appendChild(heading);
+                table = document.createElement("table");
+                tbody = document.createElement("tbody");
+                tr = document.createElement("tr");
+                td = document.createElement("th");
+                td.innerHTML = "Modified";
+                tr.appendChild(td);
+                td = document.createElement("td");
+                td.innerHTML = ui.util.dateFormat(mTime);
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                tr = document.createElement("tr");
+                td = document.createElement("th");
+                td.innerHTML = "Accessed";
+                tr.appendChild(td);
+                td = document.createElement("td");
+                td.innerHTML = ui.util.dateFormat(aTime);
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                tr = document.createElement("tr");
+                td = document.createElement("th");
+                td.innerHTML = "Created";
+                tr.appendChild(td);
+                td = document.createElement("td");
+                td.innerHTML = ui.util.dateFormat(cTime);
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                table.appendChild(tbody);
+                output.appendChild(table);
+            }
             body.innerHTML = "";
-            body.appendChild(files);
+            body.appendChild(output);
         });
         ui.util.selectNone(element);
-    }
+    };
 
     /* Handler for creating new directories */
-    ui.context.fsNew = function local_ui_context_fsNew(event:MouseEvent, element?:HTMLElement, type?:"file" | "directory"):void {
+    ui.context.fsNew = function local_ui_context_fsNew(element:HTMLElement, type:"directory" | "file"):void {
         const field:HTMLInputElement = document.createElement("input"),
             text:HTMLElement = document.createElement("label"),
             action = <EventHandlerNonNull>function local_ui_context_fsNew_action(actionEvent:KeyboardEvent):void {
@@ -586,7 +394,16 @@
                     const value:string = field.value.replace(/(\s+|\.)$/, "");
                     field.value = value;
                     text.innerHTML = path + slash + value;
-                    network.fsNew("self", type, path + slash + value);
+                    network.fs({
+                        action: "fs-new",
+                        agent: "self",
+                        depth: 1,
+                        location: [(path + slash + value).replace(/\\/g, "\\\\")],
+                        name: type,
+                        watch: "no"
+                    }, function local_ui_context_fsNew_action_callback():void {
+                        // todo: log in systems log
+                    });
                 } else if (actionEvent.type === "keyup") {
                     if (actionEvent.keyCode === 27) {
                         element.removeChild(item);
@@ -667,7 +484,9 @@
                     item = document.createElement("li");
                     button = document.createElement("button");
                     button.innerHTML = "Copy";
-                    //button.onclick = wrap network.fs and open it to do more than generate file list
+                    button.onclick = function local_ui_context_menu_copy_handler():void {
+                        ui.context.copy(element);
+                    }
                     item.appendChild(button);
                     itemList.push(item);
                 },
@@ -724,7 +543,7 @@
                     button = document.createElement("button");
                     button.innerHTML = "New Directory";
                     button.onclick = function local_ui_context_menu_newDirectory_handler():void {
-                        ui.context.fsNew(event, element, "directory");
+                        ui.context.fsNew(element, "directory");
                     };
                     item.appendChild(button);
                     itemList.push(item);
@@ -734,8 +553,21 @@
                     button = document.createElement("button");
                     button.innerHTML = "New File";
                     button.onclick = function local_ui_context_menu_newFile_handler():void {
-                        ui.context.fsNew(event, element, "file");
+                        ui.context.fsNew(element, "file");
                     };
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                paste: function local_ui_context_menu_paste():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Paste";
+                    button.onclick = function local_ui_context_menu_paste_handler():void {
+                        ui.context.write(element, "paste");
+                    };
+                    if (clipboard === "") {
+                        button.disabled = true;
+                    }
                     item.appendChild(button);
                     itemList.push(item);
                 },
@@ -763,7 +595,7 @@
                     button = document.createElement("button");
                     button.innerHTML = "Share";
                     button.onclick = function local_ui_context_menu_share_handler():void {
-                        ui.context.share(event, element);
+                        ui.context.share(element);
                     };
                     item.appendChild(button);
                     itemList.push(item);
@@ -799,6 +631,7 @@
             functions.newDirectory();
             functions.newFile();
             functions.copy();
+            functions.paste();
             functions.move();
             functions.rename();
             functions.destroy();
@@ -838,15 +671,10 @@
         if (document.getElementById("contextMenu") !== null) {
             content.removeChild(document.getElementById("contextMenu"));
         }
-    }
-
-    /* Handler for moving file system artifacts from one location to another */
-    ui.context.move = function local_ui_context_move(event:MouseEvent, element?:HTMLElement):void {
-
     };
 
     /* Share utility for the context menu list */
-    ui.context.share = function local_ui_context_share(event:MouseEvent, element?:HTMLElement):void {
+    ui.context.share = function local_ui_context_share(element:HTMLElement):void {
         const shareLength:number = data.shares.localhost.length,
             addresses:[string, string][] = ui.util.selectedAddresses(element),
             addressesLength:number = addresses.length;
@@ -874,7 +702,16 @@
         }
         ui.util.selectNone(element);
         network.settings();
-    }
+    };
+
+    ui.context.write = function local_ui_context_write(element:HTMLElement, type:"move" | "paste"):void {
+        let destination:string;
+        if (element.getAttribute("class") !== "box") {
+            element = <HTMLElement>element.parentNode;
+        } while (element !== document.documentElement && element.getAttribute("class") !== "box");
+        destination = element.getElementsByTagName("input")[0].value;
+
+    };
 
     /* navigate into a directory by double click */
     ui.fs.directory = function local_ui_fs_directory(event:MouseEvent):void {
@@ -895,19 +732,18 @@
         input = box.getElementsByTagName("input")[0];
         watchValue = input.value;
         input.value = path;
-        network.fsRead({
+        network.fs({
+            action: "fs-read",
             agent: "self",
             depth: 2,
-            callback: function local_ui_fs_text_callback(files:HTMLElement) {
-                body.innerHTML = "";
-                body.appendChild(files);
-                data.modals[box.getAttribute("id")].text_value = path;
-                network.settings();
-            },
-            element: input,
-            id: "",
-            location: path,
+            location: [path.replace(/\\/g, "\\\\")],
+            name: "",
             watch: watchValue
+        }, function local_ui_fs_directory_callback(responseText:string):void {
+            body.innerHTML = "";
+            body.appendChild(ui.fs.list(path, responseText));
+            data.modals[box.getAttribute("id")].text_value = path;
+            network.settings();
         });
     };
 
@@ -917,16 +753,15 @@
             li:HTMLElement = <HTMLElement>button.parentNode;
         if (button.innerHTML.indexOf("+") === 0) {
             button.innerHTML = "-<span>Collapse this folder</span>";
-            network.fsRead({
+            network.fs({
+                action: "fs-read",
                 agent: "self",
                 depth: 2,
-                callback: function local_ui_fs_expand_callback(files:HTMLElement) {
-                    li.appendChild(files);
-                },
-                element: button,
-                id: "",
-                location: li.firstChild.nextSibling.textContent,
+                location: [li.firstChild.nextSibling.textContent.replace(/\\/g, "\\\\")],
+                name : "",
                 watch: "no"
+            }, function local_ui_fs_expand_callback(responseText:string) {
+                li.appendChild(ui.fs.list(li.firstChild.nextSibling.textContent, responseText));
             });
         } else {
             const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
@@ -938,33 +773,90 @@
         event.stopPropagation();
     };
 
+    /* Builds the HTML file list */
+    ui.fs.list = function local_ui_fs_list(location:string, listString:string):HTMLElement {
+        const list:directoryList = JSON.parse(listString)[0],
+            local:directoryList = [],
+            length:number = list.length,
+            output:HTMLElement = document.createElement("ul");
+        let a:number = 0,
+            localLength:number = 0;
+
+        do {
+            if (list[a][2] === 0) {
+                local.push(list[a]);
+            }
+            a = a + 1;
+        } while (a < length);
+        local.sort(function local_network_fsRead_callback_sort(a:directoryItem, b:directoryItem):number {
+            // when types are the same
+            if (a[1] === b[1]) {
+                if (a[0] < b[0]) {
+                    return -1;
+                }
+                return 1;
+            }
+
+            // when types are different
+            if (a[1] === "directory") {
+                return -1;
+            }
+            if (a[1] === "link" && b[1] === "file") {
+                return -1;
+            }
+            return 1;
+        });
+        if (location === "\\" || location === "/") {
+            a = 0;
+        } else {
+            a = 1;
+        }
+        localLength = local.length;
+        if (localLength > 1) {
+            do {
+                if (local[a][0] !== "\\" && local[a][0] !== "/") {
+                    if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
+                        output.appendChild(ui.util.fsObject(local[a], "lastType"));
+                    } else {
+                        output.appendChild(ui.util.fsObject(local[a], ""));
+                    }
+                }
+                a = a + 1;
+            } while (a < localLength);
+        }
+        output.title = local[0][0];
+        output.oncontextmenu = ui.context.menu;
+        output.setAttribute("class", "fileList");
+        return output;
+    };
+
     /* Create a file navigator modal */
     ui.fs.navigate = function local_ui_fs_navigate(event:MouseEvent, path?:string):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             location:string = (typeof path === "string")
                 ? path
                 : "defaultLocation";
-        network.fsRead({
+        network.fs({
+            action: "fs-read",
             agent: "self",
             depth: 2,
-            callback: function local_ui_fs_navigate_callback(files:HTMLElement) {
-                const value:string = files.getAttribute("title");
-                files.removeAttribute("title");
-                ui.modal.create({
-                    content: files,
-                    inputs: ["close", "maximize", "minimize", "text"],
-                    text_event: ui.fs.text,
-                    text_placeholder: "Optionally type a file system address here.",
-                    text_value: value,
-                    title: document.getElementById("fileNavigator").innerHTML,
-                    type: "fileNavigate",
-                    width: 800
-                });
-            },
-            element: element,
-            id: "",
-            location: location,
+            location: [location.replace(/\\/g, "\\\\")],
+            name: "",
             watch: "yes"
+        }, function local_ui_fs_navigate_callback(responseText:string):void {
+            const files:HTMLElement = ui.fs.list(location, responseText),
+                value:string = files.getAttribute("title");
+            files.removeAttribute("title");
+            ui.modal.create({
+                content: files,
+                inputs: ["close", "maximize", "minimize", "text"],
+                text_event: ui.fs.text,
+                text_placeholder: "Optionally type a file system address here.",
+                text_value: value,
+                title: document.getElementById("fileNavigator").innerHTML,
+                type: "fileNavigate",
+                width: 800
+            });
         });
     };
 
@@ -994,19 +886,18 @@
         } else {
             input.value = value.slice(0, value.lastIndexOf(slash));
         }
-        network.fsRead({
+        network.fs({
+            action: "fs-read",
             agent: "self",
             depth: 2,
-            callback: function local_ui_fs_parent_callback(files:HTMLElement) {
-                body.innerHTML = "";
-                body.appendChild(files);
-                data.modals[id].text_value = input.value;
-                network.settings();
-            },
-            element: element,
-            id: "",
-            location: input.value,
+            location: [input.value.replace(/\\/g, "\\\\")],
+            name: "",
             watch: value
+        }, function local_ui_fs_parent_callback(responseText:string):void {
+            body.innerHTML = "";
+            body.appendChild(ui.fs.list(input.value, responseText));
+            data.modals[id].text_value = input.value;
+            network.settings();
         });
     };
 
@@ -1020,16 +911,16 @@
                     if (dir + input.value === text) {
                         label.innerHTML = text;
                     } else {
-                        network.fsRename({
+                        network.fs({
+                            action: "fs-rename",
                             agent: "self",
-                            callback: function local_ui_fs_rename_action_callback():void {
-                                label.removeChild(input);
-                                label.innerHTML = label.innerHTML + input.value;
-                            },
-                            element: input,
-                            location: text,
+                            depth: 1,
+                            location: [text.replace(/\\/g, "\\\\")],
                             name: input.value,
-                            original: last
+                            watch: "no"
+                        }, function local_ui_fs_rename_callback():void {
+                            label.removeChild(input);
+                            label.innerHTML = label.innerHTML + input.value;
                         });
                     }
                 } else if (action.type === "keyup") {
@@ -1179,19 +1070,19 @@
         id = box.getAttribute("id");
         parent = parent.getElementsByTagName("div")[0];
         if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
-            network.fsRead({
+            network.fs({
+                action: "fs-read",
                 agent: "self",
                 depth: 2,
-                callback: function local_ui_fs_text_callback(files:HTMLElement) {
-                    parent.innerHTML = "";
-                    parent.appendChild(files);
-                    data.modals[id].text_value = element.value;
-                    network.settings();
-                },
-                element: element,
-                id: "",
-                location: element.value,
+                location: [element.value.replace(/\\/g, "\\\\")],
+                name: "",
                 watch: watchValue
+            }, function local_ui_fs_text_callback(responseText:string):void {
+                parent.innerHTML = "";
+                parent.appendChild(ui.fs.list(element.value, responseText));
+                data.modals[id].text_value = element.value;
+                element.removeAttribute("class");
+                network.settings();
             });
         }
     };
@@ -2446,23 +2337,32 @@
             do {
                 if (data.modals[modalKeys[a]].type === "fileNavigate" && data.modals[modalKeys[a]].text_value === value) {
                     const body:HTMLElement = <HTMLElement>document.getElementById(data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
-                    network.fsRead({
+                    network.fs({
+                        action: "fs-read",
                         agent: "self",
-                        callback: function local_socketMessage_updateCallback(files:HTMLElement):void {
-                            body.innerHTML = "";
-                            body.appendChild(files);
-                        },
                         depth: 2,
-                        element: body,
-                        location: value,
+                        location: [value],
+                        name: "",
                         watch: "no"
+                    }, function local_socketMessage_fsCallback(responseText:string):void {
+                        body.innerHTML = "";
+                        body.appendChild(ui.fs.list(value, responseText));
                     });
                     break;
                 }
                 a = a + 1;
             } while (a < keyLength);
             if (a === keyLength) {
-                network.fsClose("self", value);
+                network.fs({
+                    action: "fs-close",
+                    agent: "self",
+                    depth: 1,
+                    location: [value],
+                    name: "",
+                    watch: "no"
+                }, function local_socketMessage_closeCallback():boolean {
+                    return true;
+                });
             }
         }
     };
@@ -2782,35 +2682,35 @@
                             }
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
-                                    network.fsRead({
+                                    network.fs({
+                                        action: "fs-read",
                                         agent: "self",
                                         depth: 2,
-                                        callback: function local_restore_modalKeys_callback(files:HTMLElement, id:string) {
-                                            const textValue:string = files.getAttribute("title");
-                                            files.removeAttribute("title");
-                                            storage.settings.modals[id].content = files;
-                                            storage.settings.modals[id].id = id;
-                                            if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
-                                                storage.settings.modals[id].text_value = textValue;
-                                            }
-                                            storage.settings.modals[id].text_event = ui.fs.text;
-                                            ui.modal.create(storage.settings.modals[id]);
-                                            z(id);
-                                            if (storage.settings.modals[id].status === "maximized") {
-                                                const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
-                                                data.modals[id].status = "normal";
-                                                button.click();
-                                            } else if (storage.settings.modals[id].status === "minimized") {
-                                                const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
-                                                data.modals[id].status = "normal";
-                                                button.click();
-                                            }
-                                        },
-                                        element: content,
-                                        id: value,
-                                        location: storage.settings.modals[value].text_value,
+                                        location: [storage.settings.modals[value].text_value],
+                                        name: "",
                                         watch: "yes"
-                                    });
+                                    }, function local_restore_modalKeys_fsCallback(responseText:string, id?:string):void {
+                                        const files:HTMLElement = ui.fs.list(storage.settings.modals[value].text_value, responseText),
+                                            textValue:string = files.getAttribute("title");
+                                        files.removeAttribute("title");
+                                        storage.settings.modals[id].content = files;
+                                        storage.settings.modals[id].id = id;
+                                        if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
+                                            storage.settings.modals[id].text_value = textValue;
+                                        }
+                                        storage.settings.modals[id].text_event = ui.fs.text;
+                                        ui.modal.create(storage.settings.modals[id]);
+                                        z(id);
+                                        if (storage.settings.modals[id].status === "maximized") {
+                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
+                                            data.modals[id].status = "normal";
+                                            button.click();
+                                        } else if (storage.settings.modals[id].status === "minimized") {
+                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
+                                            data.modals[id].status = "normal";
+                                            button.click();
+                                        }
+                                    }, value);
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");
                                     if (storage.settings.modals[value].type === "textPad") {

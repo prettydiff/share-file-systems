@@ -6,7 +6,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceType = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
+type serviceType = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-move" | "fs-new" | "fs-paste" | "fs-read" | "fs-rename" | "settings" | "messages";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -37,6 +37,7 @@ interface contextFunctions {
     move: Function;
     newDirectory: Function;
     newFile: Function;
+    paste: Function;
     rename: Function;
     share: Function;
 }
@@ -44,7 +45,7 @@ interface contextNew extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?:string): void;
 }
 interface dataString extends EventHandlerNonNull {
-    (Event, element?:HTMLElement, task?: "Hash" | "Base64"): void;
+    (Event, element?:HTMLElement, type?: "Hash" | "Base64"): void;
 }
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
@@ -67,23 +68,6 @@ interface fsDetails {
     links: number;
     size: number;
 }
-interface fsRead{
-    agent: string;
-    callback: Function;
-    depth: number;
-    element: HTMLElement;
-    id?: string;
-    location: string;
-    watch: string;
-}
-interface fsRename {
-    agent: string;
-    callback: Function;
-    element: HTMLInputElement;
-    location: string;
-    name: string;
-    original: string;
-}
 
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
@@ -93,8 +77,7 @@ interface localService {
     agent: string;
     depth: number;
     location: string[];
-    name?: string;
-    type?: "file" | "directory";
+    name : string;
     watch: string;
 }
 interface messageError {
@@ -110,13 +93,7 @@ interface navigate extends EventHandlerNonNull {
     (Event, path?:string): void;
 }
 interface network {
-    dataString?: (address:string, type:"hash" | "base64", callback:Function) => void;
-    fsClose?: (agent:string, address:string) => void;
-    fsDestroy?: (agent:string, address:string[]) => void;
-    fsDetails?: (address:string[], callback:Function) => void;
-    fsNew?: (agent:string, type:"file" | "directory", address:string) => void;
-    fsRead?: (configuration:fsRead) => void;
-    fsRename?: (configuration:fsRename) => void;
+    fs?: (localService, callback:Function, id?:string) => void;
     messages?: Function;
     settings?: Function;
 }
@@ -204,19 +181,20 @@ interface textPad extends EventHandlerNonNull {
 }
 interface ui {
     context: {
-        copy?: context;
+        copy?: (HTMLElement) => void;
         dataString?: dataString;
         destroy?: (HTMLElement) => void;
         details?: context;
-        fsNew?: contextNew;
+        fsNew?: (HTMLElement, type: "directory" | "file") => void;
         menu?: EventHandlerNonNull;
         menuRemove?: functionEvent;
-        move?: context;
-        share?: context;
+        share?: (HTMLElement) => void;
+        write?: (HTMLElement, type:"move" | "paste") => void;
     };
     fs: {
         directory?: EventHandlerNonNull;
         expand?: EventHandlerNonNull;
+        list?: (location:string, listString:string) => HTMLElement;
         navigate?: navigate;
         parent?: EventHandlerNonNull;
         rename?: EventHandlerNonNull;
@@ -258,7 +236,6 @@ interface ui {
     };
 }
 interface ui_data {
-    clipboard: string;
     modals: {
         [key:string]: ui_modal;
     };

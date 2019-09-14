@@ -1201,7 +1201,7 @@ import { Hash } from "crypto";
                     index = dirNames.indexOf(dirPath);
                     dirCount[index] = dirCount[index] - 1;
                     if (dirNames.length === 0 && item === startPath) {
-                        // empty directory, nothing to recurse
+                        // empty directory, nothing to traverse
                         if (listOnly === true) {
                             args.callback(fileList.sort());
                         } else {
@@ -2720,14 +2720,14 @@ import { Hash } from "crypto";
                                                 : "/",
                                             dirs = data.location[0].split(slash);
                                         dirs.pop();
-                                        if (data.type === "directory") {
+                                        if (data.name === "directory") {
                                             apps.makeDir(data.location[0], function node_apps_server_create_end_newDirectory():void {
                                                 response.writeHead(200, {"Content-Type": "text/plain"});
                                                 response.write(`${data.location[0]} created.`);
                                                 ws.broadcast(`fsUpdate-${dirs.join(slash)}`);
                                                 response.end();
                                             });
-                                        } else if (data.type === "file") {
+                                        } else if (data.name === "file") {
                                             node.fs.writeFile(data.location[0], "", "utf8", function node_apps_Server_create_end_newFile(erNewFile:Error):void {
                                                 if (erNewFile === null) {
                                                     response.writeHead(200, {"Content-Type": "text/plain"});

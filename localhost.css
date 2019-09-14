@@ -23,7 +23,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces #contextMenu{border-color:#000;border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
 #spaces #contextMenu button{background:#ddd;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:10em}
-#spaces #contextMenu button:hover{background:#eee;color:#060;text-decoration:underline}
+#spaces #contextMenu button:hover{background:#eee;color:#00f;text-decoration:underline}
 #spaces #contextMenu .destroy{background:#fdd;color:#c00}
 #spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
 #spaces #contextMenu .destroy[disabled],
