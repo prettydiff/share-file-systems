@@ -1518,7 +1518,16 @@ import { Hash } from "crypto";
                         hashComplete = (typeof callback === "function")
                             ? function node_apps_hash_dirComplete_callback():void {
                                 const hash:Hash = node.crypto.createHash("sha512");
-                                callback(hash.digest("hex").replace(/\s+$/, ""));
+                                let hashString:string = "";
+                                if (hashes.length > 1) {
+                                    hash.update(hashes.join(""));
+                                    hashString = (hashList === true)
+                                        ? JSON.stringify(listObject)
+                                        : hash.digest("hex").replace(/\s+$/, "");
+                                } else {
+                                    hashString = hashes[0];
+                                }
+                                callback(hashString);
                             }
                             : function node_apps_hash_dirComplete_hashComplete():void {
                                 const hash:Hash = node.crypto.createHash("sha512");
@@ -1526,10 +1535,14 @@ import { Hash } from "crypto";
                                 if (verbose === true) {
                                     console.log(`${apps.humanTime(false)}File hashing complete. Working on a final hash to represent the directory structure.`);
                                 }
-                                hash.update(hashes.join(""));
-                                hashString = (hashList === true)
-                                    ? JSON.stringify(listObject)
-                                    : hash.digest("hex").replace(/\s+$/, "");
+                                if (hashes.length > 1) {
+                                    hash.update(hashes.join(""));
+                                    hashString = (hashList === true)
+                                        ? JSON.stringify(listObject)
+                                        : hash.digest("hex").replace(/\s+$/, "");
+                                } else {
+                                    hashString = hashes[0];
+                                }
                                 if (verbose === true) {
                                     apps.log([`${version.name} hashed ${text.cyan + filePath + text.none}`, hashString]);
                                 } else {
@@ -1638,11 +1651,11 @@ import { Hash } from "crypto";
                                     stat: list[a][4],
                                     index: a,
                                     callback: function node_apps_hash_dirComplete_file(data:readFile, item:string|Buffer):void {
-                                        hashBack(data, item, function node_apps_hash_dirComplete_file_hashBack(hashString:string, item:number):void {
+                                        hashBack(data, item, function node_apps_hash_dirComplete_file_hashBack(hashString:string, index:number):void {
                                             if (hashList === true) {
                                                 listObject[data.path] = hashString;
                                             } else {
-                                                hashes[item[0]] = hashString;
+                                                hashes[index] = hashString;
                                             }
                                             c = c + 1;
                                             if (c === listLength) {

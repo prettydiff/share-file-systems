@@ -873,7 +873,7 @@
                 text_event: ui.fs.text,
                 text_placeholder: "Optionally type a file system address here.",
                 text_value: value,
-                title: document.getElementById("fileNavigator").innerHTML,
+                title: `${document.getElementById("fileNavigator").innerHTML}`,
                 type: "fileNavigate",
                 width: 800
             });
@@ -1165,10 +1165,10 @@
             data.modalTypes.push(options.type);
         }
         if (options.left === undefined) {
-            options.left = 200 + (modalCount * 5);
+            options.left = 200 + (modalCount * 10);
         }
         if (options.top === undefined) {
-            options.top = 200 + (modalCount * 5);
+            options.top = 200 + (modalCount * 10);
         }
         if (options.width === undefined) {
             options.width = 400;
@@ -2366,7 +2366,7 @@
             let a:number = 0;
             do {
                 if (data.modals[modalKeys[a]].type === "fileNavigate" && data.modals[modalKeys[a]].text_value === value) {
-                    const body:HTMLElement = <HTMLElement>document.getElementById(data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
+                    const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
                     network.fs({
                         action: "fs-read",
                         agent: "self",

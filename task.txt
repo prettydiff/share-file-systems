@@ -1,4 +1,7 @@
 
+## things to check
+1 - cut selection must remain visible while clipboard is of type cut
+
 ## gui
 1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]
 2 - context menu
@@ -24,8 +27,6 @@
 3 paste by agent
 
 ## populate systems logs
-
-
 
 ## ui tests
 ### modal
