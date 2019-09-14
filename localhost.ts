@@ -121,13 +121,13 @@
     };
 
     /* Handler for file system artifact copy */
-    ui.context.copy = function local_ui_context_copy(element:HTMLElement):void {
+    ui.context.copy = function local_ui_context_copy(element:HTMLElement, type:"copy"|"cut"):void {
         let selected:[string, string][],
             addresses:string[] = []; 
         if (element.nodeName !== "li") {
             element = <HTMLElement>element.parentNode;
         }
-        selected = ui.util.selectedAddresses(element);
+        selected = ui.util.selectedAddresses(element, type);
         if (selected.length < 1) {
             addresses.push(element.getElementsByTagName("label")[0].innerHTML);
         } else {
@@ -135,8 +135,10 @@
                 addresses.push(value[0]);
             });
         }
-        clipboard = JSON.stringify(addresses);
-        ui.util.selectNone(element);
+        clipboard = JSON.stringify({type:type, data:addresses});
+        if (type === "copy") {
+            ui.util.selectNone(element);
+        }
     };
 
     /* Handler for hash and base64 operations from the context menu */
@@ -163,7 +165,7 @@
         if (element.nodeName !== "li") {
             element = <HTMLElement>element.parentNode;
         }
-        selected = ui.util.selectedAddresses(element);
+        selected = ui.util.selectedAddresses(element, "destroy");
         if (selected.length < 1) {
             addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/\\/g, "\\\\"));
         } else {
@@ -186,7 +188,7 @@
     /* Handler for details action of context menu */
     ui.context.details = function local_ui_context_details(event:MouseEvent, element?:HTMLElement):void {
         const div:HTMLElement = ui.util.delay(),
-            addresses:[string, string][] = ui.util.selectedAddresses(element),
+            addresses:[string, string][] = ui.util.selectedAddresses(element, "details"),
             modal:HTMLElement = ui.modal.create({
                 content: div,
                 height: 500,
@@ -485,7 +487,17 @@
                     button = document.createElement("button");
                     button.innerHTML = "Copy";
                     button.onclick = function local_ui_context_menu_copy_handler():void {
-                        ui.context.copy(element);
+                        ui.context.copy(element, "copy");
+                    }
+                    item.appendChild(button);
+                    itemList.push(item);
+                },
+                cut: function local_ui_context_menu_cut():void {
+                    item = document.createElement("li");
+                    button = document.createElement("button");
+                    button.innerHTML = "Cut";
+                    button.onclick = function local_ui_context_menu_cut_handler():void {
+                        ui.context.copy(element, "cut");
                     }
                     item.appendChild(button);
                     itemList.push(item);
@@ -530,14 +542,6 @@
                     item.appendChild(button);
                     itemList.push(item);
                 },
-                move: function local_ui_context_menu_move():void {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.innerHTML = "Move";
-                    //button.onclick = wrap network.fs and open it to do more than generate file list
-                    item.appendChild(button);
-                    itemList.push(item);
-                },
                 newDirectory: function local_ui_context_menu_newDirectory():void {
                     item = document.createElement("li");
                     button = document.createElement("button");
@@ -563,9 +567,12 @@
                     button = document.createElement("button");
                     button.innerHTML = "Paste";
                     button.onclick = function local_ui_context_menu_paste_handler():void {
-                        ui.context.write(element, "paste");
+                        ui.context.paste(element);
                     };
-                    if (clipboard === "") {
+                    if (clipboard === "" || (
+                        (element.getAttribute("class") === "fileList" || parent.getAttribute("class") === "fileList") &&
+                        (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)
+                    )) {
                         button.disabled = true;
                     }
                     item.appendChild(button);
@@ -618,6 +625,7 @@
         if (element.getAttribute("class") === "fileList") {
             functions.newDirectory();
             functions.newFile();
+            functions.paste();
         } else if (parent.getAttribute("class") === "fileList") {
 
             functions.details();
@@ -631,8 +639,8 @@
             functions.newDirectory();
             functions.newFile();
             functions.copy();
+            functions.cut();
             functions.paste();
-            functions.move();
             functions.rename();
             functions.destroy();
         }
@@ -673,10 +681,31 @@
         }
     };
 
+    /* Prepare the network action to write files */
+    ui.context.paste = function local_ui_context_paste(element:HTMLElement):void {
+        let destination:string,
+            clipData:clipboard = JSON.parse(clipboard);
+        do {
+            element = <HTMLElement>element.parentNode;
+        } while (element !== document.documentElement && element.getAttribute("class") !== "box");
+        destination = element.getElementsByTagName("input")[0].value;
+        network.fs({
+            action: `fs-${clipData.type}`,
+            agent: "self",
+            depth: 1,
+            location: clipData.data,
+            name: destination,
+            watch: "no"
+        }, function local_ui_context_paste_callback():void {
+            clipboard = "";
+            // todo: log to systems list
+        });
+    }
+
     /* Share utility for the context menu list */
     ui.context.share = function local_ui_context_share(element:HTMLElement):void {
         const shareLength:number = data.shares.localhost.length,
-            addresses:[string, string][] = ui.util.selectedAddresses(element),
+            addresses:[string, string][] = ui.util.selectedAddresses(element, "share"),
             addressesLength:number = addresses.length;
         let a:number = 0,
             b:number = 0;
@@ -702,15 +731,6 @@
         }
         ui.util.selectNone(element);
         network.settings();
-    };
-
-    ui.context.write = function local_ui_context_write(element:HTMLElement, type:"move" | "paste"):void {
-        let destination:string;
-        if (element.getAttribute("class") !== "box") {
-            element = <HTMLElement>element.parentNode;
-        } while (element !== document.documentElement && element.getAttribute("class") !== "box");
-        destination = element.getElementsByTagName("input")[0].value;
-
     };
 
     /* navigate into a directory by double click */
@@ -985,7 +1005,7 @@
                 if (inputs[a].checked === true) {
                     inputs[a].checked = false;
                     item = <HTMLElement>inputs[a].parentNode.parentNode;
-                    item.setAttribute("class", item.getAttribute("class").replace(/\s*selected/, ""));
+                    item.setAttribute("class", item.getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
                 }
                 a = a + 1;
             } while (a < inputsLength);
@@ -996,7 +1016,7 @@
         } else if (characterKey === "control") {
             if (state === true) {
                 input.checked = false;
-                li.setAttribute("class", li.getAttribute("class").replace(/\s*selected/, ""));
+                li.setAttribute("class", li.getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
             } else {
                 input.checked = true;
                 li.setAttribute("class", `${li.getAttribute("class")} selected`);
@@ -1007,7 +1027,7 @@
                     if (state === true) {
                         do {
                             liList[index].getElementsByTagName("input")[0].checked = false;
-                            liList[index].setAttribute("class", liList[index].getAttribute("class").replace(/\s*selected/, ""));
+                            liList[index].setAttribute("class", liList[index].getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
                             index = index + 1;
                         } while (index < end);
                     } else {
@@ -1044,7 +1064,7 @@
             if (focusIndex === elementIndex) {
                 if (state === true) {
                     input.checked = false;
-                    li.setAttribute("class", li.getAttribute("class").replace(/\s*selected/, ""));
+                    li.setAttribute("class", li.getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
                 } else {
                     input.checked = true;
                     li.setAttribute("class", `${li.getAttribute("class")} selected`);
@@ -2261,13 +2281,17 @@
     };
 
     /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
-    ui.util.selectedAddresses = function local_ui_util_selectedAddresses(element:HTMLElement):[string, string][] {
+    ui.util.selectedAddresses = function local_ui_util_selectedAddresses(element:HTMLElement, type:string):[string, string][] {
         const output:[string, string][] = [];
         let a:number = 0,
             length:number = 0,
             itemList:HTMLCollectionOf<HTMLElement>,
             addressItem:HTMLElement,
-            box:HTMLElement = element;
+            box:HTMLElement;
+        if (element.nodeName !== "li") {
+            element = <HTMLElement>element.parentNode;
+        }
+        box = element;
         if (box.getAttribute("class") !== "box") {
             do {
                 box = <HTMLElement>box.parentNode;
@@ -2280,7 +2304,10 @@
                 addressItem = (itemList[a].firstChild.nodeName === "button")
                     ? <HTMLElement>itemList[a].firstChild.nextSibling
                     : <HTMLElement>itemList[a].firstChild;
-                output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(" selected", "")]);
+                output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(/\s+((selected)|(cut))/, "")]);
+                if (type === "cut") {
+                    itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(" selected", " cut"));
+                }
             }
             a = a + 1;
         } while (a < length);
@@ -2288,6 +2315,9 @@
             return output;
         }
         output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
+        if (type === "cut") {
+            element.setAttribute("class", `${element.getAttribute("class")} cut`);
+        }
         return output;
     };
 
@@ -2311,7 +2341,7 @@
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(" selected", ""));
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(/\s+((selected)|(cut))/, ""));
             }
             a = a + 1;
         } while (a < inputLength);

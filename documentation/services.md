@@ -49,6 +49,26 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * depth   : 1
       * location: string[]
       * name    : ""
+      * watch   : "no"*
+**fs-copy**
+   - description: Replicates existing file system artifacts into a new location in the file system.
+   - output     : void
+   - parameters
+      * action  : **"fs-copy"**
+      * agent   : string
+      * depth   : 1
+      * location: string[]
+      * name    : ""
+      * watch   : "no"
+**fs-cut**
+   - description: Same as copy, but deletes the original artifacts after writing them to the new location.
+   - output     : void
+   - parameters
+      * action  : **"fs-cut"**
+      * agent   : string
+      * depth   : 1
+      * location: string[]
+      * name    : ""
       * watch   : "no"
 * **fs-destroy**
    - description: Remove file system artifacts from the file system.

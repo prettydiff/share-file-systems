@@ -178,6 +178,7 @@ body{background:#cdf url("../images/background-desert.jpg");background-size:cove
 #spaces .fileList .lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
 #spaces .fileList li.selected{background:#cfc}
+#spaces .fileList li.cut{background:#cef;opacity:0.5}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 2em 0 0;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;position:absolute;top:-200em}

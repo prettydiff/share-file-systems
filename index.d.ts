@@ -6,7 +6,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileNavigate" | "fileShare" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceType = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-move" | "fs-new" | "fs-paste" | "fs-read" | "fs-rename" | "settings" | "messages";
+type serviceType = "fs-base64" | "fs-close" | "fs-copy" | "fs-cut" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -15,6 +15,10 @@ interface applications {
 interface appName {
     command: string,
     name: string
+}
+interface clipboard {
+    type: string;
+    data: string[];
 }
 interface commandList {
     [key:string]: {
@@ -31,10 +35,10 @@ interface context extends EventHandlerNonNull {
 interface contextFunctions {
     base64: Function;
     copy: Function;
+    cut: Function;
     destroy: Function;
     details: Function;
     hash: Function;
-    move: Function;
     newDirectory: Function;
     newFile: Function;
     paste: Function;
@@ -181,15 +185,15 @@ interface textPad extends EventHandlerNonNull {
 }
 interface ui {
     context: {
-        copy?: (HTMLElement) => void;
+        copy?: (HTMLElement, type: "copy" | "cut") => void;
         dataString?: dataString;
         destroy?: (HTMLElement) => void;
         details?: context;
         fsNew?: (HTMLElement, type: "directory" | "file") => void;
         menu?: EventHandlerNonNull;
         menuRemove?: functionEvent;
+        paste?: (HTMLElement) => void; 
         share?: (HTMLElement) => void;
-        write?: (HTMLElement, type:"move" | "paste") => void;
     };
     fs: {
         directory?: EventHandlerNonNull;
@@ -231,7 +235,7 @@ interface ui {
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         prettyBytes?: (an_integer:number) => string;
-        selectedAddresses?: (element:HTMLElement) => [string, string][];
+        selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
         selectNone?:(element:HTMLElement) => void;
     };
 }

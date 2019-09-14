@@ -1,15 +1,13 @@
 
 ## gui
-xx - [blocked, adding and removing shares requires messaging to other users] stop shares (only localhost shares)
-1 - paste (write service)
+1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]
 2 - context menu
-    a - copy
-        x - using context menu on single item with no selection
-        y - using context menu on selected items
-    b - move, by context menu only
     c - edit file (opens file in textPad)
 3 - copy by drag and drop from one modal to another
 4 - add common keyboard support: ctrl+c, ctrl+v, del, ctrl+a
+5 - associate modals to an agent
+    a - think through the data model
+    b - display, such as "File Navigator - localhost"
 
 ## file list
 1 - allow file selections to be read only by default
@@ -24,6 +22,10 @@ xx - [blocked, adding and removing shares requires messaging to other users] sto
 1 copy writes to settings
 2 transmits to messaging by agent
 3 paste by agent
+
+## populate systems logs
+
+
 
 ## ui tests
 ### modal

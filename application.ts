@@ -865,9 +865,7 @@ import { Hash } from "crypto";
                 node
                     .fs
                     .readdir(item, function node_apps_copy_dir_readdir(er:Error, files:string[]):void {
-                        const place:string = (item === start)
-                            ? dest
-                            : dest + item.replace(start + sep, "");
+                        const place:string = dest + item.replace(start, "");
                         if (er !== null) {
                             util.errorOut(er);
                             return;
@@ -879,7 +877,7 @@ import { Hash } from "crypto";
                                 delete dirs[item];
                                 do {
                                     dirs[item + sep + files[b]] = true;
-                                    b                                     = b + 1;
+                                    b                           = b + 1;
                                 } while (b < a);
                                 b = 0;
                                 do {
@@ -893,11 +891,7 @@ import { Hash } from "crypto";
                     });
             };
             util.file     = function node_apps_copy_file(item:string, dir:string, prop:nodeFileProps):void {
-                const place:string       = (item === dir)
-                        ? dest + item
-                            .split(sep)
-                            .pop()
-                        : dest + item.replace(start + sep, ""),
+                const place:string       = dest + item.replace(start, ""),
                     readStream:Stream  = node
                         .fs
                         .createReadStream(item),
@@ -947,7 +941,7 @@ import { Hash } from "crypto";
                             .fs
                             .stat(resolvedLink, function node_apps_copy_link_readlink_stat(ers:Error, stats:Stats):void {
                                 let type  = "file",
-                                    place = dest + item;
+                                    place = dest + item.replace(start, "");
                                 if (ers !== null) {
                                     util.errorOut(ers);
                                     return;
@@ -994,7 +988,7 @@ import { Hash } from "crypto";
                         a = a + 1;
                     } while (a < excludeLength);
                 }
-                node.fs.stat(item, function node_apps_copy_stat_callback(er:Error, stats:Stats):void {
+                node.fs.lstat(item, function node_apps_copy_stat_callback(er:Error, stats:Stats):void {
                     if (er !== null) {
                         util.errorOut(er);
                         return;
@@ -1092,12 +1086,12 @@ import { Hash } from "crypto";
                 };
             }
             flag.write = target;
-            target =  params.target.replace(/(\\|\/)/g, sep);
+            target =  node.path.resolve(params.target.replace(/(\\|\/)/g, sep));
             destination = params.destination.replace(/(\\|\/)/g, sep);
             excludeLength = params.exclusions.length;
             dest          = node.path.resolve(destination) + sep;
-            start         = node.path.resolve(target);
-            util.stat(start, start);
+            start         = target.slice(0, target.lastIndexOf(sep) + 1);
+            util.stat(target, start);
         };
         // similar to node's fs.readdir, but recursive
         apps.directory = function node_apps_directory(args:readDirectory):void {
@@ -2674,6 +2668,36 @@ import { Hash } from "crypto";
                                         response.writeHead(200, {"Content-Type": "text/plain"});
                                         response.write(`Watcher ${data.location[0]} closed.`);
                                         response.end();
+                                    } else if (data.action === "fs-copy" || data.action === "fs-cut") {
+                                        let count:number = 0,
+                                            length:number = data.location.length;
+                                        data.location.forEach(function node_apps_server_create_end_copyEach(value:string):void {
+                                            const callback = (data.action === "fs-copy")
+                                                ? function node_apps_server_create_end_copyEach_copy():void {
+                                                    count = count + 1;
+                                                    if (count === length) {
+                                                        response.writeHead(200, {"Content-Type": "text/plain"});
+                                                        response.write(`Path(s) ${data.location.join(", ")} copied.`);
+                                                        response.end();
+                                                    }
+                                                }
+                                                : function node_apps_server_create_end_copyEach_cut():void {
+                                                    apps.remove(value, function node_apps_server_create_end_copyEach_cut_callback():void {
+                                                        count = count + 1;
+                                                        if (count === length) {
+                                                            response.writeHead(200, {"Content-Type": "text/plain"});
+                                                            response.write(`Path(s) ${data.location.join(", ")} cut and pasted.`);
+                                                            response.end();
+                                                        }
+                                                    });
+                                                }
+                                            apps.copy({
+                                                callback: callback,
+                                                destination:data.name,
+                                                exclusions:[""],
+                                                target:value
+                                            });
+                                        });
                                     } else if (data.action === "fs-destroy") {
                                         let count:number = 0;
                                         data.location.forEach(function node_apps_server_create_end_destroyEach(value:string):void {
