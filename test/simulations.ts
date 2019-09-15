@@ -50,7 +50,7 @@
             {
                 command: `base64 ${projectPath}tsconfig.json`,
                 qualifier: "is",
-                test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJAdHlwZXMvbm9kZSJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
+                test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
             },
             {
                 command: "base64 decode string:\"bXkgYmlnIHN0cmluZyBzYW1wbGU=\"",
@@ -106,12 +106,12 @@
                 artifact: `${projectPath}temp`,
                 command: `copy ${projectPath}js ${projectPath}temp`,
                 qualifier: "filesystem contains",
-                test: `temp${sep}test${sep}simulations.js`
+                test: `temp${sep}js${sep}test${sep}simulations.js`
             },
             {
                 artifact: `${projectPath}temp`,
                 command: `copy ${projectPath}js ${projectPath}temp 2`,
-                file: `${projectPath}temp${sep}test${sep}simulations.js`,
+                file: `${projectPath}temp${sep}js${sep}test${sep}simulations.js`,
                 qualifier: "file begins",
                 test: "// tests structure"
             },
@@ -183,7 +183,7 @@
             {
                 command: `hash ${projectPath}tsconfig.json`,
                 qualifier: "is",
-                test: "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+                test: "331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd"
             },
             {
                 command: `hash ${projectPath}tsconfig.json --verbose`,
@@ -193,12 +193,12 @@
             {
                 command: `hash ${projectPath} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore", "sparser"]`,
                 qualifier: "contains",
-                test: `tsconfig.json":"db4fe9a7253ad5906c25f362fc3b94dc8c38db0564ec0d181370b54c6cbd6d17f53fcb5192183ca9ec842d96b99d913709d6b1dc965284efb5248876a2daffb1"`
+                test: `tsconfig.json":"331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd"`
             },
             {
                 command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "sparser", "tests", "js", "api", "beautify", "minify", "css", 'space test']`,
                 qualifier: "contains",
-                test: `tsconfig.json":"db4fe9a7253ad5906c25f362fc3b94dc8c38db0564ec0d181370b54c6cbd6d17f53fcb5192183ca9ec842d96b99d913709d6b1dc965284efb5248876a2daffb1"`
+                test: `tsconfig.json":"331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd"`
             },
             {
                 command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "sparser", "tests", "js", "api", "beautify", "minify", "css", "space test", "test"]`,

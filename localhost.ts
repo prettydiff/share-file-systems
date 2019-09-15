@@ -48,8 +48,7 @@
             users: [],
             errors: []
         },
-        characterKey:characterKey = "",
-        additionalKey:string = "";
+        characterKey:characterKey = "";
 
     /* Removes a file system artifact */
     network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
@@ -660,7 +659,7 @@
         menu.style.zIndex = `${data.zIndex + 10}`;
         if (content.clientHeight < ((itemList.length * 46) + 1) + event.clientY) {
             reverse = true;
-            menu.style.top = `${(event.clientY - ((itemList.length * 46) + 1)) / 10}em`;;
+            menu.style.top = `${(event.clientY - ((itemList.length * 46) + 1)) / 10}em`;
         } else {
             menu.style.top = `${(event.clientY - 50) / 10}em`;
         }
@@ -711,7 +710,7 @@
             clipboard = "";
             ui.util.selectNone(document.getElementById(clipData.id));
         });
-    }
+    };
 
     /* Share utility for the context menu list */
     ui.context.share = function local_ui_context_share(element:HTMLElement):void {
@@ -863,8 +862,7 @@
 
     /* Create a file navigator modal */
     ui.fs.navigate = function local_ui_fs_navigate(event:MouseEvent, path?:string):void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            location:string = (typeof path === "string")
+        const location:string = (typeof path === "string")
                 ? path
                 : "defaultLocation";
         network.fs({
@@ -2464,12 +2462,10 @@
         // getNodesByType
         (function local_nodes():void {
             const getNodesByType = function local_nodes_getNodesByType(typeValue:string|number):Node[] {
-                    "use strict";
                     let types:number     = 0;
                     const valueTest:string = (typeof typeValue === "string") ? typeValue.toUpperCase() : "",
-                        root:HTMLElement = (this === document)
-                            ? document.documentElement
-                            : this;
+                        // eslint-disable-next-line
+                        root:HTMLElement = (this === document) ? document.documentElement : this;
         
                     // Normalize string input for case insensitivity.
                     if (typeof typeValue === "string") {
@@ -2518,7 +2514,7 @@
         
                     // A handy dandy function to trap all the DOM walking
                     return (function local_nodes_getNodesByType_walking():Node[] {
-                        var output:Node[] = [],
+                        const output:Node[] = [],
                             child  = function local_nodes_getNodesByType_walking_child(x:HTMLElement):void {
                                 const children:NodeListOf<ChildNode> = x.childNodes;
                                 let a:NamedNodeMap    = x.attributes,
@@ -2551,6 +2547,7 @@
                     }());
                 },
                 getElementsByAttribute = function local_nodes_getElementsByAttribute(name:string, value:string):Element[] {
+                    // eslint-disable-next-line
                     const attrs:Attr[] = this.getNodesByType(2),
                         out:Element[]   = [];
                     if (typeof name !== "string") {
@@ -2574,7 +2571,7 @@
             document.getElementsByAttribute = getElementsByAttribute;
         
             (function local_nodes_addToExistingElements() {
-                var el = document.getNodesByType(1);
+                const el = document.getNodesByType(1);
                 el.forEach(function local_nodes_addToExistingElements_loop(item) {
                     item.getNodesByType         = getNodesByType;
                     item.getElementsByAttribute = getElementsByAttribute;
@@ -2590,7 +2587,9 @@
 
         // restore state
         (function local_restore():void {
-            let storage:any;
+            let storage:any,
+                a:number = 0,
+                cString:string = "";
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 loadComplete = function load_restore_complete():void {
@@ -2691,8 +2690,6 @@
 
                     loadTest = false;
                 };
-            let a:number = 0,
-                cString:string = "";
             do {
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("storage:") === 0) {

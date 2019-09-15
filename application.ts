@@ -1519,11 +1519,11 @@ import { Hash } from "crypto";
                             ? function node_apps_hash_dirComplete_callback():void {
                                 const hash:Hash = node.crypto.createHash("sha512");
                                 let hashString:string = "";
-                                if (hashes.length > 1) {
+                                if (hashList === true) {
+                                    hashString = JSON.stringify(listObject);
+                                } else if (hashes.length > 1) {
                                     hash.update(hashes.join(""));
-                                    hashString = (hashList === true)
-                                        ? JSON.stringify(listObject)
-                                        : hash.digest("hex").replace(/\s+$/, "");
+                                    hash.digest("hex").replace(/\s+$/, "");
                                 } else {
                                     hashString = hashes[0];
                                 }
@@ -1535,11 +1535,11 @@ import { Hash } from "crypto";
                                 if (verbose === true) {
                                     console.log(`${apps.humanTime(false)}File hashing complete. Working on a final hash to represent the directory structure.`);
                                 }
-                                if (hashes.length > 1) {
+                                if (hashList === true) {
+                                    hashString = JSON.stringify(listObject);
+                                } else if (hashes.length > 1) {
                                     hash.update(hashes.join(""));
-                                    hashString = (hashList === true)
-                                        ? JSON.stringify(listObject)
-                                        : hash.digest("hex").replace(/\s+$/, "");
+                                    hash.digest("hex").replace(/\s+$/, "");
                                 } else {
                                     hashString = hashes[0];
                                 }
@@ -2447,7 +2447,7 @@ import { Hash } from "crypto";
                                                         return `${data.slice(0, startLength)}{${list.join(",")}}${data.slice(startLength)}`;
                                                     };
                                                 tool = true;
-                                                node.fs.stat(`${projectPath}storage${sep}settings.json`, function node_apps_server_create_readFile_statSettings(erSettings:nodeError, statSettings:Stats):void {
+                                                node.fs.stat(`${projectPath}storage${sep}settings.json`, function node_apps_server_create_readFile_statSettings(erSettings:nodeError):void {
                                                     if (erSettings !== null) {
                                                         if (erSettings.code === "ENOENT") {
                                                             flag.settings = true;
@@ -2478,7 +2478,7 @@ import { Hash } from "crypto";
                                                         });
                                                     }
                                                 });
-                                                node.fs.stat(`${projectPath}storage${sep}messages.json`, function node_apps_server_create_readFile_statMessages(erMessages:nodeError, statMessages:Stats):void {
+                                                node.fs.stat(`${projectPath}storage${sep}messages.json`, function node_apps_server_create_readFile_statMessages(erMessages:nodeError):void {
                                                     if (erMessages !== null) {
                                                         if (erMessages.code === "ENOENT") {
                                                             flag.messages = true;
@@ -2658,7 +2658,7 @@ import { Hash } from "crypto";
                                                         if (watches[value] === undefined) {
                                                             watches[value] = node.fs.watch(value, {
                                                                 recursive: false
-                                                            }, function node_apps_server_watch(type:"rename" | "change"):void {
+                                                            }, function node_apps_server_watch():void {
                                                                 ws.broadcast(`fsUpdate-${value}`);
                                                             });
                                                         }

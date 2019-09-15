@@ -1,10 +1,16 @@
 
+## service
+1 - menu item for connecting to a user by address and port
+2 - on the other side accept or deny the request
+    2a - add the user if they accept
+    2b - provide messaging of denial
+
 ## gui
 1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]
 2 - context menu
     c - edit file (opens file in textPad)
 3 - copy by drag and drop from one modal to another
-4 - add common keyboard support: ctrl+c, ctrl+v, del, ctrl+a
+4 - add common keyboard support: ctrl+c, ctrl+v, del
 5 - associate modals to an agent
     a - think through the data model
     b - display, such as "File Navigator - localhost"
@@ -12,11 +18,6 @@
 ## file list
 1 - allow file selections to be read only by default
 2 - navigation security, do not allow parent navigation beyond a share
-
-## service
-1 - menu item for connecting to a user/port
-2 - on the other side accept the request
-3 - add new user to settings
 
 ## copy/paste via messaging
 1 copy writes to settings
