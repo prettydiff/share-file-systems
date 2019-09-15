@@ -19,6 +19,7 @@ interface appName {
 interface clipboard {
     type: string;
     data: string[];
+    id  : string;
 }
 interface commandList {
     [key:string]: {

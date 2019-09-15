@@ -48,7 +48,8 @@
             users: [],
             errors: []
         },
-        characterKey:characterKey = "";
+        characterKey:characterKey = "",
+        additionalKey:string = "";
 
     /* Removes a file system artifact */
     network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
@@ -123,10 +124,15 @@
     /* Handler for file system artifact copy */
     ui.context.copy = function local_ui_context_copy(element:HTMLElement, type:"copy"|"cut"):void {
         let selected:[string, string][],
-            addresses:string[] = []; 
+            addresses:string[] = [],
+            box:HTMLElement; 
         if (element.nodeName !== "li") {
             element = <HTMLElement>element.parentNode;
         }
+        box = <HTMLElement>element.parentNode;
+        do {
+            box = <HTMLElement>box.parentNode;
+        } while (box !== document.documentElement && box.getAttribute("class") !== "box");
         selected = ui.util.selectedAddresses(element, type);
         if (selected.length < 1) {
             addresses.push(element.getElementsByTagName("label")[0].innerHTML);
@@ -135,10 +141,15 @@
                 addresses.push(value[0]);
             });
         }
-        clipboard = JSON.stringify({type:type, data:addresses});
-        if (type === "copy") {
-            ui.util.selectNone(element);
+        if (clipboard !== "") {
+            const clipData:clipboard = JSON.parse(clipboard);
+            if (clipData.id === box.getAttribute("id") && type === "cut") {
+                //console.log(selected);
+            } else {
+                ui.util.selectNone(document.getElementById(clipData.id));
+            }
         }
+        clipboard = JSON.stringify({type:type, data:addresses, id:box.getAttribute("id")});
     };
 
     /* Handler for hash and base64 operations from the context menu */
@@ -698,7 +709,7 @@
             watch: "no"
         }, function local_ui_context_paste_callback():void {
             clipboard = "";
-            // todo: log to systems list
+            ui.util.selectNone(document.getElementById(clipData.id));
         });
     }
 
@@ -981,7 +992,7 @@
     };
 
     /* Select a file system item for an action */
-    ui.fs.select = function local_ui_fs_select(event:MouseEvent):void {
+    ui.fs.select = function local_ui_fs_select(event:KeyboardEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             li:HTMLElement = (element.nodeName === "li")
                 ? element
@@ -1005,7 +1016,7 @@
                 if (inputs[a].checked === true) {
                     inputs[a].checked = false;
                     item = <HTMLElement>inputs[a].parentNode.parentNode;
-                    item.setAttribute("class", item.getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
+                    item.setAttribute("class", item.getAttribute("class").replace(/\s*selected/, ""));
                 }
                 a = a + 1;
             } while (a < inputsLength);
@@ -1016,7 +1027,7 @@
         } else if (characterKey === "control") {
             if (state === true) {
                 input.checked = false;
-                li.setAttribute("class", li.getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
+                li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
             } else {
                 input.checked = true;
                 li.setAttribute("class", `${li.getAttribute("class")} selected`);
@@ -1027,7 +1038,7 @@
                     if (state === true) {
                         do {
                             liList[index].getElementsByTagName("input")[0].checked = false;
-                            liList[index].setAttribute("class", liList[index].getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
+                            liList[index].setAttribute("class", liList[index].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
                             index = index + 1;
                         } while (index < end);
                     } else {
@@ -1064,7 +1075,7 @@
             if (focusIndex === elementIndex) {
                 if (state === true) {
                     input.checked = false;
-                    li.setAttribute("class", li.getAttribute("class").replace(/\s*((selected)|(cut))/, ""));
+                    li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
                 } else {
                     input.checked = true;
                     li.setAttribute("class", `${li.getAttribute("class")} selected`);
@@ -2304,10 +2315,12 @@
                 addressItem = (itemList[a].firstChild.nodeName === "button")
                     ? <HTMLElement>itemList[a].firstChild.nextSibling
                     : <HTMLElement>itemList[a].firstChild;
-                output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(/\s+((selected)|(cut))/, "")]);
+                output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, "")]);
                 if (type === "cut") {
-                    itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(" selected", " cut"));
+                    itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, " cut"));
                 }
+            } else {
+                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
             }
             a = a + 1;
         } while (a < length);
@@ -2316,7 +2329,7 @@
         }
         output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
         if (type === "cut") {
-            element.setAttribute("class", `${element.getAttribute("class")} cut`);
+            element.setAttribute("class", element.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, " cut"));
         }
         return output;
     };
@@ -2341,7 +2354,7 @@
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(/\s+((selected)|(cut))/, ""));
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
             }
             a = a + 1;
         } while (a < inputLength);
@@ -2601,6 +2614,33 @@
                             characterKey = "shift";
                         } else if (key === "control" && characterKey !== "shift") {
                             characterKey = "control";
+                        }
+                        if (characterKey === "control") {
+                            if (key === "a") {
+                                const modals:string[] = Object.keys(data.modals),
+                                    length:number = modals.length;
+                                let a:number = 0;
+                                do {
+                                    if (data.modals[modals[a]].zIndex === data.zIndex) {
+                                        if (data.modals[modals[a]].type === "fileNavigate") {
+                                            event.preventDefault();
+                                            const ul:HTMLElement = <HTMLElement>document.getElementById(modals[a]).getElementsByTagName("ul")[0],
+                                                list:HTMLCollectionOf<HTMLLIElement> = ul.getElementsByTagName("li"),
+                                                listLength:number = list.length;
+                                            let b:number = 0,
+                                                inputs:HTMLCollectionOf<HTMLInputElement>;
+                                            do {
+                                                list[b].setAttribute("class", list[b].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, "") + " selected");
+                                                inputs = list[b].getElementsByTagName("input");
+                                                inputs[inputs.length - 1].checked = true;
+                                                b = b + 1;
+                                            } while (b < listLength);
+                                        }
+                                        break;
+                                    }
+                                    a = a + 1;
+                                } while (a < length);
+                            }
                         }
                     };
                     document.onkeyup = function load_keyup(event:KeyboardEvent) {
