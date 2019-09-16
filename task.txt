@@ -7,6 +7,7 @@
 
 ## gui
 1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]
+  - mouse drag select
 2 - context menu
     c - edit file (opens file in textPad)
 3 - copy by drag and drop from one modal to another

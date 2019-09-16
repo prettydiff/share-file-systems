@@ -2,6 +2,7 @@
 (function local():void {
     "use strict";
     const content:HTMLElement = document.getElementById("content-area"),
+        pageBody:HTMLElement = document.getElementsByTagName("body")[0],
         ws:WebSocket = new WebSocket(`ws://localhost:${(function local_webSocketsPort() {
             const uri:string = location.href;
             let domain:string = uri.slice(location.href.indexOf("host:") + 5),
@@ -78,6 +79,54 @@
         xhr.send(JSON.stringify({
             fs: configuration
         }));
+    };
+
+    /* Invite other users */
+    network.invite = function local_network_invite(element:HTMLElement):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            box:HTMLElement = (function local_network_invite_box():HTMLElement {
+                let bx:HTMLElement = element;
+                do {
+                    bx = <HTMLElement>bx.parentNode;
+                } while (bx !== document.documentElement && bx.getAttribute("class") !== "box");
+                return bx;
+            }()),
+            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            bodyText:string = body.innerHTML,
+            footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+            loc:string = location.href.split("?")[0],
+            inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
+            port:number = (isNaN(Number(inputs[1].value)))
+                ? 0
+                : Number(inputs[1].value),
+            inviteData:inviteUser = {
+                destinationIP: inputs[0].value,
+                destinationPort: port,
+                message: box.getElementsByTagName("textarea")[0].value,
+                name: data.name,
+            };
+        if (inviteData.destinationIP.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.destinationIP) === false && (/([a-f0-9]{4}:)+/).test(inviteData.destinationIP) === false)) {
+            inputs[0].focus();
+            return;
+        }
+        if (port < 1024 || port > 65525) {
+            inputs[1].focus();
+            return;
+        }
+        body.innerHTML = "";
+        body.appendChild(ui.util.delay());
+        footer.parentNode.removeChild(footer);
+        xhr.onreadystatechange = function local_network_messages_callback():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(`inviteUser:${JSON.stringify(inviteData)}`);
     };
 
     /* Stores systems log messages to storage/messages.json file */
@@ -1014,14 +1063,12 @@
                 if (inputs[a].checked === true) {
                     inputs[a].checked = false;
                     item = <HTMLElement>inputs[a].parentNode.parentNode;
-                    item.setAttribute("class", item.getAttribute("class").replace(/\s*selected/, ""));
+                    item.setAttribute("class", item.getAttribute("class").replace(/(\s+selected)+/, ""));
                 }
                 a = a + 1;
             } while (a < inputsLength);
-            if (state === false) {
-                input.checked = true;
-                li.setAttribute("class", `${li.getAttribute("class")} selected`);
-            }
+            input.checked = true;
+            li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
         } else if (characterKey === "control") {
             if (state === true) {
                 input.checked = false;
@@ -1291,6 +1338,36 @@
             }
         }
         border.appendChild(body);
+        body.appendChild(options.content);
+        if (options.type === "export" || options.type === "textPad") {
+            body.style.overflow = "hidden";
+        }
+        if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1)) {
+            extra = document.createElement("p");
+            extra.setAttribute("class", "footer");
+            if (options.inputs.indexOf("confirm") > -1) {
+                button = document.createElement("button");
+                button.innerHTML = "✓ Confirm";
+                button.setAttribute("class", "confirm");
+                if (options.type === "export") {
+                    button.onclick = ui.modal.import;
+                } else if (options.type === "inviteUser") {
+                    button.onclick = function local_ui_modal_create_invite(event:MouseEvent):void {
+                        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+                        network.invite(element);
+                    }
+                }
+                extra.appendChild(button);
+            }
+            if (options.inputs.indexOf("cancel") > -1) {
+                button = document.createElement("button");
+                button.innerHTML = "🗙 Cancel";
+                button.setAttribute("class", "cancel");
+                button.onclick = ui.modal.close;
+                extra.appendChild(button);
+            }
+            border.appendChild(extra);
+        }
         if (options.resize !== false) {
             button = document.createElement("button");
             button.innerHTML = "resize box width and height";
@@ -1336,31 +1413,6 @@
             button.style.height = `${(options.height / 10) + 3}em`;
             button.onmousedown = ui.modal.resize;
             border.appendChild(button);
-        }
-        body.appendChild(options.content);
-        if (options.type === "export" || options.type === "textPad") {
-            body.style.overflow = "hidden";
-        }
-        if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1)) {
-            extra = document.createElement("p");
-            extra.setAttribute("class", "footer");
-            if (options.inputs.indexOf("confirm") > -1) {
-                button = document.createElement("button");
-                button.innerHTML = "✓ Confirm";
-                button.setAttribute("class", "confirm");
-                if (options.type === "export") {
-                    button.onclick = ui.modal.import;
-                }
-                extra.appendChild(button);
-            }
-            if (options.inputs.indexOf("cancel") > -1) {
-                button = document.createElement("button");
-                button.innerHTML = "🗙 Cancel";
-                button.setAttribute("class", "cancel");
-                button.onclick = ui.modal.close;
-                extra.appendChild(button);
-            }
-            border.appendChild(extra);
         }
         box.appendChild(border);
         content.appendChild(box);
@@ -2201,6 +2253,42 @@
         return li;
     };
 
+    /* Invite users to your shared space */
+    ui.util.invite = function local_ui_util_invite():void {
+        const invite:HTMLElement = document.createElement("div");
+        let p:HTMLElement = document.createElement("p"),
+            label:HTMLElement = document.createElement("label"),
+            input:HTMLInputElement = document.createElement("input"),
+            text:HTMLTextAreaElement = document.createElement("textarea");
+        label.innerHTML = "IP Address";
+        input.setAttribute("type", "text");
+        label.appendChild(input);
+        p.appendChild(label);
+        invite.appendChild(p);
+        p = document.createElement("p");
+        label = document.createElement("label");
+        input = document.createElement("input");
+        label.innerHTML = "Port";
+        input.setAttribute("type", "text");
+        input.placeholder = "Number 1024-65535";
+        label.appendChild(input);
+        p.appendChild(label);
+        invite.appendChild(p);
+        p = document.createElement("p");
+        label = document.createElement("label");
+        label.innerHTML = "Invitation Message";
+        label.appendChild(text);
+        p.appendChild(label);
+        invite.appendChild(p);
+        invite.setAttribute("class", "inviteUser");
+        ui.modal.create({
+            content: invite,
+            inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+            title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
+            type: "inviteUser"
+        });
+    };
+
     /* Interaction from the button on the login page */
     ui.util.login = function local_ui_util_login(event:KeyboardEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -2213,7 +2301,7 @@
             } else {
                 data.name = input.value;
                 ui.util.addUser(input.value, "localhost");
-                document.getElementsByTagName("body")[0].removeAttribute("class");
+                pageBody.removeAttribute("class");
             }
         }
     };
@@ -2592,12 +2680,14 @@
                 cString:string = "";
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
-                loadComplete = function load_restore_complete():void {
+                loadComplete = function local_restore_complete():void {
+
                     // assign key default events
                     content.onclick = ui.context.menuRemove;
                     document.getElementById("all-shares").onclick = function local_restore_complete_sharesAll(event:MouseEvent):void {
                         ui.modal.shares(event, "", null);
                     };
+                    document.getElementById("invite-user").onclick = ui.util.invite;
                     document.getElementById("login-input").onkeyup = ui.util.login;
                     document.getElementById("login").getElementsByTagName("button")[0].onclick = ui.util.login;
                     document.getElementById("menuToggle").onclick = ui.util.menu;
@@ -2739,7 +2829,7 @@
                             }
 
                             if (storage.settings.name === undefined || storage.settings.name === "") {
-                                document.getElementsByTagName("body")[0].setAttribute("class", "login");
+                                pageBody.setAttribute("class", "login");
                             } else {
                                 data.name = storage.settings.name;
                                 ui.util.addUser(storage.settings.name, "localhost");

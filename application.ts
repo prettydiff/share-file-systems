@@ -5,11 +5,13 @@
 import * as http from "http";
 import { Stream, Writable } from "stream";
 import { Hash } from "crypto";
+import { TcpNetConnectOpts } from "net";
+import { NetworkInterfaceInfo } from "os";
 
 (function init() {
     "use strict";
     let verbose:boolean = false,
-        ws;
+        ws:any;
     const startTime:[number, number]      = process.hrtime(),
         node:any = {
             child : require("child_process").exec,
@@ -17,6 +19,7 @@ import { Hash } from "crypto";
             fs    : require("fs"),
             http  : require("http"),
             https : require("https"),
+            net   : require("net"),
             os    : require("os"),
             path  : require("path")
         },
@@ -2362,6 +2365,7 @@ import { Hash } from "crypto";
                     }
                     return false;
                 }()),
+                messenger:TcpNetConnectOpts = node.net.createServer(),
                 port:number = (isNaN(Number(process.argv[0])) === true)
                     ? version.port
                     : Number(process.argv[0]),
@@ -2812,6 +2816,8 @@ import { Hash } from "crypto";
                                         response.end();
                                     });
                                 });
+                            } else if (task === "inviteUser") {
+                                const data:inviteUser = JSON.parse(dataString);
                             }
                         });
                     }
@@ -2853,6 +2859,38 @@ import { Hash } from "crypto";
                     };
                     console.log(`HTTP server is up at: ${text.bold + text.green}http://localhost:${port + text.none}`);
                     console.log(`${text.green}Starting web server and file system watcher!${text.none}`);
+                    console.log("Local IP addresses are:");
+                    {
+                        const interfaces:NetworkInterfaceInfo = node.os.networkInterfaces(),
+                            keys:string[] = Object.keys(interfaces),
+                            length:number = keys.length,
+                            addresses:[string, string][] = [];
+                        let a:number = 0,
+                            ipv6:number,
+                            longest:number = 0;
+                        do {
+                            ipv6 = (interfaces[keys[a]][0].family === "IPv6")
+                                ? 0
+                                : 1;
+                            if (keys[a].toLowerCase().indexOf("loopback") < 0) {
+                                addresses.push([keys[a], interfaces[keys[a]][0].address]);
+                                if (keys[a].length > longest) {
+                                    longest = keys[a].length;
+                                }
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        addresses.forEach(function node_apps_server_localAddresses(value:[string, string]):void {
+                            a = value[0].length;
+                            if (a < longest) {
+                                do {
+                                    value[0] = value[0] + " ";
+                                    a = a + 1;
+                                } while (a < longest);
+                            }
+                            console.log(`   ${text.angry}*${text.none} ${value[0]}: ${value[1]}`);
+                        });
+                    }
                     if (browser === true) {
                         console.log("Launching default web browser...");
                     }
