@@ -5,7 +5,7 @@
 import * as http from "http";
 import { Stream, Writable } from "stream";
 import { Hash } from "crypto";
-import { TcpNetConnectOpts, Socket, TcpSocketConnectOpts } from "net";
+import { TcpNetConnectOpts, Socket, TcpSocketConnectOpts, Server } from "net";
 import { NetworkInterfaceInfo } from "os";
 
 (function init() {
@@ -2361,8 +2361,11 @@ import { NetworkInterfaceInfo } from "os";
         // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
         apps.server = function node_apps_server():void {
             let timeStore:number = 0,
+                serverPort:number = 0,
                 webPort:number = 0,
-                wsPort:number = 0;
+                wsPort:number = 0,
+                interfaceLongest:number = 0,
+                responder:any;
             const browser:boolean = (function node_apps_server_browser():boolean {
                     const index:number = process.argv.indexOf("browser");
                     if (index > -1) {
@@ -2371,7 +2374,51 @@ import { NetworkInterfaceInfo } from "os";
                     }
                     return false;
                 }()),
-                addresses:[string, string][] = [],
+                addresses:[string, string][] = (function node_apps_server_addresses():[string, string][] {
+                    const interfaces:NetworkInterfaceInfo = node.os.networkInterfaces(),
+                        store:[string, string][] = [],
+                        keys:string[] = Object.keys(interfaces),
+                        length:number = keys.length;
+                    let a:number = 0,
+                        b:number = 0,
+                        ipv6:number,
+                        ipv4:number;
+                    do {
+                        ipv4 = -1;
+                        ipv6 = -1;
+                        b = 0;
+                        do {
+                            if (interfaces[keys[a]][b].internal === false) {
+                                if (interfaces[keys[a]][b].family === "IPv6") {
+                                    ipv6 = b;
+                                    if (ipv4 > -1) {
+                                        break;
+                                    }
+                                }
+                                if (interfaces[keys[a]][b].family === "IPv4") {
+                                    ipv4 = b;
+                                    if (ipv6 > -1) {
+                                        break;
+                                    }
+                                }
+                            }
+                            b = b + 1;
+                        } while (b < interfaces[keys[a]].length);
+                        if (ipv6 > -1) {
+                            store.push([keys[a], interfaces[keys[a]][ipv6].address]);
+                            if (ipv4 > -1) {
+                                store.push(["", interfaces[keys[a]][ipv4].address]);
+                            }
+                        } else if (ipv4 > -1) {
+                            store.push([keys[a], interfaces[keys[a]][ipv4].address]);
+                        }
+                        if (keys[a].length > interfaceLongest && interfaces[keys[a]][0].internal === false) {
+                            interfaceLongest = keys[a].length;
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    return store;
+                }()),
                 port:number = (isNaN(Number(process.argv[0])) === true)
                     ? version.port
                     : Number(process.argv[0]),
@@ -2827,16 +2874,13 @@ import { NetworkInterfaceInfo } from "os";
                                 });
                             } else if (task === "inviteUser") {
                                 const data:inviteUser = JSON.parse(dataString),
-                                    socket:Socket = node.net.createConnection({
-                                        family: 6,
-                                        host: data.destinationIP,
-                                        port: data.destinationPort
-                                    }, function node_apps_server_create_end_socket():void {
-                                        socket.write(`invite:{"name":"${data.name}","originationIP":"${addresses[0][0]}","originationPort":"${webPort}","message":"${data.message}"}`);
-                                        socket.on("data", function node_apps_server_create_end_socketData(data):void {
-                                            console.log(data.toString());
-                                        });
-                                    });
+                                    socket:Socket = new node.net.Socket();
+                                socket.connect(data.destinationPort, data.destinationIP, function node_apps_server_create_end_inviteConnect():void {
+                                    socket.write(`invite:{"name":"${data.name}","message":"${data.message}","originationIP":"${addresses[1][1]}","originationPort":"${serverPort}"}`);
+                                });
+                                socket.on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
+                                    console.log(socketData);
+                                });
                             }
                         });
                     }
@@ -2980,84 +3024,64 @@ import { NetworkInterfaceInfo } from "os";
                         : webPort + 1;
 
                     ws = new socket.Server({port: wsPort});
-                    wsPort = ws.address().port;
-                    ws.broadcast = function node_apps_server_broadcast(data:string):void {
-                        ws.clients.forEach(function node_apps_server_broadcast_clients(client):void {
+                    ws.broadcast = function node_apps_server_start_broadcast(data:string):void {
+                        ws.clients.forEach(function node_apps_server_start_broadcast_clients(client):void {
                             if (client.readyState === socket.OPEN) {
                                 client.send(data);
                             }
                         });
                     };
+                    wsPort = ws.address().port;
 
-                    console.log("");
-                    console.log(`${text.cyan}HTTP server${text.none} on port: ${text.bold + text.green + webPort + text.none}`);
-                    console.log(`${text.cyan}Web Sockets${text.none} on port: ${text.bold + text.green + wsPort + text.none}`);
-                    console.log("Local IP addresses are:");
-                    {
-                        const interfaces:NetworkInterfaceInfo = node.os.networkInterfaces(),
-                            keys:string[] = Object.keys(interfaces),
-                            length:number = keys.length;
-                        let a:number = 0,
-                            b:number = 0,
-                            ipv6:number,
-                            ipv4:number,
-                            longest:number = 0;
-                        do {
-                            ipv4 = -1;
-                            ipv6 = -1;
-                            b = 0;
-                            do {
-                                if (interfaces[keys[a]][b].internal === false) {
-                                    if (interfaces[keys[a]][b].family === "IPv6") {
-                                        ipv6 = b;
-                                        if (ipv4 > -1) {
-                                            break;
-                                        }
-                                    }
-                                    if (interfaces[keys[a]][b].family === "IPv4") {
-                                        ipv4 = b;
-                                        if (ipv6 > -1) {
-                                            break;
-                                        }
-                                    }
-                                }
-                                b = b + 1;
-                            } while (b < interfaces[keys[a]].length);
-                            if (ipv6 > -1) {
-                                addresses.push([keys[a], interfaces[keys[a]][ipv6].address]);
-                                if (ipv4 > -1) {
-                                    addresses.push(["", interfaces[keys[a]][ipv4].address]);
-                                }
-                            } else if (ipv4 > -1) {
-                                addresses.push([keys[a], interfaces[keys[a]][ipv4].address]);
-                            }
-                            if (keys[a].length > longest && interfaces[keys[a]][0].internal === false) {
-                                longest = keys[a].length;
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                        addresses.forEach(function node_apps_server_localAddresses(value:[string, string]):void {
-                            a = value[0].length;
-                            if (a < longest) {
-                                do {
-                                    value[0] = value[0] + " ";
-                                    a = a + 1;
-                                } while (a < longest);
-                            }
-                            if (value[0].charAt(0) === " ") {
-                                console.log(`     ${value[0]}: ${value[1]}`);
-                            } else {
-                                console.log(`   ${text.angry}*${text.none} ${value[0]}: ${value[1]}`);
-                            }
+                    responder = node.net.createServer(function node_apps_server_start_server(socket:Socket):void {
+                        socket.on("data", function node_apps_server_start_server_data(data:Buffer):void {
+                            console.log(data.toString());
                         });
+                        socket.on("error", function node_apps_server_start_server_error(data:Buffer):void {
+                            console.log(data.toString());
+                        });
+                    });
+                    serverPort = (port === 0)
+                        ? 0
+                        : wsPort + 1;
+                    responder.listen(serverPort, addresses[1][1], function node_apps_server_start_listen():void {
+                        serverPort = responder.address().port;
+
                         console.log("");
-                        console.log(`Address for web browser: ${text.bold + text.green}http://localhost:${webPort + text.none}`);
-                        console.log(`or                     : ${text.bold + text.green}http://[${addresses[0][1]}]:${webPort + text.none}`);
-                        if (addresses[1][0].charAt(0) === " ") {
-                            console.log(`or                     : ${text.bold + text.green}http://${addresses[1][1]}:${webPort + text.none}`);
+                        console.log(`${text.cyan}HTTP server${text.none} on port: ${text.bold + text.green + webPort + text.none}`);
+                        console.log(`${text.cyan}Web Sockets${text.none} on port: ${text.bold + text.green + wsPort + text.none}`);
+                        console.log(`${text.cyan}TCP Service${text.none} on port: ${text.bold + text.green + serverPort + text.none}`);
+                        console.log("Local IP addresses are:");
+                        {
+                            let a:number = 0;
+                            addresses.forEach(function node_apps_server_localAddresses(value:[string, string]):void {
+                                a = value[0].length;
+                                if (a < interfaceLongest) {
+                                    do {
+                                        value[0] = value[0] + " ";
+                                        a = a + 1;
+                                    } while (a < interfaceLongest);
+                                }
+                                if (value[0].charAt(0) === " ") {
+                                    console.log(`     ${value[0]}: ${value[1]}`);
+                                } else {
+                                    console.log(`   ${text.angry}*${text.none} ${value[0]}: ${value[1]}`);
+                                }
+                            });
+                            console.log("");
+                            console.log(`Address for web browser: ${text.bold + text.green}http://localhost:${webPort + text.none}`);
+                            console.log(`or                     : ${text.bold + text.green}http://[${addresses[0][1]}]:${webPort + text.none}`);
+                            if (addresses[1][0].charAt(0) === " ") {
+                                console.log(`or                     : ${text.bold + text.green}http://${addresses[1][1]}:${webPort + text.none}`);
+                                console.log("");
+                                console.log(`Address for net service: ${text.bold + text.green + addresses[1][1]}:${serverPort + text.none}`);
+                            } else {
+                                console.log("");
+                                console.log(`Address for net service: ${text.bold + text.green}[${addresses[0][1]}]:${serverPort + text.none}`);
+                            }
+                            console.log("");
                         }
-                        console.log("");
-                    }
+                    });
                 },
                 socket = require("ws");
             if (process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {

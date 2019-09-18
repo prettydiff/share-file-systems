@@ -150,7 +150,7 @@ interface serverError {
     stack: string[];
     error: string;
 }
-interface shares extends EventHandlerNonNull {
+interface modalSettings extends EventHandlerNonNull {
     (Event, user?:string, configuration?:ui_modal): void;
 }
 interface simulationItem {
@@ -224,7 +224,7 @@ interface ui {
         minimize?: EventHandlerNonNull;
         move?: EventHandlerNonNull;
         resize?: EventHandlerNonNull;
-        shares?: shares;
+        shares?: modalSettings;
         systems?: EventHandlerNonNull;
         textPad?: textPad;
         textSave?: EventHandlerNonNull;
@@ -241,7 +241,7 @@ interface ui {
         dateFormat?: (date:Date) => string;
         delay?: () => HTMLElement;
         fixHeight?: functionEvent;
-        invite?: EventHandlerNonNull;
+        invite?: modalSettings;
         fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;

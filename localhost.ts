@@ -1,3 +1,4 @@
+import { settings } from "cluster";
 
 (function local():void {
     "use strict";
@@ -1384,7 +1385,17 @@
                 } else if (options.type === "inviteUser") {
                     button.onclick = function local_ui_modal_create_invite(event:MouseEvent):void {
                         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+                        let invite:HTMLElement = element,
+                            inputs:HTMLCollectionOf<HTMLInputElement>;
+                        do {
+                            invite = <HTMLElement>invite.parentNode;
+                        } while (invite !== document.documentElement && invite.getAttribute("class") !== "box");
+                        inputs = box.getElementsByTagName("input");
+                        data.modals[invite.getAttribute("id")].text_value = `${inputs[0].value},${inputs[1].value},${box.getElementsByTagName("textarea")[0].value}`;
                         network.invite(element);
+                        if (loadTest === false) {
+                            network.settings();
+                        }
                     }
                 }
                 extra.appendChild(button);
@@ -2308,14 +2319,27 @@
     };
 
     /* Invite users to your shared space */
-    ui.util.invite = function local_ui_util_invite():void {
+    ui.util.invite = function local_ui_util_invite(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
         const invite:HTMLElement = document.createElement("div");
         let p:HTMLElement = document.createElement("p"),
             label:HTMLElement = document.createElement("label"),
             input:HTMLInputElement = document.createElement("input"),
-            text:HTMLTextAreaElement = document.createElement("textarea");
+            text:HTMLTextAreaElement = document.createElement("textarea"),
+            textStorage:string,
+            values:string[] = [];
+        if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {
+            textStorage = settings.text_value;
+            values.push(textStorage.slice(0, textStorage.indexOf(",")));
+            textStorage = textStorage.slice(textStorage.indexOf(",") + 1);
+            values.push(textStorage.slice(0, textStorage.indexOf(",")));
+            textStorage = textStorage.slice(textStorage.indexOf(",") + 1);
+            values.push(textStorage);
+        }
         label.innerHTML = "IP Address";
         input.setAttribute("type", "text");
+        if (values.length > 0) {
+            input.value = values[0];
+        }
         label.appendChild(input);
         p.appendChild(label);
         invite.appendChild(p);
@@ -2325,22 +2349,36 @@
         label.innerHTML = "Port";
         input.setAttribute("type", "text");
         input.placeholder = "Number 1024-65535";
+        if (values.length > 0) {
+            input.value = values[1];
+        }
         label.appendChild(input);
         p.appendChild(label);
         invite.appendChild(p);
         p = document.createElement("p");
         label = document.createElement("label");
         label.innerHTML = "Invitation Message";
+        if (values.length > 0) {
+            text.value = values[2];
+        }
         label.appendChild(text);
         p.appendChild(label);
         invite.appendChild(p);
         invite.setAttribute("class", "inviteUser");
-        ui.modal.create({
-            content: invite,
-            inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-            title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
-            type: "inviteUser"
-        });
+        if (settings === undefined) {
+            ui.modal.create({
+                content: invite,
+                inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+                title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
+                type: "inviteUser"
+            });
+        } else {
+            settings.content = invite;
+            ui.modal.create(settings);
+        }
+        if (loadTest === false) {
+            network.settings();
+        }
     };
 
     /* Interaction from the button on the login page */
@@ -2513,7 +2551,7 @@
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
-        } else if (event.data.indexOf("fsUpdate-") === 0) {console.log(event.data);
+        } else if (event.data.indexOf("fsUpdate-") === 0) {
             const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
                 modalKeys:string[] = Object.keys(data.modals),
                 keyLength:number = modalKeys.length;
@@ -2922,6 +2960,9 @@
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {
                                     ui.modal.shares(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
+                                    z(value);
+                                } else if (storage.settings.modals[value].type === "inviteUser") {
+                                    ui.util.invite(null, "", storage.settings.modals[value]);
                                     z(value);
                                 } else {
                                     z(value);
