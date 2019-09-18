@@ -1070,6 +1070,7 @@
                 ? element
                 : <HTMLElement>element.parentNode,
             input:HTMLInputElement = li.getElementsByTagName("input")[0];
+        input.focus();
         let state:boolean = input.checked,
             body:HTMLElement = li,
             box:HTMLElement;
@@ -2235,6 +2236,29 @@
         }
         input.type = "checkbox";
         input.checked = false;
+        input.onkeydown = function local_ui_fs_list_keydown(event:KeyboardEvent):void {
+            const key:string = event.key.toLowerCase(),
+                fileList:HTMLElement = (function local_ui_util_fsObject_keydown():HTMLElement {
+                    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+                    do {
+                        element = <HTMLElement>element.parentNode;
+                    } while (element !== document.documentElement && element.getAttribute("class") !== "fileList");
+                    return element;
+                }());
+            if (characterKey === "control" && key === "a") {
+                let a:number = 0,
+                    inputs:HTMLCollectionOf<HTMLInputElement>;
+                const list:HTMLCollectionOf<HTMLLIElement> = fileList.getElementsByTagName("li"),
+                    listLength:number = list.length;
+                event.preventDefault();
+                do {
+                    list[a].setAttribute("class", list[a].getAttribute("class").replace(/(\s+selected)+/, "") + " selected");
+                    inputs = list[a].getElementsByTagName("input");
+                    inputs[inputs.length - 1].checked = true;
+                    a = a + 1;
+                } while (a < listLength);
+            }
+        };
         label.innerHTML = "Selected";
         label.appendChild(input);
         label.setAttribute("class", "selection");
@@ -2734,33 +2758,6 @@
                             characterKey = "shift";
                         } else if (key === "control" && characterKey !== "shift") {
                             characterKey = "control";
-                        }
-                        if (characterKey === "control") {
-                            if (key === "a") {
-                                const modals:string[] = Object.keys(data.modals),
-                                    length:number = modals.length;
-                                let a:number = 0;
-                                do {
-                                    if (data.modals[modals[a]].zIndex === data.zIndex) {
-                                        if (data.modals[modals[a]].type === "fileNavigate") {
-                                            event.preventDefault();
-                                            const ul:HTMLElement = <HTMLElement>document.getElementById(modals[a]).getElementsByTagName("ul")[0],
-                                                list:HTMLCollectionOf<HTMLLIElement> = ul.getElementsByTagName("li"),
-                                                listLength:number = list.length;
-                                            let b:number = 0,
-                                                inputs:HTMLCollectionOf<HTMLInputElement>;
-                                            do {
-                                                list[b].setAttribute("class", list[b].getAttribute("class").replace(/(\s+selected)+/, "") + " selected");
-                                                inputs = list[b].getElementsByTagName("input");
-                                                inputs[inputs.length - 1].checked = true;
-                                                b = b + 1;
-                                            } while (b < listLength);
-                                        }
-                                        break;
-                                    }
-                                    a = a + 1;
-                                } while (a < length);
-                            }
                         }
                     };
                     document.onkeyup = function load_keyup(event:KeyboardEvent) {

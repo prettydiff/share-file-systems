@@ -1,7 +1,4 @@
 
-## defects
-2 shift ctrl+a event from document to ul.fileList
-
 ## service
 1 - menu item for connecting to a user by address and port
 2 - on the other side accept or deny the request
