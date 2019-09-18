@@ -90,6 +90,31 @@ import { settings } from "cluster";
         }));
     };
 
+    /* Confirmed response to a user invitation */
+    network.invitationAcceptance = function local_network_invitationAcceptance(configuration:invite):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0];
+        messageTransmit = false;
+        ui.context.menuRemove();
+        xhr.onreadystatechange = function local_network_fs_readyState():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status === 200 || xhr.status === 0) {
+                    // todo log invitation acceptance in system log
+                } else {
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} to ${configuration.ip}:${configuration.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    network.messages();
+                }
+            }
+        };
+        xhr.withCredentials = true;
+        xhr.open("POST", loc, true);
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({
+            invite: configuration
+        }));
+    };
+
     /* Invite other users */
     network.invite = function local_network_invite(element:HTMLElement):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
@@ -101,20 +126,20 @@ import { settings } from "cluster";
                 return bx;
             }()),
             body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-            bodyText:string = body.innerHTML,
             footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
             loc:string = location.href.split("?")[0],
             inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
             port:number = (isNaN(Number(inputs[1].value)))
                 ? 0
                 : Number(inputs[1].value),
-            inviteData:inviteUser = {
-                destinationIP: inputs[0].value,
-                destinationPort: port,
+            inviteData:invite = {
+                action: "invite-request",
+                ip: inputs[0].value,
+                port: port,
                 message: box.getElementsByTagName("textarea")[0].value,
                 name: data.name,
             };
-        if (inviteData.destinationIP.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.destinationIP) === false && (/([a-f0-9]{4}:)+/).test(inviteData.destinationIP) === false)) {
+        if (inviteData.ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.ip) === false && (/([a-f0-9]{4}:)+/).test(inviteData.ip) === false)) {
             inputs[0].focus();
             return;
         }
@@ -135,7 +160,7 @@ import { settings } from "cluster";
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(`inviteUser:${JSON.stringify(inviteData)}`);
+        xhr.send(`invite:${JSON.stringify(inviteData)}`);
     };
 
     /* Stores systems log messages to storage/messages.json file */
@@ -1071,6 +1096,7 @@ import { settings } from "cluster";
                 ? element
                 : <HTMLElement>element.parentNode,
             input:HTMLInputElement = li.getElementsByTagName("input")[0];
+        event.preventDefault();
         input.focus();
         let state:boolean = input.checked,
             body:HTMLElement = li,
@@ -1227,6 +1253,45 @@ import { settings } from "cluster";
         network.settings();
     };
 
+    /* Event handler for the modal's "Confirm" button */
+    ui.modal.confirm = function local_ui_modal_confirm(event:MouseEvent):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            box:HTMLElement = (function local_ui_modal_confirm_box():HTMLElement {
+                let el:HTMLElement = element;
+                do {
+                    el = <HTMLElement>el.parentNode;
+                } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+                return el;
+            }()),
+            options = data.modals[box.getAttribute("id")];
+
+        if (options.type === "export") {
+            ui.modal.import(event);
+        } else if (options.type === "inviteUser") {
+            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+            let inputs:HTMLCollectionOf<HTMLInputElement>;
+            inputs = box.getElementsByTagName("input");
+            options.text_value = `${inputs[0].value},${inputs[1].value},${box.getElementsByTagName("textarea")[0].value}`;
+            network.invite(element);
+            if (loadTest === false) {
+                network.settings();
+            }
+        } else if (options.type === "invitation") {
+            const close:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("close")[0],
+                para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
+                dataString:string = para[para.length - 1].innerHTML,
+                invite:invite = JSON.parse(dataString);
+            network.invitationAcceptance({
+                action: "invite-accept",
+                message: `Invite accepted: ${ui.util.dateFormat(new Date())}`,
+                name: data.name,
+                ip: invite.ip,
+                port: invite.port
+            });
+            close.click();
+        }
+    };
+
     /* Modal creation factory */
     ui.modal.create = function local_ui_modal_create(options:ui_modal):HTMLElement {
         let button:HTMLElement = document.createElement("button"),
@@ -1380,24 +1445,7 @@ import { settings } from "cluster";
                 button = document.createElement("button");
                 button.innerHTML = "✓ Confirm";
                 button.setAttribute("class", "confirm");
-                if (options.type === "export") {
-                    button.onclick = ui.modal.import;
-                } else if (options.type === "inviteUser") {
-                    button.onclick = function local_ui_modal_create_invite(event:MouseEvent):void {
-                        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-                        let invite:HTMLElement = element,
-                            inputs:HTMLCollectionOf<HTMLInputElement>;
-                        do {
-                            invite = <HTMLElement>invite.parentNode;
-                        } while (invite !== document.documentElement && invite.getAttribute("class") !== "box");
-                        inputs = box.getElementsByTagName("input");
-                        data.modals[invite.getAttribute("id")].text_value = `${inputs[0].value},${inputs[1].value},${box.getElementsByTagName("textarea")[0].value}`;
-                        network.invite(element);
-                        if (loadTest === false) {
-                            network.settings();
-                        }
-                    }
-                }
+                button.onclick = ui.modal.confirm;
                 extra.appendChild(button);
             }
             if (options.inputs.indexOf("cancel") > -1) {
@@ -2381,6 +2429,36 @@ import { settings } from "cluster";
         }
     };
 
+    /* Receive an invitation from another user */
+    ui.util.invitation = function local_ui_util_invitation(message:invite):void {
+        const div:HTMLElement = document.createElement("div");
+        let text:HTMLElement = document.createElement("h3"),
+            label:HTMLElement = document.createElement("label"),
+            textarea:HTMLTextAreaElement = document.createElement("textarea");
+        div.setAttribute("class", "userInvitation");
+        text.innerHTML = `User <strong>${message.name}</strong> from ${message.ip}:${message.port} is inviting you to share spaces.`;
+        div.appendChild(text);
+        text = document.createElement("p");
+        label.innerHTML = `${message.name} said:`;
+        textarea.value = message.message;
+        label.appendChild(textarea);
+        text.appendChild(label);
+        div.appendChild(text);
+        text = document.createElement("p");
+        text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
+        div.appendChild(text);
+        text = document.createElement("p");
+        text.innerHTML = JSON.stringify(message);
+        text.style.display = "none";
+        div.appendChild(text);
+        ui.modal.create({
+            content: div,
+            inputs: ["cancel", "confirm", "close"],
+            title: `Invitation from ${message.name}`,
+            type: "invitation"
+        });
+    };
+
     /* Interaction from the button on the login page */
     ui.util.login = function local_ui_util_login(event:KeyboardEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -2540,10 +2618,10 @@ import { settings } from "cluster";
     };
 
     /* Handle Web Socket responses */
-    ws.onmessage = function local_socketMessage(event:SocketEvent):void {
+    ws.onmessage = function local_socketMessage(event:SocketEvent):void {console.log(event.data);
         if (event.data === "reload") {
             location.reload();
-        } else if (event.data.indexOf("error-") === 0) {
+        } else if (event.data.indexOf("error:") === 0) {
             const data:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
                 tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
@@ -2551,7 +2629,7 @@ import { settings } from "cluster";
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
-        } else if (event.data.indexOf("fsUpdate-") === 0) {
+        } else if (event.data.indexOf("fsUpdate:") === 0) {
             const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
                 modalKeys:string[] = Object.keys(data.modals),
                 keyLength:number = modalKeys.length;
@@ -2586,6 +2664,8 @@ import { settings } from "cluster";
                     return true;
                 });
             }
+        } else if (event.data.indexOf("invite:") === 0) {
+            ui.util.invitation(JSON.parse(event.data.slice(7)));
         }
     };
     ws.onclose = function local_socketClose():void {

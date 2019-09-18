@@ -1389,7 +1389,7 @@ import { NetworkInterfaceInfo } from "os";
                                 stack: stackTrace.slice(1),
                                 error: errText.join(" ")
                             };
-                        ws.broadcast(`error-${JSON.stringify(server)}`);
+                        ws.broadcast(`error:${JSON.stringify(server)}`);
                     } else {
                         const stack:string = new Error().stack.replace("Error", `${text.cyan}Stack trace${text.none + node.os.EOL}-----------`);
                         flag.error = true;
@@ -2718,7 +2718,7 @@ import { NetworkInterfaceInfo } from "os";
                                                                 recursive: false
                                                             }, function node_apps_server_watch():void {
                                                                 if (value !== projectPath && value + sep !== projectPath) {
-                                                                    ws.broadcast(`fsUpdate-${value}`);
+                                                                    ws.broadcast(`fsUpdate:${value}`);
                                                                 }
                                                             });
                                                         }
@@ -2821,7 +2821,7 @@ import { NetworkInterfaceInfo } from "os";
                                             apps.makeDir(data.location[0], function node_apps_server_create_end_newDirectory():void {
                                                 response.writeHead(200, {"Content-Type": "text/plain"});
                                                 response.write(`${data.location[0]} created.`);
-                                                ws.broadcast(`fsUpdate-${dirs.join(slash)}`);
+                                                ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
                                                 response.end();
                                             });
                                         } else if (data.name === "file") {
@@ -2829,7 +2829,7 @@ import { NetworkInterfaceInfo } from "os";
                                                 if (erNewFile === null) {
                                                     response.writeHead(200, {"Content-Type": "text/plain"});
                                                     response.write(`${data.location[0]} created.`);
-                                                    ws.broadcast(`fsUpdate-${dirs.join(slash)}`);
+                                                    ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
                                                     response.end();
                                                 } else {
                                                     apps.error([erNewFile.toString()]);
@@ -2872,10 +2872,10 @@ import { NetworkInterfaceInfo } from "os";
                                         response.end();
                                     });
                                 });
-                            } else if (task === "inviteUser") {
-                                const data:inviteUser = JSON.parse(dataString),
+                            } else if (task === "invite-request") {
+                                const data:invite = JSON.parse(dataString),
                                     socket:Socket = new node.net.Socket();
-                                socket.connect(data.destinationPort, data.destinationIP, function node_apps_server_create_end_inviteConnect():void {
+                                socket.connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
                                     socket.write(`invite:{"name":"${data.name}","message":"${data.message}","originationIP":"${addresses[1][1]}","originationPort":"${serverPort}"}`);
                                 });
                                 socket.on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
@@ -3013,7 +3013,7 @@ import { NetworkInterfaceInfo } from "os";
                         } else if (extension === "css" || extension === "xhtml") {
                             ws.broadcast("reload");
                         } else {
-                            ws.broadcast(`fsUpdate-${projectPath}`);
+                            ws.broadcast(`fsUpdate:${projectPath}`);
                         }
                     });
                     server.on("error", serverError);
@@ -3035,7 +3035,10 @@ import { NetworkInterfaceInfo } from "os";
 
                     responder = node.net.createServer(function node_apps_server_start_server(socket:Socket):void {
                         socket.on("data", function node_apps_server_start_server_data(data:Buffer):void {
-                            console.log(data.toString());
+                            const message:string = data.toString();
+                            if (message.indexOf("invite:") === 0) {
+                                ws.broadcast(message);
+                            }
                         });
                         socket.on("error", function node_apps_server_start_server_error(data:Buffer):void {
                             console.log(data.toString());

@@ -4,9 +4,11 @@ type directoryItem = [string, "error" | "file" | "directory" | "link", number, n
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
-type modalType = "details" | "export" | "fileNavigate" | "inviteUser" | "shares" | "systems" | "textPad";
+type modalType = "details" | "export" | "fileNavigate" | "invitation" | "inviteUser" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceType = "fs-base64" | "fs-close" | "fs-copy" | "fs-cut" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "settings" | "messages";
+type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-cut" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
+type serviceInvite = "invite-accept" | "invite-request";
+type serviceType = serviceFS | serviceInvite | "messages" | "settings";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -77,9 +79,10 @@ interface fsDetails {
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
-interface inviteUser {
-    destinationIP: string;
-    destinationPort: number;
+interface invite {
+    action: serviceInvite;
+    ip: string;
+    port: number;
     message: string;
     name: string;
 }
@@ -106,6 +109,7 @@ interface navigate extends EventHandlerNonNull {
 interface network {
     fs?: (localService, callback:Function, id?:string) => void;
     invite?: (element:HTMLElement) => void;
+    invitationAcceptance?:(configuration:invite) => void;
     messages?: Function;
     settings?: Function;
 }
@@ -217,6 +221,7 @@ interface ui {
     };
     modal: {
         close?: EventHandlerNonNull;
+        confirm?: EventHandlerNonNull;
         create?: (options:ui_modal) => HTMLElement;
         export?: EventHandlerNonNull;
         import?: EventHandlerNonNull;
@@ -242,6 +247,7 @@ interface ui {
         delay?: () => HTMLElement;
         fixHeight?: functionEvent;
         invite?: modalSettings;
+        invitation?: (message:invite) => void;
         fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
