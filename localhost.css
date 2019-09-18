@@ -4,11 +4,12 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces{background-color:#cdf;background-image:url("../images/background-desert.jpg");background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces *:focus{outline:0.1em solid #39f;}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
+#spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 
 /* Login prompt */
 .login #spaces .title,
 .login #spaces #content-area{display:none}
-.login #spaces #login{background:#eee;border-color:#000;border-style:solid;border-width:0.1em;box-shadow:0.15em 0.15em 1em #99c;display:block;margin:8em auto 0;padding:2em;text-align:center;width:50em;}
+.login #spaces #login{background:#eee;border-color:#000;border-style:solid;border-width:0.1em;box-shadow:0.15em 0.15em 1em #99c;display:block;margin:0 auto;padding:2em;text-align:center;width:50em;}
 #spaces #login h1{font-size:6em;margin:0 0 0.5em}
 #spaces #login label,
 #spaces #login input,
@@ -51,7 +52,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #menuToggle{background:#eee;border-color:#999;border-style:solid;border-width:0.05em;display:inline-block;font-size:2.4em;height:2.1em;margin:0 1em 0 0;padding:0;width:2.1em}
 #spaces #menuToggle:hover{background:#fff}
 #spaces #menuToggle span{position:absolute;top:-200em}
-#spaces #content-area{overflow:scroll;margin:0;padding:0;position:relative}
 #spaces button{font-family:inherit}
 #spaces .icon-shareFiles{color:#09f}
 #spaces .icon-fileNavigator{color:#3a3}
@@ -118,8 +118,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .buttons button.maximize{background:#ddf;border-color:#009;color:#009}
 #spaces .box .buttons button.close{background:#fdd;border-color:#900;color:#900}
 #spaces .box h2.heading{border-style:none;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
-#spaces .box h2.heading button{background:#eee;border-color:#000;border-radius:0;border-style:solid;border-width:0.0555em;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
-#spaces .box .body{background:#fff;border-color:#000;border-style:none solid solid;border-width:0.1em;clear:both;height:20em;margin-top:-.1em;overflow:scroll;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
+#spaces .box h2.heading button{background:#eee;border-color:#000;border-radius:0;border-style:solid solid none;border-width:0.0555em;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
+#spaces .box .body{background:#fff;border-color:#000;border-style:solid;border-width:0.1em;clear:both;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
 #spaces .box .border{background:#ccc;border-color:#000;border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
 #spaces .box .corner-tl{background:transparent;border-color:#000;border-style:solid;border-width:0 0.1em 0.1em 0;cursor:nw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;top:0;width:2em;z-index:3}
 #spaces .box .corner-tr{background:transparent;border-color:#000;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;top:0;width:2em;z-index:3}
@@ -131,14 +131,14 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .side-l{background:transparent;border-style:none;cursor:ew-resize;font-size:1em;left:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
 #spaces .box .footer{background:#eee;border-color:#000;border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;text-align:right;z-index:4}
 #spaces .box .footer button{border-width:0.05em;font-weight:bold;margin:0 0 0 2em}
-#spaces .box .header{background:#fff;border-color:#000;border-style:none solid solid;border-width:0.1em 0.1em 0.18em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
+#spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
 #spaces .box .header span{display:block;position:absolute;top:-200em}
 #spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.2em;margin:0;padding:0;vertical-align:middle;width:100%}
 #spaces .fileList li input.error,
 #spaces .box .header .error{background:#fdd;color:#900;}
-#spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
-#spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
+#spaces .box button.cancel{background:#fdd;border-color:#900;color:#900;cursor:pointer}
+#spaces .box button.confirm{background:#dfd;border-color:#060;color:#060;cursor:pointer}
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;stroke:#cdf;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}

@@ -117,6 +117,8 @@ interface nodeCopyParams {
 }
 interface nodeError extends Error {
     code: string;
+    Error: Error;
+    port: number;
 }
 interface nodeFileProps {
     atime: number;

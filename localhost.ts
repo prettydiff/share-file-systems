@@ -3,27 +3,35 @@
     "use strict";
     const content:HTMLElement = document.getElementById("content-area"),
         pageBody:HTMLElement = document.getElementsByTagName("body")[0],
-        ws:WebSocket = new WebSocket(`ws://localhost:${(function local_webSocketsPort() {
-            const uri:string = location.href;
-            let domain:string = uri.slice(location.href.indexOf("host:") + 5),
-                index:number = domain.indexOf("/");
-            if (index > 0) {
-                domain = domain.slice(0, index);
+        domain:[string, number] = (function local_domain():[string, number] {
+            const dom:[string, number] = [location.href, 8080];
+            let port:string = dom[0].slice(dom[0].indexOf("//") + 2);
+            if (port.indexOf("/") > 0) {
+                port = port.slice(0, port.indexOf("/"));
             }
-            index = domain.indexOf("?");
-            if (index > 0) {
-                domain = domain.slice(0, index);
+            dom[0] = port;
+            if (dom.indexOf("?") > 0) {
+                dom[0] = dom[0].slice(0, dom[0].indexOf("?"));
             }
-            index = domain.indexOf("#");
-            if (index > 0) {
-                domain = domain.slice(0, index);
+            if (dom[0].indexOf(":") > 0) {
+                port = dom[0].slice(dom[0].lastIndexOf(":") + 1);
+                if (isNaN(Number(port)) === false) {
+                    dom[1] = Number(port);
+                }
+                dom[0] = dom[0].slice(0, dom[0].lastIndexOf(":"));
             }
-            index = Number(domain);
-            if (isNaN(index) === true) {
-                return 8080;
+            return dom;
+        }()),
+        wsPort:string = (function local_wsPort():string {
+            let str:string = pageBody.innerHTML;
+            str = str.slice(str.indexOf("<!--wsPort:") + 11);
+            str = str.slice(0, str.indexOf("-->"));
+            if (isNaN(Number(str)) === true) {
+                return "8081";
             }
-            return index;
-        }()) + 1}`),
+            return str;
+        }()),
+        ws:WebSocket = new WebSocket(`ws://${domain[0]}:${wsPort}`),
         network:network = {},
         ui:ui = {
             context: {},
@@ -450,8 +458,8 @@
     ui.context.fsNew = function local_ui_context_fsNew(element:HTMLElement, type:"directory" | "file"):void {
         const field:HTMLInputElement = document.createElement("input"),
             text:HTMLElement = document.createElement("label"),
-            action = <EventHandlerNonNull>function local_ui_context_fsNew_action(actionEvent:KeyboardEvent):void {
-                if ((actionEvent.type === "blur" && field.value.replace(/\s+/, "") !== "") || (actionEvent.type === "keyup" && actionEvent.keyCode === 13)) {
+            actionKeyboard = function local_ui_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
+                if (actionEvent.keyCode === 13) {
                     const value:string = field.value.replace(/(\s+|\.)$/, "");
                     field.value = value;
                     text.innerHTML = path + slash + value;
@@ -462,15 +470,32 @@
                         location: [(path + slash + value).replace(/\\/g, "\\\\")],
                         name: type,
                         watch: "no"
-                    }, function local_ui_context_fsNew_action_callback():void {
+                    }, function local_ui_context_fsNew_actionKeyboard_callback():void {
                         // todo: log in systems log
                     });
-                } else if (actionEvent.type === "keyup") {
+                } else {
                     if (actionEvent.keyCode === 27) {
                         element.removeChild(item);
                         return;
                     }
                     field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
+                }
+            },
+            actionBlur = function local_ui_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
+                if (actionEvent.type === "blur" && field.value.replace(/\s+/, "") !== "") {
+                    const value:string = field.value.replace(/(\s+|\.)$/, "");
+                    field.value = value;
+                    text.innerHTML = path + slash + value;
+                    network.fs({
+                        action: "fs-new",
+                        agent: "self",
+                        depth: 1,
+                        location: [(path + slash + value).replace(/\\/g, "\\\\")],
+                        name: type,
+                        watch: "no"
+                    }, function local_ui_context_fsNew_actionBlur_callback():void {
+                        // todo: log in systems log
+                    });
                 }
             },
             build = function local_ui_context_fsNew_build():HTMLElement {
@@ -487,8 +512,8 @@
                 text.oncontextmenu = ui.context.menu;
                 text.onclick = ui.fs.select;
                 text.innerHTML = path + slash;
-                field.onkeyup = action;
-                field.onblur = action;
+                field.onkeyup = actionKeyboard;
+                field.onblur = actionBlur;
                 text.appendChild(field);
                 li.appendChild(text);
                 span = document.createElement("span");
@@ -1154,11 +1179,15 @@
                 name: "",
                 watch: watchValue
             }, function local_ui_fs_text_callback(responseText:string):void {
-                parent.innerHTML = "";
-                parent.appendChild(ui.fs.list(element.value, responseText));
-                data.modals[id].text_value = element.value;
-                element.removeAttribute("class");
-                network.settings();
+                if (responseText === "") {
+                    parent.innerHTML = "<p class=\"error\">Location not found.</p>";
+                } else {
+                    parent.innerHTML = "";
+                    parent.appendChild(ui.fs.list(element.value, responseText));
+                    data.modals[id].text_value = element.value;
+                    element.removeAttribute("class");
+                    network.settings();
+                }
             });
         }
     };
@@ -2183,6 +2212,7 @@
     /* Resizes the interactive area to fit the browser viewport */
     ui.util.fixHeight = function local_ui_util_fixHeight():void {
         const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
+        document.getElementById("spaces").style.height = `${height / 10}em`;
         content.style.height = `${(height - 51) / 10}em`;
         document.getElementById("users").style.height = `${(height - 102) / 10}em`;
     };
@@ -2302,6 +2332,7 @@
                 data.name = input.value;
                 ui.util.addUser(input.value, "localhost");
                 pageBody.removeAttribute("class");
+                network.settings();
             }
         }
     };
@@ -2458,7 +2489,7 @@
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
-        } else if (event.data.indexOf("fsUpdate-") === 0) {
+        } else if (event.data.indexOf("fsUpdate-") === 0) {console.log(event.data);
             const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
                 modalKeys:string[] = Object.keys(data.modals),
                 keyLength:number = modalKeys.length;
@@ -2719,7 +2750,7 @@
                                             let b:number = 0,
                                                 inputs:HTMLCollectionOf<HTMLInputElement>;
                                             do {
-                                                list[b].setAttribute("class", list[b].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, "") + " selected");
+                                                list[b].setAttribute("class", list[b].getAttribute("class").replace(/(\s+selected)+/, "") + " selected");
                                                 inputs = list[b].getElementsByTagName("input");
                                                 inputs[inputs.length - 1].checked = true;
                                                 b = b + 1;
@@ -2827,13 +2858,7 @@
                                     a = a + 1;
                                 } while (a < userLength);
                             }
-
-                            if (storage.settings.name === undefined || storage.settings.name === "") {
-                                pageBody.setAttribute("class", "login");
-                            } else {
-                                data.name = storage.settings.name;
-                                ui.util.addUser(storage.settings.name, "localhost");
-                            }
+                            
                             if (modalKeys.length < 1) {
                                 loadComplete();
                             }
@@ -2912,6 +2937,12 @@
                 }
                 a = a + 1;
             } while (a < commentLength);
+            if (storage === undefined || storage.settings === undefined || storage.settings.name === undefined) {
+                pageBody.setAttribute("class", "login");
+            } else {
+                data.name = storage.settings.name;
+                ui.util.addUser(storage.settings.name, "localhost");
+            }
         }());
     }());
 }());
