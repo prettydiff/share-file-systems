@@ -111,6 +111,9 @@ interface messages {
     users: messageList[];
     errors: messageListError[];
 }
+interface modalSettings extends EventHandlerNonNull {
+    (Event, user?:string, configuration?:ui_modal): void;
+}
 interface navigate extends EventHandlerNonNull {
     (Event, path?:string): void;
 }
@@ -161,9 +164,6 @@ interface readFile {
 interface serverError {
     stack: string[];
     error: string;
-}
-interface modalSettings extends EventHandlerNonNull {
-    (Event, user?:string, configuration?:ui_modal): void;
 }
 interface simulationItem {
     artifact?: string;
@@ -255,7 +255,7 @@ interface ui {
         delay?: () => HTMLElement;
         fixHeight?: functionEvent;
         invite?: modalSettings;
-        invitation?: (message:invite) => void;
+        invitation?: (message:string) => void;
         fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;

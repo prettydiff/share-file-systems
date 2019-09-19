@@ -15,11 +15,13 @@
 
 ## Diagram of Message Flow
 ```
- _            __               __               _
-|_| 1,2----> |  | 3---------> |  | 4---------> |_| 5,6
-10  <------9 |__| <---------8 |__| <---------7
-
-start        start            remote           remote
-user         node             node             user
-(browser)    (local service)  (local service)  (browser)
+Start user, sending invitation  | End user, receiving the invitation
+--------------------------------|-----------------------------------
+ _            ___               |    ___               _
+|_| 1,2----> |   | 3------------|-> |   | 4---------> |_| 5,6
+10  <------9 |___| <------------|-8 |___| <---------7
+                                | 
+start        start              |   remote           remote
+user         node               |   node             user
+(browser)    (local service)    |   (local service)  (browser)
 ```

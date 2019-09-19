@@ -1382,7 +1382,7 @@ import { NetworkInterfaceInfo } from "os";
                         process.exit(1);
                     }
                 },
-                error = function node_apps_error_error():void {
+                errorOut = function node_apps_error_errorOut():void {
                     if (command === "server") {
                         const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
                             server:serverError = {
@@ -1401,7 +1401,7 @@ import { NetworkInterfaceInfo } from "os";
                         if (errText[0] === "" && errText.length < 2) {
                             console.log(`${text.yellow}No error message supplied${text.none}`);
                         } else {
-                            errText.forEach(function node_apps_error_each(value:string):void {
+                            errText.forEach(function node_apps_error_errorOut_each(value:string):void {
                                 console.log(value);
                             });
                         }
@@ -1457,7 +1457,7 @@ import { NetworkInterfaceInfo } from "os";
             if (process.argv.indexOf("spaces_debug") > -1) {
                 debug();
             } else {
-                error();
+                errorOut();
             }
         };
         // http(s) get function
@@ -2877,7 +2877,7 @@ import { NetworkInterfaceInfo } from "os";
                                 if (data.action === "invite-request") {
                                     const socket:Socket = new node.net.Socket();
                                     socket.connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
-                                        socket.write(`invite:{"name":"${data.name}","message":"${data.message}","ip":"${addresses[1][1]}","port":"${serverPort}"}`);
+                                        socket.write(`invite:{"ip":"${addresses[1][1]}","family":"${data.family}","message":"${data.message}","name":"${data.name}","port":"${serverPort}"}`);
                                     });
                                     socket.on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
                                         console.log(socketData);

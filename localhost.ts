@@ -41,7 +41,7 @@ import { settings } from "cluster";
         },
         characterKey:characterKey = "";
 
-    /* Removes a file system artifact */
+    /* Accesses the file system */
     network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
@@ -130,11 +130,13 @@ import { settings } from "cluster";
             inputs[1].focus();
             return;
         }
+        messageTransmit = false;
         body.innerHTML = "";
         body.appendChild(ui.util.delay());
         footer.parentNode.removeChild(footer);
         xhr.onreadystatechange = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
+                messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
                     ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
@@ -151,10 +153,12 @@ import { settings } from "cluster";
         if (loadTest === true || messageTransmit === false) {
             return;
         }
+        messageTransmit = false;
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
+                messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
                     ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
@@ -2420,21 +2424,22 @@ import { settings } from "cluster";
     };
 
     /* Receive an invitation from another user */
-    ui.util.invitation = function local_ui_util_invitation(message:invite):void {
+    ui.util.invitation = function local_ui_util_invitation(message:string):void {
         const div:HTMLElement = document.createElement("div");
         let text:HTMLElement = document.createElement("h3"),
             label:HTMLElement = document.createElement("label"),
+            invite:invite = JSON.parse(message),
             textarea:HTMLTextAreaElement = document.createElement("textarea");
         div.setAttribute("class", "userInvitation");
-        if (message.family === "ipv4") {
-            text.innerHTML = `User <strong>${message.name}</strong> from ${message.ip}:${message.port} is inviting you to share spaces.`;
+        if (invite.family === "ipv4") {
+            text.innerHTML = `User <strong>${invite.name}</strong> from ${invite.ip}:${invite.port} is inviting you to share spaces.`;
         } else {
-            text.innerHTML = `User <strong>${message.name}</strong> from [${message.ip}]:${message.port} is inviting you to share spaces.`;
+            text.innerHTML = `User <strong>${invite.name}</strong> from [${invite.ip}]:${invite.port} is inviting you to share spaces.`;
         }
         div.appendChild(text);
         text = document.createElement("p");
-        label.innerHTML = `${message.name} said:`;
-        textarea.value = message.message;
+        label.innerHTML = `${invite.name} said:`;
+        textarea.value = invite.message;
         label.appendChild(textarea);
         text.appendChild(label);
         div.appendChild(text);
@@ -2442,13 +2447,13 @@ import { settings } from "cluster";
         text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
         div.appendChild(text);
         text = document.createElement("p");
-        text.innerHTML = JSON.stringify(message);
+        text.innerHTML = message;
         text.style.display = "none";
         div.appendChild(text);
         ui.modal.create({
             content: div,
             inputs: ["cancel", "confirm", "close"],
-            title: `Invitation from ${message.name}`,
+            title: `Invitation from ${invite.name}`,
             type: "invitation"
         });
     };
@@ -2659,7 +2664,7 @@ import { settings } from "cluster";
                 });
             }
         } else if (event.data.indexOf("invite:") === 0) {
-            ui.util.invitation(JSON.parse(event.data.slice(7)));
+            ui.util.invitation(event.data.slice(7));
         }
     };
     ws.onclose = function local_socketClose():void {
