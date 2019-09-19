@@ -4,35 +4,16 @@ import { settings } from "cluster";
     "use strict";
     const content:HTMLElement = document.getElementById("content-area"),
         pageBody:HTMLElement = document.getElementsByTagName("body")[0],
-        domain:[string, number] = (function local_domain():[string, number] {
-            const dom:[string, number] = [location.href, 8080];
-            let port:string = dom[0].slice(dom[0].indexOf("//") + 2);
-            if (port.indexOf("/") > 0) {
-                port = port.slice(0, port.indexOf("/"));
-            }
-            dom[0] = port;
-            if (dom.indexOf("?") > 0) {
-                dom[0] = dom[0].slice(0, dom[0].indexOf("?"));
-            }
-            if (dom[0].indexOf(":") > 0) {
-                port = dom[0].slice(dom[0].lastIndexOf(":") + 1);
-                if (isNaN(Number(port)) === false) {
-                    dom[1] = Number(port);
-                }
-                dom[0] = dom[0].slice(0, dom[0].lastIndexOf(":"));
-            }
-            return dom;
-        }()),
-        wsPort:string = (function local_wsPort():string {
-            let str:string = pageBody.innerHTML;
-            str = str.slice(str.indexOf("<!--wsPort:") + 11);
+        localNetwork:localNetwork = (function local_network():localNetwork {
+            let str:string = pageBody.innerHTML,
+                pattern:string = "<!--network:";
+            str = str.slice(str.indexOf(pattern) + pattern.length);
             str = str.slice(0, str.indexOf("-->"));
-            if (isNaN(Number(str)) === true) {
-                return "8081";
-            }
-            return str;
+            return JSON.parse(str);
         }()),
-        ws:WebSocket = new WebSocket(`ws://${domain[0]}:${wsPort}`),
+        ws:WebSocket = (localNetwork.family === "ipv4")
+            ? new WebSocket(`ws://${localNetwork.ip}:${localNetwork.wsPort}`)
+            : new WebSocket(`ws://[${localNetwork.ip}]:${localNetwork.wsPort}`),
         network:network = {},
         ui:ui = {
             context: {},
@@ -134,10 +115,12 @@ import { settings } from "cluster";
                 : Number(inputs[1].value),
             inviteData:invite = {
                 action: "invite-request",
+                family: <"ipv4"|"ipv6">inputs[2].value,
                 ip: inputs[0].value,
                 port: port,
                 message: box.getElementsByTagName("textarea")[0].value,
                 name: data.name,
+                shares: JSON.stringify(data.shares.localhost)
             };
         if (inviteData.ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.ip) === false && (/([a-f0-9]{4}:)+/).test(inviteData.ip) === false)) {
             inputs[0].focus();
@@ -1283,11 +1266,18 @@ import { settings } from "cluster";
                 invite:invite = JSON.parse(dataString);
             network.invitationAcceptance({
                 action: "invite-accept",
+                family: invite.family,
                 message: `Invite accepted: ${ui.util.dateFormat(new Date())}`,
                 name: data.name,
                 ip: invite.ip,
-                port: invite.port
+                port: invite.port,
+                shares: invite.shares
             });
+            if (invite.ip.indexOf(":") > 0) {
+                ui.util.addUser(invite.name, `[${invite.ip}]:${invite.port}`);
+            } else {
+                ui.util.addUser(invite.name, `${invite.ip}:${invite.port}`);
+            }
             close.click();
         }
     };
@@ -2436,7 +2426,11 @@ import { settings } from "cluster";
             label:HTMLElement = document.createElement("label"),
             textarea:HTMLTextAreaElement = document.createElement("textarea");
         div.setAttribute("class", "userInvitation");
-        text.innerHTML = `User <strong>${message.name}</strong> from ${message.ip}:${message.port} is inviting you to share spaces.`;
+        if (message.family === "ipv4") {
+            text.innerHTML = `User <strong>${message.name}</strong> from ${message.ip}:${message.port} is inviting you to share spaces.`;
+        } else {
+            text.innerHTML = `User <strong>${message.name}</strong> from [${message.ip}]:${message.port} is inviting you to share spaces.`;
+        }
         div.appendChild(text);
         text = document.createElement("p");
         label.innerHTML = `${message.name} said:`;

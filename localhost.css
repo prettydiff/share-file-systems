@@ -202,6 +202,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .messageList .expansion,
 #spaces .fileList .expansion{background:#eee;border-color:#333;color:#333;font-size:1.075em;line-height:1;margin:0 2.4em 0 -3.9em}
 
+#spaces .userInvitation{padding:1em}
+#spaces .userInvitation h3{font-weight:normal;margin:0}
+#spaces .userInvitation p{font-size:1.5em}
+#spaces .userInvitation textarea{display:block;height:5em;width:100%}
+
 /* code for testing */
 /*
 #spaces .box .corner-tl{background:red;}

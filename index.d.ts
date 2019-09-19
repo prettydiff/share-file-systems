@@ -81,10 +81,18 @@ interface functionEvent extends EventHandlerNonNull {
 }
 interface invite {
     action: serviceInvite;
+    family: "ipv4" | "ipv6";
     ip: string;
     port: number;
     message: string;
     name: string;
+    shares: string;
+}
+interface localNetwork {
+    family: "ipv4" | "ipv6";
+    ip: string;
+    port: number;
+    wsPort: number;
 }
 interface localService {
     action: serviceType;

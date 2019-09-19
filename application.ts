@@ -5,7 +5,7 @@
 import * as http from "http";
 import { Stream, Writable } from "stream";
 import { Hash } from "crypto";
-import { TcpNetConnectOpts, Socket, TcpSocketConnectOpts, Server } from "net";
+import { Socket } from "net";
 import { NetworkInterfaceInfo } from "os";
 
 (function init() {
@@ -2361,9 +2361,9 @@ import { NetworkInterfaceInfo } from "os";
         // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
         apps.server = function node_apps_server():void {
             let timeStore:number = 0,
-                serverPort:number = 0,
-                webPort:number = 0,
-                wsPort:number = 0,
+                serverPort:number = 0, // serverPort - for TCP sockets across the network
+                webPort:number = 0, // webPort - http port for requests from browser
+                wsPort:number = 0, // wsPort - web socket port for requests from node
                 interfaceLongest:number = 0,
                 responder:any;
             const browser:boolean = (function node_apps_server_browser():boolean {
@@ -2374,9 +2374,9 @@ import { NetworkInterfaceInfo } from "os";
                     }
                     return false;
                 }()),
-                addresses:[string, string][] = (function node_apps_server_addresses():[string, string][] {
+                addresses:[string, string, string][] = (function node_apps_server_addresses():[string, string, string][] {
                     const interfaces:NetworkInterfaceInfo = node.os.networkInterfaces(),
-                        store:[string, string][] = [],
+                        store:[string, string, string][] = [],
                         keys:string[] = Object.keys(interfaces),
                         length:number = keys.length;
                     let a:number = 0,
@@ -2405,12 +2405,12 @@ import { NetworkInterfaceInfo } from "os";
                             b = b + 1;
                         } while (b < interfaces[keys[a]].length);
                         if (ipv6 > -1) {
-                            store.push([keys[a], interfaces[keys[a]][ipv6].address]);
+                            store.push([keys[a], interfaces[keys[a]][ipv6].address, "ipv6"]);
                             if (ipv4 > -1) {
-                                store.push(["", interfaces[keys[a]][ipv4].address]);
+                                store.push(["", interfaces[keys[a]][ipv4].address, "ipv4"]);
                             }
                         } else if (ipv4 > -1) {
-                            store.push([keys[a], interfaces[keys[a]][ipv4].address]);
+                            store.push([keys[a], interfaces[keys[a]][ipv4].address, "ipv4"]);
                         }
                         if (keys[a].length > interfaceLongest && interfaces[keys[a]][0].internal === false) {
                             interfaceLongest = keys[a].length;
@@ -2501,7 +2501,7 @@ import { NetworkInterfaceInfo } from "os";
                                                     appliedData = function node_apps_server_create_readFile_appliedData():string {
                                                         const start:string = "<!--storage:-->",
                                                             startLength:number = data.indexOf(start) + start.length - 3,
-                                                            dataString:string = data.replace("<!--wsPort:-->", `<!--wsPort:${wsPort}-->`);
+                                                            dataString:string = data.replace("<!--network:-->", `<!--network:{"family":"${addresses[1][2]}","ip":"${addresses[1][1]}","port":${webPort},"wsPort":${wsPort}}-->`);
                                                         return `${dataString.slice(0, startLength)}{${list.join(",")}}${dataString.slice(startLength)}`;
                                                     };
                                                 tool = true;
@@ -2872,15 +2872,19 @@ import { NetworkInterfaceInfo } from "os";
                                         response.end();
                                     });
                                 });
-                            } else if (task === "invite-request") {
-                                const data:invite = JSON.parse(dataString),
-                                    socket:Socket = new node.net.Socket();
-                                socket.connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
-                                    socket.write(`invite:{"name":"${data.name}","message":"${data.message}","originationIP":"${addresses[1][1]}","originationPort":"${serverPort}"}`);
-                                });
-                                socket.on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
-                                    console.log(socketData);
-                                });
+                            } else if (task === "invite") {
+                                const data:invite = JSON.parse(dataString);
+                                if (data.action === "invite-request") {
+                                    const socket:Socket = new node.net.Socket();
+                                    socket.connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
+                                        socket.write(`invite:{"name":"${data.name}","message":"${data.message}","ip":"${addresses[1][1]}","port":"${serverPort}"}`);
+                                    });
+                                    socket.on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
+                                        console.log(socketData);
+                                    });
+                                } else if (data.action === "invite-accept") {
+                                    ws.broadcast("invite:");
+                                }
                             }
                         });
                     }
@@ -3057,7 +3061,7 @@ import { NetworkInterfaceInfo } from "os";
                         console.log("Local IP addresses are:");
                         {
                             let a:number = 0;
-                            addresses.forEach(function node_apps_server_localAddresses(value:[string, string]):void {
+                            addresses.forEach(function node_apps_server_localAddresses(value:[string, string, string]):void {
                                 a = value[0].length;
                                 if (a < interfaceLongest) {
                                     do {
