@@ -4,11 +4,10 @@ type directoryItem = [string, "error" | "file" | "directory" | "link", number, n
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
-type modalType = "details" | "export" | "fileNavigate" | "invitation" | "inviteUser" | "shares" | "systems" | "textPad";
+type modalType = "details" | "export" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-cut" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
-type serviceInvite = "invite-accept" | "invite-request";
-type serviceType = serviceFS | serviceInvite | "messages" | "settings";
+type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
 interface applications {
@@ -80,13 +79,19 @@ interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
 interface invite {
-    action: serviceInvite;
+    action: "invite-status";
     family: "ipv4" | "ipv6";
     ip: string;
-    port: number;
     message: string;
+    modal: string;
     name: string;
-    shares: string;
+    port: number;
+    shares: [string, string][];
+    status: "accepted" | "declined" | "invited";
+}
+interface inviteError {
+    error: string;
+    modal: string;
 }
 interface localNetwork {
     family: "ipv4" | "ipv6";
@@ -119,7 +124,7 @@ interface navigate extends EventHandlerNonNull {
 }
 interface network {
     fs?: (localService, callback:Function, id?:string) => void;
-    invite?: (element:HTMLElement) => void;
+    invite?: (configuration:invite) => void;
     invitationAcceptance?:(configuration:invite) => void;
     messages?: Function;
     settings?: Function;
@@ -229,6 +234,7 @@ interface ui {
     };
     modal: {
         close?: EventHandlerNonNull;
+        closeDecline?: (event:MouseEvent, action:Function) => void;
         confirm?: EventHandlerNonNull;
         create?: (options:ui_modal) => HTMLElement;
         export?: EventHandlerNonNull;
@@ -249,13 +255,13 @@ interface ui {
         tabs?: EventHandlerNonNull;
     };
     util: {
-        addUser?: (username:string, ip:string) => void;
+        addUser?: (username:string, shares:[string, string][]) => void;
         commas?: (number:number) => string;
         dateFormat?: (date:Date) => string;
         delay?: () => HTMLElement;
         fixHeight?: functionEvent;
-        invite?: modalSettings;
-        invitation?: (message:string) => void;
+        inviteStart?: modalSettings;
+        inviteRespond?: (message:string) => void;
         fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;

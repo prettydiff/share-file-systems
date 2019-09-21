@@ -7,6 +7,9 @@ import { Stream, Writable } from "stream";
 import { Hash } from "crypto";
 import { Socket } from "net";
 import { NetworkInterfaceInfo } from "os";
+interface socketList {
+    [key:string]: Socket;
+}
 
 (function init() {
     "use strict";
@@ -2365,7 +2368,8 @@ import { NetworkInterfaceInfo } from "os";
                 webPort:number = 0, // webPort - http port for requests from browser
                 wsPort:number = 0, // wsPort - web socket port for requests from node
                 interfaceLongest:number = 0,
-                responder:any;
+                responder:any,
+                socketList:socketList = {};
             const browser:boolean = (function node_apps_server_browser():boolean {
                     const index:number = process.argv.indexOf("browser");
                     if (index > -1) {
@@ -2874,17 +2878,23 @@ import { NetworkInterfaceInfo } from "os";
                                 });
                             } else if (task === "invite") {
                                 const data:invite = JSON.parse(dataString);
-                                if (data.action === "invite-request") {
-                                    const socket:Socket = new node.net.Socket();
-                                    socket.connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
-                                        socket.write(`invite:{"ip":"${addresses[1][1]}","family":"${data.family}","message":"${data.message}","name":"${data.name}","port":"${serverPort}"}`);
-                                    });
-                                    socket.on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
-                                        console.log(socketData);
-                                    });
-                                } else if (data.action === "invite-accept") {
-                                    ws.broadcast("invite:");
+                                if (socketList[data.ip] === undefined) {
+                                    socketList[data.ip] = new node.net.Socket();
                                 }
+                                socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
+                                    socketList[data.ip].write(`invite:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
+                                });
+                                socketList[data.ip].on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
+                                    console.log(socketData);
+                                });
+                                socketList[data.ip].on("error", function node_app_server_create_end_error(errorMessage:nodeError):void {
+                                    console.log(errorMessage);
+                                    apps.error([errorMessage]);
+                                    ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
+                                    if (socketList[data.ip] !== undefined) {
+                                        socketList[data.ip].destroy();
+                                    }
+                                });
                             }
                         });
                     }
@@ -3027,24 +3037,24 @@ import { NetworkInterfaceInfo } from "os";
                         ? 0
                         : webPort + 1;
 
-                    ws = new socket.Server({port: wsPort});
+                    ws = new webSocket.Server({port: wsPort});
                     ws.broadcast = function node_apps_server_start_broadcast(data:string):void {
                         ws.clients.forEach(function node_apps_server_start_broadcast_clients(client):void {
-                            if (client.readyState === socket.OPEN) {
+                            if (client.readyState === webSocket.OPEN) {
                                 client.send(data);
                             }
                         });
                     };
                     wsPort = ws.address().port;
 
-                    responder = node.net.createServer(function node_apps_server_start_server(socket:Socket):void {
-                        socket.on("data", function node_apps_server_start_server_data(data:Buffer):void {
+                    responder = node.net.createServer(function node_apps_server_start_listener(response:Socket):void {
+                        response.on("data", function node_apps_server_start_listener_data(data:Buffer):void {
                             const message:string = data.toString();
-                            if (message.indexOf("invite:") === 0) {
+                            if (message.indexOf("invite:") === 0 && message !== "invite:") {
                                 ws.broadcast(message);
                             }
                         });
-                        socket.on("error", function node_apps_server_start_server_error(data:Buffer):void {
+                        response.on("error", function node_apps_server_start_listener_error(data:Buffer):void {
                             console.log(data.toString());
                         });
                     });
@@ -3090,7 +3100,7 @@ import { NetworkInterfaceInfo } from "os";
                         }
                     });
                 },
-                socket = require("ws");
+                webSocket = require("ws");
             if (process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
                 apps.error([`Specified port, ${text.angry + process.argv[0] + text.none}, is not a number.`]);
                 return;

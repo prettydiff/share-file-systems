@@ -1,11 +1,14 @@
 
-add family to type "invite" where values are "ipv4" and "ipv6"
+## defect
+1. explore latent or ghosted socket messages which can cause additional unnecessary modals to spawn
+2. refresh should respawn and repopulate an invitation modal
 
 ## service
-1 - menu item for connecting to a user by address and port
-2 - on the other side accept or deny the request
-    2a - add the user if they accept
-    2b - provide messaging of denial
+1 - User status at 20 second rotations (recursive not timed intervals) send a heartbeat to each user.  Values are:
+    active - user is currently using the software
+    idle - user has no keyboard/mouse activity in contentArea in a minute
+    offline - heartbeat fail
+2 - shares should be read only by default with an option for all rights
 
 ## gui
 1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]
@@ -19,7 +22,6 @@ add family to type "invite" where values are "ipv4" and "ipv6"
     b - display, such as "File Navigator - localhost"
 
 ## file list
-1 - allow file selections to be read only by default
 2 - navigation security, do not allow parent navigation beyond a share
 
 ## copy/paste via messaging
