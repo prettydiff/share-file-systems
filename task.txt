@@ -4,11 +4,7 @@
 2. refresh should respawn and repopulate an invitation modal
 
 ## service
-1 - User status at 20 second rotations (recursive not timed intervals) send a heartbeat to each user.  Values are:
-    active - user is currently using the software
-    idle - user has no keyboard/mouse activity in contentArea in a minute
-    offline - heartbeat fail
-2 - shares should be read only by default with an option for all rights
+1 - shares should be read only by default with an option for all rights
 
 ## gui
 1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]

@@ -1,6 +1,7 @@
 
 type characterKey = "" | "control" | "shift";
 type directoryItem = [string, "error" | "file" | "directory" | "link", number, number, Stats];
+type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
@@ -78,6 +79,12 @@ interface fsDetails {
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
+interface heartbeat {
+    ip: string;
+    port: number;
+    status: heartbeatStatus;
+    user: string;
+}
 interface invite {
     action: "invite-status";
     family: "ipv4" | "ipv6";
@@ -98,6 +105,7 @@ interface localNetwork {
     ip: string;
     port: number;
     wsPort: number;
+    serverPort: number;
 }
 interface localService {
     action: serviceType;
@@ -124,8 +132,9 @@ interface navigate extends EventHandlerNonNull {
 }
 interface network {
     fs?: (localService, callback:Function, id?:string) => void;
-    invite?: (configuration:invite) => void;
-    invitationAcceptance?:(configuration:invite) => void;
+    heartbeat?: (status:"active"|"idle") => void;
+    inviteAccept?:(configuration:invite) => void;
+    inviteRequest?: (configuration:invite) => void;
     messages?: Function;
     settings?: Function;
 }

@@ -1,5 +1,3 @@
-import { settings } from "cluster";
-import { platform } from "os";
 
 (function local():void {
     "use strict";
@@ -72,8 +70,46 @@ import { platform } from "os";
         }));
     };
 
+    /* Provides active user status from across the network about every minute */
+    network.heartbeat = function local_network_heartbeat(status:string):void {
+        const xhr:XMLHttpRequest = new XMLHttpRequest(),
+            loc:string = location.href.split("?")[0],
+            users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
+            length:number = users.length;
+        let ip:string,
+            port:number,
+            user:string,
+            a:number = 0,
+            local:string = document.getElementById("localhost").innerHTML;
+        local = (localNetwork.ip.indexOf(":") > 0)
+            ? `${local.slice(0, local.indexOf("@"))}@[${localNetwork.ip}]:${localNetwork.serverPort}`
+            : `${local.slice(0, local.indexOf("@"))}@${localNetwork.ip}:${localNetwork.serverPort}`;
+        do {
+            user = users[a].innerHTML;
+            if (user.indexOf("@") > 0 && user.indexOf("@localhost") < 0) {
+                ip = user.slice(user.indexOf("@") + 1, user.lastIndexOf(":"));
+                port = Number(user.slice(user.lastIndexOf(":") + 1));
+                xhr.onreadystatechange = function local_network_fs_readyState():void {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200 || xhr.status === 0) {
+                            console.log(`${xhr.status} for heartbeat`);
+                        } else {
+                            ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending heartbeat","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                            network.messages();
+                        }
+                    }
+                };
+                xhr.withCredentials = true;
+                xhr.open("POST", loc, true);
+                xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+                xhr.send(`heartbeat:{"ip":"${ip}","port":${port},"status":"${status}","user":"${local}"}`);
+            }
+            a = a + 1;
+        } while (a < length);
+    };
+
     /* Confirmed response to a user invitation */
-    network.invitationAcceptance = function local_network_invitationAcceptance(configuration:invite):void {
+    network.inviteAccept = function local_network_invitationAcceptance(configuration:invite):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         messageTransmit = false;
@@ -84,7 +120,7 @@ import { platform } from "os";
                 if (xhr.status === 200 || xhr.status === 0) {
                     // todo log invitation acceptance in system log
                 } else {
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} to ${configuration.ip}:${configuration.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                     network.messages();
                 }
             }
@@ -92,20 +128,18 @@ import { platform } from "os";
         xhr.withCredentials = true;
         xhr.open("POST", loc, true);
         xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({
-            invite: configuration
-        }));
+        xhr.send(JSON.stringify({invite: configuration}));
     };
 
     /* Invite other users */
-    network.invite = function local_network_invite(inviteData:invite):void {
+    network.inviteRequest = function local_network_invite(inviteData:invite):void {
         const xhr:XMLHttpRequest = new XMLHttpRequest(),
             loc:string = location.href.split("?")[0];
         xhr.onreadystatechange = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 }
             }
         };
@@ -1272,7 +1306,7 @@ import { platform } from "os";
             }
             body.appendChild(ui.util.delay());
             options.text_value = `${inputs[0].value},${inputs[1].value},${box.getElementsByTagName("textarea")[0].value}`;
-            network.invite(inviteData);
+            network.inviteRequest(inviteData);
             if (loadTest === false) {
                 network.settings();
             }
@@ -1284,7 +1318,7 @@ import { platform } from "os";
             const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
                 dataString:string = para[para.length - 1].innerHTML,
                 invite:invite = JSON.parse(dataString);
-            network.invitationAcceptance({
+            network.inviteAccept({
                 action: "invite-status",
                 family: invite.family,
                 message: `Invite accepted: ${ui.util.dateFormat(new Date())}`,
@@ -1419,7 +1453,7 @@ import { platform } from "os";
                                     para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
                                     dataString:string = para[para.length - 1].innerHTML,
                                     invite:invite = JSON.parse(dataString);
-                                network.invitationAcceptance({
+                                network.inviteAccept({
                                     action: "invite-status",
                                     family: invite.family,
                                     message: `Invite declined: ${ui.util.dateFormat(new Date())}`,
@@ -2205,13 +2239,32 @@ import { platform } from "os";
 
     /* Adds users to the user bar */
     ui.util.addUser = function local_ui_util_addUser(userName:string, shares?:[string, string][]):void {
-        const li:HTMLLIElement = document.createElement("li"),
+        const heartbeat = function local_ui_util_addUser_heartbeat():void {
+                const locationData:string = userName.split("@")[1],
+                    port:string = locationData.slice(locationData.lastIndexOf(":") + 1),
+                    ip:string = (locationData.charAt(0) === "[")
+                        ? locationData.slice(1, locationData.indexOf("]"))
+                        : locationData.slice(0, locationData.indexOf(":")),
+                    user:string = (localNetwork.family === "ipv4")
+                        ? `${userName.slice(0, userName.indexOf("@"))}@${ip}:${port}`
+                        : `${userName.slice(0, userName.indexOf("@"))}@[${ip}]:${port}`,
+                    interval = function local_ui_util_addUser_heartbeat_interval():void {
+                        /*network.heartbeat({
+                            ip: ip,
+                            port: Number(port),
+                            status: <"active"|"idle">document.getElementById("localhost").getAttribute("class"),
+                            user: user
+                        });*/
+                    };
+                interval();
+            },
+            li:HTMLLIElement = document.createElement("li"),
             button:HTMLElement = document.createElement("button");
         button.innerHTML = userName;
         if (userName.split("@")[1] === "localhost") {
             button.setAttribute("class", "active");
         } else {
-            button.setAttribute("class", "active");
+            button.setAttribute("class", "offline");
             data.shares[userName] = shares;
         }
         button.onclick = function local_ui_util_addUser(event:MouseEvent) {
@@ -2219,6 +2272,11 @@ import { platform } from "os";
         };
         li.appendChild(button);
         document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
+        if (userName.indexOf("@localhost") < 0) {
+            //heartbeat();
+        } else {
+            button.setAttribute("id", "localhost");
+        }
     };
 
     /* Transforms numbers into a string of 3 digit comma separated groups */
@@ -2518,7 +2576,7 @@ import { platform } from "os";
             });
             network.settings();
         } else {
-            const modal:HTMLElement = document.getElementById(invite.modal);console.log(modal);
+            const modal:HTMLElement = document.getElementById(invite.modal);
             if (modal === null) {
                 if (invite.status === "accepted") {
                     if (invite.family === "ipv4") {
@@ -2719,14 +2777,14 @@ import { platform } from "os";
     };
 
     /* Handle Web Socket responses */
-    ws.onmessage = function local_socketMessage(event:SocketEvent):void {console.log(event.data);
+    ws.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
         } else if (event.data.indexOf("error:") === 0) {
-            const data:string = event.data.slice(6),
+            const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
                 tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
-            ui.systems.message("errors", data, "websocket");
+            ui.systems.message("errors", errorData, "websocket");
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
@@ -2765,19 +2823,30 @@ import { platform } from "os";
                     return true;
                 });
             }
-        } else if (event.data.indexOf("invite:") === 0) {console.log("invite");
+        } else if (event.data.indexOf("heartbeat:") === 0) {
+            const heartbeat:heartbeat = JSON.parse(event.data.slice(10)),
+                buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
+                length:number = buttons.length;
+            let a:number = 0;
+            do {
+                if (buttons[a].innerHTML === heartbeat.user) {
+                    buttons[a].setAttribute("class", heartbeat.status);
+                    break;
+                }
+                a = a + 1;
+            } while (a < length);
+        } else if (event.data.indexOf("invite:") === 0) {
             ui.util.inviteRespond(event.data.slice(7));
         } else if (event.data.indexOf("invite-error:") === 0) {
-            const data:inviteError = JSON.parse(event.data.slice(13)),
-                modal:HTMLElement = <HTMLElement>document.getElementById(data.modal);
-            
+            const inviteData:inviteError = JSON.parse(event.data.slice(13)),
+                modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
             if (modal === null) {
                 return;
             }
             let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
                 content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
                 p:HTMLElement = document.createElement("p");
-            p.innerHTML = data.error;
+            p.innerHTML = inviteData.error;
             p.setAttribute("class", "error");
             content.appendChild(p);
             content.parentNode.removeChild(content.parentNode.lastChild);
@@ -2789,6 +2858,7 @@ import { platform } from "os";
         const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0];
         title.style.background = "#ff6";
         title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+        document.getElementById("localhost").setAttribute("class", "offline");
     };
 
     ui.util.fixHeight();
@@ -2967,10 +3037,21 @@ import { platform } from "os";
         (function local_restore():void {
             let storage:any,
                 a:number = 0,
-                cString:string = "";
+                cString:string = "",
+                active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
+                idleTime:number = 60000,
+                idleness = function local_restore_idleness():void {
+                    const time:number = Date.now();
+                    if (time - active > idleTime) {
+                        document.getElementById("localhost").setAttribute("class", "idle");
+                        network.heartbeat("idle");
+                    }
+                    setTimeout(local_restore_idleness, idleTime);
+                },
                 loadComplete = function local_restore_complete():void {
+                    const localhost:HTMLElement = document.getElementById("localhost");
 
                     // assign key default events
                     content.onclick = ui.context.menuRemove;
@@ -2985,23 +3066,44 @@ import { platform } from "os";
                     document.getElementById("fileNavigator").onclick = ui.fs.navigate;
                     document.getElementById("textPad").onclick = ui.modal.textPad;
                     document.getElementById("export").onclick = ui.modal.export;
+                    network.heartbeat("active");
             
                     // determine if keyboard control keys are held
-                    document.onkeydown = function load_keydown(event:KeyboardEvent) {
+                    document.onkeydown = function load_restore_complete_keydown(event:KeyboardEvent):void {
                         const key:string = event.key.toLowerCase();
                         if (key === "shift") {
                             characterKey = "shift";
                         } else if (key === "control" && characterKey !== "shift") {
                             characterKey = "control";
                         }
+                        if (localhost !== null) {
+                            const status:string = localhost.getAttribute("class")
+                            if (status !== "active") {
+                                localhost.setAttribute("class", "active");
+                                network.heartbeat("active");
+                            }
+                        }
+                        active = Date.now();
                     };
-                    document.onkeyup = function load_keyup(event:KeyboardEvent) {
+                    document.onkeyup = function load_restore_complete_keyup(event:KeyboardEvent):void {
                         const key:string = event.key.toLowerCase();
                         if (key === "shift" && characterKey === "shift") {
                             characterKey = "";
                         } else if (key === "control" && characterKey === "control") {
                             characterKey = "";
                         }
+                    };
+
+                    // watch for local idleness
+                    document.onmousemove = function load_restore_complete_mousemove():void {
+                        if (localhost !== null) {
+                            const status:string = localhost.getAttribute("class");
+                            if (status !== "active") {
+                                localhost.setAttribute("class", "active");
+                                network.heartbeat("active");
+                            }
+                        }
+                        active = Date.now();
                     };
             
                     // building logging utility (systems log)
@@ -3076,6 +3178,8 @@ import { platform } from "os";
                                     }
                                 };
                             let count:number = 0;
+                            data.name = storage.settings.name;
+                            ui.util.addUser(`${storage.settings.name}@localhost`, storage.settings.name[storage.settings.shares[storage.settings.name]]);
                             
                             // restore shares
                             {
@@ -3175,11 +3279,9 @@ import { platform } from "os";
                 }
                 a = a + 1;
             } while (a < commentLength);
+            setTimeout(idleness, idleTime);
             if (storage === undefined || storage.settings === undefined || storage.settings.name === undefined) {
                 pageBody.setAttribute("class", "login");
-            } else {
-                data.name = storage.settings.name;
-                ui.util.addUser(`${storage.settings.name}@localhost`, storage.settings.name[storage.settings.shares[storage.settings.name]]);
             }
         }());
     }());

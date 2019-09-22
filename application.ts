@@ -2505,7 +2505,7 @@ interface socketList {
                                                     appliedData = function node_apps_server_create_readFile_appliedData():string {
                                                         const start:string = "<!--storage:-->",
                                                             startLength:number = data.indexOf(start) + start.length - 3,
-                                                            dataString:string = data.replace("<!--network:-->", `<!--network:{"family":"${addresses[1][2]}","ip":"${addresses[1][1]}","port":${webPort},"wsPort":${wsPort}}-->`);
+                                                            dataString:string = data.replace("<!--network:-->", `<!--network:{"family":"${addresses[1][2]}","ip":"${addresses[1][1]}","port":${webPort},"wsPort":${wsPort},"serverPort":${serverPort}}-->`);
                                                         return `${dataString.slice(0, startLength)}{${list.join(",")}}${dataString.slice(startLength)}`;
                                                     };
                                                 tool = true;
@@ -2880,20 +2880,43 @@ interface socketList {
                                 const data:invite = JSON.parse(dataString);
                                 if (socketList[data.ip] === undefined) {
                                     socketList[data.ip] = new node.net.Socket();
-                                }
-                                socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
+                                    socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
+                                        socketList[data.ip].write(`invite:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
+                                    });
+                                } else {
                                     socketList[data.ip].write(`invite:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
-                                });
+                                }
                                 socketList[data.ip].on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
                                     console.log(socketData);
                                 });
-                                socketList[data.ip].on("error", function node_app_server_create_end_error(errorMessage:nodeError):void {
+                                socketList[data.ip].on("error", function node_app_server_create_end_inviteError(errorMessage:nodeError):void {
                                     console.log(errorMessage);
                                     apps.error([errorMessage]);
                                     ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
                                     if (socketList[data.ip] !== undefined) {
                                         socketList[data.ip].destroy();
                                     }
+                                });
+                            } else if (task === "heartbeat") {
+                                const data = JSON.parse(dataString);
+                                if (socketList[data.ip] === undefined) {
+                                    socketList[data.ip] = new node.net.Socket();
+                                    socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_heartbeatConnect():void {
+                                        socketList[data.ip].write(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"${data.status}","user":"${data.user}"}`);
+                                    });
+                                } else {
+                                    socketList[data.ip].write(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"${data.status}","user":"${data.user}"}`);
+                                }
+                                socketList[data.ip].on("data", function node_apps_server_create_end_heartbeatData(socketData:string):void {
+                                    console.log(socketData);
+                                });
+                                socketList[data.ip].on("error", function node_app_server_create_end_heartbeatError(errorMessage:nodeError):void {
+                                    console.log("socket error");
+                                    console.log(errorMessage);
+                                    if (socketList[data.ip] !== undefined && socketList[data.ip].destroyed === true) {
+                                        delete socketList[data.ip];
+                                    }
+                                    ws.broadcast(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"offline","user":"${data.user}"}`);
                                 });
                             }
                         });
@@ -3048,15 +3071,30 @@ interface socketList {
                     wsPort = ws.address().port;
 
                     responder = node.net.createServer(function node_apps_server_start_listener(response:Socket):void {
+                        //response.setTimeout(2000);
                         response.on("data", function node_apps_server_start_listener_data(data:Buffer):void {
                             const message:string = data.toString();
                             if (message.indexOf("invite:") === 0 && message !== "invite:") {
                                 ws.broadcast(message);
+                            } else if (message.indexOf("heartbeat:") === 0 && message !== "heartbeat:") {
+                                ws.broadcast(message);
                             }
                         });
+                        response.on("end", function node_apps_server_start_listener_end():void {
+                            console.log("Socket server disconnected.");
+                            responder.getConnections(function node_apps_server_start_listener_end_connections(err:Error, count:number):void {
+                                if (err === null) {
+                                    console.log(`There are ${count} connections now.`);
+                                }
+                            });
+                        });
                         response.on("error", function node_apps_server_start_listener_error(data:Buffer):void {
+                            console.log("Socket server end");
                             console.log(data.toString());
                         });
+                        /*response.on("timeout", function node_apps_server_start_listener_timeout():void {
+                            console.log("Socket server timeout.");
+                        });*/
                     });
                     serverPort = (port === 0)
                         ? 0
