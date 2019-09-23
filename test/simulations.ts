@@ -7,6 +7,7 @@
 // * test - the value to compare against
 
 (function simulations() {
+    // eslint-disable-next-line
     "use strict";
     const sep:string = require("path").sep,
         projectPath:string = (function node_project() {

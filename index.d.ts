@@ -18,6 +18,16 @@ interface appName {
     command: string,
     name: string
 }
+interface browser {
+    characterKey: string;
+    content: HTMLElement;
+    data: ui_data;
+    loadTest: boolean;
+    localNetwork:localNetwork;
+    messages:messages;
+    pageBody:HTMLElement;
+    WS?:() => WebSocket;
+}
 interface clipboard {
     type: string;
     data: string[];
@@ -127,16 +137,74 @@ interface messages {
 interface modalSettings extends EventHandlerNonNull {
     (Event, user?:string, configuration?:ui_modal): void;
 }
-interface navigate extends EventHandlerNonNull {
-    (Event, path?:string): void;
-}
-interface network {
+interface module_network {
     fs?: (localService, callback:Function, id?:string) => void;
     heartbeat?: (status:"active"|"idle") => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
     messages?: Function;
     settings?: Function;
+}
+interface module_context {
+    copy?: (HTMLElement, type: "copy" | "cut") => void;
+    dataString?: dataString;
+    destroy?: (HTMLElement) => void;
+    details?: context;
+    fsNew?: (HTMLElement, type: "directory" | "file") => void;
+    menu?: EventHandlerNonNull;
+    menuRemove?: functionEvent;
+    paste?: (HTMLElement) => void; 
+    share?: (HTMLElement) => void;
+}
+interface module_fs {
+    directory?: EventHandlerNonNull;
+    expand?: EventHandlerNonNull;
+    list?: (location:string, listString:string) => HTMLElement;
+    navigate?: navigate;
+    parent?: EventHandlerNonNull;
+    rename?: EventHandlerNonNull;
+    select?: EventHandlerNonNull;
+    text?: EventHandlerNonNull;
+}
+interface module_modal {
+    close?: EventHandlerNonNull;
+    closeDecline?: (event:MouseEvent, action:Function) => void;
+    confirm?: EventHandlerNonNull;
+    create?: (options:ui_modal) => HTMLElement;
+    export?: EventHandlerNonNull;
+    importSettings?: EventHandlerNonNull;
+    maximize?: EventHandlerNonNull;
+    minimize?: EventHandlerNonNull;
+    move?: EventHandlerNonNull;
+    resize?: EventHandlerNonNull;
+    shares?: modalSettings;
+    systems?: EventHandlerNonNull;
+    textPad?: textPad;
+    textSave?: EventHandlerNonNull;
+    zTop?: EventHandlerNonNull;
+}
+interface module_systems {
+    expand?: EventHandlerNonNull;
+    message?: (type:string, content:string, timeStore?:string) => void;
+    tabs?: EventHandlerNonNull;
+}
+interface module_util {
+    addUser?: (username:string, shares:[string, string][]) => void;
+    commas?: (number:number) => string;
+    dateFormat?: (date:Date) => string;
+    delay?: () => HTMLElement;
+    fixHeight?: functionEvent;
+    inviteStart?: modalSettings;
+    inviteRespond?: (message:string) => void;
+    fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
+    login?: EventHandlerNonNull;
+    menu?: EventHandlerNonNull;
+    prettyBytes?: (an_integer:number) => string;
+    selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
+    selectNone?:(element:HTMLElement) => void;
+}
+interface navigate extends EventHandlerNonNull {
+    (Event, path?:string): void;
 }
 interface nodeCopyParams {
     callback:Function;
@@ -218,66 +286,6 @@ interface Stats {
 }
 interface textPad extends EventHandlerNonNull {
     (Event, value?:string, title?:string): void;
-}
-interface ui {
-    context: {
-        copy?: (HTMLElement, type: "copy" | "cut") => void;
-        dataString?: dataString;
-        destroy?: (HTMLElement) => void;
-        details?: context;
-        fsNew?: (HTMLElement, type: "directory" | "file") => void;
-        menu?: EventHandlerNonNull;
-        menuRemove?: functionEvent;
-        paste?: (HTMLElement) => void; 
-        share?: (HTMLElement) => void;
-    };
-    fs: {
-        directory?: EventHandlerNonNull;
-        expand?: EventHandlerNonNull;
-        list?: (location:string, listString:string) => HTMLElement;
-        navigate?: navigate;
-        parent?: EventHandlerNonNull;
-        rename?: EventHandlerNonNull;
-        select?: EventHandlerNonNull;
-        text?: EventHandlerNonNull;
-    };
-    modal: {
-        close?: EventHandlerNonNull;
-        closeDecline?: (event:MouseEvent, action:Function) => void;
-        confirm?: EventHandlerNonNull;
-        create?: (options:ui_modal) => HTMLElement;
-        export?: EventHandlerNonNull;
-        import?: EventHandlerNonNull;
-        maximize?: EventHandlerNonNull;
-        minimize?: EventHandlerNonNull;
-        move?: EventHandlerNonNull;
-        resize?: EventHandlerNonNull;
-        shares?: modalSettings;
-        systems?: EventHandlerNonNull;
-        textPad?: textPad;
-        textSave?: EventHandlerNonNull;
-        zTop?: EventHandlerNonNull;
-    };
-    systems: {
-        expand?: EventHandlerNonNull;
-        message?: (type:string, content:string, timeStore?:string) => void;
-        tabs?: EventHandlerNonNull;
-    };
-    util: {
-        addUser?: (username:string, shares:[string, string][]) => void;
-        commas?: (number:number) => string;
-        dateFormat?: (date:Date) => string;
-        delay?: () => HTMLElement;
-        fixHeight?: functionEvent;
-        inviteStart?: modalSettings;
-        inviteRespond?: (message:string) => void;
-        fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
-        login?: EventHandlerNonNull;
-        menu?: EventHandlerNonNull;
-        prettyBytes?: (an_integer:number) => string;
-        selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
-        selectNone?:(element:HTMLElement) => void;
-    };
 }
 interface ui_data {
     modals: {

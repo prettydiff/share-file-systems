@@ -5,6 +5,9 @@
         "node": true
     },
     "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
     "rules": {
         "curly": "error",
         "eqeqeq": "error",

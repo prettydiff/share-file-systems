@@ -12,6 +12,7 @@ interface socketList {
 }
 
 (function init() {
+    // eslint-disable-next-line
     "use strict";
     let verbose:boolean = false,
         ws:any;
