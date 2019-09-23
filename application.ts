@@ -1391,7 +1391,7 @@ interface socketList {
                             server:serverError = {
                                 stack: stackTrace.slice(1),
                                 error: errText.join(" ")
-                            };console.log(stackTrace);
+                            };
                         ws.broadcast(`error:${JSON.stringify(server)}`);
                     } else {
                         const stack:string = new Error().stack.replace("Error", `${text.cyan}Stack trace${text.none + node.os.EOL}-----------`);
@@ -2897,13 +2897,17 @@ interface socketList {
                                 } else {
                                     if (socketList[data.ip].connecting === true) {
                                         if (socketList[data.ip].localAddress === "0.0.0.0") {
-                                            console.log(`Socket to ${text.cyan + data.ip + text.none} appears to be ${text.angry}broken${text.none}.`);
+                                            console.log(`Socket to ${text.cyan + text.bold + data.ip + text.none} appears to be ${text.angry}broken${text.none}.`);
                                         } else {
                                             console.log("Write to a socket not connected.");
                                         }
                                         console.log(`  ${text.angry}*${text.none} Specified Address: ${data.ip}`);
                                         console.log(`  ${text.angry}*${text.none} Specified Port   : ${data.port}`);
-                                        console.log(`  ${text.angry}*${text.none} Local Address    : ${socketList[data.ip].localAddress}`);
+                                        if (socketList[data.ip].localAddress === "0.0.0.0") {
+                                            console.log(`  ${text.angry}*${text.none} Local Address    : ${text.angry}0.0.0.0${text.none}`);
+                                        } else {
+                                            console.log(`  ${text.angry}*${text.none} Local Address    : ${socketList[data.ip].localAddress}`);
+                                        }
                                         console.log(`  ${text.angry}*${text.none} Local Port       : ${socketList[data.ip].localPort}`);
                                         console.log(`  ${text.angry}*${text.none} Remote Address   : ${socketList[data.ip].remoteAddress}`);
                                         console.log(`  ${text.angry}*${text.none} Remote Port      : ${socketList[data.ip].remotePort}`);
@@ -2937,7 +2941,11 @@ interface socketList {
                                         }
                                         console.log(`  ${text.angry}*${text.none} Specified Address: ${data.ip}`);
                                         console.log(`  ${text.angry}*${text.none} Specified Port   : ${data.port}`);
-                                        console.log(`  ${text.angry}*${text.none} Local Address    : ${socketList[data.ip].localAddress}`);
+                                        if (socketList[data.ip].localAddress === "0.0.0.0") {
+                                            console.log(`  ${text.angry}*${text.none} Local Address    : ${text.angry}0.0.0.0${text.none}`);
+                                        } else {
+                                            console.log(`  ${text.angry}*${text.none} Local Address    : ${socketList[data.ip].localAddress}`);
+                                        }
                                         console.log(`  ${text.angry}*${text.none} Local Port       : ${socketList[data.ip].localPort}`);
                                         console.log(`  ${text.angry}*${text.none} Remote Address   : ${socketList[data.ip].remoteAddress}`);
                                         console.log(`  ${text.angry}*${text.none} Remote Port      : ${socketList[data.ip].remotePort}`);

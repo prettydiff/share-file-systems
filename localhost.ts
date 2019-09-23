@@ -121,14 +121,13 @@
                 title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
                 document.getElementById("localhost").setAttribute("class", "offline");
             };
-            socket.onerror = function local_socketError(this:WebSocket, event:Event):any {
+            socket.onerror = function local_socketError(this:WebSocket):any {
                 setTimeout(function local_socketError():void {
-                    ws = local_webSocket();
+                    local_webSocket();
                 }, 15000);
             };
             return socket;
         },
-        ws:WebSocket = WS(),
         messageTransmit:boolean = true,
         messages:messages = {
             status: [],
@@ -136,6 +135,8 @@
             errors: []
         },
         characterKey:characterKey = "";
+
+    WS();
 
     /* Accesses the file system */
     network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
@@ -2334,26 +2335,7 @@
 
     /* Adds users to the user bar */
     ui.util.addUser = function local_ui_util_addUser(userName:string, shares?:[string, string][]):void {
-        const heartbeat = function local_ui_util_addUser_heartbeat():void {
-                const locationData:string = userName.split("@")[1],
-                    port:string = locationData.slice(locationData.lastIndexOf(":") + 1),
-                    ip:string = (locationData.charAt(0) === "[")
-                        ? locationData.slice(1, locationData.indexOf("]"))
-                        : locationData.slice(0, locationData.indexOf(":")),
-                    user:string = (localNetwork.family === "ipv4")
-                        ? `${userName.slice(0, userName.indexOf("@"))}@${ip}:${port}`
-                        : `${userName.slice(0, userName.indexOf("@"))}@[${ip}]:${port}`,
-                    interval = function local_ui_util_addUser_heartbeat_interval():void {
-                        /*network.heartbeat({
-                            ip: ip,
-                            port: Number(port),
-                            status: <"active"|"idle">document.getElementById("localhost").getAttribute("class"),
-                            user: user
-                        });*/
-                    };
-                interval();
-            },
-            li:HTMLLIElement = document.createElement("li"),
+        const li:HTMLLIElement = document.createElement("li"),
             button:HTMLElement = document.createElement("button");
         button.innerHTML = userName;
         if (userName.split("@")[1] === "localhost") {
