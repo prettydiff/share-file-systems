@@ -1391,7 +1391,7 @@ interface socketList {
                             server:serverError = {
                                 stack: stackTrace.slice(1),
                                 error: errText.join(" ")
-                            };
+                            };console.log(stackTrace);
                         ws.broadcast(`error:${JSON.stringify(server)}`);
                     } else {
                         const stack:string = new Error().stack.replace("Error", `${text.cyan}Stack trace${text.none + node.os.EOL}-----------`);
@@ -2883,41 +2883,68 @@ interface socketList {
                                     socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_inviteConnect():void {
                                         socketList[data.ip].write(`invite:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
                                     });
+                                    socketList[data.ip].on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
+                                        console.log(socketData);
+                                    });
+                                    socketList[data.ip].on("error", function node_app_server_create_end_inviteError(errorMessage:nodeError):void {
+                                        console.log(errorMessage);
+                                        apps.error([errorMessage]);
+                                        ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
+                                        if (socketList[data.ip] !== undefined) {
+                                            socketList[data.ip].destroy();
+                                        }
+                                    });
                                 } else {
+                                    if (socketList[data.ip].connecting === true) {
+                                        if (socketList[data.ip].localAddress === "0.0.0.0") {
+                                            console.log(`Socket to ${text.cyan + data.ip + text.none} appears to be ${text.angry}broken${text.none}.`);
+                                        } else {
+                                            console.log("Write to a socket not connected.");
+                                        }
+                                        console.log(`  ${text.angry}*${text.none} Specified Address: ${data.ip}`);
+                                        console.log(`  ${text.angry}*${text.none} Specified Port   : ${data.port}`);
+                                        console.log(`  ${text.angry}*${text.none} Local Address    : ${socketList[data.ip].localAddress}`);
+                                        console.log(`  ${text.angry}*${text.none} Local Port       : ${socketList[data.ip].localPort}`);
+                                        console.log(`  ${text.angry}*${text.none} Remote Address   : ${socketList[data.ip].remoteAddress}`);
+                                        console.log(`  ${text.angry}*${text.none} Remote Port      : ${socketList[data.ip].remotePort}`);
+                                        console.log("");
+                                    }
                                     socketList[data.ip].write(`invite:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
                                 }
-                                socketList[data.ip].on("data", function node_apps_server_create_end_inviteData(socketData:string):void {
-                                    console.log(socketData);
-                                });
-                                socketList[data.ip].on("error", function node_app_server_create_end_inviteError(errorMessage:nodeError):void {
-                                    console.log(errorMessage);
-                                    apps.error([errorMessage]);
-                                    ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
-                                    if (socketList[data.ip] !== undefined) {
-                                        socketList[data.ip].destroy();
-                                    }
-                                });
                             } else if (task === "heartbeat") {
                                 const data = JSON.parse(dataString);
                                 if (socketList[data.ip] === undefined) {
                                     socketList[data.ip] = new node.net.Socket();
-                                    socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_heartbeatConnect():void {
+                                    socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_heartbeatConnect():void {console.log(socketList[data.ip].connecting+" new");
                                         socketList[data.ip].write(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"${data.status}","user":"${data.user}"}`);
                                     });
+                                    socketList[data.ip].on("data", function node_apps_server_create_end_heartbeatData(socketData:string):void {
+                                        console.log(socketData);
+                                    });
+                                    socketList[data.ip].on("error", function node_app_server_create_end_heartbeatError(errorMessage:Error):void {
+                                        console.log(errorMessage);
+                                        if (socketList[data.ip] !== undefined && socketList[data.ip].destroyed === true) {
+                                            delete socketList[data.ip];
+                                        }
+                                        ws.broadcast(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"offline","user":"${data.user}"}`);
+                                    });
                                 } else {
+                                    if (socketList[data.ip].connecting === true) {
+                                        if (socketList[data.ip].localAddress === "0.0.0.0") {
+                                            console.log(`Socket to ${text.cyan + text.bold + data.ip + text.none} appears to be ${text.angry}broken${text.none}.`);
+                                        } else {
+                                            console.log("Write to a socket not connected.");
+                                        }
+                                        console.log(`  ${text.angry}*${text.none} Specified Address: ${data.ip}`);
+                                        console.log(`  ${text.angry}*${text.none} Specified Port   : ${data.port}`);
+                                        console.log(`  ${text.angry}*${text.none} Local Address    : ${socketList[data.ip].localAddress}`);
+                                        console.log(`  ${text.angry}*${text.none} Local Port       : ${socketList[data.ip].localPort}`);
+                                        console.log(`  ${text.angry}*${text.none} Remote Address   : ${socketList[data.ip].remoteAddress}`);
+                                        console.log(`  ${text.angry}*${text.none} Remote Port      : ${socketList[data.ip].remotePort}`);
+                                        console.log("");
+                                    }
                                     socketList[data.ip].write(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"${data.status}","user":"${data.user}"}`);
                                 }
-                                socketList[data.ip].on("data", function node_apps_server_create_end_heartbeatData(socketData:string):void {
-                                    console.log(socketData);
-                                });
-                                socketList[data.ip].on("error", function node_app_server_create_end_heartbeatError(errorMessage:nodeError):void {
-                                    console.log("socket error");
-                                    console.log(errorMessage);
-                                    if (socketList[data.ip] !== undefined && socketList[data.ip].destroyed === true) {
-                                        delete socketList[data.ip];
-                                    }
-                                    ws.broadcast(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"offline","user":"${data.user}"}`);
-                                });
                             }
                         });
                     }
@@ -3061,17 +3088,8 @@ interface socketList {
                         : webPort + 1;
 
                     ws = new webSocket.Server({port: wsPort});
-                    ws.broadcast = function node_apps_server_start_broadcast(data:string):void {
-                        ws.clients.forEach(function node_apps_server_start_broadcast_clients(client):void {
-                            if (client.readyState === webSocket.OPEN) {
-                                client.send(data);
-                            }
-                        });
-                    };
-                    wsPort = ws.address().port;
 
                     responder = node.net.createServer(function node_apps_server_start_listener(response:Socket):void {
-                        //response.setTimeout(2000);
                         response.on("data", function node_apps_server_start_listener_data(data:Buffer):void {
                             const message:string = data.toString();
                             if (message.indexOf("invite:") === 0 && message !== "invite:") {
@@ -3082,25 +3100,26 @@ interface socketList {
                         });
                         response.on("end", function node_apps_server_start_listener_end():void {
                             console.log("Socket server disconnected.");
-                            responder.getConnections(function node_apps_server_start_listener_end_connections(err:Error, count:number):void {
-                                if (err === null) {
-                                    console.log(`There are ${count} connections now.`);
-                                }
-                            });
                         });
                         response.on("error", function node_apps_server_start_listener_error(data:Buffer):void {
-                            console.log("Socket server end");
+                            console.log("Socket server error");
                             console.log(data.toString());
                         });
-                        /*response.on("timeout", function node_apps_server_start_listener_timeout():void {
-                            console.log("Socket server timeout.");
-                        });*/
                     });
                     serverPort = (port === 0)
                         ? 0
                         : wsPort + 1;
                     responder.listen(serverPort, addresses[1][1], function node_apps_server_start_listen():void {
                         serverPort = responder.address().port;
+
+                        ws.broadcast = function node_apps_server_start_broadcast(data:string):void {
+                            ws.clients.forEach(function node_apps_server_start_broadcast_clients(client):void {
+                                if (client.readyState === webSocket.OPEN) {
+                                    client.send(data);
+                                }
+                            });
+                        };
+                        wsPort = ws.address().port;
 
                         console.log("");
                         console.log(`${text.cyan}HTTP server${text.none} on port: ${text.bold + text.green + webPort + text.none}`);

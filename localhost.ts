@@ -10,9 +10,6 @@
             str = str.slice(0, str.indexOf("-->"));
             return JSON.parse(str);
         }()),
-        ws:WebSocket = (localNetwork.family === "ipv4")
-            ? new WebSocket(`ws://${localNetwork.ip}:${localNetwork.wsPort}`)
-            : new WebSocket(`ws://[${localNetwork.ip}]:${localNetwork.wsPort}`),
         network:network = {},
         ui:ui = {
             context: {},
@@ -32,6 +29,106 @@
             },
             zIndex: 0
         },
+        WS = function local_webSocket():WebSocket {
+            const socket:WebSocket = (localNetwork.family === "ipv4")
+                    ? new WebSocket(`ws://${localNetwork.ip}:${localNetwork.wsPort}`)
+                    : new WebSocket(`ws://[${localNetwork.ip}]:${localNetwork.wsPort}`),
+                title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0];
+            
+            title.style.background = "#ddd";
+            title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
+
+            /* Handle Web Socket responses */
+            socket.onmessage = function local_socketMessage(event:SocketEvent):void {
+                if (event.data === "reload") {
+                    location.reload();
+                } else if (event.data.indexOf("error:") === 0) {
+                    const errorData:string = event.data.slice(6),
+                        modal:HTMLElement = document.getElementById("systems-modal"),
+                        tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
+                    ui.systems.message("errors", errorData, "websocket");
+                    if (modal.clientWidth > 0) {
+                        tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
+                    }
+                } else if (event.data.indexOf("fsUpdate:") === 0) {
+                    const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
+                        modalKeys:string[] = Object.keys(data.modals),
+                        keyLength:number = modalKeys.length;
+                    let a:number = 0;
+                    do {
+                        if (data.modals[modalKeys[a]].type === "fileNavigate" && data.modals[modalKeys[a]].text_value === value) {
+                            const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
+                            network.fs({
+                                action: "fs-read",
+                                agent: "self",
+                                depth: 2,
+                                location: [value],
+                                name: "",
+                                watch: "no"
+                            }, function local_socketMessage_fsCallback(responseText:string):void {
+                                body.innerHTML = "";
+                                body.appendChild(ui.fs.list(value, responseText));
+                            });
+                            break;
+                        }
+                        a = a + 1;
+                    } while (a < keyLength);
+                    if (a === keyLength) {
+                        network.fs({
+                            action: "fs-close",
+                            agent: "self",
+                            depth: 1,
+                            location: [value],
+                            name: "",
+                            watch: "no"
+                        }, function local_socketMessage_closeCallback():boolean {
+                            return true;
+                        });
+                    }
+                } else if (event.data.indexOf("heartbeat:") === 0) {
+                    const heartbeat:heartbeat = JSON.parse(event.data.split("heartbeat:")[1]),
+                        buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
+                        length:number = buttons.length;
+                    let a:number = 0;
+                    do {
+                        if (buttons[a].innerHTML === heartbeat.user) {
+                            buttons[a].setAttribute("class", heartbeat.status);
+                            break;
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                } else if (event.data.indexOf("invite:") === 0) {
+                    ui.util.inviteRespond(event.data.slice(7));
+                } else if (event.data.indexOf("invite-error:") === 0) {
+                    const inviteData:inviteError = JSON.parse(event.data.slice(13)),
+                        modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
+                    if (modal === null) {
+                        return;
+                    }
+                    let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
+                        content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+                        p:HTMLElement = document.createElement("p");
+                    p.innerHTML = inviteData.error;
+                    p.setAttribute("class", "error");
+                    content.appendChild(p);
+                    content.parentNode.removeChild(content.parentNode.lastChild);
+                    content.style.display = "block";
+                    footer.style.display = "block";
+                }
+            };
+            socket.onclose = function local_socketClose():void {
+                title.style.background = "#ff6";
+                title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+                document.getElementById("localhost").setAttribute("class", "offline");
+            };
+            socket.onerror = function local_socketError(this:WebSocket, event:Event):any {
+                setTimeout(function local_socketError():void {
+                    ws = local_webSocket();
+                }, 15000);
+            };
+            return socket;
+        },
+        ws:WebSocket = WS(),
         messageTransmit:boolean = true,
         messages:messages = {
             status: [],
@@ -91,9 +188,7 @@
                 port = Number(user.slice(user.lastIndexOf(":") + 1));
                 xhr.onreadystatechange = function local_network_fs_readyState():void {
                     if (xhr.readyState === 4) {
-                        if (xhr.status === 200 || xhr.status === 0) {
-                            console.log(`${xhr.status} for heartbeat`);
-                        } else {
+                        if (xhr.status !== 200 && xhr.status !== 0) {
                             ui.systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending heartbeat","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                             network.messages();
                         }
@@ -2776,91 +2871,6 @@
         } while (a < inputLength);
     };
 
-    /* Handle Web Socket responses */
-    ws.onmessage = function local_socketMessage(event:SocketEvent):void {
-        if (event.data === "reload") {
-            location.reload();
-        } else if (event.data.indexOf("error:") === 0) {
-            const errorData:string = event.data.slice(6),
-                modal:HTMLElement = document.getElementById("systems-modal"),
-                tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
-            ui.systems.message("errors", errorData, "websocket");
-            if (modal.clientWidth > 0) {
-                tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
-            }
-        } else if (event.data.indexOf("fsUpdate:") === 0) {
-            const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
-                modalKeys:string[] = Object.keys(data.modals),
-                keyLength:number = modalKeys.length;
-            let a:number = 0;
-            do {
-                if (data.modals[modalKeys[a]].type === "fileNavigate" && data.modals[modalKeys[a]].text_value === value) {
-                    const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
-                    network.fs({
-                        action: "fs-read",
-                        agent: "self",
-                        depth: 2,
-                        location: [value],
-                        name: "",
-                        watch: "no"
-                    }, function local_socketMessage_fsCallback(responseText:string):void {
-                        body.innerHTML = "";
-                        body.appendChild(ui.fs.list(value, responseText));
-                    });
-                    break;
-                }
-                a = a + 1;
-            } while (a < keyLength);
-            if (a === keyLength) {
-                network.fs({
-                    action: "fs-close",
-                    agent: "self",
-                    depth: 1,
-                    location: [value],
-                    name: "",
-                    watch: "no"
-                }, function local_socketMessage_closeCallback():boolean {
-                    return true;
-                });
-            }
-        } else if (event.data.indexOf("heartbeat:") === 0) {
-            const heartbeat:heartbeat = JSON.parse(event.data.slice(10)),
-                buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
-                length:number = buttons.length;
-            let a:number = 0;
-            do {
-                if (buttons[a].innerHTML === heartbeat.user) {
-                    buttons[a].setAttribute("class", heartbeat.status);
-                    break;
-                }
-                a = a + 1;
-            } while (a < length);
-        } else if (event.data.indexOf("invite:") === 0) {
-            ui.util.inviteRespond(event.data.slice(7));
-        } else if (event.data.indexOf("invite-error:") === 0) {
-            const inviteData:inviteError = JSON.parse(event.data.slice(13)),
-                modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
-            if (modal === null) {
-                return;
-            }
-            let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-                content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                p:HTMLElement = document.createElement("p");
-            p.innerHTML = inviteData.error;
-            p.setAttribute("class", "error");
-            content.appendChild(p);
-            content.parentNode.removeChild(content.parentNode.lastChild);
-            content.style.display = "block";
-            footer.style.display = "block";
-        }
-    };
-    ws.onclose = function local_socketClose():void {
-        const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0];
-        title.style.background = "#ff6";
-        title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
-        document.getElementById("localhost").setAttribute("class", "offline");
-    };
-
     ui.util.fixHeight();
     window.onresize = ui.util.fixHeight;
 
@@ -3041,7 +3051,7 @@
                 active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
-                idleTime:number = 60000,
+                idleTime:number = 15000,
                 idleness = function local_restore_idleness():void {
                     const time:number = Date.now();
                     if (time - active > idleTime) {
@@ -3143,6 +3153,7 @@
                         }
                     }
 
+                    network.heartbeat("active");
                     loadTest = false;
                 };
             do {

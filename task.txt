@@ -1,7 +1,8 @@
 
 ## defect
 1. explore latent or ghosted socket messages which can cause additional unnecessary modals to spawn
-2. refresh should respawn and repopulate an invitation modal
+2. page load broadcasts localhost as active, but does not update other user status
+3. some updates from idle to active are not published on the distant end
 
 ## service
 1 - shares should be read only by default with an option for all rights
