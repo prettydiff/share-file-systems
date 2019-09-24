@@ -22,7 +22,11 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
                 }
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                callback("");
+                if (id === undefined) {
+                    callback("");
+                } else {
+                    callback("", id);
+                }
                 network.messages();
             }
         }

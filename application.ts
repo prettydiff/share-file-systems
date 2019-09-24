@@ -2893,6 +2893,7 @@ interface socketList {
                                         ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
                                         if (socketList[data.ip] !== undefined) {
                                             socketList[data.ip].destroy();
+                                            delete socketList[data.ip];
                                         }
                                     });
                                 } else {
@@ -2920,7 +2921,7 @@ interface socketList {
                                 const data = JSON.parse(dataString);
                                 if (socketList[data.ip] === undefined) {
                                     socketList[data.ip] = new node.net.Socket();
-                                    socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_heartbeatConnect():void {console.log(socketList[data.ip].connecting+" new");
+                                    socketList[data.ip].connect(data.port, data.ip, function node_apps_server_create_end_heartbeatConnect():void {
                                         socketList[data.ip].write(`heartbeat:{"ip":"${addresses[1][1]}","family":"${addresses[1][2]}","port":${serverPort},"status":"${data.status}","user":"${data.user}"}`);
                                     });
                                     socketList[data.ip].on("data", function node_apps_server_create_end_heartbeatData(socketData:string):void {
@@ -2928,6 +2929,7 @@ interface socketList {
                                     });
                                     socketList[data.ip].on("error", function node_app_server_create_end_heartbeatError(errorMessage:Error):void {
                                         console.log(errorMessage);
+                                        apps.error([errorMessage]);
                                         if (socketList[data.ip] !== undefined && socketList[data.ip].destroyed === true) {
                                             delete socketList[data.ip];
                                         }
@@ -3111,8 +3113,13 @@ interface socketList {
                             console.log("Socket server disconnected.");
                         });
                         response.on("error", function node_apps_server_start_listener_error(data:Buffer):void {
-                            console.log("Socket server error");
-                            console.log(data.toString());
+                            const error:string = data.toString();
+                            if (error.indexOf("ECONNRESET") > 0) {
+                                console.log("Connection reset.  That is a fancy way of saying the remote took a dump. :(");
+                            } else {
+                                console.log("Socket server error");
+                            }
+                            console.log(error);
                         });
                     });
                     serverPort = (port === 0)

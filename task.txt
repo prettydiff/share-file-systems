@@ -1,8 +1,6 @@
 
 ## defect
-1. explore latent or ghosted socket messages which can cause additional unnecessary modals to spawn
-2. page load broadcasts localhost as active, but does not update other user status
-3. some updates from idle to active are not published on the distant end
+1. status does not transmit after either local or remote has gone offline and then come back online.  Requires more investigation to determine which side has to go offline and which side breaks as a result.
 
 ## service
 1 - shares should be read only by default with an option for all rights

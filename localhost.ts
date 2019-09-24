@@ -5,9 +5,10 @@ import { modal } from "./lib/modal.js";
 import { network } from "./lib/network.js";
 import { systems } from "./lib/systems.js";
 import { util } from "./lib/util.js";
+import { webSocket } from "./lib/webSocket.js";
 
 (function local():void {
-    browser.WS();
+    webSocket();
 
     util.fixHeight();
     window.onresize = util.fixHeight;
@@ -379,6 +380,8 @@ import { util } from "./lib/util.js";
                                                 browser.data.modals[id].status = "normal";
                                                 button.click();
                                             }
+                                        } else {
+                                            z(id);
                                         }
                                     }, value);
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
