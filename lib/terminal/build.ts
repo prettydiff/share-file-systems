@@ -126,7 +126,7 @@ const library = {
                     const callback = function node_apps_build_simulation_callback(message:string):void {
                         next(message);
                     };
-                    heading(`Simulations of Node.js commands from ${vars.version.command}.js`);
+                    heading(`Simulations of Node.js commands from ${vars.version.command}`);
                     library.simulation(callback);
                 },
                 // phase typescript compiles the working code into JavaScript

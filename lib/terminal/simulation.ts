@@ -78,7 +78,7 @@ const library = {
                             return;
                         }
                     }
-                    if (stdError !== "") {
+                    if (stdError.toString() !== "" && stdError.toString().indexOf("The ESM module loader is experimental.") < 0) {
                         library.error([stdError.toString()]);
                         return;
                     }
@@ -180,10 +180,10 @@ const library = {
         let a:number = 0;
         if (vars.command === "simulation") {
             callback = function node_apps_lint_callback(message:string):void {
-                library.log([message, "\u0007"]); // bell sound
+                vars.verbose = true;
+                library.log([message, "\u0007"], true); // bell sound
             };
-            vars.verbose = true;
-            library.log(["", `${vars.text.underline + vars.text.bold + vars.version.name} - simulation tests${vars.text.none}`, ""]);
+            library.log([`${vars.text.underline + vars.text.bold + vars.version.name} - simulation tests${vars.text.none}`, ""]);
         }
         wrapper();
     };

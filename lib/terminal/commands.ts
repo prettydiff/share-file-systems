@@ -13,18 +13,18 @@ const library = {
     commands = function node_apps_commands():void {
         const output:string[] = [];
         vars.verbose = true;
-        if (commands[process.argv[0]] === undefined) {
+        if (vars.commands[process.argv[0]] === undefined) {
             // all commands in a list
             library.lists({
                 empty_line: false,
                 heading: "Commands",
-                obj: commands,
+                obj: vars.commands,
                 property: "description",
                 total: true
             });
         } else {
             // specifically mentioned option
-            const comm:any = commands[process.argv[0]],
+            const comm:any = vars.commands[process.argv[0]],
                 len:number = comm.example.length,
                 plural:string = (len > 1)
                     ? "s"
@@ -37,7 +37,7 @@ const library = {
             output.push(`${vars.text.underline}Example${plural + vars.text.none}`);
             do {
                 wrapIt(output, comm.example[a].defined);
-                output.push(`   ${vars.text.cyan + comm.example[a].code + vars.text.none}`);
+                output.push(`   ${vars.text.cyan + vars.version.command + comm.example[a].code + vars.text.none}`);
                 output.push("");
                 a = a + 1;
             } while (a < len);

@@ -110,7 +110,7 @@ const sep:string = vars.sep,
             command: `copy ${projectPath}js ${projectPath}temp 2`,
             file: `${projectPath}temp${sep}js${sep}test${sep}simulations.js`,
             qualifier: "file begins",
-            test: "// tests structure"
+            test: `import vars from "../lib/terminal/vars.js";`
         },
         {
             command: "directory",
@@ -200,7 +200,7 @@ const sep:string = vars.sep,
         {
             command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "sparser", "tests", "js", "api", "beautify", "minify", "css", "space test", "test"]`,
             qualifier: "not contains",
-            test: "test"
+            test: `test"`
         },
         {
             command: "hash https://duckduckgo.com/assets/logo_homepage.normal.v107.svg",

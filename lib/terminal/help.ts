@@ -16,7 +16,7 @@ const help = function node_apps_help():void {
         `${vars.text.cyan + vars.version.command} commands build${vars.text.none}`,
         "",
         "* Read the documentation             - cat readme.md",
-    ]);
+    ], true);
 };
 
 export default help;

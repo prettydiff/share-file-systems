@@ -1,7 +1,7 @@
 
 import { Socket } from "net";
 import { NetworkInterfaceInfo } from "os";
-import WebSocket from "../../ws-es6/lib/websocket.js";
+import WebSocket from "../../ws-es6/index.js";
 
 import copy from "./copy.js";
 import directory from "./directory.js";
@@ -765,7 +765,7 @@ const library = {
                     ? 0
                     : webPort + 1;
 
-                vars.ws = new WebSocket.server({port: wsPort});
+                vars.ws = new WebSocket.Server({port: wsPort});
 
                 responder = vars.node.net.createServer(function node_apps_server_start_listener(response:Socket):void {
                     response.on("data", function node_apps_server_start_listener_data(data:Buffer):void {
