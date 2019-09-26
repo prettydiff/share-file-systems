@@ -1,7 +1,7 @@
-import { browser } from "./browser.js";
-import { fs } from "./fs.js";
-import { network } from "./network.js";
-import { util } from "./util.js";
+import browser from "./browser.js";
+import fs from "./fs.js";
+import network from "./network.js";
+import util from "./util.js";
 
 const modal:module_modal = {};
 
@@ -932,4 +932,4 @@ modal.zTop     = function local_modal_zTop(event:MouseEvent):void {
     box.style.zIndex = browser.data.zIndex.toString();
 };
 
-export { modal };
+export default modal;

@@ -1,8 +1,8 @@
-import { browser } from "./browser.js";
-import { fs } from "./fs.js";
-import { modal } from "./modal.js";
-import { network } from "./network.js";
-import { util } from "./util.js";
+import browser from "./browser.js";
+import fs from "./fs.js";
+import modal from "./modal.js";
+import network from "./network.js";
+import util from "./util.js";
 
 const context:module_context = {};
 let clipboard:string = "";
@@ -645,4 +645,4 @@ context.share = function local_context_share(element:HTMLElement):void {
     network.settings();
 };
 
-export { context };
+export default context;

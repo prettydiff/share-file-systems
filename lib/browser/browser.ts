@@ -1,7 +1,3 @@
-import { fs } from "./fs.js";
-import { network } from "./network.js";
-import { systems } from "./systems.js";
-import { util } from "./util.js";
 
 const browser:browser = {
     characterKey: "",
@@ -31,4 +27,4 @@ const browser:browser = {
     pageBody: document.getElementsByTagName("body")[0]
 };
 
-export { browser };
+export default browser;

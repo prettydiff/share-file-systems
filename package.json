@@ -25,9 +25,12 @@
         "url": "git+https://github.com/prettydiff/freshapp.git"
     },
     "scripts": {
-        "prepublishOnly": "node js/application test",
-        "start": "node js/application build",
-        "test": "node js/application test"
+        "prepublishOnly": "node --experimental-modules js/application.js test",
+        "prerestart": "node --experimental-modules js/application.js build",
+        "restart": "node --experimental-modules js/application.js server",
+        "start": "node --experimental-modules js/application.js server",
+        "test": "node --experimental-modules js/application.js test"
     },
+    "type": "module",
     "version": "0.0.1"
 }

@@ -1,14 +1,14 @@
-import { browser } from "./browser.js";
-import { context } from "./context.js";
-import { systems } from "./systems.js";
+import browser from "./browser.js";
+import context from "./context.js";
+import systems from "./systems.js";
 
-const network:module_network = {};
+const network:module_network = {},
+    loc:string = location.href.split("?")[0];
 let messageTransmit:boolean = true;
 
 /* Accesses the file system */
 network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        loc:string = location.href.split("?")[0];
+    const xhr:XMLHttpRequest = new XMLHttpRequest();
     messageTransmit = false;
     context.menuRemove();
     xhr.onreadystatechange = function local_network_fs_readyState():void {
@@ -42,7 +42,6 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
 /* Provides active user status from across the network about every minute */
 network.heartbeat = function local_network_heartbeat(status:string):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        loc:string = location.href.split("?")[0],
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;
     let ip:string,
@@ -77,8 +76,7 @@ network.heartbeat = function local_network_heartbeat(status:string):void {
 
 /* Confirmed response to a user invitation */
 network.inviteAccept = function local_network_invitationAcceptance(configuration:invite):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        loc:string = location.href.split("?")[0];
+    const xhr:XMLHttpRequest = new XMLHttpRequest();
     messageTransmit = false;
     context.menuRemove();
     xhr.onreadystatechange = function local_network_fs_readyState():void {
@@ -100,8 +98,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
 
 /* Invite other users */
 network.inviteRequest = function local_network_invite(inviteData:invite):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        loc:string = location.href.split("?")[0];
+    const xhr:XMLHttpRequest = new XMLHttpRequest();
     xhr.onreadystatechange = function local_network_messages_callback():void {
         if (xhr.readyState === 4) {
             messageTransmit = true;
@@ -122,8 +119,7 @@ network.messages = function local_network_messages():void {
         return;
     }
     messageTransmit = false;
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        loc:string = location.href.split("?")[0];
+    const xhr:XMLHttpRequest = new XMLHttpRequest();
     xhr.onreadystatechange = function local_network_messages_callback():void {
         if (xhr.readyState === 4) {
             messageTransmit = true;
@@ -143,8 +139,7 @@ network.settings = function local_network_settings():void {
     if (browser.loadTest === true) {
         return;
     }
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        loc:string = location.href.split("?")[0];
+    const xhr:XMLHttpRequest = new XMLHttpRequest();
     xhr.onreadystatechange = function local_network_settings_callback():void {
         if (xhr.readyState === 4) {
             if (xhr.status !== 200 && xhr.status !== 0) {
@@ -158,4 +153,4 @@ network.settings = function local_network_settings():void {
     xhr.send(`settings:${JSON.stringify(browser.data)}`);
 };
 
-export { network };
+export default network;

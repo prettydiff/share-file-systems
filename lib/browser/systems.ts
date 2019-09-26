@@ -1,6 +1,6 @@
-import { browser } from "./browser.js";
-import { network } from "./network.js";
-import { util } from "./util.js";
+import browser from "./browser.js";
+import network from "./network.js";
+import util from "./util.js";
 
 const systems:module_systems = {};
 
@@ -107,4 +107,4 @@ systems.tabs = function local_systems_tabs(event:MouseEvent):void {
     network.settings();
 };
 
-export { systems };
+export default systems;

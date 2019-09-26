@@ -1,8 +1,8 @@
-import { browser } from "./browser.js";
-import { fs } from "./fs.js";
-import { network } from "./network.js";
-import { systems } from "./systems.js";
-import { util } from "./util.js";
+import browser from "./browser.js";
+import fs from "./fs.js";
+import network from "./network.js";
+import systems from "./systems.js";
+import util from "./util.js";
 
 const webSocket = function local_webSocket():WebSocket {
     const socket:WebSocket = (browser.localNetwork.family === "ipv4")
@@ -61,12 +61,13 @@ const webSocket = function local_webSocket():WebSocket {
                 });
             }
         } else if (event.data.indexOf("heartbeat:") === 0) {
-            const heartbeat:heartbeat = JSON.parse(event.data.split("heartbeat:")[1]),
+            const heartbeats:string[] = event.data.split("heartbeat:"),
+                heartbeat:heartbeat = JSON.parse(heartbeats[heartbeats.length - 1]),
                 buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                 length:number = buttons.length;
             let a:number = 0;
             do {
-                if (buttons[a].innerHTML === heartbeat.user) {
+                if (buttons[a].innerHTML.indexOf(heartbeat.user) > -1) {
                     buttons[a].setAttribute("class", heartbeat.status);
                     break;
                 }
@@ -104,4 +105,4 @@ const webSocket = function local_webSocket():WebSocket {
     return socket;
 };
 
-export { webSocket };
+export default webSocket;

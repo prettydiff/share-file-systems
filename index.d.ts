@@ -283,6 +283,38 @@ interface Stats {
     isSocket: Function;
     isSymbolicLink: Function;
 }
+interface terminalVariables {
+    binary_check: RegExp;
+    cli: string;
+    command: string;
+    commands: commandList;
+    cwd: string;
+    exclusions: string[];
+    flags: {
+        error: boolean;
+        write: string;
+    },
+    js: string;
+    node: {
+        child : any;
+        crypto: any;
+        fs    : any;
+        http  : any;
+        https : any;
+        net   : any;
+        os    : any;
+        path  : any;
+    };
+    projectPath: string;
+    sep: string;
+    startTime: [number, number];
+    text: {
+        [key:string]: string;
+    };
+    verbose: boolean;
+    version: version;
+    ws: any;
+}
 interface textPad extends EventHandlerNonNull {
     (Event, value?:string, title?:string): void;
 }

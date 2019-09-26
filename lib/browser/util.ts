@@ -1,8 +1,8 @@
-import { browser } from "./browser.js";
-import { context } from "./context.js";
-import { fs } from "./fs.js";
-import { modal } from "./modal.js";
-import { network } from "./network.js";
+import browser from "./browser.js";
+import context from "./context.js";
+import fs from "./fs.js";
+import modal from "./modal.js";
+import network from "./network.js";
 
 const util:module_util = {};
 
@@ -524,4 +524,4 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
     } while (a < inputLength);
 };
 
-export { util };
+export default util;

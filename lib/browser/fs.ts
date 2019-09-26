@@ -1,8 +1,8 @@
-import { browser } from "./browser.js";
-import { context } from "./context.js";
-import { modal } from "./modal.js";
-import { network } from "./network.js";
-import { util } from "./util.js";
+import browser from "./browser.js";
+import context from "./context.js";
+import modal from "./modal.js";
+import network from "./network.js";
+import util from "./util.js";
 
 const fs:module_fs = {};
 
@@ -383,4 +383,4 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     }
 };
 
-export { fs };
+export default fs;
