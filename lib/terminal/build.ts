@@ -154,7 +154,7 @@ const library = {
                                     library.error([err.toString()]);
                                     return;
                                 }
-                                if (stderr !== "") {
+                                if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
                                     library.error([stderr]);
                                     return;
                                 }
@@ -176,7 +176,7 @@ const library = {
                                 return;
                             }
                         } else {
-                            if (stderr !== "") {
+                            if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
                                 library.error([stderr]);
                                 return;
                             }

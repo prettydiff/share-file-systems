@@ -159,6 +159,7 @@ const library = {
                                     } else if (localPath.indexOf(".png") === localPath.length - 4) {
                                         response.writeHead(200, {"Content-Type": "image/png"});
                                     } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
+                                        response.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:");
                                         response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
                                         if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
                                             const flag:any = {
@@ -237,6 +238,7 @@ const library = {
                                             });
                                         }
                                     } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
+                                        response.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:");
                                         response.writeHead(200, {"Content-Type": "text/html"});
                                     } else {
                                         response.writeHead(200, {"Content-Type": "text/plain"});
@@ -291,7 +293,7 @@ const library = {
                                             //cspell:enable
                                                 if (erw !== null) {
                                                     library.error([erw.toString()]);
-                                                } else if (stderr !== "") {
+                                                } else if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
                                                     library.error([stderr]);
                                                 }
                                                 const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
@@ -740,13 +742,16 @@ const library = {
                             cwd: vars.projectPath
                         }, function node_apps_server_watch_child(err:Error, stdout:string, stderr:string):void {
                             if (err !== null) {
+                                library.log([err.toString()]);
                                 library.error([err.toString()]);
                                 return;
                             }
-                            if (stderr !== "") {
+                            if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
+                                library.log([stderr]);
                                 library.error([stderr]);
                                 return;
                             }
+                            library.log([stdout]);
                             compile = time("TypeScript Compiled") - start;
                             duration(compile);
                             vars.ws.broadcast("reload");
@@ -859,7 +864,7 @@ const library = {
                     library.error([errs.toString()]);
                     return;
                 }
-                if (stdError !== "") {
+                if (stdError !== "" && stdError.indexOf("The ESM module loader is experimental.") < 0) {
                     library.error([stdError.toString()]);
                     return;
                 }
