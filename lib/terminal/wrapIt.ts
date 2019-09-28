@@ -1,10 +1,10 @@
 
 
 // performs word wrap when printing text to the shell
-const wrapIt = function node_apps_wrapIt(outputArray:string[], string:string):void {
+const wrapIt = function terminal_wrapIt(outputArray:string[], string:string):void {
     const wrap:number = 100;
     if (string.length > wrap) {
-        const indent:string = (function node_apps_wrapIt_indent():string {
+        const indent:string = (function terminal_wrapIt_indent():string {
                 const len:number = string.length;
                 let inc:number = 0,
                     num:number = 2,
@@ -34,7 +34,7 @@ const wrapIt = function node_apps_wrapIt(outputArray:string[], string:string):vo
                 } while (inc < num);
                 return str;
             }()),
-            formLine = function node_apps_wrapIt_formLine():void {
+            formLine = function terminal_wrapIt_formLine():void {
                 let inc:number = 0,
                     wrapper:number = wrap;
                 do {
@@ -63,7 +63,7 @@ const wrapIt = function node_apps_wrapIt(outputArray:string[], string:string):vo
                 string = string.slice(wrapper + 1).replace(/^\s+/, "");
                 if (string.length + indent.length > wrap) {
                     string = indent + string;
-                    node_apps_wrapIt_formLine();
+                    terminal_wrapIt_formLine();
                 } else if (string !== "") {
                     outputArray.push(indent + string);
                 }

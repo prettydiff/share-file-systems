@@ -3,22 +3,22 @@ import error from "./error.js";
 import vars from "./vars.js";
 
 // makes specified directory structures in the local file system
-const makeDir = function node_apps_makeDir(dirToMake:string, callback:Function):void {
+const makeDir = function terminal_makeDir(dirToMake:string, callback:Function):void {
     vars
         .node
         .fs
-        .stat(dirToMake, function node_apps_makeDir_stat(err:nodeError, stats:Stats):void {
+        .stat(dirToMake, function terminal_makeDir_stat(err:nodeError, stats:Stats):void {
             let dirs   = [],
                 ind    = 0,
                 len    = 0,
                 ers    = "";
-            const recursiveStat = function node_apps_makeDir_stat_recursiveStat():void {
+            const recursiveStat = function terminal_makeDir_stat_recursiveStat():void {
                     vars
                         .node
                         .fs
                         .stat(
                             dirs.slice(0, ind + 1).join(vars.sep),
-                            function node_apps_makeDir_stat_recursiveStat_callback(errA:nodeError, statA:Stats):void {
+                            function terminal_makeDir_stat_recursiveStat_callback(errA:nodeError, statA:Stats):void {
                                 let errAs:string = "";
                                 ind = ind + 1;
                                 if (errA !== null) {
@@ -29,13 +29,13 @@ const makeDir = function node_apps_makeDir(dirToMake:string, callback:Function):
                                             .fs
                                             .mkdir(
                                                 dirs.slice(0, ind).join(vars.sep),
-                                                function node_apps_makeDir_stat_recursiveStat_callback_mkdir(errB:Error):void {
+                                                function terminal_makeDir_stat_recursiveStat_callback_mkdir(errB:Error):void {
                                                     if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
                                                         error([errB.toString()]);
                                                         return;
                                                     }
                                                     if (ind < len) {
-                                                        node_apps_makeDir_stat_recursiveStat();
+                                                        terminal_makeDir_stat_recursiveStat();
                                                     } else {
                                                         callback();
                                                     }
@@ -53,7 +53,7 @@ const makeDir = function node_apps_makeDir(dirToMake:string, callback:Function):
                                     return;
                                 }
                                 if (ind < len) {
-                                    node_apps_makeDir_stat_recursiveStat();
+                                    terminal_makeDir_stat_recursiveStat();
                                 } else {
                                     callback();
                                 }

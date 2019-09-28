@@ -9,8 +9,8 @@ const library = {
         commas: commas,
         humanTime: humanTime
     },
-    error = function node_apps_error(errText:string[]):void {
-        const bell = function node_apps_error_bell():void {
+    error = function terminal_error(errText:string[]):void {
+        const bell = function terminal_error_bell():void {
                 library.humanTime(true);
                 if (vars.command === "build" || vars.command === "simulation" || vars.command === "validation") {
                     console.log("\u0007"); // bell sound
@@ -21,7 +21,7 @@ const library = {
                     process.exit(1);
                 }
             },
-            errorOut = function node_apps_error_errorOut():void {
+            errorOut = function terminal_error_errorOut():void {
                 if (vars.command === "server") {
                     const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
                         server:serverError = {
@@ -40,7 +40,7 @@ const library = {
                     if (errText[0] === "" && errText.length < 2) {
                         console.log(`${vars.text.yellow}No error message supplied${vars.text.none}`);
                     } else {
-                        errText.forEach(function node_apps_error_errorOut_each(value:string):void {
+                        errText.forEach(function terminal_error_errorOut_each(value:string):void {
                             console.log(value);
                         });
                     }
@@ -48,7 +48,7 @@ const library = {
                     bell();
                 }
             },
-            debug = function node_apps_error_debug():void {
+            debug = function terminal_error_debug():void {
                 const stack:string = new Error().stack,
                     totalmem:number = vars.node.os.totalmem(),
                     freemem:number = vars.node.os.freemem();
@@ -64,7 +64,7 @@ const library = {
                     console.log(`${vars.text.yellow}No error message supplied${vars.text.none}`);
                 } else {
                     console.log("```");
-                    errText.forEach(function node_apps_error_each(value:string):void {
+                    errText.forEach(function terminal_error_each(value:string):void {
                         // eslint-disable-next-line
                         console.log(value.replace(/\u001b/g, "\\u001b"));
                     });

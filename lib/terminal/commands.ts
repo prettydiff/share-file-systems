@@ -10,7 +10,7 @@ const library = {
         log: log,
         wrapIt: wrapIt
     },
-    commands = function node_apps_commands():void {
+    commands = function terminal_commands():void {
         const output:string[] = [];
         vars.verbose = true;
         if (vars.commands[process.argv[0]] === undefined) {

@@ -12,24 +12,24 @@ const library = {
         error: error,
         log: log
     },
-    remove = function node_apps_remove(filePath:string, callback:Function):void {
+    remove = function terminal_remove(filePath:string, callback:Function):void {
         const numb:any = {
                 dirs: 0,
                 file: 0,
                 link: 0,
                 size: 0
             },
-            removeItems = function node_apps_remove_removeItems(fileList:directoryList):void {
+            removeItems = function terminal_remove_removeItems(fileList:directoryList):void {
                 let a:number = 0;
                 const len:number = fileList.length,
-                    destroy = function node_apps_remove_removeItems_destroy(item:directoryItem) {
+                    destroy = function terminal_remove_removeItems_destroy(item:directoryItem) {
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
                             ? "rmdir"
                             : "unlink";
-                        vars.node.fs[type](item[0], function node_apps_remove_removeItems_destroy_callback(er:nodeError):void {
+                        vars.node.fs[type](item[0], function terminal_remove_removeItems_destroy_callback(er:nodeError):void {
                             if (vars.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {
-                                    node_apps_remove_removeItems_destroy(item);
+                                    terminal_remove_removeItems_destroy(item);
                                     return;
                                 }
                                 library.error([er.toString()]);
@@ -40,7 +40,7 @@ const library = {
                             } else {
                                 fileList[item[2]][3] = fileList[item[2]][3] - 1;
                                 if (fileList[item[2]][3] < 1) {
-                                    node_apps_remove_removeItems_destroy(fileList[item[2]]);
+                                    terminal_remove_removeItems_destroy(fileList[item[2]]);
                                 }
                             }
                         });
@@ -75,7 +75,7 @@ const library = {
                 return;
             }
             filePath = vars.node.path.resolve(process.argv[0]);
-            callback = function node_apps_remove_callback() {
+            callback = function terminal_remove_callback() {
                 const out = [`${vars.version.name} removed `];
                 vars.verbose = true;
                 out.push(vars.text.angry);

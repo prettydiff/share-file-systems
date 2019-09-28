@@ -3,7 +3,7 @@
 import vars from "./vars.js";
 
 // converting time durations into something people read
-const humanTime = function node_apps_humanTime(finished:boolean):string {
+const humanTime = function terminal_humanTime(finished:boolean):string {
     let minuteString:string = "",
         hourString:string   = "",
         secondString:string = "",
@@ -12,7 +12,7 @@ const humanTime = function node_apps_humanTime(finished:boolean):string {
         minutes:number      = 0,
         hours:number        = 0,
         memory,
-        elapsed:number      = (function node_apps_humanTime_elapsed():number {
+        elapsed:number      = (function terminal_humanTime_elapsed():number {
             const big:number = 1e9,
                 differenceTime:[number, number] = process.hrtime(vars.startTime);
             if (differenceTime[1] === 0) {
@@ -20,7 +20,7 @@ const humanTime = function node_apps_humanTime(finished:boolean):string {
             }
             return differenceTime[0] + (differenceTime[1] / big);
         }());
-    const numberString = function node_apps_humanTime_numberString(numb:number):string {
+    const numberString = function terminal_humanTime_numberString(numb:number):string {
             const strSplit:string[] = String(numb).split(".");
             if (strSplit.length > 1) {
                 if (strSplit[1].length < 9) {
@@ -36,13 +36,13 @@ const humanTime = function node_apps_humanTime(finished:boolean):string {
             }
             return `${strSplit[0]}`;
         },
-        prettyBytes  = function node_apps_humanTime_prettyBytes(an_integer:number):string {
+        prettyBytes  = function terminal_humanTime_prettyBytes(an_integer:number):string {
             //find the string length of input and divide into triplets
             let output:string = "",
                 length:number  = an_integer
                     .toString()
                     .length;
-            const triples:number = (function node_apps_humanTime_prettyBytes_triples():number {
+            const triples:number = (function terminal_humanTime_prettyBytes_triples():number {
                     if (length < 22) {
                         return Math.floor((length - 1) / 3);
                     }
@@ -50,7 +50,7 @@ const humanTime = function node_apps_humanTime(finished:boolean):string {
                     return 8;
                 }()),
                 //each triplet is worth an exponent of 1024 (2 ^ 10)
-                power:number   = (function node_apps_humanTime_prettyBytes_power():number {
+                power:number   = (function terminal_humanTime_prettyBytes_power():number {
                     let a = triples - 1,
                         b = 1024;
                     if (triples === 0) {
@@ -91,13 +91,13 @@ const humanTime = function node_apps_humanTime(finished:boolean):string {
             }
             return output;
         },
-        plural       = function node_apps_humanTime_plural(x:number, y:string):string {
+        plural       = function terminal_humanTime_plural(x:number, y:string):string {
             if (x !== 1) {
                 return `${numberString(x) + y}s `;
             }
             return `${numberString(x) + y} `;
         },
-        minute       = function node_apps_humanTime_minute():void {
+        minute       = function terminal_humanTime_minute():void {
             minutes      = parseInt((elapsed / 60).toString(), 10);
             minuteString = (finished === true)
                 ? plural(minutes, " minute")

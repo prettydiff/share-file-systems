@@ -12,7 +12,7 @@ const library = {
         log: log,
         remove: remove
     },
-    base64 = function node_apps_base64(filePath:string, callback:Function):void {
+    base64 = function terminal_base64(filePath:string, callback:Function):void {
         let direction:string = (process.argv[0] === "encode" || process.argv[0] === "decode")
                 ? process.argv[0]
                 : "encode",
@@ -22,27 +22,27 @@ const library = {
                 : (process.argv[0] === "encode" || process.argv[0] === "decode")
                     ? process.argv[1]
                     : process.argv[0];
-        const screen = function node_apps_base64_screen(string:string) {
+        const screen = function terminal_base64_screen(string:string) {
                 const output = (direction === "decode")
                     ? Buffer.from(string, "base64").toString("utf8")
                     : Buffer.from(string).toString("base64");
                 library.log([output]);
             },
-            fileWrapper = function node_apps_base64_fileWrapper(filePath):void {
+            fileWrapper = function terminal_base64_fileWrapper(filePath):void {
                 vars
                 .node
                 .fs
-                .stat(filePath, function node_apps_base64_fileWrapper_stat(er:Error, stat:Stats):void {
+                .stat(filePath, function terminal_base64_fileWrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `file path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
-                        file = function node_apps_base64_fileWrapper_stat_file():void {
+                        file = function terminal_base64_fileWrapper_stat_file():void {
                             vars
                             .node
                             .fs
-                            .open(filePath, "r", function node_apps_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
+                            .open(filePath, "r", function terminal_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
                                 let buff  = Buffer.alloc(stat.size);
                                 if (ero !== null) {
                                     if (http === true) {
-                                        library.remove(filePath, function node_apps_base64_fileWrapper_stat_file_open_removeCallback():void {
+                                        library.remove(filePath, function terminal_base64_fileWrapper_stat_file_open_removeCallback():void {
                                             return;
                                         });
                                     }
@@ -60,9 +60,9 @@ const library = {
                                         0,
                                         stat.size,
                                         0,
-                                        function node_apps_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
+                                        function terminal_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
                                             if (http === true) {
-                                                library.remove(filePath, function node_apps_base64_fileWrapper_stat_file_open_read_callback():void {
+                                                library.remove(filePath, function terminal_base64_fileWrapper_stat_file_open_read_callback():void {
                                                     return;
                                                 });
                                             }
@@ -93,7 +93,7 @@ const library = {
                         };
                     if (er !== null) {
                         if (http === true) {
-                            library.remove(filePath, function node_apps_base64_fileWrapper_stat_callback1():void {
+                            library.remove(filePath, function terminal_base64_fileWrapper_stat_callback1():void {
                                 return;
                             });
                         }
@@ -110,7 +110,7 @@ const library = {
                     }
                     if (stat === undefined) {
                         if (http === true) {
-                            library.remove(filePath, function node_apps_base64_fileWrapper_stat_callback2():void {
+                            library.remove(filePath, function terminal_base64_fileWrapper_stat_callback2():void {
                                 return;
                             });
                         }

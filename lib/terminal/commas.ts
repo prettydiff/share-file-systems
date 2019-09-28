@@ -1,6 +1,6 @@
 
 // converts numbers into a string of comma separated triplets
-const commas = function node_apps_commas(number:number):string {
+const commas = function terminal_commas(number:number):string {
     const str:string = String(number);
     let arr:string[] = [],
         a:number   = str.length;

@@ -14,7 +14,7 @@ const library = {
         log: log,
         simulation: simulation
     },
-    build = function node_apps_build(test:boolean):void {
+    build = function terminal_build(test:boolean):void {
         let firstOrder:boolean = true,
             sectionTime:[number, number] = [0, 0];
         const order = {
@@ -32,7 +32,7 @@ const library = {
                 : "build",
             orderLength:number = order[type].length,
             // a short title for each build/test phase
-            heading = function node_apps_build_heading(message:string):void {
+            heading = function terminal_build_heading(message:string):void {
                 if (firstOrder === true) {
                     library.log([""]);
                     firstOrder = false;
@@ -42,7 +42,7 @@ const library = {
                 library.log([vars.text.cyan + message + vars.text.none, ""]);
             },
             // indicates how long each phase took
-            sectionTimer = function node_apps_build_sectionTime(input:string):void {
+            sectionTimer = function terminal_build_sectionTime(input:string):void {
                 let now:string[] = input.replace(`${vars.text.cyan}[`, "").replace(`]${vars.text.none} `, "").split(":"),
                     numb:[number, number] = [(Number(now[0]) * 3600) + (Number(now[1]) * 60) + Number(now[2].split(".")[0]), Number(now[2].split(".")[1])],
                     difference:[number, number],
@@ -94,7 +94,7 @@ const library = {
                 library.log([`${vars.text.cyan + vars.text.bold}[${times.join(":")}]${vars.text.none} ${vars.text.green}Total section time.${vars.text.none}`]);
             },
             // the transition to the next phase or completion
-            next = function node_apps_build_next(message:string):void {
+            next = function terminal_build_next(message:string):void {
                 let phase = order[type][0],
                     time:string = library.humanTime(false);
                 if (message !== "") {
@@ -114,23 +114,23 @@ const library = {
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
             phases = {
                 // phase lint is merely a call to apps.lint
-                lint     : function node_apps_build_lint():void {
-                    const callback = function node_apps_build_lint_callback(message:string):void {
+                lint     : function terminal_build_lint():void {
+                    const callback = function terminal_build_lint_callback(message:string):void {
                         next(message);
                     };
                     heading("Linting");
                     library.lint(callback);
                 },
                 // phase simulation is merely a call to apps.simulation
-                simulation: function node_apps_build_simulation():void {
-                    const callback = function node_apps_build_simulation_callback(message:string):void {
+                simulation: function terminal_build_simulation():void {
+                    const callback = function terminal_build_simulation_callback(message:string):void {
                         next(message);
                     };
                     heading(`Simulations of Node.js commands from ${vars.version.command}`);
                     library.simulation(callback);
                 },
                 // phase typescript compiles the working code into JavaScript
-                typescript: function node_apps_build_typescript():void {
+                typescript: function terminal_build_typescript():void {
                     const flag = {
                             services: false,
                             typescript: false
@@ -141,10 +141,10 @@ const library = {
                         command:string = (process.argv.indexOf("local") > -1)
                             ? `node_modules\\.bin\\tsc ${incremental}`
                             : `tsc ${incremental}`,
-                        ts = function node_apps_build_typescript_ts() {
+                        ts = function terminal_build_typescript_ts() {
                             vars.node.child(command, {
                                 cwd: vars.projectPath
-                            }, function node_apps_build_typescript_callback(err:Error, stdout:string, stderr:string):void {
+                            }, function terminal_build_typescript_callback(err:Error, stdout:string, stderr:string):void {
                                 const control:string = "\u001b[91m";
                                 if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
                                     library.error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
@@ -162,7 +162,7 @@ const library = {
                             });
                         };
                     heading("TypeScript Compilation");
-                    vars.node.child("tsc --version", function node_apps_build_typescript_tsc(err:Error, stdout:string, stderr:string) {
+                    vars.node.child("tsc --version", function terminal_build_typescript_tsc(err:Error, stdout:string, stderr:string) {
                         if (err !== null) {
                             const str = err.toString();
                             if (str.indexOf("command not found") > 0 || str.indexOf("is not recognized") > 0) {
@@ -185,15 +185,15 @@ const library = {
                     });
                 },
                 // write the current version and change date
-                version: function node_apps_build_version():void {
+                version: function terminal_build_version():void {
                     const pack:string = `${vars.projectPath}package.json`;
                     heading("Writing version data");
-                    vars.node.fs.stat(pack, function node_apps_build_version_stat(ers:Error, stat:Stats) {
+                    vars.node.fs.stat(pack, function terminal_build_version_stat(ers:Error, stat:Stats) {
                         if (ers !== null) {
                             library.error([ers.toString()]);
                             return;
                         }
-                        const month:string = (function node_apps_build_version_stat_month():string {
+                        const month:string = (function terminal_build_version_stat_month():string {
                                 let numb:number = stat.mtime.getMonth();
                                 if (numb === 0) {
                                     return "JAN";
@@ -234,13 +234,13 @@ const library = {
                             }()),
                             date = `${stat.mtime.getDate().toString()} ${month} ${stat.mtime.getFullYear().toString()}`;
                         vars.version.date = date.replace(/-/g, "");
-                        vars.node.fs.readFile(pack, "utf8", function node_apps_build_version_stat_read(err:Error, data:string) {
+                        vars.node.fs.readFile(pack, "utf8", function terminal_build_version_stat_read(err:Error, data:string) {
                             if (err !== null) {
                                 library.error([err.toString()]);
                                 return;
                             }
                             vars.version.number = JSON.parse(data).version;
-                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, `{"command":"${vars.version.command}","date":"${vars.version.date}","name":"${vars.version.name}","number":"${vars.version.number}","port":${vars.version.port}}`, "utf8", function node_apps_build_version_stat_read_write(erw:Error) {
+                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, `{"command":"${vars.version.command}","date":"${vars.version.date}","name":"${vars.version.name}","number":"${vars.version.number}","port":${vars.version.port}}`, "utf8", function terminal_build_version_stat_read_write(erw:Error) {
                                 if (erw !== null) {
                                     library.error([erw.toString()]);
                                     return;

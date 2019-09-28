@@ -3,7 +3,7 @@ import log from "./log.js";
 import vars from "./vars.js";
 
 // help text
-const help = function node_apps_help():void {
+const help = function terminal_help():void {
     vars.verbose = true;
     log([
         "",

@@ -17,7 +17,7 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
-    copy = function node_apps_copy(params:nodeCopyParams):void {
+    copy = function terminal_copy(params:nodeCopyParams):void {
         const numb:any  = {
                 dirs : 0,
                 files: 0,
@@ -31,32 +31,32 @@ const library = {
             target:string        = "",
             destination:string   = "",
             excludeLength:number = 0;
-        util.complete = function node_apps_copy_complete(item:string):void {
+        util.complete = function terminal_copy_complete(item:string):void {
             delete dirs[item];
             if (Object.keys(dirs).length < 1) {
                 params.callback();
             }
         };
-        util.errorOut     = function node_apps_copy_errorOut(er:Error):void {
+        util.errorOut     = function terminal_copy_errorOut(er:Error):void {
             const filename:string[] = target.split(vars.sep);
             library.remove(
                 destination + vars.sep + filename[filename.length - 1],
-                function node_apps_copy_errorOut_remove() {
+                function terminal_copy_errorOut_remove() {
                     library.error([er.toString()]);
                 }
             );
         };
-        util.dir      = function node_apps_copy_dir(item:string):void {
+        util.dir      = function terminal_copy_dir(item:string):void {
             vars
                 .node
                 .fs
-                .readdir(item, function node_apps_copy_dir_readdir(er:Error, files:string[]):void {
+                .readdir(item, function terminal_copy_dir_readdir(er:Error, files:string[]):void {
                     const place:string = dest + item.replace(start, "");
                     if (er !== null) {
                         util.errorOut(er);
                         return;
                     }
-                    library.makeDir(place, function node_apps_copy_dir_readdir_makeDir():void {
+                    library.makeDir(place, function terminal_copy_dir_readdir_makeDir():void {
                         const a = files.length;
                         let b = 0;
                         if (a > 0) {
@@ -76,7 +76,7 @@ const library = {
                     });
                 });
         };
-        util.file     = function node_apps_copy_file(item:string, dir:string, prop:nodeFileProps):void {
+        util.file     = function terminal_copy_file(item:string, dir:string, prop:nodeFileProps):void {
             const place:string       = dest + item.replace(start, ""),
                 readStream:Stream  = vars.node
                     .fs
@@ -85,21 +85,21 @@ const library = {
                     .fs
                     .createWriteStream(place, {mode: prop.mode});
             let errorFlag:boolean   = false;
-            readStream.on("error", function node_apps_copy_file_readError(error:Error):void {
+            readStream.on("error", function terminal_copy_file_readError(error:Error):void {
                 errorFlag = true;
                 util.errorOut(error);
                 return;
             });
-            writeStream.on("error", function node_apps_copy_file_writeError(error:Error):void {
+            writeStream.on("error", function terminal_copy_file_writeError(error:Error):void {
                 errorFlag = true;
                 util.errorOut(error);
                 return;
             });
             if (errorFlag === false) {
-                writeStream.on("open", function node_apps_copy_file_write():void {
+                writeStream.on("open", function terminal_copy_file_write():void {
                     readStream.pipe(writeStream);
                 });
-                writeStream.once("finish", function node_apps_copy_file_finish():void {
+                writeStream.once("finish", function terminal_copy_file_finish():void {
                     const filename:string[] = item.split(vars.sep);
                     vars
                         .node
@@ -108,18 +108,18 @@ const library = {
                             dest + vars.sep + filename[filename.length - 1],
                             prop.atime,
                             prop.mtime,
-                            function node_apps_copy_file_finish_utimes():void {
+                            function terminal_copy_file_finish_utimes():void {
                                 util.complete(item);
                             }
                         );
                 });
             }
         };
-        util.link     = function node_apps_copy_link(item:string, dir:string):void {
+        util.link     = function terminal_copy_link(item:string, dir:string):void {
             vars
                 .node
                 .fs
-                .readlink(item, function node_apps_copy_link_readlink(err:Error, resolvedLink:string):void {
+                .readlink(item, function terminal_copy_link_readlink(err:Error, resolvedLink:string):void {
                     if (err !== null) {
                         util.errorOut(err);
                         return;
@@ -128,7 +128,7 @@ const library = {
                     vars
                         .node
                         .fs
-                        .stat(resolvedLink, function node_apps_copy_link_readlink_stat(ers:Error, stats:Stats):void {
+                        .stat(resolvedLink, function terminal_copy_link_readlink_stat(ers:Error, stats:Stats):void {
                             let type  = "file",
                                 place = dest + item.replace(start, "");
                             if (ers !== null) {
@@ -154,7 +154,7 @@ const library = {
                                     resolvedLink,
                                     place,
                                     type,
-                                    function node_apps_copy_link_readlink_stat_makeLink(erl:Error):void {
+                                    function terminal_copy_link_readlink_stat_makeLink(erl:Error):void {
                                         if (erl !== null) {
                                             util.errorOut(erl);
                                             return;
@@ -165,7 +165,7 @@ const library = {
                         });
                 });
         };
-        util.stat     = function node_apps_copy_stat(item:string, dir:string):void {
+        util.stat     = function terminal_copy_stat(item:string, dir:string):void {
             let a    = 0;
             if (excludeLength > 0) {
                 do {
@@ -178,7 +178,7 @@ const library = {
                     a = a + 1;
                 } while (a < excludeLength);
             }
-            vars.node.fs.lstat(item, function node_apps_copy_stat_callback(er:Error, stats:Stats):void {
+            vars.node.fs.lstat(item, function terminal_copy_stat_callback(er:Error, stats:Stats):void {
                 if (er !== null) {
                     util.errorOut(er);
                     return;
@@ -191,7 +191,7 @@ const library = {
                     numb.files = numb.files + 1;
                     numb.size  = numb.size + stats.size;
                     if (item === dir) {
-                        library.makeDir(dest, function node_apps_copy_stat_callback_file():void {
+                        library.makeDir(dest, function terminal_copy_stat_callback_file():void {
                             util.file(item, dir, {
                                 atime: (Date.parse(stats.atime.toString()) / 1000),
                                 mode : stats.mode,
@@ -211,7 +211,7 @@ const library = {
                 } else if (stats.isSymbolicLink() === true) {
                     numb.link = numb.link + 1;
                     if (item === dir) {
-                        library.makeDir(dest, function node_apps_copy_stat_callback_symbolic() {
+                        library.makeDir(dest, function terminal_copy_stat_callback_symbolic() {
                             util.link(item, dir);
                         });
                     } else {
@@ -231,7 +231,7 @@ const library = {
                 return;
             }
             params = {
-                callback: function node_apps_copy_callback() {
+                callback: function terminal_copy_callback() {
                     const out:string[] = [`${vars.version.name} copied `];
                     out.push("");
                     out.push(vars.text.green);

@@ -12,8 +12,8 @@ const library = {
         humanTime: humanTime,
         log: log
     },
-    lint = function node_apps_lint(callback:Function):void {
-        vars.node.child(`eslint`, function node_apps_lint_eslintCheck(lint_err:Error) {
+    lint = function terminal_lint(callback:Function):void {
+        vars.node.child(`eslint`, function terminal_lint_eslintCheck(lint_err:Error) {
             const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
                 ? vars.node.path.resolve(process.argv[0])
                 : vars.js;
@@ -33,13 +33,13 @@ const library = {
             }
             if (vars.command === "lint") {
                 vars.verbose = true;
-                callback = function node_apps_lint_callback():void {
+                callback = function terminal_lint_callback():void {
                     library.log([`Lint complete for ${lintPath}`], true);
                 };
             }
             vars.node.child(`eslint ${lintPath}`, {
                 cwd: vars.projectPath
-            }, function node_apps_lint_lintRun_lintItem_eslint(err:Error, stdout:string, stderr:string) {
+            }, function terminal_lint_eslint(err:Error, stdout:string, stderr:string) {
                 if (stdout === "" || stdout.indexOf("0:0  warning  File ignored because of a matching ignore pattern.") > -1) {
                     if (err !== null) {
                         library.error([err.toString()]);

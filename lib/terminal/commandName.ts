@@ -3,7 +3,7 @@
 import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
-const commandName = function node_command():string {
+const commandName = function terminal_command():string {
     let comKeys:string[] = Object.keys(vars.commands),
         filtered:string[] = [],
         a:number = 0,
@@ -22,7 +22,7 @@ const commandName = function node_command():string {
     const arg:string = process.argv[2],
         boldArg:string = vars.text.angry + arg + vars.text.none,
         len:number = arg.length + 1,
-        commandFilter = function node_command_commandFilter(item:string):boolean {
+        commandFilter = function terminal_command_commandFilter(item:string):boolean {
             if (item.indexOf(arg.slice(0, a)) === 0) {
                 return true;
             }

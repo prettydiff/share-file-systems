@@ -13,11 +13,11 @@ const library = {
         log: log,
         remove: remove
     },
-    simulation = function node_apps_simulation(callback:Function):void {
+    simulation = function terminal_simulation(callback:Function):void {
         const tests:simulationItem[] = simulations,
             len:number = tests.length,
-            increment = function node_apps_simulation_increment(irr:string):void {
-                const interval = function node_apps_simulation_increment_interval():void {
+            increment = function terminal_simulation_increment(irr:string):void {
+                const interval = function terminal_simulation_increment_interval():void {
                     a = a + 1;
                     if (a < len) {
                         wrapper();
@@ -38,12 +38,12 @@ const library = {
                 if (tests[a].artifact === "" || tests[a].artifact === undefined) {
                     interval();
                 } else {
-                    library.remove(tests[a].artifact, function node_apps_simulation_wrapper_remove():void {
+                    library.remove(tests[a].artifact, function terminal_simulation_wrapper_remove():void {
                         interval();
                     });
                 }
             },
-            error = function node_apps_simulation_error(message:string, stdout:string) {
+            error = function terminal_simulation_error(message:string, stdout:string) {
                 library.error([
                     `Simulation test string ${vars.text.angry + tests[a].command + vars.text.none} ${message}:`,
                     tests[a].test,
@@ -53,8 +53,8 @@ const library = {
                     stdout
                 ]);
             },
-            wrapper = function node_apps_simulation_wrapper():void {
-                vars.node.child(`${vars.version.command} ${tests[a].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function node_apps_simulation_wrapper_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+            wrapper = function terminal_simulation_wrapper():void {
+                vars.node.child(`${vars.version.command} ${tests[a].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_simulation_wrapper_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
                     tests[a].test = tests[a].test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
                     if (tests[a].artifact === "" || tests[a].artifact === undefined) {
                         vars.flags.write = "";
@@ -92,7 +92,7 @@ const library = {
                         }
                         if (tests[a].qualifier.indexOf("file ") === 0) {
                             tests[a].file = vars.node.path.resolve(tests[a].file);
-                            vars.node.fs.readFile(tests[a].file, "utf8", function node_apps_simulation_wrapper_file(err:Error, dump:string) {
+                            vars.node.fs.readFile(tests[a].file, "utf8", function terminal_simulation_wrapper_file(err:Error, dump:string) {
                                 if (err !== null) {
                                     library.error([err.toString()]);
                                     return;
@@ -125,7 +125,7 @@ const library = {
                             });
                         } else if (tests[a].qualifier.indexOf("filesystem ") === 0) {
                             tests[a].test = vars.node.path.resolve(tests[a].test);
-                            vars.node.fs.stat(tests[a].test, function node_apps_simulation_wrapper_filesystem(ers:Error) {
+                            vars.node.fs.stat(tests[a].test, function terminal_simulation_wrapper_filesystem(ers:Error) {
                                 if (ers !== null) {
                                     if (tests[a].qualifier === "filesystem contains" && ers.toString().indexOf("ENOENT") > -1) {
                                         library.error([
@@ -179,7 +179,7 @@ const library = {
 
         let a:number = 0;
         if (vars.command === "simulation") {
-            callback = function node_apps_lint_callback(message:string):void {
+            callback = function terminal_lint_callback(message:string):void {
                 vars.verbose = true;
                 library.log([message, "\u0007"], true); // bell sound
             };

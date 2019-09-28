@@ -22,19 +22,19 @@ const library = {
         readFile: readFile,
         remove: remove
     },
-    hash = function node_apps_hash(filePath:string, callback:Function):void {
+    hash = function terminal_hash(filePath:string, callback:Function):void {
         let limit:number = 0,
             shortLimit:number = 0,
             hashList:boolean = false;
         const http:RegExp = (/^https?:\/\//),
-            dirComplete = function node_apps_hash_dirComplete(list:directoryList):void {
+            dirComplete = function terminal_hash_dirComplete(list:directoryList):void {
                 let a:number = 0,
                     c:number = 0;
                 const listLength:number = list.length,
                     listObject:any = {},
                     hashes:string[] = [],
                     hashComplete = (typeof callback === "function")
-                        ? function node_apps_hash_dirComplete_callback():void {
+                        ? function terminal_hash_dirComplete_callback():void {
                             const hash:Hash = vars.node.crypto.createHash("sha512");
                             let hashString:string = "";
                             if (hashList === true) {
@@ -47,7 +47,7 @@ const library = {
                             }
                             callback(hashString);
                         }
-                        : function node_apps_hash_dirComplete_hashComplete():void {
+                        : function terminal_hash_dirComplete_hashComplete():void {
                             const hash:Hash = vars.node.crypto.createHash("sha512");
                             let hashString:string = "";
                             if (vars.verbose === true) {
@@ -67,9 +67,9 @@ const library = {
                                 library.log([hashString]);
                             }
                         },
-                    hashBack = function node_apps_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
+                    hashBack = function terminal_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                         const hash:Hash = vars.node.crypto.createHash("sha512");
-                        hash.on("readable", function node_apps_hash_dirComplete_hashBack_hash():void {
+                        hash.on("readable", function terminal_hash_dirComplete_hashBack_hash():void {
                             let hashString:string = "";
                             const hashData:Buffer = <Buffer>hash.read();
                             if (hashData !== null) {
@@ -80,13 +80,13 @@ const library = {
                         hash.write(item);
                         hash.end();
                         if (http.test(filePath) === true) {
-                            library.remove(data.path, function node_apps_hash_dirComplete_hashBack_hash_remove():boolean {
+                            library.remove(data.path, function terminal_hash_dirComplete_hashBack_hash_remove():boolean {
                                 return true;
                             });
                         }
                     },
-                    typeHash = function node_apps_hash_dirComplete_typeHash(index:number, end:number) {
-                        const terminate = function node_apps_hash_dirComplete_typeHash_terminate():void {
+                    typeHash = function terminal_hash_dirComplete_typeHash(index:number, end:number) {
+                        const terminate = function terminal_hash_dirComplete_typeHash_terminate():void {
                             c = c + 1;
                             if (c === end) {
                                 if (a === listLength) {
@@ -114,8 +114,8 @@ const library = {
                                 path: list[index][0],
                                 stat: list[index][4],
                                 index: index,
-                                callback: function node_apps_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
-                                    hashBack(data, item, function node_apps_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
+                                callback: function terminal_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
+                                    hashBack(data, item, function terminal_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
                                         hashes[item[0]] = hashString;
                                         if (hashList === true) {
                                             listObject[data.path] = hashString;
@@ -128,7 +128,7 @@ const library = {
                             });
                         }
                     },
-                    recursive = function node_apps_hash_dirComplete_recursive():void {
+                    recursive = function terminal_hash_dirComplete_recursive():void {
                         let b = 0,
                             end = (listLength - a < shortLimit)
                                 ? listLength - a
@@ -139,7 +139,7 @@ const library = {
                             b = b + 1;
                         } while (b < shortLimit && a < listLength);
                     },
-                    sortFunction = function node_apps_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem) {
+                    sortFunction = function terminal_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem) {
                         if (a[0] < b[0]) {
                             return -1;
                         }
@@ -168,8 +168,8 @@ const library = {
                                 path: list[a][0],
                                 stat: list[a][4],
                                 index: a,
-                                callback: function node_apps_hash_dirComplete_file(data:readFile, item:string|Buffer):void {
-                                    hashBack(data, item, function node_apps_hash_dirComplete_file_hashBack(hashString:string, index:number):void {
+                                callback: function terminal_hash_dirComplete_file(data:readFile, item:string|Buffer):void {
+                                    hashBack(data, item, function terminal_hash_dirComplete_file_hashBack(hashString:string, index:number):void {
                                         if (hashList === true) {
                                             listObject[data.path] = hashString;
                                         } else {
@@ -218,19 +218,19 @@ const library = {
             }
         }
         if (http.test(filePath) === true) {
-            library.get(filePath, function node_apps_hash_get(fileData:string) {
+            library.get(filePath, function terminal_hash_get(fileData:string) {
                 const hash:Hash = vars.node.crypto.createHash("sha512");
                 hash.update(fileData);
                 library.log([hash.digest("hex")], true);
             });
         } else {
-            vars.node.child("ulimit -n", function node_apps_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
+            vars.node.child("ulimit -n", function terminal_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
                 if (ulimit_err === null && ulimit_out !== "unlimited" && isNaN(Number(ulimit_out)) === false) {
                     limit = Number(ulimit_out);
                     shortLimit = Math.ceil(limit / 5);
                 }
                 library.directory({
-                    callback: function node_apps_hash_localCallback(list:directoryList) {
+                    callback: function terminal_hash_localCallback(list:directoryList) {
                         dirComplete(list);
                     },
                     depth: 0,

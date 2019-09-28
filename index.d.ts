@@ -84,7 +84,9 @@ interface fsDetails {
     links: number;
     size: number;
 }
-
+interface FSWatcher extends Function {
+    close: Function;
+}
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
@@ -104,6 +106,9 @@ interface invite {
     port: number;
     shares: [string, string][];
     status: "accepted" | "declined" | "invited";
+}
+interface inviteHeartbeat extends invite {
+    user: string;
 }
 interface inviteError {
     error: string;
@@ -245,6 +250,18 @@ interface readFile {
 interface serverError {
     stack: string[];
     error: string;
+}
+interface serverVars {
+    addresses: [[string, string, string][], number]
+    socketReceiver: any;
+    socketList: any;
+    timeStore:number;
+    serverPort: number;
+    watches: {
+        [key:string]: FSWatcher;
+    };
+    webPort: number;
+    wsPort: number;
 }
 interface simulationItem {
     artifact?: string;

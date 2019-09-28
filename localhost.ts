@@ -63,20 +63,20 @@ import util from "./lib/browser/util.js";
             let storage:any,
                 a:number = 0,
                 cString:string = "",
+                localhost:HTMLElement,
                 active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
                 idleness = function local_restore_idleness():void {
                     const time:number = Date.now();
-                    if (time - active > idleTime) {
-                        document.getElementById("localhost").setAttribute("class", "idle");
+                    if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active") {
+                        localhost.setAttribute("class", "idle");
                         network.heartbeat("idle");
                     }
                     setTimeout(local_restore_idleness, idleTime);
                 },
                 loadComplete = function local_restore_complete():void {
-                    const localhost:HTMLElement = document.getElementById("localhost");
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
@@ -206,6 +206,7 @@ import util from "./lib/browser/util.js";
                             let count:number = 0;
                             browser.data.name = storage.settings.name;
                             util.addUser(`${storage.settings.name}@localhost`, storage.settings.name[storage.settings.shares[storage.settings.name]]);
+                            localhost = document.getElementById("localhost");
                             
                             // restore shares
                             {

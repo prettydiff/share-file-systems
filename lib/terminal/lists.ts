@@ -10,7 +10,7 @@ const library = {
         log: log,
         wrapIt: wrapIt
     },
-    lists = function node_apps_lists(lists:nodeLists):void {
+    lists = function terminal_lists(lists:nodeLists):void {
         // * lists.empty_line - boolean - if each key should be separated by an empty line
         // * lists.heading    - string  - a text heading to precede the list
         // * lists.obj        - object  - an object to traverse
@@ -23,7 +23,7 @@ const library = {
             plural = (keyLength === 1)
                 ? ""
                 : "s",
-            displayKeys = function node_apps_lists_displayKeys(item:string, keyList:string[]):void {
+            displayKeys = function terminal_lists_displayKeys(item:string, keyList:string[]):void {
                 const len:number = keyList.length;
                 let a:number = 0,
                     b:number = 0,
@@ -58,7 +58,7 @@ const library = {
                             if (vars.command === "options" && keyList[b] === "values") {
                                 // "values" key name of options
                                 output.push(`${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}:`);
-                                node_apps_lists_displayKeys(vars.command, Object.keys(lists.obj.values).sort());
+                                terminal_lists_displayKeys(vars.command, Object.keys(lists.obj.values).sort());
                             } else {
                                 // all items keys and their primitive value
                                 library.wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]]}`);

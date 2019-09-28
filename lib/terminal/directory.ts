@@ -12,7 +12,7 @@ const library = {
         log: log,
         wrapIt: wrapIt
     },
-    directory = function node_apps_directory(args:readDirectory):void {
+    directory = function terminal_directory(args:readDirectory):void {
         // arguments:
         // * callback - function - the output is passed into the callback as an argument
         // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
@@ -33,7 +33,7 @@ const library = {
         const dirCount:number[] = [],
             dirNames:string[] = [],
             listOnly:boolean = (vars.command === "directory" && process.argv.indexOf("list") > -1),
-            type:boolean = (function node_apps_directory_typeof():boolean {
+            type:boolean = (function terminal_directory_typeof():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
                 if (vars.command === "directory" && typeIndex > -1) {
                     process.argv.splice(typeIndex, 1);
@@ -41,12 +41,12 @@ const library = {
                 }
                 return false;
             }()),
-            startPath:string = (function node_apps_directory_startPath():string {
+            startPath:string = (function terminal_directory_startPath():string {
                 if (vars.command === "directory") {
                     const len:number = process.argv.length;
                     let a:number = 0;
                     args = {
-                        callback: function node_apps_directory_startPath_callback(result:string[]|directoryList) {
+                        callback: function terminal_directory_startPath_callback(result:string[]|directoryList) {
                             const output:string[] = [];
                             if (vars.verbose === true) {
                                 output.push(JSON.stringify(result));
@@ -57,7 +57,7 @@ const library = {
                                 library.log([JSON.stringify(result)]);
                             }
                         },
-                        depth: (function node_apps_directory_startPath_depth():number {
+                        depth: (function terminal_directory_startPath_depth():number {
                             let b:number = 0;
                             do {
                                 if ((/^depth:\d+$/).test(process.argv[b]) === true) {
@@ -70,13 +70,13 @@ const library = {
                         exclusions: vars.exclusions,
                         path: "",
                         recursive: (process.argv.indexOf("shallow") > -1)
-                            ? (function node_apps_directory_startPath_recursive():boolean {
+                            ? (function terminal_directory_startPath_recursive():boolean {
                                 process.argv.splice(process.argv.indexOf("shallow"), 1);
                                 return false;
                             }())
                             : true,
                         symbolic: (process.argv.indexOf("symbolic") > -1)
-                            ? (function node_apps_directory_startPath_symbolic():boolean {
+                            ? (function terminal_directory_startPath_symbolic():boolean {
                                 process.argv.splice(process.argv.indexOf("symbolic"), 1);
                                 return true;
                             }())
@@ -104,7 +104,7 @@ const library = {
             method:string = (args.symbolic === true)
                 ? "lstat"
                 : "stat",
-            dirCounter = function node_apps_directory_dirCounter(item:string):void {
+            dirCounter = function terminal_directory_dirCounter(item:string):void {
                 let dirList:string[] = item.split(vars.sep),
                     dirPath:string = "",
                     index:number = 0;
@@ -131,15 +131,15 @@ const library = {
                             args.callback(list);
                         }
                     } else {
-                        node_apps_directory_dirCounter(dirPath);
+                        terminal_directory_dirCounter(dirPath);
                     }
                 }
             },
-            statWrapper = function node_apps_directory_wrapper(filePath:string, parent:number):void {
-                vars.node.fs[method](filePath, function node_apps_directory_wrapper_stat(er:Error, stat:Stats):void {
+            statWrapper = function terminal_directory_wrapper(filePath:string, parent:number):void {
+                vars.node.fs[method](filePath, function terminal_directory_wrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
-                        dir = function node_apps_directory_wrapper_stat_dir(item:string):void {
-                            vars.node.fs.readdir(item, {encoding: "utf8"}, function node_apps_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                        dir = function terminal_directory_wrapper_stat_dir(item:string):void {
+                            vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                 if (erd !== null) {
                                     library.error([erd.toString()]);
                                     if (vars.command === "server") {
@@ -162,13 +162,13 @@ const library = {
                                         dirNames.push(item);
                                         dirs = dirs + 1;
                                     }
-                                    files.forEach(function node_apps_directory_wrapper_stat_dir_readDir_each(value:string):void {
-                                        node_apps_directory_wrapper(item + vars.sep + value, index);
+                                    files.forEach(function terminal_directory_wrapper_stat_dir_readDir_each(value:string):void {
+                                        terminal_directory_wrapper(item + vars.sep + value, index);
                                     });
                                 }
                             });
                         },
-                        populate = function node_apps_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
+                        populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
                             if (type !== "error" && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
                                 if (listOnly === true) {
                                     fileList.push(filePath);

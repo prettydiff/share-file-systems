@@ -10,7 +10,7 @@ const library = {
         error: error,
         log: log
     },
-    get = function node_apps_get(address:string, callback:Function|null):void {
+    get = function terminal_get(address:string, callback:Function|null):void {
         if (vars.command === "get") {
             address = process.argv[0];
         }
@@ -33,11 +33,11 @@ const library = {
             ]);
             return;
         }
-        vars.node[scheme].get(address, function node_apps_get_callback(res:http.IncomingMessage) {
-            res.on("data", function node_apps_get_callback_data(chunk:string):void {
+        vars.node[scheme].get(address, function terminal_get_callback(res:http.IncomingMessage) {
+            res.on("data", function terminal_get_callback_data(chunk:string):void {
                 file = file + chunk;
             });
-            res.on("end", function node_apps_get_callback_end() {
+            res.on("end", function terminal_get_callback_end() {
                 if (res.statusCode !== 200) {
                     if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 303 || res.statusCode === 307 || res.statusCode === 308) {
                         if (vars.verbose === true) {
@@ -45,7 +45,7 @@ const library = {
                         }
                         process.argv[0] = res.headers.location;
                         address = process.argv[0];
-                        node_apps_get(address, callback);
+                        terminal_get(address, callback);
                         return;
                     }
                     library.error([`${scheme}.get failed with status code ${res.statusCode}`]);
