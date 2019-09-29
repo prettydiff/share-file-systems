@@ -111,7 +111,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                             response.write(data);
                                             response.end();
                                         } else {
-                                            list.push(`"settings":${settings}`);
+                                            list.push(`"settings":${settings.replace(/--/g, "&#x2d;&#x2d;")}`);
                                             flag.settings = true;
                                             if (flag.messages === true) {
                                                 response.write(appliedData());
@@ -142,7 +142,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                             response.write(data);
                                             response.end();
                                         } else {
-                                            list.push(`"messages":${messages}`);
+                                            list.push(`"messages":${messages.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/--/g, "&#x2d;&#x2d;")}`);
                                             flag.messages = true;
                                             if (flag.settings === true) {
                                                 response.write(appliedData());
