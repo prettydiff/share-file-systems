@@ -26,6 +26,7 @@ interface browser {
     localNetwork:localNetwork;
     messages:messages;
     pageBody:HTMLElement;
+    socket?:WebSocket;
 }
 interface clipboard {
     type: string;

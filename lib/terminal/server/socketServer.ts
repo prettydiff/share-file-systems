@@ -4,6 +4,7 @@ import { Socket } from "net";
 import log from "../log.js";
 import vars from "../vars.js";
 
+// This function provides the events for a TCP socket server.
 const socketServer = function terminal_server_socketServer(socketResponse:Socket):void {
     socketResponse.on("data", function terminal_server_socketServer_data(data:Buffer):void {
         const message:string = data.toString();

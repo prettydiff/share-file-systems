@@ -106,6 +106,15 @@ const library = {
 
                 vars.ws = new WebSocket.Server({port: serverVars.wsPort});
 
+                // creates a broadcast utility where all listening clients get a web socket message
+                vars.ws.broadcast = function terminal_server_socketServerListener_broadcast(data:string):void {
+                    vars.ws.clients.forEach(function terminal_server_socketServerListener_broadcast_clients(client):void {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(data);
+                        }
+                    });
+                };
+
                 serverVars.socketReceiver = vars.node.net.createServer(socketServer);
                 serverVars.serverPort = (port === 0)
                     ? 0

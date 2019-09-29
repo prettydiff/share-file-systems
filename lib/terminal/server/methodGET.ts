@@ -75,7 +75,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                     } else if (localPath.indexOf(".png") === localPath.length - 4) {
                         response.writeHead(200, {"Content-Type": "image/png"});
                     } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
-                        response.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:");
+                        response.setHeader("Content-Security-Policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
                         response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
                         if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
                             const flag:any = {
@@ -154,7 +154,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                             });
                         }
                     } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                        response.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:");
+                        response.setHeader("Content-Security-Policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
                         response.writeHead(200, {"Content-Type": "text/html"});
                     } else {
                         response.writeHead(200, {"Content-Type": "text/plain"});

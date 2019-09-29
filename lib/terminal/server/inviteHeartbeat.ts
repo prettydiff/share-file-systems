@@ -9,42 +9,27 @@ const library = {
         error: error,
         log: log
     },
+    // This logic will push out heartbeat data for existing connections only, so most of this logic is just for task:invite, because inviting a user must require a new socket
     inviteHeartbeat = function terminal_server_inviteHeartbeat(dataString:string, task:string):void {
         const data:inviteHeartbeat = JSON.parse(dataString);
-        if (serverVars.socketList[data.ip] === undefined) {
+        if (serverVars.socketList[data.ip] === undefined && task === "invite") {
             serverVars.socketList[data.ip] = new vars.node.net.Socket();
             serverVars.socketList[data.ip].connect(data.port, data.ip, function terminal_server_inviteHeartbeat_inviteConnect():void {
-                if (task === "invite") {
-                    serverVars.socketList[data.ip].write(`invite:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverVars.serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
-                } else {
-                    serverVars.socketList[data.ip].write(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"${data.status}","user":"${data.user}"}`);
-                }
+                serverVars.socketList[data.ip].write(`invite:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverVars.serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
             });
             serverVars.socketList[data.ip].on("data", function terminal_server_inviteHeartbeat_inviteData(socketData:string):void {
                 library.log([socketData]);
             });
             serverVars.socketList[data.ip].on("error", function terminal_server_inviteHeartbeat_inviteError(errorMessage:nodeError):void {
-                if (task === "invite") {
-                    vars.ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
-                } else {
-                    if (errorMessage.code === "ECONNRESET") {
-                        if (data.ip.indexOf(":") > 0) {
-                            vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"offline","user":"@[${data.ip}]:${data.port}"}`);
-                        } else {
-                            vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"offline","user":"@${data.ip}:${data.port}"}`);
-                        }
-                    } else {
-                        vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"offline","user":"${data.user}"}`);
-                    }
-                }
+                vars.ws.broadcast(`invite-error:{"error":"${errorMessage.toString()}","modal":"${data.modal}"}`);
                 library.log([`Socket error on ${data.ip}.`, errorMessage.toString()]);
                 library.error([errorMessage.toString()]);
                 if (serverVars.socketList[data.ip] !== undefined && serverVars.socketList[data.ip].destroyed === true) {
                     serverVars.socketList[data.ip].destroy();
-                    delete serverVars.socketList[data.ip];
+                    serverVars.socketList[data.ip] = null;
                 }
             });
-        } else {
+        } else if (serverVars.socketList[data.ip] !== null && serverVars.socketList[data.ip].connecting === false) {
             if (serverVars.socketList[data.ip].connecting === true) {
                 const failMessage:string = (serverVars.socketList[data.ip].localAddress === "0.0.0.0")
                     ? `Socket to ${vars.text.cyan + vars.text.bold + data.ip + vars.text.none} appears to be ${vars.text.angry}broken${vars.text.none}.`

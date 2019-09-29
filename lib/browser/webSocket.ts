@@ -5,15 +5,17 @@ import systems from "./systems.js";
 import util from "./util.js";
 
 const webSocket = function local_webSocket():WebSocket {
-    const socket:WebSocket = (browser.localNetwork.family === "ipv4")
+    const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
+        socket:WebSocket = (browser.localNetwork.family === "ipv4")
             ? new WebSocket(`ws://${browser.localNetwork.ip}:${browser.localNetwork.wsPort}`)
-            : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`),
-        title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0];
+            : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`);
     
-    title.style.background = "#ddd";
-    title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
-
     /* Handle Web Socket responses */
+    socket.onopen = function local_socketOpen():void {
+        document.getElementById("localhost").setAttribute("class", "active");
+        title.style.background = "#ddd";
+        title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
+    };
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
@@ -25,7 +27,7 @@ const webSocket = function local_webSocket():WebSocket {
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
-        } else if (event.data.indexOf("fsUpdate:") === 0) {
+        } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
             const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
                 modalKeys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = modalKeys.length;
@@ -41,8 +43,10 @@ const webSocket = function local_webSocket():WebSocket {
                         name: "",
                         watch: "no"
                     }, function local_socketMessage_fsCallback(responseText:string):void {
-                        body.innerHTML = "";
-                        body.appendChild(fs.list(value, responseText));
+                        if (responseText !== "") {
+                            body.innerHTML = "";
+                            body.appendChild(fs.list(value, responseText));
+                        }
                     });
                     break;
                 }
@@ -98,9 +102,9 @@ const webSocket = function local_webSocket():WebSocket {
         document.getElementById("localhost").setAttribute("class", "offline");
     };
     socket.onerror = function local_socketError(this:WebSocket):any {
-        setTimeout(function local_socketError():void {
-            local_webSocket();
-        }, 15000);
+        setTimeout(function local_socketError_timeout():void {
+            browser.socket = local_webSocket();
+        }, 5000);
     };
     return socket;
 };

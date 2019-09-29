@@ -6,9 +6,11 @@ import modal from "./lib/browser/modal.js";
 import network from "./lib/browser/network.js";
 import systems from "./lib/browser/systems.js";
 import util from "./lib/browser/util.js";
+import webSocket from "./lib/browser/webSocket.js";
 
 (function local():void {
 
+    browser.socket = webSocket();
     util.fixHeight();
     window.onresize = util.fixHeight;
 
@@ -70,7 +72,7 @@ import util from "./lib/browser/util.js";
                 idleTime:number = 15000,
                 idleness = function local_restore_idleness():void {
                     const time:number = Date.now();
-                    if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active") {
+                    if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active" && browser.socket.readyState === 1) {
                         localhost.setAttribute("class", "idle");
                         network.heartbeat("idle");
                     }
@@ -101,8 +103,8 @@ import util from "./lib/browser/util.js";
                         } else if (key === "control" && browser.characterKey !== "shift") {
                             browser.characterKey = "control";
                         }
-                        if (localhost !== null) {
-                            const status:string = localhost.getAttribute("class")
+                        if (localhost !== null && browser.socket.readyState === 1) {
+                            const status:string = localhost.getAttribute("class");
                             if (status !== "active") {
                                 localhost.setAttribute("class", "active");
                                 network.heartbeat("active");
@@ -123,7 +125,7 @@ import util from "./lib/browser/util.js";
                     document.onmousemove = function load_restore_complete_mousemove():void {
                         if (localhost !== null) {
                             const status:string = localhost.getAttribute("class");
-                            if (status !== "active") {
+                            if (status !== "active" && browser.socket.readyState === 1) {
                                 localhost.setAttribute("class", "active");
                                 network.heartbeat("active");
                             }
@@ -168,7 +170,6 @@ import util from "./lib/browser/util.js";
                         }
                     }
 
-                    network.heartbeat("active");
                     browser.loadTest = false;
                 };
             do {
