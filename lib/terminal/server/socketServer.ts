@@ -16,7 +16,7 @@ const socketServer = function terminal_server_socketServer(socketResponse:Socket
         } else if (message.indexOf("heartbeat:") === 0 && message !== "heartbeat:") {
             const heartbeat:heartbeat = JSON.parse(message.slice(message.indexOf("{")));
             if (serverVars.socketList[heartbeat.ip] === null) {
-                newHeartbeat(heartbeat.ip, Number(heartbeat.port), heartbeat.user);
+                newHeartbeat(heartbeat);
             }
             vars.ws.broadcast(message);
         }

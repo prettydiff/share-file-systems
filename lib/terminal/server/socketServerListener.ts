@@ -72,7 +72,13 @@ const socketServerListener = function terminal_server_socketServerListener():voi
                     lastColon = shares[a].lastIndexOf(":");
                     ip = shares[a].slice(shares[a].indexOf("@") + 1, lastColon);
                     port = shares[a].slice(lastColon + 1);
-                    newHeartbeat(ip, Number(port), settings.name);
+                    newHeartbeat({
+                        ip: ip,
+                        port: Number(port),
+                        refresh: false,
+                        status: "active",
+                        user: settings.name
+                    });
                     a = a + 1;
                 } while (a < length);
                 logOutput();

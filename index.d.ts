@@ -94,6 +94,7 @@ interface functionEvent extends EventHandlerNonNull {
 interface heartbeat {
     ip: string;
     port: number;
+    refresh: boolean;
     status: heartbeatStatus;
     user: string;
 }
@@ -109,6 +110,7 @@ interface invite {
     status: "accepted" | "declined" | "invited";
 }
 interface inviteHeartbeat extends invite {
+    refresh: boolean;
     user: string;
 }
 interface inviteError {
@@ -144,7 +146,7 @@ interface modalSettings extends EventHandlerNonNull {
 }
 interface module_network {
     fs?: (localService, callback:Function, id?:string) => void;
-    heartbeat?: (status:"active"|"idle") => void;
+    heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
     messages?: Function;

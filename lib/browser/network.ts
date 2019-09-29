@@ -40,7 +40,7 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
 };
 
 /* Provides active user status from across the network about every minute */
-network.heartbeat = function local_network_heartbeat(status:string):void {
+network.heartbeat = function local_network_heartbeat(status:string, refresh:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;
@@ -68,7 +68,7 @@ network.heartbeat = function local_network_heartbeat(status:string):void {
             xhr.withCredentials = true;
             xhr.open("POST", loc, true);
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.send(`heartbeat:{"ip":"${ip}","port":${port},"status":"${status}","user":"${local}"}`);
+            xhr.send(`heartbeat:{"ip":"${ip}","port":${port},"refresh":${refresh},"status":"${status}","user":"${local}"}`);
         }
         a = a + 1;
     } while (a < length);

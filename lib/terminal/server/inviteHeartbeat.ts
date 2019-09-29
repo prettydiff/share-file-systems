@@ -48,7 +48,7 @@ const library = {
             if (task === "invite") {
                 serverVars.socketList[data.ip].write(`invite:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverVars.serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
             } else {
-                serverVars.socketList[data.ip].write(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"${data.status}","user":"${data.user}"}`);
+                serverVars.socketList[data.ip].write(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`);
             }
         }
     };

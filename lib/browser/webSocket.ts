@@ -70,6 +70,9 @@ const webSocket = function local_webSocket():WebSocket {
                 buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                 length:number = buttons.length;
             let a:number = 0;
+            if (heartbeat.refresh === true) {
+                network.heartbeat(<"active"|"idle">document.getElementById("localhost").getAttribute("class"), false);
+            }
             do {
                 if (buttons[a].innerHTML.indexOf(heartbeat.user) > -1) {
                     buttons[a].setAttribute("class", heartbeat.status);

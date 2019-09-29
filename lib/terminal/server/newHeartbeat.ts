@@ -4,27 +4,27 @@ import vars from "../vars.js";
 
 import serverVars from "./serverVars.js";
 
-const newHeartbeat = function terminal_server_newHeartbeat(ip:string, port:number, user:string):void {
-    if (ip.charAt(0) === "[") {
-        ip = ip.slice(1, ip.length - 1);
+const newHeartbeat = function terminal_server_newHeartbeat(heartbeat:heartbeat):void {
+    if (heartbeat.ip.charAt(0) === "[") {
+        heartbeat.ip = heartbeat.ip.slice(1, heartbeat.ip.length - 1);
     }
-    serverVars.socketList[ip] = new vars.node.net.Socket();
-    serverVars.socketList[ip].connect(port, ip, function terminal_server_newHeartbeat_inviteConnect():void {
-        serverVars.socketList[ip].write(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"active","user":"${user}"}`);
+    serverVars.socketList[heartbeat.ip] = new vars.node.net.Socket();
+    serverVars.socketList[heartbeat.ip].connect(heartbeat.port, heartbeat.ip, function terminal_server_newHeartbeat_inviteConnect():void {
+        serverVars.socketList[heartbeat.ip].write(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"refresh":false,"status":"active","user":"${heartbeat.user}"}`);
     });
-    serverVars.socketList[ip].on("data", function terminal_server_newHeartbeat_inviteData(socketData:string):void {
+    serverVars.socketList[heartbeat.ip].on("data", function terminal_server_newHeartbeat_inviteData(socketData:string):void {
         log([socketData]);
     });
-    serverVars.socketList[ip].on("error", function terminal_server_newHeartbeat_inviteError(errorMessage:nodeError):void {
-        if (ip.indexOf(":") > 0) {
-            vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"offline","user":"@[${ip}]:${port}"}`);
+    serverVars.socketList[heartbeat.ip].on("error", function terminal_server_newHeartbeat_inviteError(errorMessage:nodeError):void {
+        if (heartbeat.ip.indexOf(":") > 0) {
+            vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"refresh":false,"status":"offline","user":"@[${heartbeat.ip}]:${heartbeat.port}"}`);
         } else {
-            vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"status":"offline","user":"@${ip}:${port}"}`);
+            vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"refresh":false,"status":"offline","user":"@${heartbeat.ip}:${heartbeat.port}"}`);
         }
-        log([`Socket error on ${ip}.`, errorMessage.toString()]);
-        if (serverVars.socketList[ip] !== undefined && serverVars.socketList[ip].destroyed === true) {
-            serverVars.socketList[ip].destroy();
-            serverVars.socketList[ip] = null;
+        log([`Socket error on ${heartbeat.ip}.`, errorMessage.toString()]);
+        if (serverVars.socketList[heartbeat.ip] !== undefined && serverVars.socketList[heartbeat.ip].destroyed === true) {
+            serverVars.socketList[heartbeat.ip].destroy();
+            serverVars.socketList[heartbeat.ip] = null;
         }
     });
 };

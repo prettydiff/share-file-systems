@@ -74,7 +74,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     const time:number = Date.now();
                     if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active" && browser.socket.readyState === 1) {
                         localhost.setAttribute("class", "idle");
-                        network.heartbeat("idle");
+                        network.heartbeat("idle", false);
                     }
                     setTimeout(local_restore_idleness, idleTime);
                 },
@@ -93,7 +93,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("fileNavigator").onclick = fs.navigate;
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
-                    network.heartbeat("active");
+                    network.heartbeat("active", true);
             
                     // determine if keyboard control keys are held
                     document.onkeydown = function load_restore_complete_keydown(event:KeyboardEvent):void {
@@ -107,7 +107,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             const status:string = localhost.getAttribute("class");
                             if (status !== "active") {
                                 localhost.setAttribute("class", "active");
-                                network.heartbeat("active");
+                                network.heartbeat("active", false);
                             }
                         }
                         active = Date.now();
@@ -127,7 +127,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             const status:string = localhost.getAttribute("class");
                             if (status !== "active" && browser.socket.readyState === 1) {
                                 localhost.setAttribute("class", "active");
-                                network.heartbeat("active");
+                                network.heartbeat("active", false);
                             }
                         }
                         active = Date.now();
