@@ -176,7 +176,7 @@ import webSocket from "./lib/browser/webSocket.js";
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("storage:") === 0) {
                     if (cString.length > 12) {
-                        storage = JSON.parse(cString.replace("storage:", ""));
+                        storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
                         if (Object.keys(storage.settings).length < 1) {
                             loadComplete();
                         } else {
@@ -290,6 +290,9 @@ import webSocket from "./lib/browser/webSocket.js";
                                     } else if (storage.settings.modals[value].text_value === "errors") {
                                         button = <HTMLButtonElement>systemsModal.getElementsByClassName("errors")[0];
                                         button.click();
+                                    }
+                                    if (storage.settings.modals[value].status === "normal") {
+                                        document.getElementById("systems-modal").style.display = "block";
                                     }
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {

@@ -6,6 +6,7 @@ The file system service is called from *network.fs* and use **localService** Typ
 * **action**: string, The service name to execute.
 * **agent**: string, The agent (user) where the action must be performed.
 * **depth**: number, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
+* **id**: The id attribute value of the target modal.  This is only used for non-local operations where content is requested from the network.
 * **location**: string[], A list of locations, such as a list of file system paths.
 * **name**: string, *fs-rename* uses this data as an artifact's new name. The *fs-move* and *fs-paste* services use this as the destination address.
 * **watch**: "no"|"yes"|string,
@@ -37,6 +38,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-base64"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"
@@ -47,6 +49,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-close"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"*
@@ -57,6 +60,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-copy"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"
@@ -67,6 +71,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-cut"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"
@@ -77,6 +82,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-destroy"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"
@@ -87,6 +93,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-details"**
       * agent   : string
       * depth   : 0
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"
@@ -97,6 +104,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-hash"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : ""
       * watch   : "no"
@@ -107,6 +115,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * action  : **"fs-new"**
       * agent   : string
       * depth   : 1
+      * id      : string
       * location: string[]
       * name    : "file" | "directory"
       * watch   : "no"
@@ -114,20 +123,22 @@ All file system services begin with *fs-* in their name.  Output format of *dire
    - description: Returns a directory listing with a variable amount of recursion. This is similar to fs-details except: it only provides a single location, variable recursion, and it will initiate either a new or change of file system watch.
    - output     : directoryList
    - parameters
-      * action  : **"fs-read"**,
-      * agent   : string,
-      * depth   : configuration.depth,
-      * location: string[],
+      * action  : **"fs-read"**
+      * agent   : string
+      * depth   : configuration.depth
+      * id      : string
+      * location: string[]
       * name    : ""
       * watch   : "yes" | string (path)
 * **fs-rename**:
    - description: Renames a file system artifact.
    - output     : void
    - parameters
-      * action  : **"fs-rename"**,
-      * agent   : string,
-      * depth   : 1,
-      * location: string[],
+      * action  : **"fs-rename"**
+      * agent   : string
+      * depth   : 1
+      * id      : string
+      * location: string[]
       * name    : string
       * watch   : "no"
 

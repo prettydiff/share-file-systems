@@ -15,7 +15,7 @@ const newHeartbeat = function terminal_server_newHeartbeat(heartbeat:heartbeat):
     serverVars.socketList[heartbeat.ip].on("data", function terminal_server_newHeartbeat_inviteData(socketData:string):void {
         log([socketData]);
     });
-    serverVars.socketList[heartbeat.ip].on("error", function terminal_server_newHeartbeat_inviteError(errorMessage:nodeError):void {
+    serverVars.socketList[heartbeat.ip].on("error", function terminal_server_newHeartbeat_inviteError(errorMessage:nodeError):void {console.log(errorMessage);
         if (heartbeat.ip.indexOf(":") > 0) {
             vars.ws.broadcast(`heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.serverPort},"refresh":false,"status":"offline","user":"@[${heartbeat.ip}]:${heartbeat.port}"}`);
         } else {

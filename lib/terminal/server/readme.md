@@ -1,7 +1,7 @@
 # lib/terminal/server
 These files are libraries that comprise */lib/terminal/server.ts* which in turn comprises *application.ts*.
 
-* fsSelf.ts - This library executes various file system tasks as requested by user interaction from the browser.
+* fsServer.ts - This library executes various file system tasks as requested by user interaction from the browser.
 * inviteHeartbeat.ts - This library executes network related tasks for inviting new users and sending heartbeat status.
 * methodGET.ts - The HTTP server's GET request method is handled by this library.
 * serverVars.ts - All variables used across the various server libraries are defined here.

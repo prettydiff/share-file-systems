@@ -15,10 +15,10 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
         if (xhr.readyState === 4) {
             messageTransmit = true;
             if (xhr.status === 200 || xhr.status === 0) {
-                if (id === undefined) {
-                    callback(xhr.responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;"));
+                if (xhr.responseText.indexOf("fs-remote") === 0 || id === undefined || id === "") {
+                    callback(xhr.responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;"));
                 } else {
-                    callback(xhr.responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;"), id);
+                    callback(xhr.responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;"), id);
                 }
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
@@ -50,8 +50,8 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
         a:number = 0,
         local:string = document.getElementById("localhost").innerHTML;
     local = (browser.localNetwork.ip.indexOf(":") > 0)
-        ? `${local.slice(0, local.indexOf("@"))}@[${browser.localNetwork.ip}]:${browser.localNetwork.serverPort}`
-        : `${local.slice(0, local.indexOf("@"))}@${browser.localNetwork.ip}:${browser.localNetwork.serverPort}`;
+        ? `${local.slice(0, local.indexOf("@"))}@[${browser.localNetwork.ip}]:${browser.localNetwork.tcpPort}`
+        : `${local.slice(0, local.indexOf("@"))}@${browser.localNetwork.ip}:${browser.localNetwork.tcpPort}`;
     do {
         user = users[a].innerHTML;
         if (user.indexOf("@") > 0 && user.indexOf("@localhost") < 0) {

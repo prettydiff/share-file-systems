@@ -29,8 +29,8 @@ const library = {
                     serverVars.socketList[data.ip] = null;
                 }
             });
-        } else if (serverVars.socketList[data.ip] !== null && serverVars.socketList[data.ip].connecting === false) {
-            if (serverVars.socketList[data.ip].connecting === true) {
+        } else if (serverVars.socketList[data.ip] !== null && serverVars.socketList[data.ip] !== undefined && serverVars.socketList[data.ip].connecting === false) {
+            /*if (serverVars.socketList[data.ip].connecting === true) {
                 const failMessage:string = (serverVars.socketList[data.ip].localAddress === "0.0.0.0")
                     ? `Socket to ${vars.text.cyan + vars.text.bold + data.ip + vars.text.none} appears to be ${vars.text.angry}broken${vars.text.none}.`
                     : "Write to a socket not connected.";
@@ -44,7 +44,7 @@ const library = {
                     `  ${vars.text.angry}*${vars.text.none} Remote Port      : ${serverVars.socketList[data.ip].remotePort}`,
                     ""
                 ]);
-            }
+            }*/
             if (task === "invite") {
                 serverVars.socketList[data.ip].write(`invite:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverVars.serverPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`);
             } else {

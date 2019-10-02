@@ -1,5 +1,5 @@
 
-import { IncomingMessage, ServerResponse } from "http";
+import * as http from "http";
 import WebSocket from "../../ws-es6/index.js";
 
 import copy from "./copy.js";
@@ -11,7 +11,7 @@ import readFile from "./readFile.js";
 import remove from "./remove.js";
 import vars from "./vars.js";
 
-import fsSelf from "./server/fsSelf.js";
+import fsServer from "./server/fsServer.js";
 import serverVars from "./server/serverVars.js";
 import serverWatch from "./server/serverWatch.js";
 import socketServer from "./server/socketServer.js";
@@ -48,7 +48,7 @@ const library = {
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            serverObject = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, response:ServerResponse):void {
+            serverObject = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 if (request.method === "GET") {
                     methodGET(request, response);
                 } else {
@@ -68,7 +68,47 @@ const library = {
                         if (task === "fs") {
                             const data:localService = JSON.parse(dataString);
                             if (data.agent === "self") {
-                                fsSelf(request, response, data);
+                                fsServer(request, response, data);
+                            } else {
+                                const ip:string = (function terminal_server_create_end_fsIP():string {
+                                        let address:string = data.agent.slice(0, data.agent.indexOf("@"));
+                                        if (address.charAt(0) === "[") {
+                                            address = address.slice(1, address.length - 1);
+                                        }
+                                        return address;
+                                    }()),
+                                    fsRequest:http.ClientRequest = http.request({
+                                        headers: {
+                                            "Content-Type": "application/json; charset=utf-8",
+                                            "Content-Length": Buffer.byteLength(dataString)
+                                        },
+                                        host: ip,
+                                        method: "POST",
+                                        path: "/",
+                                        port: Number(data.agent.slice(data.agent.lastIndexOf(":") + 1)),
+                                        timeout: 4000
+                                    }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
+                                        const chunks:string[] = [];
+                                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk):void {
+                                            chunks.push(chunk);
+                                        });
+                                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                            response.write(`fs-remote:{"dirs":${data.id},"id":${chunks.join}]`);
+                                            response.end();
+                                        });
+                                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                                            library.log([errorMessage.toString()]);
+                                            vars.ws.broadcast(errorMessage.toString());
+                                        });
+                                    });
+                                fsRequest.on("error", function terminal_server_create_end_fsRequest(errorMessage:nodeError):void {
+                                    library.log([errorMessage.toString()]);
+                                    vars.ws.broadcast(errorMessage.toString());
+                                });
+                                data.agent = "self";
+                                fsRequest.write(JSON.stringify(data));
+                                fsRequest.end();
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(response, dataString, task);

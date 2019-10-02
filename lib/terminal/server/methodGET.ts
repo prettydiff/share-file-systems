@@ -87,8 +87,8 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                 appliedData = function terminal_server_create_readFile_appliedData():string {
                                     const start:string = "<!--storage:-->",
                                         startLength:number = data.indexOf(start) + start.length - 3,
-                                        dataString:string = data.replace("<!--network:-->", `<!--network:{"family":"${serverVars.addresses[0][1][2]}","ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"wsPort":${serverVars.wsPort},"serverPort":${serverVars.serverPort}}-->`);
-                                    return `${dataString.slice(0, startLength)}{${list.join(",")}}${dataString.slice(startLength)}`;
+                                        dataString:string = data.replace("<!--network:-->", `<!--network:{"family":"${serverVars.addresses[0][1][2]}","ip":"${serverVars.addresses[0][1][1]}","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort},"tcpPort":${serverVars.serverPort}}-->`);
+                                    return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
                                 };
                             tool = true;
                             vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}settings.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
@@ -112,7 +112,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                             response.write(data);
                                             response.end();
                                         } else {
-                                            list.push(`"settings":${settings.replace(/--/g, "&#x2d;&#x2d;")}`);
+                                            list.push(`"settings":${settings}`);
                                             flag.settings = true;
                                             if (flag.messages === true) {
                                                 response.write(appliedData());
@@ -143,7 +143,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                             response.write(data);
                                             response.end();
                                         } else {
-                                            list.push(`"messages":${messages.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/--/g, "&#x2d;&#x2d;")}`);
+                                            list.push(`"messages":${messages}`);
                                             flag.messages = true;
                                             if (flag.settings === true) {
                                                 response.write(appliedData());

@@ -125,31 +125,72 @@ fs.list = function local_fs_list(location:string, listString:string):HTMLElement
 
 /* Create a file navigator modal */
 fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string):void {
-    const location:string = (typeof path === "string")
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        agent:string = (element.getAttribute("id") === "fileNavigator")
+            ? "self"
+            : (function local_fs_navigate_agent():string {
+                let parent:HTMLElement = <HTMLElement>element.parentNode.parentNode.previousSibling;
+                if (parent.innerHTML === "localhost") {
+                    return "self";
+                }
+                return parent.innerHTML;
+            }()),
+        location:string = (typeof path === "string")
             ? path
-            : "defaultLocation";
-    network.fs({
-        action: "fs-read",
-        agent: "self",
-        depth: 2,
-        location: [location.replace(/\\/g, "\\\\")],
-        name: "",
-        watch: "yes"
-    }, function local_fs_navigate_callback(responseText:string):void {
-        const files:HTMLElement = fs.list(location, responseText),
-            value:string = files.getAttribute("title");
-        files.removeAttribute("title");
-        modal.create({
-            content: files,
+            : "defaultLocation",
+        callback:Function = (agent === "self")
+            ? function local_fs_navigate_callbackSelf(responseText:string):void {
+                if (responseText === "") {
+                    return;
+                }
+                const files:HTMLElement = fs.list(location, responseText),
+                    value:string = files.getAttribute("title");
+                files.removeAttribute("title");
+                modal.create({
+                    content: files,
+                    inputs: ["close", "maximize", "minimize", "text"],
+                    text_event: fs.text,
+                    text_placeholder: "Optionally type a file system address here.",
+                    text_value: value,
+                    title: `${document.getElementById("fileNavigator").innerHTML} - localhost`,
+                    type: "fileNavigate",
+                    width: 800
+                });
+            }
+            : function local_fs_navigate_callbackRemote(responseText:string):void {
+                if (responseText === "") {
+                    return;
+                }
+                const payload:fsRemote = JSON.parse(responseText.replace("fs-remote:", "")),
+                    box:HTMLElement = document.getElementById(payload.id),
+                    body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+                    files:HTMLElement = fs.list(location, payload.dirs);
+                body.innerHTML = "";
+                body.appendChild(files);
+            };
+    let id:string = "";
+    if (agent !== "self") {
+        const box:HTMLElement = modal.create({
+            content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
-            text_value: value,
-            title: `${document.getElementById("fileNavigator").innerHTML}`,
+            text_value: location,
+            title: `${document.getElementById("fileNavigator").innerHTML} - ${agent}`,
             type: "fileNavigate",
             width: 800
         });
-    });
+        id = box.getAttribute("id");
+    }
+    network.fs({
+        action: "fs-read",
+        agent: agent,
+        depth: 2,
+        id: id,
+        location: [location.replace(/\\/g, "\\\\")],
+        name: "",
+        watch: "yes"
+    }, callback);
 };
 
 /* Request file system information of the parent directory */

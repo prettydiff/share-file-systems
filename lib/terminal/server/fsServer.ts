@@ -23,9 +23,9 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
-    fsSelf = function terminal_server_fsSelf(request:IncomingMessage, response:ServerResponse, data:localService):void {
+    fsServer = function terminal_server_fsServer(request:IncomingMessage, response:ServerResponse, data:localService):void {
         if (data.action === "fs-read" || data.action === "fs-details") {
-            const callback = function terminal_server_fsSelf_putCallback(result:directoryList):void {
+            const callback = function terminal_server_fsServer_putCallback(result:directoryList):void {
                     count = count + 1;
                     output.push(result);
                     if (count === pathLength) {
@@ -34,9 +34,9 @@ const library = {
                         response.end();
                     }
                 },
-                windowsRoot = function terminal_server_fsSelf_windowsRoot():void {
+                windowsRoot = function terminal_server_fsServer_windowsRoot():void {
                     //cspell:disable
-                    vars.node.child("wmic logicaldisk get name", function terminal_server_fsSelf_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                    vars.node.child("wmic logicaldisk get name", function terminal_server_fsServer_windowsRoot(erw:Error, stdout:string, stderr:string):void {
                     //cspell:enable
                         if (erw !== null) {
                             library.error([erw.toString()]);
@@ -46,7 +46,7 @@ const library = {
                         const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
                             length:number = drives.length,
                             date:Date = new Date(),
-                            driveList = function terminal_server_fsSelf_windowsRoot_driveList(result:directoryList):void {
+                            driveList = function terminal_server_fsServer_windowsRoot_driveList(result:directoryList):void {
                                 let b:number = 1;
                                 const resultLength:number = result.length,
                                     masterIndex:number = masterList.length;
@@ -88,7 +88,7 @@ const library = {
                                 isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink() {}
                             }]],
                             a:number = 0;
-                        drives.forEach(function terminal_server_fsSelf_windowsRoot_each(value:string) {
+                        drives.forEach(function terminal_server_fsServer_windowsRoot_each(value:string) {
                             library.directory({
                                 callback: driveList,
                                 depth: 1,
@@ -107,11 +107,11 @@ const library = {
             if (pathList[0] === "defaultLocation") {
                 pathList[0] = vars.projectPath;
             }
-            pathList.forEach(function terminal_server_fsSelf_pathEach(value:string):void {
+            pathList.forEach(function terminal_server_fsServer_pathEach(value:string):void {
                 if (value === "\\" || value === "\\\\") {
                     windowsRoot();
                 } else {
-                    vars.node.fs.stat(value, function terminal_server_fsSelf_putStat(erp:nodeError):void {
+                    vars.node.fs.stat(value, function terminal_server_fsServer_putStat(erp:nodeError):void {
                         if (erp !== null) {
                             if (erp.code === "ENOENT") {
                                 response.writeHead(404, {"Content-Type": "application/json"});
@@ -134,7 +134,7 @@ const library = {
                             if (serverVars.watches[value] === undefined) {
                                 serverVars.watches[value] = vars.node.fs.watch(value, {
                                     recursive: false
-                                }, function terminal_server_fsSelf_watch():void {
+                                }, function terminal_server_fsServer_watch():void {
                                     if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
                                         vars.ws.broadcast(`fsUpdate:${value}`);
                                     }
@@ -163,9 +163,9 @@ const library = {
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
             let count:number = 0,
                 length:number = data.location.length;
-            data.location.forEach(function terminal_server_fsSelf_copyEach(value:string):void {
+            data.location.forEach(function terminal_server_fsServer_copyEach(value:string):void {
                 const callback = (data.action === "fs-copy")
-                    ? function terminal_server_fsSelf_copyEach_copy():void {
+                    ? function terminal_server_fsServer_copyEach_copy():void {
                         count = count + 1;
                         if (count === length) {
                             response.writeHead(200, {"Content-Type": "text/plain"});
@@ -173,8 +173,8 @@ const library = {
                             response.end();
                         }
                     }
-                    : function terminal_server_fsSelf_copyEach_cut():void {
-                        library.remove(value, function terminal_server_fsSelf_copyEach_cut_callback():void {
+                    : function terminal_server_fsServer_copyEach_cut():void {
+                        library.remove(value, function terminal_server_fsServer_copyEach_cut_callback():void {
                             count = count + 1;
                             if (count === length) {
                                 response.writeHead(200, {"Content-Type": "text/plain"});
@@ -192,12 +192,12 @@ const library = {
             });
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
-            data.location.forEach(function terminal_server_fsSelf_destroyEach(value:string):void {
+            data.location.forEach(function terminal_server_fsServer_destroyEach(value:string):void {
                 if (serverVars.watches[value] !== undefined) {
                     serverVars.watches[value].close();
                     delete serverVars.watches[value];
                 }
-                library.remove(value, function terminal_server_fsSelf_destroy():void {
+                library.remove(value, function terminal_server_fsServer_destroy():void {
                     count = count + 1;
                     if (count === data.location.length) {
                         response.writeHead(200, {"Content-Type": "text/plain"});
@@ -210,7 +210,7 @@ const library = {
             const newPath:string[] = data.location[0].split(vars.sep);
             newPath.pop();
             newPath.push(data.name);
-            vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fsSelf_rename(erRename:Error):void {
+            vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fsServer_rename(erRename:Error):void {
                 if (erRename === null) {
                     response.writeHead(200, {"Content-Type": "text/plain"});
                     response.write(`Path ${data.location[0]} renamed to ${newPath.join(vars.sep)}.`);
@@ -225,7 +225,7 @@ const library = {
             });
         } else if (data.action === "fs-hash" || data.action === "fs-base64") {
             const task:string = data.action.replace("fs-", "");
-            library[task](data.location[0], function terminal_server_fsSelf_dataString(dataString:string):void {
+            library[task](data.location[0], function terminal_server_fsServer_dataString(dataString:string):void {
                 response.writeHead(200, {"Content-Type": "text/plain"});
                 response.write(dataString);
                 response.end();
@@ -237,14 +237,14 @@ const library = {
                 dirs = data.location[0].split(slash);
             dirs.pop();
             if (data.name === "directory") {
-                library.makeDir(data.location[0], function terminal_server_fsSelf_newDirectory():void {
+                library.makeDir(data.location[0], function terminal_server_fsServer_newDirectory():void {
                     response.writeHead(200, {"Content-Type": "text/plain"});
                     response.write(`${data.location[0]} created.`);
                     vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
                     response.end();
                 });
             } else if (data.name === "file") {
-                vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fsSelf_newFile(erNewFile:Error):void {
+                vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fsServer_newFile(erNewFile:Error):void {
                     if (erNewFile === null) {
                         response.writeHead(200, {"Content-Type": "text/plain"});
                         response.write(`${data.location[0]} created.`);
@@ -262,4 +262,4 @@ const library = {
         }
     };
 
-export default fsSelf;
+export default fsServer;

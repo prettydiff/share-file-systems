@@ -85,6 +85,10 @@ interface fsDetails {
     links: number;
     size: number;
 }
+interface fsRemote {
+    dirs: string;
+    id: string;
+}
 interface FSWatcher extends Function {
     close: Function;
 }
@@ -120,17 +124,18 @@ interface inviteError {
 interface localNetwork {
     family: "ipv4" | "ipv6";
     ip: string;
-    port: number;
+    httpPort: number;
     wsPort: number;
-    serverPort: number;
+    tcpPort: number;
 }
 interface localService {
-    action: serviceType;
-    agent: string;
-    depth: number;
+    action  : serviceType;
+    agent   : string;
+    depth   : number;
+    id      : string;
     location: string[];
-    name : string;
-    watch: string;
+    name    : string;
+    watch   : string;
 }
 interface messageError {
     error:string;
