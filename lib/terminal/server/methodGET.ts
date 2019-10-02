@@ -19,7 +19,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             readFile: readFile
         },
         localPath:string = (uri === "/")
-            ? `${vars.projectPath}index.xhtml`
+            ? `${vars.projectPath}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
     vars.node.fs.stat(localPath, function terminal_server_create_stat(ers:nodeError, stat:Stats):void {
         const random:number = Math.random(),
@@ -66,6 +66,84 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             if (stat.isFile() === true) {
                 const readCallback = function terminal_server_create_readCallback(args:readFile, data:string|Buffer):void {
                     let tool:boolean = false;
+                    const pageState = function terminal_server_create_readCallback_pageState():void {
+                        const flag:any = {
+                            settings: false,
+                            messages: false
+                        };
+                        let list:string[] = [],
+                            appliedData = function terminal_server_create_readFile_appliedData():string {
+                                const start:string = "<!--storage:-->",
+                                    startLength:number = data.indexOf(start) + start.length - 3,
+                                    dataString:string = (typeof data === "string")
+                                        ? data.replace("<!--network:-->", `<!--network:{"family":"${serverVars.addresses[0][1][2]}","ip":"${serverVars.addresses[0][1][1]}","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort},"tcpPort":${serverVars.serverPort}}-->`)
+                                        : "";
+                                return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
+                            };
+                        tool = true;
+                        vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}settings.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
+                            if (erSettings !== null) {
+                                if (erSettings.code === "ENOENT") {
+                                    flag.settings = true;
+                                    list.push(`"settings":{}`);
+                                    if (flag.messages === true) {
+                                        response.write(appliedData());
+                                        response.end();
+                                    }
+                                } else {
+                                    library.error([erSettings.toString()]);
+                                    response.write(data);
+                                    response.end();
+                                }
+                            } else {
+                                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
+                                    if (errSettings !== null) {
+                                        library.error([errSettings.toString()]);
+                                        response.write(data);
+                                        response.end();
+                                    } else {
+                                        list.push(`"settings":${settings}`);
+                                        flag.settings = true;
+                                        if (flag.messages === true) {
+                                            response.write(appliedData());
+                                            response.end();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                        vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}messages.json`, function terminal_server_create_readFile_statMessages(erMessages:nodeError):void {
+                            if (erMessages !== null) {
+                                if (erMessages.code === "ENOENT") {
+                                    flag.messages = true;
+                                    list.push(`"messages":{}`);
+                                    if (flag.settings === true) {
+                                        response.write(appliedData());
+                                        response.end();
+                                    }
+                                } else {
+                                    library.error([erMessages.toString()]);
+                                    response.write(data);
+                                    response.end();
+                                }
+                            } else {
+                                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}messages.json`, "utf8", function terminal_server_create_readFile_statMessages(errMessages:Error, messages:string):void {
+                                    if (errMessages !== null) {
+                                        library.error([errMessages.toString()]);
+                                        response.write(data);
+                                        response.end();
+                                    } else {
+                                        list.push(`"messages":${messages}`);
+                                        flag.messages = true;
+                                        if (flag.settings === true) {
+                                            response.write(appliedData());
+                                            response.end();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    };
                     if (localPath.indexOf(".js") === localPath.length - 3) {
                         response.writeHead(200, {"Content-Type": "application/javascript"});
                     } else if (localPath.indexOf(".css") === localPath.length - 4) {
@@ -74,89 +152,22 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                         response.writeHead(200, {"Content-Type": "image/jpeg"});
                     } else if (localPath.indexOf(".png") === localPath.length - 4) {
                         response.writeHead(200, {"Content-Type": "image/png"});
+                    } else if (localPath.indexOf(".svg") === localPath.length - 4) {
+                        response.writeHead(200, {"Content-Type": "image/svg+xml"});
                     } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
                         response.setHeader("content-security-policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
                         response.setHeader("connection", "keep-alive");
                         response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
                         if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
-                            const flag:any = {
-                                settings: false,
-                                messages: false
-                            };
-                            let list:string[] = [],
-                                appliedData = function terminal_server_create_readFile_appliedData():string {
-                                    const start:string = "<!--storage:-->",
-                                        startLength:number = data.indexOf(start) + start.length - 3,
-                                        dataString:string = data.replace("<!--network:-->", `<!--network:{"family":"${serverVars.addresses[0][1][2]}","ip":"${serverVars.addresses[0][1][1]}","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort},"tcpPort":${serverVars.serverPort}}-->`);
-                                    return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
-                                };
-                            tool = true;
-                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}settings.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
-                                if (erSettings !== null) {
-                                    if (erSettings.code === "ENOENT") {
-                                        flag.settings = true;
-                                        list.push(`"settings":{}`);
-                                        if (flag.messages === true) {
-                                            response.write(appliedData());
-                                            response.end();
-                                        }
-                                    } else {
-                                        library.error([erSettings.toString()]);
-                                        response.write(data);
-                                        response.end();
-                                    }
-                                } else {
-                                    vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
-                                        if (errSettings !== null) {
-                                            library.error([errSettings.toString()]);
-                                            response.write(data);
-                                            response.end();
-                                        } else {
-                                            list.push(`"settings":${settings}`);
-                                            flag.settings = true;
-                                            if (flag.messages === true) {
-                                                response.write(appliedData());
-                                                response.end();
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}messages.json`, function terminal_server_create_readFile_statMessages(erMessages:nodeError):void {
-                                if (erMessages !== null) {
-                                    if (erMessages.code === "ENOENT") {
-                                        flag.messages = true;
-                                        list.push(`"messages":{}`);
-                                        if (flag.settings === true) {
-                                            response.write(appliedData());
-                                            response.end();
-                                        }
-                                    } else {
-                                        library.error([erMessages.toString()]);
-                                        response.write(data);
-                                        response.end();
-                                    }
-                                } else {
-                                    vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}messages.json`, "utf8", function terminal_server_create_readFile_statMessages(errMessages:Error, messages:string):void {
-                                        if (errMessages !== null) {
-                                            library.error([errMessages.toString()]);
-                                            response.write(data);
-                                            response.end();
-                                        } else {
-                                            list.push(`"messages":${messages}`);
-                                            flag.messages = true;
-                                            if (flag.settings === true) {
-                                                response.write(appliedData());
-                                                response.end();
-                                            }
-                                        }
-                                    });
-                                }
-                            });
+                            pageState();
                         }
                     } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                        response.setHeader("Content-Security-Policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
+                        response.setHeader("content-security-policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
+                        response.setHeader("connection", "keep-alive");
                         response.writeHead(200, {"Content-Type": "text/html"});
+                        if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {
+                            pageState();
+                        }
                     } else {
                         response.writeHead(200, {"Content-Type": "text/plain"});
                     }

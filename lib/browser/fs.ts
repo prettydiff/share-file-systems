@@ -164,7 +164,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string):void {
                 const payload:fsRemote = JSON.parse(responseText.replace("fs-remote:", "")),
                     box:HTMLElement = document.getElementById(payload.id),
                     body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                    files:HTMLElement = fs.list(location, payload.dirs);
+                    files:HTMLElement = fs.list(location, JSON.stringify(payload.dirs));
                 body.innerHTML = "";
                 body.appendChild(files);
             };
@@ -187,7 +187,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string):void {
         agent: agent,
         depth: 2,
         id: id,
-        location: [location.replace(/\\/g, "\\\\")],
+        location: [location],
         name: "",
         watch: "yes"
     }, callback);

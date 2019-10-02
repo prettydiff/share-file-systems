@@ -19,6 +19,7 @@ import socketServerListener from "./server/socketServerListener.js";
 import methodGET from "./server/methodGET.js";
 import settingsMessages from "./server/settingsMessage.js";
 import inviteHeartbeat from "./server/inviteHeartbeat.js";
+import fs from "../browser/fs.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -70,31 +71,35 @@ const library = {
                             if (data.agent === "self") {
                                 fsServer(request, response, data);
                             } else {
-                                const ip:string = (function terminal_server_create_end_fsIP():string {
-                                        let address:string = data.agent.slice(0, data.agent.indexOf("@"));
+                                const ipAddress:string = (function terminal_server_create_end_fsIP():string {
+                                        const address:string = data.agent.slice(data.agent.indexOf("@") + 1, data.agent.lastIndexOf(":"));
+                                        data.agent = "self";
                                         if (address.charAt(0) === "[") {
-                                            address = address.slice(1, address.length - 1);
+                                            return address.slice(1, address.length - 1);
                                         }
                                         return address;
                                     }()),
+                                    payload:string = `fs:${JSON.stringify(data)}`,
                                     fsRequest:http.ClientRequest = http.request({
                                         headers: {
-                                            "Content-Type": "application/json; charset=utf-8",
-                                            "Content-Length": Buffer.byteLength(dataString)
+                                            "Content-Type": "application/x-www-form-urlencoded",
+                                            "Content-Length": Buffer.byteLength(payload)
                                         },
-                                        host: ip,
+                                        host: ipAddress,
                                         method: "POST",
                                         path: "/",
-                                        port: Number(data.agent.slice(data.agent.lastIndexOf(":") + 1)),
+                                        port: 4466,
+                                        //port: Number(data.agent.slice(data.agent.lastIndexOf(":") + 1)),
                                         timeout: 4000
                                     }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                                         const chunks:string[] = [];
-                                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk):void {
+                                        fsResponse.setEncoding('utf8');
+                                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
                                             chunks.push(chunk);
                                         });
                                         fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
                                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                            response.write(`fs-remote:{"dirs":${data.id},"id":${chunks.join}]`);
+                                            response.write(`fs-remote:{"id":"${data.id}","dirs":${chunks.join("")}}`);
                                             response.end();
                                         });
                                         fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
@@ -102,13 +107,14 @@ const library = {
                                             vars.ws.broadcast(errorMessage.toString());
                                         });
                                     });
-                                fsRequest.on("error", function terminal_server_create_end_fsRequest(errorMessage:nodeError):void {
+                                fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
                                     library.log([errorMessage.toString()]);
                                     vars.ws.broadcast(errorMessage.toString());
                                 });
-                                data.agent = "self";
-                                fsRequest.write(JSON.stringify(data));
-                                fsRequest.end();
+                                fsRequest.write(payload);
+                                setTimeout(function () {
+                                    fsRequest.end();
+                                }, 100);
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(response, dataString, task);
