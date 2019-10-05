@@ -71,6 +71,9 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         name: "",
         watch: "no"
     }, function local_context_dataString(resultString:string):void {
+        if (resultString.indexOf("fs-remote:") === 0) {
+            resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
+        }
         modal.textPad(event, resultString, `${type} - ${address}`);
         network.settings();
     });

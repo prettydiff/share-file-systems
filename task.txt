@@ -1,5 +1,17 @@
 
-## defect
+## remote FS checklist
+### pass
+* read
+* details
+* destroy
+* rename
+* new directory/file
+* hash/base64
+
+### fail
+* watch
+* copy/paste
+* double-click into new directory
 
 ## service
 1 - shares should be read only by default with an option for all rights

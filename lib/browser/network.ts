@@ -15,10 +15,15 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
         if (xhr.readyState === 4) {
             messageTransmit = true;
             if (xhr.status === 200 || xhr.status === 0) {
-                if (xhr.responseText.indexOf("fs-remote") === 0 || id === undefined || id === "") {
-                    callback(xhr.responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;"));
+                let text:string = xhr.responseText;
+                if (browser.loadTest === true && xhr.responseText.indexOf("fs-remote:") === 0) {
+                    text = text.slice(text.indexOf("\"dirs\":") + 7, text.length - 1)
+                }
+                text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
+                if (text.indexOf("fs-remote:") === 0 || id === undefined || id === "") {
+                    callback(text);
                 } else {
-                    callback(xhr.responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;"), id);
+                    callback(text, id);
                 }
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);

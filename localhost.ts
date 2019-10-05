@@ -228,9 +228,13 @@ import webSocket from "./lib/browser/webSocket.js";
                             }
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
+                                    const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
+                                        agent:string = (agentStrings[agentStrings.length - 1] === "localhost")
+                                            ? "self"
+                                            : agentStrings[agentStrings.length - 1];
                                     network.fs({
                                         action: "fs-read",
-                                        agent: "self",
+                                        agent: agent,
                                         depth: 2,
                                         location: [storage.settings.modals[value].text_value],
                                         name: "",
