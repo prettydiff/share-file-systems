@@ -532,7 +532,7 @@ modal.move = function local_modal_move(event:Event):void {
         box:HTMLElement        = <HTMLElement>heading.parentNode.parentNode,
         settings:ui_modal = browser.data.modals[box.getAttribute("id")],
         border:HTMLElement = box.getElementsByTagName("div")[0],
-        minifyTest:boolean = (box.parentNode.nodeName === "li"),
+        minifyTest:boolean = (box.parentNode.nodeName.toLowerCase() === "li"),
         touch:boolean      = (event !== null && event.type === "touchstart"),
         mouseEvent = <MouseEvent>event,
         touchEvent = <TouchEvent>event,
@@ -754,7 +754,8 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
                     ? "/"
                     : "\\";
-            let address:string;
+            let address:string,
+                agent:string = element.parentNode.parentNode.previousSibling.firstChild.textContent;
             if (type === "file" || type === "link") {
                 const dirs:string[] = path.replace(/\\/g, "/").split("/");
                 dirs.pop();
@@ -762,7 +763,10 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             } else {
                 address = path;
             }
-            fs.navigate(event, address);
+            if (agent === "localhost") {
+                agent = "self";
+            }
+            fs.navigate(event, address, agent);
         };
     let users:HTMLElement,
         eachUser:HTMLElement;

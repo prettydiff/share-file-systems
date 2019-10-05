@@ -5,22 +5,7 @@ import vars from "../vars.js";
 
 import serverVars from "./serverVars.js";
 
-const ignore   = function terminal_server_ignore(input:string|null):boolean {
-        if (input.indexOf(".git") === 0) {
-            return true;
-        }
-        if (input.indexOf("node_modules") === 0) {
-            return true;
-        }
-        if (input.indexOf("js") === 0) {
-            return true;
-        }
-        return false;
-    },
-    serverWatch = function terminal_server_watch(type:"rename"|"change", filename:string|null):void {
-        if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0) {
-            return;
-        }
+const serverWatch = function terminal_server_watch(type:"rename"|"change", filename:string|null):void {
         const extension:string = (function terminal_server_watch_extension():string {
                 const list = filename.split(".");
                 return list[list.length - 1];
@@ -53,7 +38,22 @@ const ignore   = function terminal_server_ignore(input:string|null):boolean {
                 log([`[${vars.text.cyan + dateArray.join(":") + vars.text.none}] ${message}`]);
                 serverVars.timeStore = date.valueOf();
                 return serverVars.timeStore;
+            },
+            ignore   = function terminal_server_watch_ignore(input:string|null):boolean {
+                if (input.indexOf(".git") === 0) {
+                    return true;
+                }
+                if (input.indexOf("node_modules") === 0) {
+                    return true;
+                }
+                if (input.indexOf("js") === 0) {
+                    return true;
+                }
+                return false;
             };
+        if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0) {
+            return;
+        }
         if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
             let start:number,
                 compile:number,

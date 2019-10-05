@@ -4,7 +4,25 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
-const context:module_context = {};
+const context:module_context = {},
+    agent = function local_fs_agent(element:HTMLElement):string {
+        const box:HTMLElement = (element.getAttribute("class") === "box")
+                ? element
+                : (function local_fs_agent_box():HTMLElement {
+                    let boxEl:HTMLElement = element;
+                    do {
+                        boxEl = <HTMLElement>boxEl.parentNode;
+                    } while (boxEl !== document.documentElement && boxEl.getAttribute("class") !== "box");
+                    return boxEl;
+                }()),
+            searchString:string = "Navigator - ";
+        let text:string = box.getElementsByTagName("h2")[0].lastChild.textContent;
+        text = text.slice(text.indexOf(searchString) + searchString.length);
+        if (text === "localhost") {
+            return "self";
+        }
+        return text;
+    };
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
@@ -33,7 +51,12 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
             util.selectNone(document.getElementById(clipData.id));
         }
     }
-    clipboard = JSON.stringify({type:type, data:addresses, id:box.getAttribute("id")});
+    clipboard = JSON.stringify({
+        agent: agent(box),
+        data: addresses,
+        id: box.getAttribute("id"),
+        type: type
+    });
 };
 
 /* Handler for hash and base64 operations from the context menu */
@@ -42,7 +65,7 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
     address = element.getElementsByTagName("label")[0].innerHTML;
     network.fs({
         action: `fs-${type.toLowerCase()}`,
-        agent: "self",
+        agent: agent(element),
         depth: 1,
         location: [address],
         name: "",
@@ -57,20 +80,20 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
 context.destroy = function local_context_destroy(element:HTMLElement):void {
     let selected:[string, string][],
         addresses:string[] = []; 
-    if (element.nodeName !== "li") {
+    if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
     selected = util.selectedAddresses(element, "destroy");
     if (selected.length < 1) {
-        addresses.push(element.getElementsByTagName("label")[0].innerHTML.replace(/\\/g, "\\\\"));
+        addresses.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
         selected.forEach(function local_context_destroy_each(value:[string, string]):void {
-            addresses.push(value[0].replace(/\\/g, "\\\\"));
+            addresses.push(value[0]);
         });
     }
     network.fs({
         action: "fs-destroy",
-        agent: "self",
+        agent: agent(element),
         depth: 1,
         location: addresses,
         name: "",
@@ -107,13 +130,15 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         }());
     network.fs({
         action: "fs-details",
-        agent: "self",
+        agent: agent(element),
         depth: 0,
         location: addressList,
         name: "",
         watch: "no"
     }, function local_context_details_callback(response:string):void {
-        const list:directoryList[] = JSON.parse(response),
+        const list:directoryList[] = (response.indexOf("fs-remote:") === 0)
+                ? JSON.parse(response.replace("fs-remote:", "")).dirs
+                : JSON.parse(response),
             body:HTMLElement = <HTMLElement>modalInstance.getElementsByClassName("body")[0],
             length:number = list.length,
             details:fsDetails = {
@@ -290,12 +315,12 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
             if (actionEvent.keyCode === 13) {
                 const value:string = field.value.replace(/(\s+|\.)$/, "");
                 field.value = value;
-                text.innerHTML = path + slash + value;
+                text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: "self",
+                    agent: agent(element),
                     depth: 1,
-                    location: [(path + slash + value).replace(/\\/g, "\\\\")],
+                    location: [path + value],
                     name: type,
                     watch: "no"
                 }, function local_context_fsNew_actionKeyboard_callback():void {
@@ -313,12 +338,12 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
             if (actionEvent.type === "blur" && field.value.replace(/\s+/, "") !== "") {
                 const value:string = field.value.replace(/(\s+|\.)$/, "");
                 field.value = value;
-                text.innerHTML = path + slash + value;
+                text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: "self",
+                    agent: agent(element),
                     depth: 1,
-                    location: [(path + slash + value).replace(/\\/g, "\\\\")],
+                    location: [path + value],
                     name: type,
                     watch: "no"
                 }, function local_context_fsNew_actionBlur_callback():void {
@@ -339,7 +364,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
             label.setAttribute("class", "selection");
             text.oncontextmenu = context.menu;
             text.onclick = fs.select;
-            text.innerHTML = path + slash;
+            text.innerHTML = path;
             field.onkeyup = actionKeyboard;
             field.onblur = actionBlur;
             text.appendChild(field);
@@ -370,6 +395,9 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
     if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
         slash = "\\";
     }
+    if (path.charAt(path.length - 1) !== slash) {
+        path = path + slash;
+    }
     item = build();
     element.appendChild(item);
     field.focus();
@@ -380,6 +408,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     const itemList:HTMLElement[] = [],
         menu:HTMLElement = document.createElement("ul");
     let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        nodeName:string = element.nodeName.toLowerCase(),
         parent:HTMLElement = <HTMLElement>element.parentNode,
         item:HTMLElement,
         button:HTMLButtonElement,
@@ -523,12 +552,13 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         reverse:boolean = false,
         a:number = 0;
     event.stopPropagation();
-    if (element.nodeName === "input") {
+    if (nodeName === "input") {
         return;
     }
-    if (element.nodeName === "span" || element.nodeName === "label" || element.getAttribute("class") === "expansion") {
+    if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
         element = <HTMLElement>element.parentNode;
         parent = <HTMLElement>parent.parentNode;
+        nodeName = element.nodeName.toLowerCase();
     }
     context.menuRemove();
     event.preventDefault();
@@ -603,7 +633,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
     destination = element.getElementsByTagName("input")[0].value;
     network.fs({
         action: `fs-${clipData.type}`,
-        agent: "self",
+        agent: clipData.agent,
         depth: 1,
         location: clipData.data,
         name: destination,

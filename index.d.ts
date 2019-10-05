@@ -29,9 +29,10 @@ interface browser {
     socket?:WebSocket;
 }
 interface clipboard {
-    type: string;
-    data: string[];
-    id  : string;
+    agent: string;
+    data : string[];
+    id   : string;
+    type : string;
 }
 interface commandList {
     [key:string]: {
@@ -216,7 +217,7 @@ interface module_util {
     selectNone?:(element:HTMLElement) => void;
 }
 interface navigate extends EventHandlerNonNull {
-    (Event, path?:string): void;
+    (Event, path?:string, agentName?:string): void;
 }
 interface nodeCopyParams {
     callback:Function;

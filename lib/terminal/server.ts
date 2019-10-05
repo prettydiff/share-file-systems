@@ -19,7 +19,6 @@ import socketServerListener from "./server/socketServerListener.js";
 import methodGET from "./server/methodGET.js";
 import settingsMessages from "./server/settingsMessage.js";
 import inviteHeartbeat from "./server/inviteHeartbeat.js";
-import fs from "../browser/fs.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds

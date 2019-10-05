@@ -477,7 +477,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
         itemList:HTMLCollectionOf<HTMLElement>,
         addressItem:HTMLElement,
         box:HTMLElement;
-    if (element.nodeName !== "li") {
+    if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
     box = element;
@@ -490,7 +490,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     length = itemList.length;
     do {
         if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-            addressItem = (itemList[a].firstChild.nodeName === "button")
+            addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
                 ? <HTMLElement>itemList[a].firstChild.nextSibling
                 : <HTMLElement>itemList[a].firstChild;
             output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, "")]);

@@ -28,10 +28,13 @@ const webSocket = function local_webSocket():WebSocket {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
         } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
-            const value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
-                modalKeys:string[] = Object.keys(browser.data.modals),
+            const modalKeys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = modalKeys.length;
-            let a:number = 0;
+            let value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
+                a:number = 0;
+            if ((/^\w:$/).test(value) === true) {
+                value = value + "\\";
+            }
             do {
                 if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value) {
                     const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];

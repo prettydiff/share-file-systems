@@ -4,12 +4,30 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
-const fs:module_fs = {};
+const fs:module_fs = {},
+    agent = function local_fs_agent(element:HTMLElement):string {
+        const box:HTMLElement = (element.getAttribute("class") === "box")
+                ? element
+                : (function local_fs_agent_box():HTMLElement {
+                    let boxEl:HTMLElement = element;
+                    do {
+                        boxEl = <HTMLElement>boxEl.parentNode;
+                    } while (boxEl !== document.documentElement && boxEl.getAttribute("class") !== "box");
+                    return boxEl;
+                }()),
+            searchString:string = "Navigator - ";
+        let text:string = box.getElementsByTagName("h2")[0].lastChild.textContent;
+        text = text.slice(text.indexOf(searchString) + searchString.length);
+        if (text === "localhost") {
+            return "self";
+        }
+        return text;
+    };
 
 /* navigate into a directory by double click */
 fs.directory = function local_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        li:HTMLElement = (element.nodeName === "li")
+        li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element
             : <HTMLElement>element.parentNode,
         path:string = li.getElementsByTagName("label")[0].innerHTML;
@@ -27,7 +45,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     input.value = path;
     network.fs({
         action: "fs-read",
-        agent: "self",
+        agent: agent(box),
         depth: 2,
         location: [path.replace(/\\/g, "\\\\")],
         name: "",
@@ -48,7 +66,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
         button.innerHTML = "-<span>Collapse this folder</span>";
         network.fs({
             action: "fs-read",
-            agent: "self",
+            agent: agent(button),
             depth: 2,
             location: [li.firstChild.nextSibling.textContent.replace(/\\/g, "\\\\")],
             name : "",
@@ -68,7 +86,9 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
 
 /* Builds the HTML file list */
 fs.list = function local_fs_list(location:string, listString:string):HTMLElement {
-    const list:directoryList = JSON.parse(listString)[0],
+    const list:directoryList = (listString.indexOf("fs-remote:") === 0)
+            ? JSON.parse(listString.replace("fs-remote:", "")).dirs[0]
+            : JSON.parse(listString)[0],
         local:directoryList = [],
         length:number = list.length,
         output:HTMLElement = document.createElement("ul");
@@ -124,22 +144,26 @@ fs.list = function local_fs_list(location:string, listString:string):HTMLElement
 };
 
 /* Create a file navigator modal */
-fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        agent:string = (element.getAttribute("id") === "fileNavigator")
-            ? "self"
-            : (function local_fs_navigate_agent():string {
-                let parent:HTMLElement = <HTMLElement>element.parentNode.parentNode.previousSibling;
-                if (parent.innerHTML === "localhost") {
-                    return "self";
-                }
-                return parent.innerHTML;
-            }()),
-        location:string = (typeof path === "string")
+fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentName?:string):void {
+    if (agentName === undefined) {
+        agentName = "self";
+    }
+    const location:string = (typeof path === "string")
             ? path
             : "defaultLocation",
-        callback:Function = (agent === "self")
-            ? function local_fs_navigate_callbackSelf(responseText:string):void {
+        callback:Function = (agentName !== "self")
+            ? function local_fs_navigate_callbackRemote(responseText:string):void {
+                if (responseText === "") {
+                    return;
+                }
+                const payload:fsRemote = JSON.parse(responseText.replace("fs-remote:", "")),
+                    box:HTMLElement = document.getElementById(payload.id),
+                    body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+                    files:HTMLElement = fs.list(location, JSON.stringify(payload.dirs));
+                body.innerHTML = "";
+                body.appendChild(files);
+            }
+            : function local_fs_navigate_callbackSelf(responseText:string):void {
                 if (responseText === "") {
                     return;
                 }
@@ -156,27 +180,16 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string):void {
                     type: "fileNavigate",
                     width: 800
                 });
-            }
-            : function local_fs_navigate_callbackRemote(responseText:string):void {
-                if (responseText === "") {
-                    return;
-                }
-                const payload:fsRemote = JSON.parse(responseText.replace("fs-remote:", "")),
-                    box:HTMLElement = document.getElementById(payload.id),
-                    body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                    files:HTMLElement = fs.list(location, JSON.stringify(payload.dirs));
-                body.innerHTML = "";
-                body.appendChild(files);
             };
     let id:string = "";
-    if (agent !== "self") {
+    if (agentName !== "self") {
         const box:HTMLElement = modal.create({
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
-            title: `${document.getElementById("fileNavigator").innerHTML} - ${agent}`,
+            title: `${document.getElementById("fileNavigator").innerHTML} - ${agentName}`,
             type: "fileNavigate",
             width: 800
         });
@@ -184,7 +197,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string):void {
     }
     network.fs({
         action: "fs-read",
-        agent: agent,
+        agent: agentName,
         depth: 2,
         id: id,
         location: [location],
@@ -221,7 +234,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
     }
     network.fs({
         action: "fs-read",
-        agent: "self",
+        agent: agent(box),
         depth: 2,
         location: [input.value.replace(/\\/g, "\\\\")],
         name: "",
@@ -246,7 +259,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 } else {
                     network.fs({
                         action: "fs-rename",
-                        agent: "self",
+                        agent: agent(element),
                         depth: 1,
                         location: [text.replace(/\\/g, "\\\\")],
                         name: input.value,
@@ -274,7 +287,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
     if (li.nodeName !== "li") {
         do {
             li = <HTMLElement>li.parentNode;
-        } while (li !== document.documentElement && li.nodeName !== "li");
+        } while (li !== document.documentElement && li.nodeName.toLowerCase() !== "li");
     }
     label = li.getElementsByTagName("label")[0];
     text = label.innerHTML;
@@ -296,7 +309,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 /* Select a file system item for an action */
 fs.select = function local_fs_select(event:KeyboardEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        li:HTMLElement = (element.nodeName === "li")
+        li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element
             : <HTMLElement>element.parentNode,
         input:HTMLInputElement = li.getElementsByTagName("input")[0];
@@ -405,7 +418,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
         network.fs({
             action: "fs-read",
-            agent: "self",
+            agent: agent(box),
             depth: 2,
             location: [element.value.replace(/\\/g, "\\\\")],
             name: "",
