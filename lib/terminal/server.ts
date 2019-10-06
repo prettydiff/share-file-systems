@@ -14,8 +14,6 @@ import vars from "./vars.js";
 import fsServer from "./server/fsServer.js";
 import serverVars from "./server/serverVars.js";
 import serverWatch from "./server/serverWatch.js";
-import socketServer from "./server/socketServer.js";
-import socketServerListener from "./server/socketServerListener.js";
 import methodGET from "./server/methodGET.js";
 import settingsMessages from "./server/settingsMessage.js";
 import inviteHeartbeat from "./server/inviteHeartbeat.js";
@@ -48,7 +46,7 @@ const library = {
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            serverObject = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
+            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 if (request.method === "GET") {
                     methodGET(request, response);
                 } else {
@@ -70,6 +68,7 @@ const library = {
                             if (data.agent === "localhost") {
                                 fsServer(request, response, data);
                             } else {
+                                // remote file server access
                                 const ipAddress:string = (function terminal_server_create_end_fsIP():string {
                                         const address:string = data.agent.slice(data.agent.indexOf("@") + 1, data.agent.lastIndexOf(":"));
                                         data.agent = "localhost";
@@ -118,7 +117,7 @@ const library = {
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(response, dataString, task);
                         } else if (task === "invite" || task === "heartbeat") {
-                            inviteHeartbeat(dataString, task);
+                            inviteHeartbeat(dataString, task, response);
                         }
                     });
                 }
@@ -136,15 +135,59 @@ const library = {
                 return
             },
             start = function terminal_server_start() {
+                const logOutput = function terminal_server_socketServerListener_logger():void {
+                    const output:string[] = [],
+                        webPort:string = (serverVars.webPort === 80)
+                            ? ""
+                            : `:${serverVars.webPort}`;
+                    let a:number = 0;
+                
+                    // discover the web socket port in case its a random port
+                    serverVars.wsPort = vars.ws.address().port;
+                
+                    // log the port information to the terminal
+                    output.push("");
+                    output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
+                    output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
+                    output.push("Local IP addresses are:");
+
+                    serverVars.addresses[0].forEach(function terminal_server_socketServerListener_logger_localAddresses(value:[string, string, string]):void {
+                        a = value[0].length;
+                        if (a < serverVars.addresses[1]) {
+                            do {
+                                value[0] = value[0] + " ";
+                                a = a + 1;
+                            } while (a < serverVars.addresses[1]);
+                        }
+                        if (value[0].charAt(0) === " ") {
+                            output.push(`     ${value[0]}: ${value[1]}`);
+                        } else {
+                            output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
+                        }
+                    });
+                    output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
+                    output.push(`or                     : ${vars.text.bold + vars.text.green}http://[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                    if (serverVars.addresses[0][1][0].charAt(0) === " ") {
+                        output.push(`or                     : ${vars.text.bold + vars.text.green}http://${serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                        output.push("");
+                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                    } else {
+                        output.push("");
+                        output.push(`Address for service: ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                    }
+                    output.push("");
+                    log(output);
+                };
+
                 if (process.cwd() !== vars.projectPath) {
                     process.chdir(vars.projectPath);
                 }
                 serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
                     recursive: true
                 }, serverWatch);
-                serverObject.on("error", serverError);
-                serverObject.listen(port);
-                serverVars.webPort = serverObject.address().port;
+                httpServer.on("error", serverError);
+                httpServer.listen(port);
+                serverVars.webPort = httpServer.address().port;
                 serverVars.wsPort = (port === 0)
                     ? 0
                     : serverVars.webPort + 1;
@@ -160,14 +203,44 @@ const library = {
                     });
                 };
 
-                serverVars.socketReceiver = vars.node.net.createServer(socketServer);
-                serverVars.serverPort = (port === 0)
-                    ? 0
-                    : serverVars.wsPort + 1;
-                serverVars.socketReceiver.listen(serverVars.serverPort, serverVars.addresses[0][1][1], function terminal_server_start_socketReceiverWrapper():void {
-                    // the terminal server address information comes from this function
-                    socketServerListener();
-                });
+                logOutput();
+
+                // Creates a socket with each shared user, based on data in the /storage/settings.json, upon coming online
+                /*vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_socketServerListener_readSettings(err:nodeError, fileData:string):void {
+                    if (err !== null) {
+                        logOutput();
+                        if (err.code !== "ENOENT") {
+                            log([err.toString()]);
+                        }
+                    } else {
+                        const settings:ui_data = JSON.parse(fileData),
+                            shares:string[] = Object.keys(settings.shares),
+                            length:number = shares.length;
+                        if (length < 2) {
+                            logOutput();
+                        } else {
+                            let a:number = 1,
+                                ip:string,
+                                port:string,
+                                lastColon:number;
+                            do {
+                                lastColon = shares[a].lastIndexOf(":");
+                                ip = shares[a].slice(shares[a].indexOf("@") + 1, lastColon);
+                                port = shares[a].slice(lastColon + 1);
+                                inviteHeartbeat();
+                                newHeartbeat({
+                                    ip: ip,
+                                    port: Number(port),
+                                    refresh: false,
+                                    status: "active",
+                                    user: settings.name
+                                });
+                                a = a + 1;
+                            } while (a < length);
+                            logOutput();
+                        }
+                    }
+                });*/
             };
         if (process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
             library.error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);

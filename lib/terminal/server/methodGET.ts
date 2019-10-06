@@ -76,7 +76,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                 const start:string = "<!--storage:-->",
                                     startLength:number = data.indexOf(start) + start.length - 3,
                                     dataString:string = (typeof data === "string")
-                                        ? data.replace("<!--network:-->", `<!--network:{"family":"${serverVars.addresses[0][1][2]}","ip":"${serverVars.addresses[0][1][1]}","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort},"tcpPort":${serverVars.serverPort}}-->`)
+                                        ? data.replace("<!--network:-->", `<!--network:{"family":"${serverVars.addresses[0][1][2]}","ip":"${serverVars.addresses[0][1][1]}","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort},"tcpPort":${serverVars.webPort}}-->`)
                                         : "";
                                 return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
                             };

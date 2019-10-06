@@ -265,7 +265,6 @@ interface serverVars {
     socketReceiver: any;
     socketList: any;
     timeStore:number;
-    serverPort: number;
     watches: {
         [key:string]: FSWatcher;
     };

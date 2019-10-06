@@ -56,7 +56,6 @@ const socketList:socketList = {},
             } while (a < length);
             return [store, interfaceLongest];
         }()),
-        serverPort: 0, // serverPort - for TCP sockets across the network
         socketList: socketList,
         socketReceiver: {},
         timeStore: 0,

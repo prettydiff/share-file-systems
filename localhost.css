@@ -99,6 +99,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #tray .box{box-shadow:none;position:static}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2{width:20em}
+#spaces #tray h2 button{border-style:solid}
 
 /* modal */
 #spaces .box{border-style:none;box-shadow:0.1em 0.1em 1em #999;left:auto;margin:0;padding:0;position:absolute;z-index:10}

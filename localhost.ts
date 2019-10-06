@@ -10,12 +10,13 @@ import webSocket from "./lib/browser/webSocket.js";
 
 (function local():void {
 
-    browser.socket = webSocket();
     util.fixHeight();
     window.onresize = util.fixHeight;
 
     /* Restore state and assign events */
     (function local_load():void {
+
+        // system modal that contains logging data
         const systemsBox:HTMLElement = (function local_systems():HTMLElement {
             const systemsElement:HTMLElement = document.createElement("div");
             let ul:HTMLElement = document.createElement("ul"),
@@ -65,20 +66,51 @@ import webSocket from "./lib/browser/webSocket.js";
             let storage:any,
                 a:number = 0,
                 cString:string = "",
-                localhost:HTMLElement,
+                localhost:HTMLElement = null,
                 active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
-                idleness = function local_restore_idleness():void {
-                    const time:number = Date.now();
-                    if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active" && browser.socket.readyState === 1) {
-                        localhost.setAttribute("class", "idle");
-                        network.heartbeat("idle", false);
-                    }
-                    setTimeout(local_restore_idleness, idleTime);
+                applyLogin = function local_restore_applyLogin():void {
+                    const login:HTMLElement = document.getElementById("login"),
+                        button:HTMLButtonElement = login.getElementsByTagName("button")[0],
+                        input:HTMLInputElement = login.getElementsByTagName("input")[0],
+                        action = function local_restore_applyLogin_action():void {
+                            if (input.value.replace(/\s+/, "") === "") {
+                                input.focus();
+                            } else {
+                                browser.data.name = input.value;
+                                util.addUser(`${input.value}@localhost`, []);
+                                browser.pageBody.removeAttribute("class");
+                                browser.loadTest = false;
+                                network.settings();
+                                browser.loadTest = true;
+                                loadComplete();
+                            }
+                        },
+                        handlerKeyboard = function local_restore_applyLogin_button(event:KeyboardEvent):void {
+                            if (event.keyCode === 13) {
+                                action();
+                            }
+                        },
+                        handlerMouse = function local_restore_applyLogin_button():void {
+                            action();
+                        };
+                    browser.pageBody.setAttribute("class", "login");
+                    document.getElementById("login-input").onkeyup = handlerKeyboard;
+                    button.onclick = handlerMouse;
                 },
                 loadComplete = function local_restore_complete():void {
+                    const idleness = function local_restore_idleness():void {
+                        const time:number = Date.now();
+                        if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active" && browser.socket.readyState === 1) {
+                            localhost.setAttribute("class", "idle");
+                            network.heartbeat("idle", false);
+                        }
+                        setTimeout(local_restore_idleness, idleTime);
+                    };
+                    browser.socket = webSocket();
+                    setTimeout(idleness, idleTime);
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
@@ -87,7 +119,6 @@ import webSocket from "./lib/browser/webSocket.js";
                     };
                     document.getElementById("invite-user").onclick = util.inviteStart;
                     document.getElementById("login-input").onkeyup = util.login;
-                    document.getElementById("login").getElementsByTagName("button")[0].onclick = util.login;
                     document.getElementById("menuToggle").onclick = util.menu;
                     document.getElementById("systemLog").onclick = modal.systems;
                     document.getElementById("fileNavigator").onclick = fs.navigate;
@@ -122,7 +153,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     };
 
                     // watch for local idleness
-                    document.onmousemove = function load_restore_complete_mousemove():void {
+                    document.onclick = function load_restore_complete_click():void {
                         if (localhost !== null) {
                             const status:string = localhost.getAttribute("class");
                             if (status !== "active" && browser.socket.readyState === 1) {
@@ -175,10 +206,12 @@ import webSocket from "./lib/browser/webSocket.js";
             do {
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("storage:") === 0) {
-                    if (cString.length > 12) {
+                    if (cString === "storage:{\"settings\":{},\"messages\":{}}") {
+                        applyLogin();
+                    } else {
                         storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
                         if (Object.keys(storage.settings).length < 1) {
-                            loadComplete();
+                            applyLogin();
                         } else {
                             const modalKeys:string[] = Object.keys(storage.settings.modals),
                                 indexes:[number, string][] = [],
@@ -229,7 +262,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
                                     const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
-                                        agent:string = agentStrings[agentStrings.length - 1];console.log(storage.settings.modals[value].text_value);
+                                        agent:string = agentStrings[agentStrings.length - 1];
                                     network.fs({
                                         action: "fs-read",
                                         agent: agent,
@@ -300,7 +333,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                 } else if (storage.settings.modals[value].type === "shares") {
                                     modal.shares(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "inviteUser") {
+                                } else if (storage.settings.modals[value].type === "invite-request") {
                                     util.inviteStart(null, "", storage.settings.modals[value]);
                                     z(value);
                                 } else {
@@ -308,16 +341,10 @@ import webSocket from "./lib/browser/webSocket.js";
                                 }
                             });
                         }
-                    } else {
-                        loadComplete();
                     }
                 }
                 a = a + 1;
             } while (a < commentLength);
-            setTimeout(idleness, idleTime);
-            if (storage === undefined || storage.settings === undefined || storage.settings.name === undefined) {
-                browser.pageBody.setAttribute("class", "login");
-            }
         }());
     }());
 }());

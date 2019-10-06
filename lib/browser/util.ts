@@ -22,7 +22,7 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
     };
     li.appendChild(button);
     document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
-    if (userName.indexOf("@localhost") > 0) {
+    if (userName.indexOf("@localhost") > -1) {
         button.setAttribute("id", "localhost");
     }
 };
@@ -108,15 +108,6 @@ util.dateFormat = function local_util_dateFormat(date:Date):string {
 
 /* Create a div element with a spinner and class name of 'delay' */
 util.delay = function local_util_delay():HTMLElement {
-    /*const div:HTMLElement = document.createElement("div"),
-        //cspell:disable
-        //delayCircles:string = `<svg viewBox="0 0 57 57" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle cx="5" cy="50" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" values="50;5;50;50" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" begin="0s" dur="2.2s" values="5;27;49;5" calcMode="linear" repeatCount="indefinite"/></circle><circle cx="27" cy="5" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" from="5" to="5" values="5;50;50;5" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" begin="0s" dur="2.2s" from="27" to="27" values="27;49;5;27" calcMode="linear" repeatCount="indefinite"/></circle><circle cx="49" cy="50" r="5"><animate attributeName="cy" begin="0s" dur="2.2s" values="50;50;5;50" calcMode="linear" repeatCount="indefinite"/><animate attributeName="cx" from="49" to="49" begin="0s" dur="2.2s" values="49;5;27;49" calcMode="linear" repeatCount="indefinite"/></circle></g></g></svg>`,
-        delayPulse:string = `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd" stroke-width="2"><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="0s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"/><animate attributeName="stroke-opacity" begin="0s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"/></circle><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="-0.9s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"/><animate attributeName="stroke-opacity" begin="-0.9s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"/></circle></g></svg>`,
-        //cspell:enable
-        text:string = "<p>Waiting on data.  Please stand by.</p>";
-    div.setAttribute("class", "delay");
-    div.innerHTML = delayPulse + text;
-    return div;*/
     const div:HTMLElement = document.createElement("div"),
         text:HTMLElement = document.createElement("p"),
         svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -232,7 +223,22 @@ util.fsObject = function local_util_fsObject(item:directoryItem, extraClass:stri
 
 /* Invite users to your shared space */
 util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
-    const invite:HTMLElement = document.createElement("div");
+    const invite:HTMLElement = document.createElement("div"),
+        blur = function local_util_invite_blur(event:FocusEvent):void {
+            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                box:HTMLElement = (function local_util_invite_blur_box():HTMLElement {
+                    let item:HTMLElement = element;
+                    do {
+                        item = <HTMLElement>item.parentNode;
+                    } while (item !== document.documentElement && item.getAttribute("class") !== "box");
+                    return item;
+                }()),
+                id:string = box.getAttribute("id"),
+                inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
+                textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
+            browser.data.modals[id].text_value = `${inputs[0].value},${inputs[1].value},${textArea.value}`;
+            network.settings();
+        };
     let p:HTMLElement = document.createElement("p"),
         label:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
@@ -252,6 +258,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
     if (values.length > 0) {
         input.value = values[0];
     }
+    input.onblur = blur;
     label.appendChild(input);
     p.appendChild(label);
     invite.appendChild(p);
@@ -264,6 +271,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
     if (values.length > 0) {
         input.value = values[1];
     }
+    input.onblur = blur;
     label.appendChild(input);
     p.appendChild(label);
     invite.appendChild(p);
@@ -273,6 +281,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
     if (values.length > 0) {
         text.value = values[2];
     }
+    text.onblur = blur;
     label.appendChild(text);
     p.appendChild(label);
     invite.appendChild(p);
@@ -376,24 +385,6 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             } else {
                 prepOutput(error);
             }
-        }
-    }
-};
-
-/* Interaction from the button on the login page */
-util.login = function local_util_login(event:KeyboardEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        login:HTMLElement = document.getElementById("login"),
-        input:HTMLInputElement = login.getElementsByTagName("input")[0],
-        button:HTMLElement = login.getElementsByTagName("button")[0];
-    if (element === button || (event.type === "keyup" && event.keyCode === 13)) {
-        if (input.value.replace(/\s+/, "") === "") {
-            input.focus();
-        } else {
-            browser.data.name = input.value;
-            util.addUser(`${input.value}@localhost`, []);
-            browser.pageBody.removeAttribute("class");
-            network.settings();
         }
     }
 };
