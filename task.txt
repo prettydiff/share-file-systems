@@ -11,6 +11,7 @@
 ### fail
 * watch
 * copy/paste
+* remote fs port is fixed at 4466
 * double-click into new directory
 
 ## service

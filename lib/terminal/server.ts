@@ -67,12 +67,12 @@ const library = {
                                 : body.slice(body.indexOf(":") + 1);
                         if (task === "fs") {
                             const data:localService = JSON.parse(dataString);
-                            if (data.agent === "self") {
+                            if (data.agent === "localhost") {
                                 fsServer(request, response, data);
                             } else {
                                 const ipAddress:string = (function terminal_server_create_end_fsIP():string {
                                         const address:string = data.agent.slice(data.agent.indexOf("@") + 1, data.agent.lastIndexOf(":"));
-                                        data.agent = "self";
+                                        data.agent = "localhost";
                                         if (address.charAt(0) === "[") {
                                             return address.slice(1, address.length - 1);
                                         }
@@ -87,7 +87,7 @@ const library = {
                                         host: ipAddress,
                                         method: "POST",
                                         path: "/",
-                                        port: 4466,
+                                        port: 80,
                                         //port: Number(data.agent.slice(data.agent.lastIndexOf(":") + 1)),
                                         timeout: 4000
                                     }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {

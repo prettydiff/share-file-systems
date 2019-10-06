@@ -1,1 +1,1 @@
-{"command":"node --experimental-modules js/application.js","date":"25 SEP 2019","name":"Shared Spaces","number":"0.0.1","port":4466}
+{"command":"node --experimental-modules js/application.js","date":"25 SEP 2019","name":"Shared Spaces","number":"0.0.1","port":80}

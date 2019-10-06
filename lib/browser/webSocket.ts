@@ -40,7 +40,7 @@ const webSocket = function local_webSocket():WebSocket {
                     const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
                     network.fs({
                         action: "fs-read",
-                        agent: "self",
+                        agent: "localhost",
                         depth: 2,
                         location: [value],
                         name: "",
@@ -58,7 +58,7 @@ const webSocket = function local_webSocket():WebSocket {
             if (a === keyLength) {
                 network.fs({
                     action: "fs-close",
-                    agent: "self",
+                    agent: "localhost",
                     depth: 1,
                     location: [value],
                     name: "",

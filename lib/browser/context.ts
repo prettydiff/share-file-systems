@@ -18,9 +18,6 @@ const context:module_context = {},
             searchString:string = "Navigator - ";
         let text:string = box.getElementsByTagName("h2")[0].lastChild.textContent;
         text = text.slice(text.indexOf(searchString) + searchString.length);
-        if (text === "localhost") {
-            return "self";
-        }
         return text;
     };
 let clipboard:string = "";

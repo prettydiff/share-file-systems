@@ -18,9 +18,6 @@ const fs:module_fs = {},
             searchString:string = "Navigator - ";
         let text:string = box.getElementsByTagName("h2")[0].lastChild.textContent;
         text = text.slice(text.indexOf(searchString) + searchString.length);
-        if (text === "localhost") {
-            return "self";
-        }
         return text;
     };
 
@@ -146,12 +143,12 @@ fs.list = function local_fs_list(location:string, listString:string):HTMLElement
 /* Create a file navigator modal */
 fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentName?:string):void {
     if (agentName === undefined) {
-        agentName = "self";
+        agentName = "localhost";
     }
     const location:string = (typeof path === "string")
             ? path
             : "defaultLocation",
-        callback:Function = (agentName !== "self")
+        callback:Function = (agentName !== "localhost")
             ? function local_fs_navigate_callbackRemote(responseText:string):void {
                 if (responseText === "") {
                     return;
@@ -182,7 +179,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                 });
             };
     let id:string = "";
-    if (agentName !== "self") {
+    if (agentName !== "localhost") {
         const box:HTMLElement = modal.create({
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],

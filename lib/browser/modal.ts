@@ -763,9 +763,6 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             } else {
                 address = path;
             }
-            if (agent === "localhost") {
-                agent = "self";
-            }
             fs.navigate(event, address, agent);
         };
     let users:HTMLElement,
