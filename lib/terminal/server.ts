@@ -1,5 +1,6 @@
 
 import * as http from "http";
+import * as string_decoder from "string_decoder";
 import WebSocket from "../../ws-es6/index.js";
 
 import copy from "./copy.js";
@@ -12,11 +13,12 @@ import remove from "./remove.js";
 import vars from "./vars.js";
 
 import fsServer from "./server/fsServer.js";
+import inviteHeartbeat from "./server/inviteHeartbeat.js";
+import invite from "./server/invite.js";
+import methodGET from "./server/methodGET.js";
 import serverVars from "./server/serverVars.js";
 import serverWatch from "./server/serverWatch.js";
-import methodGET from "./server/methodGET.js";
 import settingsMessages from "./server/settingsMessage.js";
-import inviteHeartbeat from "./server/inviteHeartbeat.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -50,12 +52,22 @@ const library = {
                 if (request.method === "GET") {
                     methodGET(request, response);
                 } else {
-                    let body:string = "";
-                    request.on('data', function (data:string) {
-                        body = body + data;
-                        if (body.length > 1e6) {
+                    let body:string = "",
+                        decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
+                    request.on('data', function (data:Buffer) {
+                        body = body + decoder.write(data);
+                        if (body.length > 1e5) {
                             request.connection.destroy();
                         }
+                    });
+                    
+                    request.on("error", function terminal_server_create_end_errorRequest(errorMessage:nodeError):void {
+                        log([body, "request", errorMessage.toString()]);
+                        vars.ws.broadcast(errorMessage.toString());
+                    });
+                    response.on("error", function terminal_server_create_end_errorResponse(errorMessage:nodeError):void {
+                        log([body, "response", errorMessage.toString()]);
+                        vars.ws.broadcast(errorMessage.toString());
                     });
 
                     request.on('end', function terminal_server_create_end():void {
@@ -77,6 +89,13 @@ const library = {
                                         }
                                         return address;
                                     }()),
+                                    port:number = (function terminal_server_create_end_fsPort():number {
+                                        const portString:string = data.agent.slice(data.agent.lastIndexOf(":") + 1);
+                                        if (isNaN(Number(portString)) === true) {
+                                            return 80;
+                                        }
+                                        return Number(portString);
+                                    }()),
                                     payload:string = `fs:${JSON.stringify(data)}`,
                                     fsRequest:http.ClientRequest = http.request({
                                         headers: {
@@ -86,8 +105,7 @@ const library = {
                                         host: ipAddress,
                                         method: "POST",
                                         path: "/",
-                                        port: 80,
-                                        //port: Number(data.agent.slice(data.agent.lastIndexOf(":") + 1)),
+                                        port: port,
                                         timeout: 4000
                                     }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                                         const chunks:string[] = [];
@@ -106,7 +124,7 @@ const library = {
                                         });
                                     });
                                 fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
-                                    library.log([errorMessage.toString()]);
+                                    library.log([task, errorMessage.toString()]);
                                     vars.ws.broadcast(errorMessage.toString());
                                 });
                                 fsRequest.write(payload);
@@ -116,8 +134,10 @@ const library = {
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(response, dataString, task);
-                        } else if (task === "invite" || task === "heartbeat") {
+                        } else if (task === "heartbeat") {
                             inviteHeartbeat(dataString, task, response);
+                        } else if (task.indexOf("invite") === 0) {
+                            invite(dataString, response);
                         }
                     });
                 }

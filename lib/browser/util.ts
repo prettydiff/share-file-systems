@@ -224,6 +224,7 @@ util.fsObject = function local_util_fsObject(item:directoryItem, extraClass:stri
 /* Invite users to your shared space */
 util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
     const invite:HTMLElement = document.createElement("div"),
+        separator:string = "|spaces|",
         blur = function local_util_invite_blur(event:FocusEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
                 box:HTMLElement = (function local_util_invite_blur_box():HTMLElement {
@@ -236,7 +237,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-            browser.data.modals[id].text_value = `${inputs[0].value},${inputs[1].value},${textArea.value}`;
+            browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
             network.settings();
         };
     let p:HTMLElement = document.createElement("p"),
@@ -245,12 +246,12 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
         text:HTMLTextAreaElement = document.createElement("textarea"),
         textStorage:string,
         values:string[] = [];
-    if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {
+    if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {console.log(settings.text_value);
         textStorage = settings.text_value;
-        values.push(textStorage.slice(0, textStorage.indexOf(",")));
-        textStorage = textStorage.slice(textStorage.indexOf(",") + 1);
-        values.push(textStorage.slice(0, textStorage.indexOf(",")));
-        textStorage = textStorage.slice(textStorage.indexOf(",") + 1);
+        values.push(textStorage.slice(0, textStorage.indexOf(separator)));
+        textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
+        values.push(textStorage.slice(0, textStorage.indexOf(separator)));
+        textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
         values.push(textStorage);
     }
     label.innerHTML = "IP Address";
@@ -345,7 +346,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
-        network.settings();
+        //network.settings();
     } else {
         const modal:HTMLElement = document.getElementById(invite.modal);
         if (modal === null) {
@@ -370,6 +371,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                         } else {
                             util.addUser(`${invite.name}@[${invite.ip}]:${invite.port}`, invite.shares);
                         }
+                        //network.settings();
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");

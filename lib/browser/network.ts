@@ -45,7 +45,7 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
 };
 
 /* Provides active user status from across the network about every minute */
-network.heartbeat = function local_network_heartbeat(status:string, refresh:boolean):void {
+network.heartbeat = function local_network_heartbeat(status:string, refresh:boolean):void {return;
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;
@@ -57,6 +57,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
     local = (browser.localNetwork.ip.indexOf(":") > 0)
         ? `${local.slice(0, local.indexOf("@"))}@[${browser.localNetwork.ip}]:${browser.localNetwork.tcpPort}`
         : `${local.slice(0, local.indexOf("@"))}@${browser.localNetwork.ip}:${browser.localNetwork.tcpPort}`;
+
     do {
         user = users[a].innerHTML;
         if (user.indexOf("@") > 0 && user.indexOf("@localhost") < 0) {
@@ -98,7 +99,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     xhr.withCredentials = true;
     xhr.open("POST", loc, true);
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send(JSON.stringify({invite: configuration}));
+    xhr.send(JSON.stringify({"invite-response": configuration}));
 };
 
 /* Invite other users */

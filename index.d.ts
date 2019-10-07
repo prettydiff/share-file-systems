@@ -104,7 +104,7 @@ interface heartbeat {
     user: string;
 }
 interface invite {
-    action: "invite-status";
+    action: "invite" | "invite-request" | "invite-response" | "invite-complete";
     family: "ipv4" | "ipv6";
     ip: string;
     message: string;

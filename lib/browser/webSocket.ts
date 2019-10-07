@@ -83,8 +83,8 @@ const webSocket = function local_webSocket():WebSocket {
                 }
                 a = a + 1;
             } while (a < length);
-        } else if (event.data.indexOf("invite:") === 0) {
-            util.inviteRespond(event.data.slice(7));
+        } else if (event.data.indexOf("invite-request:") === 0) {
+            util.inviteRespond(event.data.slice(15));
         } else if (event.data.indexOf("invite-error:") === 0) {
             const inviteData:inviteError = JSON.parse(event.data.slice(13)),
                 modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);

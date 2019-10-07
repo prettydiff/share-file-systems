@@ -15,7 +15,7 @@ const library = {
     inviteHeartbeat = function terminal_server_inviteHeartbeat(dataString:string, task:string, response:http.ServerResponse):void {
         const data:inviteHeartbeat = JSON.parse(dataString),
             payload:string = (task === "invite")
-                ? `invite:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":"${serverVars.webPort}","shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`
+                ? `invite-request:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","message":"${data.message}","modal":"${data.modal}","name":"${data.name}","port":${serverVars.webPort},"shares":${JSON.stringify(data.shares)},"status":"${data.status}"}`
                 : `heartbeat:{"ip":"${serverVars.addresses[0][1][1]}","family":"${serverVars.addresses[0][1][2]}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`,
             inviteRequest:http.ClientRequest = http.request({
                 headers: {

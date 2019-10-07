@@ -62,7 +62,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
 
     if (options.type === "invite-request") {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            box:HTMLElement = (function local_network_invite_box():HTMLElement {
+            box:HTMLElement = (function local_modal_confirm_box():HTMLElement {
                 let bx:HTMLElement = element;
                 do {
                     bx = <HTMLElement>bx.parentNode;
@@ -73,11 +73,15 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
             content:HTMLElement = <HTMLElement>body.getElementsByClassName("inviteUser")[0],
             footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-            port:number = (isNaN(Number(inputs[1].value)))
-                ? 0
-                : Number(inputs[1].value),
+            port:number = (function local_modal_confirm_port():number {
+                const numb:number = Number(inputs[1].value);
+                if (inputs[1].value.replace(/^\s+$/, "") === "" || isNaN(numb) === true || numb < 0 || numb > 65535) {
+                    return 80;
+                }
+                return numb;
+            }()),
             inviteData:invite = {
-                action: "invite-status",
+                action: "invite",
                 family: (inputs[0].value.indexOf(":") > 0)
                     ? "ipv6"
                     : "ipv4",
@@ -93,10 +97,6 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             inputs[0].focus();
             return;
         }
-        if (port < 1024 || port > 65525) {
-            inputs[1].focus();
-            return;
-        }
         content.style.display = "none";
         footer.style.display = "none";
         if (content.getElementsByClassName("error").length > 0) {
@@ -105,9 +105,6 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
         body.appendChild(util.delay());
         options.text_value = `${inputs[0].value},${inputs[1].value},${box.getElementsByTagName("textarea")[0].value}`;
         network.inviteRequest(inviteData);
-        if (browser.loadTest === false) {
-            network.settings();
-        }
         return;
     }
     if (options.type === "export") {
@@ -117,7 +114,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             dataString:string = para[para.length - 1].innerHTML,
             invite:invite = JSON.parse(dataString);
         network.inviteAccept({
-            action: "invite-status",
+            action: "invite-response",
             family: invite.family,
             message: `Invite accepted: ${util.dateFormat(new Date())}`,
             name: browser.data.name,
@@ -252,7 +249,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                                 dataString:string = para[para.length - 1].innerHTML,
                                 invite:invite = JSON.parse(dataString);
                             network.inviteAccept({
-                                action: "invite-status",
+                                action: "invite-response",
                                 family: invite.family,
                                 message: `Invite declined: ${util.dateFormat(new Date())}`,
                                 name: browser.data.name,
