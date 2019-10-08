@@ -246,7 +246,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
         text:HTMLTextAreaElement = document.createElement("textarea"),
         textStorage:string,
         values:string[] = [];
-    if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {console.log(settings.text_value);
+    if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {
         textStorage = settings.text_value;
         values.push(textStorage.slice(0, textStorage.indexOf(separator)));
         textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
@@ -346,7 +346,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
-        //network.settings();
+        network.settings();
     } else {
         const modal:HTMLElement = document.getElementById(invite.modal);
         if (modal === null) {
@@ -371,7 +371,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                         } else {
                             util.addUser(`${invite.name}@[${invite.ip}]:${invite.port}`, invite.shares);
                         }
-                        //network.settings();
+                        network.settings();
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");

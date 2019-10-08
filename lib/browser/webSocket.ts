@@ -86,7 +86,7 @@ const webSocket = function local_webSocket():WebSocket {
         } else if (event.data.indexOf("invite-request:") === 0) {
             util.inviteRespond(event.data.slice(15));
         } else if (event.data.indexOf("invite-error:") === 0) {
-            const inviteData:inviteError = JSON.parse(event.data.slice(13)),
+            const inviteData:invite = JSON.parse(event.data.slice(13)),
                 modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
             if (modal === null) {
                 return;
@@ -94,7 +94,7 @@ const webSocket = function local_webSocket():WebSocket {
             let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
                 content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
                 p:HTMLElement = document.createElement("p");
-            p.innerHTML = inviteData.error;
+            p.innerHTML = inviteData.message;
             p.setAttribute("class", "error");
             content.appendChild(p);
             content.parentNode.removeChild(content.parentNode.lastChild);

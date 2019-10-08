@@ -103,7 +103,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             content.removeChild(content.getElementsByClassName("error")[0]);
         }
         body.appendChild(util.delay());
-        options.text_value = `${inputs[0].value},${inputs[1].value},${box.getElementsByTagName("textarea")[0].value}`;
+        options.text_value = `${inputs[0].value}|spaces|${inputs[1].value}|spaces|${box.getElementsByTagName("textarea")[0].value}`;
         network.inviteRequest(inviteData);
         return;
     }

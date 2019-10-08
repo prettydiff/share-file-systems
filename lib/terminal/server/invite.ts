@@ -45,12 +45,20 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         log([responseData]);
                     });
                     inviteResponse.on("error", function terminal_server_invite_inviteResponse_error(errorMessage:nodeError):void {
-                        // http timeout then heartbeat for data.user is offline
                         log([data.action, errorMessage.toString()]);
                         vars.ws.broadcast(errorMessage.toString());
                     });
                 });
                 request.on("error", function terminal_server_invite_inviteRequest_error(errorMessage:nodeError):void {
+                    if (errorMessage.code === "ETIMEDOUT") {
+                        if (data.action === "invite-request") {
+                            data.message = `Remote user, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation not sent.`;
+                            vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                        } else if (data.action === "invite-complete") {
+                            data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
+                            vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                        }
+                    }
                     log([data.action, errorMessage.toString()]);
                     vars.ws.broadcast(errorMessage.toString());
                 });

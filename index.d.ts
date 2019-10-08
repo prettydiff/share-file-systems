@@ -118,10 +118,6 @@ interface inviteHeartbeat extends invite {
     refresh: boolean;
     user: string;
 }
-interface inviteError {
-    error: string;
-    modal: string;
-}
 interface localNetwork {
     family: "ipv4" | "ipv6";
     ip: string;
