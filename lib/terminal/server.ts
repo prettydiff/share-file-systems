@@ -13,7 +13,7 @@ import remove from "./remove.js";
 import vars from "./vars.js";
 
 import fsServer from "./server/fsServer.js";
-import inviteHeartbeat from "./server/inviteHeartbeat.js";
+import heartbeat from "./server/heartbeat.js";
 import invite from "./server/invite.js";
 import methodGET from "./server/methodGET.js";
 import serverVars from "./server/serverVars.js";
@@ -131,11 +131,19 @@ const library = {
                                 setTimeout(function () {
                                     fsRequest.end();
                                 }, 100);
+                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                response.write(`FS data received at ${serverVars.addresses[0][1][1]}`);
+                                response.end();
                             }
                         } else if (task === "settings" || task === "messages") {
-                            settingsMessages(response, dataString, task);
+                            settingsMessages(dataString, response, task);
                         } else if (task === "heartbeat") {
-                            inviteHeartbeat(dataString, task, response);
+                            heartbeat(dataString, response);
+                        } else if (task === "heartbeat-update") {
+                            vars.ws.broadcast(body);
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(`Heartbeat received at ${serverVars.addresses[0][1][1]}`);
+                            response.end();
                         } else if (task.indexOf("invite") === 0) {
                             invite(dataString, response);
                         }
@@ -223,10 +231,8 @@ const library = {
                     });
                 };
 
-                logOutput();
-
-                // Creates a socket with each shared user, based on data in the /storage/settings.json, upon coming online
-                /*vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_socketServerListener_readSettings(err:nodeError, fileData:string):void {
+                // When coming online send a heartbeat to each user
+                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_socketServerListener_readSettings(err:nodeError, fileData:string):void {
                     if (err !== null) {
                         logOutput();
                         if (err.code !== "ENOENT") {
@@ -247,20 +253,16 @@ const library = {
                                 lastColon = shares[a].lastIndexOf(":");
                                 ip = shares[a].slice(shares[a].indexOf("@") + 1, lastColon);
                                 port = shares[a].slice(lastColon + 1);
-                                inviteHeartbeat();
-                                newHeartbeat({
-                                    ip: ip,
-                                    port: Number(port),
-                                    refresh: false,
-                                    status: "active",
-                                    user: settings.name
-                                });
+                                if (ip.charAt(0) === "[") {
+                                    ip = ip.slice(1, ip.length - 1);
+                                }
+                                heartbeat(`{"ip":"${ip}","port":${port},"refresh":false,"status":"active","user":"${settings.name}"}`);
                                 a = a + 1;
                             } while (a < length);
                             logOutput();
                         }
                     }
-                });*/
+                });
             };
         if (process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
             library.error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);

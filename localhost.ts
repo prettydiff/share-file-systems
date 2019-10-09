@@ -103,7 +103,7 @@ import webSocket from "./lib/browser/webSocket.js";
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_idleness():void {
                         const time:number = Date.now();
-                        if (time - active > idleTime && localhost !== null && localhost.getAttribute("class") === "active" && browser.socket.readyState === 1) {
+                        if (time - active > idleTime && localhost !== null && browser.socket.readyState === 1) {
                             localhost.setAttribute("class", "idle");
                             network.heartbeat("idle", false);
                         }

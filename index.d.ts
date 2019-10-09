@@ -114,10 +114,6 @@ interface invite {
     shares: [string, string][];
     status: "accepted" | "declined" | "invited";
 }
-interface inviteHeartbeat extends invite {
-    refresh: boolean;
-    user: string;
-}
 interface localNetwork {
     family: "ipv4" | "ipv6";
     ip: string;

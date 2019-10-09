@@ -8,7 +8,7 @@ import serverVars from "./serverVars.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString),
-        inviteRequest = function local_server_invite_request(responseMessage:string):void {
+        inviteRequest = function local_server_invite_request():void {
             const payload:string = (data.action === "invite-request" || data.action === "invite-complete")
                     ? (function local_server_invite_request_payload():string {
                         const ip:string = data.ip,
@@ -73,14 +73,14 @@ const invite = function terminal_server_invite(dataString:string, response:http.
     if (data.action === "invite") {
         data.action = "invite-request";
         response.write("Invitation received at local terminal.");
-        inviteRequest("Invitation received at remote computer.");
+        inviteRequest();
     } else if (data.action === "invite-request") {
         vars.ws.broadcast(`invite-request:${dataString}`);
         response.write("Invitation sent to remote browser.");
     } else if (data.action === "invite-response") {
         data.action = "invite-complete";
         response.write("Invitation response processed at terminal.");
-        inviteRequest("Invitation sent to originating computer.");
+        inviteRequest();
     } else if (data.action === "invite-complete") {
         vars.ws.broadcast(`invite-request:${dataString}`);
         response.write("Invitation sent to originating browser.");

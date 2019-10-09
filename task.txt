@@ -1,9 +1,4 @@
 
-1 uncomment network.settings in util.inviteRespond   x2
-2 refactor inviteHeartbeat file
-3 get heartbeat broadcast on terminal up AND   delete heartbeat comment at bottom of server.ts
-4 update server/readme.md file
-
 ## remote FS checklist
 ### pass
 * read

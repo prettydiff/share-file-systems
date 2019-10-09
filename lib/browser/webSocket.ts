@@ -67,8 +67,8 @@ const webSocket = function local_webSocket():WebSocket {
                     return true;
                 });
             }
-        } else if (event.data.indexOf("heartbeat:") === 0) {
-            const heartbeats:string[] = event.data.split("heartbeat:"),
+        } else if (event.data.indexOf("heartbeat-update:") === 0) {
+            const heartbeats:string[] = event.data.split("heartbeat-update:"),
                 heartbeat:heartbeat = JSON.parse(heartbeats[heartbeats.length - 1]),
                 buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                 length:number = buttons.length;

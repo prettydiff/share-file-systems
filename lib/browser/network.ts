@@ -45,7 +45,7 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
 };
 
 /* Provides active user status from across the network about every minute */
-network.heartbeat = function local_network_heartbeat(status:string, refresh:boolean):void {return;
+network.heartbeat = function local_network_heartbeat(status:string, refresh:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;

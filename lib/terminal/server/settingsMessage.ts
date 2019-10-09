@@ -9,7 +9,7 @@ const library = {
         error: error,
         log: log
     },
-    settingsMessages = function terminal_server_settingsMessages(response:ServerResponse, dataString:string, task:string):void {
+    settingsMessages = function terminal_server_settingsMessages(dataString:string, response:ServerResponse, task:string):void {
         const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`;
         vars.node.fs.writeFile(fileName, dataString, "utf8", function terminal_server_settingsMessages_writeStorage(erSettings:Error):void {
             if (erSettings !== null) {
