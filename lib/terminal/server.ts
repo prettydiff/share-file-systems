@@ -131,9 +131,9 @@ const library = {
                                 setTimeout(function () {
                                     fsRequest.end();
                                 }, 100);
-                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                response.write(`FS data received at ${serverVars.addresses[0][1][1]}`);
-                                response.end();
+                                //response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                //response.write(`FS data received at ${serverVars.addresses[0][1][1]}`);
+                                //response.end();
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(dataString, response, task);

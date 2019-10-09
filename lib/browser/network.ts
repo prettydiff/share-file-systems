@@ -16,9 +16,6 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
             messageTransmit = true;
             if (xhr.status === 200 || xhr.status === 0) {
                 let text:string = xhr.responseText;
-                if (browser.loadTest === true && xhr.responseText.indexOf("fs-remote:") === 0) {
-                    text = text.slice(text.indexOf("\"dirs\":") + 7, text.length - 1)
-                }
                 text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
                 if (text.indexOf("fs-remote:") === 0 || id === undefined || id === "") {
                     callback(text);

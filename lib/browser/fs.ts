@@ -156,7 +156,14 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                 const payload:fsRemote = JSON.parse(responseText.replace("fs-remote:", "")),
                     box:HTMLElement = document.getElementById(payload.id),
                     body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                    files:HTMLElement = fs.list(location, JSON.stringify(payload.dirs));
+                    files:HTMLElement = (payload.dirs[0] === "missing")
+                        ? (function local_fs_navigate_callbackRemote_missing():HTMLElement {
+                            const p:HTMLElement = document.createElement("p");
+                            p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
+                            p.setAttribute("class", "error");
+                            return p;
+                        }())
+                        : fs.list(location, JSON.stringify(payload.dirs));
                 body.innerHTML = "";
                 body.appendChild(files);
             }

@@ -115,7 +115,7 @@ const library = {
                         if (erp !== null) {
                             if (erp.code === "ENOENT") {
                                 response.writeHead(404, {"Content-Type": "application/json"});
-                                response.write("missing");
+                                response.write("[\"missing\"]");
                                 response.end();
                             }
                             library.error([erp.toString()]);
