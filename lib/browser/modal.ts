@@ -836,9 +836,9 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 do {
                     item = document.createElement("li");
                     button = document.createElement("button");
-                    button.setAttribute("class", browser.data.shares[userKeys[a]][b][1]);
-                    button.innerHTML = browser.data.shares[userKeys[a]][b][0];
-                    if (browser.data.shares[userKeys[a]][b][1] === "directory" || browser.data.shares[userKeys[a]][b][1] === "file" || browser.data.shares[userKeys[a]][b][1] === "link") {
+                    button.setAttribute("class", browser.data.shares[user][b][1]);
+                    button.innerHTML = browser.data.shares[user][b][0];
+                    if (browser.data.shares[user][b][1] === "directory" || browser.data.shares[user][b][1] === "file" || browser.data.shares[user][b][1] === "link") {
                         button.onclick = fileNavigate;
                     }
                     item.appendChild(button);
