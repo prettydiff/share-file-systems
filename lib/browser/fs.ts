@@ -22,7 +22,7 @@ const fs:module_fs = {},
     };
 
 /* navigate into a directory by double click */
-fs.directory = function local_fs_directory(event:MouseEvent):void {console.log("test")
+fs.directory = function local_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element

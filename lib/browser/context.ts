@@ -346,6 +346,9 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 input:HTMLInputElement = document.createElement("input");
             let span:HTMLElement;
             li.setAttribute("class", type);
+            if (type === "directory") {
+                li.ondblclick = fs.directory;
+            }
             input.type = "checkbox";
             input.checked = false;
             label.innerHTML = "Selected";

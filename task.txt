@@ -10,9 +10,19 @@
 
 ### fail
 * watch
-* copy/paste
-* remote fs port is fixed at 4466
-* double-click into new directory
+* copy/cut from one remote location to another remote location (not yet tested)
+* copy/cut from remote to local directory
+* copy/cut from local to remote directory
+
+## next
+1 local shares must be known at terminal instance and any request for a parent directory must be rejected
+2 remove parent directory UI at the share level from modal code
+3 extend shares data structure [share:string, type:string, readOnly:boolean]
+4 title file navigator modals as `(read only)` if it is on a remote read only share
+5 modify context menu choices for read only shares
+
+
+
 
 ## service
 1 - shares should be read only by default with an option for all rights

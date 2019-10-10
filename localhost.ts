@@ -273,7 +273,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         watch: "yes"
                                     }, function local_restore_modalKeys_fsCallback(responseText:string):void {
                                         // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
-                                        const payload:fsRemote = JSON.parse(responseText);console.log(payload);
+                                        const payload:fsRemote = JSON.parse(responseText);
                                         if (responseText !== "") {
                                             const id:string = payload.id,
                                                 files:HTMLElement = (payload.dirs === "missing")
