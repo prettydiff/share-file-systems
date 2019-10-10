@@ -12,7 +12,7 @@ import readFile from "./readFile.js";
 import remove from "./remove.js";
 import vars from "./vars.js";
 
-import fsServer from "./server/fsServer.js";
+import fileService from "./server/fileService.js";
 import heartbeat from "./server/heartbeat.js";
 import invite from "./server/invite.js";
 import methodGET from "./server/methodGET.js";
@@ -62,12 +62,16 @@ const library = {
                     });
                     
                     request.on("error", function terminal_server_create_end_errorRequest(errorMessage:nodeError):void {
-                        log([body, "request", errorMessage.toString()]);
-                        vars.ws.broadcast(errorMessage.toString());
+                        if (errorMessage.code !== "ETIMEDOUT") {
+                            library.log([body, "request", errorMessage.toString()]);
+                            vars.ws.broadcast(errorMessage.toString());
+                        }
                     });
                     response.on("error", function terminal_server_create_end_errorResponse(errorMessage:nodeError):void {
-                        log([body, "response", errorMessage.toString()]);
-                        vars.ws.broadcast(errorMessage.toString());
+                        if (errorMessage.code !== "ETIMEDOUT") {
+                            library.log([body, "response", errorMessage.toString()]);
+                            vars.ws.broadcast(errorMessage.toString());
+                        }
                     });
 
                     request.on('end', function terminal_server_create_end():void {
@@ -78,7 +82,7 @@ const library = {
                         if (task === "fs") {
                             const data:localService = JSON.parse(dataString);
                             if (data.agent === "localhost") {
-                                fsServer(request, response, data);
+                                fileService(request, response, data);
                             } else {
                                 // remote file server access
                                 const ipAddress:string = (function terminal_server_create_end_fsIP():string {
@@ -106,7 +110,7 @@ const library = {
                                         method: "POST",
                                         path: "/",
                                         port: port,
-                                        timeout: 4000
+                                        timeout: 1000
                                     }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                                         const chunks:string[] = [];
                                         fsResponse.setEncoding('utf8');
@@ -119,21 +123,25 @@ const library = {
                                             response.end();
                                         });
                                         fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
-                                            library.log([errorMessage.toString()]);
-                                            vars.ws.broadcast(errorMessage.toString());
+                                            if (errorMessage.code !== "ETIMEDOUT") {
+                                                library.log([errorMessage.toString()]);
+                                                vars.ws.broadcast(errorMessage.toString());
+                                            }
                                         });
                                     });
                                 fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
-                                    library.log([task, errorMessage.toString()]);
-                                    vars.ws.broadcast(errorMessage.toString());
+                                    if (errorMessage.code !== "ETIMEDOUT") {
+                                        library.log([task, errorMessage.toString()]);
+                                        vars.ws.broadcast(errorMessage.toString());
+                                    }
+                                    response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                                    response.write(`{"id":"${data.id}","dirs":"missing"}`);
+                                    response.end();
                                 });
                                 fsRequest.write(payload);
                                 setTimeout(function () {
                                     fsRequest.end();
                                 }, 100);
-                                //response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                //response.write(`FS data received at ${serverVars.addresses[0][1][1]}`);
-                                //response.end();
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(dataString, response, task);
@@ -157,7 +165,7 @@ const library = {
                     } else {
                         library.error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
                     }
-                } else {
+                } else if (error.code !== "ETIMEDOUT") {
                     library.error([`${error.Error}`]);
                 }
                 return

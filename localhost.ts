@@ -262,29 +262,28 @@ import webSocket from "./lib/browser/webSocket.js";
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
                                     const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
-                                        agent:string = agentStrings[agentStrings.length - 1];
-                                    network.fs({
-                                        action: "fs-read",
-                                        agent: agent,
-                                        depth: 2,
-                                        id: value,
-                                        location: [storage.settings.modals[value].text_value],
-                                        name: "",
-                                        watch: "yes"
-                                    }, function local_restore_modalKeys_fsCallback(responseText:string):void {
-                                        // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
-                                        const payload:fsRemote = JSON.parse(responseText);
-                                        if (responseText !== "") {
-                                            const id:string = payload.id,
+                                        agent:string = agentStrings[agentStrings.length - 1],
+                                        callback = function local_restore_modalKeys_fsCallback(responseText:string, agent:string):void {
+                                            // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
+                                            const payload:fsRemote = JSON.parse(responseText),
+                                                id:string = payload.id,
                                                 files:HTMLElement = (payload.dirs === "missing")
                                                     ? (function local_restore_modalKeys_fsCallback_missing():HTMLElement {
                                                         const p:HTMLElement = document.createElement("p");
-                                                        p.innerHTML = "";
+                                                        p.setAttribute("class", "error");
+                                                        p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
                                                         return p;
                                                     }())
                                                     : fs.list(storage.settings.modals[value].text_value, payload.dirs),
                                                 textValue:string = files.getAttribute("title");
                                             files.removeAttribute("title");
+                                            if (agent === "localhost") {
+                                                callbackLocal(id, files, textValue);
+                                            } else {
+                                                callbackRemote(id, files);
+                                            }
+                                        },
+                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:HTMLElement, textValue:String):void {
                                             storage.settings.modals[id].content = files;
                                             storage.settings.modals[id].id = id;
                                             if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
@@ -302,10 +301,48 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 browser.data.modals[id].status = "normal";
                                                 button.click();
                                             }
-                                        } else {
-                                            z(payload.id);
+                                        },
+                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:HTMLElement):void {
+                                            const fsModal:HTMLElement = document.getElementById(id),
+                                                body:HTMLElement = <HTMLElement>fsModal.getElementsByClassName("body")[0];
+                                            body.innerHTML = "";
+                                            body.appendChild(files);
+
+                                        };
+                                    if (agent === "localhost") {
+                                        network.fs({
+                                            action: "fs-read",
+                                            agent: agent,
+                                            depth: 2,
+                                            id: value,
+                                            location: [storage.settings.modals[value].text_value],
+                                            name: "",
+                                            watch: "yes"
+                                        }, callback, value);
+                                    } else {
+                                        const delay:HTMLElement = util.delay();
+                                        storage.settings.modals[value].content = delay;
+                                        modal.create(storage.settings.modals[value]);
+                                        z(value);
+                                        if (storage.settings.modals[value].status === "maximized") {
+                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(value).getElementsByClassName("maximize")[0];
+                                            browser.data.modals[value].status = "normal";
+                                            button.click();
+                                        } else if (storage.settings.modals[value].status === "minimized") {
+                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(value).getElementsByClassName("minimize")[0];
+                                            browser.data.modals[value].status = "normal";
+                                            button.click();
                                         }
-                                    }, value);
+                                        network.fs({
+                                            action: "fs-read",
+                                            agent: agent,
+                                            depth: 2,
+                                            id: value,
+                                            location: [storage.settings.modals[value].text_value],
+                                            name: "",
+                                            watch: "yes"
+                                        }, callback, value);
+                                    }
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");
                                     if (storage.settings.modals[value].type === "textPad") {

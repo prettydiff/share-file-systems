@@ -14,17 +14,13 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
     xhr.onreadystatechange = function local_network_fs_readyState():void {
         if (xhr.readyState === 4) {
             messageTransmit = true;
+            let text:string = xhr.responseText;
+            text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
             if (xhr.status === 200 || xhr.status === 0) {
-                let text:string = xhr.responseText;
-                text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-                callback(text);
+                callback(text, configuration.agent);
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                if (id === undefined) {
-                    callback("");
-                } else {
-                    callback("", id);
-                }
+                callback(text, configuration.agent);
                 network.messages();
             }
         }
