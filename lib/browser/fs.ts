@@ -22,7 +22,7 @@ const fs:module_fs = {},
     };
 
 /* navigate into a directory by double click */
-fs.directory = function local_fs_directory(event:MouseEvent):void {
+fs.directory = function local_fs_directory(event:MouseEvent):void {console.log("test")
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element
@@ -49,7 +49,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         watch: watchValue
     }, function local_fs_directory_callback(responseText:string):void {
         body.innerHTML = "";
-        body.appendChild(fs.list(path, responseText));
+        body.appendChild(fs.list(path, JSON.parse(responseText).dirs));
         browser.data.modals[box.getAttribute("id")].text_value = path;
         network.settings();
     });
@@ -69,7 +69,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
             name : "",
             watch: "no"
         }, function local_fs_expand_callback(responseText:string) {
-            li.appendChild(fs.list(li.firstChild.nextSibling.textContent, responseText));
+            li.appendChild(fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText).dirs));
         });
     } else {
         const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
@@ -82,11 +82,8 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
 };
 
 /* Builds the HTML file list */
-fs.list = function local_fs_list(location:string, listString:string):HTMLElement {
-    const list:directoryList = (listString.indexOf("fs-remote:") === 0)
-            ? JSON.parse(listString.replace("fs-remote:", "")).dirs[0]
-            : JSON.parse(listString)[0],
-        local:directoryList = [],
+fs.list = function local_fs_list(location:string, list:directoryList):HTMLElement {
+    const local:directoryList = [],
         length:number = list.length,
         output:HTMLElement = document.createElement("ul");
     let a:number = 0,
@@ -134,7 +131,7 @@ fs.list = function local_fs_list(location:string, listString:string):HTMLElement
             a = a + 1;
         } while (a < localLength);
     }
-    output.title = local[0][0];
+    output.title = location;
     output.oncontextmenu = context.menu;
     output.setAttribute("class", "fileList");
     return output;
@@ -153,17 +150,17 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                 if (responseText === "") {
                     return;
                 }
-                const payload:fsRemote = JSON.parse(responseText.replace("fs-remote:", "")),
+                const payload:fsRemote = JSON.parse(responseText),
                     box:HTMLElement = document.getElementById(payload.id),
                     body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                    files:HTMLElement = (payload.dirs[0] === "missing")
+                    files:HTMLElement = (payload.dirs === "missing")
                         ? (function local_fs_navigate_callbackRemote_missing():HTMLElement {
                             const p:HTMLElement = document.createElement("p");
                             p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
                             p.setAttribute("class", "error");
                             return p;
                         }())
-                        : fs.list(location, JSON.stringify(payload.dirs));
+                        : fs.list(location, payload.dirs);
                 body.innerHTML = "";
                 body.appendChild(files);
             }
@@ -171,7 +168,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                 if (responseText === "") {
                     return;
                 }
-                const files:HTMLElement = fs.list(location, responseText),
+                const files:HTMLElement = fs.list(location, JSON.parse(responseText).dirs),
                     value:string = files.getAttribute("title");
                 files.removeAttribute("title");
                 modal.create({
@@ -245,7 +242,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         watch: value
     }, function local_fs_parent_callback(responseText:string):void {
         body.innerHTML = "";
-        body.appendChild(fs.list(input.value, responseText));
+        body.appendChild(fs.list(input.value, JSON.parse(responseText).dirs));
         browser.data.modals[id].text_value = input.value;
         network.settings();
     });
@@ -432,7 +429,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
                 parent.innerHTML = "<p class=\"error\">Location not found.</p>";
             } else {
                 parent.innerHTML = "";
-                parent.appendChild(fs.list(element.value, responseText));
+                parent.appendChild(fs.list(element.value, JSON.parse(responseText).dirs));
                 browser.data.modals[id].text_value = element.value;
                 element.removeAttribute("class");
                 network.settings();

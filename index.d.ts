@@ -87,7 +87,7 @@ interface fsDetails {
     size: number;
 }
 interface fsRemote {
-    dirs: string;
+    dirs: directoryList | "missing";
     id: string;
 }
 interface FSWatcher extends Function {
@@ -164,7 +164,7 @@ interface module_context {
 interface module_fs {
     directory?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
-    list?: (location:string, listString:string) => HTMLElement;
+    list?: (location:string, list:directoryList) => HTMLElement;
     navigate?: navigate;
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;

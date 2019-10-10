@@ -267,13 +267,22 @@ import webSocket from "./lib/browser/webSocket.js";
                                         action: "fs-read",
                                         agent: agent,
                                         depth: 2,
+                                        id: value,
                                         location: [storage.settings.modals[value].text_value],
                                         name: "",
                                         watch: "yes"
-                                    }, function local_restore_modalKeys_fsCallback(responseText:string, id?:string):void {
+                                    }, function local_restore_modalKeys_fsCallback(responseText:string):void {
                                         // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
+                                        const payload:fsRemote = JSON.parse(responseText);console.log(payload);
                                         if (responseText !== "") {
-                                            const files:HTMLElement = fs.list(storage.settings.modals[value].text_value, responseText),
+                                            const id:string = payload.id,
+                                                files:HTMLElement = (payload.dirs === "missing")
+                                                    ? (function local_restore_modalKeys_fsCallback_missing():HTMLElement {
+                                                        const p:HTMLElement = document.createElement("p");
+                                                        p.innerHTML = "";
+                                                        return p;
+                                                    }())
+                                                    : fs.list(storage.settings.modals[value].text_value, payload.dirs),
                                                 textValue:string = files.getAttribute("title");
                                             files.removeAttribute("title");
                                             storage.settings.modals[id].content = files;
@@ -294,7 +303,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 button.click();
                                             }
                                         } else {
-                                            z(id);
+                                            z(payload.id);
                                         }
                                     }, value);
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {

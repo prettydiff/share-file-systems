@@ -115,7 +115,7 @@ const library = {
                                         });
                                         fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
                                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                            response.write(`fs-remote:{"id":"${data.id}","dirs":${chunks.join("")}}`);
+                                            response.write(chunks.join(""));
                                             response.end();
                                         });
                                         fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {

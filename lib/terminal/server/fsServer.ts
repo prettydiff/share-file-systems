@@ -27,10 +27,10 @@ const library = {
         if (data.action === "fs-read" || data.action === "fs-details") {
             const callback = function terminal_server_fsServer_putCallback(result:directoryList):void {
                     count = count + 1;
-                    output.push(result);
+                    output = output.concat(result);
                     if (count === pathLength) {
                         response.writeHead(200, {"Content-Type": "application/json"});
-                        response.write(JSON.stringify(output));
+                        response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)}}`);
                         response.end();
                     }
                 },
@@ -101,9 +101,9 @@ const library = {
                     });
                 },
                 pathList:string[] = data.location,
-                pathLength:number = pathList.length,
-                output:directoryList[] = [];
-            let count:number = 0;
+                pathLength:number = pathList.length;
+            let count:number = 0,
+                output:directoryList = [];
             if (pathList[0] === "defaultLocation") {
                 pathList[0] = vars.projectPath;
             }
@@ -115,7 +115,7 @@ const library = {
                         if (erp !== null) {
                             if (erp.code === "ENOENT") {
                                 response.writeHead(404, {"Content-Type": "application/json"});
-                                response.write("[\"missing\"]");
+                                response.write(`{"id":"${data.id},"dirs":"missing"}`);
                                 response.end();
                             }
                             library.error([erp.toString()]);

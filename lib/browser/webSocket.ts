@@ -48,7 +48,7 @@ const webSocket = function local_webSocket():WebSocket {
                     }, function local_socketMessage_fsCallback(responseText:string):void {
                         if (responseText !== "") {
                             body.innerHTML = "";
-                            body.appendChild(fs.list(value, responseText));
+                            body.appendChild(fs.list(value, JSON.parse(responseText).dirs));
                         }
                     });
                     break;

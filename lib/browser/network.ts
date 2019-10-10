@@ -17,11 +17,7 @@ network.fs = function local_network_fs(configuration:localService, callback:Func
             if (xhr.status === 200 || xhr.status === 0) {
                 let text:string = xhr.responseText;
                 text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-                if (text.indexOf("fs-remote:") === 0 || id === undefined || id === "") {
-                    callback(text);
-                } else {
-                    callback(text, id);
-                }
+                callback(text);
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 if (id === undefined) {

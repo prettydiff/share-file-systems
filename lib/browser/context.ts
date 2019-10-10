@@ -68,9 +68,7 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         name: "",
         watch: "no"
     }, function local_context_dataString(resultString:string):void {
-        if (resultString.indexOf("fs-remote:") === 0) {
-            resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
-        }
+        resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
         modal.textPad(event, resultString, `${type} - ${address}`);
         network.settings();
     });
@@ -136,9 +134,10 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         name: "",
         watch: "no"
     }, function local_context_details_callback(response:string):void {
-        const list:directoryList[] = (response.indexOf("fs-remote:") === 0)
-                ? JSON.parse(response.replace("fs-remote:", "")).dirs
-                : JSON.parse(response),
+        const payload:fsRemote = JSON.parse(response),
+            list:directoryList = (payload.dirs === "missing")
+                ? []
+                : payload.dirs,
             body:HTMLElement = <HTMLElement>modalInstance.getElementsByClassName("body")[0],
             length:number = list.length,
             details:fsDetails = {
@@ -149,7 +148,6 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
             },
             output:HTMLElement = document.createElement("div");
         let a:number = 0,
-            b:number = 0,
             tr:HTMLElement,
             td:HTMLElement,
             childLength:number,
@@ -159,44 +157,35 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
             mTime:Date,
             aTime:Date,
             cTime:Date;
-        list.sort(function local_network_fsDetails_callback_sort(a:directoryList, b:directoryList):number {
+        list.sort(function local_network_fsDetails_callback_sort(a:directoryItem, b:directoryItem):number {
             // when types are the same
-            if (a[0][1] === b[0][1]) {
-                if (a[0][0] < b[0][0]) {
+            if (a[1] === b[1]) {
+                if (a[0] < b[0]) {
                     return -1;
                 }
                 return 1;
             }
 
             // when types are different
-            if (a[0][1] === "directory") {
+            if (a[1] === "directory") {
                 return -1;
             }
-            if (a[0][1] === "link" && b[0][1] === "file") {
+            if (a[1] === "link" && b[1] === "file") {
                 return -1;
             }
             return 1;
         });
         do {
-            childLength = list[b].length;
-            if (list[b][0][1] === "directory" && childLength > 0) {
-                a = 1;
-                do {
-                    if (list[b][a][1] === "directory") {
-                        details.directories = details.directories + 1;
-                    } else if (list[b][a][1] === "link") {
-                        details.links = details.links + 1;
-                    } else {
-                        details.files = details.files + 1;
-                        details.size = details.size + list[b][a][4].size;
-                    }
-                    a = a + 1;
-                } while (a < childLength);
+            if (list[a][1] === "directory") {
+                details.directories = details.directories + 1;
+            } else if (list[a][1] === "link") {
+                details.links = details.links + 1;
             } else {
-                details.size = details.size + list[b][0][4].size;
+                details.files = details.files + 1;
+                details.size = details.size + list[a][4].size;
             }
-            b = b + 1;
-        } while (b < length);
+            a = a + 1;
+        } while (a < childLength);
 
         output.setAttribute("class", "fileDetailOutput");
         heading.innerHTML = `File System Details - ${list.length} items`;
@@ -206,11 +195,11 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         do {
             tr = document.createElement("tr");
             td = document.createElement("th");
-            td.innerHTML = list[a][0][1];
-            td.setAttribute("class", list[a][0][1]);
+            td.innerHTML = list[a][1];
+            td.setAttribute("class", list[a][1]);
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = list[a][0][0];
+            td.innerHTML = list[a][0];
             tr.appendChild(td);
             tbody.appendChild(tr);
             a = a + 1;
@@ -266,9 +255,9 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         output.appendChild(table);
         
         if (list.length === 1) {
-            mTime = new Date(list[0][0][4].mtimeMs);
-            aTime = new Date(list[0][0][4].atimeMs);
-            cTime = new Date(list[0][0][4].ctimeMs);
+            mTime = new Date(list[0][4].mtimeMs);
+            aTime = new Date(list[0][4].atimeMs);
+            cTime = new Date(list[0][4].ctimeMs);
             heading = document.createElement("h3");
             heading.innerHTML = "Modified, Accessed, Created";
             output.appendChild(heading);
