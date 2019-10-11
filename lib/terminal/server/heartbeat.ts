@@ -39,7 +39,7 @@ const library = {
                     library.log([errorMessage.toString()]);
                 });
             });
-        heartbeatRequest.on("error", function terminal_server_create_end_heartbeatRequest_error(errorMessage:nodeError):void {console.log(errorMessage);
+        heartbeatRequest.on("error", function terminal_server_create_end_heartbeatRequest_error(errorMessage:nodeError):void {
             if (errorMessage.code === "ETIMEDOUT") {
                 const self:string = (data.ip.indexOf(":") > 0)
                     ? `@[${data.ip}]:${data.port}`

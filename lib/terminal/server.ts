@@ -56,7 +56,7 @@ const library = {
                         decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
                     request.on('data', function (data:Buffer) {
                         body = body + decoder.write(data);
-                        if (body.length > 1e5) {
+                        if (body.length > 1e6) {
                             request.connection.destroy();
                         }
                     });
@@ -79,15 +79,20 @@ const library = {
                             dataString:string = (body.charAt(0) === "{")
                                 ? body.slice(body.indexOf(":") + 1, body.length - 1)
                                 : body.slice(body.indexOf(":") + 1);
-                        if (task === "fs") {
-                            const data:localService = JSON.parse(dataString);
-                            if (data.agent === "localhost") {
+                        if (task === "fsUpdateRemote") {
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
+                            response.end();
+                            vars.ws.broadcast(body);
+                        } else if (task === "fs") {
+                            const data:fileService = JSON.parse(dataString);
+                            if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                                 fileService(request, response, data);
                             } else {
                                 // remote file server access
                                 const ipAddress:string = (function terminal_server_create_end_fsIP():string {
                                         const address:string = data.agent.slice(data.agent.indexOf("@") + 1, data.agent.lastIndexOf(":"));
-                                        data.agent = "localhost";
+                                        data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                                         if (address.charAt(0) === "[") {
                                             return address.slice(1, address.length - 1);
                                         }

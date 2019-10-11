@@ -7,7 +7,7 @@ const network:module_network = {},
 let messageTransmit:boolean = true;
 
 /* Accesses the file system */
-network.fs = function local_network_fs(configuration:localService, callback:Function, id?:string):void {
+network.fs = function local_network_fs(configuration:fileService, callback:Function, id?:string):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest();
     messageTransmit = false;
     context.menuRemove();

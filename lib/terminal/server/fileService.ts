@@ -1,5 +1,5 @@
 
-import { IncomingMessage, ServerResponse } from "http";
+import * as http from "http";
 
 import base64 from "../base64.js";
 import copy from "../copy.js";
@@ -23,7 +23,7 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
-    fileService = function terminal_server_fileService(request:IncomingMessage, response:ServerResponse, data:localService):void {
+    fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
         if (data.action === "fs-read" || data.action === "fs-details") {
             const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                     count = count + 1;
@@ -136,7 +136,65 @@ const library = {
                                     recursive: false
                                 }, function terminal_server_fileService_watch():void {
                                     if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
-                                        vars.ws.broadcast(`fsUpdate:${value}`);
+                                        if (data.agent === "localhost") {
+                                            vars.ws.broadcast(`fsUpdate:${value}`);
+                                        } else {
+                                             // create directoryList object and send to remote
+                                             library.directory({
+                                                 callback: function terminal_server_fileService_watch_remote(result:directoryList):void {
+                                                    const remoteData:string[] = data.remoteWatch.split("_"),
+                                                        remoteAddress:string = remoteData[0],
+                                                        remotePort:number = Number(remoteData[1]),
+                                                        payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${value.replace(/\\/g, "\\\\")}"}`,
+                                                        fsRequest:http.ClientRequest = http.request({
+                                                            headers: {
+                                                                "Content-Type": "application/x-www-form-urlencoded",
+                                                                "Content-Length": Buffer.byteLength(payload)
+                                                            },
+                                                            host: remoteAddress,
+                                                            method: "POST",
+                                                            path: "/",
+                                                            port: remotePort,
+                                                            timeout: 4000
+                                                        }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
+                                                            const chunks:string[] = [];
+                                                            fsResponse.setEncoding('utf8');
+                                                            fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                                                                chunks.push(chunk);
+                                                            });
+                                                            fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                                response.write(chunks.join(""));
+                                                                response.end();
+                                                            });
+                                                            fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                                                                if (errorMessage.code !== "ETIMEDOUT") {
+                                                                    library.log([errorMessage.toString()]);
+                                                                    vars.ws.broadcast(errorMessage.toString());
+                                                                }
+                                                            });
+                                                        });
+                                                    fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
+                                                        if (errorMessage.code !== "ETIMEDOUT") {
+                                                            library.log(["watch-remote", errorMessage.toString()]);
+                                                            vars.ws.broadcast(errorMessage.toString());
+                                                        }
+                                                        response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                                                        response.write("Error sending directory watch to remote.");
+                                                        response.end();
+                                                    });
+                                                    fsRequest.write(payload);
+                                                    setTimeout(function () {
+                                                        fsRequest.end();
+                                                    }, 100);
+                                                },
+                                                depth: 2,
+                                                exclusions: [],
+                                                path: value,
+                                                recursive: true,
+                                                symbolic: true
+                                             });
+                                        }
                                     }
                                 });
                             }

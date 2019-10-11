@@ -27,6 +27,23 @@ const webSocket = function local_webSocket():WebSocket {
             if (modal.clientWidth > 0) {
                 tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
             }
+        } else if (event.data.indexOf("fsUpdateRemote:") === 0) {
+            const data:fsUpdateRemote = JSON.parse(event.data.replace("fsUpdateRemote:", "")),
+                list:HTMLElement = fs.list(data.location, data.dirs),
+                modalKeys:string[] = Object.keys(browser.data.modals),
+                keyLength:number = modalKeys.length;
+            let a:number = 0,
+                modalAgent:string,
+                body:HTMLElement;
+            do {
+                modalAgent = browser.data.modals[modalKeys[a]].title.split(" - ")[1];
+                if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
+                    body = <HTMLElement>document.getElementById(browser.data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    body.appendChild(list);
+                }
+                a = a + 1;
+            } while (a < keyLength);
         } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
             const modalKeys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = modalKeys.length;

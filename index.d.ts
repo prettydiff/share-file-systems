@@ -76,6 +76,16 @@ interface Element {
     getNodesByType: Function;
     getElementsByAttribute: Function;
 }
+interface fileService {
+    action      : serviceType;
+    agent       : string;
+    depth       : number;
+    id          : string;
+    location    : string[];
+    name        : string;
+    remoteWatch?: string;
+    watch       : string;
+}
 interface flags {
     error: boolean;
     write: string;
@@ -89,6 +99,11 @@ interface fsDetails {
 interface fsRemote {
     dirs: directoryList | "missing";
     id: string;
+}
+interface fsUpdateRemote {
+    agent: string;
+    dirs: directoryList;
+    location:string;
 }
 interface FSWatcher extends Function {
     close: Function;
@@ -120,15 +135,6 @@ interface localNetwork {
     httpPort: number;
     wsPort: number;
     tcpPort: number;
-}
-interface localService {
-    action  : serviceType;
-    agent   : string;
-    depth   : number;
-    id      : string;
-    location: string[];
-    name    : string;
-    watch   : string;
 }
 interface messageError {
     error:string;
