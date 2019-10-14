@@ -313,6 +313,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         network.fs({
                                             action: "fs-read",
                                             agent: agent,
+                                            copyAgent: "",
                                             depth: 2,
                                             id: value,
                                             location: [storage.settings.modals[value].text_value],
@@ -336,6 +337,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         network.fs({
                                             action: "fs-read",
                                             agent: agent,
+                                            copyAgent: "",
                                             depth: 2,
                                             id: value,
                                             location: [storage.settings.modals[value].text_value],

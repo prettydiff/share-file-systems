@@ -522,13 +522,15 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
     inputs = fileList.getElementsByTagName("input");
     li = fileList.getElementsByTagName("li");
     inputLength = inputs.length;
-    do {
-        if (inputs[a].type === "checkbox") {
-            inputs[a].checked = false;
-            li[a].setAttribute("class", li[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
-        }
-        a = a + 1;
-    } while (a < inputLength);
+    if (inputLength > 0) {
+        do {
+            if (inputs[a].type === "checkbox") {
+                inputs[a].checked = false;
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+            }
+            a = a + 1;
+        } while (a < inputLength);
+    }
 };
 
 export default util;

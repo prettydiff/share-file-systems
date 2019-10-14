@@ -63,6 +63,7 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
     network.fs({
         action: `fs-${type.toLowerCase()}`,
         agent: agent(element),
+        copyAgent: "",
         depth: 1,
         location: [address],
         name: "",
@@ -92,6 +93,7 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
     network.fs({
         action: "fs-destroy",
         agent: agent(element),
+        copyAgent: "",
         depth: 1,
         location: addresses,
         name: "",
@@ -129,6 +131,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
     network.fs({
         action: "fs-details",
         agent: agent(element),
+        copyAgent: "",
         depth: 0,
         location: addressList,
         name: "",
@@ -308,6 +311,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 network.fs({
                     action: "fs-new",
                     agent: agent(element),
+                    copyAgent: "",
                     depth: 1,
                     location: [path + value],
                     name: type,
@@ -331,6 +335,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 network.fs({
                     action: "fs-new",
                     agent: agent(element),
+                    copyAgent: "",
                     depth: 1,
                     location: [path + value],
                     name: type,
@@ -624,12 +629,13 @@ context.paste = function local_context_paste(element:HTMLElement):void {
     } while (element !== document.documentElement && element.getAttribute("class") !== "box");
     destination = element.getElementsByTagName("input")[0].value;
     network.fs({
-        action: `fs-${clipData.type}`,
-        agent: clipData.agent,
-        depth: 1,
-        location: clipData.data,
-        name: destination,
-        watch: "no"
+        action   : `fs-${clipData.type}`,
+        agent    : clipData.agent,
+        copyAgent: agent(element),
+        depth    : 1,
+        location : clipData.data,
+        name     : destination,
+        watch    : "no"
     }, function local_context_paste_callback():void {
         clipboard = "";
         util.selectNone(document.getElementById(clipData.id));

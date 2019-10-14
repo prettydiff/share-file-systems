@@ -1,51 +1,30 @@
 
-## remote FS checklist
-### pass
-* read
-* details
-* destroy
-* rename
-* new directory/file
-* hash/base64
+1 show hash in file navigator for files only
+2 copy/cut from one remote location to another remote location (not yet tested)
+3 copy and paste one item into the same location without overwrite (name change)
+4 copy/cut from remote to local directory
+5 copy/cut from local to remote directory
+6 copy/cut from remote to a different remote such that you are issuing commands as an intermediary and not receiving the file data.  HTTP response cannot come to local terminal
+7 upgrade everything to https/443 by default
+8 ignore all HTTP requests not from the application and browser localhost
+9 file navigator item selection written to settings and restored on restart
+10 watches must be associated with *agent* so that a watch required by an agent can be closed if that agent goes offline
+11 drop all file system requests above a share at file system's terminal
+  a drop the parent directory UI, purple button, at a share root
+12 normalize all shares such that a descendant directory cannot be specified as a separate share from an ancestor directory
+13 Allow read only shares
+  a extend concerned interfaces
+  b read only will be a checkbox only for localhost shares and checked by default
+  c read only shares, both local and remote, will have different presentation and title will terminate with `(read only)`
+  d receiving terminal will drop all read only violations
+  e read only shares have fewer context menu choices
+14 add a control to remove localhost shares
+15 edit file - add a context menu item to open a file as text and write its contents as text
+16 copy/paste by drag and drop
+17 copy/paste by CTRL+C and CTRL+V
+18 delete by DEL key
+19 test GUI in OSX and Gnome Linux
 
-### fail
-* watch
-* copy/cut from one remote location to another remote location (not yet tested)
-* copy/cut from remote to local directory
-* copy/cut from local to remote directory
-
-## next
-1 local shares must be known at terminal instance and any request for a parent directory must be rejected
-2 remove parent directory UI at the share level from modal code
-3 extend shares data structure [share:string, type:string, readOnly:boolean]
-4 title file navigator modals as `(read only)` if it is on a remote read only share
-5 modify context menu choices for read only shares
-
-
-
-
-## service
-1 - shares should be read only by default with an option for all rights
-2 - need to plan how to handle remote fs watches
-
-## gui
-1 - stop shares (only localhost shares) [blocked, adding and removing shares requires messaging to other users]
-  - mouse drag select
-2 - context menu
-    c - edit file (opens file in textPad)
-3 - copy by drag and drop from one modal to another
-4 - add common keyboard support: ctrl+c, ctrl+v, del
-5 - associate modals to an agent
-    a - think through the data model
-    b - display, such as "File Navigator - localhost"
-
-## file list
-2 - navigation security, do not allow parent navigation beyond a share
-
-## copy/paste via messaging
-1 copy writes to settings
-2 transmits to messaging by agent
-3 paste by agent
 
 ## populate systems logs
 

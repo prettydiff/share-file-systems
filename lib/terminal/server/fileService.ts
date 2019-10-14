@@ -219,6 +219,12 @@ const library = {
             response.write(`Watcher ${data.location[0]} closed.`);
             response.end();
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
+            // * data.agent     | data.copyAgent     | status | task
+            // * --------------------------------------------------------
+            // * localhost      | localhost          | good   | copy to/from localhost
+            // * localhost      | agent              | fail   | copy from localhost to remote
+            // * error: socket hang up on localhost  | fail   | copy from remote to localhost, data.agent and data.copyAgent display on remote
+            // * remote user id | remote user id     | good   | copy to/from same remote
             let count:number = 0,
                 length:number = data.location.length;
             data.location.forEach(function terminal_server_fileService_copyEach(value:string):void {
@@ -226,18 +232,48 @@ const library = {
                     ? function terminal_server_fileService_copyEach_copy():void {
                         count = count + 1;
                         if (count === length) {
-                            response.writeHead(200, {"Content-Type": "text/plain"});
-                            response.write(`Path(s) ${data.location.join(", ")} copied.`);
-                            response.end();
+                            if (data.agent === "localhost") {
+                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                response.write(`Path(s) ${data.location.join(", ")} copied.`);
+                                response.end();
+                            } else {
+                                library.directory({
+                                    callback: function terminal_server_fileService_copyEach_copy_dir(directory:directoryList):void {
+                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                        response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${data.name}"}`);
+                                        response.end();
+                                    },
+                                    depth: 2,
+                                    exclusions: [],
+                                    path: data.name,
+                                    recursive: true,
+                                    symbolic: true
+                                });
+                            }
                         }
                     }
                     : function terminal_server_fileService_copyEach_cut():void {
                         library.remove(value, function terminal_server_fileService_copyEach_cut_callback():void {
                             count = count + 1;
                             if (count === length) {
-                                response.writeHead(200, {"Content-Type": "text/plain"});
-                                response.write(`Path(s) ${data.location.join(", ")} cut and pasted.`);
-                                response.end();
+                                if (data.agent === "localhost") {
+                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                    response.write(`Path(s) ${data.location.join(", ")} cut and pasted.`);
+                                    response.end();
+                                } else {
+                                    library.directory({
+                                        callback: function terminal_server_fileService_copyEach_cut_callback_dir(directory:directoryList):void {
+                                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${data.name}"}`);
+                                            response.end();
+                                        },
+                                        depth: 2,
+                                        exclusions: [],
+                                        path: data.name,
+                                        recursive: true,
+                                        symbolic: true
+                                    });
+                                }
                             }
                         });
                     }

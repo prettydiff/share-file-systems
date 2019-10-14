@@ -43,6 +43,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     network.fs({
         action: "fs-read",
         agent: agent(box),
+        copyAgent: "",
         depth: 2,
         location: [path.replace(/\\/g, "\\\\")],
         name: "",
@@ -64,6 +65,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
         network.fs({
             action: "fs-read",
             agent: agent(button),
+            copyAgent: "",
             depth: 2,
             location: [li.firstChild.nextSibling.textContent.replace(/\\/g, "\\\\")],
             name : "",
@@ -199,6 +201,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
     network.fs({
         action: "fs-read",
         agent: agentName,
+        copyAgent: "",
         depth: 2,
         id: id,
         location: [location],
@@ -236,6 +239,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
     network.fs({
         action: "fs-read",
         agent: agent(box),
+        copyAgent: "",
         depth: 2,
         location: [input.value.replace(/\\/g, "\\\\")],
         name: "",
@@ -261,6 +265,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                     network.fs({
                         action: "fs-rename",
                         agent: agent(element),
+                        copyAgent: "",
                         depth: 1,
                         location: [text.replace(/\\/g, "\\\\")],
                         name: input.value,
@@ -420,6 +425,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
         network.fs({
             action: "fs-read",
             agent: agent(box),
+            copyAgent: "",
             depth: 2,
             location: [element.value.replace(/\\/g, "\\\\")],
             name: "",

@@ -1,5 +1,6 @@
 import browser from "./browser.js";
 import context from "./context.js";
+import fs from "./fs.js";
 import systems from "./systems.js";
 
 const network:module_network = {},

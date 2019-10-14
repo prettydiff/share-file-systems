@@ -79,6 +79,7 @@ interface Element {
 interface fileService {
     action      : serviceType;
     agent       : string;
+    copyAgent   : string;
     depth       : number;
     id          : string;
     location    : string[];

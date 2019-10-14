@@ -123,8 +123,14 @@ const library = {
                                             chunks.push(chunk);
                                         });
                                         fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                                            const body:string = chunks.join("");
                                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                            response.write(chunks.join(""));
+                                            if (body.indexOf("fsUpdateRemote:") === 0) {
+                                                vars.ws.broadcast(body);
+                                                response.write("Terminal received file system response from remote.");
+                                            } else {
+                                                response.write(body);
+                                            }
                                             response.end();
                                         });
                                         fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {

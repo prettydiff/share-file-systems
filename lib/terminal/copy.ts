@@ -17,6 +17,11 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
+    // parameters
+    // * callback:Function - the instructions to execute when copy is complete
+    // * destination:string - the file system location where to put the copied items
+    // * exclusions:string[] - file system objects to exclude from copy
+    // * target:string - the file system path of the source item
     copy = function terminal_copy(params:nodeCopyParams):void {
         const numb:any  = {
                 dirs : 0,

@@ -58,6 +58,7 @@ const webSocket = function local_webSocket():WebSocket {
                     network.fs({
                         action: "fs-read",
                         agent: "localhost",
+                        copyAgent: "",
                         depth: 2,
                         location: [value],
                         name: "",
@@ -76,6 +77,7 @@ const webSocket = function local_webSocket():WebSocket {
                 network.fs({
                     action: "fs-close",
                     agent: "localhost",
+                    copyAgent: "",
                     depth: 1,
                     location: [value],
                     name: "",

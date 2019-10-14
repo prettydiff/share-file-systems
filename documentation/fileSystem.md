@@ -5,6 +5,7 @@ The file system service is called from *network.fs* and use **localService** Typ
 
 * **action**: string, The service name to execute.
 * **agent**: string, The agent (user) where the action must be performed.
+* **copyAgent**: string. The agent of the destination for a *paste* action from *copy* or *cut* services.
 * **depth**: number, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
 * **id**: The id attribute value of the target modal.  This is only used for non-local operations where content is requested from the network.
 * **location**: string[], A list of locations, such as a list of file system paths.
@@ -57,24 +58,26 @@ All file system services begin with *fs-* in their name.  Output format of *dire
    - description: Replicates existing file system artifacts into a new location in the file system.
    - output     : void
    - parameters
-      * action  : **"fs-copy"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-copy"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
 **fs-cut**
    - description: Same as copy, but deletes the original artifacts after writing them to the new location.
    - output     : void
    - parameters
-      * action  : **"fs-cut"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-cut"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
 * **fs-destroy**
    - description: Remove file system artifacts from the file system.
    - output     : void
