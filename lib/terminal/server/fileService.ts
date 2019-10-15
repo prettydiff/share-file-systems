@@ -24,13 +24,42 @@ const library = {
         remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
+        const fileCallback = function terminal_server_fileCallback(message:string):void {
+            if (data.agent === "localhost") {
+                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                response.write(message);
+                response.end();
+            } else {
+                library.directory({
+                    callback: function terminal_server_fileService_copyEach_copy_dir(directory:directoryList):void {
+                        const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
+                            ? data.name
+                            : data.name.replace(/\\/g, "\\\\");
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                        response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}"}`);
+                        response.end();
+                    },
+                    depth: 2,
+                    exclusions: [],
+                    path: data.name,
+                    recursive: true,
+                    symbolic: true
+                });
+            }
+        };
         if (data.action === "fs-read" || data.action === "fs-details") {
             const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                     count = count + 1;
-                    output = output.concat(result);
+                    if (result.length > 0) {
+                        output = output.concat(result);
+                    }
                     if (count === pathLength) {
-                        response.writeHead(200, {"Content-Type": "application/json"});
-                        response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)}}`);
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                        if (output.length < 1) {
+                            response.write(`{"id":"${data.id}","dirs":"missing"}`);
+                        } else {
+                            response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)}}`);
+                        }
                         response.end();
                     }
                 },
@@ -113,13 +142,8 @@ const library = {
                 } else {
                     vars.node.fs.stat(value, function terminal_server_fileService_putStat(erp:nodeError):void {
                         if (erp !== null) {
-                            if (erp.code === "ENOENT") {
-                                response.writeHead(404, {"Content-Type": "application/json"});
-                                response.write(`{"id":"${data.id},"dirs":"missing"}`);
-                                response.end();
-                            }
                             library.error([erp.toString()]);
-                            count = count + 1;
+                            callback([]);
                             return;
                         }
 
@@ -145,7 +169,10 @@ const library = {
                                                     const remoteData:string[] = data.remoteWatch.split("_"),
                                                         remoteAddress:string = remoteData[0],
                                                         remotePort:number = Number(remoteData[1]),
-                                                        payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${value.replace(/\\/g, "\\\\")}"}`,
+                                                        location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
+                                                            ? value
+                                                            : value.replace(/\\/g, "\\\\"),
+                                                        payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
                                                         fsRequest:http.ClientRequest = http.request({
                                                             headers: {
                                                                 "Content-Type": "application/x-www-form-urlencoded",
@@ -163,9 +190,11 @@ const library = {
                                                                 chunks.push(chunk);
                                                             });
                                                             fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
-                                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                                                response.write(chunks.join(""));
-                                                                response.end();
+                                                                if (response.finished === false) {
+                                                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                                    response.write(chunks.join(""));
+                                                                    response.end();
+                                                                }
                                                             });
                                                             fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
                                                                 if (errorMessage.code !== "ETIMEDOUT") {
@@ -215,9 +244,7 @@ const library = {
                 serverVars.watches[data.location[0]].close();
                 delete serverVars.watches[data.location[0]];
             }
-            response.writeHead(200, {"Content-Type": "text/plain"});
-            response.write(`Watcher ${data.location[0]} closed.`);
-            response.end();
+            fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
             // * data.agent     | data.copyAgent     | status | task
             // * --------------------------------------------------------
@@ -232,48 +259,14 @@ const library = {
                     ? function terminal_server_fileService_copyEach_copy():void {
                         count = count + 1;
                         if (count === length) {
-                            if (data.agent === "localhost") {
-                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                response.write(`Path(s) ${data.location.join(", ")} copied.`);
-                                response.end();
-                            } else {
-                                library.directory({
-                                    callback: function terminal_server_fileService_copyEach_copy_dir(directory:directoryList):void {
-                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                        response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${data.name}"}`);
-                                        response.end();
-                                    },
-                                    depth: 2,
-                                    exclusions: [],
-                                    path: data.name,
-                                    recursive: true,
-                                    symbolic: true
-                                });
-                            }
+                            fileCallback(`Path(s) ${data.location.join(", ")} copied.`);
                         }
                     }
                     : function terminal_server_fileService_copyEach_cut():void {
                         library.remove(value, function terminal_server_fileService_copyEach_cut_callback():void {
                             count = count + 1;
                             if (count === length) {
-                                if (data.agent === "localhost") {
-                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                    response.write(`Path(s) ${data.location.join(", ")} cut and pasted.`);
-                                    response.end();
-                                } else {
-                                    library.directory({
-                                        callback: function terminal_server_fileService_copyEach_cut_callback_dir(directory:directoryList):void {
-                                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${data.name}"}`);
-                                            response.end();
-                                        },
-                                        depth: 2,
-                                        exclusions: [],
-                                        path: data.name,
-                                        recursive: true,
-                                        symbolic: true
-                                    });
-                                }
+                                fileCallback(`Path(s) ${data.location.join(", ")} cut and pasted.`);
                             }
                         });
                     }
@@ -294,9 +287,7 @@ const library = {
                 library.remove(value, function terminal_server_fileService_destroy():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        response.writeHead(200, {"Content-Type": "text/plain"});
-                        response.write(`Path(s) ${data.location.join(", ")} destroyed.`);
-                        response.end();
+                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed.`);
                     }
                 });
             });
@@ -306,13 +297,11 @@ const library = {
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
                 if (erRename === null) {
-                    response.writeHead(200, {"Content-Type": "text/plain"});
-                    response.write(`Path ${data.location[0]} renamed to ${newPath.join(vars.sep)}.`);
-                    response.end();
+                    fileCallback(`Path ${data.location[0]} renamed to ${newPath.join(vars.sep)}.`);
                 } else {
                     library.error([erRename.toString()]);
                     library.log([erRename.toString()]);
-                    response.writeHead(500, {"Content-Type": "text/plain"});
+                    response.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(erRename.toString());
                     response.end();
                 }
@@ -320,7 +309,7 @@ const library = {
         } else if (data.action === "fs-hash" || data.action === "fs-base64") {
             const task:string = data.action.replace("fs-", "");
             library[task](data.location[0], function terminal_server_fileService_dataString(dataString:string):void {
-                response.writeHead(200, {"Content-Type": "text/plain"});
+                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                 response.write(dataString);
                 response.end();
             });
@@ -332,22 +321,18 @@ const library = {
             dirs.pop();
             if (data.name === "directory") {
                 library.makeDir(data.location[0], function terminal_server_fileService_newDirectory():void {
-                    response.writeHead(200, {"Content-Type": "text/plain"});
-                    response.write(`${data.location[0]} created.`);
+                    fileCallback(`${data.location[0]} created.`);
                     vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
-                    response.end();
                 });
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fileService_newFile(erNewFile:Error):void {
                     if (erNewFile === null) {
-                        response.writeHead(200, {"Content-Type": "text/plain"});
-                        response.write(`${data.location[0]} created.`);
+                        fileCallback(`${data.location[0]} created.`);
                         vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
-                        response.end();
                     } else {
                         library.error([erNewFile.toString()]);
                         library.log([erNewFile.toString()]);
-                        response.writeHead(500, {"Content-Type": "text/plain"});
+                        response.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(erNewFile.toString());
                         response.end();
                     }
