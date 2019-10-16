@@ -152,6 +152,15 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     }
     if (browser.data.modalTypes.indexOf(options.type) > -1) {
         if (options.single === true) {
+            const keys:string[] = Object.keys(browser.data.modals),
+                length:number = keys.length;
+            let a:number = 0;
+            do {
+                if (browser.data.modals[keys[a]].type === options.type) {
+                    return document.getElementById(keys[a]);
+                }
+                a = a + 1;
+            } while (a < length);
             return;
         }
     } else {

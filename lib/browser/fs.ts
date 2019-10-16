@@ -133,8 +133,10 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
             a = a + 1;
         } while (a < localLength);
     }
+    output.tabIndex = 0;
     output.title = location;
     output.oncontextmenu = context.menu;
+    output.onkeyup = util.keys;
     output.setAttribute("class", "fileList");
     return output;
 };
@@ -277,7 +279,9 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 }
             } else if (action.type === "keyup") {
                 if (action.keyCode === 27) {
+                    const input:HTMLElement = li.getElementsByTagName("input")[0];
                     label.innerHTML = text;
+                    input.focus();
                     return;
                 }
                 input.value = input.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
@@ -290,7 +294,10 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
         text:string,
         dirs:string[],
         dir:string;
-    if (li.nodeName !== "li") {
+    if (document.getElementById("fsRename") !== null) {
+        return;
+    }
+    if (li.nodeName.toLowerCase() !== "li") {
         do {
             li = <HTMLElement>li.parentNode;
         } while (li !== document.documentElement && li.nodeName.toLowerCase() !== "li");
@@ -302,6 +309,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
     }
     dirs = text.split(slash);
     last = dirs.pop();
+    input.setAttribute("id", "fsRename");
     input.type = "text";
     input.value = last;
     input.onblur = action;

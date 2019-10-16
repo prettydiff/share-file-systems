@@ -1,5 +1,5 @@
 
-type characterKey = "" | "control" | "shift";
+type characterKey = "" | "control" | "control-shift" | "shift";
 type directoryItem = [string, "error" | "file" | "directory" | "link", number, number, Stats];
 type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
@@ -209,6 +209,7 @@ interface module_util {
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
     fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
+    keys?: (event:KeyboardEvent) => void;
     login?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
     prettyBytes?: (an_integer:number) => string;

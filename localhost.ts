@@ -128,12 +128,15 @@ import webSocket from "./lib/browser/webSocket.js";
             
                     // determine if keyboard control keys are held
                     document.onkeydown = function load_restore_complete_keydown(event:KeyboardEvent):void {
-                        const key:string = event.key.toLowerCase();
-                        if (key === "shift") {
-                            browser.characterKey = "shift";
-                        } else if (key === "control" && browser.characterKey !== "shift") {
-                            browser.characterKey = "control";
+                        const key:number = event.keyCode;
+                        if (key === 16) {
+                            browser.characterKey = `${browser.characterKey.replace(/-?shift/, "")}-shift`;
+                        } else if (key === 17 || key === 224) {
+                            browser.characterKey = `control-${browser.characterKey.replace(/control-?/, "")}`;
+                        } else if (key === 18) {
+                            browser.characterKey = `${browser.characterKey.replace(/-?alt/, "")}-alt`;
                         }
+                        browser.characterKey = browser.characterKey.replace(/^-/, "").replace(/-$/, "").replace("alt-shift", "shift-alt");
                         if (localhost !== null && browser.socket.readyState === 1) {
                             const status:string = localhost.getAttribute("class");
                             if (status !== "active") {
@@ -144,11 +147,13 @@ import webSocket from "./lib/browser/webSocket.js";
                         active = Date.now();
                     };
                     document.onkeyup = function load_restore_complete_keyup(event:KeyboardEvent):void {
-                        const key:string = event.key.toLowerCase();
-                        if (key === "shift" && browser.characterKey === "shift") {
-                            browser.characterKey = "";
-                        } else if (key === "control" && browser.characterKey === "control") {
-                            browser.characterKey = "";
+                        const key:number = event.keyCode;
+                        if (key === 16) {
+                            browser.characterKey = browser.characterKey.replace(/-?shift/, "");
+                        } else if (key === 17 || key === 224) {
+                            browser.characterKey = browser.characterKey.replace(/control-?/, "");
+                        } else if (key === 18) {
+                            browser.characterKey = browser.characterKey.replace(/-?alt/, "");
                         }
                     };
 

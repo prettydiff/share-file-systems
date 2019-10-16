@@ -3,6 +3,7 @@ import context from "./context.js";
 import fs from "./fs.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import { ChildProcess } from "child_process";
 
 const util:module_util = {};
 
@@ -150,29 +151,6 @@ util.fsObject = function local_util_fsObject(item:directoryItem, extraClass:stri
     }
     input.type = "checkbox";
     input.checked = false;
-    input.onkeydown = function local_ui_fs_list_keydown(event:KeyboardEvent):void {
-        const key:string = event.key.toLowerCase(),
-            fileList:HTMLElement = (function local_util_fsObject_keydown():HTMLElement {
-                let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-                do {
-                    element = <HTMLElement>element.parentNode;
-                } while (element !== document.documentElement && element.getAttribute("class") !== "fileList");
-                return element;
-            }());
-        if (browser.characterKey === "control" && key === "a") {
-            let a:number = 0,
-                inputs:HTMLCollectionOf<HTMLInputElement>;
-            const list:HTMLCollectionOf<HTMLLIElement> = fileList.getElementsByTagName("li"),
-                listLength:number = list.length;
-            event.preventDefault();
-            do {
-                list[a].setAttribute("class", list[a].getAttribute("class").replace(/(\s+selected)+/, "") + " selected");
-                inputs = list[a].getElementsByTagName("input");
-                inputs[inputs.length - 1].checked = true;
-                a = a + 1;
-            } while (a < listLength);
-        }
-    };
     label.innerHTML = "Selected";
     label.appendChild(input);
     label.setAttribute("class", "selection");
@@ -218,6 +196,7 @@ util.fsObject = function local_util_fsObject(item:directoryItem, extraClass:stri
     li.oncontextmenu = context.menu;
     li.appendChild(label);
     li.onclick = fs.select;
+    li.onkeyup = util.keys;
     return li;
 };
 
@@ -387,6 +366,76 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             } else {
                 prepOutput(error);
             }
+        }
+    }
+};
+
+util.keys = function local_util_keys(event:KeyboardEvent):void {
+    const element:HTMLElement = (function local_util_keys_element():HTMLElement {
+            let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+            if (el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
+                return el;
+            }
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
+            return el;
+        }()),
+        key:number = event.keyCode;
+    if (element.nodeName.toLowerCase() !== "ul") {
+        event.stopImmediatePropagation();
+    }
+    if (key === 46) {
+        context.destroy(element);
+    } else if (browser.characterKey === "control-alt") {
+        if (key === 66 && element.nodeName.toLowerCase() === "li") {
+            // key b, base64
+            context.dataString(event, element, "Base64");
+        } else if (key === 68) {
+            // key d, new directory
+            context.fsNew(element, "directory");
+        } else if (key === 70) {
+            // key f, new file
+            context.fsNew(element, "file");
+        } else if (key === 72 && element.nodeName.toLowerCase() === "li") {
+            // key h, hash
+            context.dataString(event, element, "Hash");
+        } else if (key === 82 && element.nodeName.toLowerCase() === "li") {
+            // key r, rename
+            fs.rename(event);
+        } else if (key === 83) {
+            // key s, share
+            context.share(element);
+        } else if (key === 84) {
+            // key t, details
+            context.details(event, element);
+        }
+    } else if (browser.characterKey === "control") {
+        if (key === 65) {
+            // key a, select all
+            const list:HTMLElement = (element.nodeName.toLowerCase() === "ul")
+                    ? element
+                    : <HTMLElement>element.parentNode,
+                items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
+                length:number = items.length;
+            let a:number = 0;
+            do {
+                items[a].setAttribute("class", `${items[a].getAttribute("class").replace(" selected", "")} selected`);
+                items[a].getElementsByTagName("input")[0].checked = true;
+                a = a + 1;
+            } while (a < length);
+        } else if (key === 67) {
+            // key c, copy
+            context.copy(element, "copy");
+        } else if (key === 68 && element.nodeName.toLowerCase() === "li") {
+            // key d, destroy
+            context.destroy(element);
+        } else if (key === 86) {
+            // key v, paste
+            context.paste(element);
+        } else if (key === 88) {
+            // key x, cut
+            context.copy(element, "cut");
         }
     }
 };

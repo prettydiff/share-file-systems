@@ -69,7 +69,9 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         name: "",
         watch: "no"
     }, function local_context_dataString(resultString:string):void {
-        resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
+        if (resultString.indexOf("\"dirs\":") < -1) {
+            resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
+        }
         modal.textPad(event, resultString, `${type} - ${address}`);
         network.settings();
     });
@@ -118,6 +120,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
             type: "details",
             width: 500
         }),
+        id:string = modalInstance.getAttribute("id"),
         addressList:string[] = (function local_context_details_addressList():string[] {
             const output:string[] = [],
                 length:number = addresses.length;
@@ -133,6 +136,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         agent: agent(element),
         copyAgent: "",
         depth: 0,
+        id: id,
         location: addressList,
         name: "",
         watch: "no"
@@ -141,7 +145,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
             list:directoryList = (payload.dirs === "missing")
                 ? []
                 : payload.dirs,
-            body:HTMLElement = <HTMLElement>modalInstance.getElementsByClassName("body")[0],
+            body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
             length:number = list.length,
             details:fsDetails = {
                 size: 0,
@@ -321,7 +325,9 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 });
             } else {
                 if (actionEvent.keyCode === 27) {
+                    const input:HTMLElement = <HTMLElement>element.getElementsByTagName("input")[0];
                     element.removeChild(item);
+                    input.focus();
                     return;
                 }
                 field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
@@ -364,6 +370,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
             text.innerHTML = path;
             field.onkeyup = actionKeyboard;
             field.onblur = actionBlur;
+            field.setAttribute("id", "newFileItem");
             text.appendChild(field);
             li.appendChild(text);
             span = document.createElement("span");
@@ -379,6 +386,9 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
         box:HTMLElement,
         path:string,
         slash:"\\" | "/";
+    if (document.getElementById("newFileItem") !== null) {
+        return;
+    }
     if (element.getAttribute("class") !== "fileList") {
         do {
             element = <HTMLElement>element.parentNode;
@@ -403,7 +413,10 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
 /* Creates context menu */
 context.menu = function local_context_menu(event:MouseEvent):void {
     const itemList:HTMLElement[] = [],
-        menu:HTMLElement = document.createElement("ul");
+        menu:HTMLElement = document.createElement("ul"),
+        command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
+            ? "Command"
+            : "CTRL";
     let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
         parent:HTMLElement = <HTMLElement>element.parentNode,
@@ -413,7 +426,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             base64: function local_context_menu_base64():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Base64";
+                button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
                 button.onclick = function local_context_menu_base64_handler():void {
                     context.dataString(event, element, "Base64");
                 };
@@ -423,7 +436,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             copy: function local_context_menu_copy():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Copy";
+                button.innerHTML = `Copy <em>${command} + C</em>`;
                 button.onclick = function local_context_menu_copy_handler():void {
                     context.copy(element, "copy");
                 }
@@ -433,7 +446,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             cut: function local_context_menu_cut():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Cut";
+                button.innerHTML = `Cut <em>${command} + X</em>`;
                 button.onclick = function local_context_menu_cut_handler():void {
                     context.copy(element, "cut");
                 }
@@ -448,7 +461,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Destroy";
+                button.innerHTML = `Destroy <em>DEL</em>`;
                 button.setAttribute("class", "destroy");
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
@@ -463,7 +476,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             details: function local_context_menu_details():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Details";
+                button.innerHTML = `Details <em>${command} + ALT + T</em>`;
                 button.onclick = function local_context_menu_details_handler():void {
                     context.details(event, element);
                 };
@@ -473,7 +486,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             hash: function local_context_menu_hash():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Hash";
+                button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
                 button.onclick = function local_context_menu_hash_handler():void {
                     context.dataString(event, element, "Hash");
                 };
@@ -483,7 +496,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             newDirectory: function local_context_menu_newDirectory():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "New Directory";
+                button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
                 button.onclick = function local_context_menu_newDirectory_handler():void {
                     context.fsNew(element, "directory");
                 };
@@ -493,7 +506,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             newFile: function local_context_menu_newFile():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "New File";
+                button.innerHTML = `New File <em>${command} + ALT + F</em>`;
                 button.onclick = function local_context_menu_newFile_handler():void {
                     context.fsNew(element, "file");
                 };
@@ -503,7 +516,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             paste: function local_context_menu_paste():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Paste";
+                button.innerHTML = `Paste <em>${command} + V</em>`;
                 button.onclick = function local_context_menu_paste_handler():void {
                     context.paste(element);
                 };
@@ -524,7 +537,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Rename";
+                button.innerHTML = `Rename <em>${command} + ALT + R</em>`;
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
@@ -538,7 +551,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             share: function local_context_menu_share():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = "Share";
+                button.innerHTML = `Share <em>${command} + ALT + S</em>`;
                 button.onclick = function local_context_menu_share_handler():void {
                     context.share(element);
                 };
@@ -586,18 +599,22 @@ context.menu = function local_context_menu(event:MouseEvent):void {
 
     // menu display position
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
-    if (browser.content.clientHeight < ((itemList.length * 46) + 1) + event.clientY) {
+    // vertical
+    if (browser.content.clientHeight < ((itemList.length * 57) + 1) + event.clientY) {
         reverse = true;
-        menu.style.top = `${(event.clientY - ((itemList.length * 46) + 1)) / 10}em`;
+        menu.style.top = `${(event.clientY - ((itemList.length * 57) + 1)) / 10}em`;
     } else {
         menu.style.top = `${(event.clientY - 50) / 10}em`;
     }
+    // horizontal
     if (browser.content.clientWidth < (200 + event.clientX)) {
         reverse = true;
         menu.style.left = `${(event.clientX - 200) / 10}em`;
     } else {
         menu.style.left = `${event.clientX / 10}em`;
     }
+
+    // button order
     if (reverse === true) {
         a = itemList.length;
         do {
