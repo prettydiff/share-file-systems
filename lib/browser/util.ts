@@ -383,7 +383,14 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
         }()),
         key:number = event.keyCode;
     if (element.nodeName.toLowerCase() !== "ul") {
-        event.stopImmediatePropagation();
+        event.stopPropagation();
+        if (key === 16) {
+            browser.characterKey = browser.characterKey.replace(/-?shift/, "");
+        } else if (key === 17 || key === 224) {
+            browser.characterKey = browser.characterKey.replace(/control-?/, "");
+        } else if (key === 18) {
+            browser.characterKey = browser.characterKey.replace(/-?alt/, "");
+        }
     }
     if (key === 46) {
         context.destroy(element);

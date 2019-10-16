@@ -139,7 +139,7 @@ network.settings = function local_network_settings():void {
     xhr.onreadystatechange = function local_network_settings_callback():void {
         if (xhr.readyState === 4) {
             if (xhr.status !== 200 && xhr.status !== 0) {
-                systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending settings.","stack":${new Error().stack}`);
+                systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending settings.","stack":${new Error().stack.split("\n")}}`);
             }
         }
     };

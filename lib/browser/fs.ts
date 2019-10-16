@@ -340,7 +340,8 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     box = <HTMLElement>body.parentNode.parentNode;
     if (browser.characterKey === "") {
         const inputs = body.getElementsByTagName("input"),
-            inputsLength = inputs.length;
+            inputsLength = inputs.length,
+            selected:boolean = (li.getAttribute("class").indexOf("selected") > 0);
         let a:number = 0,
             item:HTMLElement;
         do {
@@ -352,7 +353,9 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
             a = a + 1;
         } while (a < inputsLength);
         input.checked = true;
-        li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
+        if (selected === false) {
+            li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
+        }
     } else if (browser.characterKey === "control") {
         if (state === true) {
             input.checked = false;

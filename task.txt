@@ -21,9 +21,7 @@
 14 add a control to remove localhost shares
 15 edit file - add a context menu item to open a file as text and write its contents as text
 16 copy/paste by drag and drop
-17 copy/paste by CTRL+C and CTRL+V
-18 delete by DEL key
-19 test GUI in OSX and Gnome Linux
+17 test GUI in OSX and Gnome Linux
 
 
 ## populate systems logs
@@ -60,7 +58,3 @@
 * modals same size
 * modals contain same functionality
 * modals repopulate same content (depending on modal)
-
-
-radical construction grammar
-bastard tongues
