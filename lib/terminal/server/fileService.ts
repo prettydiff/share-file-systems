@@ -254,29 +254,45 @@ const library = {
             // * remote user id | remote user id     | good   | copy to/from same remote
             let count:number = 0,
                 length:number = data.location.length;
-            data.location.forEach(function terminal_server_fileService_copyEach(value:string):void {
-                const callback = (data.action === "fs-copy")
-                    ? function terminal_server_fileService_copyEach_copy():void {
-                        count = count + 1;
-                        if (count === length) {
-                            fileCallback(`Path(s) ${data.location.join(", ")} copied.`);
-                        }
-                    }
-                    : function terminal_server_fileService_copyEach_cut():void {
-                        library.remove(value, function terminal_server_fileService_copyEach_cut_callback():void {
-                            count = count + 1;
-                            if (count === length) {
-                                fileCallback(`Path(s) ${data.location.join(", ")} cut and pasted.`);
+            if (data.agent === "localhost") {
+                if (data.copyAgent === "localhost") {
+                    // copy to/from localhost
+                    data.location.forEach(function terminal_server_fileService_copyEach(value:string):void {
+                        const callback = (data.action === "fs-copy")
+                            ? function terminal_server_fileService_copyEach_copy():void {
+                                count = count + 1;
+                                if (count === length) {
+                                    fileCallback(`Path(s) ${data.location.join(", ")} copied.`);
+                                }
                             }
+                            : function terminal_server_fileService_copyEach_cut():void {
+                                library.remove(value, function terminal_server_fileService_copyEach_cut_callback():void {
+                                    count = count + 1;
+                                    if (count === length) {
+                                        fileCallback(`Path(s) ${data.location.join(", ")} cut and pasted.`);
+                                    }
+                                });
+                            }
+                        library.copy({
+                            callback: callback,
+                            destination:data.name,
+                            exclusions:[""],
+                            target:value
                         });
-                    }
-                library.copy({
-                    callback: callback,
-                    destination:data.name,
-                    exclusions:[""],
-                    target:value
-                });
-            });
+                    });
+                } else {
+                    // copy from localhost to remote
+                    // * this will probably have to be a tcp socket stream piped from a read stream
+                    // * i will have to evaluate protocol design for a custom protocol 
+                }
+            } else {
+                // copy from remote to localhost
+                // * I don't think this will execute here, probably handled in ../server.ts
+                // *
+                // * this will also have to be a tcp socket stream
+                // * send a socket of a list of files
+                // * remote sends a socket stream piped from a file read stream
+            }
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {

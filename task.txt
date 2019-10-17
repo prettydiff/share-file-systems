@@ -1,11 +1,11 @@
 
-1 show hash in file navigator for files only
-2 copy/cut from one remote location to another remote location (not yet tested)
-3 copy and paste one item into the same location without overwrite (name change)
-4 copy/cut from remote to local directory
-5 copy/cut from local to remote directory
-6 copy/cut from remote to a different remote such that you are issuing commands as an intermediary and not receiving the file data.  HTTP response cannot come to local terminal
-7 upgrade everything to https/443 by default
+1 copy and paste one item into the same location without overwrite (name change)
+2 copy/cut from remote to local directory
+3 copy/cut from local to remote directory
+4 copy/paste by drag and drop
+5 copy/cut from remote to a different remote such that you are issuing commands as an intermediary and not receiving the file data.  HTTP response cannot come to local terminal
+6 upgrade everything to https/443 by default
+7 investigate http deflate compression from Node zlib
 8 ignore all HTTP requests not from the application and browser localhost
 9 file navigator item selection written to settings and restored on restart
 10 watches must be associated with *agent* so that a watch required by an agent can be closed if that agent goes offline
@@ -20,8 +20,7 @@
   e read only shares have fewer context menu choices
 14 add a control to remove localhost shares
 15 edit file - add a context menu item to open a file as text and write its contents as text
-16 copy/paste by drag and drop
-17 test GUI in OSX and Gnome Linux
+16 test GUI in OSX and Gnome Linux
 
 
 ## populate systems logs

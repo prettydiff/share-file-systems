@@ -421,7 +421,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     browser.data.modals[box.getAttribute("id")].focus = li;
 };
 
-/* Requests file system data from a text field */
+/* Requests file system data from a text field, such as manually typing an address */
 fs.text = function local_fs_text(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         watchValue:string = element.value;

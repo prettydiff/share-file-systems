@@ -32,5 +32,5 @@ data.action value is in parenthesis
 ```
 
 ## Code
-* All related code for this process can be found in `/lib/terminal/server/invite.ts` imported from `/lib/terminal/server.ts`.
+* All related code for this process can be found in `/lib/terminal/server/invite.ts` imported by `/lib/terminal/server.ts`.
 * Steps 2 and 5 (invite-request and invite-complete) change the IP and port data to direct traffic across the network.
