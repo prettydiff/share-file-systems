@@ -1,5 +1,6 @@
 
 import * as http from "http";
+import * as fs from "fs";
 
 import base64 from "../base64.js";
 import copy from "../copy.js";
@@ -24,14 +25,14 @@ const library = {
         remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
-        const fileCallback = function terminal_server_fileCallback(message:string):void {
+        const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
             if (data.agent === "localhost") {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                 response.write(message);
                 response.end();
             } else {
                 library.directory({
-                    callback: function terminal_server_fileService_copyEach_copy_dir(directory:directoryList):void {
+                    callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
                         const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
                             ? data.name
                             : data.name.replace(/\\/g, "\\\\");
@@ -282,17 +283,150 @@ const library = {
                     });
                 } else {
                     // copy from localhost to remote
-                    // * this will probably have to be a tcp socket stream piped from a read stream
-                    // * i will have to evaluate protocol design for a custom protocol 
+                    // 1. create a clientRequest and tell remote which files to request
+                    // 2. remote will respond and create its own clientRequest
+                    // 3. will respond to remote's request by creating a read stream of the files and piping them to the http response
                 }
             } else {
                 // copy from remote to localhost
-                // * I don't think this will execute here, probably handled in ../server.ts
-                // *
-                // * this will also have to be a tcp socket stream
-                // * send a socket of a list of files
-                // * remote sends a socket stream piped from a file read stream
+                const ipAddress:string = (function terminal_server_fileService_IP():string {
+                        const address:string = data.agent.slice(data.agent.indexOf("@") + 1, data.agent.lastIndexOf(":"));
+                        data.action = <serviceType>`${data.action}-remote`;
+                        if (address.charAt(0) === "[") {
+                            return address.slice(1, address.length - 1);
+                        }
+                        return address;
+                    }()),
+                    port:number = (function terminal_server_fileService_port():number {
+                        const portString:string = data.agent.slice(data.agent.lastIndexOf(":") + 1);
+                        if (isNaN(Number(portString)) === true) {
+                            return 80;
+                        }
+                        return Number(portString);
+                    }()),
+                    payload:string = `fs:${JSON.stringify(data)}`,
+                    fsRequest:http.ClientRequest = http.request({
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "Content-Length": Buffer.byteLength(payload)
+                        },
+                        host: ipAddress,
+                        method: "POST",
+                        path: "/",
+                        port: port,
+                        timeout: 1000
+                    }, function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
+                        let writeStream:fs.WriteStream,
+                            meta:string[] = [];
+                        fsResponse.setEncoding('utf8');
+                        fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
+                            let chunks:string[];
+                            if (meta.length < 1) {
+                                meta.push(chunk.slice(0, chunk.indexOf("\n")));
+                                chunk = chunk.slice(chunk.indexOf("\n") + 1);
+                                meta.push(chunk.slice(0, chunk.indexOf("\n")));
+                                chunk = chunk.slice(chunk.indexOf("\n") + 1);
+                                if (meta[1] === "file") {
+                                    writeStream = vars.node.fs.createWriteStream(data.name + vars.sep + meta[0]);
+                                } else {
+                                    library.makeDir(data.name + vars.sep + meta[0], function terminal_server_fileService_response_data_dir():void {
+                                        return;
+                                    });
+                                }
+                            }
+                            if (meta[1] === "file") {
+                                chunks = chunk.split("\u001b file end\n");
+                                    chunk = chunk.slice(0, chunk.length - 8);
+                                    meta = [];
+                                writeStream.write(chunk, "utf8");
+                            }
+                        });
+                        fsResponse.on("end", function terminal_server_fileService_response_end():void {
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_fileService_response_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    });
+                fsRequest.on("error", function terminal_server_fileService_request_error(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT") {
+                        library.log(["copy from remote to localhost", errorMessage.toString()]);
+                        vars.ws.broadcast(errorMessage.toString());
+                    }
+                    response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                    response.write(`{"id":"${data.id}","dirs":"missing"}`);
+                    response.end();
+                });
+                fsRequest.write(payload);
+                setTimeout(function () {
+                    fsRequest.end();
+                }, 100);
             }
+        } else if (data.action === "fs-copy-remote" || data.action === "fs-cut-remote") {
+            // create read stream
+            const files:[string, string, string][] = [],
+                locationLength:number = data.location.length,
+                readItem = function terminal_server_fileService_readItem():void {
+                    library.directory({
+                        callback: function terminal_server_fileService_readItem_callback(dir:directoryList):void {
+                            const dirLength:number = dir.length,
+                                location:string = (function terminal_server_fileServices_readItem_callback_location():string {
+                                    let backSlash:number = data.location[a].indexOf("\\"),
+                                        forwardSlash:number = data.location[a].indexOf("/"),
+                                        remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
+                                            ? "\\"
+                                            : "/",
+                                        address:string[] = data.location[a].replace(/(\/|\\)$/, "").split(remoteSep);
+                                    return address.pop();
+                                }());
+                            let b:number = 0;
+                            do {
+                                files.push([dir[b][0], dir[b][1], dir[b][0].replace(location, "")]);
+                                b = b + 1;
+                            } while (b < dirLength);
+                            a = a + 1;
+                            if (a < locationLength) {
+                                terminal_server_fileService_readItem();
+                            } else {
+                                a = 0;
+                                streamWrapper();
+                            }
+                        },
+                        depth: 0,
+                        exclusions: [],
+                        path: data.location[a],
+                        recursive: true,
+                        symbolic: false
+                    });
+                },
+                streamWrapper = function terminal_server_fileService_remoteStream():void {
+                    if (a < filesLength) {
+                        response.write(files[a][2]);
+                        response.write("\r\n");
+                        response.write(files[a][1]);
+                        response.write("\r\n");
+                        readStream = vars.node.fs.createReadStream(files[a][0]);
+                        readStream.setEncoding("utf8");
+                        readStream.pipe(response, {end: false});
+                        readStream.on("close", function terminal_server_fileService_remoteStream_close():void {
+                            a = a + 1;
+                            response.write("\r\n\u001b file end\r\n");
+                            terminal_server_fileService_remoteStream();
+                        });
+                    } else {
+                        response.end();
+                    }
+                };
+            let filesLength:number,
+                a:number = 0,
+                readStream:fs.ReadStream;
+            response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
+            readItem();
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {

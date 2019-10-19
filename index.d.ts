@@ -7,7 +7,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-cut" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
+type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-local" | "fs-copy-remote" | "fs-cut" | "fs-cut-local" | "fs-cut-remote" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
@@ -172,6 +172,7 @@ interface module_fs {
     directory?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
     list?: (location:string, list:directoryList) => HTMLElement;
+    listItem?: (item:directoryItem, extraClass:string) => HTMLElement;
     navigate?: navigate;
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
@@ -208,8 +209,8 @@ interface module_util {
     fixHeight?: functionEvent;
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
-    fsObject?: (item:directoryItem, extraClass:string) => HTMLElement;
     keys?: (event:KeyboardEvent) => void;
+    keyup?: (event:KeyboardEvent) => void;
     login?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
     prettyBytes?: (an_integer:number) => string;

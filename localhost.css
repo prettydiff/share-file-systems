@@ -204,7 +204,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList li span{display:block;float:right;margin:0 2em 0 0;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
 #spaces .messageList .expansion,
-#spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc;color:#333;font-size:2em;font-weight:normal;height:0.75em;line-height:0.75;margin:0.25em 1.2em 0 -2.1em;padding:0;vertical-align:top;width:0.75em}
+#spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc;color:#333;font-size:2em;font-weight:normal;height:0.75em;line-height:0.75;margin:0 1.2em 0 -2.1em;padding:0;vertical-align:top;width:0.75em}
 
 #spaces .userInvitation{padding:1em}
 #spaces .userInvitation h3{font-weight:normal;margin:0}

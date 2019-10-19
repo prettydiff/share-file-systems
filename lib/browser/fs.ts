@@ -125,9 +125,9 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
         do {
             if (local[a][0] !== "\\" && local[a][0] !== "/") {
                 if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
-                    output.appendChild(util.fsObject(local[a], "lastType"));
+                    output.appendChild(fs.listItem(local[a], "lastType"));
                 } else {
-                    output.appendChild(util.fsObject(local[a], ""));
+                    output.appendChild(fs.listItem(local[a], ""));
                 }
             }
             a = a + 1;
@@ -139,6 +139,74 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
     output.onkeyup = util.keys;
     output.setAttribute("class", "fileList");
     return output;
+};
+
+
+/* Build a single file system object from data */
+fs.listItem = function local_util_listItem(item:directoryItem, extraClass:string):HTMLElement {
+    const driveLetter = function local_util_listItem_driveLetter(drive:string):string {
+            return drive.replace("\\\\", "\\");
+        },
+        li:HTMLElement = document.createElement("li"),
+        label:HTMLLabelElement = document.createElement("label"),
+        text:HTMLElement = document.createElement("label"),
+        input:HTMLInputElement = document.createElement("input");
+    let span:HTMLElement,
+        plural:string;
+    if (extraClass.replace(/\s+/, "") !== "") {
+        li.setAttribute("class", `${item[1]} ${extraClass}`);
+    } else {
+        li.setAttribute("class", item[1]);
+    }
+    input.type = "checkbox";
+    input.checked = false;
+    label.innerHTML = "Selected";
+    label.appendChild(input);
+    label.setAttribute("class", "selection");
+    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
+    text.oncontextmenu = context.menu;
+    text.onclick = fs.select;
+    li.appendChild(text);
+    if (item[1] === "file") {
+        span = document.createElement("span");
+        if (item[4].size === 1) {
+            plural = "";
+        } else {
+            plural = "s";
+        }
+        span.textContent = `file - ${util.commas(item[4].size)} byte${plural}`;
+    } else if (item[1] === "directory") {
+        if (item[3] > 0) {
+            const button = document.createElement("button");
+            button.setAttribute("class", "expansion");
+            button.innerHTML = "+<span>Expand this folder</span>";
+            button.onclick = fs.expand;
+            li.insertBefore(button, li.firstChild);
+        }
+        span = document.createElement("span");
+        if (item[3] === 1) {
+            plural = "";
+        } else {
+            plural = "s";
+        }
+        span.textContent = `directory - ${util.commas(item[3])} item${plural}`;
+        li.ondblclick = fs.directory;
+    } else {
+        span = document.createElement("span");
+        if (item[1] === "link") {
+            span.textContent = "symbolic link";
+        } else {
+            span.textContent = item[1];
+        }
+    }
+    span.onclick = fs.select;
+    span.oncontextmenu = context.menu;
+    li.appendChild(span);
+    li.oncontextmenu = context.menu;
+    li.appendChild(label);
+    li.onclick = fs.select;
+    li.onkeyup = util.keys;
+    return li;
 };
 
 /* Create a file navigator modal */

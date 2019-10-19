@@ -1,4 +1,10 @@
 
+## copy todo
+1. set chunk size to divide out meta data
+2. include hash per file in meta data
+3. perform hash comparison
+4. on hash comparison issue http request to unlink files at remote
+
 1 copy and paste one item into the same location without overwrite (name change)
 2 copy/cut from remote to local directory
 3 copy/cut from local to remote directory

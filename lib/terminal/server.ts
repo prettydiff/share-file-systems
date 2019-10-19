@@ -86,7 +86,7 @@ const library = {
                             vars.ws.broadcast(body);
                         } else if (task === "fs") {
                             const data:fileService = JSON.parse(dataString);
-                            if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+                            if (data.agent === "localhost" || data.action === "fs-copy" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                                 fileService(request, response, data);
                             } else {
                                 // remote file server access

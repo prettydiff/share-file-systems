@@ -146,16 +146,7 @@ import webSocket from "./lib/browser/webSocket.js";
                         }
                         active = Date.now();
                     };
-                    document.onkeyup = function load_restore_complete_keyup(event:KeyboardEvent):void {
-                        const key:number = event.keyCode;
-                        if (key === 16) {
-                            browser.characterKey = browser.characterKey.replace(/-?shift/, "");
-                        } else if (key === 17 || key === 224) {
-                            browser.characterKey = browser.characterKey.replace(/control-?/, "");
-                        } else if (key === 18) {
-                            browser.characterKey = browser.characterKey.replace(/-?alt/, "");
-                        }
-                    };
+                    document.onkeyup = util.keyup;
 
                     // watch for local idleness
                     document.onclick = function load_restore_complete_click():void {
@@ -328,6 +319,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     } else {
                                         const delay:HTMLElement = util.delay();
                                         storage.settings.modals[value].content = delay;
+                                        storage.settings.modals[value].id = value;
                                         modal.create(storage.settings.modals[value]);
                                         z(value);
                                         if (storage.settings.modals[value].status === "maximized") {
@@ -348,7 +340,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             location: [storage.settings.modals[value].text_value],
                                             name: "",
                                             watch: "yes"
-                                        }, callback, value);
+                                        }, callback);
                                     }
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");

@@ -133,73 +133,6 @@ util.fixHeight = function local_util_fixHeight():void {
     document.getElementById("users").style.height = `${(height - 102) / 10}em`;
 };
 
-/* Build a single file system object from data */
-util.fsObject = function local_util_fsObject(item:directoryItem, extraClass:string):HTMLElement {
-    const driveLetter = function local_util_fsObject_driveLetter(drive:string):string {
-            return drive.replace("\\\\", "\\");
-        },
-        li:HTMLElement = document.createElement("li"),
-        label:HTMLLabelElement = document.createElement("label"),
-        text:HTMLElement = document.createElement("label"),
-        input:HTMLInputElement = document.createElement("input");
-    let span:HTMLElement,
-        plural:string;
-    if (extraClass.replace(/\s+/, "") !== "") {
-        li.setAttribute("class", `${item[1]} ${extraClass}`);
-    } else {
-        li.setAttribute("class", item[1]);
-    }
-    input.type = "checkbox";
-    input.checked = false;
-    label.innerHTML = "Selected";
-    label.appendChild(input);
-    label.setAttribute("class", "selection");
-    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
-    text.oncontextmenu = context.menu;
-    text.onclick = fs.select;
-    li.appendChild(text);
-    if (item[1] === "file") {
-        span = document.createElement("span");
-        if (item[4].size === 1) {
-            plural = "";
-        } else {
-            plural = "s";
-        }
-        span.textContent = `file - ${util.commas(item[4].size)} byte${plural}`;
-    } else if (item[1] === "directory") {
-        if (item[3] > 0) {
-            const button = document.createElement("button");
-            button.setAttribute("class", "expansion");
-            button.innerHTML = "+<span>Expand this folder</span>";
-            button.onclick = fs.expand;
-            li.insertBefore(button, li.firstChild);
-        }
-        span = document.createElement("span");
-        if (item[3] === 1) {
-            plural = "";
-        } else {
-            plural = "s";
-        }
-        span.textContent = `directory - ${util.commas(item[3])} item${plural}`;
-        li.ondblclick = fs.directory;
-    } else {
-        span = document.createElement("span");
-        if (item[1] === "link") {
-            span.textContent = "symbolic link";
-        } else {
-            span.textContent = item[1];
-        }
-    }
-    span.onclick = fs.select;
-    span.oncontextmenu = context.menu;
-    li.appendChild(span);
-    li.oncontextmenu = context.menu;
-    li.appendChild(label);
-    li.onclick = fs.select;
-    li.onkeyup = util.keys;
-    return li;
-};
-
 /* Invite users to your shared space */
 util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
     const invite:HTMLElement = document.createElement("div"),
@@ -370,6 +303,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
     }
 };
 
+/* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
     const element:HTMLElement = (function local_util_keys_element():HTMLElement {
             let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
@@ -382,15 +316,10 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             return el;
         }()),
         key:number = event.keyCode;
+    event.preventDefault();
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();
-        if (key === 16) {
-            browser.characterKey = browser.characterKey.replace(/-?shift/, "");
-        } else if (key === 17 || key === 224) {
-            browser.characterKey = browser.characterKey.replace(/control-?/, "");
-        } else if (key === 18) {
-            browser.characterKey = browser.characterKey.replace(/-?alt/, "");
-        }
+        util.keyup(event);
     }
     if (key === 46) {
         context.destroy(element);
@@ -444,6 +373,19 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             // key x, cut
             context.copy(element, "cut");
         }
+    }
+};
+
+
+/* Release control keys necessary for shortcut key combinations */
+util.keyup = function local_util_keys(event:KeyboardEvent):void {
+    const key:number = event.keyCode;
+    if (key === 16) {
+        browser.characterKey = browser.characterKey.replace(/-?shift/, "");
+    } else if (key === 17 || key === 224) {
+        browser.characterKey = browser.characterKey.replace(/control-?/, "");
+    } else if (key === 18) {
+        browser.characterKey = browser.characterKey.replace(/-?alt/, "");
     }
 };
 
