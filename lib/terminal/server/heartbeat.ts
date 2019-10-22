@@ -40,7 +40,7 @@ const library = {
                 });
             });
         heartbeatRequest.on("error", function terminal_server_create_end_heartbeatRequest_error(errorMessage:nodeError):void {
-            if (errorMessage.code === "ETIMEDOUT") {
+            if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
                 const self:string = (data.ip.indexOf(":") > 0)
                     ? `@[${data.ip}]:${data.port}`
                     : `@${data.ip}:${data.port}`

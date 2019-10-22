@@ -620,8 +620,6 @@ modal.move = function local_modal_move(event:Event):void {
         document.onmousemove = boxMoveClick;
         document.onmousedown = null;
     }
-    // update settings
-    return;
 };
 
 /* Allows resizing of modals in 1 of 8 directions */

@@ -1,6 +1,7 @@
 
 type characterKey = "" | "control" | "control-shift" | "shift";
 type directoryItem = [string, "error" | "file" | "directory" | "link", number, number, Stats];
+type eventCallback = (event:Event, callback:Function) => void;
 type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
@@ -206,6 +207,7 @@ interface module_util {
     commas?: (number:number) => string;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
+    dragSelect?: eventCallback;
     fixHeight?: functionEvent;
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
@@ -242,6 +244,12 @@ interface nodeLists {
     obj: any;
     property: "each" | string;
     total: boolean;
+}
+interface perimeter {
+    bottom: number;
+    left: number;
+    right: number;
+    top: number;
 }
 interface readDirectory {
     callback: Function;

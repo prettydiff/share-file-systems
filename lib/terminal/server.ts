@@ -156,7 +156,7 @@ const library = {
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(dataString, response, task);
-                        } else if (task === "heartbeat") {
+                        } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                             heartbeat(dataString, response);
                         } else if (task === "heartbeat-update") {
                             vars.ws.broadcast(body);
@@ -182,7 +182,7 @@ const library = {
                 return
             },
             start = function terminal_server_start() {
-                const logOutput = function terminal_server_socketServerListener_logger():void {
+                const logOutput = function terminal_server_start_logger():void {
                     const output:string[] = [],
                         webPort:string = (serverVars.webPort === 80)
                             ? ""
@@ -198,7 +198,7 @@ const library = {
                     output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
                     output.push("Local IP addresses are:");
 
-                    serverVars.addresses[0].forEach(function terminal_server_socketServerListener_logger_localAddresses(value:[string, string, string]):void {
+                    serverVars.addresses[0].forEach(function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
                         a = value[0].length;
                         if (a < serverVars.addresses[1]) {
                             do {
@@ -242,8 +242,8 @@ const library = {
                 vars.ws = new WebSocket.Server({port: serverVars.wsPort});
 
                 // creates a broadcast utility where all listening clients get a web socket message
-                vars.ws.broadcast = function terminal_server_socketServerListener_broadcast(data:string):void {
-                    vars.ws.clients.forEach(function terminal_server_socketServerListener_broadcast_clients(client):void {
+                vars.ws.broadcast = function terminal_server_start_socketBroadcast(data:string):void {
+                    vars.ws.clients.forEach(function terminal_server_start_socketBroadcast_clients(client):void {
                         if (client.readyState === WebSocket.OPEN) {
                             client.send(data);
                         }
@@ -251,7 +251,7 @@ const library = {
                 };
 
                 // When coming online send a heartbeat to each user
-                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_socketServerListener_readSettings(err:nodeError, fileData:string):void {
+                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_readSettings(err:nodeError, fileData:string):void {
                     if (err !== null) {
                         logOutput();
                         if (err.code !== "ENOENT") {
@@ -261,7 +261,7 @@ const library = {
                         const settings:ui_data = JSON.parse(fileData),
                             shares:string[] = Object.keys(settings.shares),
                             length:number = shares.length;
-                        if (length < 2) {
+                        if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                             logOutput();
                         } else {
                             let a:number = 1,

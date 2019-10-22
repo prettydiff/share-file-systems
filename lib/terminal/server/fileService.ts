@@ -382,7 +382,8 @@ const library = {
                                             ? "\\"
                                             : "/",
                                         address:string[] = data.location[a].replace(/(\/|\\)$/, "").split(remoteSep);
-                                    return address.pop();
+                                    address.pop();
+                                    return address.join(remoteSep) + remoteSep;
                                 }());
                             let b:number = 0;
                             do {
@@ -394,6 +395,7 @@ const library = {
                                 terminal_server_fileService_readItem();
                             } else {
                                 a = 0;
+                                filesLength = files.length;
                                 streamWrapper();
                             }
                         },

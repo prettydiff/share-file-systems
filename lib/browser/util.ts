@@ -125,6 +125,105 @@ util.delay = function local_util_delay():HTMLElement {
     return div;
 };
 
+/* Drag a selection box to capture a collection of items into a selection */
+util.dragSelect = function local_util_dragSelect(event:Event, callback:Function):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        body:HTMLElement = (function local_util_dragSelect_body():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "body");
+            return el;
+        }()),
+        box:HTMLElement = (function local_util_dragSelect_box():HTMLElement {
+            let el:HTMLElement = body;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        offsetLeft:number = box.offsetLeft + body.offsetLeft,
+        offsetTop:number = box.offsetTop + body.offsetTop + 50,
+        drag:HTMLElement = document.createElement("div"),
+        touch:boolean      = (event !== null && event.type === "touchstart"),
+        mouseEvent = <MouseEvent>event,
+        touchEvent = <TouchEvent>event,
+        mouseX = (touch === true)
+            ? 0
+            : mouseEvent.clientX,
+        mouseY = (touch === true)
+            ? 0
+            : mouseEvent.clientY,
+        touchX = (touch === true)
+            ? touchEvent.touches[0].clientX
+            : 0,
+        touchY = (touch === true)
+            ? touchEvent.touches[0].clientY
+            : 0,   
+        drop       = function local_modal_move_drop(e:Event):boolean {
+            callback();
+            drag.parentNode.removeChild(drag);
+            if (touch === true) {
+                document.ontouchmove = null;
+                document.ontouchend  = null;
+            } else {
+                document.onmousemove = null;
+                document.onmouseup   = null;
+            }
+            network.settings();
+            e.preventDefault();
+            return false;
+        },
+        boxMoveTouch    = function local_modal_move_touch(f:TouchEvent):boolean {
+            f.preventDefault();
+            if (mouseX > f.touches[0].clientX) {
+                drag.style.width = `${(touchX - f.touches[0].clientX) / 10}em`;
+                drag.style.left = `${(f.touches[0].clientX - offsetLeft) / 10}em`;
+            } else {
+                drag.style.width = `${(f.touches[0].clientX - touchX) / 10}em`;
+                drag.style.left = `${(touchX - offsetLeft) / 10}em`;
+            }
+            if (touchY > f.touches[0].clientY) {
+                drag.style.height = `${(touchY - f.touches[0].clientY) / 10}em`;
+                drag.style.top = `${(f.touches[0].clientY - offsetTop) / 10}em`;
+            } else {
+                drag.style.height = `${(f.touches[0].clientY - touchY) / 10}em`;
+                drag.style.top = `${(touchY - offsetTop) / 10}em`;
+            }
+            return false;
+        },
+        boxMoveClick = function local_modal_move_click(f:MouseEvent):boolean {
+            f.preventDefault();
+            if (mouseX > f.clientX) {
+                drag.style.width = `${(mouseX - f.clientX) / 10}em`;
+                drag.style.left = `${(f.clientX - offsetLeft) / 10}em`;
+            } else {
+                drag.style.width = `${(f.clientX - mouseX) / 10}em`;
+                drag.style.left = `${(mouseX - offsetLeft) / 10}em`;
+            }
+            if (mouseY > f.clientY) {
+                drag.style.height = `${(mouseY - f.clientY) / 10}em`;
+                drag.style.top = `${(f.clientY - offsetTop) / 10}em`;
+            } else {
+                drag.style.height = `${(f.clientY - mouseY) / 10}em`;
+                drag.style.top = `${(mouseY - offsetTop) / 10}em`;
+            }
+            return false;
+        };
+    event.preventDefault();
+    drag.setAttribute("id", "dragBox");
+    body.insertBefore(drag, body.firstChild);
+    if (touch === true) {
+        document.ontouchend = drop;
+        document.ontouchmove  = boxMoveTouch;
+        document.ontouchstart = null;
+    } else {
+        document.onmouseup = drop;
+        document.onmousemove = boxMoveClick;
+        document.onmousedown = null;
+    }
+};
+
 /* Resizes the interactive area to fit the browser viewport */
 util.fixHeight = function local_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;

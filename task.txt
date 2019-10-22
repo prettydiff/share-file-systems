@@ -5,6 +5,11 @@
 3. perform hash comparison
 4. on hash comparison issue http request to unlink files at remote
 
+## drag select todo
+1. account for modal scroll bars.
+  a. The modal will need to scroll as the dragBox grows off modal view port
+  b. Only the ul area in the original viewport fires event
+
 1 copy and paste one item into the same location without overwrite (name change)
 2 copy/cut from remote to local directory
 3 copy/cut from local to remote directory

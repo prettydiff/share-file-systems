@@ -97,7 +97,7 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
         }
         a = a + 1;
     } while (a < length);
-    local.sort(function local_network_fsRead_callback_sort(a:directoryItem, b:directoryItem):number {
+    local.sort(function local_fs_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {
             if (a[0] < b[0]) {
@@ -137,14 +137,84 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
     output.title = location;
     output.oncontextmenu = context.menu;
     output.onkeyup = util.keys;
+    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent) {
+        util.dragSelect(event, function local_fs_list_dragSelect_callback():void {
+            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
+                length:number = li.length,
+                dragBox:HTMLElement = document.getElementById("dragBox"),
+                perimeter = function local_fs_list_dragSelect_callback_perimeter(node:HTMLElement):perimeter {
+                    return {
+                        bottom: node.offsetTop + node.clientHeight,
+                        left: node.offsetLeft,
+                        right: node.offsetLeft + node.clientWidth,
+                        top: node.offsetTop
+                    };
+                },
+                liLocation:perimeter[] = [],
+                control:string = (browser.characterKey.indexOf("control") > -1)
+                    ? "control"
+                    : "shift",
+                dragArea:perimeter = perimeter(dragBox);
+            let a:number = 0,
+                first:number = 0,
+                last:number = length - 1;
+            if (dragArea.bottom < 1) {
+                return;
+            }
+            if (length > 0) {
+                do {
+                    liLocation.push(perimeter(li[a]));
+                    a = a + 1;
+                } while (a < length);
+                // since list items are vertically listed we can account for left and right bounding without a loop
+                if (
+                    // overlap from the middle
+                    (dragArea.left >= liLocation[0].left && dragArea.right <= liLocation[0].right && (
+                        (dragArea.bottom >= liLocation[length - 1].bottom && dragArea.top < liLocation[length - 1].bottom) ||
+                        (dragArea.top <= liLocation[0].top && dragArea.bottom > liLocation[0].top)
+                    )) ||
+                    // overlap from the left
+                    (dragArea.left <= liLocation[0].left && dragArea.right <= liLocation[0].right) ||
+                    // overlap from the right
+                    (dragArea.left >= liLocation[0].left && dragArea.right >= liLocation[0].right)
+                ) {
+                    a = 0;
+                    do {
+                        if (liLocation[a].top < dragArea.top) {
+                            if (liLocation[a].bottom >= dragArea.bottom) {
+                                // drag area covering only a single list item
+                                li[a].click();
+                                return;
+                            }
+                            if (dragArea.top < liLocation[a].bottom) {
+                                first = a;
+                                if (dragArea.bottom > liLocation[length - 1].bottom) {
+                                    break;
+                                }
+                            }
+                        } else if (liLocation[a].bottom > dragArea.bottom && dragArea.bottom > liLocation[a].top) {
+                            last = a;
+                            break;
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    li[first].click();
+                    browser.characterKey = control;
+                    li[last].click();
+                    browser.characterKey = "";
+                }
+            }
+        });
+    };
     output.setAttribute("class", "fileList");
     return output;
 };
 
 
 /* Build a single file system object from data */
-fs.listItem = function local_util_listItem(item:directoryItem, extraClass:string):HTMLElement {
-    const driveLetter = function local_util_listItem_driveLetter(drive:string):string {
+fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):HTMLElement {
+    const driveLetter = function local_fs_listItem_driveLetter(drive:string):string {
             return drive.replace("\\\\", "\\");
         },
         li:HTMLElement = document.createElement("li"),
@@ -202,10 +272,22 @@ fs.listItem = function local_util_listItem(item:directoryItem, extraClass:string
     span.onclick = fs.select;
     span.oncontextmenu = context.menu;
     li.appendChild(span);
-    li.oncontextmenu = context.menu;
     li.appendChild(label);
     li.onclick = fs.select;
+    li.oncontextmenu = context.menu;
     li.onkeyup = util.keys;
+    li.onmousedown = function local_fs_listItem_mouseDown(event:MouseEvent):void {
+        event.stopPropagation();
+    };
+    li.onmouseover = function local_fs_listItem_mouseOver(event:MouseEvent):void {
+        const dragBox:HTMLElement = document.getElementById("dragBox"),
+            element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+        if (dragBox !== null) {
+            if (browser.characterKey.indexOf("control") > -1) {
+                element.click();
+            }
+        }
+    };
     return li;
 };
 

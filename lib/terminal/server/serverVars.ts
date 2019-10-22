@@ -54,6 +54,9 @@ const socketList:socketList = {},
                 }
                 a = a + 1;
             } while (a < length);
+            if (store.length < 1) {
+                return [[["disconnected", "::1", "ipv6"], ["disconnected", "127.0.0.1", "ipv4"]], 0];
+            }
             return [store, interfaceLongest];
         }()),
         socketList: socketList,
