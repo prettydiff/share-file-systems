@@ -1,4 +1,7 @@
 
+## defect
+modal header need text overflow, shrink a modal horizontally with a long header text
+
 ## copy todo
 1. set chunk size to divide out meta data
 2. include hash per file in meta data
@@ -32,7 +35,7 @@
 14 add a control to remove localhost shares
 15 edit file - add a context menu item to open a file as text and write its contents as text
 16 test GUI in OSX and Gnome Linux
-
+17 queue multiple writes from remotes to the same agent (local queue on the agent)
 
 ## populate systems logs
 

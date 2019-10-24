@@ -624,8 +624,10 @@ modal.move = function local_modal_move(event:Event):void {
 
 /* Allows resizing of modals in 1 of 8 directions */
 modal.resize = function local_modal_resize(event:MouseEvent):void {
-    let bodyWidth:number  = 0,
+    let bodyWidth:number = 0,
         bodyHeight:number = 0,
+        clientWidth:number  = 0,
+        clientHeight:number = 0,
         computedHeight:number = 0,
         computedWidth:number = 0;
     const node:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -634,6 +636,13 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         top:number = box.offsetTop,
         left:number = box.offsetLeft,
         body:HTMLDivElement       = box.getElementsByTagName("div")[1],
+        heading:HTMLElement = box.getElementsByTagName("h2")[0],
+        headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
+        header:boolean = (box.getElementsByClassName("header").length < 1)
+            ? false
+            : true,
+        sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
+        sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
         offX:number = event.clientX,
         offY:number = event.clientY,
         mac:boolean        = (navigator.userAgent.indexOf("macintosh") > 0),
@@ -648,10 +657,10 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
             const settings:ui_modal = browser.data.modals[box.getAttribute("id")];
             document.onmousemove = null;
             document.onmouseup = null;
-            bodyWidth            = body.clientWidth;
-            bodyHeight           = body.clientHeight;
-            settings.width = bodyWidth - offsetWidth;
-            settings.height = bodyHeight - offsetHeight;
+            clientWidth            = body.clientWidth;
+            clientHeight           = body.clientHeight;
+            settings.width = clientWidth - offsetWidth;
+            settings.height = clientHeight - offsetHeight;
             if (box.getAttribute("id") === "systems-modal") {
                 const tabs:HTMLElement = <HTMLElement>box.getElementsByClassName("tabs")[0];
                 tabs.style.width = `${body.clientWidth / 10}em`;
@@ -660,80 +669,140 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         },
         side:any    = {
             b: function local_modal_resize_sizeB(f:MouseEvent):void {
-                computedHeight = (bodyHeight + ((f.clientY - offsetHeight) - offY)) / 10;
+                computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
+                    if (header === true) {
+                        sideLeft.style.height = `${computedHeight + 4.6}em`;
+                        sideRight.style.height = `${computedHeight + 4.6}em`;
+                    } else {
+                        sideLeft.style.height = `${computedHeight}em`;
+                        sideRight.style.height = `${computedHeight}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
             bl: function local_modal_resize_sizeBL(f:MouseEvent):void {
                 computedWidth = left + (f.clientX - offX);
-                if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 35) {
+                computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
+                bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
+                if (bodyWidth > 35) {
                     box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${((bodyWidth - offsetWidth) + (left - computedWidth)) / 10}em`;
+                    body.style.width  = `${bodyWidth}em`;
+                    heading.style.width = `${bodyWidth + 0.2}em`;
+                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
                 }
-                computedHeight = (bodyHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
+                    if (header === true) {
+                        sideLeft.style.height = `${computedHeight + 4.6}em`;
+                        sideRight.style.height = `${computedHeight + 4.6}em`;
+                    } else {
+                        sideLeft.style.height = `${computedHeight}em`;
+                        sideRight.style.height = `${computedHeight}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
             br: function local_modal_resize_sizeBR(f:MouseEvent):void {
-                computedWidth = (bodyWidth + ((f.clientX - offsetWidth) - offX)) / 10;
+                computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
+                computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
+                    heading.style.width = `${computedWidth + 0.2}em`;
+                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
                 }
-                computedHeight = (bodyHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
+                    if (header === true) {
+                        sideLeft.style.height = `${computedHeight + 4.6}em`;
+                        sideRight.style.height = `${computedHeight + 4.6}em`;
+                    } else {
+                        sideLeft.style.height = `${computedHeight}em`;
+                        sideRight.style.height = `${computedHeight}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
             l: function local_modal_resize_sizeL(f:MouseEvent):void {
                 computedWidth = left + (f.clientX - offX);
-                if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 35) {
+                bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
+                if (bodyWidth > 35) {
                     box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${((bodyWidth - offsetWidth) + (left - computedWidth)) / 10}em`;
+                    body.style.width  = `${bodyWidth}em`;
+                    heading.style.width = `${bodyWidth + 0.2}em`;
+                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             },
             r: function local_modal_resize_sizeR(f:MouseEvent):void {
-                computedWidth = (bodyWidth + ((f.clientX - offsetWidth) - offX)) / 10;
+                computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
+                    heading.style.width = `${computedWidth + 0.2}em`;
+                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             },
             t: function local_modal_resize_sizeT(f:MouseEvent):void {
                 computedHeight = top + (f.clientY - offY);
-                if (((bodyHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
+                bodyHeight = ((clientHeight - offsetHeight) + (top - computedHeight)) / 10;
+                if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                     box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${((bodyHeight - offsetHeight) + (top - computedHeight)) / 10}em`;
+                    body.style.height  = `${bodyHeight}em`;
+                    if (header === true) {
+                        sideLeft.style.height = `${bodyHeight + 4.6}em`;
+                        sideRight.style.height = `${bodyHeight + 4.6}em`;
+                    } else {
+                        sideLeft.style.height = `${bodyHeight}em`;
+                        sideRight.style.height = `${bodyHeight}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
             tl: function local_modal_resize_sizeTL(f:MouseEvent):void {
                 computedHeight = top + (f.clientY - offY);
-                if (((bodyHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
-                    box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${((bodyHeight - offsetHeight) + (top - computedHeight)) / 10}em`;
-                }
                 computedWidth = left + (f.clientX - offX);
-                if (((bodyWidth - offsetWidth) + (left - computedWidth)) / 10 > 35) {
+                bodyHeight = ((clientHeight - offsetHeight) + (top - computedHeight)) / 10;
+                bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
+                if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
+                    box.style.top = `${computedHeight / 10}em`;
+                    body.style.height  = `${bodyHeight}em`;
+                    if (header === true) {
+                        sideLeft.style.height = `${bodyHeight + 4.6}em`;
+                        sideRight.style.height = `${bodyHeight + 4.6}em`;
+                    } else {
+                        sideLeft.style.height = `${bodyHeight}em`;
+                        sideRight.style.height = `${bodyHeight}em`;
+                    }
+                }
+                if (bodyWidth > 35) {
                     box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${((bodyWidth - offsetWidth) + (left - computedWidth)) / 10}em`;
+                    body.style.width  = `${bodyWidth}em`;
+                    heading.style.width = `${bodyWidth + 0.2}em`;
+                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             },
             tr: function local_modal_resize_sizeTR(f:MouseEvent):void {
                 computedHeight = top + (f.clientY - offY);
-                if (((bodyHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
+                computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
+                bodyHeight = ((clientHeight - offsetHeight) + (top - computedHeight)) / 10;
+                if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                     box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${((bodyHeight - offsetHeight) + (top - computedHeight)) / 10}em`;
+                    body.style.height  = `${bodyHeight}em`;
+                    if (header === true) {
+                        sideLeft.style.height = `${bodyHeight + 4.6}em`;
+                        sideRight.style.height = `${bodyHeight + 4.6}em`;
+                    } else {
+                        sideLeft.style.height = `${bodyHeight}em`;
+                        sideRight.style.height = `${bodyHeight}em`;
+                    }
                 }
-                computedWidth = (bodyWidth + ((f.clientX - offsetWidth) - offX)) / 10;
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
+                    heading.style.width = `${computedWidth + 0.2}em`;
+                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             }
@@ -741,8 +810,8 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
     if (browser.data.modals[box.getAttribute("id")].status === "maximized" || browser.data.modals[box.getAttribute("id")].status === "minimized") {
         return;
     }
-    bodyWidth  = body.clientWidth;
-    bodyHeight = body.clientHeight;
+    clientWidth  = body.clientWidth;
+    clientHeight = body.clientHeight;
     document.onmousemove = side[direction];
     document.onmousedown = null;
 };
