@@ -1,63 +1,84 @@
-# Fresh App
-A general Node.js application primer with helpful utilities.
+# Share Spaces
 
 ## Purpose
-It can be a headache to start a new Node.js project and application architecture that makes heavy use of command line instructions. This project is a ready to go application that solves this problem.
+The end state is to offer a cross-OS private one-to-many online relationship that shares media, messaging, and file system access with end-to-end encryption from the browser.
 
-## Features
-* Command driven
-* File system utilities for reading directory trees recursively or removing them
-* Better error handling and messaging
-* Exclusion lists supported
-* Verbose output supported with the *verbose* option
-* Built-in test automation for commands and utilities
-* Only 5 dependencies:
-   - ESLint (external dependency, a code error checker)
-   - TypeScript (external dependency, a language compiler)
-   - @types/node (internal dependency, additional data type definitions for TypeScript)
-   - ws (internal dependency, web sockets for Node used with the *server* command)
-   - async-limiter (sub-dependency of ws)
+This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing with persons specifically identified prior, opposed to publishing to anonymous users.*
 
+## Status
+This application is currently in early development in an largely experimental state, so use at your own risk.
 
-## Set Up
+This application is also not yet licensed.
+
+## Build and run the application
+1. Install [Node.js](https://nodejs.org)
+1. Clone the application from Github.
+1. Install TypeScript: `npm install -g typescript`
+1. Execute the application: `npm restart`
+   * The restart command first builds the application and then enables services.
+1. Open your favorite modern browser to http://localhost
+   * You may need to make an exception in your local firewall for port 80, or which ever port the user specifies.
+
+## A quick use guide
+1. The first time you open the application it will ask you to create a user name.
+1. Notice the "hamburger" menu icon in the top left corner of the application.  Click that to open the primary menu and select *File Navigator*.
+1. The File Navigator will allow a user to navigate their file system just like using their underlying operating system.  Select a couple of things you would like to share.  Right click on the select item(s) and choose *Share*.
+1. On the right side of the page is the user icons.  Click on the button labeled *All Shares* to see which items are shared.
+1. In the user list click on the button labeled *Invite User* to invite a user to access your shares.  At this time users are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default IP address is currently 80 but the default will change to 443 once the application upgrades to HTTPS.
+1. Once the invitation is accepted by the end user they can access your shares and you can access theirs.  To see their shares close the prior opened *All Shares* window and open a new such window by again clicking the button *All Shares*.
+1. At this time security restrictions are not in place so any shared file system resource allows access to the entire file system unrestricted.  This is great for testing and experimentation, but be careful because unrestricted means a user can rename, move, or delete your files and directories.
+1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
+
+## How this works
+The application is based upon Node.js running a local web server as a client-side utility.  A web browser connects to that webserver as localhost.  The local service is just HTTP and a web socket connection.  Together the browser environment and Node.js application form a single application with limited network connectivity.  Network connections outside of the localhost environment are requested due to specified user interactions in the browser but are executed from the Node application.  This model ensures the application functions in a peer-to-peer model where external communications only exist away from the user experience limited to predefined application tasks.
+
+### Messaging Diagram
+This is a gross over-simplification of messaging exchange in the application:
+
 ```
-npm install typescript -g
-npm install eslint -g
-git clone https://github.com/prettydiff/spaces.git
-cd spaces
-tsc
-npm install
-node js/application build
+Local Computer                                    | Remote Computer
+ _________  -----HTTP----->  _________  --HTTP--> |  _________  --Web Socket-->  _________
+| browser | <-------------- | Node.js | <-------- | | Node.js |                 | Browser |
+ _________                   _________            |  _________                   _________
+            <--Web Socket--            <--HTTP--  |            <-----HTTP-----
+                                       -------->  |            -------------->
 ```
 
-This setup installs the two external dependencies: ESLint and TypeScript as well as a local dependency that helps TypeScript compile the project.
+The shape of communication is roughly similar to email in that a client connects to a local server for routing guidance that then talks to a remote server for delivery to the end client.  The middle layers in this case execute application instructions instead of message routing.  Also unlike email presentation, transport, and message parsing are strictly separated at all layers.
 
-## Configuration
-Configuration data is stored in the version.json file.
+Email's most visible thorn is SPAM, or unsolicited requests.  This application seeks to mitigate SPAM by operating through invitation only such that one user must invite another user before they can message or share.
 
-* **command** *string, manual* - The command that executes the application, which is `node ` and the path to your JavaScript application file, by default `js/application`.
-* **date** *string, dynamic* - This value is in format *dd MMM yyyy* and it is dynamically generated from the modify date of the package.json file.
-* **name** *string, manual* - This is the proper name of the application.
-* **number** *string, dynamic* - This value is gathered from the version property of the package.json file.
-* **port** *number, manual* - The default port number the application uses when running a service.  The `server` command requires two ports, one for HTTP and a second for Web Sockets, where the second port is always one number greater than the service port.
+## Road map
+These are major efforts that need to be performed and are prioritized.
 
-## Add a new utility
-In the applications.ts file simply assign a function to a named property on the apps object, example:
-`apps.myCustomTool = function () {};`
+### Phase 1: Complete Peer-to-Peer application
+1. Complete and test file system object copy from one computer to another using the GUI.
+1. Upgrade all communications from HTTP to HTTPS (default port 80 to 443).
+1. Harden the application's security model.
+   * Restrict HTTP GET requests to the localhost environment only.  Otherwise return HTTP status 403: Forbidden.
+   * Associate file system watches to the watching agent
+   * Restrict file system access above the specified share
+   * All file system shares, by default, should be read only to remote agents.
+   * Provide throttling for invitation messages, which are the only authorized form of external communication.
+1. Create a text message client and 'sticky note' utility for communicating with remote users.
+1. Key exchange and end-to-end encryption.
 
-## Add a new command
-Add the functionality as described in the prior step.  Then simply add documentation for the command name in the *commands* object.  The name added to the *commands* object must match the name of the new method.
+### Phase 2: Create Tunneling Service
+Currently the application is using IP addresses for user identification and addressing.  This will not work if a given IP isn't routed, such as : 10.0.0.0, 172.12.0.0, 192.168.0.0 and link local IPv6 addresses.  To allow connectivity from any internet connected user a central service must be created offer HTTPS tunnels as a service that act similar to a VPN tunnel.  When two users tunnel to the central service the central service can route messaging and data between the two users.  Since the messaging will be encrypted via key exchange the central service only provides a tunnel without providing content or having access to end user content.
 
-## Add a new build step
-1. Open the apps.build function in application.ts. Add your new build step name into the *order.build* array.  The order of this array is the order in which the steps will synchronously execute.
-1. Add the same name to the *phases* object as a new method.
+1. Create a user ID system based upon SHA512 hashes: 128 character alpha-numeric character string.  This will allow users some limited amount of anonymity but will ensure
+1. Create a tunneling to the server, which can be as simple as a HTTP keep-alive from a central webserver.
+1. Routing messaging from one tunnel to the proper remote tunnel.
+1. Revert the client application to accept only service issued IDs instead of IP addresses
 
-## Add a new test step
-1. Open the apps.build function in application.ts. Add your new build step name into the *order.test* array.  The order of this array is the order in which the steps will synchronously execute.
-1. Add the same name to the *phases* object as a new method.
+## This project needs help
+* I am especially weak at writing test automation that executes in the browser.  Any help writing test cases for a headless browser would be greatly appreciated.  I need this more than anything else.
+* I am also weak at writing network logic.  Currently this application uses HTTP until it is upgraded to HTTPS.  The application might benefit from a custom protocol using TCP sockets.  Any help with this would also be appreciated.
 
-## Add new command line tests
-1. Open the *test/simulations.ts* file and add a new test to the array of tests.  Read the documentation at the top of the file for test criteria.
+## FAQ
 
-## HTTP Service
-The application comes with a *server* command that launches an HTTP service. By default the application only display's the service's local file system from the project root. To instead show HTML web pages simply create an HTML file and reassign the *localPath* variable to a relative path for your HTML file.
+* **Encryption in the browser isn't mature yet.  How will this application solve that problem?**  This application exists as both a browser instance and a Node.js instance on a given computer.  Encryption may not be mature in the browser, but it is mature in Node.  Node will perform encryption of outgoing information and decrypt incoming information.  That information will then be transfer to the browser on the local machine.
+* **I can't share files with my friend across the world. What gives?** At this time the application only operates on local networks via IP address.  See Phase 2 of the Road map above.
+* **Will I be able to share files from OS X and Linux with Windows?** Yes. This application is an abstraction over Node.js and so it works where ever Node is supported. For OS support see all of Node's download options at https://nodejs.org/dist/v13.0.0/ which is the latest version of Node at the time of this writing.
+* **Aren't web browsers and JavaScript too slow for anything practical?** No. I have a 4k UHD monitor and the GUI performs like a native OS experience.  The application is largely powered by Node really making it an abstraction over OS friendly C++ libraries that work very efficiently.
+* **Are there commercial ambitions with this project?** Yes and no. This application, the client-side peer-to-peer application will remain free and open source.  See Phase 2 of the Road Map mentioned above.  A high bandwidth service to route traffic across the internet will cost money to operate and will require a commercial venture to fulfill.
