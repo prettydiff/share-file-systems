@@ -3,7 +3,7 @@
 ## Purpose
 The end state is to offer a cross-OS private one-to-many online relationship that shares media, messaging, and file system access with end-to-end encryption from the browser.
 
-This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing with persons specifically identified prior, opposed to publishing to anonymous users.*
+This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
 ## Status
 This application is currently in early development in an largely experimental state, so use at your own risk.
@@ -48,8 +48,8 @@ Local Computer                                    | Remote Computer
  _________  -----HTTP----->  _________  --HTTP--> |  _________  --Web Socket-->  _________
 | browser | <-------------- | Node.js | <-------- | | Node.js |                 | Browser |
  _________                   _________            |  _________                   _________
-            <--Web Socket--            <--HTTP--  |            <-----HTTP-----
-                                       -------->  |            -------------->
+            <--Web Socket--             <--HTTP-- |             <-----HTTP-----
+                                        --------> |             -------------->
 ```
 
 The shape of communication is roughly similar to email in that a client connects to a local server for routing guidance that then talks to a remote server for delivery to the end client.  The middle layers in this case execute application instructions instead of message routing.  Also unlike email presentation, transport, and message parsing are strictly separated at all layers.
@@ -87,9 +87,11 @@ Currently the application is using IP addresses for user identification and addr
 * I am also weak at writing network logic.  Currently this application uses HTTP until it is upgraded to HTTPS.  The application might benefit from a custom protocol using TCP sockets.  Any help with this would also be appreciated.
 
 ## FAQ
+* **I found a defect or wish to make a recommendation.  What should I do?**  Submit an issue on [Github](https://github.com/prettydiff/shared-spaces/issues), or fix the issue and submit a pull request.  This is open software.
 * **Encryption in the browser isn't mature yet.  How will this application solve that problem?**  This application exists as both a browser instance and a Node.js instance on a given computer.  Encryption may not be mature in the browser, but it is mature in Node.  Node will perform encryption of outgoing information and decrypt incoming information.  That information will then be transfer to the browser on the local machine.
-* **I can't share files with my friend across the world. What gives?** At this time the application only operates on local networks via IP address.  See Phase 2 of the Road map above.
-* **Will I be able to share files from OS X and Linux with Windows?** Yes. This application is an abstraction over Node.js and so it works where ever Node is supported. For OS support see all of Node's download options at https://nodejs.org/dist/v13.0.0/ which is the latest version of Node at the time of this writing.
-* **Aren't web browsers and JavaScript too slow for anything practical?** No. I have a 4k UHD monitor and the GUI performs like a native OS experience.  The application is largely powered by Node really making it an abstraction over OS friendly C++ libraries that work very efficiently.
-* **Are there commercial ambitions with this project?** Yes and no. This application, the client-side peer-to-peer application will remain free and open source.  See Phase 2 of the Road Map mentioned above.  A high bandwidth service to route traffic across the internet will cost money to operate and will require a commercial venture to fulfill.
-* **As a webpage tool how do I save state?** User experience settings and application state is written to a file in *storage/settings.json*.  Since settings are saved in a file you can easily continue your user experience after restarting your computer, in a different browser on the same computer, or on a completely different computer if you transfer the *storage/settings.json* to the new computer.
+* **I can't share files with my friend across the world. What gives?**  At this time the application only operates on local networks via IP address.  See Phase 2 of the Road map above.
+* **Will I be able to share files from OS X and Linux with Windows?**  Yes.  This application is an abstraction over Node.js and so it works where ever Node is supported. For OS support see all of Node's download options at https://nodejs.org/dist/v13.0.0/ which is the latest version of Node at the time of this writing.
+* **Aren't web browsers and JavaScript too slow for anything practical?**  No.  I have a 4k UHD monitor and the GUI performs like a native OS experience.  The application is largely powered by Node really making it an abstraction over OS friendly C++ libraries that work very efficiently.
+* **Are there commercial ambitions with this project?**  Yes and no.  This application, the client-side peer-to-peer application will remain free and open source.  See Phase 2 of the Road Map mentioned above.  A high bandwidth service to route traffic across the internet will cost money to operate and will require a commercial venture to fulfill.
+* **As a webpage tool how do I save state?**  User experience settings and application state are automatically written to a file: *storage/settings.json*.  Since settings are saved in a file you can easily continue your user experience after restarting your computer, in a different browser on the same computer, or on a completely different computer if you transfer the *storage/settings.json* to the new computer.
+* **Won't inherent privacy and end-to-end encryption enable illegal behavior?**  This application seeks to limit access of communications to prior specified parties using open standards.  This application does not intend to otherwise become a vector for any illegal or malicious activity and will not seek to prioritize or preference any user content.  This application has no plans, at this time, to encrypt data at rest on storage devices.  If law enforcement wishes to access private content they should do so by obtaining a warrant and properly seizing a user's computing device no differently than law enforcement access of email.
