@@ -5,10 +5,11 @@ The end state is to offer a cross-OS private one-to-many online relationship tha
 
 This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
+## License
+[AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
 ## Status
 This application is currently in early development in an largely experimental state, so use at your own risk.
-
-This application is also not yet licensed.
 
 ## Build and execute
 ### First build
