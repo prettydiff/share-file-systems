@@ -10,14 +10,22 @@ This application is currently in early development in an largely experimental st
 
 This application is also not yet licensed.
 
-## Build and run the application
+## Build and execute
+### First build
 1. Install [Node.js](https://nodejs.org)
-1. Clone the application from Github.
+1. Clone the application from Github. `git clone https://github.com/prettydiff/shared-spaces.git`
+1. Move into directory. `cd shared-spaces`
 1. Install TypeScript: `npm install -g typescript`
+1. Instead the TypeScript node types. `npm install`
+1. Compile to JavaScript. `tsc --pretty`
 1. Execute the application: `npm restart`
    * The restart command first builds the application and then enables services.
 1. Open your favorite modern browser to http://localhost
    * You may need to make an exception in your local firewall for port 80, or which ever port the user specifies.
+
+### Later builds
+1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.
+1. If this browser isn't already open then open to http://localhost
 
 ## A quick use guide
 1. The first time you open the application it will ask you to create a user name.
@@ -76,9 +84,9 @@ Currently the application is using IP addresses for user identification and addr
 * I am also weak at writing network logic.  Currently this application uses HTTP until it is upgraded to HTTPS.  The application might benefit from a custom protocol using TCP sockets.  Any help with this would also be appreciated.
 
 ## FAQ
-
 * **Encryption in the browser isn't mature yet.  How will this application solve that problem?**  This application exists as both a browser instance and a Node.js instance on a given computer.  Encryption may not be mature in the browser, but it is mature in Node.  Node will perform encryption of outgoing information and decrypt incoming information.  That information will then be transfer to the browser on the local machine.
 * **I can't share files with my friend across the world. What gives?** At this time the application only operates on local networks via IP address.  See Phase 2 of the Road map above.
 * **Will I be able to share files from OS X and Linux with Windows?** Yes. This application is an abstraction over Node.js and so it works where ever Node is supported. For OS support see all of Node's download options at https://nodejs.org/dist/v13.0.0/ which is the latest version of Node at the time of this writing.
 * **Aren't web browsers and JavaScript too slow for anything practical?** No. I have a 4k UHD monitor and the GUI performs like a native OS experience.  The application is largely powered by Node really making it an abstraction over OS friendly C++ libraries that work very efficiently.
 * **Are there commercial ambitions with this project?** Yes and no. This application, the client-side peer-to-peer application will remain free and open source.  See Phase 2 of the Road Map mentioned above.  A high bandwidth service to route traffic across the internet will cost money to operate and will require a commercial venture to fulfill.
+* **As a webpage tool how do I save state?** User experience settings and application state is written to a file in *storage/settings.json*.  Since settings are saved in a file you can easily continue your user experience after restarting your computer, in a different browser on the same computer, or on a completely different computer if you transfer the *storage/settings.json* to the new computer.
