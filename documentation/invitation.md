@@ -24,9 +24,9 @@ Start user, sending invitation        | End user, receiving the invitation
 7   <------6 |___| -------------------|-> |___| ----------------->
                     (invite-complete) |          (invite-response)
                                       | 
-start        start                    |   remote           remote
-user         terminal                 |   terminal         user
-(browser)    (local service)          |   (local service)  (browser)
+start        start                    |   remote                   remote
+user         terminal                 |   terminal                 user
+(browser)    (local service)          |   (local service)          (browser)
 
 data.action value is in parenthesis
 ```

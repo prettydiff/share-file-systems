@@ -149,8 +149,8 @@ const library = {
                         }
 
                         // please note
-                        // watch must be "no" on all operations but fs-read
-                        // fs-read must only contain a single path
+                        // watch is ignored on all operations other than fs-read
+                        // fs-read will only read from the first value in data.location
                         if (data.watch !== "no" && data.watch !== vars.projectPath) {
                             if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
                                 serverVars.watches[data.watch].close();

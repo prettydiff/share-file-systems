@@ -37,7 +37,7 @@ This application is also not yet licensed.
 1. At this time security restrictions are not in place so any shared file system resource allows access to the entire file system unrestricted.  This is great for testing and experimentation, but be careful because unrestricted means a user can rename, move, or delete your files and directories.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 
-## How this works
+## How this application works
 The application is based upon Node.js running a local web server as a client-side utility.  A web browser connects to that webserver as localhost.  The local service is just HTTP and a web socket connection.  Together the browser environment and Node.js application form a single application with limited network connectivity.  Network connections outside of the localhost environment are requested due to specified user interactions in the browser but are executed from the Node application.  This model ensures the application functions in a peer-to-peer model where external communications only exist away from the user experience limited to predefined application tasks.
 
 ### Messaging Diagram
@@ -55,6 +55,9 @@ Local Computer                                    | Remote Computer
 The shape of communication is roughly similar to email in that a client connects to a local server for routing guidance that then talks to a remote server for delivery to the end client.  The middle layers in this case execute application instructions instead of message routing.  Also unlike email presentation, transport, and message parsing are strictly separated at all layers.
 
 Email's most visible thorn is SPAM, or unsolicited requests.  This application seeks to mitigate SPAM by operating through invitation only such that one user must invite another user before they can message or share.
+
+## Developer Guide
+Please see the [developer guide](documentation/developer_guide.md).
 
 ## Road map
 These are major efforts that need to be performed and are prioritized.
