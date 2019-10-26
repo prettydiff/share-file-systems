@@ -25,29 +25,34 @@ const library = {
         remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
-        const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
-            if (data.agent === "localhost") {
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write(message);
-                response.end();
-            } else {
-                library.directory({
-                    callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
-                        const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
-                            ? data.name
-                            : data.name.replace(/\\/g, "\\\\");
-                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}"}`);
-                        response.end();
-                    },
-                    depth: 2,
-                    exclusions: [],
-                    path: data.name,
-                    recursive: true,
-                    symbolic: true
-                });
-            }
-        };
+        const metaSequence:string = "\u000e\u000e\u000e\u000e",
+            stringDirectory:string = `${metaSequence + metaSequence} type directory`,
+            stringEnd:string = `${metaSequence + metaSequence} end of file`,
+            stringPath:string = `${metaSequence + metaSequence} path`,
+            stringStart:string = `${metaSequence + metaSequence} start of file`,
+            fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
+                if (data.agent === "localhost") {
+                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                    response.write(message);
+                    response.end();
+                } else {
+                    library.directory({
+                        callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
+                            const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
+                                ? data.name
+                                : data.name.replace(/\\/g, "\\\\");
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}"}`);
+                            response.end();
+                        },
+                        depth: 2,
+                        exclusions: [],
+                        path: data.name,
+                        recursive: true,
+                        symbolic: true
+                    });
+                }
+            };
         if (data.action === "fs-read" || data.action === "fs-details") {
             const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                     count = count + 1;
@@ -317,29 +322,12 @@ const library = {
                         timeout: 1000
                     }, function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
                         let writeStream:fs.WriteStream,
-                            meta:string[] = [];
+                            chunks:string[],
+                            dirs:string[];
                         fsResponse.setEncoding('utf8');
-                        fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
-                            let chunks:string[];
-                            if (meta.length < 1) {
-                                meta.push(chunk.slice(0, chunk.indexOf("\n")));
-                                chunk = chunk.slice(chunk.indexOf("\n") + 1);
-                                meta.push(chunk.slice(0, chunk.indexOf("\n")));
-                                chunk = chunk.slice(chunk.indexOf("\n") + 1);
-                                if (meta[1] === "file") {
-                                    writeStream = vars.node.fs.createWriteStream(data.name + vars.sep + meta[0]);
-                                } else {
-                                    library.makeDir(data.name + vars.sep + meta[0], function terminal_server_fileService_response_data_dir():void {
-                                        return;
-                                    });
-                                }
-                            }
-                            if (meta[1] === "file") {
-                                chunks = chunk.split("\u001b file end\n");
-                                    chunk = chunk.slice(0, chunk.length - 8);
-                                    meta = [];
-                                writeStream.write(chunk, "utf8");
-                            }
+                        fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {console.log(chunk);
+                            chunks.push(chunk);
+                            //writeStream.write(chunk, "utf8");
                         });
                         fsResponse.on("end", function terminal_server_fileService_response_end():void {
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -396,6 +384,26 @@ const library = {
                             } else {
                                 a = 0;
                                 filesLength = files.length;
+                                // sort directories ahead of files and then sort shorter directories before longer directories
+                                // * This is necessary to ensure directories are written before the files and child directories that go in them.
+                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string], b:[string, string, string]):number {
+                                    if (a[1] === "directory" && b[1] !== "directory") {
+                                        return -1;
+                                    }
+                                    if (a[1] !== "directory" && b[1] === "directory") {
+                                        return 1;
+                                    }
+                                    if (a[1] === "directory" && b[1] === "directory") {
+                                        if (a[2].length < b[2].length) {
+                                            return -1;
+                                        }
+                                        return 1;
+                                    }
+                                    if (a[2] < b[2]) {
+                                        return -1;
+                                    }
+                                    return 1;
+                                });
                                 streamWrapper();
                             }
                         },
@@ -408,18 +416,20 @@ const library = {
                 },
                 streamWrapper = function terminal_server_fileService_remoteStream():void {
                     if (a < filesLength) {
-                        response.write(files[a][2]);
-                        response.write("\r\n");
-                        response.write(files[a][1]);
-                        response.write("\r\n");
-                        readStream = vars.node.fs.createReadStream(files[a][0]);
-                        readStream.setEncoding("utf8");
-                        readStream.pipe(response, {end: false});
-                        readStream.on("close", function terminal_server_fileService_remoteStream_close():void {
-                            a = a + 1;
-                            response.write("\r\n\u001b file end\r\n");
-                            terminal_server_fileService_remoteStream();
-                        });
+                        if (files[a][1] === "directory") {
+                            response.write(stringDirectory + files[a][2]);
+                        } else {
+                            response.write(stringPath + files[a][2]);
+                            response.write(stringStart);
+                            readStream = vars.node.fs.createReadStream(files[a][0]);
+                            readStream.setEncoding("utf8");
+                            readStream.pipe(response, {end: false});
+                            readStream.on("close", function terminal_server_fileService_remoteStream_close():void {
+                                a = a + 1;
+                                response.write(stringEnd);
+                                terminal_server_fileService_remoteStream();
+                            });
+                        }
                     } else {
                         response.end();
                     }
