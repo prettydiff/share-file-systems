@@ -221,17 +221,21 @@ const library = {
                     limit = Number(ulimit_out);
                     shortLimit = Math.ceil(limit / 5);
                 }
-                directory({
-                    callback: function terminal_hash_localCallback(list:directoryList) {
-                        dirComplete(list);
-                    },
-                    depth: 0,
-                    exclusions: vars.exclusions,
-                    hash: false,
-                    path: input.filePath,
-                    recursive: true,
-                    symbolic: true
-                });
+                if (input.parent === undefined) {
+                    directory({
+                        callback: function terminal_hash_localCallback(list:directoryList) {
+                            dirComplete(list);
+                        },
+                        depth: 0,
+                        exclusions: vars.exclusions,
+                        hash: false,
+                        path: input.filePath,
+                        recursive: true,
+                        symbolic: true
+                    });
+                } else {
+                    dirComplete([[input.filePath, "file", "", input.parent, 0, input.stat]]);
+                }
             });
         }
     };

@@ -177,10 +177,20 @@ const library = {
                             if (type !== "error" && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
                                 if (listOnly === true) {
                                     fileList.push(filePath);
+                                    if (dirs > 0) {
+                                        dirCounter(filePath);
+                                    } else {
+                                        args.callback(fileList.sort());
+                                    }
                                 } else if (args.hash === true) {
                                     library.hash({
                                         callback: function terminal_directory_wrapper_stat_populate_hashCallback(output:hashOutput):void {
                                             list.push([output.filePath, "file", output.hash, output.parent, 0, output.stat]);
+                                            if (dirs > 0) {
+                                                dirCounter(filePath);
+                                            } else {
+                                                args.callback(list);
+                                            }
                                         },
                                         filePath: filePath,
                                         parent: parent,
@@ -188,15 +198,11 @@ const library = {
                                     });
                                 } else {
                                     list.push([filePath, type, "", parent, 0, stat]);
-                                }
-                            }
-                            if (dirs > 0) {
-                                dirCounter(filePath);
-                            } else {
-                                if (listOnly === true) {
-                                    args.callback(fileList.sort());
-                                } else {
-                                    args.callback(list);
+                                    if (dirs > 0) {
+                                        dirCounter(filePath);
+                                    } else {
+                                        args.callback(list);
+                                    }
                                 }
                             }
                         };
