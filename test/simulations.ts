@@ -185,7 +185,7 @@ const sep:string = vars.sep,
         {
             command: `hash ${projectPath}tsconfig.json --verbose`,
             qualifier: "contains",
-            test: "File hashing complete."
+            test: `seconds total time`
         },
         {
             command: `hash ${projectPath} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore", "sparser"]`,

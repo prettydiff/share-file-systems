@@ -14,15 +14,13 @@ import vars from "./vars.js";
 // hash utility for strings or files
 const library = {
         commas: commas,
-        directory: directory,
         error: error,
         get:get, 
         humanTime: humanTime,
         log: log,
-        readFile: readFile,
-        remove: remove
+        readFile: readFile
     },
-    hash = function terminal_hash(filePath:string, callback:Function):void {
+    hash = function terminal_hash(input:hashInput):hashOutput {
         let limit:number = 0,
             shortLimit:number = 0,
             hashList:boolean = false;
@@ -33,40 +31,25 @@ const library = {
                 const listLength:number = list.length,
                     listObject:any = {},
                     hashes:string[] = [],
-                    hashComplete = (typeof callback === "function")
-                        ? function terminal_hash_dirComplete_callback():void {
-                            const hash:Hash = vars.node.crypto.createHash("sha512");
-                            let hashString:string = "";
-                            if (hashList === true) {
-                                hashString = JSON.stringify(listObject);
-                            } else if (hashes.length > 1) {
-                                hash.update(hashes.join(""));
-                                hash.digest("hex").replace(/\s+$/, "");
-                            } else {
-                                hashString = hashes[0];
-                            }
-                            callback(hashString);
+                    hashComplete = function terminal_hash_dirComplete_callback():void {
+                        const hash:Hash = vars.node.crypto.createHash("sha512");
+                        let hashString:string = "";
+                        if (hashList === true) {
+                            hashString = JSON.stringify(listObject);
+                        } else if (hashes.length > 1) {
+                            hash.update(hashes.join(""));
+                            hash.digest("hex").replace(/\s+$/, "");
+                        } else {
+                            hashString = hashes[0];
                         }
-                        : function terminal_hash_dirComplete_hashComplete():void {
-                            const hash:Hash = vars.node.crypto.createHash("sha512");
-                            let hashString:string = "";
-                            if (vars.verbose === true) {
-                                library.log([`${library.humanTime(false)}File hashing complete. Working on a final hash to represent the directory structure.`]);
-                            }
-                            if (hashList === true) {
-                                hashString = JSON.stringify(listObject);
-                            } else if (hashes.length > 1) {
-                                hash.update(hashes.join(""));
-                                hash.digest("hex").replace(/\s+$/, "");
-                            } else {
-                                hashString = hashes[0];
-                            }
-                            if (vars.verbose === true) {
-                                library.log([`${vars.version.name} hashed ${vars.text.cyan + filePath + vars.text.none}`, hashString]);
-                            } else {
-                                library.log([hashString]);
-                            }
-                        },
+
+                        input.callback({
+                            filePath: input.filePath,
+                            hash: hashString,
+                            parent: input.parent,
+                            stat: input.stat
+                        });
+                    },
                     hashBack = function terminal_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                         const hash:Hash = vars.node.crypto.createHash("sha512");
                         hash.on("readable", function terminal_hash_dirComplete_hashBack_hash():void {
@@ -79,8 +62,8 @@ const library = {
                         });
                         hash.write(item);
                         hash.end();
-                        if (http.test(filePath) === true) {
-                            library.remove(data.path, function terminal_hash_dirComplete_hashBack_hash_remove():boolean {
+                        if (http.test(input.filePath) === true) {
+                            remove(data.path, function terminal_hash_dirComplete_hashBack_hash_remove():boolean {
                                 return true;
                             });
                         }
@@ -112,7 +95,7 @@ const library = {
                         } else {
                             library.readFile({
                                 path: list[index][0],
-                                stat: list[index][4],
+                                stat: list[index][5],
                                 index: index,
                                 callback: function terminal_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
                                     hashBack(data, item, function terminal_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
@@ -166,7 +149,7 @@ const library = {
                         } else {
                             library.readFile({
                                 path: list[a][0],
-                                stat: list[a][4],
+                                stat: list[a][5],
                                 index: a,
                                 callback: function terminal_hash_dirComplete_file(data:readFile, item:string|Buffer):void {
                                     hashBack(data, item, function terminal_hash_dirComplete_file_hashBack(hashString:string, index:number):void {
@@ -212,13 +195,22 @@ const library = {
                 hashList = true;
                 process.argv.splice(listIndex, 1);
             }
-            filePath = process.argv[0];
-            if (http.test(filePath) === false) {
-                filePath = vars.node.path.resolve(process.argv[0]);
+            input = {
+                callback: function terminal_hash_callback(output:hashOutput):void {
+                    if (vars.verbose === true) {
+                        library.log([`${vars.version.name} hashed ${vars.text.cyan + input.filePath + vars.text.none}`, output.hash], true);
+                    } else {
+                        library.log([output.hash]);
+                    }
+                },
+                filePath: process.argv[0]
+            };
+            if (http.test(input.filePath) === false) {
+                input.filePath = vars.node.path.resolve(process.argv[0]);
             }
         }
-        if (http.test(filePath) === true) {
-            library.get(filePath, function terminal_hash_get(fileData:string) {
+        if (http.test(input.filePath) === true) {
+            library.get(input.filePath, function terminal_hash_get(fileData:string) {
                 const hash:Hash = vars.node.crypto.createHash("sha512");
                 hash.update(fileData);
                 library.log([hash.digest("hex")], true);
@@ -229,13 +221,14 @@ const library = {
                     limit = Number(ulimit_out);
                     shortLimit = Math.ceil(limit / 5);
                 }
-                library.directory({
+                directory({
                     callback: function terminal_hash_localCallback(list:directoryList) {
                         dirComplete(list);
                     },
                     depth: 0,
                     exclusions: vars.exclusions,
-                    path: filePath,
+                    hash: false,
+                    path: input.filePath,
                     recursive: true,
                     symbolic: true
                 });

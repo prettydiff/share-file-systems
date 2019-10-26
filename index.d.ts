@@ -1,6 +1,6 @@
 
 type characterKey = "" | "control" | "control-shift" | "shift";
-type directoryItem = [string, "error" | "file" | "directory" | "link", number, number, Stats];
+type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
 type eventCallback = (event:Event, callback:Function) => void;
 type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
@@ -112,6 +112,18 @@ interface FSWatcher extends Function {
 }
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
+}
+interface hashInput {
+    callback: Function;
+    filePath: string;
+    parent?: number;
+    stat?: Stats;
+}
+interface hashOutput {
+    filePath: string;
+    hash: string;
+    parent?: number;
+    stat?: Stats;
 }
 interface heartbeat {
     ip: string;
@@ -255,6 +267,7 @@ interface readDirectory {
     callback: Function;
     depth: number;
     exclusions: string[];
+    hash: boolean;
     path: string;
     recursive: boolean;
     symbolic: boolean;

@@ -28,6 +28,7 @@ const library = {
         const metaSequence:string = "\u000e\u000e\u000e\u000e",
             stringDirectory:string = `${metaSequence + metaSequence} type directory`,
             stringEnd:string = `${metaSequence + metaSequence} end of file`,
+            stringHash:string = `${metaSequence + metaSequence} hash`,
             stringPath:string = `${metaSequence + metaSequence} path`,
             stringStart:string = `${metaSequence + metaSequence} start of file`,
             fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
@@ -47,6 +48,7 @@ const library = {
                         },
                         depth: 2,
                         exclusions: [],
+                        hash: false,
                         path: data.name,
                         recursive: true,
                         symbolic: true
@@ -86,7 +88,7 @@ const library = {
                                 const resultLength:number = result.length,
                                     masterIndex:number = masterList.length;
                                 do {
-                                    result[b][2] = masterIndex; 
+                                    result[b][3] = masterIndex; 
                                     b = b + 1;
                                 } while (b < resultLength);
                                 a = a + 1;
@@ -95,7 +97,7 @@ const library = {
                                     callback(masterList);
                                 }
                             };
-                        let masterList:directoryList = [["\\", "directory", 0, length, {
+                        let masterList:directoryList = [["\\", "directory", "", 0, length, {
                                 dev: 0,
                                 ino: 0,
                                 mode: 0,
@@ -128,6 +130,7 @@ const library = {
                                 callback: driveList,
                                 depth: 1,
                                 exclusions: [],
+                                hash: false,
                                 path: `${value}\\`,
                                 recursive: true,
                                 symbolic: true
@@ -225,6 +228,7 @@ const library = {
                                                 },
                                                 depth: 2,
                                                 exclusions: [],
+                                                hash: false,
                                                 path: value,
                                                 recursive: true,
                                                 symbolic: true
@@ -238,6 +242,7 @@ const library = {
                             callback: callback,
                             depth: data.depth,
                             exclusions: [],
+                            hash: false,
                             path: value,
                             recursive: true,
                             symbolic: true
@@ -322,11 +327,11 @@ const library = {
                         timeout: 1000
                     }, function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
                         let writeStream:fs.WriteStream,
-                            chunks:string[],
+                            chunksCopy:string[] = [],
                             dirs:string[];
                         fsResponse.setEncoding('utf8');
                         fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {console.log(chunk);
-                            chunks.push(chunk);
+                            chunksCopy.push(chunk);
                             //writeStream.write(chunk, "utf8");
                         });
                         fsResponse.on("end", function terminal_server_fileService_response_end():void {
@@ -357,7 +362,7 @@ const library = {
             }
         } else if (data.action === "fs-copy-remote" || data.action === "fs-cut-remote") {
             // create read stream
-            const files:[string, string, string][] = [],
+            const files:[string, string, string, string][] = [],
                 locationLength:number = data.location.length,
                 readItem = function terminal_server_fileService_readItem():void {
                     library.directory({
@@ -375,7 +380,7 @@ const library = {
                                 }());
                             let b:number = 0;
                             do {
-                                files.push([dir[b][0], dir[b][1], dir[b][0].replace(location, "")]);
+                                files.push([dir[b][0], dir[b][1], dir[b][0].replace(location, ""), dir[b][2]]);
                                 b = b + 1;
                             } while (b < dirLength);
                             a = a + 1;
@@ -386,7 +391,7 @@ const library = {
                                 filesLength = files.length;
                                 // sort directories ahead of files and then sort shorter directories before longer directories
                                 // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string], b:[string, string, string]):number {
+                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string, string], b:[string, string, string, string]):number {
                                     if (a[1] === "directory" && b[1] !== "directory") {
                                         return -1;
                                     }
@@ -409,6 +414,7 @@ const library = {
                         },
                         depth: 0,
                         exclusions: [],
+                        hash: true,
                         path: data.location[a],
                         recursive: true,
                         symbolic: false
@@ -418,8 +424,11 @@ const library = {
                     if (a < filesLength) {
                         if (files[a][1] === "directory") {
                             response.write(stringDirectory + files[a][2]);
+                            a = a + 1;
+                            terminal_server_fileService_remoteStream();
                         } else {
                             response.write(stringPath + files[a][2]);
+                            response.write(stringHash + files[a][3]);
                             response.write(stringStart);
                             readStream = vars.node.fs.createReadStream(files[a][0]);
                             readStream.setEncoding("utf8");

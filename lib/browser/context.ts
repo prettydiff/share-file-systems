@@ -189,7 +189,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
                 details.links = details.links + 1;
             } else {
                 details.files = details.files + 1;
-                details.size = details.size + list[a][4].size;
+                details.size = details.size + list[a][5].size;
             }
             a = a + 1;
         } while (a < childLength);
@@ -262,9 +262,9 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         output.appendChild(table);
         
         if (list.length === 1) {
-            mTime = new Date(list[0][4].mtimeMs);
-            aTime = new Date(list[0][4].atimeMs);
-            cTime = new Date(list[0][4].ctimeMs);
+            mTime = new Date(list[0][5].mtimeMs);
+            aTime = new Date(list[0][5].atimeMs);
+            cTime = new Date(list[0][5].ctimeMs);
             heading = document.createElement("h3");
             heading.innerHTML = "Modified, Accessed, Created";
             output.appendChild(heading);

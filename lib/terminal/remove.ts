@@ -38,9 +38,9 @@ const library = {
                             if (item[0] === fileList[0][0]) {
                                 callback();
                             } else {
-                                fileList[item[2]][3] = fileList[item[2]][3] - 1;
-                                if (fileList[item[2]][3] < 1) {
-                                    terminal_remove_removeItems_destroy(fileList[item[2]]);
+                                fileList[item[3]][4] = fileList[item[3]][4] - 1;
+                                if (fileList[item[3]][4] < 1) {
+                                    terminal_remove_removeItems_destroy(fileList[item[3]]);
                                 }
                             }
                         });
@@ -53,14 +53,14 @@ const library = {
                     if (vars.command === "remove") {
                         if (fileList[a][1] === "file") {
                             numb.file = numb.file + 1;
-                            numb.size = numb.size + fileList[a][4].size;
+                            numb.size = numb.size + fileList[a][5].size;
                         } else if (fileList[a][1] === "directory") {
                             numb.dirs = numb.dirs + 1;
                         } else if (fileList[a][1] === "link") {
                             numb.link = numb.link + 1;
                         }
                     }
-                    if ((fileList[a][1] === "directory" && fileList[a][3] === 0) || fileList[a][1] !== "directory") {
+                    if ((fileList[a][1] === "directory" && fileList[a][4] === 0) || fileList[a][1] !== "directory") {
                         destroy(fileList[a]);
                     }
                     a = a + 1;
@@ -114,6 +114,7 @@ const library = {
             callback: removeItems,
             depth: 0,
             exclusions: [],
+            hash: false,
             path: filePath,
             recursive: true,
             symbolic: true

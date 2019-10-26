@@ -1,6 +1,7 @@
 
 import commas from "./commas.js";
 import error from "./error.js";
+import hash from "./hash.js";
 import log from "./log.js";
 import vars from "./vars.js";
 import wrapIt from "./wrapIt.js";
@@ -9,6 +10,7 @@ import wrapIt from "./wrapIt.js";
 const library = {
         commas: commas,
         error: error,
+        hash: hash,
         log: log,
         wrapIt: wrapIt
     },
@@ -16,6 +18,7 @@ const library = {
         // arguments:
         // * callback - function - the output is passed into the callback as an argument
         // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
+        // * hash - boolean - whether file types should be hashed
         // * exclusions - string array - a list of items to exclude
         // * path - string - where to start in the local file system
         // * recursive - boolean - if child directories should be scanned
@@ -24,9 +27,10 @@ const library = {
         // output: []
         // 0. absolute path (string)
         // 1. type (string)
-        // 2. parent index (number)
-        // 3. child item count (number)
-        // 4. stat (fs.Stats)
+        // 2. hash (string), empty string unless type is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
+        // 3. parent index (number)
+        // 4. child item count (number)
+        // 5. stat (fs.Stats)
         let dirTest:boolean = false,
             size:number = 0,
             dirs:number = 0;
@@ -68,6 +72,7 @@ const library = {
                             return 0;
                         }()),
                         exclusions: vars.exclusions,
+                        hash: (process.argv.indexOf("hash") > -1),
                         path: "",
                         recursive: (process.argv.indexOf("shallow") > -1)
                             ? (function terminal_directory_startPath_recursive():boolean {
@@ -152,7 +157,7 @@ const library = {
                                     if (listOnly === true) {
                                         fileList.push(item);
                                     } else {
-                                        list.push([item, "directory", parent, files.length, stat]);
+                                        list.push([item, "directory", "", parent, files.length, stat]);
                                     }
                                     if (files.length < 1) {
                                         dirCounter(item);
@@ -172,8 +177,17 @@ const library = {
                             if (type !== "error" && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
                                 if (listOnly === true) {
                                     fileList.push(filePath);
+                                } else if (args.hash === true) {
+                                    library.hash({
+                                        callback: function terminal_directory_wrapper_stat_populate_hashCallback(output:hashOutput):void {
+                                            list.push([output.filePath, "file", output.hash, output.parent, 0, output.stat]);
+                                        },
+                                        filePath: filePath,
+                                        parent: parent,
+                                        stat: stat
+                                    });
                                 } else {
-                                    list.push([filePath, type, parent, 0, stat]);
+                                    list.push([filePath, type, "", parent, 0, stat]);
                                 }
                             }
                             if (dirs > 0) {
