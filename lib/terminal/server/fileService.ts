@@ -326,12 +326,58 @@ const library = {
                         port: port,
                         timeout: 1000
                     }, function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
-                        let writeStream:fs.WriteStream,
-                            chunksCopy:string[] = [],
-                            dirs:string[];
-                        fsResponse.setEncoding('utf8');
-                        fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {console.log(chunk);
-                            chunksCopy.push(chunk);
+                        let fragment:string = "";
+                        fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
+                            chunk = fragment + chunk;
+                            fragment = "";
+                            const items:string[] = chunk.split(stringEnd),
+                                write = function terminal_server_fileService_response_data_write(item:string, index:number, length:number):void {
+                                    const fileName:string = data.name + vars.sep + item.slice(stringPath.length, item.indexOf(stringHash)).replace(/\/|\\/g, vars.sep),
+                                        hash:string = item.slice(item.indexOf(stringHash) + stringHash.length, item.indexOf(stringStart)),
+                                        file:string = item.slice(item.indexOf(stringStart + stringStart.length));
+                                    library.hash({
+                                        callback: function terminal_server_fileService_response_data_write_hashCallback(output:hashOutput):void {
+                                            if (output.hash === hash) {
+                                                fs.writeFile(fileName, file, function terminal_server_fileService_response_data_write_hashCallback_writeCallback():void {
+                                                    index = index + 1;
+                                                    if (index < length) {
+                                                        terminal_server_fileService_response_data_write(items[index], index, length);
+                                                    } else {
+                                                        library.log([`${vars.text.green + length + vars.text.none} items written from remote to localhost at ${data.name}`]);
+                                                    }
+                                                });
+                                            } else {
+                                                vars.ws.broadcast(`error: Hashes don't match for ${fileName} from remote.\nHash from remote: ${output.hash}\nHash at localhost: ${hash}`);
+                                                library.log([`error: ${vars.text.angry}Hashes don't match for ${fileName} from remote.${vars.text.none}`, `Hash from remote: ${output.hash}`, `Hash at localhost: ${hash}`]);
+                                                library.error([`error: Hashes don't match for ${fileName} from remote.`, `Hash from remote: ${output.hash}`, `Hash at localhost: ${hash}`]);
+                                            }
+                                        },
+                                        source: file,
+                                        string: true
+                                    });
+                                },
+                                directory = function terminal_server_fileService_response_data_directory(dirName:string, index:number, length:number):void {
+                                    library.makeDir(data.name + vars.sep + dirName.replace(stringDirectory, "").replace(/\/|\\/g, vars.sep), function terminal_server_fileService_response_data_directory_callback():void {
+                                        index = index + 1;
+                                        if (index < length) {
+                                            if (items[index].indexOf(stringDirectory) === 0) {
+                                                terminal_server_fileService_response_data_directory(items[index], index, length);
+                                            } else {
+                                                write(items[index], index, length);
+                                            }
+                                        }
+                                    });
+                                };
+                            let length:number = items.length;
+                            if (items[length - 1] !== "") {
+                                fragment = items.pop();
+                                length = length - 1;
+                            }
+                            if (length > 0) {
+                                if (items[0].indexOf(stringDirectory) === 0) {
+                                    directory(items[0], 0, length);
+                                }
+                            }
                             //writeStream.write(chunk, "utf8");
                         });
                         fsResponse.on("end", function terminal_server_fileService_response_end():void {
@@ -431,11 +477,10 @@ const library = {
                             response.write(stringHash + files[a][3]);
                             response.write(stringStart);
                             readStream = vars.node.fs.createReadStream(files[a][0]);
-                            readStream.setEncoding("utf8");
                             readStream.pipe(response, {end: false});
                             readStream.on("close", function terminal_server_fileService_remoteStream_close():void {
-                                a = a + 1;
                                 response.write(stringEnd);
+                                a = a + 1;
                                 terminal_server_fileService_remoteStream();
                             });
                         }

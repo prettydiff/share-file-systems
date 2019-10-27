@@ -20,6 +20,12 @@ const library = {
         log: log,
         readFile: readFile
     },
+    // input:
+    // * callback - function
+    // * source - file system artifact but treated as a string literal of property 'string' === true
+    // * string - if false the source will be regarded as a file system artifact
+    // * parent - a property passed in from the 'directory' utility, but otherwise not used
+    // * stat - a property passed in from the 'directory' utility, but otherwise not used
     hash = function terminal_hash(input:hashInput):hashOutput {
         let limit:number = 0,
             shortLimit:number = 0,
@@ -42,9 +48,8 @@ const library = {
                         } else {
                             hashString = hashes[0];
                         }
-
                         input.callback({
-                            filePath: input.filePath,
+                            filePath: input.source,
                             hash: hashString,
                             parent: input.parent,
                             stat: input.stat
@@ -62,7 +67,7 @@ const library = {
                         });
                         hash.write(item);
                         hash.end();
-                        if (http.test(input.filePath) === true) {
+                        if (http.test(input.source) === true) {
                             remove(data.path, function terminal_hash_dirComplete_hashBack_hash_remove():boolean {
                                 return true;
                             });
@@ -198,19 +203,32 @@ const library = {
             input = {
                 callback: function terminal_hash_callback(output:hashOutput):void {
                     if (vars.verbose === true) {
-                        library.log([`${vars.version.name} hashed ${vars.text.cyan + input.filePath + vars.text.none}`, output.hash], true);
+                        library.log([`${vars.version.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                     } else {
                         library.log([output.hash]);
                     }
                 },
-                filePath: process.argv[0]
+                source: process.argv[0],
+                string: false
             };
-            if (http.test(input.filePath) === false) {
-                input.filePath = vars.node.path.resolve(process.argv[0]);
+            if (http.test(input.source) === false) {
+                input.source = vars.node.path.resolve(process.argv[0]);
             }
         }
-        if (http.test(input.filePath) === true) {
-            library.get(input.filePath, function terminal_hash_get(fileData:string) {
+        if (input.string === true) {
+            const hash:Hash = vars.node.crypto.createHash("sha512");
+            process.argv.splice(process.argv.indexOf("string"), 1);
+            hash.update(input.source);
+            input.callback({
+                filePath: input.source,
+                hash: hash.digest("hex"),
+                parent: input.parent,
+                stat: input.stat
+            });
+            return;
+        }
+        if (http.test(input.source) === true) {
+            library.get(input.source, function terminal_hash_get(fileData:string) {
                 const hash:Hash = vars.node.crypto.createHash("sha512");
                 hash.update(fileData);
                 library.log([hash.digest("hex")], true);
@@ -229,12 +247,12 @@ const library = {
                         depth: 0,
                         exclusions: vars.exclusions,
                         hash: false,
-                        path: input.filePath,
+                        path: input.source,
                         recursive: true,
                         symbolic: true
                     });
                 } else {
-                    dirComplete([[input.filePath, "file", "", input.parent, 0, input.stat]]);
+                    dirComplete([[input.source, "file", "", input.parent, 0, input.stat]]);
                 }
             });
         }

@@ -115,9 +115,10 @@ interface functionEvent extends EventHandlerNonNull {
 }
 interface hashInput {
     callback: Function;
-    filePath: string;
     parent?: number;
+    source: string;
     stat?: Stats;
+    string: boolean;
 }
 interface hashOutput {
     filePath: string;

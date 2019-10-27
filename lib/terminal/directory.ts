@@ -192,7 +192,8 @@ const library = {
                                                 args.callback(list);
                                             }
                                         },
-                                        filePath: filePath,
+                                        source: filePath,
+                                        string: false,
                                         parent: parent,
                                         stat: stat
                                     });
