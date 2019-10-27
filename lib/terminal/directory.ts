@@ -174,8 +174,14 @@ const library = {
                             });
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
-                            if (type !== "error" && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
-                                if (listOnly === true) {
+                            if (type !== "error") {
+                                if (vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) > -1) {
+                                    if (dirs > 0) {
+                                        dirCounter(filePath);
+                                    } else {
+                                        args.callback(fileList.sort());
+                                    }
+                                } else if (listOnly === true) {
                                     fileList.push(filePath);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
