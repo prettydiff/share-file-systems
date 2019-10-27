@@ -14,6 +14,7 @@ import vars from "./vars.js";
 
 import fileService from "./server/fileService.js";
 import heartbeat from "./server/heartbeat.js";
+import httpClient from "./server/httpClient.js";
 import invite from "./server/invite.js";
 import methodGET from "./server/methodGET.js";
 import serverVars from "./server/serverVars.js";
@@ -26,6 +27,7 @@ const library = {
         copy: copy,
         directory: directory,
         error: error,
+        httpClient: httpClient,
         log: log,
         makeDir: makeDir,
         readFile: readFile,
@@ -90,33 +92,9 @@ const library = {
                                 fileService(request, response, data);
                             } else {
                                 // remote file server access
-                                const ipAddress:string = (function terminal_server_create_end_fsIP():string {
-                                        const address:string = data.agent.slice(data.agent.indexOf("@") + 1, data.agent.lastIndexOf(":"));
-                                        data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
-                                        if (address.charAt(0) === "[") {
-                                            return address.slice(1, address.length - 1);
-                                        }
-                                        return address;
-                                    }()),
-                                    port:number = (function terminal_server_create_end_fsPort():number {
-                                        const portString:string = data.agent.slice(data.agent.lastIndexOf(":") + 1);
-                                        if (isNaN(Number(portString)) === true) {
-                                            return 80;
-                                        }
-                                        return Number(portString);
-                                    }()),
-                                    payload:string = `fs:${JSON.stringify(data)}`,
-                                    fsRequest:http.ClientRequest = http.request({
-                                        headers: {
-                                            "Content-Type": "application/x-www-form-urlencoded",
-                                            "Content-Length": Buffer.byteLength(payload)
-                                        },
-                                        host: ipAddress,
-                                        method: "POST",
-                                        path: "/",
-                                        port: port,
-                                        timeout: 1000
-                                    }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
+                                library.httpClient({
+                                    action: "fs-read",
+                                    callback: function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                                         const chunks:string[] = [];
                                         fsResponse.setEncoding('utf8');
                                         fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
@@ -139,20 +117,11 @@ const library = {
                                                 vars.ws.broadcast(errorMessage.toString());
                                             }
                                         });
-                                    });
-                                fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
-                                    if (errorMessage.code !== "ETIMEDOUT") {
-                                        library.log([task, errorMessage.toString()]);
-                                        vars.ws.broadcast(errorMessage.toString());
-                                    }
-                                    response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                                    response.write(`{"id":"${data.id}","dirs":"missing"}`);
-                                    response.end();
+                                    },
+                                    data: data,
+                                    errorMessage: task,
+                                    response: response
                                 });
-                                fsRequest.write(payload);
-                                setTimeout(function () {
-                                    fsRequest.end();
-                                }, 100);
                             }
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(dataString, response, task);

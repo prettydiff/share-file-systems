@@ -133,6 +133,13 @@ interface heartbeat {
     status: heartbeatStatus;
     user: string;
 }
+interface httpClient {
+    action: serviceType;
+    callback: Function;
+    data: fileService;
+    errorMessage: string;
+    response: any;
+}
 interface invite {
     action: "invite" | "invite-request" | "invite-response" | "invite-complete";
     family: "ipv4" | "ipv6";
