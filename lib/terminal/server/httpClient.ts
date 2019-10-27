@@ -13,37 +13,35 @@ For consistency and security this library must be the only means by which the ap
 const httpClient = function terminal_server_httpClient(config:httpClient):void {
     const ipAddress:string = (function terminal_server_httpClient_ip():string {
         const address:string = config.data.agent.slice(config.data.agent.indexOf("@") + 1, config.data.agent.lastIndexOf(":"));
-        if (config.data.action === "fs-read" && config.data.agent !== "localhost") {
-            config.data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
-        } else {
-            config.data.action = config.action;
-        }
-        if (address.charAt(0) === "[") {
-            return address.slice(1, address.length - 1);
-        }
-        return address;
-    }()),
-    port:number = (function terminal_server_httpClient_port():number {
-        const portString:string = config.data.agent.slice(config.data.agent.lastIndexOf(":") + 1);
-        if (isNaN(Number(portString)) === true) {
-            return 80;
-        }
-        return Number(portString);
-    }()),
-    payload:string = `fs:${JSON.stringify(config.data)}`,
-    fsRequest:http.ClientRequest = http.request({
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": Buffer.byteLength(payload)
-        },
-        host: ipAddress,
-        method: "POST",
-        path: "/",
-        port: port,
-        timeout: 1000
-    }, function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
-        config.callback(fsResponse);
-    });
+            if (config.data.action === "fs-read" && config.data.agent !== "localhost") {
+                config.data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
+            }
+            if (address.charAt(0) === "[") {
+                return address.slice(1, address.length - 1);
+            }
+            return address;
+        }()),
+        port:number = (function terminal_server_httpClient_port():number {
+            const portString:string = config.data.agent.slice(config.data.agent.lastIndexOf(":") + 1);
+            if (isNaN(Number(portString)) === true) {
+                return 80;
+            }
+            return Number(portString);
+        }()),
+        payload:string = `fs:${JSON.stringify(config.data)}`,
+        fsRequest:http.ClientRequest = http.request({
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": Buffer.byteLength(payload)
+            },
+            host: ipAddress,
+            method: "POST",
+            path: "/",
+            port: port,
+            timeout: 1000
+        }, function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
+            config.callback(fsResponse);
+        });
     fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
             log([config.errorMessage, errorMessage.toString()]);

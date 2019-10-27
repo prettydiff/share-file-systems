@@ -27,231 +27,257 @@ const library = {
         remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
-        const metaSequence:string = "\u000e\u000e\u000e\u000e",
-            stringDirectory:string = `${metaSequence + metaSequence} type directory`,
-            stringEnd:string = `${metaSequence + metaSequence} end of file`,
-            stringHash:string = `${metaSequence + metaSequence} hash`,
-            stringPath:string = `${metaSequence + metaSequence} path`,
-            stringStart:string = `${metaSequence + metaSequence} start of file`,
-            fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
-                if (data.agent === "localhost") {
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(message);
-                    response.end();
-                } else {
-                    library.directory({
-                        callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
-                            const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
-                                ? data.name
-                                : data.name.replace(/\\/g, "\\\\");
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}"}`);
-                            response.end();
-                        },
-                        depth: 2,
-                        exclusions: [],
-                        hash: false,
-                        path: data.name,
-                        recursive: true,
-                        symbolic: true
-                    });
-                }
-            };
-        if (data.action === "fs-read" || data.action === "fs-details") {
-            const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
-                    count = count + 1;
-                    if (result.length > 0) {
-                        output = output.concat(result);
-                    }
-                    if (count === pathLength) {
+        const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
+            if (data.agent === "localhost") {
+                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                response.write(message);
+                response.end();
+            } else {
+                library.directory({
+                    callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
+                        const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
+                            ? data.name
+                            : data.name.replace(/\\/g, "\\\\");
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        if (output.length < 1) {
-                            response.write(`{"id":"${data.id}","dirs":"missing"}`);
-                        } else {
-                            response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)}}`);
-                        }
+                        response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}"}`);
                         response.end();
-                    }
-                },
-                windowsRoot = function terminal_server_fileService_windowsRoot():void {
-                    //cspell:disable
-                    vars.node.child("wmic logicaldisk get name", function terminal_server_fileService_windowsRoot(erw:Error, stdout:string, stderr:string):void {
-                    //cspell:enable
-                        if (erw !== null) {
-                            library.error([erw.toString()]);
-                        } else if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
-                            library.error([stderr]);
+                    },
+                    depth: 2,
+                    exclusions: [],
+                    hash: false,
+                    path: data.name,
+                    recursive: true,
+                    symbolic: true
+                });
+            }
+        };
+        if (data.action === "fs-read" || data.action === "fs-details") {
+            if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+                const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
+                        count = count + 1;
+                        if (result.length > 0) {
+                            output = output.concat(result);
                         }
-                        const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
-                            length:number = drives.length,
-                            date:Date = new Date(),
-                            driveList = function terminal_server_fileService_windowsRoot_driveList(result:directoryList):void {
-                                let b:number = 1;
-                                const resultLength:number = result.length,
-                                    masterIndex:number = masterList.length;
-                                do {
-                                    result[b][3] = masterIndex; 
-                                    b = b + 1;
-                                } while (b < resultLength);
-                                a = a + 1;
-                                masterList = masterList.concat(result);
-                                if (a === length) {
-                                    callback(masterList);
+                        if (count === pathLength) {
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            if (output.length < 1) {
+                                response.write(`{"id":"${data.id}","dirs":"missing"}`);
+                            } else {
+                                response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)}}`);
+                            }
+                            response.end();
+                        }
+                    },
+                    windowsRoot = function terminal_server_fileService_windowsRoot():void {
+                        //cspell:disable
+                        vars.node.child("wmic logicaldisk get name", function terminal_server_fileService_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                        //cspell:enable
+                            if (erw !== null) {
+                                library.error([erw.toString()]);
+                            } else if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
+                                library.error([stderr]);
+                            }
+                            const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
+                                length:number = drives.length,
+                                date:Date = new Date(),
+                                driveList = function terminal_server_fileService_windowsRoot_driveList(result:directoryList):void {
+                                    let b:number = 1;
+                                    const resultLength:number = result.length,
+                                        masterIndex:number = masterList.length;
+                                    do {
+                                        result[b][3] = masterIndex; 
+                                        b = b + 1;
+                                    } while (b < resultLength);
+                                    a = a + 1;
+                                    masterList = masterList.concat(result);
+                                    if (a === length) {
+                                        callback(masterList);
+                                    }
+                                };
+                            let masterList:directoryList = [["\\", "directory", "", 0, length, {
+                                    dev: 0,
+                                    ino: 0,
+                                    mode: 0,
+                                    nlink: 0,
+                                    uid: 0,
+                                    gid: 0,
+                                    rdev: 0,
+                                    size: 0,
+                                    blksize: 0,
+                                    blocks: 0,
+                                    atimeMs: 0,
+                                    mtimeMs: 0,
+                                    ctimeMs: 0,
+                                    birthtimeMs: 0,
+                                    atime: date,
+                                    mtime: date,
+                                    ctime: date,
+                                    birthtime: date,
+                                    isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice() {},
+                                    isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice() {},
+                                    isDirectory: function terminal_server_create_windowsRoot_isDirectory() {},
+                                    isFIFO: function terminal_server_create_windowsRoot_isFIFO() {},
+                                    isFile: function terminal_server_create_windowsRoot_isFile() {},
+                                    isSocket: function terminal_server_create_windowsRoot_isSocket() {},
+                                    isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink() {}
+                                }]],
+                                a:number = 0;
+                            drives.forEach(function terminal_server_fileService_windowsRoot_each(value:string) {
+                                library.directory({
+                                    callback: driveList,
+                                    depth: 1,
+                                    exclusions: [],
+                                    hash: false,
+                                    path: `${value}\\`,
+                                    recursive: true,
+                                    symbolic: true
+                                });
+                            });
+                        });
+                    },
+                    pathList:string[] = data.location,
+                    pathLength:number = pathList.length;
+                let count:number = 0,
+                    output:directoryList = [];
+                if (pathList[0] === "defaultLocation") {
+                    pathList[0] = vars.projectPath;
+                }
+                pathList.forEach(function terminal_server_fileService_pathEach(value:string):void {
+                    if (value === "\\" || value === "\\\\") {
+                        windowsRoot();
+                    } else {
+                        vars.node.fs.stat(value, function terminal_server_fileService_putStat(erp:nodeError):void {
+                            if (erp !== null) {
+                                library.error([erp.toString()]);
+                                callback([]);
+                                return;
+                            }
+
+                            // please note
+                            // watch is ignored on all operations other than fs-read
+                            // fs-read will only read from the first value in data.location
+                            if (data.watch !== "no" && data.watch !== vars.projectPath) {
+                                if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
+                                    serverVars.watches[data.watch].close();
+                                    delete serverVars.watches[data.watch];
                                 }
-                            };
-                        let masterList:directoryList = [["\\", "directory", "", 0, length, {
-                                dev: 0,
-                                ino: 0,
-                                mode: 0,
-                                nlink: 0,
-                                uid: 0,
-                                gid: 0,
-                                rdev: 0,
-                                size: 0,
-                                blksize: 0,
-                                blocks: 0,
-                                atimeMs: 0,
-                                mtimeMs: 0,
-                                ctimeMs: 0,
-                                birthtimeMs: 0,
-                                atime: date,
-                                mtime: date,
-                                ctime: date,
-                                birthtime: date,
-                                isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice() {},
-                                isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice() {},
-                                isDirectory: function terminal_server_create_windowsRoot_isDirectory() {},
-                                isFIFO: function terminal_server_create_windowsRoot_isFIFO() {},
-                                isFile: function terminal_server_create_windowsRoot_isFile() {},
-                                isSocket: function terminal_server_create_windowsRoot_isSocket() {},
-                                isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink() {}
-                            }]],
-                            a:number = 0;
-                        drives.forEach(function terminal_server_fileService_windowsRoot_each(value:string) {
+                                if (serverVars.watches[value] === undefined) {
+                                    serverVars.watches[value] = vars.node.fs.watch(value, {
+                                        recursive: false
+                                    }, function terminal_server_fileService_watch():void {
+                                        if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
+                                            if (data.agent === "localhost") {
+                                                vars.ws.broadcast(`fsUpdate:${value}`);
+                                            } else {
+                                                // create directoryList object and send to remote
+                                                library.directory({
+                                                    callback: function terminal_server_fileService_watch_remote(result:directoryList):void {
+                                                        const remoteData:string[] = data.remoteWatch.split("_"),
+                                                            remoteAddress:string = remoteData[0],
+                                                            remotePort:number = Number(remoteData[1]),
+                                                            location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
+                                                                ? value
+                                                                : value.replace(/\\/g, "\\\\"),
+                                                            payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
+                                                            fsRequest:http.ClientRequest = http.request({
+                                                                headers: {
+                                                                    "Content-Type": "application/x-www-form-urlencoded",
+                                                                    "Content-Length": Buffer.byteLength(payload)
+                                                                },
+                                                                host: remoteAddress,
+                                                                method: "POST",
+                                                                path: "/",
+                                                                port: remotePort,
+                                                                timeout: 4000
+                                                            }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
+                                                                const chunks:string[] = [];
+                                                                fsResponse.setEncoding('utf8');
+                                                                fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                                                                    chunks.push(chunk);
+                                                                });
+                                                                fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                                                                    if (response.finished === false) {
+                                                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                                        response.write(chunks.join(""));
+                                                                        response.end();
+                                                                    }
+                                                                });
+                                                                fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                                                                    if (errorMessage.code !== "ETIMEDOUT") {
+                                                                        library.log([errorMessage.toString()]);
+                                                                        vars.ws.broadcast(errorMessage.toString());
+                                                                    }
+                                                                });
+                                                            });
+                                                        fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
+                                                            if (errorMessage.code !== "ETIMEDOUT") {
+                                                                library.log(["watch-remote", errorMessage.toString()]);
+                                                                vars.ws.broadcast(errorMessage.toString());
+                                                            }
+                                                            response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                                                            response.write("Error sending directory watch to remote.");
+                                                            response.end();
+                                                        });
+                                                        fsRequest.write(payload);
+                                                        setTimeout(function () {
+                                                            fsRequest.end();
+                                                        }, 100);
+                                                    },
+                                                    depth: 2,
+                                                    exclusions: [],
+                                                    hash: false,
+                                                    path: value,
+                                                    recursive: true,
+                                                    symbolic: true
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            }
                             library.directory({
-                                callback: driveList,
-                                depth: 1,
+                                callback: callback,
+                                depth: data.depth,
                                 exclusions: [],
                                 hash: false,
-                                path: `${value}\\`,
+                                path: value,
                                 recursive: true,
                                 symbolic: true
                             });
                         });
-                    });
-                },
-                pathList:string[] = data.location,
-                pathLength:number = pathList.length;
-            let count:number = 0,
-                output:directoryList = [];
-            if (pathList[0] === "defaultLocation") {
-                pathList[0] = vars.projectPath;
-            }
-            pathList.forEach(function terminal_server_fileService_pathEach(value:string):void {
-                if (value === "\\" || value === "\\\\") {
-                    windowsRoot();
-                } else {
-                    vars.node.fs.stat(value, function terminal_server_fileService_putStat(erp:nodeError):void {
-                        if (erp !== null) {
-                            library.error([erp.toString()]);
-                            callback([]);
-                            return;
-                        }
-
-                        // please note
-                        // watch is ignored on all operations other than fs-read
-                        // fs-read will only read from the first value in data.location
-                        if (data.watch !== "no" && data.watch !== vars.projectPath) {
-                            if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
-                                serverVars.watches[data.watch].close();
-                                delete serverVars.watches[data.watch];
-                            }
-                            if (serverVars.watches[value] === undefined) {
-                                serverVars.watches[value] = vars.node.fs.watch(value, {
-                                    recursive: false
-                                }, function terminal_server_fileService_watch():void {
-                                    if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
-                                        if (data.agent === "localhost") {
-                                            vars.ws.broadcast(`fsUpdate:${value}`);
-                                        } else {
-                                             // create directoryList object and send to remote
-                                             library.directory({
-                                                 callback: function terminal_server_fileService_watch_remote(result:directoryList):void {
-                                                    const remoteData:string[] = data.remoteWatch.split("_"),
-                                                        remoteAddress:string = remoteData[0],
-                                                        remotePort:number = Number(remoteData[1]),
-                                                        location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
-                                                            ? value
-                                                            : value.replace(/\\/g, "\\\\"),
-                                                        payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
-                                                        fsRequest:http.ClientRequest = http.request({
-                                                            headers: {
-                                                                "Content-Type": "application/x-www-form-urlencoded",
-                                                                "Content-Length": Buffer.byteLength(payload)
-                                                            },
-                                                            host: remoteAddress,
-                                                            method: "POST",
-                                                            path: "/",
-                                                            port: remotePort,
-                                                            timeout: 4000
-                                                        }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
-                                                            const chunks:string[] = [];
-                                                            fsResponse.setEncoding('utf8');
-                                                            fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
-                                                                chunks.push(chunk);
-                                                            });
-                                                            fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
-                                                                if (response.finished === false) {
-                                                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                                                    response.write(chunks.join(""));
-                                                                    response.end();
-                                                                }
-                                                            });
-                                                            fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
-                                                                if (errorMessage.code !== "ETIMEDOUT") {
-                                                                    library.log([errorMessage.toString()]);
-                                                                    vars.ws.broadcast(errorMessage.toString());
-                                                                }
-                                                            });
-                                                        });
-                                                    fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
-                                                        if (errorMessage.code !== "ETIMEDOUT") {
-                                                            library.log(["watch-remote", errorMessage.toString()]);
-                                                            vars.ws.broadcast(errorMessage.toString());
-                                                        }
-                                                        response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                                                        response.write("Error sending directory watch to remote.");
-                                                        response.end();
-                                                    });
-                                                    fsRequest.write(payload);
-                                                    setTimeout(function () {
-                                                        fsRequest.end();
-                                                    }, 100);
-                                                },
-                                                depth: 2,
-                                                exclusions: [],
-                                                hash: false,
-                                                path: value,
-                                                recursive: true,
-                                                symbolic: true
-                                             });
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        library.directory({
-                            callback: callback,
-                            depth: data.depth,
-                            exclusions: [],
-                            hash: false,
-                            path: value,
-                            recursive: true,
-                            symbolic: true
+                    }
+                });
+            } else {
+                library.httpClient({
+                    callback: function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
+                        const chunks:string[] = [];
+                        fsResponse.setEncoding('utf8');
+                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                            chunks.push(chunk);
                         });
-                    });
-                }
-            });
+                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                            const body:string = chunks.join("");
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            if (body.indexOf("fsUpdateRemote:") === 0) {
+                                vars.ws.broadcast(body);
+                                response.write("Terminal received file system response from remote.");
+                            } else {
+                                response.write(body);
+                            }
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    },
+                    data: data,
+                    errorMessage: "Error reading remote file list (fs-read).",
+                    response: response
+                });
+            }
         } else if (data.action === "fs-close") {
             if (serverVars.watches[data.location[0]] !== undefined) {
                 serverVars.watches[data.location[0]].close();
@@ -358,6 +384,8 @@ const library = {
                             }*/
                         });
                         fsResponse.on("end", function terminal_server_fileService_response_end():void {
+                            console.log("end");
+                            console.log("");
                             console.log(chunks.join(""));
 
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -371,8 +399,8 @@ const library = {
                             }
                         });
                     };
+                data.action = action;
                 library.httpClient({
-                    action: action,
                     callback: callback,
                     data: data,
                     errorMessage: "copy from remote to localhost",
@@ -406,23 +434,22 @@ const library = {
                             if (a < locationLength) {
                                 terminal_server_fileService_readItem();
                             } else {
-                                a = 0;
                                 // sort directories ahead of files and then sort shorter directories before longer directories
                                 // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string], b:[string, string, string]):number {
-                                    if (a[1] === "directory" && b[1] !== "directory") {
+                                files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string], itemB:[string, string, string]):number {
+                                    if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                         return -1;
                                     }
-                                    if (a[1] !== "directory" && b[1] === "directory") {
+                                    if (itemA[1] !== "directory" && itemB[1] === "directory") {
                                         return 1;
                                     }
-                                    if (a[1] === "directory" && b[1] === "directory") {
-                                        if (a[2].length < b[2].length) {
+                                    if (itemA[1] === "directory" && itemB[1] === "directory") {
+                                        if (itemA[2].length < itemB[2].length) {
                                             return -1;
                                         }
                                         return 1;
                                     }
-                                    if (a[2] < b[2]) {
+                                    if (itemA[2] < itemB[2]) {
                                         return -1;
                                     }
                                     return 1;

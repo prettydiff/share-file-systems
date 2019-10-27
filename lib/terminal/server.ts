@@ -88,41 +88,7 @@ const library = {
                             vars.ws.broadcast(body);
                         } else if (task === "fs") {
                             const data:fileService = JSON.parse(dataString);
-                            if (data.agent === "localhost" || data.action === "fs-copy" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
-                                fileService(request, response, data);
-                            } else {
-                                // remote file server access
-                                library.httpClient({
-                                    action: "fs-read",
-                                    callback: function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
-                                        const chunks:string[] = [];
-                                        fsResponse.setEncoding('utf8');
-                                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
-                                            chunks.push(chunk);
-                                        });
-                                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
-                                            const body:string = chunks.join("");
-                                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                            if (body.indexOf("fsUpdateRemote:") === 0) {
-                                                vars.ws.broadcast(body);
-                                                response.write("Terminal received file system response from remote.");
-                                            } else {
-                                                response.write(body);
-                                            }
-                                            response.end();
-                                        });
-                                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
-                                            if (errorMessage.code !== "ETIMEDOUT") {
-                                                library.log([errorMessage.toString()]);
-                                                vars.ws.broadcast(errorMessage.toString());
-                                            }
-                                        });
-                                    },
-                                    data: data,
-                                    errorMessage: task,
-                                    response: response
-                                });
-                            }
+                            fileService(request, response, data);
                         } else if (task === "settings" || task === "messages") {
                             settingsMessages(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {

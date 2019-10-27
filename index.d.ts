@@ -134,7 +134,6 @@ interface heartbeat {
     user: string;
 }
 interface httpClient {
-    action: serviceType;
     callback: Function;
     data: fileService;
     errorMessage: string;
