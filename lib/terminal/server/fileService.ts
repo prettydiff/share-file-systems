@@ -301,11 +301,12 @@ const library = {
                 }
             } else {
                 // copy from remote to localhost
-                const action:serviceType = <serviceType>`${data.action}-remote`,
+                const action:serviceType = <serviceType>`${data.action}-list`,
                     callback = function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
-                        let fragment:string = "";
+                        const chunks:string[] = [];
                         fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
-                            chunk = fragment + chunk;
+                            chunks.push(chunk);
+                            /*chunk = fragment + chunk;
                             fragment = "";
                             const items:string[] = chunk.split(stringEnd),
                                 write = function terminal_server_fileService_response_data_write(item:string, index:number, length:number):void {
@@ -354,9 +355,11 @@ const library = {
                                 if (items[0].indexOf(stringDirectory) === 0) {
                                     directory(items[0], 0, length);
                                 }
-                            }
+                            }*/
                         });
                         fsResponse.on("end", function terminal_server_fileService_response_end():void {
+                            console.log(chunks.join(""));
+
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                             response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
                             response.end();
@@ -376,9 +379,9 @@ const library = {
                     response: response
                 });
             }
-        } else if (data.action === "fs-copy-remote" || data.action === "fs-cut-remote") {
+        } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             // create read stream
-            const files:[string, string, string, string][] = [],
+            const files:[string, string, string][] = [],
                 locationLength:number = data.location.length,
                 readItem = function terminal_server_fileService_readItem():void {
                     library.directory({
@@ -396,7 +399,7 @@ const library = {
                                 }());
                             let b:number = 0;
                             do {
-                                files.push([dir[b][0], dir[b][1], dir[b][0].replace(location, ""), dir[b][2]]);
+                                files.push([dir[b][0], dir[b][1], dir[b][0].replace(location, "")]);
                                 b = b + 1;
                             } while (b < dirLength);
                             a = a + 1;
@@ -404,10 +407,9 @@ const library = {
                                 terminal_server_fileService_readItem();
                             } else {
                                 a = 0;
-                                filesLength = files.length;
                                 // sort directories ahead of files and then sort shorter directories before longer directories
                                 // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string, string], b:[string, string, string, string]):number {
+                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string], b:[string, string, string]):number {
                                     if (a[1] === "directory" && b[1] !== "directory") {
                                         return -1;
                                     }
@@ -425,42 +427,19 @@ const library = {
                                     }
                                     return 1;
                                 });
-                                streamWrapper();
+                                response.write(JSON.stringify(files));
+                                response.end();
                             }
                         },
                         depth: 0,
                         exclusions: [],
-                        hash: true,
+                        hash: false,
                         path: data.location[a],
                         recursive: true,
                         symbolic: false
                     });
-                },
-                streamWrapper = function terminal_server_fileService_remoteStream():void {
-                    if (a < filesLength) {
-                        if (files[a][1] === "directory") {
-                            response.write(stringDirectory + files[a][2]);
-                            a = a + 1;
-                            terminal_server_fileService_remoteStream();
-                        } else {
-                            response.write(stringPath + files[a][2]);
-                            response.write(stringHash + files[a][3]);
-                            response.write(stringStart);
-                            readStream = vars.node.fs.createReadStream(files[a][0]);
-                            readStream.pipe(response, {end: false});
-                            readStream.on("close", function terminal_server_fileService_remoteStream_close():void {
-                                response.write(stringEnd);
-                                a = a + 1;
-                                terminal_server_fileService_remoteStream();
-                            });
-                        }
-                    } else {
-                        response.end();
-                    }
                 };
-            let filesLength:number,
-                a:number = 0,
-                readStream:fs.ReadStream;
+            let a:number = 0;
             response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
             readItem();
         } else if (data.action === "fs-destroy") {
