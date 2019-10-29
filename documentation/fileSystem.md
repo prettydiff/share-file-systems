@@ -66,11 +66,59 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
+**fs-copy-file**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-copy-list* to retrieve a single file from a different agent.
+   - output     : void
+   - parameters
+      * action   : **"fs-copy-file"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
+**fs-copy-list**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-copy* if the file's agent and destination agent are not the same.
+   - output     : void
+   - parameters
+      * action   : **"fs-copy-list"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
 **fs-cut**
    - description: Same as copy, but deletes the original artifacts after writing them to the new location.
    - output     : void
    - parameters
       * action   : **"fs-cut"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
+**fs-cut-file**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-cut-list* to retrieve a single file from a different agent.
+   - output     : void
+   - parameters
+      * action   : **"fs-cut-file"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
+**fs-cut-list**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-cut* if the file's agent and destination agent are not the same.
+   - output     : void
+   - parameters
+      * action   : **"fs-cut-list"**
       * agent    : string
       * copyAgent: string
       * depth    : 1

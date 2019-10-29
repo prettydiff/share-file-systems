@@ -67,7 +67,7 @@ const library = {
                         });
                         hash.write(item);
                         hash.end();
-                        if (http.test(input.source) === true) {
+                        if (http.test(<string>input.source) === true) {
                             remove(data.path, function terminal_hash_dirComplete_hashBack_hash_remove():boolean {
                                 return true;
                             });
@@ -208,14 +208,14 @@ const library = {
                         library.log([output.hash]);
                     }
                 },
-                source: process.argv[0],
-                string: false
+                directInput: false,
+                source: process.argv[0]
             };
-            if (http.test(input.source) === false) {
+            if (http.test(<string>input.source) === false) {
                 input.source = vars.node.path.resolve(process.argv[0]);
             }
         }
-        if (input.string === true) {
+        if (input.directInput === true) {
             const hash:Hash = vars.node.crypto.createHash("sha512");
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(input.source);
@@ -227,8 +227,8 @@ const library = {
             });
             return;
         }
-        if (http.test(input.source) === true) {
-            library.get(input.source, function terminal_hash_get(fileData:string) {
+        if (http.test(<string>input.source) === true) {
+            library.get(<string>input.source, function terminal_hash_get(fileData:string) {
                 const hash:Hash = vars.node.crypto.createHash("sha512");
                 hash.update(fileData);
                 library.log([hash.digest("hex")], true);
@@ -247,12 +247,12 @@ const library = {
                         depth: 0,
                         exclusions: vars.exclusions,
                         hash: false,
-                        path: input.source,
+                        path: <string>input.source,
                         recursive: true,
                         symbolic: true
                     });
                 } else {
-                    dirComplete([[input.source, "file", "", input.parent, 0, input.stat]]);
+                    dirComplete([[<string>input.source, "file", "", input.parent, 0, input.stat]]);
                 }
             });
         }

@@ -14,6 +14,7 @@ import vars from "../vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
+import { sep } from "path";
 
 const library = {
         base64: base64,
@@ -329,17 +330,95 @@ const library = {
             } else {
                 // copy from remote to localhost
                 const action:serviceType = <serviceType>`${data.action}-list`,
-                    callback = function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
+                    callback = function terminal_server_fileService_response(fsResponse:http.ServerResponse):void {
                         const chunks:string[] = [];
                         fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
                             chunks.push(chunk);
                         });
                         fsResponse.on("end", function terminal_server_fileService_response_end():void {
-                            console.log(chunks.join(""));
-
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
-                            response.end();
+                            const list:[string, string, string][] = JSON.parse(chunks.join("")),
+                                listLength = list.length,
+                                respond = function terminal_server_fileService_response_end_respond():void {
+                                    library.log([``]);
+                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                    response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
+                                    response.end();
+                                },
+                                fileCallback = function terminal_server_fileService_response_end_fileCallback(fileResponse:http.ServerResponse):void {
+                                    const fileChunks:Buffer[] = [];
+                                    fileResponse.on("data", function terminal_server_fileServices_response_end_fileCallback_data(fileChunk:string):void {
+                                        fileChunks.push(Buffer.from(fileChunk, 'binary'));
+                                    });
+                                    fileResponse.on("end", function terminal_server_fileServices_response_end_fileCallback_end():void {
+                                        const file:Buffer = Buffer.concat(fileChunks),
+                                            fileName:string = <string>fileResponse.getHeader("fileName"),
+                                            remoteHash:string = <string>fileResponse.getHeader("hash");
+                                        library.hash({
+                                            callback: function terminal_server_fileService_response_end_fileCallback_end_hash(output:hashOutput):void {
+                                                if (remoteHash === output.hash) {
+                                                    fs.writeFile(data.name + sep + fileName, file, function terminal_server_fileServices_response_end_fileCallback_end_writeFile(wr:nodeError):void {
+                                                        if (wr !== null) {
+                                                            library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`]);
+                                                            vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
+                                                        }
+                                                    });
+                                                } else {
+                                                    library.log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                                    library.error([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                                    vars.ws.broadcast(`error:Hashes do not match for file ${fileName} from agent ${data.agent}`);
+                                                }
+                                            },
+                                            directInput: true,
+                                            source: file
+                                        });
+                                    });
+                                },
+                                requestFile = function terminal_server_fileService_response_end_requestFile():void {
+                                    data.location = [list[a][0]];
+                                    library.httpClient({
+                                        callback: fileCallback,
+                                        data: data,
+                                        errorMessage: `error: Error on requesting file ${list[a][2]} from ${data.agent}`,
+                                        response: response
+                                    });
+                                    a = a + 1;
+                                    if (a < listLength) {
+                                        activeRequests = activeRequests + 1;
+                                        if (activeRequests < 8) {
+                                            terminal_server_fileService_response_end_requestFile();
+                                        }
+                                    } else {
+                                        respond();
+                                    }
+                                    countFile = countFile + 1;
+                                },
+                                dirCallback = function terminal_server_fileService_response_end_dirCallback():void {
+                                    a = a + 1;
+                                    countDir = countDir + 1;
+                                    if (a < listLength) {
+                                        if (list[a][1] === "directory") {
+                                            makeDir();
+                                        } else {
+                                            data.action = <serviceFS>data.action.replace("list", "file");
+                                            requestFile();
+                                        }
+                                    } else {
+                                        respond();
+                                    }
+                                },
+                                makeDir = function terminal_server_fileService_response_end_makeLists():void {
+                                    library.makeDir(data.name + sep + list[a][2], dirCallback);
+                                };
+                            let a:number = 0,
+                                activeRequests:number = 0,
+                                countDir:number = 0,
+                                countFile:number = 0;
+                            if (list[0][1] === "directory") {
+                                makeDir();
+                            } else {
+                                data.action = <serviceFS>data.action.replace("list", "file");
+                                requestFile();
+                            }
                         });
                         fsResponse.on("error", function terminal_server_fileService_response_error(errorMessage:nodeError):void {
                             if (errorMessage.code !== "ETIMEDOUT") {
@@ -356,8 +435,23 @@ const library = {
                     response: response
                 });
             }
+        } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
+            // request a single file
+            // * generated internally from fs-copy/cut-list
+            library.hash({
+                callback: function terminal_server_fileService_fileHashCallback(output:hashOutput):void {
+                    response.setHeader("hash", output.hash);
+                    response.setHeader("fileName", output.filePath);
+                    response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                    const readStream:fs.ReadStream = vars.node.fs.readStream(output.filePath);
+                    readStream.pipe(response);
+                },
+                directInput: false,
+                source: data.location[0],
+            });
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
-            // create read stream
+            // gather a list of all requested file system objects
+            // * generated internally from fs-copy/cut-list
             const files:[string, string, string][] = [],
                 locationLength:number = data.location.length,
                 readItem = function terminal_server_fileService_readItem():void {
