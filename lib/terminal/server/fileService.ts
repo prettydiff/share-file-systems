@@ -477,23 +477,22 @@ const library = {
                             if (a < locationLength) {
                                 terminal_server_fileService_readItem();
                             } else {
-                                a = 0;
                                 // sort directories ahead of files and then sort shorter directories before longer directories
                                 // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                                files.sort(function terminal_server_fileService_sortFiles(a:[string, string, string], b:[string, string, string]):number {
-                                    if (a[1] === "directory" && b[1] !== "directory") {
+                                files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string], itemB:[string, string, string]):number {
+                                    if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                         return -1;
                                     }
-                                    if (a[1] !== "directory" && b[1] === "directory") {
+                                    if (itemA[1] !== "directory" && itemB[1] === "directory") {
                                         return 1;
                                     }
-                                    if (a[1] === "directory" && b[1] === "directory") {
-                                        if (a[2].length < b[2].length) {
+                                    if (itemA[1] === "directory" && itemB[1] === "directory") {
+                                        if (itemA[2].length < itemB[2].length) {
                                             return -1;
                                         }
                                         return 1;
                                     }
-                                    if (a[2] < b[2]) {
+                                    if (itemA[2] < itemB[2]) {
                                         return -1;
                                     }
                                     return 1;
