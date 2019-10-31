@@ -330,7 +330,7 @@ const library = {
             } else {
                 // copy from remote to localhost
                 const action:serviceType = <serviceType>`${data.action}-list`,
-                    callback = function terminal_server_fileService_response(fsResponse:http.ServerResponse):void {
+                    callback = function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
                         const chunks:string[] = [];
                         fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
                             chunks.push(chunk);
@@ -344,15 +344,15 @@ const library = {
                                     response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
                                     response.end();
                                 },
-                                fileCallback = function terminal_server_fileService_response_end_fileCallback(fileResponse:http.ServerResponse):void {
+                                fileCallback = function terminal_server_fileService_response_end_fileCallback(fileResponse:http.IncomingMessage):void {
                                     const fileChunks:Buffer[] = [];
                                     fileResponse.on("data", function terminal_server_fileServices_response_end_fileCallback_data(fileChunk:string):void {
                                         fileChunks.push(Buffer.from(fileChunk, 'binary'));
                                     });
                                     fileResponse.on("end", function terminal_server_fileServices_response_end_fileCallback_end():void {
                                         const file:Buffer = Buffer.concat(fileChunks),
-                                            fileName:string = <string>fileResponse.getHeader("fileName"),
-                                            remoteHash:string = <string>fileResponse.getHeader("hash");
+                                            fileName:string = <string>fileResponse.headers.filename,
+                                            remoteHash:string = <string>fileResponse.headers.hash;
                                         library.hash({
                                             callback: function terminal_server_fileService_response_end_fileCallback_end_hash(output:hashOutput):void {
                                                 if (remoteHash === output.hash) {
@@ -372,9 +372,13 @@ const library = {
                                             source: file
                                         });
                                     });
+                                    fileResponse.on("error", function terminal_server_fileServices_response_end_fileCallback_error(fileError:nodeError):void {
+                                        console.log(fileError);
+                                    });
                                 },
                                 requestFile = function terminal_server_fileService_response_end_requestFile():void {
                                     data.location = [list[a][0]];
+                                    data.remoteWatch = list[a][2];
                                     library.httpClient({
                                         callback: fileCallback,
                                         data: data,
@@ -437,13 +441,13 @@ const library = {
             }
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file
-            // * generated internally from fs-copy/cut-list
+            // * generated internally from fs-copy-list or fs-cut-list
             library.hash({
                 callback: function terminal_server_fileService_fileHashCallback(output:hashOutput):void {
                     response.setHeader("hash", output.hash);
-                    response.setHeader("fileName", output.filePath);
+                    response.setHeader("fileName", data.remoteWatch);
                     response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                    const readStream:fs.ReadStream = vars.node.fs.readStream(output.filePath);
+                    const readStream:fs.ReadStream = vars.node.fs.ReadStream(output.filePath);
                     readStream.pipe(response);
                 },
                 directInput: false,
