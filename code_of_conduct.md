@@ -12,4 +12,4 @@ Being offended is not allowed.  If any contribution or communication is potentia
 People are allowed and encouraged to disagree.  Truth arises from the resultant collision or two or more competing ideas.  Encouraging people to speak their personal ideas encourages creativity and originality which is incredibly healthy to a project.  This is not an excuse to badge somebody by screaming louder/longer.  Once the communication moves beyond an exchange of novel ideas to a rhetorical exercise of winning the communication becomes a pursuit of hostility and hostile communication is not allowed.  Be civil.
 
 ### Be Honest, Be Original
-Original ideas are exciting and offer unforeseen benefits even when they present views in opposition to a group's current line of thinking.  This is also healthy and strongly encouraged.  
+Original ideas are exciting and offer unforeseen benefits even when they present views in opposition to a group's current line of thinking.  This is strongly encouraged.
