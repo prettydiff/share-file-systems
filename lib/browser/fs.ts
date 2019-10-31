@@ -92,7 +92,7 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
         localLength:number = 0;
 
     do {
-        if (list[a][2] === 0) {
+        if (list[a][3] === 0) {
             local.push(list[a]);
         }
         a = a + 1;
@@ -239,12 +239,12 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     li.appendChild(text);
     if (item[1] === "file") {
         span = document.createElement("span");
-        if (item[4].size === 1) {
+        if (item[5].size === 1) {
             plural = "";
         } else {
             plural = "s";
         }
-        span.textContent = `file - ${util.commas(item[4].size)} byte${plural}`;
+        span.textContent = `file - ${util.commas(item[5].size)} byte${plural}`;
     } else if (item[1] === "directory") {
         if (item[3] > 0) {
             const button = document.createElement("button");

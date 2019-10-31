@@ -1,6 +1,6 @@
 
 type characterKey = "" | "control" | "control-shift" | "shift";
-type directoryItem = [string, "error" | "file" | "directory" | "link", number, number, Stats];
+type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
 type eventCallback = (event:Event, callback:Function) => void;
 type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
@@ -8,7 +8,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-local" | "fs-copy-remote" | "fs-cut" | "fs-cut-local" | "fs-cut-remote" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
+type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
 
@@ -113,12 +113,31 @@ interface FSWatcher extends Function {
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;
 }
+interface hashInput {
+    callback: Function;
+    directInput: boolean;
+    parent?: number;
+    source: Buffer | string;
+    stat?: Stats;
+}
+interface hashOutput {
+    filePath: string;
+    hash: string;
+    parent?: number;
+    stat?: Stats;
+}
 interface heartbeat {
     ip: string;
     port: number;
     refresh: boolean;
     status: heartbeatStatus;
     user: string;
+}
+interface httpClient {
+    callback: Function;
+    data: fileService;
+    errorMessage: string;
+    response: any;
 }
 interface invite {
     action: "invite" | "invite-request" | "invite-response" | "invite-complete";
@@ -255,6 +274,7 @@ interface readDirectory {
     callback: Function;
     depth: number;
     exclusions: string[];
+    hash: boolean;
     path: string;
     recursive: boolean;
     symbolic: boolean;

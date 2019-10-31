@@ -28,6 +28,7 @@ const sep:string = vars.sep,
         underline: "\u001b[4m",
         yellow   : "\u001b[33m"
     },
+    hash:string = "331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd",
     simulations:simulationItem[] = [
         {
             command: "asdf",
@@ -153,6 +154,11 @@ const sep:string = vars.sep,
             test: "directory"
         },
         {
+            command: `directory ${projectPath}tsconfig.json hash`,
+            qualifier: "contains",
+            test: hash
+        },
+        {
             command: `directory typeof ${projectPath}js`,
             qualifier: "is",
             test: "directory"
@@ -180,22 +186,22 @@ const sep:string = vars.sep,
         {
             command: `hash ${projectPath}tsconfig.json`,
             qualifier: "is",
-            test: "331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd"
+            test: hash
         },
         {
             command: `hash ${projectPath}tsconfig.json --verbose`,
             qualifier: "contains",
-            test: "File hashing complete."
+            test: `seconds total time`
         },
         {
             command: `hash ${projectPath} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore", "sparser"]`,
             qualifier: "contains",
-            test: `tsconfig.json":"331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd"`
+            test: `tsconfig.json":"${hash}"`
         },
         {
             command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "sparser", "tests", "js", "api", "beautify", "minify", "css", 'space test']`,
             qualifier: "contains",
-            test: `tsconfig.json":"331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd"`
+            test: `tsconfig.json":"${hash}"`
         },
         {
             command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "sparser", "tests", "js", "api", "beautify", "minify", "css", "space test", "test"]`,

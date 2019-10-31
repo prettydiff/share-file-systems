@@ -103,11 +103,15 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" ignore [.git, node_modules, "program files"]`,
-                defined: "Sets an exclusion list of things to ignore"
+                defined: "Sets an exclusion list of things to ignore."
             },
             {
                 code: `${vars.version.command} directory source:"my/path" typeof`,
-                defined: "returns a string describing the artifact type"
+                defined: "Returns a string describing the artifact type."
+            },
+            {
+                code: `${vars.version.command} directory source:"my/path" hash`,
+                defined: "Includes a SHA512 hash in the output for each file system object of type 'file'."
             }
         ]
     },

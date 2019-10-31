@@ -16,7 +16,7 @@
         "node",
         "test"
     ],
-    "license": "CC0-1.0",
+    "license": "AGPLv3",
     "main": "js/application.js",
     "name": "spaces",
     "repository": {
