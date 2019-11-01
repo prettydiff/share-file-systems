@@ -13,7 +13,7 @@ For consistency and security this library must be the only means by which the ap
 const httpClient = function terminal_server_httpClient(config:httpClient):void {
     const ipAddress:string = (function terminal_server_httpClient_ip():string {
             const address:string = config.data.agent.slice(config.data.agent.indexOf("@") + 1, config.data.agent.lastIndexOf(":"));
-            if (config.data.action === "fs-read" && config.data.agent !== "localhost") {
+            if (config.data.action === "fs-directory" && config.data.agent !== "localhost") {
                 config.data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
             }
             if (address.charAt(0) === "[") {

@@ -148,6 +148,17 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location: string[]
       * name    : ""
       * watch   : "no"
+* **fs-directory**:
+   - description: Returns a directory listing with a variable amount of recursion. This is similar to fs-details except: it only provides a single location, variable recursion, and it will initiate either a new or change of file system watch.
+   - output     : directoryList
+   - parameters
+      * action  : **"fs-directory"**
+      * agent   : string
+      * depth   : configuration.depth
+      * id      : string
+      * location: string[]
+      * name    : ""
+      * watch   : "yes" | string (path)
 * **fs-hash**:
    - description: Returns a SHA512 hash string for a given file or symbolic link.
    - output     : string, hash value
@@ -171,16 +182,16 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * name    : "file" | "directory"
       * watch   : "no"
 * **fs-read**:
-   - description: Returns a directory listing with a variable amount of recursion. This is similar to fs-details except: it only provides a single location, variable recursion, and it will initiate either a new or change of file system watch.
-   - output     : directoryList
+   - description: Reads a file and returns the result string encoded to *utf8*.
+   - output     : string
    - parameters
       * action  : **"fs-read"**
       * agent   : string
-      * depth   : configuration.depth
+      * depth   : 1
       * id      : string
       * location: string[]
       * name    : ""
-      * watch   : "yes" | string (path)
+      * watch   : "no"
 * **fs-rename**:
    - description: Renames a file system artifact.
    - output     : void

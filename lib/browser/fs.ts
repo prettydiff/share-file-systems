@@ -41,7 +41,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     watchValue = input.value;
     input.value = path;
     network.fs({
-        action: "fs-read",
+        action: "fs-directory",
         agent: agent(box),
         copyAgent: "",
         depth: 2,
@@ -63,7 +63,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
     if (button.innerHTML.indexOf("+") === 0) {
         button.innerHTML = "-<span>Collapse this folder</span>";
         network.fs({
-            action: "fs-read",
+            action: "fs-directory",
             agent: agent(button),
             copyAgent: "",
             depth: 2,
@@ -211,7 +211,6 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
     return output;
 };
 
-
 /* Build a single file system object from data */
 fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):HTMLElement {
     const driveLetter = function local_fs_listItem_driveLetter(drive:string):string {
@@ -351,7 +350,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
         id = box.getAttribute("id");
     }
     network.fs({
-        action: "fs-read",
+        action: "fs-directory",
         agent: agentName,
         copyAgent: "",
         depth: 2,
@@ -389,7 +388,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         input.value = value.slice(0, value.lastIndexOf(slash));
     }
     network.fs({
-        action: "fs-read",
+        action: "fs-directory",
         agent: agent(box),
         copyAgent: "",
         depth: 2,
@@ -584,7 +583,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     parent = parent.getElementsByTagName("div")[0];
     if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
         network.fs({
-            action: "fs-read",
+            action: "fs-directory",
             agent: agent(box),
             copyAgent: "",
             depth: 2,

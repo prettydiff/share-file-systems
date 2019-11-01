@@ -56,25 +56,65 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
     });
 };
 
-/* Handler for hash and base64 operations from the context menu */
-context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Hash" | "Base64"):void {
-    let address:string = element.getElementsByTagName("label")[0].innerHTML;
-    address = element.getElementsByTagName("label")[0].innerHTML;
-    network.fs({
-        action: `fs-${type.toLowerCase()}`,
-        agent: agent(element),
-        copyAgent: "",
-        depth: 1,
-        location: [address],
-        name: "",
-        watch: "no"
-    }, function local_context_dataString(resultString:string):void {
-        if (resultString.indexOf("\"dirs\":") < -1) {
-            resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
+/* Handler for base64, edit, and hash operations from the context menu */
+context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
+    const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
+        length:number = addresses.length,
+        modals:HTMLElement[] = [];
+    let a:number = 0,
+        b:number = 0,
+        div:HTMLElement,
+        modalInstance:HTMLElement,
+        id:string;
+    do {
+        if (addresses[a][1] === "file") {
+            div = util.delay();
+            modalInstance = modal.create({
+                content: div,
+                height: 500,
+                inputs: ["close"],
+                left: event.clientX,
+                single: true,
+                title: `${type} - ${addresses[a][0]}`,
+                top: event.clientY - 60,
+                type: (type === "Edit")
+                    ? "fileEdit"
+                    : "textPad",
+                width: 500
+            });
+            modals.push(modalInstance);
+            id = modalInstance.getAttribute("id");
+            network.fs({
+                action: (type === "Edit")
+                    ? "fs-read"
+                    : `fs-${type.toLowerCase()}`,
+                agent: agent(element),
+                copyAgent: "",
+                depth: 1,
+                id: id,
+                location: [addresses[a][0]],
+                name: "",
+                watch: "no"
+            }, function local_context_dataString_callback(resultString:string):void {
+                const textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                    modalResult:HTMLElement = modals[b],
+                    body:HTMLElement = <HTMLElement>modalResult.getElementsByClassName("body")[0];
+                b = b + 1;
+                if (resultString.indexOf("\"dirs\":") < -1) {
+                    resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
+                }
+                textArea.onblur = modal.textSave;
+                if (type === "Base64") {
+                    textArea.style.whiteSpace = "normal";
+                }
+                textArea.value = resultString;
+                body.innerHTML = "";
+                body.appendChild(textArea);
+                network.settings();
+            });
         }
-        modal.textPad(event, resultString, `${type} - ${address}`);
-        network.settings();
-    });
+        a = a + 1;
+    } while (a < length);
 };
 
 /* Handler for removing file system artifacts via context menu */
@@ -483,6 +523,16 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
+            edit: function local_context_menu_edit():void {
+                item = document.createElement("li");
+                button = document.createElement("button");
+                button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                button.onclick = function local_context_menu_edit_handler():void {
+                    context.dataString(event, element, "Edit");
+                };
+                item.appendChild(button);
+                itemList.push(item);
+            },
             hash: function local_context_menu_hash():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -584,6 +634,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         functions.share();
 
         if (element.getAttribute("class").indexOf("file") === 0) {
+            functions.edit();
             functions.hash();
             functions.base64();
         }

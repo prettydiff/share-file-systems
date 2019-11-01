@@ -14,10 +14,9 @@ This application is currently in early development in an largely experimental st
 ## Build and execute
 ### First build
 1. Install [Node.js](https://nodejs.org)
-1. Clone the application from Github. `git clone https://github.com/prettydiff/shared-spaces.git`
-1. Move into directory. `cd shared-spaces`
-1. Install TypeScript: `npm install -g typescript`
-1. Instead the TypeScript node types. `npm install`
+1. Clone the application from Github. `git clone https://github.com/prettydiff/shared-spaces.git && cd shared-spaces`
+1. Globally install TypeScript: `npm install -g typescript`
+1. Locally install the TypeScript node types. `npm install`
 1. Compile to JavaScript. `tsc --pretty`
 1. Execute the application: `npm restart`
    * The restart command first builds the application and then enables services.
@@ -26,7 +25,7 @@ This application is currently in early development in an largely experimental st
 
 ### Later builds
 1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.
-1. If this browser isn't already open then open to http://localhost
+1. If a browser isn't already open to the application then open to http://localhost
 
 ## A quick use guide
 1. The first time you open the application it will ask you to create a user name.

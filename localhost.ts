@@ -307,7 +307,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         };
                                     if (agent === "localhost") {
                                         network.fs({
-                                            action: "fs-read",
+                                            action: "fs-directory",
                                             agent: agent,
                                             copyAgent: "",
                                             depth: 2,
@@ -332,7 +332,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             button.click();
                                         }
                                         network.fs({
-                                            action: "fs-read",
+                                            action: "fs-directory",
                                             agent: agent,
                                             copyAgent: "",
                                             depth: 2,

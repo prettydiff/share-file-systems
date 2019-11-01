@@ -52,7 +52,7 @@ const library = {
                 });
             }
         };
-        if (data.action === "fs-read" || data.action === "fs-details") {
+        if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                         count = count + 1;
@@ -155,8 +155,8 @@ const library = {
                             }
 
                             // please note
-                            // watch is ignored on all operations other than fs-read
-                            // fs-read will only read from the first value in data.location
+                            // watch is ignored on all operations other than fs-directory
+                            // fs-directory will only read from the first value in data.location
                             if (data.watch !== "no" && data.watch !== vars.projectPath) {
                                 if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
                                     serverVars.watches[data.watch].close();
@@ -280,6 +280,16 @@ const library = {
                     response: response
                 });
             }
+        } else if (data.action === "fs-read") {
+            vars.node.fs.readFile(data.location[0], "utf8", function terminal_server_fileService_read(err:nodeError, fileData:string):void {
+                if (err !== null) {
+                    library.error([err.toString()]);
+                    return;
+                }
+                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                response.write(fileData);
+                response.end();
+            })
         } else if (data.action === "fs-close") {
             if (serverVars.watches[data.location[0]] !== undefined) {
                 serverVars.watches[data.location[0]].close();
