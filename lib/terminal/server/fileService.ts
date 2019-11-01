@@ -555,12 +555,22 @@ const library = {
                     response.end();
                 }
             });
-        } else if (data.action === "fs-hash" || data.action === "fs-base64") {
-            const task:string = data.action.replace("fs-", "");
-            library[task](data.location[0], function terminal_server_fileService_dataString(dataString:string):void {
+        } else if (data.action === "fs-base64") {
+            library.base64(data.location[0], function terminal_server_fileService_base64(dataString:string):void {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                 response.write(dataString);
                 response.end();
+            });
+        } else if (data.action === "fs-hash") {
+            library.hash({
+                callback: function terminal_server_fileServer_hash(output:hashOutput) {
+                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                    response.write(output.hash);
+                    response.end();
+                },
+                directInput: false,
+                source: data.location[0],
+
             });
         } else if (data.action === "fs-new") {
             const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
