@@ -245,7 +245,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         }
         span.textContent = `file - ${util.commas(item[5].size)} byte${plural}`;
     } else if (item[1] === "directory") {
-        if (item[3] > 0) {
+        if (item[4] > 0) {
             const button = document.createElement("button");
             button.setAttribute("class", "expansion");
             button.innerHTML = "+<span>Expand this folder</span>";
@@ -258,7 +258,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         } else {
             plural = "s";
         }
-        span.textContent = `directory - ${util.commas(item[3])} item${plural}`;
+        span.textContent = `directory - ${util.commas(item[4])} item${plural}`;
         li.ondblclick = fs.directory;
     } else {
         span = document.createElement("span");

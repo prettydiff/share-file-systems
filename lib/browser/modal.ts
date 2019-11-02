@@ -134,7 +134,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
 };
 
 /* Modal creation factory */
-modal.create = function local_modal_create(options:ui_modal):HTMLElement {console.log(browser.data);
+modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     let button:HTMLElement = document.createElement("button"),
         buttonCount:number = 0,
         h2:HTMLElement = document.createElement("h2"),
