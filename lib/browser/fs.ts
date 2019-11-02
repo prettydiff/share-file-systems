@@ -4,22 +4,7 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
-const fs:module_fs = {},
-    agent = function local_fs_agent(element:HTMLElement):string {
-        const box:HTMLElement = (element.getAttribute("class") === "box")
-                ? element
-                : (function local_fs_agent_box():HTMLElement {
-                    let boxEl:HTMLElement = element;
-                    do {
-                        boxEl = <HTMLElement>boxEl.parentNode;
-                    } while (boxEl !== document.documentElement && boxEl.getAttribute("class") !== "box");
-                    return boxEl;
-                }()),
-            searchString:string = "Navigator - ";
-        let text:string = box.getElementsByTagName("h2")[0].lastChild.textContent;
-        text = text.slice(text.indexOf(searchString) + searchString.length);
-        return text;
-    };
+const fs:module_fs = {};
 
 /* navigate into a directory by double click */
 fs.directory = function local_fs_directory(event:MouseEvent):void {
@@ -42,7 +27,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     input.value = path;
     network.fs({
         action: "fs-directory",
-        agent: agent(box),
+        agent: util.getAgent(box),
         copyAgent: "",
         depth: 2,
         location: [path.replace(/\\/g, "\\\\")],
@@ -64,7 +49,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
         button.innerHTML = "-<span>Collapse this folder</span>";
         network.fs({
             action: "fs-directory",
-            agent: agent(button),
+            agent: util.getAgent(button),
             copyAgent: "",
             depth: 2,
             location: [li.firstChild.nextSibling.textContent.replace(/\\/g, "\\\\")],
@@ -134,7 +119,7 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
         } while (a < localLength);
     }
     output.tabIndex = 0;
-    output.title = location;
+    output.title = list[0][0];
     output.oncontextmenu = context.menu;
     output.onkeyup = util.keys;
     output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent) {
@@ -325,6 +310,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                     value:string = files.getAttribute("title");
                 files.removeAttribute("title");
                 modal.create({
+                    agent: agentName,
                     content: files,
                     inputs: ["close", "maximize", "minimize", "text"],
                     text_event: fs.text,
@@ -338,6 +324,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
     let id:string = "";
     if (agentName !== "localhost") {
         const box:HTMLElement = modal.create({
+            agent: agentName,
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
             text_event: fs.text,
@@ -389,7 +376,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
     }
     network.fs({
         action: "fs-directory",
-        agent: agent(box),
+        agent: util.getAgent(box),
         copyAgent: "",
         depth: 2,
         location: [input.value.replace(/\\/g, "\\\\")],
@@ -415,7 +402,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 } else {
                     network.fs({
                         action: "fs-rename",
-                        agent: agent(element),
+                        agent: util.getAgent(element),
                         copyAgent: "",
                         depth: 1,
                         location: [text.replace(/\\/g, "\\\\")],
@@ -467,6 +454,44 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
     label.innerHTML = dir;
     label.appendChild(input);
     input.focus();
+};
+
+/* A service to write file changes to the file system */
+fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
+        agentName:string = util.getAgent(box);
+    let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agentName} - `)[1];
+    network.fs({
+        action: "fs-write",
+        agent: agentName,
+        copyAgent: agentName,
+        depth: 1,
+        id: box.getAttribute("id"),
+        location: [location],
+        name: content,
+        watch: "no"
+    }, function local_fs_saveFile_callback(message:string):void {
+        const footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            buttons:HTMLElement = <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+            pList:HTMLCollectionOf<HTMLElement> = footer.getElementsByTagName("p"),
+            p:HTMLElement = document.createElement("p");
+        p.innerHTML = message;
+        p.setAttribute("class", "message");
+        if (pList[0] !== buttons) {
+            footer.removeChild(pList[0]);
+        }
+        p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
+        footer.insertBefore(p, pList[0]);
+    });
 };
 
 /* Select a file system item for an action */
@@ -584,7 +609,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
         network.fs({
             action: "fs-directory",
-            agent: agent(box),
+            agent: util.getAgent(box),
             copyAgent: "",
             depth: 2,
             location: [element.value.replace(/\\/g, "\\\\")],

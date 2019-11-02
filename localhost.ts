@@ -163,6 +163,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     // building logging utility (systems log)
                     if (document.getElementById("systems-modal") === null) {
                         modal.create({
+                            agent: "localhost",
                             content: systemsBox,
                             inputs: ["close", "maximize", "minimize"],
                             single: true,

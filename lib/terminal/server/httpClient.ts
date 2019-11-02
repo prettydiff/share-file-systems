@@ -23,7 +23,7 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
         }()),
         port:number = (function terminal_server_httpClient_port():number {
             const portString:string = config.data.agent.slice(config.data.agent.lastIndexOf(":") + 1);
-            if (config.data.action === "fs-base64" || config.data.action === "fs-hash" || config.data.action === "fs-read") {
+            if (config.data.action === "fs-base64" || config.data.action === "fs-hash" || config.data.action === "fs-read" || config.data.action === "fs-write") {
                 config.data.agent = "localhost";
             }
             if (isNaN(Number(portString)) === true) {

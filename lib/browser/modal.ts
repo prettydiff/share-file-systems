@@ -321,13 +321,15 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         body.style.overflow = "hidden";
     }
     if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
+        h2 = document.createElement("div");
+        h2.setAttribute("class", "footer");
         extra = document.createElement("p");
-        extra.setAttribute("class", "footer");
+        extra.setAttribute("class", "footer-buttons");
         if (options.inputs.indexOf("save") > -1) {
             button = document.createElement("button");
-            button.innerHTML = "🖫 Save";
+            button.innerHTML = "🖫 Save File";
             button.setAttribute("class", "save");
-            button.onclick = modal.confirm;
+            button.onclick = fs.saveFile;
             extra.appendChild(button);
         }
         if (options.inputs.indexOf("confirm") > -1) {
@@ -344,7 +346,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             button.onclick = modal.close;
             extra.appendChild(button);
         }
-        border.appendChild(extra);
+        h2.appendChild(extra);
+        extra = document.createElement("span");
+        extra.setAttribute("class", "clear");
+        h2.appendChild(extra);
+        border.appendChild(h2);
     }
     if (options.resize !== false) {
         button = document.createElement("button");
@@ -405,6 +411,7 @@ modal.export = function local_modal_export(event:MouseEvent):void {
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create({
+        agent: util.getAgent(element),
         content: textArea,
         inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
         single: true,
@@ -656,6 +663,16 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         header:boolean = (box.getElementsByClassName("header").length < 1)
             ? false
             : true,
+        footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+        message:HTMLElement = (footer === undefined)
+            ? undefined
+            : <HTMLElement>footer.getElementsByClassName("message")[0],
+        footerButtons:HTMLElement = (footer === undefined)
+            ? undefined
+            : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+        footerOffset:number = (footerButtons === undefined)
+            ? 0
+            : footerButtons.clientWidth / 10,
         sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
         sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
         offX:number = event.clientX,
@@ -701,12 +718,6 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 computedWidth = left + (f.clientX - offX);
                 computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
-                if (bodyWidth > 35) {
-                    box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${bodyWidth}em`;
-                    heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
-                }
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
                     if (header === true) {
@@ -717,16 +728,20 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         sideRight.style.height = `${computedHeight}em`;
                     }
                 }
+                if (bodyWidth > 35) {
+                    box.style.left = `${computedWidth / 10}em`;
+                    body.style.width  = `${bodyWidth}em`;
+                    heading.style.width = `${bodyWidth + 0.2}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                }
                 document.onmouseup = drop;
             },
             br: function local_modal_resize_sizeBR(f:MouseEvent):void {
                 computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
                 computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
-                if (computedWidth > 35) {
-                    body.style.width = `${computedWidth}em`;
-                    heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
-                }
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
                     if (header === true) {
@@ -735,6 +750,14 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     } else {
                         sideLeft.style.height = `${computedHeight}em`;
                         sideRight.style.height = `${computedHeight}em`;
+                    }
+                }
+                if (computedWidth > 35) {
+                    body.style.width = `${computedWidth}em`;
+                    heading.style.width = `${computedWidth + 0.2}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -747,6 +770,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
                     headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -756,6 +782,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
                     headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -796,6 +825,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
                     headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -818,6 +850,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
                     headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             }
@@ -862,6 +897,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
         eachUser = document.createElement("h3");
         eachUser.innerHTML = "There are no shares at this time.";
         modal.create({
+            agent: user,
             content: eachUser,
             inputs: ["close", "maximize", "minimize"],
             title: "All Shares",
@@ -942,6 +978,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
         }
         if (configuration === undefined || configuration === null) {
             configuration = {
+                agent: user,
                 content: users,
                 title: title,
                 type: "shares",
@@ -983,6 +1020,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         textArea.style.whiteSpace = "normal";
     }
     modal.create({
+        agent: util.getAgent(element),
         content: textArea,
         inputs: ["close", "maximize", "minimize"],
         title: titleText,

@@ -660,6 +660,45 @@ const library = {
                     }
                 });
             }
+        } else if (data.action === "fs-write") {
+            if (data.agent === "localhost") {
+                vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
+                    let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;
+                    if (erw !== null) {
+                        library.error([erw.toString()]);
+                        vars.ws.broadcast(`error:${erw.toString()}`);
+                        message = `Error writing file: ${erw.toString()}`;
+                    }
+                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                    response.write(message);
+                    response.end();
+                });
+            } else {
+                library.httpClient({
+                    callback: function terminal_server_fileService_remoteStrong(fsResponse:http.IncomingMessage):void {
+                        const chunks:string[] = [];
+                        fsResponse.setEncoding("utf8");
+                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                            chunks.push(chunk);
+                        });
+                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                            const body:string = chunks.join("");
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(body);
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    },
+                    data: data,
+                    errorMessage: `error:Error requesting ${data.action} from remote.`,
+                    response: response
+                });
+            }
         }
     };
 
