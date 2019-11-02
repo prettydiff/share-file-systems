@@ -193,7 +193,7 @@ const library = {
                                                                 timeout: 4000
                                                             }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                                                                 const chunks:string[] = [];
-                                                                fsResponse.setEncoding('utf8');
+                                                                fsResponse.setEncoding("utf8");
                                                                 fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
                                                                     chunks.push(chunk);
                                                                 });
@@ -254,7 +254,7 @@ const library = {
                 library.httpClient({
                     callback: function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                         const chunks:string[] = [];
-                        fsResponse.setEncoding('utf8');
+                        fsResponse.setEncoding("utf8");
                         fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
                             chunks.push(chunk);
                         });
@@ -348,7 +348,7 @@ const library = {
                                 fileCallback = function terminal_server_fileService_response_end_fileCallback(fileResponse:http.IncomingMessage):void {
                                     const fileChunks:Buffer[] = [];
                                     fileResponse.on("data", function terminal_server_fileServices_response_end_fileCallback_data(fileChunk:string):void {
-                                        fileChunks.push(Buffer.from(fileChunk, 'binary'));
+                                        fileChunks.push(Buffer.from(fileChunk, "binary"));
                                     });
                                     fileResponse.on("end", function terminal_server_fileServices_response_end_fileCallback_end():void {
                                         const file:Buffer = Buffer.concat(fileChunks),
@@ -610,8 +610,31 @@ const library = {
                     a = a + 1;
                 } while (a < length);
             } else {
-
-                // will need to fire up a httpclient for remote agent
+                data.agent = "localhost";
+                library.httpClient({
+                    callback: function terminal_server_fileService_remoteStrong(fsResponse:http.IncomingMessage):void {
+                        const chunks:string[] = [];
+                        fsResponse.setEncoding("utf8");
+                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                            chunks.push(chunk);
+                        });
+                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                            const body:string = chunks.join("");
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(body);
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    },
+                    data: data,
+                    errorMessage: `error:Error requesting ${data.action} from remote.`,
+                    response: response
+                });
             }
         } else if (data.action === "fs-new") {
             const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
