@@ -86,12 +86,14 @@ const library = {
                                     let b:number = 1;
                                     const resultLength:number = result.length,
                                         masterIndex:number = masterList.length;
-                                    do {
-                                        result[b][3] = masterIndex; 
-                                        b = b + 1;
-                                    } while (b < resultLength);
+                                    if (resultLength > 0) {
+                                        do {
+                                            result[b][3] = masterIndex; 
+                                            b = b + 1;
+                                        } while (b < resultLength);
+                                        masterList = masterList.concat(result);
+                                    }
                                     a = a + 1;
-                                    masterList = masterList.concat(result);
                                     if (a === length) {
                                         callback(masterList);
                                     }

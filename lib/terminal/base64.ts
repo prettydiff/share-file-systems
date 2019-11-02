@@ -13,15 +13,34 @@ const library = {
         remove: remove
     },
     base64 = function terminal_base64(input:base64Input):void {
-        let direction:string = (process.argv[0] === "encode" || process.argv[0] === "decode")
-                ? process.argv[0]
-                : "encode",
+        let direction:"encode"|"decode" = (function terminal_base64_direction():"encode"|"decode" {
+                const decode:number = process.argv.indexOf("decode"),
+                    encode:number = process.argv.indexOf("encode");
+                if (vars.command === "base64") {
+                    input = {
+                        callback: function terminal_base64_callback(output:string[]):void {
+                            library.log(output);
+                        },
+                        id: "",
+                        source: (decode === 0 || encode === 0)
+                            ? process.argv[1]
+                            : process.argv[0]
+                    };
+                }
+                if (decode > -1) {
+                    process.argv.splice(decode, 1);
+                    if (encode > -1) {
+                        process.argv.splice(encode, 1);
+                    }
+                    return "decode";
+                }
+                if (encode > -1) {
+                    process.argv.splice(encode, 1);
+                }
+                return "encode";
+            }()),
             http:boolean = false,
-            path:string = (typeof input.source === "string")
-                ? input.source
-                : (process.argv[0] === "encode" || process.argv[0] === "decode")
-                    ? process.argv[1]
-                    : process.argv[0];
+            path:string = input.source;
         const screen = function terminal_base64_screen(string:string) {
                 const output = (direction === "decode")
                     ? Buffer.from(string, "base64").toString("utf8")
@@ -75,21 +94,21 @@ const library = {
                                             const output = (direction === "decode")
                                                 ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                                 : buffer.toString("base64");
-                                            if (typeof input.callback === "function") {
+                                            if (vars.command === "base64") {
+                                                    if (vars.verbose === true) {
+                                                        const list:string[] = [output];
+                                                        list.push("");
+                                                        list.push(`from ${vars.text.angry + filePath + vars.text.none}`);
+                                                        input.callback(list);
+                                                    } else {
+                                                        input.callback([output]);
+                                                    }
+                                            } else {
                                                 input.callback({
                                                     base64: output,
                                                     filePath: input.source,
                                                     id: input.id
                                                 });
-                                            } else {
-                                                if (vars.verbose === true) {
-                                                    const list:string[] = [output];
-                                                    list.push("");
-                                                    list.push(`from ${vars.text.angry + filePath + vars.text.none}`);
-                                                    library.log(list);
-                                                } else {
-                                                    library.log([output]);
-                                                }
                                             }
                                         }
                                     );

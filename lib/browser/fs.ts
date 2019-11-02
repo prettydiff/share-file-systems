@@ -379,7 +379,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         agent: util.getAgent(box),
         copyAgent: "",
         depth: 2,
-        location: [input.value.replace(/\\/g, "\\\\")],
+        location: [input.value],
         name: "",
         watch: value
     }, function local_fs_parent_callback(responseText:string):void {

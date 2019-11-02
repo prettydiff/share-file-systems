@@ -36,7 +36,7 @@ const webSocket = function local_webSocket():WebSocket {
                 modalAgent:string,
                 body:HTMLElement;
             do {
-                modalAgent = browser.data.modals[modalKeys[a]].title.split(" - ")[1];
+                modalAgent = browser.data.modals[modalKeys[a]].agent;
                 if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
                     body = <HTMLElement>document.getElementById(browser.data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
                     body.innerHTML = "";

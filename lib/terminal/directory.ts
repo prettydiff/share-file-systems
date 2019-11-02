@@ -174,7 +174,13 @@ const library = {
                             });
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
-                            if (type !== "error") {
+                            if (type === "error") {
+                                if (dirs > 0) {
+                                    dirCounter(filePath);
+                                } else {
+                                    args.callback(fileList.sort());
+                                }
+                            } else {
                                 if (vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) > -1) {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -215,47 +221,24 @@ const library = {
                         };
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            if (vars.flags.error === true) {
+                            /*if (vars.flags.error === true) {
                                 args.callback([]);
                                 return;
-                            }
+                            }*/
                             if (type === true) {
                                 library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
-                                if (vars.command === "server") {
-                                    populate("error");
-                                } else {
-                                    return;
-                                }
-                            }
-                            library.error([angryPath]);
-                            if (vars.command === "server") {
                                 populate("error");
                             } else {
-                                return;
+                                library.log([angryPath]);
+                                populate("error");
                             }
                         } else {
-                            library.error([er.toString()]);
-                            if (vars.command === "server") {
-                                populate("error");
-                            } else {
-                                return;
-                            }
+                            library.log([er.toString()]);
+                            populate("error");
                         }
                     } else if (stat === undefined) {
-                        if (type === true) {
-                            library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
-                            if (vars.command === "server") {
-                                populate("error");
-                            } else {
-                                return;
-                            }
-                        }
-                        library.error([angryPath]);
-                        if (vars.command === "server") {
-                            populate("error");
-                        } else {
-                            return;
-                        }
+                        library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
+                        populate("error");
                     } else if (stat.isDirectory() === true) {
                         if (type === true) {
                             library.log(["directory"]);
