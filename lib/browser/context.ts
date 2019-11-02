@@ -4,22 +4,7 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
-const context:module_context = {},
-    agent = function local_fs_agent(element:HTMLElement):string {
-        const box:HTMLElement = (element.getAttribute("class") === "box")
-                ? element
-                : (function local_fs_agent_box():HTMLElement {
-                    let boxEl:HTMLElement = element;
-                    do {
-                        boxEl = <HTMLElement>boxEl.parentNode;
-                    } while (boxEl !== document.documentElement && boxEl.getAttribute("class") !== "box");
-                    return boxEl;
-                }()),
-            searchString:string = "Navigator - ";
-        let text:string = box.getElementsByTagName("h2")[0].lastChild.textContent;
-        text = text.slice(text.indexOf(searchString) + searchString.length);
-        return text;
-    };
+const context:module_context = {};
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
@@ -49,30 +34,83 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
         }
     }
     clipboard = JSON.stringify({
-        agent: agent(box),
+        agent: util.getAgent(box),
         data: addresses,
         id: box.getAttribute("id"),
         type: type
     });
 };
 
-/* Handler for hash and base64 operations from the context menu */
-context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Hash" | "Base64"):void {
-    let address:string = element.getElementsByTagName("label")[0].innerHTML;
-    address = element.getElementsByTagName("label")[0].innerHTML;
+/* Handler for base64, edit, and hash operations from the context menu */
+context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
+    const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
+        length:number = addresses.length,
+        agentName:string = util.getAgent(element),
+        locations:string[] = [];
+    let a:number = 0,
+        delay:HTMLElement,
+        modalInstance:HTMLElement;
+    do {
+        if (addresses[a][1] === "file") {
+            delay = util.delay();
+            modalInstance = modal.create({
+                agent: agentName,
+                content: delay,
+                height: 500,
+                inputs: (type === "Edit")
+                    ? ["close", "save"]
+                    : ["close"],
+                left: event.clientX + (a * 10),
+                single: false,
+                title: `${type} - ${agentName} - ${addresses[a][0]}`,
+                top: (event.clientY - 60) + (a * 10),
+                type: "textPad",
+                width: 500
+            });
+            locations.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
+        }
+        a = a + 1;
+    } while (a < length);
     network.fs({
-        action: `fs-${type.toLowerCase()}`,
-        agent: agent(element),
+        action: (type === "Edit")
+            ? "fs-read"
+            : `fs-${type.toLowerCase()}`,
+        agent: agentName,
         copyAgent: "",
         depth: 1,
-        location: [address],
+        id: "",
+        location: locations,
         name: "",
         watch: "no"
-    }, function local_context_dataString(resultString:string):void {
-        if (resultString.indexOf("\"dirs\":") < -1) {
-            resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
-        }
-        modal.textPad(event, resultString, `${type} - ${address}`);
+    }, function local_context_dataString_callback(resultString:string):void {
+        const data:stringDataList = JSON.parse(resultString),
+            length:number = data.length;
+        let a:number = 0,
+            textArea:HTMLTextAreaElement,
+            modalResult:HTMLElement,
+            body:HTMLElement,
+            heading:HTMLElement;
+        do {
+            textArea = document.createElement("textarea");
+            modalResult = document.getElementById(data[a].id),
+            body = <HTMLElement>modalResult.getElementsByClassName("body")[0];
+            textArea.onblur = modal.textSave;
+            heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+            if (type === "Base64") {
+                textArea.style.whiteSpace = "normal";
+            }
+            if (type === "Hash") {
+                textArea.style.height = "5em";
+                body.style.height = "auto";
+            }
+            browser.data.modals[data[a].id].text_value = data[a].content;
+            textArea.value = data[a].content;
+            body.innerHTML = "";
+            body.appendChild(textArea);
+            body.style.overflow = "hidden";
+            heading.style.width = `${(body.clientWidth - 50) / 18}em`;
+            a = a + 1;
+        } while (a < length);
         network.settings();
     });
 };
@@ -94,7 +132,7 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
     }
     network.fs({
         action: "fs-destroy",
-        agent: agent(element),
+        agent: util.getAgent(element),
         copyAgent: "",
         depth: 1,
         location: addresses,
@@ -108,14 +146,16 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
 /* Handler for details action of context menu */
 context.details = function local_context_details(event:MouseEvent, element?:HTMLElement):void {
     const div:HTMLElement = util.delay(),
+        agentName:string = util.getAgent(element),
         addresses:[string, string][] = util.selectedAddresses(element, "details"),
         modalInstance:HTMLElement = modal.create({
+            agent: agentName,
             content: div,
             height: 500,
             inputs: ["close"],
             left: event.clientX,
             single: true,
-            title: `Details - ${addresses.length} items`,
+            title: `Details - ${agentName} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -133,7 +173,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         }());
     network.fs({
         action: "fs-details",
-        agent: agent(element),
+        agent: agentName,
         copyAgent: "",
         depth: 0,
         id: id,
@@ -314,7 +354,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: agent(element),
+                    agent: util.getAgent(element),
                     copyAgent: "",
                     depth: 1,
                     location: [path + value],
@@ -340,7 +380,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: agent(element),
+                    agent: util.getAgent(element),
                     copyAgent: "",
                     depth: 1,
                     location: [path + value],
@@ -483,6 +523,16 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
+            edit: function local_context_menu_edit():void {
+                item = document.createElement("li");
+                button = document.createElement("button");
+                button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                button.onclick = function local_context_menu_edit_handler():void {
+                    context.dataString(event, element, "Edit");
+                };
+                item.appendChild(button);
+                itemList.push(item);
+            },
             hash: function local_context_menu_hash():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -584,6 +634,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         functions.share();
 
         if (element.getAttribute("class").indexOf("file") === 0) {
+            functions.edit();
             functions.hash();
             functions.base64();
         }
@@ -648,7 +699,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
     network.fs({
         action   : `fs-${clipData.type}`,
         agent    : clipData.agent,
-        copyAgent: agent(element),
+        copyAgent: util.getAgent(element),
         depth    : 1,
         location : clipData.data,
         name     : destination,

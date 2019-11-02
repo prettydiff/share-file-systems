@@ -136,6 +136,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
 /* Modal creation factory */
 modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     let button:HTMLElement = document.createElement("button"),
+        buttonCount:number = 0,
         h2:HTMLElement = document.createElement("h2"),
         input:HTMLInputElement,
         extra:HTMLElement;
@@ -215,6 +216,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.setAttribute("class", "minimize");
                 button.onclick = modal.minimize;
                 h2.appendChild(button);
+                buttonCount = buttonCount + 1;
             }
             if (options.inputs.indexOf("maximize") > -1) {
                 button = document.createElement("button");
@@ -222,6 +224,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.setAttribute("class", "maximize");
                 button.onclick = modal.maximize;
                 h2.appendChild(button);
+                buttonCount = buttonCount + 1;
             }
             if (options.inputs.indexOf("close") > -1) {
                 button = document.createElement("button");
@@ -274,9 +277,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                     button.onclick = modal.close;
                 }
                 h2.appendChild(button);
+                buttonCount = buttonCount + 1;
             }
             border.appendChild(h2);
         }
+        border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
         if (options.inputs.indexOf("text") > -1) {
             const label:HTMLElement = document.createElement("label"),
                 span:HTMLElement = document.createElement("span");
@@ -315,9 +320,18 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     if (options.type === "export" || options.type === "textPad") {
         body.style.overflow = "hidden";
     }
-    if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1)) {
+    if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
+        h2 = document.createElement("div");
+        h2.setAttribute("class", "footer");
         extra = document.createElement("p");
-        extra.setAttribute("class", "footer");
+        extra.setAttribute("class", "footer-buttons");
+        if (options.inputs.indexOf("save") > -1) {
+            button = document.createElement("button");
+            button.innerHTML = "🖫 Save File";
+            button.setAttribute("class", "save");
+            button.onclick = fs.saveFile;
+            extra.appendChild(button);
+        }
         if (options.inputs.indexOf("confirm") > -1) {
             button = document.createElement("button");
             button.innerHTML = "✓ Confirm";
@@ -332,7 +346,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             button.onclick = modal.close;
             extra.appendChild(button);
         }
-        border.appendChild(extra);
+        h2.appendChild(extra);
+        extra = document.createElement("span");
+        extra.setAttribute("class", "clear");
+        h2.appendChild(extra);
+        border.appendChild(h2);
     }
     if (options.resize !== false) {
         button = document.createElement("button");
@@ -393,6 +411,7 @@ modal.export = function local_modal_export(event:MouseEvent):void {
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create({
+        agent: util.getAgent(element),
         content: textArea,
         inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
         single: true,
@@ -638,9 +657,22 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         body:HTMLDivElement       = box.getElementsByTagName("div")[1],
         heading:HTMLElement = box.getElementsByTagName("h2")[0],
         headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
+        buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
+            ? 0
+            : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
         header:boolean = (box.getElementsByClassName("header").length < 1)
             ? false
             : true,
+        footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+        message:HTMLElement = (footer === undefined)
+            ? undefined
+            : <HTMLElement>footer.getElementsByClassName("message")[0],
+        footerButtons:HTMLElement = (footer === undefined)
+            ? undefined
+            : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+        footerOffset:number = (footerButtons === undefined)
+            ? 0
+            : footerButtons.clientWidth / 10,
         sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
         sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
         offX:number = event.clientX,
@@ -686,12 +718,6 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 computedWidth = left + (f.clientX - offX);
                 computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
-                if (bodyWidth > 35) {
-                    box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${bodyWidth}em`;
-                    heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
-                }
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
                     if (header === true) {
@@ -702,16 +728,20 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         sideRight.style.height = `${computedHeight}em`;
                     }
                 }
+                if (bodyWidth > 35) {
+                    box.style.left = `${computedWidth / 10}em`;
+                    body.style.width  = `${bodyWidth}em`;
+                    heading.style.width = `${bodyWidth + 0.2}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                }
                 document.onmouseup = drop;
             },
             br: function local_modal_resize_sizeBR(f:MouseEvent):void {
                 computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
                 computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
-                if (computedWidth > 35) {
-                    body.style.width = `${computedWidth}em`;
-                    heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
-                }
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
                     if (header === true) {
@@ -720,6 +750,14 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     } else {
                         sideLeft.style.height = `${computedHeight}em`;
                         sideRight.style.height = `${computedHeight}em`;
+                    }
+                }
+                if (computedWidth > 35) {
+                    body.style.width = `${computedWidth}em`;
+                    heading.style.width = `${computedWidth + 0.2}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -731,7 +769,10 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -740,7 +781,10 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -780,7 +824,10 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -802,7 +849,10 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             }
@@ -847,6 +897,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
         eachUser = document.createElement("h3");
         eachUser.innerHTML = "There are no shares at this time.";
         modal.create({
+            agent: user,
             content: eachUser,
             inputs: ["close", "maximize", "minimize"],
             title: "All Shares",
@@ -927,6 +978,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
         }
         if (configuration === undefined || configuration === null) {
             configuration = {
+                agent: user,
                 content: users,
                 title: title,
                 type: "shares",
@@ -968,6 +1020,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         textArea.style.whiteSpace = "normal";
     }
     modal.create({
+        agent: util.getAgent(element),
         content: textArea,
         inputs: ["close", "maximize", "minimize"],
         title: titleText,

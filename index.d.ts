@@ -6,11 +6,11 @@ type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
-type modalType = "details" | "export" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
+type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-destroy" | "fs-details" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
+type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
-type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
+type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
 interface applications {
     [key:string]: Function;
@@ -18,6 +18,16 @@ interface applications {
 interface appName {
     command: string,
     name: string
+}
+interface base64Input {
+    callback: Function;
+    id: string;
+    source: string;
+}
+interface base64Output {
+    base64: string;
+    filePath: string;
+    id: string;
 }
 interface browser {
     characterKey: string;
@@ -53,6 +63,7 @@ interface contextFunctions {
     cut: Function;
     destroy: Function;
     details: Function;
+    edit: Function;
     hash: Function;
     newDirectory: Function;
     newFile: Function;
@@ -64,7 +75,7 @@ interface contextNew extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?:string): void;
 }
 interface dataString extends EventHandlerNonNull {
-    (Event, element?:HTMLElement, type?: "Hash" | "Base64"): void;
+    (Event, element?:HTMLElement, type?: "Base64" | "Edit" | "Hash"): void;
 }
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
@@ -116,6 +127,7 @@ interface functionEvent extends EventHandlerNonNull {
 interface hashInput {
     callback: Function;
     directInput: boolean;
+    id?: string;
     parent?: number;
     source: Buffer | string;
     stat?: Stats;
@@ -123,6 +135,7 @@ interface hashInput {
 interface hashOutput {
     filePath: string;
     hash: string;
+    id?: string;
     parent?: number;
     stat?: Stats;
 }
@@ -178,15 +191,15 @@ interface module_network {
     settings?: Function;
 }
 interface module_context {
-    copy?: (HTMLElement, type: "copy" | "cut") => void;
+    copy?: (element: HTMLElement, type: "copy" | "cut") => void;
     dataString?: dataString;
-    destroy?: (HTMLElement) => void;
+    destroy?: (element: HTMLElement) => void;
     details?: context;
-    fsNew?: (HTMLElement, type: "directory" | "file") => void;
+    fsNew?: (element: HTMLElement, type: "directory" | "file") => void;
     menu?: EventHandlerNonNull;
     menuRemove?: functionEvent;
-    paste?: (HTMLElement) => void; 
-    share?: (HTMLElement) => void;
+    paste?: (element: HTMLElement) => void;
+    share?: (element: HTMLElement) => void;
 }
 interface module_fs {
     directory?: EventHandlerNonNull;
@@ -196,6 +209,7 @@ interface module_fs {
     navigate?: navigate;
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
+    saveFile?: EventHandlerNonNull;
     select?: EventHandlerNonNull;
     text?: EventHandlerNonNull;
 }
@@ -228,6 +242,7 @@ interface module_util {
     delay?: () => HTMLElement;
     dragSelect?: eventCallback;
     fixHeight?: functionEvent;
+    getAgent?: (element:HTMLElement) => string;
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
     keys?: (event:KeyboardEvent) => void;
@@ -281,6 +296,7 @@ interface readDirectory {
 }
 interface readFile {
     callback: Function;
+    id?: string;
     index: number;
     path: string;
     stat: Stats;
@@ -337,6 +353,14 @@ interface Stats {
     isSocket: Function;
     isSymbolicLink: Function;
 }
+interface stringData {
+    content: string;
+    id: string;
+    path: string;
+}
+interface stringDataList extends Array<stringData> {
+    [index:number]: stringData;
+}
 interface terminalVariables {
     binary_check: RegExp;
     cli: string;
@@ -384,6 +408,7 @@ interface ui_data {
     zIndex: number;
 }
 interface ui_modal {
+    agent: string;
     content: HTMLElement;
     focus?: HTMLElement;
     height?: number;

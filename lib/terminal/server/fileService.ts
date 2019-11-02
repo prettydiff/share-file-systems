@@ -9,12 +9,12 @@ import error from "../error.js";
 import hash from "../hash.js";
 import log from "../log.js";
 import makeDir from "../makeDir.js";
+import readFile from "../readFile.js";
 import remove from "../remove.js";
 import vars from "../vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
-import { sep } from "path";
 
 const library = {
         base64: base64,
@@ -25,6 +25,7 @@ const library = {
         httpClient: httpClient,
         log: log,
         makeDir: makeDir,
+        readFile: readFile,
         remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
@@ -52,7 +53,7 @@ const library = {
                 });
             }
         };
-        if (data.action === "fs-read" || data.action === "fs-details") {
+        if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                         count = count + 1;
@@ -155,8 +156,8 @@ const library = {
                             }
 
                             // please note
-                            // watch is ignored on all operations other than fs-read
-                            // fs-read will only read from the first value in data.location
+                            // watch is ignored on all operations other than fs-directory
+                            // fs-directory will only read from the first value in data.location
                             if (data.watch !== "no" && data.watch !== vars.projectPath) {
                                 if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
                                     serverVars.watches[data.watch].close();
@@ -192,7 +193,7 @@ const library = {
                                                                 timeout: 4000
                                                             }, function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                                                                 const chunks:string[] = [];
-                                                                fsResponse.setEncoding('utf8');
+                                                                fsResponse.setEncoding("utf8");
                                                                 fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
                                                                     chunks.push(chunk);
                                                                 });
@@ -253,7 +254,7 @@ const library = {
                 library.httpClient({
                     callback: function terminal_server_create_end_fsResponse(fsResponse:http.IncomingMessage):void {
                         const chunks:string[] = [];
-                        fsResponse.setEncoding('utf8');
+                        fsResponse.setEncoding("utf8");
                         fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
                             chunks.push(chunk);
                         });
@@ -347,7 +348,7 @@ const library = {
                                 fileCallback = function terminal_server_fileService_response_end_fileCallback(fileResponse:http.IncomingMessage):void {
                                     const fileChunks:Buffer[] = [];
                                     fileResponse.on("data", function terminal_server_fileServices_response_end_fileCallback_data(fileChunk:string):void {
-                                        fileChunks.push(Buffer.from(fileChunk, 'binary'));
+                                        fileChunks.push(Buffer.from(fileChunk, "binary"));
                                     });
                                     fileResponse.on("end", function terminal_server_fileServices_response_end_fileCallback_end():void {
                                         const file:Buffer = Buffer.concat(fileChunks),
@@ -356,7 +357,7 @@ const library = {
                                         library.hash({
                                             callback: function terminal_server_fileService_response_end_fileCallback_end_hash(output:hashOutput):void {
                                                 if (remoteHash === output.hash) {
-                                                    fs.writeFile(data.name + sep + fileName, file, function terminal_server_fileServices_response_end_fileCallback_end_writeFile(wr:nodeError):void {
+                                                    fs.writeFile(data.name + vars.sep + fileName, file, function terminal_server_fileServices_response_end_fileCallback_end_writeFile(wr:nodeError):void {
                                                         if (wr !== null) {
                                                             library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`]);
                                                             vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
@@ -411,7 +412,7 @@ const library = {
                                     }
                                 },
                                 makeDir = function terminal_server_fileService_response_end_makeLists():void {
-                                    library.makeDir(data.name + sep + list[a][2], dirCallback);
+                                    library.makeDir(data.name + vars.sep + list[a][2], dirCallback);
                                 };
                             let a:number = 0,
                                 activeRequests:number = 0,
@@ -545,13 +546,95 @@ const library = {
                     response.end();
                 }
             });
-        } else if (data.action === "fs-hash" || data.action === "fs-base64") {
-            const task:string = data.action.replace("fs-", "");
-            library[task](data.location[0], function terminal_server_fileService_dataString(dataString:string):void {
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write(dataString);
-                response.end();
-            });
+        } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
+            if (data.agent === "localhost") {
+                const length:number = data.location.length,
+                    storage:stringDataList = [],
+                    type:string = data.action.replace("fs-", ""),
+                    callback = function terminal_server_fileService_callback(output:base64Output):void {
+                        b = b + 1;
+                        storage.push({
+                            content: output[type],
+                            id: output.id,
+                            path: output.filePath
+                        });
+                        if (b === length) {
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(JSON.stringify(storage));
+                            response.end();
+                        }
+                    },
+                    fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
+                        vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
+                            if (readError !== null) {
+                                library.error([readError.toString()]);
+                                vars.ws.broadcast(`error:${readError.toString()}`);
+                                return;
+                            }
+                            input.callback({
+                                id: input.id,
+                                filePath: input.source,
+                                read: fileData
+                            });
+                        });
+                    };
+                let a:number = 0,
+                    b:number = 0,
+                    id:string,
+                    index:number,
+                    location:string;
+                do {
+                    index = data.location[a].indexOf(":");
+                    id = data.location[a].slice(0, index);
+                    location = data.location[a].slice(index + 1);
+                    if (data.action === "fs-base64") {
+                        library[type]({
+                            callback: callback,
+                            id: id,
+                            source: location
+                        });
+                    } else if (data.action === "fs-hash") {
+                        library.hash({
+                            callback: callback,
+                            directInput: false,
+                            id: id,
+                            source: location
+                        });
+                    } else if (data.action === "fs-read") {
+                        fileReader({
+                            callback: callback,
+                            id: id,
+                            source: location
+                        });
+                    }
+                    a = a + 1;
+                } while (a < length);
+            } else {
+                library.httpClient({
+                    callback: function terminal_server_fileService_remoteStrong(fsResponse:http.IncomingMessage):void {
+                        const chunks:string[] = [];
+                        fsResponse.setEncoding("utf8");
+                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                            chunks.push(chunk);
+                        });
+                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                            const body:string = chunks.join("");
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(body);
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    },
+                    data: data,
+                    errorMessage: `error:Error requesting ${data.action} from remote.`,
+                    response: response
+                });
+            }
         } else if (data.action === "fs-new") {
             const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
                     ? "\\"
@@ -575,6 +658,45 @@ const library = {
                         response.write(erNewFile.toString());
                         response.end();
                     }
+                });
+            }
+        } else if (data.action === "fs-write") {
+            if (data.agent === "localhost") {
+                vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
+                    let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;
+                    if (erw !== null) {
+                        library.error([erw.toString()]);
+                        vars.ws.broadcast(`error:${erw.toString()}`);
+                        message = `Error writing file: ${erw.toString()}`;
+                    }
+                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                    response.write(message);
+                    response.end();
+                });
+            } else {
+                library.httpClient({
+                    callback: function terminal_server_fileService_remoteStrong(fsResponse:http.IncomingMessage):void {
+                        const chunks:string[] = [];
+                        fsResponse.setEncoding("utf8");
+                        fsResponse.on("data", function terminal_server_create_end_fsResponse_data(chunk:string):void {
+                            chunks.push(chunk);
+                        });
+                        fsResponse.on("end", function terminal_server_create_end_fsResponse_end():void {
+                            const body:string = chunks.join("");
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(body);
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_create_end_fsResponse_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    },
+                    data: data,
+                    errorMessage: `error:Error requesting ${data.action} from remote.`,
+                    response: response
                 });
             }
         }

@@ -232,6 +232,21 @@ util.fixHeight = function local_util_fixHeight():void {
     document.getElementById("users").style.height = `${(height - 102) / 10}em`;
 };
 
+/* Get the agent of a given modal */
+util.getAgent = function local_util_getAgent(element:HTMLElement):string {
+    const box:HTMLElement = (element.getAttribute("class") === "box")
+        ? element
+        : (function local_util_getAgent_box():HTMLElement {
+            let boxEl:HTMLElement = element;
+            do {
+                boxEl = <HTMLElement>boxEl.parentNode;
+            } while (boxEl !== document.documentElement && boxEl.getAttribute("class") !== "box");
+            return boxEl;
+        }()),
+    id:string = box.getAttribute("id");
+    return browser.data.modals[id].agent;
+};
+
 /* Invite users to your shared space */
 util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
     const invite:HTMLElement = document.createElement("div"),
@@ -300,6 +315,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
     invite.setAttribute("class", "inviteUser");
     if (settings === undefined) {
         modal.create({
+            agent: "localhost",
             content: invite,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
@@ -350,6 +366,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
         text.style.display = "none";
         div.appendChild(text);
         modal.create({
+            agent: "localhost",
             content: div,
             height: 300,
             inputs: ["cancel", "confirm", "close"],
@@ -429,6 +446,9 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
         } else if (key === 68) {
             // key d, new directory
             context.fsNew(element, "directory");
+        } else if (key === 69) {
+            // key e, edit file
+            context.dataString(event, element, "Edit");
         } else if (key === 70) {
             // key f, new file
             context.fsNew(element, "file");

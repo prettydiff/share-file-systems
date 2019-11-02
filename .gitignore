@@ -4,5 +4,4 @@ js/application.js
 js/localhost.js
 js/tsconfig.*
 node_modules
-storage/messages.json
-storage/settings.json
+storage/*.json

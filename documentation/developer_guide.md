@@ -9,6 +9,9 @@ All code for this application is located in 3 places:
    - lib/terminal - All supporting libraries for the *application.ts* file.
    - lib/terminal/server - All supporting libraries for actions via network interface as executed by *lib/terminal/server.ts*.
 
+## Configuration
+I am not a fan of configuring software.  I consider software configurations a time wasting punishment from lazy developers.  Well written software requires no configuration because flexibility is built into the application's APIs.  The application's configurations are stored in the `version.json` file.
+
 ## Code Organization
 For simplicity the application is written in a purely functional manner and is broken down into library files using ES6 modules.  The libraries are organized as follows:
 * localhost.ts - The script file that is requested by the HTML file that runs in the browser.

@@ -56,7 +56,7 @@ const webSocket = function local_webSocket():WebSocket {
                 if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value) {
                     const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
                     network.fs({
-                        action: "fs-read",
+                        action: "fs-directory",
                         agent: "localhost",
                         copyAgent: "",
                         depth: 2,
