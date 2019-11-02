@@ -610,7 +610,6 @@ const library = {
                     a = a + 1;
                 } while (a < length);
             } else {
-                data.agent = "localhost";
                 library.httpClient({
                     callback: function terminal_server_fileService_remoteStrong(fsResponse:http.IncomingMessage):void {
                         const chunks:string[] = [];
