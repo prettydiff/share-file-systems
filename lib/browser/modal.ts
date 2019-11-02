@@ -134,8 +134,9 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
 };
 
 /* Modal creation factory */
-modal.create = function local_modal_create(options:ui_modal):HTMLElement {
+modal.create = function local_modal_create(options:ui_modal):HTMLElement {console.log(browser.data);
     let button:HTMLElement = document.createElement("button"),
+        buttonCount:number = 0,
         h2:HTMLElement = document.createElement("h2"),
         input:HTMLInputElement,
         extra:HTMLElement;
@@ -215,6 +216,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.setAttribute("class", "minimize");
                 button.onclick = modal.minimize;
                 h2.appendChild(button);
+                buttonCount = buttonCount + 1;
             }
             if (options.inputs.indexOf("maximize") > -1) {
                 button = document.createElement("button");
@@ -222,6 +224,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.setAttribute("class", "maximize");
                 button.onclick = modal.maximize;
                 h2.appendChild(button);
+                buttonCount = buttonCount + 1;
             }
             if (options.inputs.indexOf("close") > -1) {
                 button = document.createElement("button");
@@ -274,9 +277,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                     button.onclick = modal.close;
                 }
                 h2.appendChild(button);
+                buttonCount = buttonCount + 1;
             }
             border.appendChild(h2);
         }
+        border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
         if (options.inputs.indexOf("text") > -1) {
             const label:HTMLElement = document.createElement("label"),
                 span:HTMLElement = document.createElement("span");
@@ -315,9 +320,16 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     if (options.type === "export" || options.type === "textPad") {
         body.style.overflow = "hidden";
     }
-    if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1)) {
+    if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
         extra = document.createElement("p");
         extra.setAttribute("class", "footer");
+        if (options.inputs.indexOf("save") > -1) {
+            button = document.createElement("button");
+            button.innerHTML = "🖫 Save";
+            button.setAttribute("class", "save");
+            button.onclick = modal.confirm;
+            extra.appendChild(button);
+        }
         if (options.inputs.indexOf("confirm") > -1) {
             button = document.createElement("button");
             button.innerHTML = "✓ Confirm";
@@ -638,6 +650,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         body:HTMLDivElement       = box.getElementsByTagName("div")[1],
         heading:HTMLElement = box.getElementsByTagName("h2")[0],
         headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
+        buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
+            ? 0
+            : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
         header:boolean = (box.getElementsByClassName("header").length < 1)
             ? false
             : true,
@@ -690,7 +705,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
                 }
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
@@ -710,7 +725,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                 }
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
@@ -731,7 +746,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             },
@@ -740,7 +755,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             },
@@ -780,7 +795,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width  = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             },
@@ -802,7 +817,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - 15) / 1.8)}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                 }
                 document.onmouseup = drop;
             }

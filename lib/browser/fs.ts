@@ -274,7 +274,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     li.appendChild(label);
     li.onclick = fs.select;
     li.oncontextmenu = context.menu;
-    li.onkeyup = util.keys;
+    li.onkeyup = util.keys; // key combinations
     li.onmousedown = function local_fs_listItem_mouseDown(event:MouseEvent):void {
         event.stopPropagation();
     };
@@ -471,18 +471,18 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 
 /* Select a file system item for an action */
 fs.select = function local_fs_select(event:KeyboardEvent):void {
+    event.preventDefault();
+    event.stopPropagation();
+    context.menuRemove();
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element
             : <HTMLElement>element.parentNode,
         input:HTMLInputElement = li.getElementsByTagName("input")[0];
-    event.preventDefault();
-    input.focus();
     let state:boolean = input.checked,
         body:HTMLElement = li,
         box:HTMLElement;
-    event.stopPropagation();
-    context.menuRemove();
+    input.focus();
     do {
         body = <HTMLElement>body.parentNode;
     } while (body !== document.documentElement && body.getAttribute("class") !== "body");

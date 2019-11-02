@@ -143,6 +143,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .header .error{background:#fdd;color:#900;}
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900;cursor:pointer}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060;cursor:pointer}
+#spaces .box button.save{background:#ffc;border-color:#cc0;color:#770;cursor:pointer}
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;stroke:#cdf;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}

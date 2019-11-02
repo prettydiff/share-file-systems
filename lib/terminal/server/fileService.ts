@@ -9,12 +9,12 @@ import error from "../error.js";
 import hash from "../hash.js";
 import log from "../log.js";
 import makeDir from "../makeDir.js";
+import readFile from "../readFile.js";
 import remove from "../remove.js";
 import vars from "../vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
-import { sep } from "path";
 
 const library = {
         base64: base64,
@@ -25,6 +25,7 @@ const library = {
         httpClient: httpClient,
         log: log,
         makeDir: makeDir,
+        readFile: readFile,
         remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
@@ -280,16 +281,6 @@ const library = {
                     response: response
                 });
             }
-        } else if (data.action === "fs-read") {
-            vars.node.fs.readFile(data.location[0], "utf8", function terminal_server_fileService_read(err:nodeError, fileData:string):void {
-                if (err !== null) {
-                    library.error([err.toString()]);
-                    return;
-                }
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write(fileData);
-                response.end();
-            })
         } else if (data.action === "fs-close") {
             if (serverVars.watches[data.location[0]] !== undefined) {
                 serverVars.watches[data.location[0]].close();
@@ -366,7 +357,7 @@ const library = {
                                         library.hash({
                                             callback: function terminal_server_fileService_response_end_fileCallback_end_hash(output:hashOutput):void {
                                                 if (remoteHash === output.hash) {
-                                                    fs.writeFile(data.name + sep + fileName, file, function terminal_server_fileServices_response_end_fileCallback_end_writeFile(wr:nodeError):void {
+                                                    fs.writeFile(data.name + vars.sep + fileName, file, function terminal_server_fileServices_response_end_fileCallback_end_writeFile(wr:nodeError):void {
                                                         if (wr !== null) {
                                                             library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`]);
                                                             vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
@@ -421,7 +412,7 @@ const library = {
                                     }
                                 },
                                 makeDir = function terminal_server_fileService_response_end_makeLists():void {
-                                    library.makeDir(data.name + sep + list[a][2], dirCallback);
+                                    library.makeDir(data.name + vars.sep + list[a][2], dirCallback);
                                 };
                             let a:number = 0,
                                 activeRequests:number = 0,
@@ -555,23 +546,73 @@ const library = {
                     response.end();
                 }
             });
-        } else if (data.action === "fs-base64") {
-            library.base64(data.location[0], function terminal_server_fileService_base64(dataString:string):void {
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write(dataString);
-                response.end();
-            });
-        } else if (data.action === "fs-hash") {
-            library.hash({
-                callback: function terminal_server_fileServer_hash(output:hashOutput) {
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(output.hash);
-                    response.end();
-                },
-                directInput: false,
-                source: data.location[0],
+        } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
+            if (data.agent === "localhost") {
+                const length:number = data.location.length,
+                    storage:stringDataList = [],
+                    type:string = data.action.replace("fs-", ""),
+                    callback = function terminal_server_fileService_callback(output:base64Output):void {
+                        b = b + 1;
+                        storage.push({
+                            content: output[type],
+                            id: output.id,
+                            path: output.filePath
+                        });
+                        if (b === length) {
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(JSON.stringify(storage));
+                            response.end();
+                        }
+                    },
+                    fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
+                        vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
+                            if (readError !== null) {
+                                library.error([readError.toString()]);
+                                vars.ws.broadcast(`error:${readError.toString()}`);
+                                return;
+                            }
+                            input.callback({
+                                id: input.id,
+                                filePath: input.source,
+                                read: fileData
+                            });
+                        });
+                    };
+                let a:number = 0,
+                    b:number = 0,
+                    id:string,
+                    index:number,
+                    location:string;
+                do {
+                    index = data.location[a].indexOf(":");
+                    id = data.location[a].slice(0, index);
+                    location = data.location[a].slice(index + 1);
+                    if (data.action === "fs-base64") {
+                        library[type]({
+                            callback: callback,
+                            id: id,
+                            source: location
+                        });
+                    } else if (data.action === "fs-hash") {
+                        library.hash({
+                            callback: callback,
+                            directInput: false,
+                            id: id,
+                            source: location
+                        });
+                    } else if (data.action === "fs-read") {
+                        fileReader({
+                            callback: callback,
+                            id: id,
+                            source: location
+                        });
+                    }
+                    a = a + 1;
+                } while (a < length);
+            } else {
 
-            });
+                // will need to fire up a httpclient for remote agent
+            }
         } else if (data.action === "fs-new") {
             const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
                     ? "\\"

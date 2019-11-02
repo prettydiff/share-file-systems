@@ -8,7 +8,6 @@ import directory from "./directory.js";
 import error from "./error.js";
 import log from "./log.js";
 import makeDir from "./makeDir.js";
-import readFile from "./readFile.js";
 import remove from "./remove.js";
 import vars from "./vars.js";
 
@@ -30,7 +29,6 @@ const library = {
         httpClient: httpClient,
         log: log,
         makeDir: makeDir,
-        readFile: readFile,
         remove: remove
     },
     server = function terminal_server():void {

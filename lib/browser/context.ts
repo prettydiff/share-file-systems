@@ -60,61 +60,74 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
 context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
     const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
         length:number = addresses.length,
-        modals:HTMLElement[] = [];
+        agentName:string = agent(element),
+        locations:string[] = [];
     let a:number = 0,
-        b:number = 0,
-        div:HTMLElement,
-        modalInstance:HTMLElement,
-        id:string;
+        delay:HTMLElement,
+        modalInstance:HTMLElement;
+    // consider revising to 1 network call with a data package: [id:location] on data.location
     do {
         if (addresses[a][1] === "file") {
-            div = util.delay();
+            delay = util.delay();
             modalInstance = modal.create({
-                content: div,
+                content: delay,
                 height: 500,
-                inputs: ["close"],
-                left: event.clientX,
-                single: true,
-                title: `${type} - ${addresses[a][0]}`,
-                top: event.clientY - 60,
-                type: (type === "Edit")
-                    ? "fileEdit"
-                    : "textPad",
+                inputs: (type === "Edit")
+                    ? ["close", "save"]
+                    : ["close"],
+                left: event.clientX + (a * 10),
+                single: false,
+                title: `${type} - ${agentName} - ${addresses[a][0]}`,
+                top: (event.clientY - 60) + (a * 10),
+                type: "textPad",
                 width: 500
             });
-            modals.push(modalInstance);
-            id = modalInstance.getAttribute("id");
-            network.fs({
-                action: (type === "Edit")
-                    ? "fs-read"
-                    : `fs-${type.toLowerCase()}`,
-                agent: agent(element),
-                copyAgent: "",
-                depth: 1,
-                id: id,
-                location: [addresses[a][0]],
-                name: "",
-                watch: "no"
-            }, function local_context_dataString_callback(resultString:string):void {
-                const textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                    modalResult:HTMLElement = modals[b],
-                    body:HTMLElement = <HTMLElement>modalResult.getElementsByClassName("body")[0];
-                b = b + 1;
-                if (resultString.indexOf("\"dirs\":") < -1) {
-                    resultString = resultString.slice(resultString.indexOf("\"dirs\":") + 7, resultString.length - 1);
-                }
-                textArea.onblur = modal.textSave;
-                if (type === "Base64") {
-                    textArea.style.whiteSpace = "normal";
-                }
-                textArea.value = resultString;
-                body.innerHTML = "";
-                body.appendChild(textArea);
-                network.settings();
-            });
+            locations.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
         }
         a = a + 1;
     } while (a < length);
+    network.fs({
+        action: (type === "Edit")
+            ? "fs-read"
+            : `fs-${type.toLowerCase()}`,
+        agent: agentName,
+        copyAgent: "",
+        depth: 1,
+        id: "",
+        location: locations,
+        name: "",
+        watch: "no"
+    }, function local_context_dataString_callback(resultString:string):void {
+        const data:stringDataList = JSON.parse(resultString),
+            length:number = data.length;
+        let a:number = 0,
+            textArea:HTMLTextAreaElement,
+            modalResult:HTMLElement,
+            body:HTMLElement,
+            heading:HTMLElement;
+        do {
+            textArea = document.createElement("textarea");
+            modalResult = document.getElementById(data[a].id),
+            body = <HTMLElement>modalResult.getElementsByClassName("body")[0];
+            textArea.onblur = modal.textSave;
+            heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+            if (type === "Base64") {
+                textArea.style.whiteSpace = "normal";
+            }
+            if (type === "Hash") {
+                textArea.style.height = "5em";
+                body.style.height = "auto";
+            }
+            browser.data.modals[data[a].id].text_value = data[a].content;
+            textArea.value = data[a].content;
+            body.innerHTML = "";
+            body.appendChild(textArea);
+            body.style.overflow = "hidden";
+            heading.style.width = `${(body.clientWidth - 50) / 18}em`;
+            a = a + 1;
+        } while (a < length);
+        network.settings();
+    });
 };
 
 /* Handler for removing file system artifacts via context menu */
@@ -148,6 +161,7 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
 /* Handler for details action of context menu */
 context.details = function local_context_details(event:MouseEvent, element?:HTMLElement):void {
     const div:HTMLElement = util.delay(),
+        agentName:string = agent(element),
         addresses:[string, string][] = util.selectedAddresses(element, "details"),
         modalInstance:HTMLElement = modal.create({
             content: div,
@@ -155,7 +169,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
             inputs: ["close"],
             left: event.clientX,
             single: true,
-            title: `Details - ${addresses.length} items`,
+            title: `Details - ${agentName} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -173,7 +187,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         }());
     network.fs({
         action: "fs-details",
-        agent: agent(element),
+        agent: agentName,
         copyAgent: "",
         depth: 0,
         id: id,

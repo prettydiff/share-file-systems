@@ -429,6 +429,9 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
         } else if (key === 68) {
             // key d, new directory
             context.fsNew(element, "directory");
+        } else if (key === 69) {
+            // key e, edit file
+            context.dataString(event, element, "Edit");
         } else if (key === 70) {
             // key f, new file
             context.fsNew(element, "file");

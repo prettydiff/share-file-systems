@@ -10,7 +10,7 @@ type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-ac
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
-type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "text";
+type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
 interface applications {
     [key:string]: Function;
@@ -18,6 +18,16 @@ interface applications {
 interface appName {
     command: string,
     name: string
+}
+interface base64Input {
+    callback: Function;
+    id: string;
+    source: string;
+}
+interface base64Output {
+    base64: string;
+    filePath: string;
+    id: string;
 }
 interface browser {
     characterKey: string;
@@ -117,6 +127,7 @@ interface functionEvent extends EventHandlerNonNull {
 interface hashInput {
     callback: Function;
     directInput: boolean;
+    id?: string;
     parent?: number;
     source: Buffer | string;
     stat?: Stats;
@@ -124,6 +135,7 @@ interface hashInput {
 interface hashOutput {
     filePath: string;
     hash: string;
+    id?: string;
     parent?: number;
     stat?: Stats;
 }
@@ -282,6 +294,7 @@ interface readDirectory {
 }
 interface readFile {
     callback: Function;
+    id?: string;
     index: number;
     path: string;
     stat: Stats;
@@ -337,6 +350,14 @@ interface Stats {
     isFile: Function;
     isSocket: Function;
     isSymbolicLink: Function;
+}
+interface stringData {
+    content: string;
+    id: string;
+    path: string;
+}
+interface stringDataList extends Array<stringData> {
+    [index:number]: stringData;
 }
 interface terminalVariables {
     binary_check: RegExp;

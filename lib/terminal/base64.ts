@@ -12,13 +12,13 @@ const library = {
         log: log,
         remove: remove
     },
-    base64 = function terminal_base64(filePath:string, callback:Function):void {
+    base64 = function terminal_base64(input:base64Input):void {
         let direction:string = (process.argv[0] === "encode" || process.argv[0] === "decode")
                 ? process.argv[0]
                 : "encode",
             http:boolean = false,
-            path:string = (typeof filePath === "string")
-                ? filePath
+            path:string = (typeof input.source === "string")
+                ? input.source
                 : (process.argv[0] === "encode" || process.argv[0] === "decode")
                     ? process.argv[1]
                     : process.argv[0];
@@ -75,8 +75,12 @@ const library = {
                                             const output = (direction === "decode")
                                                 ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                                 : buffer.toString("base64");
-                                            if (typeof callback === "function") {
-                                                callback(output);
+                                            if (typeof input.callback === "function") {
+                                                input.callback({
+                                                    base64: output,
+                                                    filePath: input.source,
+                                                    id: input.id
+                                                });
                                             } else {
                                                 if (vars.verbose === true) {
                                                     const list:string[] = [output];

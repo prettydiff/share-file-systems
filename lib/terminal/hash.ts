@@ -51,6 +51,7 @@ const library = {
                         input.callback({
                             filePath: input.source,
                             hash: hashString,
+                            id: input.id,
                             parent: input.parent,
                             stat: input.stat
                         });
@@ -220,8 +221,9 @@ const library = {
             process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(input.source);
             input.callback({
-                filePath: input.source,
+                filePath: "",
                 hash: hash.digest("hex"),
+                id: input.id,
                 parent: input.parent,
                 stat: input.stat
             });

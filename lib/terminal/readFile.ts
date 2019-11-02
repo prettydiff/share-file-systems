@@ -8,6 +8,7 @@ const readFile = function terminal_readFile(args:readFile):void {
     // * callback - function - What to do next. Args
     // *    args - the arguments passed in
     // *    dump - the file data
+    // * id - string, optional - Required for reads directly requested by the user
     // * index - number - if the file is opened as a part of a directory operation then the index represents the index out of the entire directory list
     // * path - string - the file to open
     // * stat - Stats - the Stats object for the given file
