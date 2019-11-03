@@ -221,8 +221,33 @@ const library = {
                         target:value
                     });
                 });
-            };;
-        if (data.action === "fs-directory" || data.action === "fs-details") {
+            };
+        if (data.agent !== "localhost" && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-write")) {
+            library.httpClient({
+                callback: function terminal_server_fileService_remoteString(fsResponse:http.IncomingMessage):void {
+                    const chunks:string[] = [];
+                    fsResponse.setEncoding("utf8");
+                    fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
+                        chunks.push(chunk);
+                    });
+                    fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
+                        const body:string = chunks.join("");
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                        response.write(body);
+                        response.end();
+                    });
+                    fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
+                        if (errorMessage.code !== "ETIMEDOUT") {
+                            library.log([errorMessage.toString()]);
+                            vars.ws.broadcast(errorMessage.toString());
+                        }
+                    });
+                },
+                data: data,
+                errorMessage: `error:Error requesting ${data.action} from remote.`,
+                response: response
+            });
+        } else if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                         count = count + 1;
@@ -620,94 +645,67 @@ const library = {
                 }
             });
         } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-            if (data.agent === "localhost") {
-                const length:number = data.location.length,
-                    storage:stringDataList = [],
-                    type:string = data.action.replace("fs-", ""),
-                    callback = function terminal_server_fileService_callback(output:base64Output):void {
-                        b = b + 1;
-                        storage.push({
-                            content: output[type],
-                            id: output.id,
-                            path: output.filePath
-                        });
-                        if (b === length) {
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(JSON.stringify(storage));
-                            response.end();
-                        }
-                    },
-                    fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
-                        vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
-                            if (readError !== null) {
-                                library.error([readError.toString()]);
-                                vars.ws.broadcast(`error:${readError.toString()}`);
-                                return;
-                            }
-                            input.callback({
-                                id: input.id,
-                                filePath: input.source,
-                                read: fileData
-                            });
-                        });
-                    };
-                let a:number = 0,
-                    b:number = 0,
-                    id:string,
-                    index:number,
-                    location:string;
-                do {
-                    index = data.location[a].indexOf(":");
-                    id = data.location[a].slice(0, index);
-                    location = data.location[a].slice(index + 1);
-                    if (data.action === "fs-base64") {
-                        library[type]({
-                            callback: callback,
-                            id: id,
-                            source: location
-                        });
-                    } else if (data.action === "fs-hash") {
-                        library.hash({
-                            callback: callback,
-                            directInput: false,
-                            id: id,
-                            source: location
-                        });
-                    } else if (data.action === "fs-read") {
-                        fileReader({
-                            callback: callback,
-                            id: id,
-                            source: location
-                        });
+            const length:number = data.location.length,
+                storage:stringDataList = [],
+                type:string = data.action.replace("fs-", ""),
+                callback = function terminal_server_fileService_callback(output:base64Output):void {
+                    b = b + 1;
+                    storage.push({
+                        content: output[type],
+                        id: output.id,
+                        path: output.filePath
+                    });
+                    if (b === length) {
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                        response.write(JSON.stringify(storage));
+                        response.end();
                     }
-                    a = a + 1;
-                } while (a < length);
-            } else {
-                library.httpClient({
-                    callback: function terminal_server_fileService_remoteString(fsResponse:http.IncomingMessage):void {
-                        const chunks:string[] = [];
-                        fsResponse.setEncoding("utf8");
-                        fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
-                            chunks.push(chunk);
+                },
+                fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
+                    vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
+                        if (readError !== null) {
+                            library.error([readError.toString()]);
+                            vars.ws.broadcast(`error:${readError.toString()}`);
+                            return;
+                        }
+                        input.callback({
+                            id: input.id,
+                            filePath: input.source,
+                            read: fileData
                         });
-                        fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
-                            const body:string = chunks.join("");
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(body);
-                            response.end();
-                        });
-                        fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT") {
-                                library.log([errorMessage.toString()]);
-                                vars.ws.broadcast(errorMessage.toString());
-                            }
-                        });
-                    },
-                    data: data,
-                    errorMessage: `error:Error requesting ${data.action} from remote.`,
-                    response: response
-                });
-            }
+                    });
+                };
+            let a:number = 0,
+                b:number = 0,
+                id:string,
+                index:number,
+                location:string;
+            do {
+                index = data.location[a].indexOf(":");
+                id = data.location[a].slice(0, index);
+                location = data.location[a].slice(index + 1);
+                if (data.action === "fs-base64") {
+                    library[type]({
+                        callback: callback,
+                        id: id,
+                        source: location
+                    });
+                } else if (data.action === "fs-hash") {
+                    library.hash({
+                        callback: callback,
+                        directInput: false,
+                        id: id,
+                        source: location
+                    });
+                } else if (data.action === "fs-read") {
+                    fileReader({
+                        callback: callback,
+                        id: id,
+                        source: location
+                    });
+                }
+                a = a + 1;
+            } while (a < length);
         } else if (data.action === "fs-new") {
             const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
                     ? "\\"
@@ -734,44 +732,17 @@ const library = {
                 });
             }
         } else if (data.action === "fs-write") {
-            if (data.agent === "localhost") {
-                vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
-                    let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;
-                    if (erw !== null) {
-                        library.error([erw.toString()]);
-                        vars.ws.broadcast(`error:${erw.toString()}`);
-                        message = `Error writing file: ${erw.toString()}`;
-                    }
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(message);
-                    response.end();
-                });
-            } else {
-                library.httpClient({
-                    callback: function terminal_server_fileService_remoteWrite(fsResponse:http.IncomingMessage):void {
-                        const chunks:string[] = [];
-                        fsResponse.setEncoding("utf8");
-                        fsResponse.on("data", function terminal_server_fileService_remoteWrite_data(chunk:string):void {
-                            chunks.push(chunk);
-                        });
-                        fsResponse.on("end", function terminal_server_fileService_remoteWrite_end():void {
-                            const body:string = chunks.join("");
-                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(body);
-                            response.end();
-                        });
-                        fsResponse.on("error", function terminal_server_fileService_remoteWrite_error(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT") {
-                                library.log([errorMessage.toString()]);
-                                vars.ws.broadcast(errorMessage.toString());
-                            }
-                        });
-                    },
-                    data: data,
-                    errorMessage: `error:Error requesting ${data.action} from remote.`,
-                    response: response
-                });
-            }
+            vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
+                let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;
+                if (erw !== null) {
+                    library.error([erw.toString()]);
+                    vars.ws.broadcast(`error:${erw.toString()}`);
+                    message = `Error writing file: ${erw.toString()}`;
+                }
+                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                response.write(message);
+                response.end();
+            });
         }
     };
 
