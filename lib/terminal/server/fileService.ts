@@ -194,7 +194,34 @@ const library = {
                     data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
                     requestFile();
                 }
-            };
+            },
+            copySameAgent = function terminal_server_fileService_copySameAgent():void {
+                let count:number = 0;
+                const length:number = data.location.length;
+                data.location.forEach(function terminal_server_fileService_copySameAgent_each(value:string):void {
+                    const callback = (data.action === "fs-copy")
+                        ? function terminal_server_fileService_copySameAgent_each_copy():void {
+                            count = count + 1;
+                            if (count === length) {
+                                fileCallback(`Path(s) ${data.location.join(", ")} copied.`);
+                            }
+                        }
+                        : function terminal_server_fileService_copySameAgent_each_cut():void {
+                            library.remove(value, function terminal_server_fileService_copySameAgent_each_cut_callback():void {
+                                count = count + 1;
+                                if (count === length) {
+                                    fileCallback(`Path(s) ${data.location.join(", ")} cut and pasted.`);
+                                }
+                            });
+                        }
+                    library.copy({
+                        callback: callback,
+                        destination:data.name,
+                        exclusions:[""],
+                        target:value
+                    });
+                });
+            };;
         if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
@@ -432,36 +459,15 @@ const library = {
             }
             fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
-            let count:number = 0,
-                length:number = data.location.length;
             if (data.agent === "localhost") {
                 if (data.copyAgent === "localhost") {
-                    // copy to/from localhost
-                    data.location.forEach(function terminal_server_fileService_copyEach(value:string):void {
-                        const callback = (data.action === "fs-copy")
-                            ? function terminal_server_fileService_copyEach_copy():void {
-                                count = count + 1;
-                                if (count === length) {
-                                    fileCallback(`Path(s) ${data.location.join(", ")} copied.`);
-                                }
-                            }
-                            : function terminal_server_fileService_copyEach_cut():void {
-                                library.remove(value, function terminal_server_fileService_copyEach_cut_callback():void {
-                                    count = count + 1;
-                                    if (count === length) {
-                                        fileCallback(`Path(s) ${data.location.join(", ")} cut and pasted.`);
-                                    }
-                                });
-                            }
-                        library.copy({
-                            callback: callback,
-                            destination:data.name,
-                            exclusions:[""],
-                            target:value
-                        });
-                    });
+                    // * data.agent === "localhost"
+                    // * data.copyAgent === "localhost"
+                    copySameAgent();
                 } else {
                     // copy from local to remote
+                    // * data.agent === "localhost"
+                    // * data.copyAgent === remoteAgent
                     // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                     remoteCopyList({
                         callback: function terminal_server_fileService_remoteListCallback(files:[string, string, string][]):void {
@@ -494,8 +500,9 @@ const library = {
                         length: data.location.length
                     });
                 }
-            } else {
-                // copy from remote to localhost
+            } else if (data.copyAgent === "localhost") {
+                // data.agent === remoteAgent
+                // data.copyAgent === "localhost"
                 const action:serviceType = <serviceType>`${data.action}-list`,
                     callback = function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
                         const chunks:string[] = [];
@@ -519,6 +526,38 @@ const library = {
                     errorMessage: "copy from remote to localhost",
                     response: response
                 });
+            } else if (data.agent === data.copyAgent) {
+                // * data.agent === sameRemoteAgent
+                // * data.agent === sameRemoteAgent
+                const action:serviceType = <serviceType>`${data.action}-self`;
+                data.action = action;
+                library.httpClient({
+                    callback: function terminal_server_fileService_selfResponse(fsResponse:http.IncomingMessage):void {
+                        const chunks:string[] = [];
+                        fsResponse.setEncoding("utf8");
+                        fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
+                            chunks.push(chunk);
+                        });
+                        fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
+                            const body:string = chunks.join("");
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(body);
+                            response.end();
+                        });
+                        fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
+                            if (errorMessage.code !== "ETIMEDOUT") {
+                                library.log([errorMessage.toString()]);
+                                vars.ws.broadcast(errorMessage.toString());
+                            }
+                        });
+                    },
+                    data: data,
+                    errorMessage: `error:Error copying files to and from agent ${data.agent}.`,
+                    response: response
+                });
+            } else {
+                // * data.agent === remoteAgent
+                // * data.copyAgent === differentRemoteAgent
             }
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file
@@ -549,6 +588,8 @@ const library = {
             });
         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
             requestFiles(JSON.parse(data.remoteWatch));
+        } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
+            copySameAgent();
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {
