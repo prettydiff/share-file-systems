@@ -90,6 +90,18 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
+**fs-copy-request**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-copy* so that a remote requests files from localhost.
+   - output     : void
+   - parameters
+      * action   : **"fs-copy-request"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string  - sort list of files to be requested
+      * watch    : "no"
 **fs-cut**
    - description: Same as copy, but deletes the original artifacts after writing them to the new location.
    - output     : void
@@ -125,6 +137,18 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * id       : string
       * location : string[]
       * name     : ""
+      * watch    : "no"
+**fs-cut-request**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut* so that a remote requests files from localhost.
+   - output     : void
+   - parameters
+      * action   : **"fs-cut-request"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string  - sort list of files to be requested
       * watch    : "no"
 * **fs-destroy**
    - description: Remove file system artifacts from the file system.
