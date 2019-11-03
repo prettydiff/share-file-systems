@@ -109,14 +109,14 @@ const library = {
             },
             requestFiles = function terminal_server_fileService_requestFiles(list:[string, string, string][]):void {
                 const listLength = list.length,
-                respond = function terminal_server_fileService_requestFiles_respond():void {
-                    library.log([``]);
-                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                    response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
-                    response.end();
-                },
-                fileCallback = function terminal_server_fileService_requestFiles_fileCallback(fileResponse:http.IncomingMessage):void {
-                    const fileChunks:Buffer[] = [];
+                    respond = function terminal_server_fileService_requestFiles_respond():void {
+                        library.log([``]);
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                        response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
+                        response.end();
+                    },
+                    fileCallback = function terminal_server_fileService_requestFiles_fileCallback(fileResponse:http.IncomingMessage):void {
+                        const fileChunks:Buffer[] = [];
                         fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileCallback_data(fileChunk:string):void {
                             fileChunks.push(Buffer.from(fileChunk, "binary"));
                         });
@@ -129,7 +129,7 @@ const library = {
                                     if (remoteHash === output.hash) {
                                         fs.writeFile(data.name + vars.sep + fileName, file, function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
                                             if (wr !== null) {
-                                                library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`]);
+                                                library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
                                                 vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
                                             }
                                         });
@@ -191,7 +191,7 @@ const library = {
                 if (list[0][1] === "directory") {
                     makeDir();
                 } else {
-                    data.action = <serviceFS>data.action.replace("list", "file");
+                    data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
                     requestFile();
                 }
             };
@@ -432,12 +432,6 @@ const library = {
             }
             fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
-            // * data.agent     | data.copyAgent     | status | task
-            // * --------------------------------------------------------
-            // * localhost      | localhost          | good   | copy to/from localhost
-            // * localhost      | agent              | fail   | copy from localhost to remote
-            // * error: socket hang up on localhost  | fail   | copy from remote to localhost, data.agent and data.copyAgent display on remote
-            // * remote user id | remote user id     | good   | copy to/from same remote
             let count:number = 0,
                 length:number = data.location.length;
             if (data.agent === "localhost") {
@@ -468,12 +462,28 @@ const library = {
                     });
                 } else {
                     // copy from local to remote
+                    // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                     remoteCopyList({
                         callback: function terminal_server_fileService_remoteListCallback(files:[string, string, string][]):void {
                             data.action = <serviceType>`${data.action}-request`;
-                            data.name = JSON.stringify(files);
+                            data.agent = data.copyAgent;
+                            data.remoteWatch = JSON.stringify(files);
                             library.httpClient({
-                                callback: function terminal_server_fileServices_remoteListCallback_http():void {},
+                                callback: function terminal_server_fileServices_remoteListCallback_http(fsResponse:http.IncomingMessage):void {
+                                    const chunks:string[] = [];
+                                    fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
+                                        chunks.push(chunk);
+                                    });
+                                    fsResponse.on("end", function terminal_server_fileService_response_end():void {
+                                        library.log([chunks.join("")]);
+                                    });
+                                    fsResponse.on("error", function terminal_server_fileService_response_error(errorMessage:nodeError):void {
+                                        if (errorMessage.code !== "ETIMEDOUT") {
+                                            library.log([errorMessage.toString()]);
+                                            vars.ws.broadcast(errorMessage.toString());
+                                        }
+                                    });
+                                },
                                 data: data,
                                 errorMessage: "error:Error sending list of files to remote for copy from localhost.",
                                 response: response
@@ -512,7 +522,9 @@ const library = {
             }
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file
-            // * generated internally from fs-copy-list or fs-cut-list
+            // * generated internally from
+            // * fs-copy-list and fs-cut-list (copy from remote to localhost)
+            // * fs-copy-request and fs-cut-request (copy from localhost to remote)
             library.hash({
                 callback: function terminal_server_fileService_fileHashCallback(output:hashOutput):void {
                     response.setHeader("hash", output.hash);
@@ -536,10 +548,7 @@ const library = {
                 length: data.location.length
             });
         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
-            const copy:string = data.copyAgent;
-            data.copyAgent = data.agent;
-            data.agent = copy;
-            requestFiles(JSON.parse(data.name));
+            requestFiles(JSON.parse(data.remoteWatch));
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {

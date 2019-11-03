@@ -25,6 +25,10 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             const portString:string = config.data.agent.slice(config.data.agent.lastIndexOf(":") + 1);
             if (config.data.action === "fs-base64" || config.data.action === "fs-hash" || config.data.action === "fs-read" || config.data.action === "fs-write") {
                 config.data.agent = "localhost";
+            } else if (config.data.action === "fs-copy-request" || config.data.action === "fs-cut-request") {
+                config.data.agent = (serverVars.addresses[0][1][1].indexOf(":") > -1)
+                    ? `r@[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
+                    : `r@${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
             }
             if (isNaN(Number(portString)) === true) {
                 return 80;
