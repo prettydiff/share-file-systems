@@ -162,7 +162,7 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
                     // overlap from the left
                     (dragArea.left <= liLocation[0].left && dragArea.right <= liLocation[0].right) ||
                     // overlap from the right
-                    (dragArea.left >= liLocation[0].left && dragArea.right >= liLocation[0].right)
+                    (dragArea.left <= (liLocation[0].left + li[0].clientWidth) && dragArea.right >= liLocation[0].right)
                 ) {
                     a = 0;
                     do {

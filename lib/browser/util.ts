@@ -128,8 +128,18 @@ util.delay = function local_util_delay():HTMLElement {
 /* Drag a selection box to capture a collection of items into a selection */
 util.dragSelect = function local_util_dragSelect(event:Event, callback:Function):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        body:HTMLElement = (function local_util_dragSelect_body():HTMLElement {
+        list:HTMLElement = (function local_util_dragSelect_list():HTMLElement {
+            if (element.getAttribute("class") === "fileList") {
+                return element;
+            }
             let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "fileList");
+            return el;
+        }()),
+        body:HTMLElement = (function local_util_dragSelect_body():HTMLElement {
+            let el:HTMLElement = list;
             do {
                 el = <HTMLElement>el.parentNode;
             } while (el !== document.documentElement && el.getAttribute("class") !== "body");
@@ -142,8 +152,21 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
             } while (el !== document.documentElement && el.getAttribute("class") !== "box");
             return el;
         }()),
-        offsetLeft:number = box.offsetLeft + body.offsetLeft,
-        offsetTop:number = box.offsetTop + body.offsetTop + 50,
+        boxTop:number = box.offsetTop,
+        boxLeft:number = box.offsetLeft,
+        bodyTop:number = body.offsetTop,
+        bodyLeft:number = body.offsetLeft,
+        listHeight:number = list.clientHeight,
+        bodyHeight:number = body.clientHeight,
+        bodyWidth:number = body.clientWidth,
+        bodyScrollTop:number = body.scrollTop,
+        bodyScrollLeft:number = body.scrollLeft,
+        offsetLeft:number = boxLeft + bodyLeft - body.scrollLeft,
+        offsetTop:number = boxTop + bodyTop - bodyScrollTop + 50,
+        maxUp:number = boxTop + bodyTop + 50 - bodyScrollTop,
+        maxDown:number = boxTop + bodyTop + listHeight + 50 - bodyScrollTop,
+        maxLeft:number = boxLeft + bodyLeft - bodyScrollLeft,
+        maxRight:number = boxLeft + bodyLeft + bodyWidth - 4,
         drag:HTMLElement = document.createElement("div"),
         touch:boolean      = (event !== null && event.type === "touchstart"),
         mouseEvent = <MouseEvent>event,
@@ -176,40 +199,104 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
         },
         boxMoveTouch    = function local_modal_move_touch(f:TouchEvent):boolean {
             f.preventDefault();
+            // horizontal
             if (mouseX > f.touches[0].clientX) {
-                drag.style.width = `${(touchX - f.touches[0].clientX) / 10}em`;
-                drag.style.left = `${(f.touches[0].clientX - offsetLeft) / 10}em`;
+                // drag left
+                if (f.touches[0].clientX > maxLeft) {
+                    drag.style.width = `${(touchX - f.touches[0].clientX) / 10}em`;
+                    drag.style.left = `${(f.touches[0].clientX - offsetLeft) / 10}em`;
+                    if (f.touches[0].clientX < (viewportX - bodyWidth - 4)) {
+                        body.scrollLeft = body.scrollLeft - ((viewportX - bodyWidth - 4) - f.touches[0].clientX);
+                        viewportX = f.touches[0].clientX + bodyWidth + 4;
+                    }
+                }
             } else {
-                drag.style.width = `${(f.touches[0].clientX - touchX) / 10}em`;
-                drag.style.left = `${(touchX - offsetLeft) / 10}em`;
+                // drag right
+                if (f.touches[0].clientX < maxRight) {
+                    drag.style.width = `${(f.touches[0].clientX - touchX) / 10}em`;
+                    drag.style.left = `${(touchX - offsetLeft) / 10}em`;
+                    if (f.touches[0].clientX > viewportX) {
+                        body.scrollLeft = body.scrollLeft + (f.touches[0].clientX - viewportX);
+                        viewportX = f.touches[0].clientX;
+                    }
+                }
             }
+
+            // vertical
             if (touchY > f.touches[0].clientY) {
-                drag.style.height = `${(touchY - f.touches[0].clientY) / 10}em`;
-                drag.style.top = `${(f.touches[0].clientY - offsetTop) / 10}em`;
+                // drag up
+                if (f.touches[0].clientY > maxUp) {
+                    drag.style.height = `${(touchY - f.touches[0].clientY) / 10}em`;
+                    drag.style.top = `${(f.touches[0].clientY - offsetTop) / 10}em`;
+                    if (f.touches[0].clientY < (viewportY - bodyHeight - 50)) {
+                        body.scrollTop = body.scrollTop - ((viewportY - bodyHeight - 50) - f.touches[0].clientY);
+                        viewportY = f.touches[0].clientY + bodyHeight + 50;
+                    }
+                }
             } else {
-                drag.style.height = `${(f.touches[0].clientY - touchY) / 10}em`;
-                drag.style.top = `${(touchY - offsetTop) / 10}em`;
+                // drag down
+                if (f.touches[0].clientY < maxDown) {
+                    drag.style.height = `${(f.touches[0].clientY - touchY) / 10}em`;
+                    drag.style.top = `${(touchY - offsetTop) / 10}em`;
+                    if (f.touches[0].clientY > viewportY) {
+                        body.scrollTop = body.scrollTop + (f.touches[0].clientY - viewportY);
+                        viewportY = f.touches[0].clientY;
+                    }
+                }
             }
             return false;
         },
         boxMoveClick = function local_modal_move_click(f:MouseEvent):boolean {
             f.preventDefault();
+            // horizontal
             if (mouseX > f.clientX) {
-                drag.style.width = `${(mouseX - f.clientX) / 10}em`;
-                drag.style.left = `${(f.clientX - offsetLeft) / 10}em`;
+                // drag left
+                if (f.clientX > maxLeft) {
+                    drag.style.width = `${(mouseX - f.clientX) / 10}em`;
+                    drag.style.left = `${(f.clientX - offsetLeft) / 10}em`;
+                    if (f.clientX < (viewportX - bodyWidth - 4)) {
+                        body.scrollLeft = body.scrollLeft - ((viewportX - bodyWidth - 4) - f.clientX);
+                        viewportX = f.clientX + bodyWidth + 4;
+                    }
+                }
             } else {
-                drag.style.width = `${(f.clientX - mouseX) / 10}em`;
-                drag.style.left = `${(mouseX - offsetLeft) / 10}em`;
+                // drag right
+                if (f.clientX < maxRight) {
+                    drag.style.width = `${(f.clientX - mouseX) / 10}em`;
+                    drag.style.left = `${(mouseX - offsetLeft) / 10}em`;
+                    if (f.clientX > viewportX) {
+                        body.scrollLeft = body.scrollLeft + (f.clientX - viewportX);
+                        viewportX = f.clientX;
+                    }
+                }
             }
+
+            // vertical
             if (mouseY > f.clientY) {
-                drag.style.height = `${(mouseY - f.clientY) / 10}em`;
-                drag.style.top = `${(f.clientY - offsetTop) / 10}em`;
+                // drag up
+                if (f.clientY > maxUp) {
+                    drag.style.height = `${(mouseY - f.clientY) / 10}em`;
+                    drag.style.top = `${(f.clientY - offsetTop) / 10}em`;
+                    if (f.clientY < (viewportY - bodyHeight - 50)) {
+                        body.scrollTop = body.scrollTop - ((viewportY - bodyHeight - 50) - f.clientY);
+                        viewportY = f.clientY + bodyHeight + 50;
+                    }
+                }
             } else {
-                drag.style.height = `${(f.clientY - mouseY) / 10}em`;
-                drag.style.top = `${(mouseY - offsetTop) / 10}em`;
+                // drag down
+                if (f.clientY < maxDown) {
+                    drag.style.height = `${(f.clientY - mouseY) / 10}em`;
+                    drag.style.top = `${(mouseY - offsetTop) / 10}em`;
+                    if (f.clientY > viewportY) {
+                        body.scrollTop = body.scrollTop + (f.clientY - viewportY);
+                        viewportY = f.clientY;
+                    }
+                }
             }
             return false;
         };
+    let viewportY:number = bodyTop + boxTop + bodyHeight + 50 + bodyScrollTop,
+        viewportX:number = bodyLeft + boxLeft + 4 + bodyScrollLeft;
     event.preventDefault();
     drag.setAttribute("id", "dragBox");
     body.insertBefore(drag, body.firstChild);
@@ -494,7 +581,6 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
         }
     }
 };
-
 
 /* Release control keys necessary for shortcut key combinations */
 util.keyup = function local_util_keys(event:KeyboardEvent):void {
