@@ -191,8 +191,8 @@ const library = {
                         }
                     } else {
                         const settings:ui_data = JSON.parse(fileData),
-                            shares:string[] = Object.keys(settings.shares),
-                            length:number = shares.length;
+                            users:string[] = Object.keys(settings.users),
+                            length:number = users.length;
                         if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                             logOutput();
                         } else {
@@ -201,9 +201,9 @@ const library = {
                                 port:string,
                                 lastColon:number;
                             do {
-                                lastColon = shares[a].lastIndexOf(":");
-                                ip = shares[a].slice(shares[a].indexOf("@") + 1, lastColon);
-                                port = shares[a].slice(lastColon + 1);
+                                lastColon = users[a].lastIndexOf(":");
+                                ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
+                                port = users[a].slice(lastColon + 1);
                                 if (ip.charAt(0) === "[") {
                                     ip = ip.slice(1, ip.length - 1);
                                 }

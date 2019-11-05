@@ -38,6 +38,7 @@ interface browser {
     messages:messages;
     pageBody:HTMLElement;
     socket?:WebSocket;
+    style:HTMLStyleElement;
 }
 interface clipboard {
     agent: string;
@@ -408,9 +409,12 @@ interface ui_data {
     };
     modalTypes: string[];
     name: string;
-    shares: {
-        [key:string]: [string, string][]
-    };
+    users: {
+        [key:string]: {
+            color:[string, string];
+            shares:[string, string][]
+        }
+    }
     zIndex: number;
 }
 interface ui_modal {

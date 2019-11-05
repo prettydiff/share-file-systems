@@ -90,7 +90,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
                 message: box.getElementsByTagName("textarea")[0].value,
                 modal: id,
                 name: browser.data.name,
-                shares: browser.data.shares.localhost,
+                shares: browser.data.users.localhost.shares,
                 status: "invited"
             };
         if (inviteData.ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.ip) === false && (/([a-f0-9]{4}:)+/).test(inviteData.ip) === false)) {
@@ -121,7 +121,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             ip: invite.ip,
             modal: invite.modal,
             port: invite.port,
-            shares: browser.data.shares.localhost,
+            shares: browser.data.users.localhost.shares,
             status: "accepted"
         });
         if (invite.ip.indexOf(":") > 0) {
@@ -197,6 +197,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     browser.data.modals[id] = options;
     box.style.zIndex = browser.data.zIndex.toString();
     box.setAttribute("class", "box");
+    if (options.agent === undefined) {
+        box.setAttribute("data-agent", "localhost");
+    } else {
+        box.setAttribute("data-agent", options.agent);
+    }
     border.setAttribute("class", "border");
     body.setAttribute("class", "body");
     body.style.height = `${options.height / 10}em`;
@@ -268,7 +273,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                                 ip: invite.ip,
                                 modal: invite.modal,
                                 port: invite.port,
-                                shares: browser.data.shares.localhost,
+                                shares: browser.data.users.localhost.shares,
                                 status: "declined"
                             });
                         });
@@ -868,7 +873,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
 
 /* Displays a list of shared items for each user */
 modal.shares = function local_modal_shares(event:MouseEvent, user?:string, configuration?:ui_modal):void {
-    const userKeys:string[] = Object.keys(browser.data.shares),
+    const userKeys:string[] = Object.keys(browser.data.users),
         keyLength:number = userKeys.length,
         fileNavigate = function local_modal_shares_fileNavigate(event:MouseEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -893,7 +898,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
     if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
         user = "localhost";
     }
-    if (keyLength === 1 && browser.data.shares.localhost.length === 0) {
+    if (keyLength === 1 && browser.data.users.localhost.shares.length === 0) {
         eachUser = document.createElement("h3");
         eachUser.innerHTML = "There are no shares at this time.";
         modal.create({
@@ -923,16 +928,16 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 userName.setAttribute("class", "user");
                 userName.innerHTML = userKeys[a];
                 eachUser.appendChild(userName);
-                shareLength = browser.data.shares[userKeys[a]].length;
+                shareLength = browser.data.users[userKeys[a]].shares.length;
                 if (shareLength > 0) {
                     b = 0;
                     itemList = document.createElement("ul");
                     do {
                         item = document.createElement("li");
                         button = document.createElement("button");
-                        button.setAttribute("class", browser.data.shares[userKeys[a]][b][1]);
-                        button.innerHTML = browser.data.shares[userKeys[a]][b][0];
-                        if (browser.data.shares[userKeys[a]][b][1] === "directory" || browser.data.shares[userKeys[a]][b][1] === "file" || browser.data.shares[userKeys[a]][b][1] === "link") {
+                        button.setAttribute("class", browser.data.users[userKeys[a]].shares[b][1]);
+                        button.innerHTML = browser.data.users[userKeys[a]].shares[b][0];
+                        if (browser.data.users[userKeys[a]].shares[b][1] === "directory" || browser.data.users[userKeys[a]].shares[b][1] === "file" || browser.data.users[userKeys[a]].shares[b][1] === "link") {
                             button.onclick = fileNavigate;
                         }
                         item.appendChild(button);
@@ -949,7 +954,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             } while (a < keyLength);
         } else {
             title = `Shares for user - ${user}`;
-            shareLength = browser.data.shares[user].length;
+            shareLength = browser.data.users[user].shares.length;
             users = document.createElement("div");
             users.setAttribute("class", "userList");
             userName = document.createElement("h3");
@@ -963,9 +968,9 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 do {
                     item = document.createElement("li");
                     button = document.createElement("button");
-                    button.setAttribute("class", browser.data.shares[user][b][1]);
-                    button.innerHTML = browser.data.shares[user][b][0];
-                    if (browser.data.shares[user][b][1] === "directory" || browser.data.shares[user][b][1] === "file" || browser.data.shares[user][b][1] === "link") {
+                    button.setAttribute("class", browser.data.users[user].shares[b][1]);
+                    button.innerHTML = browser.data.users[user].shares[b][0];
+                    if (browser.data.users[user].shares[b][1] === "directory" || browser.data.users[user].shares[b][1] === "file" || browser.data.users[user].shares[b][1] === "link") {
                         button.onclick = fileNavigate;
                     }
                     item.appendChild(button);

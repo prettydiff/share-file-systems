@@ -12,6 +12,8 @@ import webSocket from "./lib/browser/webSocket.js";
 
     util.fixHeight();
     window.onresize = util.fixHeight;
+    browser.style.type = "text/css";
+    document.getElementsByTagName("head")[0].appendChild(browser.style);
 
     /* Restore state and assign events */
     (function local_load():void {
@@ -236,18 +238,18 @@ import webSocket from "./lib/browser/webSocket.js";
                                 };
                             let count:number = 0;
                             browser.data.name = storage.settings.name;
-                            util.addUser(`${storage.settings.name}@localhost`, storage.settings.name[storage.settings.shares[storage.settings.name]]);
+                            util.addUser(`${storage.settings.name}@localhost`, storage.settings.name[storage.settings.users[storage.settings.name]]);
                             localhost = document.getElementById("localhost");
                             
                             // restore shares
                             {
-                                browser.data.shares = storage.settings.shares;
-                                const users:string[] = Object.keys(storage.settings.shares),
+                                browser.data.users = storage.settings.users;
+                                const users:string[] = Object.keys(storage.settings.users),
                                     userLength:number = users.length;
                                 let a:number = 0;
                                 do {
                                     if (users[a] !== "localhost") {
-                                        util.addUser(users[a], storage.settings.shares[users[a]]);
+                                        util.addUser(users[a], storage.settings.users[users[a]]);
                                     }
                                     a = a + 1;
                                 } while (a < userLength);

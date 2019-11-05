@@ -712,7 +712,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
 
 /* Share utility for the context menu list */
 context.share = function local_context_share(element:HTMLElement):void {
-    const shareLength:number = browser.data.shares.localhost.length,
+    const shareLength:number = browser.data.users.localhost.shares.length,
         addresses:[string, string][] = util.selectedAddresses(element, "share"),
         addressesLength:number = addresses.length;
     let a:number = 0,
@@ -721,19 +721,19 @@ context.share = function local_context_share(element:HTMLElement):void {
         do {
             b = 0;
             do {
-                if (addresses[a][0] === browser.data.shares.localhost[b][0] && browser.data.shares.localhost[b][1] === addresses[a][1]) {
+                if (addresses[a][0] === browser.data.users.localhost.shares[b][0] && browser.data.users.localhost.shares[b][1] === addresses[a][1]) {
                     break;
                 }
                 b = b + 1;
             } while (b < shareLength);
             if (b === shareLength) {
-                browser.data.shares.localhost.push(addresses[a]);
+                browser.data.users.localhost.shares.push(addresses[a]);
             }
             a = a + 1;
         } while (a < addressesLength);
     } else {
         do {
-            browser.data.shares.localhost.push(addresses[a]);
+            browser.data.users.localhost.shares.push(addresses[a]);
             a = a + 1;
         } while (a < addressesLength);
     }

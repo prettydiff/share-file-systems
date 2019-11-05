@@ -155,14 +155,14 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                     } else if (localPath.indexOf(".svg") === localPath.length - 4) {
                         response.writeHead(200, {"Content-Type": "image/svg+xml"});
                     } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
-                        response.setHeader("content-security-policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
+                        response.setHeader("content-security-policy", `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
                         response.setHeader("connection", "keep-alive");
                         response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
                         if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
                             pageState();
                         }
                     } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                        response.setHeader("content-security-policy", `default-src 'self'; font-src 'self' data:; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
+                        response.setHeader("content-security-policy", `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://${serverVars.addresses[0][1][1]}:${serverVars.wsPort}; frame-ancestors 'none'; media-src 'none'; object-src 'none'`);
                         response.setHeader("connection", "keep-alive");
                         response.writeHead(200, {"Content-Type": "text/html"});
                         if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {

@@ -10,13 +10,50 @@ const util:module_util = {};
 /* Adds users to the user bar */
 util.addUser = function local_util_addUser(userName:string, shares?:[string, string][]):void {
     const li:HTMLLIElement = document.createElement("li"),
-        button:HTMLElement = document.createElement("button");
+        button:HTMLElement = document.createElement("button"),
+        addStyle = function local_util_addUser_addStyle() {
+            let body:string,
+                heading:string;
+            const prefix:string = `#spaces .box[data-agent="${userName}"]`,
+                generateColor = function local_util_addUser_addStyle_generateColor():void {
+                    const rand:[number, number, number] = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)],
+                        code1:string[] = [],
+                        code2:string[] = [];
+                    rand.forEach(function local_util_addUser_addStyle_generateColor_each(value:number) {
+                        if (value < 4) {
+                            code1.push("d");
+                            code2.push("c");
+                        } else if (value < 7) {
+                            code1.push("e");
+                            code2.push("d");
+                        } else {
+                            code1.push("f");
+                            code2.push("e");
+                        }
+                    });
+                    body = code1.join("");
+                    heading = code2.join("");
+                };
+            if (browser.data.users[userName] === undefined) {
+                generateColor();
+                if (body.charAt(0) === body.charAt(1) && body.charAt(1) === body.charAt(2)) {
+                    do {
+                        generateColor();
+                    } while (body.charAt(0) === body.charAt(1) && body.charAt(1) === body.charAt(2));
+                }
+            } else {
+                body = browser.data.users[userName].color[0];
+                heading = browser.data.users[userName].color[1];
+            }
+            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:#${body}}${prefix} h2.heading{background-color:#${heading}}`;
+        };
     button.innerHTML = userName;
     if (userName.split("@")[1] === "localhost") {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
-        browser.data.shares[userName] = shares;
+        browser.data.users[userName].shares = shares;
+        addStyle();
     }
     button.onclick = function local_util_addUser(event:MouseEvent) {
         modal.shares(event, button.innerHTML, null);
