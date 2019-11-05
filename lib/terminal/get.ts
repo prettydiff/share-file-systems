@@ -33,6 +33,7 @@ const library = {
             ]);
             return;
         }
+        // both http and https are used here as the scheme variable
         vars.node[scheme].get(address, function terminal_get_callback(res:http.IncomingMessage) {
             res.on("data", function terminal_get_callback_data(chunk:string):void {
                 file = file + chunk;

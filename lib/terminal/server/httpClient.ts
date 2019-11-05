@@ -36,7 +36,7 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             return Number(portString);
         }()),
         payload:string = `fs:${JSON.stringify(config.data)}`,
-        fsRequest:http.ClientRequest = http.request({
+        fsRequest:http.ClientRequest = vars.node.https.request({
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Content-Length": Buffer.byteLength(payload)

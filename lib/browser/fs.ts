@@ -85,7 +85,7 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
     local.sort(function local_fs_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {
-            if (a[0] < b[0]) {
+            if (a[0].toLowerCase() < b[0].toLowerCase()) {
                 return -1;
             }
             return 1;
