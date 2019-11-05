@@ -17,8 +17,8 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
             const prefix:string = `#spaces .box[data-agent="${userName}"]`,
                 generateColor = function local_util_addUser_addStyle_generateColor():void {
                     const rand:[number, number, number] = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)],
-                        code1:string[] = [],
-                        code2:string[] = [];
+                        code1:string[] = ["#"],
+                        code2:string[] = ["#"];
                     rand.forEach(function local_util_addUser_addStyle_generateColor_each(value:number) {
                         if (value < 4) {
                             code1.push("d");
@@ -36,16 +36,17 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
                 };
             if (browser.data.users[userName] === undefined) {
                 generateColor();
-                if (body.charAt(0) === body.charAt(1) && body.charAt(1) === body.charAt(2)) {
+                if (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3)) {
                     do {
                         generateColor();
-                    } while (body.charAt(0) === body.charAt(1) && body.charAt(1) === body.charAt(2));
+                    } while (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3));
                 }
+                browser.data.users[userName].color = [body, heading];
             } else {
                 body = browser.data.users[userName].color[0];
                 heading = browser.data.users[userName].color[1];
             }
-            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:#${body}}${prefix} h2.heading{background-color:#${heading}}`;
+            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:${body}}${prefix} h2.heading{background-color:${heading}}`;
         };
     button.innerHTML = userName;
     if (userName.split("@")[1] === "localhost") {
