@@ -15,7 +15,7 @@ const library = {
     heartbeat = function terminal_server_heartbeat(dataString:string, response?:http.ServerResponse):void {
         const data:heartbeat = JSON.parse(dataString),
             payload:string = `heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`,
-            heartbeatRequest:http.ClientRequest = vars.node.https.request({
+            heartbeatRequest:http.ClientRequest = vars.node.http.request({
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                     "Content-Length": Buffer.byteLength(payload)

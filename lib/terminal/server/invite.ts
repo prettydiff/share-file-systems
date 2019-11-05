@@ -22,7 +22,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         return output;
                     }())
                     : `${data.action}:${JSON.stringify(data)}`,
-                request:http.ClientRequest = vars.node.https.request({
+                request:http.ClientRequest = vars.node.http.request({
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
                         "Content-Length": Buffer.byteLength(payload)
