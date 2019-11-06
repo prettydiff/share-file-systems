@@ -237,7 +237,7 @@ interface module_systems {
     tabs?: EventHandlerNonNull;
 }
 interface module_util {
-    addUser?: (username:string, shares:[string, string][]) => void;
+    addUser?: (username:string) => void;
     commas?: (number:number) => string;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;

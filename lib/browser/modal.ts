@@ -110,6 +110,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
     if (options.type === "export") {
         modal.importSettings(event);
     } else if (options.type === "invite-accept") {
+        let user:string = "";
         const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
             dataString:string = para[para.length - 1].innerHTML,
             invite:invite = JSON.parse(dataString);
@@ -125,10 +126,15 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             status: "accepted"
         });
         if (invite.ip.indexOf(":") > 0) {
-            util.addUser(`${invite.name}@[${invite.ip}]:${invite.port}`, invite.shares);
+            user = `${invite.name}@[${invite.ip}]:${invite.port}`;
         } else {
-            util.addUser(`${invite.name}@${invite.ip}:${invite.port}`, invite.shares);
+            user = `${invite.name}@${invite.ip}:${invite.port}`;
         }
+        browser.data.users[user] = {
+            color: ["", ""],
+            shares: invite.shares
+        }
+        util.addUser(user);
     }
     modal.close(event);
 };

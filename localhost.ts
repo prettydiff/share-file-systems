@@ -82,7 +82,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                 input.focus();
                             } else {
                                 browser.data.name = input.value;
-                                util.addUser(`${input.value}@localhost`, []);
+                                util.addUser(`${input.value}@localhost`);
                                 browser.pageBody.removeAttribute("class");
                                 browser.loadTest = false;
                                 network.settings();
@@ -238,7 +238,8 @@ import webSocket from "./lib/browser/webSocket.js";
                                 };
                             let count:number = 0;
                             browser.data.name = storage.settings.name;
-                            util.addUser(`${storage.settings.name}@localhost`, storage.settings.name[storage.settings.users[storage.settings.name]]);
+                            browser.data.users.localhost = storage.settings.users.localhost
+                            util.addUser(`${storage.settings.name}@localhost`);
                             localhost = document.getElementById("localhost");
                             
                             // restore shares
@@ -249,7 +250,8 @@ import webSocket from "./lib/browser/webSocket.js";
                                 let a:number = 0;
                                 do {
                                     if (users[a] !== "localhost") {
-                                        util.addUser(users[a], storage.settings.users[users[a]]);
+                                        browser.data.users[users[a]] = storage.settings.users[users[a]];
+                                        util.addUser(users[a]);
                                     }
                                     a = a + 1;
                                 } while (a < userLength);

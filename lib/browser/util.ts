@@ -8,7 +8,7 @@ import { ChildProcess } from "child_process";
 const util:module_util = {};
 
 /* Adds users to the user bar */
-util.addUser = function local_util_addUser(userName:string, shares?:[string, string][]):void {
+util.addUser = function local_util_addUser(userName:string):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
         addStyle = function local_util_addUser_addStyle() {
@@ -54,10 +54,6 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
     } else {
         button.setAttribute("class", "offline");
         button.setAttribute("data-agent", userName);
-        browser.data.users[userName] = {
-            color: ["", ""],
-            shares: shares
-        };
         addStyle();
     }
     button.onclick = function local_util_addUser(event:MouseEvent) {
@@ -505,29 +501,40 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
         });
         network.settings();
     } else {
+        let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
         if (modal === null) {
             if (invite.status === "accepted") {
                 if (invite.family === "ipv4") {
-                    util.addUser(`${invite.name}@${invite.ip}:${invite.port}`, invite.shares);
+                    user = `${invite.name}@${invite.ip}:${invite.port}`;
                 } else {
-                    util.addUser(`${invite.name}@[${invite.ip}]:${invite.port}`, invite.shares);
+                    user = `${invite.name}@[${invite.ip}]:${invite.port}`;
                 }
+                browser.data.users[user] = {
+                    color:["", ""],
+                    shares: invite.shares
+                }
+                util.addUser(user);
             }
         } else {
             const error:HTMLElement = <HTMLElement>modal.getElementsByClassName("error")[0],
                 delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
                 footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-                user:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+                inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
                 prepOutput = function local_util_inviteRespond_prepOutput(output:HTMLElement):void {
                     if (invite.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
                         if (invite.family === "ipv4") {
-                            util.addUser(`${invite.name}@${invite.ip}:${invite.port}`, invite.shares);
+                            user = `${invite.name}@${invite.ip}:${invite.port}`;
                         } else {
-                            util.addUser(`${invite.name}@[${invite.ip}]:${invite.port}`, invite.shares);
+                            user = `${invite.name}@[${invite.ip}]:${invite.port}`;
                         }
+                        browser.data.users[user] = {
+                            color:["", ""],
+                            shares: invite.shares
+                        }
+                        util.addUser(user);
                         network.settings();
                     } else {
                         output.innerHTML = "Invitation declined. :(";
@@ -536,7 +543,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                 };
             footer.style.display = "none";
             delay.style.display = "none";
-            user.style.display = "block";
+            inviteUser.style.display = "block";
             if (error === null || error === undefined) {
                 const p:HTMLElement = document.createElement("p");
                 prepOutput(p);
