@@ -34,7 +34,7 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
                     body = code1.join("");
                     heading = code2.join("");
                 };
-            if (browser.data.users[userName] === undefined) {
+            if (browser.data.users[userName].color[0] === "") {
                 generateColor();
                 if (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3)) {
                     do {
@@ -46,13 +46,14 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
                 body = browser.data.users[userName].color[0];
                 heading = browser.data.users[userName].color[1];
             }
-            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:${body}}${prefix} h2.heading{background-color:${heading}}`;
+            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:${body}}${prefix} h2.heading{background-color:${heading}}#spaces #users button[data-agent="${userName}"]{background-color:${heading}}#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`;
         };
     button.innerHTML = userName;
     if (userName.split("@")[1] === "localhost") {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
+        button.setAttribute("data-agent", userName);
         browser.data.users[userName] = {
             color: ["", ""],
             shares: shares
