@@ -53,7 +53,10 @@ util.addUser = function local_util_addUser(userName:string, shares?:[string, str
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
-        browser.data.users[userName].shares = shares;
+        browser.data.users[userName] = {
+            color: ["", ""],
+            shares: shares
+        };
         addStyle();
     }
     button.onclick = function local_util_addUser(event:MouseEvent) {
