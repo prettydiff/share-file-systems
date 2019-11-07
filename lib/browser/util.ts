@@ -14,7 +14,7 @@ util.addUser = function local_util_addUser(userName:string):void {
         addStyle = function local_util_addUser_addStyle() {
             let body:string,
                 heading:string;
-            const prefix:string = `#spaces .box[data-agent="${userName}"]`,
+            const prefix:string = `#spaces .box[data-agent="${userName}"] `,
                 generateColor = function local_util_addUser_addStyle_generateColor():void {
                     const rand:[number, number, number] = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)],
                         code1:string[] = ["#"],
@@ -46,7 +46,10 @@ util.addUser = function local_util_addUser(userName:string):void {
                 body = browser.data.users[userName].color[0];
                 heading = browser.data.users[userName].color[1];
             }
-            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:${body}}${prefix} h2.heading{background-color:${heading}}#spaces #users button[data-agent="${userName}"]{background-color:${heading}}#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`;
+            browser.style.innerHTML = browser.style.innerHTML + [
+                `#spaces #users button[data-agent="${userName}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
+                `${prefix}.body,#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`
+            ].join("");
         };
     button.innerHTML = userName;
     if (userName.split("@")[1] === "localhost") {

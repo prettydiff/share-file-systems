@@ -432,6 +432,7 @@ interface ui_modal {
     resize?: boolean;
     single?: boolean;
     status?: "hidden" | "maximized" | "minimized" | "normal";
+    status_bar?: boolean;
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;
     text_value?: string;

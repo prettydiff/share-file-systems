@@ -143,7 +143,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
 modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     let button:HTMLElement = document.createElement("button"),
         buttonCount:number = 0,
-        h2:HTMLElement = document.createElement("h2"),
+        section:HTMLElement = document.createElement("h2"),
         input:HTMLInputElement,
         extra:HTMLElement;
     const id:string = (options.type === "systems")
@@ -214,19 +214,19 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     body.style.width = `${options.width / 10}em`;
     box.style.left = `${options.left / 10}em`;
     box.style.top = `${options.top / 10}em`;
-    h2.appendChild(button);
-    h2.setAttribute("class", "heading");
-    border.appendChild(h2);
+    section.appendChild(button);
+    section.setAttribute("class", "heading");
+    border.appendChild(section);
     if (Array.isArray(options.inputs) === true) {
         if (options.inputs.indexOf("close") > -1 || options.inputs.indexOf("maximize") > -1 || options.inputs.indexOf("minimize") > -1) {
-            h2 = document.createElement("p");
-            h2.setAttribute("class", "buttons");
+            section = document.createElement("p");
+            section.setAttribute("class", "buttons");
             if (options.inputs.indexOf("minimize") > -1) {
                 button = document.createElement("button");
                 button.innerHTML = "🗕 <span>Minimize</span>";
                 button.setAttribute("class", "minimize");
                 button.onclick = modal.minimize;
-                h2.appendChild(button);
+                section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
             if (options.inputs.indexOf("maximize") > -1) {
@@ -234,7 +234,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.innerHTML = "🗖 <span>Maximize</span>";
                 button.setAttribute("class", "maximize");
                 button.onclick = modal.maximize;
-                h2.appendChild(button);
+                section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
             if (options.inputs.indexOf("close") > -1) {
@@ -287,10 +287,10 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 } else {
                     button.onclick = modal.close;
                 }
-                h2.appendChild(button);
+                section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
-            border.appendChild(h2);
+            border.appendChild(section);
         }
         border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
         if (options.inputs.indexOf("text") > -1) {
@@ -330,10 +330,17 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     body.appendChild(options.content);
     if (options.type === "export" || options.type === "textPad") {
         body.style.overflow = "hidden";
+    }console.log(options.status_bar);
+    if (options.status_bar === true) {
+        section = document.createElement("div");
+        section.setAttribute("class", "status-bar");
+        extra = document.createElement("p");
+        section.appendChild(extra);
+        border.appendChild(section);
     }
     if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
-        h2 = document.createElement("div");
-        h2.setAttribute("class", "footer");
+        section = document.createElement("div");
+        section.setAttribute("class", "footer");
         extra = document.createElement("p");
         extra.setAttribute("class", "footer-buttons");
         if (options.inputs.indexOf("save") > -1) {
@@ -357,11 +364,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             button.onclick = modal.close;
             extra.appendChild(button);
         }
-        h2.appendChild(extra);
+        section.appendChild(extra);
         extra = document.createElement("span");
         extra.setAttribute("class", "clear");
-        h2.appendChild(extra);
-        border.appendChild(h2);
+        section.appendChild(extra);
+        border.appendChild(section);
     }
     if (options.resize !== false) {
         button = document.createElement("button");
