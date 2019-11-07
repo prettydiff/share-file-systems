@@ -100,6 +100,9 @@ interface fileService {
     remoteWatch?: string;
     watch       : string;
 }
+interface fileStore extends Array<[boolean, string, string, Buffer]> {
+    [index:number]: [boolean, string, string, Buffer]
+}
 interface flags {
     error: boolean;
     write: string;

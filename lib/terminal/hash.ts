@@ -241,7 +241,8 @@ const library = {
                     limit = Number(ulimit_out);
                     shortLimit = Math.ceil(limit / 5);
                 }
-                if (input.parent === undefined) {
+                if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
+                    // the library is not called from the directory library, which will always passing a parent property and not an id property
                     directory({
                         callback: function terminal_hash_localCallback(list:directoryList) {
                             dirComplete(list);
@@ -254,6 +255,7 @@ const library = {
                         symbolic: true
                     });
                 } else {
+                    // coming from the directory library
                     dirComplete([[<string>input.source, "file", "", input.parent, 0, input.stat]]);
                 }
             });

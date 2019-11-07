@@ -55,7 +55,7 @@ const library = {
             },
             remoteCopyList = function terminal_server_fileService_remoteCopyList(config:remoteCopyList):void {
                 library.directory({
-                    callback: function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
+                    callback: function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {console.log(dir);
                         const dirLength:number = dir.length,
                             location:string = (function terminal_server_fileServices_remoteCopyList_callback_location():string {
                                 let backSlash:number = data.location[config.index].indexOf("\\"),
@@ -108,7 +108,24 @@ const library = {
                 });
             },
             requestFiles = function terminal_server_fileService_requestFiles(list:[string, string, string][]):void {
+                let writeActive:boolean = false;
                 const listLength = list.length,
+                    files:fileStore = [],
+                    writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
+                        const fileName:string = files[index][1];
+                        vars.node.fs.writeFile(data.name + vars.sep + fileName, files[index][3], function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
+                            if (wr !== null) {
+                                library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
+                                vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
+                            }
+                            files[index][3] = new Buffer("");
+                            if (files.length > index + 1) {
+                                terminal_server_fileService_requestFiles_writeFile(index + 1);
+                            } else {
+                                writeActive = false;
+                            }
+                        });
+                    },
                     respond = function terminal_server_fileService_requestFiles_respond():void {
                         library.log([``]);
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -122,24 +139,24 @@ const library = {
                         });
                         fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileCallback_end():void {
                             const file:Buffer = Buffer.concat(fileChunks),
-                                fileName:string = <string>fileResponse.headers.filename,
-                                remoteHash:string = <string>fileResponse.headers.hash;
+                                fileName:string = <string>fileResponse.headers.filename;
+                            files.push([false, fileName, <string>fileResponse.headers.hash, file]);
                             library.hash({
                                 callback: function terminal_server_fileService_requestFiles_fileCallback_end_hash(output:hashOutput):void {
-                                    if (remoteHash === output.hash) {
-                                        fs.writeFile(data.name + vars.sep + fileName, file, function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
-                                            if (wr !== null) {
-                                                library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
-                                                vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
-                                            }
-                                        });
+                                    if (files[output.parent][2] === output.hash) {
+                                        if (writeActive === false) {
+                                            writeActive = true;
+                                            writeFile(output.parent);
+                                        }
                                     } else {
-                                        library.log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
-                                        library.error([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
-                                        vars.ws.broadcast(`error:Hashes do not match for file ${fileName} from agent ${data.agent}`);
+                                        library.log([`Hashes do not match for file ${output.id} from agent ${data.agent}`]);
+                                        library.error([`Hashes do not match for file ${output.id} from agent ${data.agent}`]);
+                                        vars.ws.broadcast(`error:Hashes do not match for file ${output.id} from agent ${data.agent}`);
                                     }
                                 },
                                 directInput: true,
+                                id: fileName,
+                                parent: files.length - 1,
                                 source: file
                             });
                         });
