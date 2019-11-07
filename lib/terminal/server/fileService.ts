@@ -55,7 +55,7 @@ const library = {
             },
             remoteCopyList = function terminal_server_fileService_remoteCopyList(config:remoteCopyList):void {
                 library.directory({
-                    callback: function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {console.log(dir);
+                    callback: function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
                         const dirLength:number = dir.length,
                             location:string = (function terminal_server_fileServices_remoteCopyList_callback_location():string {
                                 let backSlash:number = data.location[config.index].indexOf("\\"),
@@ -118,7 +118,7 @@ const library = {
                                 library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
                                 vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
                             }
-                            files[index][3] = new Buffer("");
+                            files[index][3] = Buffer.from("");
                             if (files.length > index + 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
                             } else {
@@ -159,9 +159,13 @@ const library = {
                                 parent: files.length - 1,
                                 source: file
                             });
+                            activeRequests = activeRequests - 1;
+                            if (a < listLength) {
+                                requestFile();
+                            }
                         });
                         fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileCallback_error(fileError:nodeError):void {
-                            console.log(fileError);
+                            library.error([fileError.toString()]);
                         });
                     },
                     requestFile = function terminal_server_fileService_requestFiles_requestFile():void {
