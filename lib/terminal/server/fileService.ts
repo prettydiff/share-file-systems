@@ -54,51 +54,83 @@ const library = {
                 }
             },
             remoteCopyList = function terminal_server_fileService_remoteCopyList(config:remoteCopyList):void {
-                library.directory({
-                    callback: function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
-                        const dirLength:number = dir.length,
-                            location:string = (function terminal_server_fileServices_remoteCopyList_callback_location():string {
-                                let backSlash:number = data.location[config.index].indexOf("\\"),
-                                    forwardSlash:number = data.location[config.index].indexOf("/"),
-                                    remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
-                                        ? "\\"
-                                        : "/",
-                                    address:string[] = data.location[config.index].replace(/(\/|\\)$/, "").split(remoteSep);
-                                address.pop();
-                                return address.join(remoteSep) + remoteSep;
-                            }());
-                        let b:number = 0;
-                        do {
-                            config.files.push([dir[b][0], dir[b][1], dir[b][0].replace(location, "")]);
-                            b = b + 1;
-                        } while (b < dirLength);
-                        config.index = config.index + 1;
-                        if (config.index < config.length) {
-                            terminal_server_fileService_remoteCopyList(config);
+                const callback = function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
+                    const dirLength:number = dir.length,
+                        location:string = (function terminal_server_fileServices_remoteCopyList_callback_location():string {
+                            let backSlash:number = data.location[config.index].indexOf("\\"),
+                                forwardSlash:number = data.location[config.index].indexOf("/"),
+                                remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
+                                    ? "\\"
+                                    : "/",
+                                address:string[] = data.location[config.index].replace(/(\/|\\)$/, "").split(remoteSep);
+                            address.pop();
+                            return address.join(remoteSep) + remoteSep;
+                        }());
+                    let b:number = 0,
+                        size:number;
+                    // list schema:
+                    // 0. full item path
+                    // 1. item type: directory, file
+                    // 2. relative path from point of user selection
+                    // 3. size in bytes from Stats object
+                    do {
+                        if (dir[b][1] === "file") {
+                            size = dir[b][5].size;
+                            fileCount = fileCount + 1;
+                            fileSize = fileSize + size;
                         } else {
-                            // sort directories ahead of files and then sort shorter directories before longer directories
-                            // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                            config.files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string], itemB:[string, string, string]):number {
-                                if (itemA[1] === "directory" && itemB[1] !== "directory") {
-                                    return -1;
-                                }
-                                if (itemA[1] !== "directory" && itemB[1] === "directory") {
-                                    return 1;
-                                }
-                                if (itemA[1] === "directory" && itemB[1] === "directory") {
-                                    if (itemA[2].length < itemB[2].length) {
-                                        return -1;
-                                    }
-                                    return 1;
-                                }
-                                if (itemA[2] < itemB[2]) {
+                            size = 0;
+                            directories = directories + 1;
+                        }
+                        list.push([dir[b][0], dir[b][1], dir[b][0].replace(location, ""), size]);
+                        b = b + 1;
+                    } while (b < dirLength);
+                    config.index = config.index + 1;
+                    if (config.index < config.length) {
+                        library.directory({
+                            callback: terminal_server_fileService_remoteCopyList_callback,
+                            depth: 0,
+                            exclusions: [],
+                            hash: false,
+                            path: data.location[config.index],
+                            recursive: true,
+                            symbolic: false
+                        });
+                    } else {
+                        // sort directories ahead of files and then sort shorter directories before longer directories
+                        // * This is necessary to ensure directories are written before the files and child directories that go in them.
+                        config.files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
+                            if (itemA[1] === "directory" && itemB[1] !== "directory") {
+                                return -1;
+                            }
+                            if (itemA[1] !== "directory" && itemB[1] === "directory") {
+                                return 1;
+                            }
+                            if (itemA[1] === "directory" && itemB[1] === "directory") {
+                                if (itemA[2].length < itemB[2].length) {
                                     return -1;
                                 }
                                 return 1;
-                            });
-                            config.callback(config.files);
-                        }
-                    },
+                            }
+                            if (itemA[2] < itemB[2]) {
+                                return -1;
+                            }
+                            return 1;
+                        });console.log("list ends");
+                        config.callback({
+                            directories: directories,
+                            fileCount: fileCount,
+                            fileSize: fileSize,
+                            list: config.files
+                        });
+                    }
+                };
+                let directories:number =0,
+                    fileCount:number = 0,
+                    fileSize:number = 0,
+                    list: [string, string, string, number][];
+                library.directory({
+                    callback: callback,
                     depth: 0,
                     exclusions: [],
                     hash: false,
@@ -107,9 +139,11 @@ const library = {
                     symbolic: false
                 });
             },
-            requestFiles = function terminal_server_fileService_requestFiles(list:[string, string, string][]):void {
-                let writeActive:boolean = false;
-                const listLength = list.length,
+            requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
+                let writeActive:boolean = false,
+                    writtenSize:number = 0,
+                    writtenFiles:number = 0;
+                const listLength = fileData.list.length,
                     files:fileStore = [],
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
                         const fileName:string = files[index][1];
@@ -118,6 +152,15 @@ const library = {
                                 library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
                                 vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
                             }
+                            writtenFiles = writtenFiles + 1;
+                            writtenSize = writtenSize + fileData.list[index][3];
+                            // status update schema:
+                            // 0. total file size
+                            // 1. file size written
+                            // 2. total files
+                            // 3. files written
+                            // 4. directories created
+                            vars.ws.broadcast(`copyStatus:[${fileData.fileSize},${writtenSize},${fileData.fileCount},${writtenFiles},${fileData.directories}]`);
                             files[index][3] = Buffer.from("");
                             if (files.length > index + 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
@@ -169,12 +212,12 @@ const library = {
                         });
                     },
                     requestFile = function terminal_server_fileService_requestFiles_requestFile():void {
-                        data.location = [list[a][0]];
-                        data.remoteWatch = list[a][2];
+                        data.location = [fileData.list[a][0]];
+                        data.remoteWatch = fileData.list[a][2];
                         library.httpClient({
                             callback: fileCallback,
                             data: data,
-                            errorMessage: `error: Error on requesting file ${list[a][2]} from ${data.agent}`,
+                            errorMessage: `error: Error on requesting file ${fileData.list[a][2]} from ${data.agent}`,
                             response: response
                         });
                         a = a + 1;
@@ -192,7 +235,7 @@ const library = {
                         a = a + 1;
                         countDir = countDir + 1;
                         if (a < listLength) {
-                            if (list[a][1] === "directory") {
+                            if (fileData.list[a][1] === "directory") {
                                 makeDir();
                             } else {
                                 data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
@@ -203,13 +246,13 @@ const library = {
                         }
                     },
                     makeDir = function terminal_server_fileService_requestFiles_makeLists():void {
-                        library.makeDir(data.name + vars.sep + list[a][2], dirCallback);
+                        library.makeDir(data.name + vars.sep + fileData.list[a][2], dirCallback);
                     };
                 let a:number = 0,
                     activeRequests:number = 0,
                     countDir:number = 0,
                     countFile:number = 0;
-                if (list[0][1] === "directory") {
+                if (fileData.list[0][1] === "directory") {
                     makeDir();
                 } else {
                     data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
@@ -516,20 +559,20 @@ const library = {
                     // * data.copyAgent === remoteAgent
                     // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                     remoteCopyList({
-                        callback: function terminal_server_fileService_remoteListCallback(files:[string, string, string][]):void {
+                        callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
                             data.action = <serviceType>`${data.action}-request`;
                             data.agent = data.copyAgent;
-                            data.remoteWatch = JSON.stringify(files);
+                            data.remoteWatch = JSON.stringify(listData);
                             library.httpClient({
                                 callback: function terminal_server_fileServices_remoteListCallback_http(fsResponse:http.IncomingMessage):void {
                                     const chunks:string[] = [];
-                                    fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
+                                    fsResponse.on("data", function terminal_server_fileService_remoteListCallback_http_data(chunk:string):void {
                                         chunks.push(chunk);
                                     });
-                                    fsResponse.on("end", function terminal_server_fileService_response_end():void {
+                                    fsResponse.on("end", function terminal_server_fileService_remoteListCallback_http_end():void {
                                         library.log([chunks.join("")]);
                                     });
-                                    fsResponse.on("error", function terminal_server_fileService_response_error(errorMessage:nodeError):void {
+                                    fsResponse.on("error", function terminal_server_fileService_remoteListCallback_http_error(errorMessage:nodeError):void {
                                         if (errorMessage.code !== "ETIMEDOUT") {
                                             library.log([errorMessage.toString()]);
                                             vars.ws.broadcast(errorMessage.toString());
@@ -607,7 +650,7 @@ const library = {
             }
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file
-            // * generated internally from
+            // * generated internally from function requestFiles
             // * fs-copy-list and fs-cut-list (copy from remote to localhost)
             // * fs-copy-request and fs-cut-request (copy from localhost to remote)
             library.hash({
@@ -623,9 +666,9 @@ const library = {
             });
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             remoteCopyList({
-                callback: function terminal_server_fileService_remoteListCallback(files:[string, string, string][]):void {
+                callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
                     response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
-                    response.write(JSON.stringify(files));
+                    response.write(JSON.stringify(listData));
                     response.end();
                 },
                 files: [],

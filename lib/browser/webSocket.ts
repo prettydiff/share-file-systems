@@ -16,7 +16,7 @@ const webSocket = function local_webSocket():WebSocket {
         title.style.background = "#ddd";
         title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
     };
-    socket.onmessage = function local_socketMessage(event:SocketEvent):void {
+    socket.onmessage = function local_socketMessage(event:SocketEvent):void {console.log(event.data);
         if (event.data === "reload") {
             location.reload();
         } else if (event.data.indexOf("error:") === 0) {

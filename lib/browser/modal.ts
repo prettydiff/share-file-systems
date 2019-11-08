@@ -330,7 +330,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     body.appendChild(options.content);
     if (options.type === "export" || options.type === "textPad") {
         body.style.overflow = "hidden";
-    }console.log(options.status_bar);
+    }
     if (options.status_bar === true) {
         section = document.createElement("div");
         section.setAttribute("class", "status-bar");
