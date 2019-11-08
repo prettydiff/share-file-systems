@@ -100,7 +100,7 @@ const library = {
                         } else {
                             // sort directories ahead of files and then sort shorter directories before longer directories
                             // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                            config.files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
+                            list.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
                                 if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                     return -1;
                                 }
