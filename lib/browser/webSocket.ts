@@ -16,9 +16,19 @@ const webSocket = function local_webSocket():WebSocket {
         title.style.background = "#ddd";
         title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
     };
-    socket.onmessage = function local_socketMessage(event:SocketEvent):void {console.log(event.data);
+    socket.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
+        } else if (event.data.indexOf("copyStatus:") === 0) {
+            // status update schema:
+            // 0. modal id, string
+            // 1. total file size
+            // 2. file size written
+            // 3. total files
+            // 4. files written
+            // 5. directories created
+            const data:[string, number, number, number, number, number] = JSON.parse(event.data.slice("copyStatus:".length));
+            console.log(data);
         } else if (event.data.indexOf("error:") === 0) {
             const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),

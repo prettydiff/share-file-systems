@@ -145,7 +145,8 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         buttonCount:number = 0,
         section:HTMLElement = document.createElement("h2"),
         input:HTMLInputElement,
-        extra:HTMLElement;
+        extra:HTMLElement,
+        height:number = 1;
     const id:string = (options.type === "systems")
             ? "systems-modal"
             : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
@@ -296,6 +297,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         if (options.inputs.indexOf("text") > -1) {
             const label:HTMLElement = document.createElement("label"),
                 span:HTMLElement = document.createElement("span");
+            height = height + 3.5;
             span.innerHTML = "Text of file system address.";
             label.appendChild(span);
             extra = document.createElement("p");
@@ -332,6 +334,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         body.style.overflow = "hidden";
     }
     if (options.status_bar === true) {
+        height = height + 5;
         section = document.createElement("div");
         section.setAttribute("class", "status-bar");
         extra = document.createElement("p");
@@ -339,6 +342,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         border.appendChild(section);
     }
     if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
+        height = height + 9.3;
         section = document.createElement("div");
         section.setAttribute("class", "footer");
         extra = document.createElement("p");
@@ -400,7 +404,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         button = document.createElement("button");
         button.innerHTML = "resize box width";
         button.setAttribute("class", "side-r");
-        button.style.height = `${(options.height / 10) + 3}em`;
+        button.style.height = `${(options.height / 10) + height}em`;
         button.onmousedown = modal.resize;
         border.appendChild(button);
         button = document.createElement("button");
@@ -412,7 +416,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         button = document.createElement("button");
         button.innerHTML = "resize box width";
         button.setAttribute("class", "side-l");
-        button.style.height = `${(options.height / 10) + 3}em`;
+        button.style.height = `${(options.height / 10) + height}em`;
         button.onmousedown = modal.resize;
         border.appendChild(button);
     }
@@ -678,9 +682,10 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
             ? 0
             : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
-        header:boolean = (box.getElementsByClassName("header").length < 1)
-            ? false
-            : true,
+        header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
+        headerHeight:number = (header === undefined)
+            ? 0
+            : (header.clientHeight / 10),
         footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
         message:HTMLElement = (footer === undefined)
             ? undefined
@@ -691,6 +696,16 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         footerOffset:number = (footerButtons === undefined)
             ? 0
             : footerButtons.clientWidth / 10,
+        status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
+        statusBar:HTMLElement = (status === undefined)
+            ? undefined
+            : status.getElementsByTagName("p")[0],
+        statusHeight:number = (status === undefined)
+            ? 0
+            : (status.clientHeight / 10),
+        footerHeight:number = (footer === undefined)
+            ? 0
+            : (footer.clientHeight / 10),
         sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
         sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
         offX:number = event.clientX,
@@ -717,18 +732,15 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
             }
             network.settings();
         },
+        sideHeight:number = headerHeight + statusHeight + footerHeight + 1, 
         side:any    = {
             b: function local_modal_resize_sizeB(f:MouseEvent):void {
                 computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
-                    if (header === true) {
-                        sideLeft.style.height = `${computedHeight + 4.6}em`;
-                        sideRight.style.height = `${computedHeight + 4.6}em`;
-                    } else {
-                        sideLeft.style.height = `${computedHeight}em`;
-                        sideRight.style.height = `${computedHeight}em`;
-                    }
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
+                    
                 }
                 document.onmouseup = drop;
             },
@@ -738,13 +750,8 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
-                    if (header === true) {
-                        sideLeft.style.height = `${computedHeight + 4.6}em`;
-                        sideRight.style.height = `${computedHeight + 4.6}em`;
-                    } else {
-                        sideLeft.style.height = `${computedHeight}em`;
-                        sideRight.style.height = `${computedHeight}em`;
-                    }
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
                 }
                 if (bodyWidth > 35) {
                     box.style.left = `${computedWidth / 10}em`;
@@ -754,6 +761,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     if (message !== undefined) {
                         message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
                     }
+                    if (statusBar !== undefined) {
+                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -762,13 +772,8 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
                 if (computedHeight > 10) {
                     body.style.height  = `${computedHeight}em`;
-                    if (header === true) {
-                        sideLeft.style.height = `${computedHeight + 4.6}em`;
-                        sideRight.style.height = `${computedHeight + 4.6}em`;
-                    } else {
-                        sideLeft.style.height = `${computedHeight}em`;
-                        sideRight.style.height = `${computedHeight}em`;
-                    }
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
                 }
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
@@ -776,6 +781,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                     if (message !== undefined) {
                         message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                    if (statusBar !== undefined) {
+                        statusBar.style.width = `${bodyWidth / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -791,6 +799,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     if (message !== undefined) {
                         message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
                     }
+                    if (statusBar !== undefined) {
+                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -803,6 +814,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     if (message !== undefined) {
                         message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
+                    if (statusBar !== undefined) {
+                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                    }
                 }
                 document.onmouseup = drop;
             },
@@ -812,13 +826,8 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                     box.style.top = `${computedHeight / 10}em`;
                     body.style.height  = `${bodyHeight}em`;
-                    if (header === true) {
-                        sideLeft.style.height = `${bodyHeight + 4.6}em`;
-                        sideRight.style.height = `${bodyHeight + 4.6}em`;
-                    } else {
-                        sideLeft.style.height = `${bodyHeight}em`;
-                        sideRight.style.height = `${bodyHeight}em`;
-                    }
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
                 }
                 document.onmouseup = drop;
             },
@@ -830,13 +839,8 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                     box.style.top = `${computedHeight / 10}em`;
                     body.style.height  = `${bodyHeight}em`;
-                    if (header === true) {
-                        sideLeft.style.height = `${bodyHeight + 4.6}em`;
-                        sideRight.style.height = `${bodyHeight + 4.6}em`;
-                    } else {
-                        sideLeft.style.height = `${bodyHeight}em`;
-                        sideRight.style.height = `${bodyHeight}em`;
-                    }
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
                 }
                 if (bodyWidth > 35) {
                     box.style.left = `${computedWidth / 10}em`;
@@ -845,6 +849,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
                     if (message !== undefined) {
                         message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                    if (statusBar !== undefined) {
+                        statusBar.style.width = `${bodyWidth / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -856,13 +863,8 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
                     box.style.top = `${computedHeight / 10}em`;
                     body.style.height  = `${bodyHeight}em`;
-                    if (header === true) {
-                        sideLeft.style.height = `${bodyHeight + 4.6}em`;
-                        sideRight.style.height = `${bodyHeight + 4.6}em`;
-                    } else {
-                        sideLeft.style.height = `${bodyHeight}em`;
-                        sideRight.style.height = `${bodyHeight}em`;
-                    }
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
                 }
                 if (computedWidth > 35) {
                     body.style.width = `${computedWidth}em`;
@@ -870,6 +872,9 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                     headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
                     if (message !== undefined) {
                         message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                    if (statusBar !== undefined) {
+                        statusBar.style.width = `${bodyWidth / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
