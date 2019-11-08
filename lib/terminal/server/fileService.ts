@@ -54,81 +54,81 @@ const library = {
                 }
             },
             remoteCopyList = function terminal_server_fileService_remoteCopyList(config:remoteCopyList):void {
-                const callback = function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
-                    const dirLength:number = dir.length,
-                        location:string = (function terminal_server_fileServices_remoteCopyList_callback_location():string {
-                            let backSlash:number = data.location[config.index].indexOf("\\"),
-                                forwardSlash:number = data.location[config.index].indexOf("/"),
-                                remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
-                                    ? "\\"
-                                    : "/",
-                                address:string[] = data.location[config.index].replace(/(\/|\\)$/, "").split(remoteSep);
-                            address.pop();
-                            return address.join(remoteSep) + remoteSep;
-                        }());
-                    let b:number = 0,
-                        size:number;
-                    // list schema:
-                    // 0. full item path
-                    // 1. item type: directory, file
-                    // 2. relative path from point of user selection
-                    // 3. size in bytes from Stats object
-                    do {
-                        if (dir[b][1] === "file") {
-                            size = dir[b][5].size;
-                            fileCount = fileCount + 1;
-                            fileSize = fileSize + size;
+                const list: [string, string, string, number][] = [],
+                    callback = function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
+                        const dirLength:number = dir.length,
+                            location:string = (function terminal_server_fileServices_remoteCopyList_callback_location():string {
+                                let backSlash:number = data.location[config.index].indexOf("\\"),
+                                    forwardSlash:number = data.location[config.index].indexOf("/"),
+                                    remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
+                                        ? "\\"
+                                        : "/",
+                                    address:string[] = data.location[config.index].replace(/(\/|\\)$/, "").split(remoteSep);
+                                address.pop();
+                                return address.join(remoteSep) + remoteSep;
+                            }());
+                        let b:number = 0,
+                            size:number;
+                        // list schema:
+                        // 0. full item path
+                        // 1. item type: directory, file
+                        // 2. relative path from point of user selection
+                        // 3. size in bytes from Stats object
+                        do {
+                            if (dir[b][1] === "file") {
+                                size = dir[b][5].size;
+                                fileCount = fileCount + 1;
+                                fileSize = fileSize + size;
+                            } else {
+                                size = 0;
+                                directories = directories + 1;
+                            }
+                            list.push([dir[b][0], dir[b][1], dir[b][0].replace(location, ""), size]);
+                            b = b + 1;
+                        } while (b < dirLength);
+                        config.index = config.index + 1;
+                        if (config.index < config.length) {
+                            library.directory({
+                                callback: terminal_server_fileService_remoteCopyList_callback,
+                                depth: 0,
+                                exclusions: [],
+                                hash: false,
+                                path: data.location[config.index],
+                                recursive: true,
+                                symbolic: false
+                            });
                         } else {
-                            size = 0;
-                            directories = directories + 1;
-                        }
-                        list.push([dir[b][0], dir[b][1], dir[b][0].replace(location, ""), size]);
-                        b = b + 1;
-                    } while (b < dirLength);
-                    config.index = config.index + 1;
-                    if (config.index < config.length) {
-                        library.directory({
-                            callback: terminal_server_fileService_remoteCopyList_callback,
-                            depth: 0,
-                            exclusions: [],
-                            hash: false,
-                            path: data.location[config.index],
-                            recursive: true,
-                            symbolic: false
-                        });
-                    } else {
-                        // sort directories ahead of files and then sort shorter directories before longer directories
-                        // * This is necessary to ensure directories are written before the files and child directories that go in them.
-                        config.files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
-                            if (itemA[1] === "directory" && itemB[1] !== "directory") {
-                                return -1;
-                            }
-                            if (itemA[1] !== "directory" && itemB[1] === "directory") {
-                                return 1;
-                            }
-                            if (itemA[1] === "directory" && itemB[1] === "directory") {
-                                if (itemA[2].length < itemB[2].length) {
+                            // sort directories ahead of files and then sort shorter directories before longer directories
+                            // * This is necessary to ensure directories are written before the files and child directories that go in them.
+                            config.files.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
+                                if (itemA[1] === "directory" && itemB[1] !== "directory") {
+                                    return -1;
+                                }
+                                if (itemA[1] !== "directory" && itemB[1] === "directory") {
+                                    return 1;
+                                }
+                                if (itemA[1] === "directory" && itemB[1] === "directory") {
+                                    if (itemA[2].length < itemB[2].length) {
+                                        return -1;
+                                    }
+                                    return 1;
+                                }
+                                if (itemA[2] < itemB[2]) {
                                     return -1;
                                 }
                                 return 1;
-                            }
-                            if (itemA[2] < itemB[2]) {
-                                return -1;
-                            }
-                            return 1;
-                        });console.log("list ends");
-                        config.callback({
-                            directories: directories,
-                            fileCount: fileCount,
-                            fileSize: fileSize,
-                            list: config.files
-                        });
-                    }
-                };
+                            });
+                            config.callback({
+                                directories: directories,
+                                fileCount: fileCount,
+                                fileSize: fileSize,
+                                list: config.files
+                            });
+                        }
+                    };
                 let directories:number =0,
                     fileCount:number = 0,
-                    fileSize:number = 0,
-                    list: [string, string, string, number][];
+                    fileSize:number = 0;
                 library.directory({
                     callback: callback,
                     depth: 0,
