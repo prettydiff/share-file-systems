@@ -122,7 +122,7 @@ const library = {
                                 directories: directories,
                                 fileCount: fileCount,
                                 fileSize: fileSize,
-                                list: config.files
+                                list: list
                             });
                         }
                     };
