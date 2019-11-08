@@ -308,6 +308,7 @@ interface readFile {
 interface remoteCopyList {
     callback:Function;
     files:[string, string, string, number][];
+    id:string;
     index:number;
     length:number;
 }
@@ -315,6 +316,7 @@ interface remoteCopyListData {
     directories: number;
     fileCount:number;
     fileSize:number;
+    id:string;
     list:[string, string, string, number][]
 }
 interface serverError {
