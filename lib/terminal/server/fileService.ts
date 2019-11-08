@@ -184,8 +184,8 @@ const library = {
                         });
                         fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileCallback_end():void {
                             const file:Buffer = Buffer.concat(fileChunks),
-                                fileName:string = <string>fileResponse.headers.filename;
-                            files.push([Number(fileResponse.headers.fileSize), fileName, <string>fileResponse.headers.hash, file]);
+                                fileName:string = <string>fileResponse.headers.file_name;
+                            files.push([Number(fileResponse.headers.file_size), fileName, <string>fileResponse.headers.hash, file]);
                             library.hash({
                                 callback: function terminal_server_fileService_requestFiles_fileCallback_end_hash(output:hashOutput):void {
                                     if (files[output.parent][2] === output.hash) {
@@ -660,8 +660,8 @@ const library = {
             library.hash({
                 callback: function terminal_server_fileService_fileHashCallback(output:hashOutput):void {
                     response.setHeader("hash", output.hash);
-                    response.setHeader("fileName", data.remoteWatch);
-                    response.setHeader("fileSize", output.parent);
+                    response.setHeader("file_name", data.remoteWatch);
+                    response.setHeader("file_size", output.parent);
                     response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                     const readStream:fs.ReadStream = vars.node.fs.ReadStream(output.filePath);
                     readStream.pipe(response);

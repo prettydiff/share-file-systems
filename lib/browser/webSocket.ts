@@ -28,7 +28,6 @@ const webSocket = function local_webSocket():WebSocket {
             // 4. files written
             // 5. directories created
             const data:[string, number, number, number, number, number] = JSON.parse(event.data.slice("copyStatus:".length));
-            console.log(data);
         } else if (event.data.indexOf("error:") === 0) {
             const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
