@@ -701,6 +701,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
         agent    : clipData.agent,
         copyAgent: util.getAgent(element),
         depth    : 1,
+        id       : element.getAttribute("id"),
         location : clipData.data,
         name     : destination,
         watch    : "no"

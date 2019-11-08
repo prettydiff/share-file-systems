@@ -122,6 +122,7 @@ const library = {
                                 directories: directories,
                                 fileCount: fileCount,
                                 fileSize: fileSize,
+                                id: config.id,
                                 list: list
                             });
                         }
@@ -160,7 +161,7 @@ const library = {
                             // 2. total files
                             // 3. files written
                             // 4. directories created
-                            vars.ws.broadcast(`copyStatus:[${fileData.fileSize},${writtenSize},${fileData.fileCount},${writtenFiles},${fileData.directories}]`);
+                            vars.ws.broadcast(`copyStatus:[${fileData.id},${fileData.fileSize},${writtenSize},${fileData.fileCount},${writtenFiles},${fileData.directories}]`);
                             files[index][3] = Buffer.from("");
                             if (files.length > index + 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
@@ -585,6 +586,7 @@ const library = {
                             });
                         },
                         files: [],
+                        id: data.id,
                         index: 0,
                         length: data.location.length
                     });
@@ -672,6 +674,7 @@ const library = {
                     response.end();
                 },
                 files: [],
+                id: data.id,
                 index: 0,
                 length: data.location.length
             });
