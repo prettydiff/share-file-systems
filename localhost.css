@@ -139,7 +139,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
 #spaces .box .footer .message{float:left;font-size:1.5em}
 #spaces .box .status-bar{border-color:#000;border-style:none solid solid;border-width:0.1em;background:#eee;padding:1em;position:relative;z-index:4}
-#spaces .box .status-bar p{font-size:1.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#spaces .box .status-bar p{font-size:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
 #spaces .box .header span{display:block;position:absolute;top:-200em}
 #spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}

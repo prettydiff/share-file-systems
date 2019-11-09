@@ -174,9 +174,9 @@ const library = {
                                 countFile = countFile + 1;
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + files[index][2];
-                                vars.ws.broadcast(`copyStatus:{"id":"${files[index][1]}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${library.commas(hashFailLength)} integrity failure${hashFailPlural} and ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)})."}`);
+                                vars.ws.broadcast(`copyStatus:{"id":"${files[index][1]}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
                             }
-                            if (index < files.length) {
+                            if (index < files.length - 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
                             } else {
                                 if (countFile + countDir + hashFailLength === listLength) {
@@ -209,7 +209,7 @@ const library = {
                         fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileCallback_end():void {
                             const file:Buffer = Buffer.concat(fileChunks),
                                 fileName:string = <string>fileResponse.headers.file_name,
-                                hash:Hash = vars.node.crypto.createHash("sha512").pipe(file),
+                                hash:Hash = vars.node.crypto.createHash("sha512").update(file),
                                 hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
                                 files.push([fileName, <string>fileResponse.headers.id, Number(fileResponse.headers.file_size), file]);
@@ -673,10 +673,10 @@ const library = {
             // * fs-copy-list and fs-cut-list (copy from remote to localhost)
             // * fs-copy-request and fs-cut-request (copy from localhost to remote)
             const hash:Hash = vars.node.crypto.createHash("sha512"),
-                hashStream:fs.ReadStream = vars.node.fs.readStream(data.location[0]);
+                hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_server_fileService_fileRequest():void {
-                const readStream:fs.ReadStream = vars.node.fs.readStream(data.location[0]);
+                const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
                 response.setHeader("hash", hash.digest("hex"));
                 response.setHeader("id", data.id);
                 response.setHeader("file_name", data.remoteWatch);
