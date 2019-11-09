@@ -1,5 +1,5 @@
 
-import commas from "./commas.js"
+import commas from "../common/commas.js"
 import directory from "./directory.js";
 import error from "./error.js";
 import log from "./log.js";

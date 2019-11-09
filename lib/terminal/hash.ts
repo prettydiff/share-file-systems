@@ -1,7 +1,7 @@
 
 import { Hash } from "crypto";
 
-import commas from "./commas.js";
+import commas from "../common/commas.js";
 import directory from "./directory.js";
 import error from "./error.js";
 import get from "./get.js";

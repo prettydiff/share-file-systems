@@ -1,14 +1,17 @@
 
 import * as http from "http";
 import * as fs from "fs";
+import { Hash } from "crypto";
 
 import base64 from "../base64.js";
+import commas from "../../common/commas.js";
 import copy from "../copy.js";
 import directory from "../directory.js";
 import error from "../error.js";
 import hash from "../hash.js";
 import log from "../log.js";
 import makeDir from "../makeDir.js";
+import prettyBytes from "../../common/prettyBytes.js";
 import readFile from "../readFile.js";
 import remove from "../remove.js";
 import vars from "../vars.js";
@@ -18,6 +21,7 @@ import serverVars from "./serverVars.js";
 
 const library = {
         base64: base64,
+        commas: commas,
         copy: copy,
         directory: directory,
         error: error,
@@ -25,6 +29,7 @@ const library = {
         httpClient: httpClient,
         log: log,
         makeDir: makeDir,
+        prettyBytes: prettyBytes,
         readFile: readFile,
         remove: remove
     },
@@ -143,39 +148,58 @@ const library = {
             requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
                 let writeActive:boolean = false,
                     writtenSize:number = 0,
-                    writtenFiles:number = 0;
-                const listLength = fileData.list.length,
-                    files:fileStore = [],
+                    writtenFiles:number = 0,
+                    a:number = 0,
+                    activeRequests:number = 0,
+                    countDir:number = 0,
+                    countFile:number = 0;
+                const files:[string, string, number, Buffer][] = [],
+                    hashFail:string[] = [],
+                    listLength = fileData.list.length,
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
-                        const fileName:string = files[index][1];
+                        const fileName:string = files[index][0];
                         vars.node.fs.writeFile(data.name + vars.sep + fileName, files[index][3], function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
+                            const filePlural:string = (countFile === 1)
+                                    ? ""
+                                    : "s",
+                                hashFailLength:number = hashFail.length,
+                                hashFailPlural:string = (hashFailLength === 1)
+                                    ? ""
+                                    : "s";
                             if (wr !== null) {
-                                library.log([`error: Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
-                                vars.ws.broadcast(`error: Error writing file ${fileName} from remote agent ${data.agent}`);
+                                library.log([`Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
+                                vars.ws.broadcast(`Error writing file ${fileName} from remote agent ${data.agent}`);
+                                hashFail.push(fileName);
+                            } else {
+                                countFile = countFile + 1;
+                                writtenFiles = writtenFiles + 1;
+                                writtenSize = writtenSize + files[index][2];
+                                vars.ws.broadcast(`copyStatus:{"id":"${files[index][1]}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${library.commas(hashFailLength)} integrity failure${hashFailPlural} and ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)})."}`);
                             }
-                            writtenFiles = writtenFiles + 1;
-                            writtenSize = writtenSize + files[index][0];
-                            // status update schema:
-                            // 0. modal id, string
-                            // 1. total file size
-                            // 2. file size written
-                            // 3. total files
-                            // 4. files written
-                            // 5. directories created
-                            vars.ws.broadcast(`copyStatus:["${fileData.id}",${fileData.fileSize},${writtenSize},${fileData.fileCount},${writtenFiles},${fileData.directories}]`);
-                            files[index][3] = Buffer.from("");
-                            if (files.length > index + 1) {
+                            if (index < files.length) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
                             } else {
-                                writeActive = false;
+                                if (countFile + countDir + hashFailLength === listLength) {
+                                    respond();
+                                } else {
+                                    writeActive = false;
+                                }
                             }
                         });
                     },
                     respond = function terminal_server_fileService_requestFiles_respond():void {
+                        const filePlural:string = (countFile === 1)
+                                ? ""
+                                : "s",
+                            hashFailLength:number = hashFail.length,
+                            hashFailPlural:string = (hashFailLength === 1)
+                                ? ""
+                                : "s";
                         library.log([``]);
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
                         response.end();
+                        vars.ws.broadcast(`copyStatus:{"id":"${files[0][1]}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)}) with ${hashFailLength} failure${hashFailPlural}."}`);
                     },
                     fileCallback = function terminal_server_fileService_requestFiles_fileCallback(fileResponse:http.IncomingMessage):void {
                         const fileChunks:Buffer[] = [];
@@ -184,26 +208,23 @@ const library = {
                         });
                         fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileCallback_end():void {
                             const file:Buffer = Buffer.concat(fileChunks),
-                                fileName:string = <string>fileResponse.headers.file_name;
-                            files.push([Number(fileResponse.headers.file_size), fileName, <string>fileResponse.headers.hash, file]);
-                            library.hash({
-                                callback: function terminal_server_fileService_requestFiles_fileCallback_end_hash(output:hashOutput):void {
-                                    if (files[output.parent][2] === output.hash) {
-                                        if (writeActive === false) {
-                                            writeActive = true;
-                                            writeFile(output.parent);
-                                        }
-                                    } else {
-                                        library.log([`Hashes do not match for file ${output.id} from agent ${data.agent}`]);
-                                        library.error([`Hashes do not match for file ${output.id} from agent ${data.agent}`]);
-                                        vars.ws.broadcast(`error:Hashes do not match for file ${output.id} from agent ${data.agent}`);
-                                    }
-                                },
-                                directInput: true,
-                                id: fileName,
-                                parent: files.length - 1,
-                                source: file
-                            });
+                                fileName:string = <string>fileResponse.headers.file_name,
+                                hash:Hash = vars.node.crypto.createHash("sha512").pipe(file),
+                                hashString:string = hash.digest("hex");
+                            if (hashString === fileResponse.headers.hash) {
+                                files.push([fileName, <string>fileResponse.headers.id, Number(fileResponse.headers.file_size), file]);
+                                if (writeActive === false) {
+                                    writeActive = true;
+                                    writeFile(files.length - 1);
+                                }
+                            } else {
+                                hashFail.push(fileName);
+                                library.log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                library.error([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                if (countFile + countDir + hashFail.length === listLength) {
+                                    respond();
+                                }
+                            }
                             activeRequests = activeRequests - 1;
                             if (a < listLength) {
                                 requestFile();
@@ -220,7 +241,7 @@ const library = {
                         library.httpClient({
                             callback: fileCallback,
                             data: data,
-                            errorMessage: `error: Error on requesting file ${fileData.list[a][2]} from ${data.agent}`,
+                            errorMessage: `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`,
                             response: response
                         });
                         a = a + 1;
@@ -229,10 +250,7 @@ const library = {
                             if (activeRequests < 8) {
                                 terminal_server_fileService_requestFiles_requestFile();
                             }
-                        } else {
-                            respond();
                         }
-                        countFile = countFile + 1;
                     },
                     dirCallback = function terminal_server_fileService_requestFiles_dirCallback():void {
                         a = a + 1;
@@ -244,17 +262,14 @@ const library = {
                                 data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
                                 requestFile();
                             }
-                        } else {
+                        }
+                        if (countFile + countDir === listLength) {
                             respond();
                         }
                     },
                     makeDir = function terminal_server_fileService_requestFiles_makeLists():void {
                         library.makeDir(data.name + vars.sep + fileData.list[a][2], dirCallback);
                     };
-                let a:number = 0,
-                    activeRequests:number = 0,
-                    countDir:number = 0,
-                    countFile:number = 0;
                 if (fileData.list[0][1] === "directory") {
                     makeDir();
                 } else {
@@ -311,7 +326,7 @@ const library = {
                     });
                 },
                 data: data,
-                errorMessage: `error:Error requesting ${data.action} from remote.`,
+                errorMessage: `Error requesting ${data.action} from remote.`,
                 response: response
             });
         } else if (data.action === "fs-directory" || data.action === "fs-details") {
@@ -540,7 +555,7 @@ const library = {
                         });
                     },
                     data: data,
-                    errorMessage: `error: Error on reading from remote file system at agent ${data.agent}`,
+                    errorMessage: `Error on reading from remote file system at agent ${data.agent}`,
                     response: response
                 });
             }
@@ -583,7 +598,7 @@ const library = {
                                     });
                                 },
                                 data: data,
-                                errorMessage: "error:Error sending list of files to remote for copy from localhost.",
+                                errorMessage: "Error sending list of files to remote for copy from localhost.",
                                 response: response
                             });
                         },
@@ -645,7 +660,7 @@ const library = {
                         });
                     },
                     data: data,
-                    errorMessage: `error:Error copying files to and from agent ${data.agent}.`,
+                    errorMessage: `Error copying files to and from agent ${data.agent}.`,
                     response: response
                 });
             } else {
@@ -657,19 +672,17 @@ const library = {
             // * generated internally from function requestFiles
             // * fs-copy-list and fs-cut-list (copy from remote to localhost)
             // * fs-copy-request and fs-cut-request (copy from localhost to remote)
-            library.hash({
-                callback: function terminal_server_fileService_fileHashCallback(output:hashOutput):void {
-                    response.setHeader("hash", output.hash);
-                    response.setHeader("file_name", data.remoteWatch);
-                    response.setHeader("file_size", output.parent);
-                    response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                    const readStream:fs.ReadStream = vars.node.fs.ReadStream(output.filePath);
-                    readStream.pipe(response);
-                },
-                directInput: false,
-                id: data.location[0],
-                parent: data.depth,
-                source: data.location[0]
+            const hash:Hash = vars.node.crypto.createHash("sha512"),
+                hashStream:fs.ReadStream = vars.node.fs.readStream(data.location[0]);
+            hashStream.pipe(hash);
+            hashStream.on("close", function terminal_server_fileService_fileRequest():void {
+                const readStream:fs.ReadStream = vars.node.fs.readStream(data.location[0]);
+                response.setHeader("hash", hash.digest("hex"));
+                response.setHeader("id", data.id);
+                response.setHeader("file_name", data.remoteWatch);
+                response.setHeader("file_size", data.depth);
+                response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                readStream.pipe(response);
             });
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             remoteCopyList({

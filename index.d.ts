@@ -75,6 +75,10 @@ interface contextFunctions {
 interface contextNew extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?:string): void;
 }
+interface copyStatus {
+    id:string;
+    message:string;
+}
 interface dataString extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?: "Base64" | "Edit" | "Hash"): void;
 }

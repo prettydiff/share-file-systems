@@ -2,7 +2,7 @@
 
 import { Stream, Writable } from "stream";
 
-import commas from "./commas.js";
+import commas from "../common/commas.js";
 import error from "./error.js";
 import log from "./log.js";
 import makeDir from "./makeDir.js";

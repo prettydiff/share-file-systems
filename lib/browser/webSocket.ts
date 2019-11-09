@@ -27,7 +27,9 @@ const webSocket = function local_webSocket():WebSocket {
             // 3. total files
             // 4. files written
             // 5. directories created
-            const data:[string, number, number, number, number, number] = JSON.parse(event.data.slice("copyStatus:".length));
+            const data:copyStatus = JSON.parse(event.data.slice("copyStatus:".length)),
+                element:HTMLElement = document.getElementById(data.id).getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0];
+            element.innerHTML = data.message;
         } else if (event.data.indexOf("error:") === 0) {
             const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
