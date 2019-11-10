@@ -19,17 +19,33 @@ const webSocket = function local_webSocket():WebSocket {
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (event.data === "reload") {
             location.reload();
-        } else if (event.data.indexOf("copyStatus:") === 0) {
-            // status update schema:
-            // 0. modal id, string
-            // 1. total file size
-            // 2. file size written
-            // 3. total files
-            // 4. files written
-            // 5. directories created
-            const data:copyStatus = JSON.parse(event.data.slice("copyStatus:".length)),
-                element:HTMLElement = document.getElementById(data.id).getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0];
-            element.innerHTML = data.message;
+        } else if (event.data.indexOf("fileListStatus:") === 0) {
+            const data:copyStatus = JSON.parse(event.data.slice("fileListStatus:".length)),
+                statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
+                list:HTMLElement = statusBar.getElementsByTagName("ul")[0],
+                p:HTMLElement = statusBar.getElementsByTagName("p")[0];
+            p.innerHTML = data.message;
+            if (list !== undefined) {
+                statusBar.removeChild(list);
+            }
+            if (data.failures.length > 0) {
+                const failLength:number = Math.min(10, data.failures.length),
+                    fails:HTMLElement = document.createElement("ul");
+                let a:number = 0,
+                    li:HTMLElement;
+                do {
+                    li = document.createElement("li");
+                    li.innerHTML = data.failures[a];
+                    fails.appendChild(li);
+                    a = a + 1;
+                } while (a < failLength);
+                if (data.failures.length > 10) {
+                    li = document.createElement("li");
+                    li.innerHTML = "more...";
+                    fails.appendChild(li);
+                }
+                statusBar.appendChild(fails);
+            }
         } else if (event.data.indexOf("error:") === 0) {
             const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
@@ -40,7 +56,11 @@ const webSocket = function local_webSocket():WebSocket {
             }
         } else if (event.data.indexOf("fsUpdateRemote:") === 0) {
             const data:fsUpdateRemote = JSON.parse(event.data.replace("fsUpdateRemote:", "")),
-                list:HTMLElement = fs.list(data.location, data.dirs),
+                list:[HTMLElement, number] = fs.list(data.location, {
+                    dirs: data.dirs,
+                    id: data.location,
+                    fail: data.fail
+                }),
                 modalKeys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = modalKeys.length;
             let a:number = 0,
@@ -51,7 +71,7 @@ const webSocket = function local_webSocket():WebSocket {
                 if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
                     body = <HTMLElement>document.getElementById(browser.data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
                     body.innerHTML = "";
-                    body.appendChild(list);
+                    body.appendChild(list[0]);
                 }
                 a = a + 1;
             } while (a < keyLength);
@@ -77,7 +97,7 @@ const webSocket = function local_webSocket():WebSocket {
                     }, function local_socketMessage_fsCallback(responseText:string):void {
                         if (responseText !== "") {
                             body.innerHTML = "";
-                            body.appendChild(fs.list(value, JSON.parse(responseText).dirs));
+                            body.appendChild(fs.list(value, JSON.parse(responseText))[0]);
                         }
                     });
                     break;

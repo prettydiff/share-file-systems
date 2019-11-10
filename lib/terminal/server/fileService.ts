@@ -174,7 +174,7 @@ const library = {
                                 countFile = countFile + 1;
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + files[index][2];
-                                vars.ws.broadcast(`copyStatus:{"id":"${files[index][1]}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                                vars.ws.broadcast(`fileListStatus:{"failures":[],"id":"${files[index][1]}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
                             }
                             if (index < files.length - 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
@@ -199,7 +199,7 @@ const library = {
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
                         response.end();
-                        vars.ws.broadcast(`copyStatus:{"id":"${files[0][1]}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)}) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${files[0][1]}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
                     },
                     fileCallback = function terminal_server_fileService_requestFiles_fileCallback(fileResponse:http.IncomingMessage):void {
                         const fileChunks:Buffer[] = [];
@@ -334,14 +334,15 @@ const library = {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                         count = count + 1;
                         if (result.length > 0) {
+                            failures = failures.concat(result.failures);
                             output = output.concat(result);
                         }
                         if (count === pathLength) {
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                             if (output.length < 1) {
-                                response.write(`{"id":"${data.id}","dirs":"missing"}`);
+                                response.write(`{"id":"${data.id}","dirs":"missing","fail":[]}`);
                             } else {
-                                response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)}}`);
+                                response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)},"fail":${JSON.stringify(failures)}}`);
                             }
                             response.end();
                         }
@@ -418,7 +419,8 @@ const library = {
                     pathList:string[] = data.location,
                     pathLength:number = pathList.length;
                 let count:number = 0,
-                    output:directoryList = [];
+                    output:directoryList = [],
+                    failures:string[] = [];
                 if (pathList[0] === "defaultLocation") {
                     pathList[0] = vars.projectPath;
                 }

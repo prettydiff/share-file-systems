@@ -24,13 +24,14 @@ const library = {
         // * recursive - boolean - if child directories should be scanned
         // * symbolic - boolean - if symbolic links should be identified
         // -
-        // output: []
+        // output: [].failures
         // 0. absolute path (string)
         // 1. type (string)
         // 2. hash (string), empty string unless type is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
         // 3. parent index (number)
         // 4. child item count (number)
         // 5. stat (fs.Stats)
+        // * property "failures" is a list of file paths that could not be read or opened
         let dirTest:boolean = false,
             size:number = 0,
             dirs:number = 0;
@@ -175,6 +176,7 @@ const library = {
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
                             if (type === "error") {
+                                list.failures.push(filePath);
                                 if (dirs > 0) {
                                     dirCounter(filePath);
                                 } else {
@@ -221,10 +223,6 @@ const library = {
                         };
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            /*if (vars.flags.error === true) {
-                                args.callback([]);
-                                return;
-                            }*/
                             if (type === true) {
                                 library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
@@ -233,7 +231,7 @@ const library = {
                                 populate("error");
                             }
                         } else {
-                            library.log([er.toString()]);
+                            //library.log([er.toString()]);
                             populate("error");
                         }
                     } else if (stat === undefined) {
@@ -284,7 +282,7 @@ const library = {
                     }
                 });
             };
-        
+        list.failures = [];
         if (args.depth === undefined) {
             args.depth = 0;
         }

@@ -76,6 +76,7 @@ interface contextNew extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?:string): void;
 }
 interface copyStatus {
+    failures:string[];
     id:string;
     message:string;
 }
@@ -84,6 +85,7 @@ interface dataString extends EventHandlerNonNull {
 }
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
+    failures?: string[];
 }
 interface Document {
     getNodesByType: Function;
@@ -119,11 +121,13 @@ interface fsDetails {
 }
 interface fsRemote {
     dirs: directoryList | "missing";
+    fail: string[];
     id: string;
 }
 interface fsUpdateRemote {
     agent: string;
     dirs: directoryList;
+    fail: string[];
     location:string;
 }
 interface FSWatcher extends Function {
@@ -212,7 +216,8 @@ interface module_context {
 interface module_fs {
     directory?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
-    list?: (location:string, list:directoryList) => HTMLElement;
+    list?: (location:string, dirData:fsRemote) => [HTMLElement, number];
+    listFail?: (count:number, box:HTMLElement) => void;
     listItem?: (item:directoryItem, extraClass:string) => HTMLElement;
     navigate?: navigate;
     parent?: EventHandlerNonNull;
