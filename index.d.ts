@@ -326,7 +326,8 @@ interface remoteCopyListData {
     fileCount:number;
     fileSize:number;
     id:string;
-    list:[string, string, string, number][]
+    list:[string, string, string, number][];
+    stream:boolean;
 }
 interface serverError {
     stack: string[];
