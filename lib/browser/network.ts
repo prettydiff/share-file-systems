@@ -1,7 +1,7 @@
 import browser from "./browser.js";
 import context from "./context.js";
-import fs from "./fs.js";
 import systems from "./systems.js";
+import util from "./util.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
@@ -17,8 +17,12 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
             messageTransmit = true;
             let text:string = xhr.responseText;
             text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-            if (xhr.status === 200 || xhr.status === 0) {console.log(text);
-                callback(text, configuration.agent);
+            if (xhr.status === 200 || xhr.status === 0) {
+                if (text.indexOf("fileListStatus:") === 0) {
+                    util.fileListStatus(text);
+                } else {
+                    callback(text, configuration.agent);
+                }
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 callback(text, configuration.agent);

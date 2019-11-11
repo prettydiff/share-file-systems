@@ -254,6 +254,7 @@ interface module_util {
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
     dragSelect?: eventCallback;
+    fileListStatus?: (text:string) => void;
     fixHeight?: functionEvent;
     getAgent?: (element:HTMLElement) => string;
     inviteStart?: modalSettings;

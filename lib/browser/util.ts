@@ -352,6 +352,36 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
     }
 };
 
+/* */
+util.fileListStatus = function local_util_fileListStatus(text:string):void {
+    const data:copyStatus = JSON.parse(text.slice("fileListStatus:".length)),
+        statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
+        list:HTMLElement = statusBar.getElementsByTagName("ul")[0],
+        p:HTMLElement = statusBar.getElementsByTagName("p")[0];
+    p.innerHTML = data.message;
+    if (list !== undefined) {
+        statusBar.removeChild(list);
+    }
+    if (data.failures.length > 0) {
+        const failLength:number = Math.min(10, data.failures.length),
+            fails:HTMLElement = document.createElement("ul");
+        let a:number = 0,
+            li:HTMLElement;
+        do {
+            li = document.createElement("li");
+            li.innerHTML = data.failures[a];
+            fails.appendChild(li);
+            a = a + 1;
+        } while (a < failLength);
+        if (data.failures.length > 10) {
+            li = document.createElement("li");
+            li.innerHTML = "more...";
+            fails.appendChild(li);
+        }
+        statusBar.appendChild(fails);
+    }
+};
+
 /* Resizes the interactive area to fit the browser viewport */
 util.fixHeight = function local_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
