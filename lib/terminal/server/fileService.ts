@@ -184,6 +184,7 @@ const library = {
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + files[index][1];
                                 vars.ws.broadcast(`fileListStatus:{"failures":[],"id":"${fileData.id}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                                response.write(`fileListStatus:{"failures":[],"id":"${fileData.id}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
                             }
                             if (index < files.length - 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
@@ -205,10 +206,10 @@ const library = {
                                 ? ""
                                 : "s";
                         library.log([``]);
-                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        response.write(`${data.location.join(", ")} copied from ${data.agent} to localhost.`);
-                        response.end();
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});console.log(data.agent+" "+data.copyAgent);
                         vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        response.end();
                     },
                     writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
                         const fileName:string = <string>fileResponse.headers.file_name,
@@ -231,6 +232,7 @@ const library = {
                                     : "s",
                                 written:number = writeStream.bytesWritten + writtenSize;
                             vars.ws.broadcast(`fileListStatus:{"failures":[],"id":"${fileData.id}","message":"Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                            response.write(`fileListStatus:{"failures":[],"id":"${fileData.id}","message":"Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
                         });
                         fileResponse.on("end", function terminal_server_fileService_requestFiles_writeStream_end():void {
                             const hashStream:fs.ReadStream = vars.node.fs.ReadStream(filePath);
@@ -650,12 +652,8 @@ const library = {
                             data.remoteWatch = JSON.stringify(listData);
                             library.httpClient({
                                 callback: function terminal_server_fileServices_remoteListCallback_http(fsResponse:http.IncomingMessage):void {
-                                    const chunks:string[] = [];
                                     fsResponse.on("data", function terminal_server_fileService_remoteListCallback_http_data(chunk:string):void {
-                                        chunks.push(chunk);
-                                    });
-                                    fsResponse.on("end", function terminal_server_fileService_remoteListCallback_http_end():void {
-                                        library.log([chunks.join("")]);
+                                        vars.ws.broadcast(chunk);
                                     });
                                     fsResponse.on("error", function terminal_server_fileService_remoteListCallback_http_error(errorMessage:nodeError):void {
                                         if (errorMessage.code !== "ETIMEDOUT") {

@@ -43,7 +43,7 @@ The thinking is that the largest bottleneck in file transfer is the network.  On
 On the receiving side, the computer writing the files, file content is cached in memory before writing to disk.  This allows multiple files, up to 8, to be requested simultaneously and stored in the computers random access memory (RAM) before the computer is ready to write the file contents to disk since the computer will only write 1 file at a time.  When the computer is ready to write the file to disk it first streams the file contents from memory through a hash function and the hashes, one from the HTTP response header and the second just generated from the file contents in memory, are compared.  If the hashes are identical integrity is verified and the file is written to disk.  If the hashes do not match the file is not written to disk.
 
 ### Alternate Behavior
-The default behavior is designed to maximize performance, but it won't work with incredibly large files.  Computers only have so much memory available and once that memory is fully exhausted the application will crash.  In the case where the average file size is greater than 4gb or the largest file is greater than 12gb this alternate behavior is applied:
+The default behavior is designed to maximize performance, but it won't work with incredibly large files.  Computers only have so much memory available and once that memory is fully exhausted the application will crash.  In the case where the average file size is greater than 4gb, or 4 files are larger than 4gb, or the largest file is greater than 12gb this alternate behavior is applied:
 * Max simultaneous file (HTTP) requests: **1**
 * Max simultaneous files written to disk: **1**
 
