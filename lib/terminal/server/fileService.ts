@@ -162,9 +162,10 @@ const library = {
                     activeRequests:number = 0,
                     countDir:number = 0,
                     countFile:number = 0;
-                const files:[string, number, Buffer][] = [],
+                const fileQueue:[string, number, string, Buffer][] = [],
                     hashFail:string[] = [],
                     listLength = fileData.list.length,
+                    cutList:[string, string][] = [],
                     respond = function terminal_server_fileService_requestFiles_respond():void {
                         const filePlural:string = (countFile === 1)
                                 ? ""
@@ -174,14 +175,52 @@ const library = {
                                 ? ""
                                 : "s";
                         library.log([``]);
+                        if (data.action.indexOf("fs-cut") === 0) {
+                            const types:string[] = [];
+                            cutList.sort(function terminal_server_fileService_requestFiles_respond_cutSort(itemA:[string, string], itemB:[string, string]):number {
+                                if (itemA[1] === "directory" && itemB[1] !== "directory") {
+                                    return 1;
+                                }
+                                return -1;
+                            });
+                            data.location = [];
+                            cutList.forEach(function terminal_server_fileService_requestFiles_respond_cutList(value:[string, string]):void {
+                                data.location.push(value[0]);
+                                types.push(value[1]);
+                            });
+                            data.action = "fs-cut-remove";
+                            data.name = JSON.stringify(types);
+                            library.httpClient({
+                                callback: function terminal_server_fileService_requestFiles_respond_cutCall(fsResponse:http.IncomingMessage):void {
+                                    const chunks:string[] = [];
+                                    fsResponse.setEncoding("utf8");
+                                    fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
+                                        chunks.push(chunk);
+                                    });
+                                    fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
+                                        const body:string = chunks.join("");
+                                        library.log(["Files cut from remote computer.", body]);
+                                    });
+                                    fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
+                                        if (errorMessage.code !== "ETIMEDOUT") {
+                                            library.log([errorMessage.toString()]);
+                                            vars.ws.broadcast(errorMessage.toString());
+                                        }
+                                    });
+                                },
+                                data:data,
+                                errorMessage: "Error requesting file removal for fs-cut.",
+                                response: response
+                            });
+                        }
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
                         response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
                         response.end();
                     },
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
-                        const fileName:string = files[index][0];
-                        vars.node.fs.writeFile(data.name + vars.sep + fileName, files[index][2], function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
+                        const fileName:string = fileQueue[index][0];
+                        vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
                             const filePlural:string = (countFile === 1)
                                     ? ""
                                     : "s",
@@ -194,12 +233,13 @@ const library = {
                                 vars.ws.broadcast(`Error writing file ${fileName} from remote agent ${data.agent}`);
                                 hashFail.push(fileName);
                             } else {
+                                cutList.push([fileQueue[index][2], "file"]);
                                 countFile = countFile + 1;
                                 writtenFiles = writtenFiles + 1;
-                                writtenSize = writtenSize + files[index][1];
+                                writtenSize = writtenSize + fileQueue[index][1];
                                 vars.ws.broadcast(`fileListStatus:{"failures":[],"id":"${fileData.id}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
                             }
-                            if (index < files.length - 1) {
+                            if (index < fileQueue.length - 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
                             } else {
                                 if (countFile + countDir + hashFailLength === listLength) {
@@ -239,6 +279,7 @@ const library = {
                             hashStream.on("close", function terminal_server_fileServices_requestFiles_writeStream_end_hash():void {
                                 const hashString:string = hash.digest("hex");
                                 if (hashString === fileResponse.headers.hash) {
+                                    cutList.push([<string>fileResponse.headers.cut_path, "file"]);
                                     countFile = countFile + 1;
                                     writtenFiles = writtenFiles + 1;
                                     writtenSize = writtenSize + fileData.list[a][3];
@@ -269,10 +310,10 @@ const library = {
                                 hash:Hash = vars.node.crypto.createHash("sha512").update(file),
                                 hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
-                                files.push([fileName, Number(fileResponse.headers.file_size), file]);
+                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
                                 if (writeActive === false) {
                                     writeActive = true;
-                                    writeFile(files.length - 1);
+                                    writeFile(fileQueue.length - 1);
                                 }
                             } else {
                                 hashFail.push(fileName);
@@ -340,6 +381,7 @@ const library = {
                     },
                     makeDir = function terminal_server_fileService_requestFiles_makeLists():void {
                         library.makeDir(data.name + vars.sep + fileData.list[a][2], dirCallback);
+                        cutList.push([fileData.list[a][0], "directory"]);
                     };
                 if (fileData.stream === true) {
                     const filePlural:string = (fileData.fileCount === 1)
@@ -759,9 +801,9 @@ const library = {
             hashStream.on("close", function terminal_server_fileService_fileRequest():void {
                 const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
                 response.setHeader("hash", hash.digest("hex"));
-                response.setHeader("id", data.id);
                 response.setHeader("file_name", data.remoteWatch);
                 response.setHeader("file_size", data.depth);
+                response.setHeader("cut_path", data.location[0]);
                 response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 readStream.pipe(response);
             });
@@ -784,6 +826,10 @@ const library = {
             requestFiles(JSON.parse(data.remoteWatch));
         } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
             copySameAgent();
+        } else if (data.action === "fs-cut-remove") {
+            console.log(data.location);
+            console.log(data.name);
+            console.log(JSON.parse(data.name));
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {

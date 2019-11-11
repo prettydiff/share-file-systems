@@ -138,6 +138,18 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
+**fs-cut-remove**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut-request* so that files are removed after successfully written onto a different computer.
+   - output     : void
+   - parameters
+      * action   : **"fs-cut-remove"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string - stringified list of values "file" or "directory" corresponding to data.location
+      * watch    : "no"
 **fs-cut-request**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut* so that a remote requests files from localhost.
    - output     : void
