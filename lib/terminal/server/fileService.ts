@@ -827,9 +827,25 @@ const library = {
         } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
             copySameAgent();
         } else if (data.action === "fs-cut-remove") {
-            console.log(data.location);
-            console.log(data.name);
-            console.log(JSON.parse(data.name));
+            let a:number = 0;
+            const length:number = data.location.length,
+                types:string[] = JSON.parse(data.name),
+                remove = function terminal_server_fileService_cutRemove():void {
+                    if (a < length) {
+                        if (types[a] === "file") {
+                            library.remove(data.location[a], terminal_server_fileService_cutRemove);
+                            a = a + 1;
+                        } else {
+                            vars.node.fs.readdir(data.location[a], function terminal_server_fileService_cutRemove_readdir(erd:nodeError, items:string[]):void {
+                                if (erd === null && items.length < 1) {
+                                    library.remove(data.location[a], terminal_server_fileService_cutRemove);
+                                    a = a + 1;
+                                }
+                            });
+                        }
+                    }
+                };
+            remove();
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {
