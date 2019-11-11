@@ -53,6 +53,9 @@ const webSocket = function local_webSocket():WebSocket {
                 }
                 a = a + 1;
             } while (a < keyLength);
+            if (typeof data.status === "string") {
+                util.fileListStatus(data.status);
+            }
         } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
             const modalKeys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = modalKeys.length;

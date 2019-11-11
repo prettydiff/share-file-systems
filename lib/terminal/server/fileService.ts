@@ -46,7 +46,7 @@ const library = {
                                 ? data.name
                                 : data.name.replace(/\\/g, "\\\\");
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}"}`);
+                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}","status":"${message}"}`);
                             response.end();
                         },
                         depth: 2,
@@ -355,24 +355,22 @@ const library = {
                 }
             },
             copySameAgent = function terminal_server_fileService_copySameAgent():void {
-                let count:number = 0;
+                let count:number = 0,
+                    countFile:number = 0,
+                    writtenSize:number = 0;
                 const length:number = data.location.length;
                 data.location.forEach(function terminal_server_fileService_copySameAgent_each(value:string):void {
-                    const callback = (data.action === "fs-copy")
-                        ? function terminal_server_fileService_copySameAgent_each_copy():void {
-                            count = count + 1;
-                            if (count === length) {
-                                fileCallback(`Path(s) ${data.location.join(", ")} copied.`);
-                            }
+                    const callback = function terminal_server_fileService_copySameAgent_each_copy([fileCount, fileSize]):void {
+                        count = count + 1;
+                        countFile = countFile + fileCount;
+                        writtenSize = writtenSize + fileSize;
+                        if (count === length) {
+                            const filePlural:string = (countFile === 1)
+                                ? ""
+                                : "s";
+                            fileCallback(`fileListStatus:{"failures":[],"id":"${data.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures."}`);
                         }
-                        : function terminal_server_fileService_copySameAgent_each_cut():void {
-                            library.remove(value, function terminal_server_fileService_copySameAgent_each_cut_callback():void {
-                                count = count + 1;
-                                if (count === length) {
-                                    fileCallback(`Path(s) ${data.location.join(", ")} cut and pasted.`);
-                                }
-                            });
-                        }
+                    };
                     library.copy({
                         callback: callback,
                         destination:data.name,

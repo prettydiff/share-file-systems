@@ -39,7 +39,7 @@ const library = {
         util.complete = function terminal_copy_complete(item:string):void {
             delete dirs[item];
             if (Object.keys(dirs).length < 1) {
-                params.callback();
+                params.callback([numb.files, numb.size]);
             }
         };
         util.errorOut     = function terminal_copy_errorOut(er:Error):void {

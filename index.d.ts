@@ -129,6 +129,7 @@ interface fsUpdateRemote {
     dirs: directoryList;
     fail: string[];
     location:string;
+    status?:string;
 }
 interface FSWatcher extends Function {
     close: Function;
