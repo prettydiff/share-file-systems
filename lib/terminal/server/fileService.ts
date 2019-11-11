@@ -165,6 +165,20 @@ const library = {
                 const files:[string, number, Buffer][] = [],
                     hashFail:string[] = [],
                     listLength = fileData.list.length,
+                    respond = function terminal_server_fileService_requestFiles_respond():void {
+                        const filePlural:string = (countFile === 1)
+                                ? ""
+                                : "s",
+                            hashFailLength:number = hashFail.length,
+                            hashFailPlural:string = (hashFailLength === 1)
+                                ? ""
+                                : "s";
+                        library.log([``]);
+                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                        vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        response.end();
+                    },
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
                         const fileName:string = files[index][0];
                         vars.node.fs.writeFile(data.name + vars.sep + fileName, files[index][2], function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
@@ -195,20 +209,6 @@ const library = {
                                 }
                             }
                         });
-                    },
-                    respond = function terminal_server_fileService_requestFiles_respond():void {
-                        const filePlural:string = (countFile === 1)
-                                ? ""
-                                : "s",
-                            hashFailLength:number = hashFail.length,
-                            hashFailPlural:string = (hashFailLength === 1)
-                                ? ""
-                                : "s";
-                        library.log([``]);
-                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
-                        response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
-                        response.end();
                     },
                     writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
                         const fileName:string = <string>fileResponse.headers.file_name,
@@ -283,7 +283,6 @@ const library = {
                                 }
                             }
                             activeRequests = activeRequests - 1;
-                            a = a + 1;
                             if (a < listLength) {
                                 requestFile();
                             }
@@ -314,10 +313,13 @@ const library = {
                             errorMessage: `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`,
                             response: response
                         });
-                        if (fileData.stream === false && a < listLength) {
-                            activeRequests = activeRequests + 1;
-                            if (activeRequests < 8) {
-                                terminal_server_fileService_requestFiles_requestFile();
+                        if (fileData.stream === false) {
+                            a = a + 1;
+                            if (a < listLength) {
+                                activeRequests = activeRequests + 1;
+                                if (activeRequests < 8) {
+                                    terminal_server_fileService_requestFiles_requestFile();
+                                }
                             }
                         }
                     },
@@ -660,8 +662,14 @@ const library = {
                             data.remoteWatch = JSON.stringify(listData);
                             library.httpClient({
                                 callback: function terminal_server_fileServices_remoteListCallback_http(fsResponse:http.IncomingMessage):void {
+                                    const chunks:string[] = [];
                                     fsResponse.on("data", function terminal_server_fileService_remoteListCallback_http_data(chunk:string):void {
-                                        vars.ws.broadcast(chunk);
+                                        chunks.push(chunk);
+                                    });
+                                    fsResponse.on("end", function terminal_server_fileService_remoteListCallback_end():void {
+                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                        response.write(chunks.join(""));
+                                        response.end();
                                     });
                                     fsResponse.on("error", function terminal_server_fileService_remoteListCallback_http_error(errorMessage:nodeError):void {
                                         if (errorMessage.code !== "ETIMEDOUT") {

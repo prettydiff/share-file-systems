@@ -590,7 +590,8 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
 
 /* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
-    const element:HTMLElement = (function local_util_keys_element():HTMLElement {
+    const key:number = event.keyCode,
+        element:HTMLElement = (function local_util_keys_element():HTMLElement {
             let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
             if (el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
@@ -599,8 +600,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
                 el = <HTMLElement>el.parentNode;
             } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
             return el;
-        }()),
-        key:number = event.keyCode;
+        }());
     event.preventDefault();
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();

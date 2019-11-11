@@ -17,35 +17,13 @@ const webSocket = function local_webSocket():WebSocket {
         title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
     };
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
+        if (typeof event.data !== "string") {
+            return;
+        }
         if (event.data === "reload") {
             location.reload();
         } else if (event.data.indexOf("fileListStatus:") === 0) {
-            const data:copyStatus = JSON.parse(event.data.slice("fileListStatus:".length)),
-                statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
-                list:HTMLElement = statusBar.getElementsByTagName("ul")[0],
-                p:HTMLElement = statusBar.getElementsByTagName("p")[0];
-            p.innerHTML = data.message;
-            if (list !== undefined) {
-                statusBar.removeChild(list);
-            }
-            if (data.failures.length > 0) {
-                const failLength:number = Math.min(10, data.failures.length),
-                    fails:HTMLElement = document.createElement("ul");
-                let a:number = 0,
-                    li:HTMLElement;
-                do {
-                    li = document.createElement("li");
-                    li.innerHTML = data.failures[a];
-                    fails.appendChild(li);
-                    a = a + 1;
-                } while (a < failLength);
-                if (data.failures.length > 10) {
-                    li = document.createElement("li");
-                    li.innerHTML = "more...";
-                    fails.appendChild(li);
-                }
-                statusBar.appendChild(fails);
-            }
+            util.fileListStatus(event.data);
         } else if (event.data.indexOf("error:") === 0) {
             const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
