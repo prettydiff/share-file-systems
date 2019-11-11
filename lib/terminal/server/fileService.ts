@@ -571,9 +571,11 @@ const library = {
                                                                 library.log(["watch-remote", errorMessage.toString()]);
                                                                 vars.ws.broadcast(errorMessage.toString());
                                                             }
-                                                            response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                                                            response.write("Error sending directory watch to remote.");
-                                                            response.end();
+                                                            if (response.finished === false) {
+                                                                response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                                                                response.write("Error sending directory watch to remote.");
+                                                                response.end();
+                                                            }
                                                         });
                                                         fsRequest.write(payload);
                                                         setTimeout(function () {
