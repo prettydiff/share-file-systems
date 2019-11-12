@@ -58,6 +58,77 @@ const library = {
                     });
                 }
             },
+            watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
+                if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
+                    if (data.agent === "localhost") {
+                        vars.ws.broadcast(`fsUpdate:${value}`);
+                    } else {
+                        // create directoryList object and send to remote
+                        library.directory({
+                            callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
+                                const remoteData:string[] = data.remoteWatch.split("_"),
+                                    remoteAddress:string = remoteData[0],
+                                    remotePort:number = Number(remoteData[1]),
+                                    location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
+                                        ? value
+                                        : value.replace(/\\/g, "\\\\"),
+                                    payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
+                                    fsRequest:http.ClientRequest = vars.node.http.request({
+                                        headers: {
+                                            "Content-Type": "application/x-www-form-urlencoded",
+                                            "Content-Length": Buffer.byteLength(payload)
+                                        },
+                                        host: remoteAddress,
+                                        method: "POST",
+                                        path: "/",
+                                        port: remotePort,
+                                        timeout: 4000
+                                    }, function terminal_server_fileService_watchHandler_remote_callback(fsResponse:http.IncomingMessage):void {
+                                        const chunks:string[] = [];
+                                        fsResponse.setEncoding("utf8");
+                                        fsResponse.on("data", function terminal_server_fileService_watchHandler_remote_callback_data(chunk:string):void {
+                                            chunks.push(chunk);
+                                        });
+                                        fsResponse.on("end", function terminal_server_fileService_watchHandler_remote_callback_end():void {
+                                            if (response.finished === false) {
+                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                response.write(chunks.join(""));
+                                                response.end();
+                                            }
+                                        });
+                                        fsResponse.on("error", function terminal_server_fileService_watchHandler_remote_callback_error(errorMessage:nodeError):void {
+                                            if (errorMessage.code !== "ETIMEDOUT") {
+                                                library.log([errorMessage.toString()]);
+                                                vars.ws.broadcast(errorMessage.toString());
+                                            }
+                                        });
+                                    });
+                                fsRequest.on("error", function terminal_server_fileService_watchHandler_remote_requestError(errorMessage:nodeError):void {
+                                    if (errorMessage.code !== "ETIMEDOUT") {
+                                        library.log(["watch-remote", errorMessage.stack]);
+                                        vars.ws.broadcast(errorMessage.toString());
+                                    }
+                                    if (response.finished === false) {
+                                        response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                                        response.write("Error sending directory watch to remote.");
+                                        response.end();
+                                    }
+                                });
+                                fsRequest.write(payload);
+                                setTimeout(function () {
+                                    fsRequest.end();
+                                }, 100);
+                            },
+                            depth: 2,
+                            exclusions: [],
+                            hash: false,
+                            path: value,
+                            recursive: true,
+                            symbolic: true
+                        });
+                    }
+                }
+            },
             remoteCopyList = function terminal_server_fileService_remoteCopyList(config:remoteCopyList):void {
                 const list: [string, string, string, number][] = [],
                     callback = function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
@@ -190,6 +261,7 @@ const library = {
                             });
                             data.action = "fs-cut-remove";
                             data.name = JSON.stringify(types);
+                            data.watch = fileData[0][0].slice(0, fileData[0][0].lastIndexOf(fileData[0][2]));
                             library.httpClient({
                                 callback: function terminal_server_fileService_requestFiles_respond_cutCall(fsResponse:http.IncomingMessage):void {
                                     const chunks:string[] = [];
@@ -199,7 +271,7 @@ const library = {
                                     });
                                     fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
                                         const body:string = chunks.join("");
-                                        library.log(["Files cut from remote computer.", body]);
+                                        library.log([body]);
                                     });
                                     fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
                                         if (errorMessage.code !== "ETIMEDOUT") {
@@ -545,7 +617,7 @@ const library = {
                     if (value === "\\" || value === "\\\\") {
                         windowsRoot();
                     } else {
-                        vars.node.fs.stat(value, function terminal_server_fileService_putStat(erp:nodeError):void {
+                        vars.node.fs.stat(value, function terminal_server_fileService_pathEach_putStat(erp:nodeError):void {
                             if (erp !== null) {
                                 library.error([erp.toString()]);
                                 callback([]);
@@ -563,76 +635,8 @@ const library = {
                                 if (serverVars.watches[value] === undefined) {
                                     serverVars.watches[value] = vars.node.fs.watch(value, {
                                         recursive: false
-                                    }, function terminal_server_fileService_watch():void {
-                                        if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
-                                            if (data.agent === "localhost") {
-                                                vars.ws.broadcast(`fsUpdate:{"agent":"localhost","location":"${value}"}`);
-                                            } else {
-                                                // create directoryList object and send to remote
-                                                library.directory({
-                                                    callback: function terminal_server_fileService_watch_remote(result:directoryList):void {
-                                                        const remoteData:string[] = data.remoteWatch.split("_"),
-                                                            remoteAddress:string = remoteData[0],
-                                                            remotePort:number = Number(remoteData[1]),
-                                                            location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
-                                                                ? value
-                                                                : value.replace(/\\/g, "\\\\"),
-                                                            payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
-                                                            fsRequest:http.ClientRequest = vars.node.http.request({
-                                                                headers: {
-                                                                    "Content-Type": "application/x-www-form-urlencoded",
-                                                                    "Content-Length": Buffer.byteLength(payload)
-                                                                },
-                                                                host: remoteAddress,
-                                                                method: "POST",
-                                                                path: "/",
-                                                                port: remotePort,
-                                                                timeout: 4000
-                                                            }, function terminal_server_fileService_watch_remote_callback(fsResponse:http.IncomingMessage):void {
-                                                                const chunks:string[] = [];
-                                                                fsResponse.setEncoding("utf8");
-                                                                fsResponse.on("data", function terminal_server_fileService_watch_remote_callback_data(chunk:string):void {
-                                                                    chunks.push(chunk);
-                                                                });
-                                                                fsResponse.on("end", function terminal_server_fileService_watch_remote_callback_end():void {
-                                                                    if (response.finished === false) {
-                                                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                                                        response.write(chunks.join(""));
-                                                                        response.end();
-                                                                    }
-                                                                });
-                                                                fsResponse.on("error", function terminal_server_fileService_watch_remote_callback_error(errorMessage:nodeError):void {
-                                                                    if (errorMessage.code !== "ETIMEDOUT") {
-                                                                        library.log([errorMessage.toString()]);
-                                                                        vars.ws.broadcast(errorMessage.toString());
-                                                                    }
-                                                                });
-                                                            });
-                                                        fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
-                                                            if (errorMessage.code !== "ETIMEDOUT") {
-                                                                library.log(["watch-remote", errorMessage.toString()]);
-                                                                vars.ws.broadcast(errorMessage.toString());
-                                                            }
-                                                            if (response.finished === false) {
-                                                                response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                                                                response.write("Error sending directory watch to remote.");
-                                                                response.end();
-                                                            }
-                                                        });
-                                                        fsRequest.write(payload);
-                                                        setTimeout(function () {
-                                                            fsRequest.end();
-                                                        }, 100);
-                                                    },
-                                                    depth: 2,
-                                                    exclusions: [],
-                                                    hash: false,
-                                                    path: value,
-                                                    recursive: true,
-                                                    symbolic: true
-                                                });
-                                            }
-                                        }
+                                    }, function terminal_server_fileService_pathEach_putStat_watch():void {
+                                        watchHandler(value);
                                     });
                                 }
                             }
@@ -831,6 +835,13 @@ const library = {
             const length:number = data.location.length,
                 types:string[] = JSON.parse(data.name),
                 remove = function terminal_server_fileService_cutRemove():void {
+                    if (a === length - 1) {
+                        serverVars.watches[data.watch] = vars.node.fs.watch(data.watch, {
+                            recursive: false
+                        }, function terminal_server_fileService_cutRemote_watch():void {
+                            watchHandler(data.watch);
+                        });
+                    }
                     if (a < length) {
                         if (types[a] === "file") {
                             library.remove(data.location[a], terminal_server_fileService_cutRemove);
@@ -843,8 +854,13 @@ const library = {
                                 }
                             });
                         }
+                    } else {
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write("File system items removed.");
+                        response.end();
                     }
                 };
+                serverVars.watches[data.watch].close();
             remove();
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
