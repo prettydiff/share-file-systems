@@ -348,6 +348,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
     const field:HTMLInputElement = document.createElement("input"),
         text:HTMLElement = document.createElement("label"),
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
+            // 13 is enter
             if (actionEvent.keyCode === 13) {
                 const value:string = field.value.replace(/(\s+|\.)$/, "");
                 field.value = value;
@@ -364,6 +365,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                     // todo: log in systems log
                 });
             } else {
+                // 27 is escape
                 if (actionEvent.keyCode === 27) {
                     const input:HTMLElement = <HTMLElement>element.getElementsByTagName("input")[0];
                     element.removeChild(item);

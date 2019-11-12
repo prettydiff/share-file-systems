@@ -244,47 +244,50 @@ const library = {
                             hashFailLength:number = hashFail.length,
                             hashFailPlural:string = (hashFailLength === 1)
                                 ? ""
-                                : "s";
-                        library.log([``]);
-                        if (data.action.indexOf("fs-cut") === 0) {
-                            const types:string[] = [];
-                            cutList.sort(function terminal_server_fileService_requestFiles_respond_cutSort(itemA:[string, string], itemB:[string, string]):number {
-                                if (itemA[1] === "directory" && itemB[1] !== "directory") {
-                                    return 1;
-                                }
-                                return -1;
-                            });
-                            data.location = [];
-                            cutList.forEach(function terminal_server_fileService_requestFiles_respond_cutList(value:[string, string]):void {
-                                data.location.push(value[0]);
-                                types.push(value[1]);
-                            });
-                            data.action = "fs-cut-remove";
-                            data.name = JSON.stringify(types);
-                            data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
-                            library.httpClient({
-                                callback: function terminal_server_fileService_requestFiles_respond_cutCall(fsResponse:http.IncomingMessage):void {
-                                    const chunks:string[] = [];
-                                    fsResponse.setEncoding("utf8");
-                                    fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
-                                        chunks.push(chunk);
-                                    });
-                                    fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
-                                        const body:string = chunks.join("");
-                                        library.log([body]);
-                                    });
-                                    fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
-                                        if (errorMessage.code !== "ETIMEDOUT") {
-                                            library.log([errorMessage.toString()]);
-                                            vars.ws.broadcast(errorMessage.toString());
+                                : "s",
+                            cut = function terminal_server_fileService_requestFiles_respond_cut():void {
+                                if (data.action.indexOf("fs-cut") === 0) {
+                                    const types:string[] = [];
+                                    cutList.sort(function terminal_server_fileService_requestFiles_respond_cut_cutSort(itemA:[string, string], itemB:[string, string]):number {
+                                        if (itemA[1] === "directory" && itemB[1] !== "directory") {
+                                            return 1;
                                         }
+                                        return -1;
                                     });
-                                },
-                                data:data,
-                                errorMessage: "Error requesting file removal for fs-cut.",
-                                response: response
-                            });
-                        }
+                                    data.location = [];
+                                    cutList.forEach(function terminal_server_fileService_requestFiles_respond_cut_cutList(value:[string, string]):void {
+                                        data.location.push(value[0]);
+                                        types.push(value[1]);
+                                    });
+                                    data.action = "fs-cut-remove";
+                                    data.name = JSON.stringify(types);
+                                    data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
+                                    library.httpClient({
+                                        callback: function terminal_server_fileService_requestFiles_respond_cut_cutCall(fsResponse:http.IncomingMessage):void {
+                                            const chunks:string[] = [];
+                                            fsResponse.setEncoding("utf8");
+                                            fsResponse.on("data", function terminal_server_fileService_requestFiles_respond_cut_cutCall_data(chunk:string):void {
+                                                chunks.push(chunk);
+                                            });
+                                            fsResponse.on("end", function terminal_server_fileService_requestFiles_respond_cut_cutCall_end():void {
+                                                const body:string = chunks.join("");
+                                                library.log([body]);
+                                            });
+                                            fsResponse.on("error", function terminal_server_fileService_requestFiles_respond_cut_cutCall_error(errorMessage:nodeError):void {
+                                                if (errorMessage.code !== "ETIMEDOUT") {
+                                                    library.log([errorMessage.toString()]);
+                                                    vars.ws.broadcast(errorMessage.toString());
+                                                }
+                                            });
+                                        },
+                                        data:data,
+                                        errorMessage: "Error requesting file removal for fs-cut.",
+                                        response: response
+                                    });
+                                }
+                            };
+                        library.log([``]);
+                        cut();
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
                         response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"id":"${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
@@ -292,7 +295,7 @@ const library = {
                     },
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
                         const fileName:string = fileQueue[index][0];
-                        vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_fileCallback_end_writeFile(wr:nodeError):void {
+                        vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
                             const filePlural:string = (countFile === 1)
                                     ? ""
                                     : "s",
