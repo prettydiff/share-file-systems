@@ -232,7 +232,12 @@ const library = {
                                     return "DEC";
                                 }
                             }()),
-                            date = `${stat.mtime.getDate().toString()} ${month} ${stat.mtime.getFullYear().toString()}`;
+                            date:string = `${stat.mtime.getDate().toString()} ${month} ${stat.mtime.getFullYear().toString()}`,
+                            flag = {
+                                json: false,
+                                html: false
+                            },
+                            html:string = `${vars.projectPath}index.html`;
                         vars.version.date = date.replace(/-/g, "");
                         vars.node.fs.readFile(pack, "utf8", function terminal_build_version_stat_read(err:Error, data:string) {
                             if (err !== null) {
@@ -245,7 +250,28 @@ const library = {
                                     library.error([erw.toString()]);
                                     return;
                                 }
-                                next("Version data written");
+                                flag.json = true;
+                                if (flag.html === true) {
+                                    next("Version data written");
+                                }
+                            });
+                            vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
+                                if (err !== null) {
+                                    library.error([err.toString()]);
+                                    return;
+                                }
+                                const regex:RegExp = new RegExp(`<h1>\\s*${vars.version.name}\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
+                                fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
+                                vars.node.fs.writeFile(html, fileData, "utf8", function terminal_build_version_stat_read_html_write(erh:Error):void {
+                                    if (erh !== null) {
+                                        library.error([erh.toString()]);
+                                        return;
+                                    }
+                                    flag.html = true;
+                                    if (flag.json === true) {
+                                        next("Version data written");
+                                    }
+                                });
                             });
                         });
                     });

@@ -14,7 +14,6 @@ const webSocket = function local_webSocket():WebSocket {
     socket.onopen = function local_socketOpen():void {
         document.getElementById("localhost").setAttribute("class", "active");
         title.style.background = "#ddd";
-        title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
     };
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
