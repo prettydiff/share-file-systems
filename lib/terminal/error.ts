@@ -1,6 +1,6 @@
 
 /*eslint no-console: 0*/
-import commas from "./commas.js";
+import commas from "../common/commas.js";
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
 

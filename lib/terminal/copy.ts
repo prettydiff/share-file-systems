@@ -2,7 +2,7 @@
 
 import { Stream, Writable } from "stream";
 
-import commas from "./commas.js";
+import commas from "../common/commas.js";
 import error from "./error.js";
 import log from "./log.js";
 import makeDir from "./makeDir.js";
@@ -39,7 +39,7 @@ const library = {
         util.complete = function terminal_copy_complete(item:string):void {
             delete dirs[item];
             if (Object.keys(dirs).length < 1) {
-                params.callback();
+                params.callback([numb.files, numb.size]);
             }
         };
         util.errorOut     = function terminal_copy_errorOut(er:Error):void {

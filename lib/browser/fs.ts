@@ -34,8 +34,10 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         name: "",
         watch: watchValue
     }, function local_fs_directory_callback(responseText:string):void {
+        const list:[HTMLElement, number] = fs.list(path, JSON.parse(responseText));
         body.innerHTML = "";
-        body.appendChild(fs.list(path, JSON.parse(responseText).dirs));
+        body.appendChild(list[0]);
+        fs.listFail(list[1], box);
         browser.data.modals[box.getAttribute("id")].text_value = path;
         network.settings();
     });
@@ -56,7 +58,8 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
             name : "",
             watch: "no"
         }, function local_fs_expand_callback(responseText:string) {
-            li.appendChild(fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText).dirs));
+            const list:[HTMLElement, number] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
+            li.appendChild(list[0]);
         });
     } else {
         const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
@@ -69,10 +72,14 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
 };
 
 /* Builds the HTML file list */
-fs.list = function local_fs_list(location:string, list:directoryList):HTMLElement {
+fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement, number] {
     const local:directoryList = [],
+        list:directoryList = <directoryList>dirData.dirs,
         length:number = list.length,
-        output:HTMLElement = document.createElement("ul");
+        output:HTMLElement = document.createElement("ul"),
+        failLength:number = (dirData.fail === undefined)
+            ? 0
+            : dirData.fail.length;
     let a:number = 0,
         localLength:number = 0;
 
@@ -193,7 +200,25 @@ fs.list = function local_fs_list(location:string, list:directoryList):HTMLElemen
         });
     };
     output.setAttribute("class", "fileList");
-    return output;
+    return [output, failLength];
+};
+
+/* Display status information when the Operating system locks files from access */
+fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
+    const statusBar:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
+        p:HTMLElement = statusBar.getElementsByTagName("p")[0],
+        ul:HTMLElement = statusBar.getElementsByTagName("ul")[0],
+        filePlural:string = (count === 1)
+            ? ""
+            : "s";
+    if (ul !== undefined) {
+        statusBar.removeChild(ul);
+    }
+    if (count < 1) {
+        p.innerHTML = "";
+    } else {
+        p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operation system.`;
+    }
 };
 
 /* Build a single file system object from data */
@@ -298,7 +323,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                             p.setAttribute("class", "error");
                             return p;
                         }())
-                        : fs.list(location, payload.dirs);
+                        : fs.list(location, payload)[0];
                 body.innerHTML = "";
                 body.appendChild(files);
             }
@@ -306,13 +331,14 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                 if (responseText === "") {
                     return;
                 }
-                const files:HTMLElement = fs.list(location, JSON.parse(responseText).dirs),
-                    value:string = files.getAttribute("title");
-                files.removeAttribute("title");
+                const files:[HTMLElement, number] = fs.list(location, JSON.parse(responseText)),
+                    value:string = files[0].getAttribute("title");
+                files[0].removeAttribute("title");
                 modal.create({
                     agent: agentName,
-                    content: files,
+                    content: files[0],
                     inputs: ["close", "maximize", "minimize", "text"],
+                    status_bar: true,
                     text_event: fs.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: value,
@@ -327,6 +353,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
             agent: agentName,
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
+            status_bar: true,
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
@@ -383,8 +410,10 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         name: "",
         watch: value
     }, function local_fs_parent_callback(responseText:string):void {
+        const list:[HTMLElement, number] = fs.list(input.value, JSON.parse(responseText));
         body.innerHTML = "";
-        body.appendChild(fs.list(input.value, JSON.parse(responseText).dirs));
+        body.appendChild(list[0]);
+        fs.listFail(list[1], box);
         browser.data.modals[id].text_value = input.value;
         network.settings();
     });
@@ -619,8 +648,10 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
             if (responseText === "") {
                 parent.innerHTML = "<p class=\"error\">Location not found.</p>";
             } else {
+                const list:[HTMLElement, number] = fs.list(element.value, JSON.parse(responseText));
                 parent.innerHTML = "";
-                parent.appendChild(fs.list(element.value, JSON.parse(responseText).dirs));
+                parent.appendChild(list[0]);
+                fs.listFail(list[1], box);
                 browser.data.modals[id].text_value = element.value;
                 element.removeAttribute("class");
                 network.settings();

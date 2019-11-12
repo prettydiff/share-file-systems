@@ -14,7 +14,7 @@ util.addUser = function local_util_addUser(userName:string):void {
         addStyle = function local_util_addUser_addStyle() {
             let body:string,
                 heading:string;
-            const prefix:string = `#spaces .box[data-agent="${userName}"]`,
+            const prefix:string = `#spaces .box[data-agent="${userName}"] `,
                 generateColor = function local_util_addUser_addStyle_generateColor():void {
                     const rand:[number, number, number] = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)],
                         code1:string[] = ["#"],
@@ -46,7 +46,10 @@ util.addUser = function local_util_addUser(userName:string):void {
                 body = browser.data.users[userName].color[0];
                 heading = browser.data.users[userName].color[1];
             }
-            browser.style.innerHTML = `${browser.style.innerHTML + prefix} .body{background-color:${body}}${prefix} h2.heading{background-color:${heading}}#spaces #users button[data-agent="${userName}"]{background-color:${heading}}#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`;
+            browser.style.innerHTML = browser.style.innerHTML + [
+                `#spaces #users button[data-agent="${userName}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
+                `${prefix}.body,#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`
+            ].join("");
         };
     button.innerHTML = userName;
     if (userName.split("@")[1] === "localhost") {
@@ -349,6 +352,36 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
     }
 };
 
+/* */
+util.fileListStatus = function local_util_fileListStatus(text:string):void {
+    const data:copyStatus = JSON.parse(text.slice("fileListStatus:".length)),
+        statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
+        list:HTMLElement = statusBar.getElementsByTagName("ul")[0],
+        p:HTMLElement = statusBar.getElementsByTagName("p")[0];
+    p.innerHTML = data.message;
+    if (list !== undefined) {
+        statusBar.removeChild(list);
+    }
+    if (data.failures.length > 0) {
+        const failLength:number = Math.min(10, data.failures.length),
+            fails:HTMLElement = document.createElement("ul");
+        let a:number = 0,
+            li:HTMLElement;
+        do {
+            li = document.createElement("li");
+            li.innerHTML = data.failures[a];
+            fails.appendChild(li);
+            a = a + 1;
+        } while (a < failLength);
+        if (data.failures.length > 10) {
+            li = document.createElement("li");
+            li.innerHTML = "more...";
+            fails.appendChild(li);
+        }
+        statusBar.appendChild(fails);
+    }
+};
+
 /* Resizes the interactive area to fit the browser viewport */
 util.fixHeight = function local_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
@@ -557,17 +590,20 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
 
 /* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
-    const element:HTMLElement = (function local_util_keys_element():HTMLElement {
+    const key:number = event.keyCode,
+        element:HTMLElement = (function local_util_keys_element():HTMLElement {
             let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-            if (el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
+            if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }
             do {
                 el = <HTMLElement>el.parentNode;
             } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
             return el;
-        }()),
-        key:number = event.keyCode;
+        }());
+    if (element.parentNode === null) {
+        return;
+    }
     event.preventDefault();
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();
@@ -655,63 +691,6 @@ util.menu = function local_util_menu():void {
         };
     menu.style.display = "block";
     document.onmousemove = move;
-};
-
-/* Round data sizes to human readable powers of 1024 */
-util.prettyBytes = function local_util_prettyBytes(an_integer:number):string {
-    //find the string length of input and divide into triplets
-    let output:string = "",
-        length:number  = an_integer
-            .toString()
-            .length;
-    const triples:number = (function local_util_prettyBytes_triples():number {
-            if (length < 22) {
-                return Math.floor((length - 1) / 3);
-            }
-            //it seems the maximum supported length of integer is 22
-            return 8;
-        }()),
-        //each triplet is worth an exponent of 1024 (2 ^ 10)
-        power:number   = (function local_util_prettyBytes_power():number {
-            let a = triples - 1,
-                b = 1024;
-            if (triples === 0) {
-                return 0;
-            }
-            if (triples === 1) {
-                return 1024;
-            }
-            do {
-                b = b * 1024;
-                a = a - 1;
-            } while (a > 0);
-            return b;
-        }()),
-        //kilobytes, megabytes, and so forth...
-        unit    = [
-            "",
-            "KB",
-            "MB",
-            "GB",
-            "TB",
-            "PB",
-            "EB",
-            "ZB",
-            "YB"
-        ];
-
-    if (typeof an_integer !== "number" || Number.isNaN(an_integer) === true || an_integer < 0 || an_integer % 1 > 0) {
-        //input not a positive integer
-        output = "0.0B";
-    } else if (triples === 0) {
-        //input less than 1000
-        output = `${an_integer}B`;
-    } else {
-        //for input greater than 999
-        length = Math.floor((an_integer / power) * 100) / 100;
-        output = length.toFixed(1) + unit[triples];
-    }
-    return output;
 };
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */

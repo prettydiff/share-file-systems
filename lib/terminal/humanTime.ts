@@ -1,5 +1,7 @@
 
 /*eslint no-console: 0*/
+import prettyBytes from "../common/prettyBytes.js";
+
 import vars from "./vars.js";
 
 // converting time durations into something people read
@@ -35,61 +37,6 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
                 return `${strSplit[0]}.${strSplit[1]}`;
             }
             return `${strSplit[0]}`;
-        },
-        prettyBytes  = function terminal_humanTime_prettyBytes(an_integer:number):string {
-            //find the string length of input and divide into triplets
-            let output:string = "",
-                length:number  = an_integer
-                    .toString()
-                    .length;
-            const triples:number = (function terminal_humanTime_prettyBytes_triples():number {
-                    if (length < 22) {
-                        return Math.floor((length - 1) / 3);
-                    }
-                    //it seems the maximum supported length of integer is 22
-                    return 8;
-                }()),
-                //each triplet is worth an exponent of 1024 (2 ^ 10)
-                power:number   = (function terminal_humanTime_prettyBytes_power():number {
-                    let a = triples - 1,
-                        b = 1024;
-                    if (triples === 0) {
-                        return 0;
-                    }
-                    if (triples === 1) {
-                        return 1024;
-                    }
-                    do {
-                        b = b * 1024;
-                        a = a - 1;
-                    } while (a > 0);
-                    return b;
-                }()),
-                //kilobytes, megabytes, and so forth...
-                unit    = [
-                    "",
-                    "KB",
-                    "MB",
-                    "GB",
-                    "TB",
-                    "PB",
-                    "EB",
-                    "ZB",
-                    "YB"
-                ];
-
-            if (typeof an_integer !== "number" || Number.isNaN(an_integer) === true || an_integer < 0 || an_integer % 1 > 0) {
-                //input not a positive integer
-                output = "0.00B";
-            } else if (triples === 0) {
-                //input less than 1000
-                output = `${an_integer}B`;
-            } else {
-                //for input greater than 999
-                length = Math.floor((an_integer / power) * 100) / 100;
-                output = length.toFixed(2) + unit[triples];
-            }
-            return output;
         },
         plural       = function terminal_humanTime_plural(x:number, y:string):string {
             if (x !== 1) {

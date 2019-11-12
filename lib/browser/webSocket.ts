@@ -17,8 +17,13 @@ const webSocket = function local_webSocket():WebSocket {
         title.getElementsByTagName("h1")[0].innerHTML = "Shared Spaces";
     };
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
+        if (typeof event.data !== "string") {
+            return;
+        }
         if (event.data === "reload") {
             location.reload();
+        } else if (event.data.indexOf("fileListStatus:") === 0) {
+            util.fileListStatus(event.data);
         } else if (event.data.indexOf("error:") === 0) {
             const errorData:string = event.data.slice(6),
                 modal:HTMLElement = document.getElementById("systems-modal"),
@@ -29,9 +34,13 @@ const webSocket = function local_webSocket():WebSocket {
             }
         } else if (event.data.indexOf("fsUpdateRemote:") === 0) {
             const data:fsUpdateRemote = JSON.parse(event.data.replace("fsUpdateRemote:", "")),
-                list:HTMLElement = fs.list(data.location, data.dirs),
+                list:[HTMLElement, number] = fs.list(data.location, {
+                    dirs: data.dirs,
+                    id: data.location,
+                    fail: data.fail
+                }),
                 modalKeys:string[] = Object.keys(browser.data.modals),
-                keyLength:number = modalKeys.length;
+                keyLength:number = modalKeys.length;console.log(data.agent+" "+data.location)
             let a:number = 0,
                 modalAgent:string,
                 body:HTMLElement;
@@ -40,10 +49,13 @@ const webSocket = function local_webSocket():WebSocket {
                 if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
                     body = <HTMLElement>document.getElementById(browser.data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
                     body.innerHTML = "";
-                    body.appendChild(list);
+                    body.appendChild(list[0]);
                 }
                 a = a + 1;
             } while (a < keyLength);
+            if (typeof data.status === "string") {
+                util.fileListStatus(data.status);
+            }
         } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
             const modalKeys:string[] = Object.keys(browser.data.modals),
                 keyLength:number = modalKeys.length;
@@ -53,7 +65,7 @@ const webSocket = function local_webSocket():WebSocket {
                 value = value + "\\";
             }
             do {
-                if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value) {
+                if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value && browser.data.modals[modalKeys[a]].agent === "localhost") {
                     const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
                     network.fs({
                         action: "fs-directory",
@@ -66,7 +78,7 @@ const webSocket = function local_webSocket():WebSocket {
                     }, function local_socketMessage_fsCallback(responseText:string):void {
                         if (responseText !== "") {
                             body.innerHTML = "";
-                            body.appendChild(fs.list(value, JSON.parse(responseText).dirs));
+                            body.appendChild(fs.list(value, JSON.parse(responseText))[0]);
                         }
                     });
                     break;

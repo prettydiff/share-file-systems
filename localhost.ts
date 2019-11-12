@@ -268,30 +268,31 @@ import webSocket from "./lib/browser/webSocket.js";
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = JSON.parse(responseText),
                                                 id:string = payload.id,
-                                                files:HTMLElement = (payload.dirs === "missing")
-                                                    ? (function local_restore_modalKeys_fsCallback_missing():HTMLElement {
+                                                files:[HTMLElement, number] = (payload.dirs === "missing")
+                                                    ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number] {
                                                         const p:HTMLElement = document.createElement("p");
                                                         p.setAttribute("class", "error");
                                                         p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
-                                                        return p;
+                                                        return [p, 0];
                                                     }())
-                                                    : fs.list(storage.settings.modals[value].text_value, payload.dirs),
-                                                textValue:string = files.getAttribute("title");
-                                            files.removeAttribute("title");
+                                                    : fs.list(storage.settings.modals[value].text_value, payload),
+                                                textValue:string = files[0].getAttribute("title");
+                                            files[0].removeAttribute("title");
                                             if (agent === "localhost") {
                                                 callbackLocal(id, files, textValue);
                                             } else {
                                                 callbackRemote(id, files);
                                             }
                                         },
-                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:HTMLElement, textValue:String):void {
-                                            storage.settings.modals[id].content = files;
+                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number], textValue:String):void {
+                                            storage.settings.modals[id].content = files[0];
                                             storage.settings.modals[id].id = id;
                                             if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
                                                 storage.settings.modals[id].text_value = textValue;
                                             }
                                             storage.settings.modals[id].text_event = fs.text;
-                                            modal.create(storage.settings.modals[id]);
+                                            const box:HTMLElement = modal.create(storage.settings.modals[id]);
+                                            fs.listFail(files[1], box);
                                             z(id);
                                             if (storage.settings.modals[id].status === "maximized") {
                                                 const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
@@ -303,11 +304,12 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 button.click();
                                             }
                                         },
-                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:HTMLElement):void {
+                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number]):void {
                                             const fsModal:HTMLElement = document.getElementById(id),
                                                 body:HTMLElement = <HTMLElement>fsModal.getElementsByClassName("body")[0];
+                                            fs.listFail(files[1], fsModal);
                                             body.innerHTML = "";
-                                            body.appendChild(files);
+                                            body.appendChild(files[0]);
 
                                         };
                                     if (agent === "localhost") {

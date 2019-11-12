@@ -8,7 +8,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
+type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-request" | "fs-cut-self" | "fs-cut-remove" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
@@ -75,11 +75,17 @@ interface contextFunctions {
 interface contextNew extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?:string): void;
 }
+interface copyStatus {
+    failures:string[];
+    id:string;
+    message:string;
+}
 interface dataString extends EventHandlerNonNull {
     (Event, element?:HTMLElement, type?: "Base64" | "Edit" | "Hash"): void;
 }
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
+    failures?: string[];
 }
 interface Document {
     getNodesByType: Function;
@@ -100,6 +106,9 @@ interface fileService {
     remoteWatch?: string;
     watch       : string;
 }
+interface fileStore extends Array<[number, string, string, Buffer]> {
+    [index:number]: [number, string, string, Buffer]
+}
 interface flags {
     error: boolean;
     write: string;
@@ -112,12 +121,15 @@ interface fsDetails {
 }
 interface fsRemote {
     dirs: directoryList | "missing";
+    fail: string[];
     id: string;
 }
 interface fsUpdateRemote {
     agent: string;
     dirs: directoryList;
+    fail: string[];
     location:string;
+    status?:string;
 }
 interface FSWatcher extends Function {
     close: Function;
@@ -205,7 +217,8 @@ interface module_context {
 interface module_fs {
     directory?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
-    list?: (location:string, list:directoryList) => HTMLElement;
+    list?: (location:string, dirData:fsRemote) => [HTMLElement, number];
+    listFail?: (count:number, box:HTMLElement) => void;
     listItem?: (item:directoryItem, extraClass:string) => HTMLElement;
     navigate?: navigate;
     parent?: EventHandlerNonNull;
@@ -242,6 +255,7 @@ interface module_util {
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
     dragSelect?: eventCallback;
+    fileListStatus?: (text:string) => void;
     fixHeight?: functionEvent;
     getAgent?: (element:HTMLElement) => string;
     inviteStart?: modalSettings;
@@ -304,9 +318,18 @@ interface readFile {
 }
 interface remoteCopyList {
     callback:Function;
-    files:[string, string, string][];
+    files:[string, string, string, number][];
+    id:string;
     index:number;
     length:number;
+}
+interface remoteCopyListData {
+    directories: number;
+    fileCount:number;
+    fileSize:number;
+    id:string;
+    list:[string, string, string, number][];
+    stream:boolean;
 }
 interface serverError {
     stack: string[];
@@ -429,6 +452,7 @@ interface ui_modal {
     resize?: boolean;
     single?: boolean;
     status?: "hidden" | "maximized" | "minimized" | "normal";
+    status_bar?: boolean;
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;
     text_value?: string;
