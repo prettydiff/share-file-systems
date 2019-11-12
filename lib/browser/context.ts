@@ -464,6 +464,13 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         parent:HTMLElement = <HTMLElement>element.parentNode,
         item:HTMLElement,
         button:HTMLButtonElement,
+        box:HTMLElement = (function local_context_menu_box():HTMLElement {
+            let el:HTMLElement = parent;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
                 item = document.createElement("li");
@@ -633,7 +640,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     } else if (parent.getAttribute("class") === "fileList") {
 
         functions.details();
-        functions.share();
+        if (box.getAttribute("data-agent") === "localhost") {
+            functions.share();
+        }
 
         if (element.getAttribute("class").indexOf("file") === 0) {
             functions.edit();
