@@ -261,7 +261,7 @@ const library = {
                             });
                             data.action = "fs-cut-remove";
                             data.name = JSON.stringify(types);
-                            data.watch = fileData[0][0].slice(0, fileData[0][0].lastIndexOf(fileData[0][2]));
+                            data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
                             library.httpClient({
                                 callback: function terminal_server_fileService_requestFiles_respond_cutCall(fsResponse:http.IncomingMessage):void {
                                     const chunks:string[] = [];
@@ -833,9 +833,10 @@ const library = {
         } else if (data.action === "fs-cut-remove") {
             let a:number = 0;
             const length:number = data.location.length,
+                watchTest:boolean = (serverVars.watches[data.watch] !== undefined),
                 types:string[] = JSON.parse(data.name),
                 remove = function terminal_server_fileService_cutRemove():void {
-                    if (a === length - 1) {
+                    if (a === length - 1 && watchTest === true) {
                         serverVars.watches[data.watch] = vars.node.fs.watch(data.watch, {
                             recursive: false
                         }, function terminal_server_fileService_cutRemote_watch():void {
@@ -860,7 +861,9 @@ const library = {
                         response.end();
                     }
                 };
-                serverVars.watches[data.watch].close();
+                if (watchTest === true) {
+                    serverVars.watches[data.watch].close();
+                }
             remove();
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
