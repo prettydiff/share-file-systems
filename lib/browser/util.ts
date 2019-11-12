@@ -593,7 +593,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     const key:number = event.keyCode,
         element:HTMLElement = (function local_util_keys_element():HTMLElement {
             let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-            if (el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
+            if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }
             do {
@@ -601,6 +601,9 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
             return el;
         }());
+    if (element.parentNode === null) {
+        return;
+    }
     event.preventDefault();
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();

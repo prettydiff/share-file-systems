@@ -40,7 +40,7 @@ const webSocket = function local_webSocket():WebSocket {
                     fail: data.fail
                 }),
                 modalKeys:string[] = Object.keys(browser.data.modals),
-                keyLength:number = modalKeys.length;
+                keyLength:number = modalKeys.length;console.log(data.agent+" "+data.location)
             let a:number = 0,
                 modalAgent:string,
                 body:HTMLElement;
@@ -65,7 +65,7 @@ const webSocket = function local_webSocket():WebSocket {
                 value = value + "\\";
             }
             do {
-                if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value) {
+                if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value && browser.data.modals[modalKeys[a]].agent === "localhost") {
                     const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
                     network.fs({
                         action: "fs-directory",

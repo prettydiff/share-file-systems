@@ -69,9 +69,9 @@ const library = {
                     });
                     response.on("error", function terminal_server_create_end_errorResponse(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
-                            library.log([body, "response", errorMessage.toString()]);
+                            library.log([body, "response"]);
                             if (errorMessage.toString().indexOf("write after end") > -1) {
-                                console.log(errorMessage.stack);
+                                library.log([errorMessage.stack]);
                             }
                             vars.ws.broadcast(errorMessage.toString());
                         }

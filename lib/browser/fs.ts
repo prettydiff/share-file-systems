@@ -217,7 +217,7 @@ fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
     if (count < 1) {
         p.innerHTML = "";
     } else {
-        p.innerHTML = `${count} file${filePlural} in this directory are restricted from reading by the operation system.`;
+        p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operation system.`;
     }
 };
 

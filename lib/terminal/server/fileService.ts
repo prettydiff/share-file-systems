@@ -299,12 +299,12 @@ const library = {
                             fileError(error.toString(), filePath);
                         });
                     },
-                    fileCallback = function terminal_server_fileService_requestFiles_fileCallback(fileResponse:http.IncomingMessage):void {
+                    fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
                         const fileChunks:Buffer[] = [];
-                        fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileCallback_data(fileChunk:string):void {
+                        fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileRequestCallback_data(fileChunk:string):void {
                             fileChunks.push(Buffer.from(fileChunk, "binary"));
                         });
-                        fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileCallback_end():void {
+                        fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
                             const file:Buffer = Buffer.concat(fileChunks),
                                 fileName:string = <string>fileResponse.headers.file_name,
                                 hash:Hash = vars.node.crypto.createHash("sha512").update(file),
@@ -328,7 +328,7 @@ const library = {
                                 requestFile();
                             }
                         });
-                        fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileCallback_error(fileError:nodeError):void {
+                        fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileRequestCallback_error(fileError:nodeError):void {
                             library.error([fileError.toString()]);
                         });
                     },
@@ -349,7 +349,7 @@ const library = {
                         library.httpClient({
                             callback: (fileData.stream === true)
                                 ? writeStream
-                                : fileCallback,
+                                : fileRequestCallback,
                             data: data,
                             errorMessage: `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`,
                             response: response
@@ -566,7 +566,7 @@ const library = {
                                     }, function terminal_server_fileService_watch():void {
                                         if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
                                             if (data.agent === "localhost") {
-                                                vars.ws.broadcast(`fsUpdate:${value}`);
+                                                vars.ws.broadcast(`fsUpdate:{"agent":"localhost","location":"${value}"}`);
                                             } else {
                                                 // create directoryList object and send to remote
                                                 library.directory({
@@ -578,7 +578,7 @@ const library = {
                                                                 ? value
                                                                 : value.replace(/\\/g, "\\\\"),
                                                             payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
-                                                            fsRequest:http.ClientRequest = http.request({
+                                                            fsRequest:http.ClientRequest = vars.node.http.request({
                                                                 headers: {
                                                                     "Content-Type": "application/x-www-form-urlencoded",
                                                                     "Content-Length": Buffer.byteLength(payload)

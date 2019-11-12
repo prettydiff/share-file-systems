@@ -762,7 +762,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
-                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -783,7 +783,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
-                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -800,7 +800,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
-                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -815,7 +815,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
-                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -851,7 +851,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
-                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
@@ -874,7 +874,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                         message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
-                        statusBar.style.width = `${bodyWidth / 1.5}em`;
+                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
                     }
                 }
                 document.onmouseup = drop;
