@@ -245,7 +245,7 @@ const library = {
                                 return;
                             }
                             vars.version.number = JSON.parse(data).version;
-                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, `{"command":"${vars.version.command}","date":"${vars.version.date}","name":"${vars.version.name}","number":"${vars.version.number}","port":${vars.version.port}}`, "utf8", function terminal_build_version_stat_read_write(erw:Error) {
+                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_write(erw:Error) {
                                 if (erw !== null) {
                                     library.error([erw.toString()]);
                                     return;
@@ -260,7 +260,7 @@ const library = {
                                     library.error([err.toString()]);
                                     return;
                                 }
-                                const regex:RegExp = new RegExp(`<h1>\\s*${vars.version.name}\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
+                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)+\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
                                 fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
                                 vars.node.fs.writeFile(html, fileData, "utf8", function terminal_build_version_stat_read_html_write(erh:Error):void {
                                     if (erh !== null) {

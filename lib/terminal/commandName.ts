@@ -10,7 +10,7 @@ const commandName = function terminal_command():string {
         b:number = 0;
     if (process.argv[2] === undefined) {
         console.log("");
-        console.log("Shared spaces requires a command. Try:");
+        console.log(`${vars.version.name} requires a command. Try:`);
         console.log(`${vars.text.cyan + vars.version.command} help${vars.text.none}`);
         console.log("");
         console.log("To see a list of commands try:");

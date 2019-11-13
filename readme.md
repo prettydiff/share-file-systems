@@ -1,4 +1,4 @@
-# Share Spaces
+# Share File Systems
 
 ## Purpose
 The end state is to offer a cross-OS private one-to-many online relationship that shares media, messaging, and file system access with end-to-end encryption from the browser.

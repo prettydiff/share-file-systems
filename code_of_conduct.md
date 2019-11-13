@@ -1,4 +1,4 @@
-# Shared Spaces - Code of Conduct
+# Share File Systems - Code of Conduct
 
 ## Bad Things
 ### Hostility

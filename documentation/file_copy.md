@@ -1,17 +1,17 @@
-# Shared Spaces - File Copy Behavior
+# Share File Systems - File Copy Behavior
 
-The Shared Spaces application allows one or more files, directories, or directory trees to be copied in these ways:
+The *Share File Systems* application allows one or more files, directories, or directory trees to be copied in these ways:
 * From one location to another on the current local computer
 * From one location to another on a different computer
 * From a different computer to the current local computer
 * From the current local computer to a different computer
 
-In order for file copy to work all computers must be connected via the Shared Spaces application.
+In order for file copy to work all associated computers must be connected via the Share File Systems application.
 
 ## Limitations
 At the time of this writing there are two major limitations to file copy:
 * Copying files from one remote computer to a second different remote computer is a feature that is not yet tested.
-* The Shared Spaces application only works by specified IP addresses, which means computers must have public facing IP addresses or be on the same internal network.
+* The Share File Systems application only works by specified IP addresses, which means computers must have public facing IP addresses or be on the same internal network.
 
 There are plans to solve for both of these concerns in the near future.
 

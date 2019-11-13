@@ -11,14 +11,19 @@
         "test": "test"
     },
     "keywords": [
-        "application",
-        "build",
-        "node",
-        "test"
+        "file",
+        "system",
+        "file system",
+        "share",
+        "peer to peer",
+        "gui",
+        "explorer",
+        "private",
+        "privacy"
     ],
     "license": "AGPLv3",
     "main": "js/application.js",
-    "name": "spaces",
+    "name": "share-file-systems",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/prettydiff/freshapp.git"
@@ -31,5 +36,5 @@
         "test": "node --experimental-modules js/application.js test"
     },
     "type": "module",
-    "version": "0.0.1"
+    "version": "0.0.2"
 }
