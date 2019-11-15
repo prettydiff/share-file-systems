@@ -153,4 +153,23 @@ network.settings = function local_network_settings():void {
     xhr.send(`settings:${JSON.stringify(browser.data)}`);
 };
 
+/* Stores users data to a storage/users.json file */
+network.settings = function local_network_settings():void {
+    if (browser.loadTest === true) {
+        return;
+    }
+    const xhr:XMLHttpRequest = new XMLHttpRequest();
+    xhr.onreadystatechange = function local_network_settings_callback():void {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200 && xhr.status !== 0) {
+                systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending users.","stack":${new Error().stack.split("\n")}}`);
+            }
+        }
+    };
+    xhr.withCredentials = true;
+    xhr.open("POST", loc, true);
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.send(`settings:${JSON.stringify(browser.data)}`);
+};
+
 export default network;

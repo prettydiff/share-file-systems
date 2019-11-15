@@ -10,6 +10,7 @@ type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-ac
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-request" | "fs-cut-self" | "fs-cut-remove" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
+type shareType = "directory" | "file" | "link";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
 interface applications {
@@ -39,6 +40,7 @@ interface browser {
     pageBody:HTMLElement;
     socket?:WebSocket;
     style:HTMLStyleElement;
+    users: users;
 }
 interface clipboard {
     agent: string;
@@ -173,7 +175,7 @@ interface invite {
     modal: string;
     name: string;
     port: number;
-    shares: [string, string][];
+    shares: userShares;
     status: "accepted" | "declined" | "invited";
 }
 interface localNetwork {
@@ -432,12 +434,6 @@ interface ui_data {
     };
     modalTypes: string[];
     name: string;
-    users: {
-        [key:string]: {
-            color:[string, string];
-            shares:[string, string][]
-        }
-    }
     zIndex: number;
 }
 interface ui_modal {
@@ -461,6 +457,21 @@ interface ui_modal {
     type: modalType;
     width?: number;
     zIndex?: number;
+}
+interface users {
+    [key:string]: {
+        color: [string, string];
+        shares: userShares;
+    }
+}
+interface userShare {
+    execute: boolean;
+    name: string;
+    readOnly: boolean;
+    type: shareType;
+}
+interface userShares extends Array<userShare> {
+    [index:number]: userShare;
 }
 interface version {
     command: string;

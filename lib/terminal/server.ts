@@ -89,7 +89,7 @@ const library = {
                             vars.ws.broadcast(body);
                         } else if (task === "fs") {
                             fileService(request, response, JSON.parse(dataString));
-                        } else if (task === "settings" || task === "messages") {
+                        } else if (task === "settings" || task === "messages" || task === "users") {
                             settingsMessages(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                             heartbeat(dataString, response);
@@ -186,14 +186,14 @@ const library = {
                 };
 
                 // When coming online send a heartbeat to each user
-                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_readSettings(err:nodeError, fileData:string):void {
+                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_readSettings(err:nodeError, fileData:string):void {
                     if (err !== null) {
                         logOutput();
                         if (err.code !== "ENOENT") {
                             log([err.toString()]);
                         }
                     } else {
-                        const settings:ui_data = JSON.parse(fileData),
+                        const settings:users = JSON.parse(fileData),
                             users:string[] = Object.keys(settings.users),
                             length:number = users.length;
                         if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {

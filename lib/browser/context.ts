@@ -724,7 +724,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
 
 /* Share utility for the context menu list */
 context.share = function local_context_share(element:HTMLElement):void {
-    const shareLength:number = browser.data.users.localhost.shares.length,
+    const shareLength:number = browser.users.localhost.shares.length,
         addresses:[string, string][] = util.selectedAddresses(element, "share"),
         addressesLength:number = addresses.length;
     let a:number = 0,
@@ -733,19 +733,29 @@ context.share = function local_context_share(element:HTMLElement):void {
         do {
             b = 0;
             do {
-                if (addresses[a][0] === browser.data.users.localhost.shares[b][0] && browser.data.users.localhost.shares[b][1] === addresses[a][1]) {
+                if (addresses[a][0] === browser.users.localhost.shares[b].name && addresses[a][1] === browser.users.localhost.shares[b].type) {
                     break;
                 }
                 b = b + 1;
             } while (b < shareLength);
             if (b === shareLength) {
-                browser.data.users.localhost.shares.push(addresses[a]);
+                browser.users.localhost.shares.push({
+                    execute: false,
+                    name: addresses[a][0],
+                    readOnly: true,
+                    type: <shareType>addresses[a][1]
+                });
             }
             a = a + 1;
         } while (a < addressesLength);
     } else {
         do {
-            browser.data.users.localhost.shares.push(addresses[a]);
+            browser.users.localhost.shares.push({
+                execute: false,
+                name: addresses[a][0],
+                readOnly: true,
+                type: <shareType>addresses[a][1]
+            });
             a = a + 1;
         } while (a < addressesLength);
     }

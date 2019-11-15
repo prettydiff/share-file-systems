@@ -34,17 +34,17 @@ util.addUser = function local_util_addUser(userName:string):void {
                     body = code1.join("");
                     heading = code2.join("");
                 };
-            if (browser.data.users[userName].color[0] === "") {
+            if (browser.users[userName].color[0] === "") {
                 generateColor();
                 if (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3)) {
                     do {
                         generateColor();
                     } while (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3));
                 }
-                browser.data.users[userName].color = [body, heading];
+                browser.users[userName].color = [body, heading];
             } else {
-                body = browser.data.users[userName].color[0];
-                heading = browser.data.users[userName].color[1];
+                body = browser.users[userName].color[0];
+                heading = browser.users[userName].color[1];
             }
             browser.style.innerHTML = browser.style.innerHTML + [
                 `#spaces #users button[data-agent="${userName}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
@@ -352,7 +352,7 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
     }
 };
 
-/* */
+/* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function local_util_fileListStatus(text:string):void {
     const data:copyStatus = JSON.parse(text.slice("fileListStatus:".length)),
         statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
@@ -543,7 +543,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                 } else {
                     user = `${invite.name}@[${invite.ip}]:${invite.port}`;
                 }
-                browser.data.users[user] = {
+                browser.users[user] = {
                     color:["", ""],
                     shares: invite.shares
                 }
@@ -563,7 +563,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                         } else {
                             user = `${invite.name}@[${invite.ip}]:${invite.port}`;
                         }
-                        browser.data.users[user] = {
+                        browser.users[user] = {
                             color:["", ""],
                             shares: invite.shares
                         }

@@ -155,6 +155,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;stroke:#cdf;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .body > textarea{background:#fff;border-style:none;color:#000;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;white-space:pre;width:100%}
+#spaces .box .delete{background:#fdd;border:0.1em solid #900;box-shadow:0.075em 0.075em 0.25em #ccc;color:#900;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 0 0 -2.5em;padding:0.125em;width:1.25em}
+#spaces .box .delete span{display:block;text-indent:-2000em}
 #spaces #dragBox{background:#9cf;border:0.2em solid #69c;display:block;opacity:0.25;position:absolute;z-index:5}
 
 /* systems modal content */
@@ -181,7 +183,9 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* share list */
 #spaces .userList{margin:1em;padding:0}
 #spaces .userList li{display:block;list-style:none}
-#spaces .userList button{background:transparent;border-style:none none solid;border-width:0.05em;color:#00f;cursor:pointer;display:block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
+#spaces .userList button{background:transparent;border-style:none none solid;border-width:0.05em;color:#00f;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
+#spaces .userList .localhost button{width:80%}
+#spaces .userList .localhost button.delete{width:1.25em}
 #spaces .userList button:hover{text-decoration:underline}
 #spaces ul.userList li{border-color:#000}
 #spaces .userList .user{margin:0 0 1em}

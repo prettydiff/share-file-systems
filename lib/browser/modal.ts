@@ -90,7 +90,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
                 message: box.getElementsByTagName("textarea")[0].value,
                 modal: id,
                 name: browser.data.name,
-                shares: browser.data.users.localhost.shares,
+                shares: browser.users.localhost.shares,
                 status: "invited"
             };
         if (inviteData.ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.ip) === false && (/([a-f0-9]{4}:)+/).test(inviteData.ip) === false)) {
@@ -122,7 +122,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             ip: invite.ip,
             modal: invite.modal,
             port: invite.port,
-            shares: browser.data.users.localhost.shares,
+            shares: browser.users.localhost.shares,
             status: "accepted"
         });
         if (invite.ip.indexOf(":") > 0) {
@@ -130,7 +130,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
         } else {
             user = `${invite.name}@${invite.ip}:${invite.port}`;
         }
-        browser.data.users[user] = {
+        browser.users[user] = {
             color: ["", ""],
             shares: invite.shares
         }
@@ -280,7 +280,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                                 ip: invite.ip,
                                 modal: invite.modal,
                                 port: invite.port,
-                                shares: browser.data.users.localhost.shares,
+                                shares: browser.users.localhost.shares,
                                 status: "declined"
                             });
                         });
@@ -891,7 +891,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
 
 /* Displays a list of shared items for each user */
 modal.shares = function local_modal_shares(event:MouseEvent, user?:string, configuration?:ui_modal):void {
-    const userKeys:string[] = Object.keys(browser.data.users),
+    const userKeys:string[] = Object.keys(browser.users),
         keyLength:number = userKeys.length,
         fileNavigate = function local_modal_shares_fileNavigate(event:MouseEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -916,7 +916,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
     if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
         user = "localhost";
     }
-    if (keyLength === 1 && browser.data.users.localhost.shares.length === 0) {
+    if (keyLength === 1 && browser.users.localhost.shares.length === 0) {
         eachUser = document.createElement("h3");
         eachUser.innerHTML = "There are no shares at this time.";
         modal.create({
@@ -932,10 +932,17 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             itemList:HTMLElement,
             item:HTMLElement,
             button:HTMLElement,
+            del:HTMLElement,
             a:number = 0,
             b:number = 0,
             shareLength:number,
-            title:string;
+            title:string,
+            type:string;
+        const deleteShare = function local_modal_shares_delete(event:MouseEvent):void {
+            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                parent:HTMLElement = <HTMLElement>element.parentNode;
+            parent.parentNode.removeChild(parent);
+        };
         if (user === "") {
             title = "All Shares";
             users = document.createElement("ul");
@@ -946,17 +953,28 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 userName.setAttribute("class", "user");
                 userName.innerHTML = userKeys[a];
                 eachUser.appendChild(userName);
-                shareLength = browser.data.users[userKeys[a]].shares.length;
+                shareLength = browser.users[userKeys[a]].shares.length;
                 if (shareLength > 0) {
                     b = 0;
                     itemList = document.createElement("ul");
                     do {
                         item = document.createElement("li");
                         button = document.createElement("button");
-                        button.setAttribute("class", browser.data.users[userKeys[a]].shares[b][1]);
-                        button.innerHTML = browser.data.users[userKeys[a]].shares[b][0];
-                        if (browser.data.users[userKeys[a]].shares[b][1] === "directory" || browser.data.users[userKeys[a]].shares[b][1] === "file" || browser.data.users[userKeys[a]].shares[b][1] === "link") {
+                        type = browser.users[userKeys[a]].shares[b].type;
+                        button.setAttribute("class", type);
+                        button.innerHTML = browser.users[userKeys[a]].shares[b].name;
+                        if (type === "directory" || type === "file" || type === "link") {
                             button.onclick = fileNavigate;
+                        }
+                        if (userKeys[a] === "localhost") {
+                            item.setAttribute("class", "localhost");
+                            del = document.createElement("button");
+                            del.setAttribute("class", "delete");
+                            del.innerHTML = "\u2718<span>Delete this share</span>";
+                            del.onclick = deleteShare;
+                            item.appendChild(del);
+                            del = document.createElement("button");
+
                         }
                         item.appendChild(button);
                         itemList.appendChild(item);
@@ -972,7 +990,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             } while (a < keyLength);
         } else {
             title = `Shares for user - ${user}`;
-            shareLength = browser.data.users[user].shares.length;
+            shareLength = browser.users[user].shares.length;
             users = document.createElement("div");
             users.setAttribute("class", "userList");
             userName = document.createElement("h3");
@@ -986,10 +1004,19 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 do {
                     item = document.createElement("li");
                     button = document.createElement("button");
-                    button.setAttribute("class", browser.data.users[user].shares[b][1]);
-                    button.innerHTML = browser.data.users[user].shares[b][0];
-                    if (browser.data.users[user].shares[b][1] === "directory" || browser.data.users[user].shares[b][1] === "file" || browser.data.users[user].shares[b][1] === "link") {
+                    type = browser.users[user].shares[b].type;
+                    button.setAttribute("class", type);
+                    button.innerHTML = browser.users[user].shares[b].name;
+                    if (type === "directory" || type === "file" || type === "link") {
                         button.onclick = fileNavigate;
+                    }
+                    if (user === "localhost") {
+                        item.setAttribute("class", "localhost");
+                        del = document.createElement("button");
+                        del.setAttribute("class", "delete");
+                        del.innerHTML = "\u2718<span>Delete this share</span>";
+                        del.onclick = deleteShare;
+                        item.appendChild(del);
                     }
                     item.appendChild(button);
                     itemList.appendChild(item);

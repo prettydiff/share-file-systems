@@ -205,7 +205,7 @@ import webSocket from "./lib/browser/webSocket.js";
             do {
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("storage:") === 0) {
-                    if (cString === "storage:{\"settings\":{},\"messages\":{}}") {
+                    if (cString === "storage:{\"settings\":{},\"messages\":{},\"users\":{}}") {
                         applyLogin();
                     } else {
                         storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
@@ -238,19 +238,19 @@ import webSocket from "./lib/browser/webSocket.js";
                                 };
                             let count:number = 0;
                             browser.data.name = storage.settings.name;
-                            browser.data.users.localhost = storage.settings.users.localhost
+                            browser.users.localhost = storage.users.localhost
                             util.addUser(`${storage.settings.name}@localhost`);
                             localhost = document.getElementById("localhost");
                             
                             // restore shares
                             {
-                                browser.data.users = storage.settings.users;
-                                const users:string[] = Object.keys(storage.settings.users),
+                                browser.users = storage.users;
+                                const users:string[] = Object.keys(storage.users),
                                     userLength:number = users.length;
                                 let a:number = 0;
                                 do {
                                     if (users[a] !== "localhost") {
-                                        browser.data.users[users[a]] = storage.settings.users[users[a]];
+                                        browser.users[users[a]] = storage.users[users[a]];
                                         util.addUser(users[a]);
                                     }
                                     a = a + 1;
