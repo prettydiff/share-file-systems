@@ -248,13 +248,15 @@ import webSocket from "./lib/browser/webSocket.js";
                                 const users:string[] = Object.keys(storage.users),
                                     userLength:number = users.length;
                                 let a:number = 0;
-                                do {
-                                    if (users[a] !== "localhost") {
-                                        browser.users[users[a]] = storage.users[users[a]];
-                                        util.addUser(users[a]);
-                                    }
-                                    a = a + 1;
-                                } while (a < userLength);
+                                if (userLength > 0) {
+                                    do {
+                                        if (users[a] !== "localhost") {
+                                            browser.users[users[a]] = storage.users[users[a]];
+                                            util.addUser(users[a]);
+                                        }
+                                        a = a + 1;
+                                    } while (a < userLength);
+                                }
                             }
                             
                             if (modalKeys.length < 1) {

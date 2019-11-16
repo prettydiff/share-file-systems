@@ -941,6 +941,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
         const deleteShare = function local_modal_shares_delete(event:MouseEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
                 parent:HTMLElement = <HTMLElement>element.parentNode;
+            
             parent.parentNode.removeChild(parent);
         };
         if (user === "") {
@@ -989,7 +990,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
                 a = a + 1;
             } while (a < keyLength);
         } else {
-            title = `Shares for user - ${user}`;
+            title = `Shares for user - ${user}`;console.log(user);
             shareLength = browser.users[user].shares.length;
             users = document.createElement("div");
             users.setAttribute("class", "userList");
