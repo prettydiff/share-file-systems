@@ -186,35 +186,44 @@ const library = {
                 };
 
                 // When coming online send a heartbeat to each user
-                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_readSettings(err:nodeError, fileData:string):void {
-                    if (err !== null) {
+                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_readSettings(eru:nodeError, userString:string):void {
+                    if (eru !== null) {
                         logOutput();
-                        if (err.code !== "ENOENT") {
-                            log([err.toString()]);
+                        if (eru.code !== "ENOENT") {
+                            log([eru.toString()]);
                         }
                     } else {
-                        const settings:users = JSON.parse(fileData),
-                            users:string[] = Object.keys(settings.users),
-                            length:number = users.length;
-                        if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
-                            logOutput();
-                        } else {
-                            let a:number = 1,
-                                ip:string,
-                                port:string,
-                                lastColon:number;
-                            do {
-                                lastColon = users[a].lastIndexOf(":");
-                                ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
-                                port = users[a].slice(lastColon + 1);
-                                if (ip.charAt(0) === "[") {
-                                    ip = ip.slice(1, ip.length - 1);
+                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_readSettings(ers:nodeError, settingString:string):void {
+                            if (ers !== null) {
+                                logOutput();
+                                if (ers.code !== "ENOENT") {
+                                    log([ers.toString()]);
                                 }
-                                heartbeat(`{"ip":"${ip}","port":${port},"refresh":false,"status":"active","user":"${settings.name}"}`);
-                                a = a + 1;
-                            } while (a < length);
-                            logOutput();
-                        }
+                            } else {
+                                const settings:ui_data = JSON.parse(settingString),
+                                    users:string[] = Object.keys(JSON.parse(userString)),
+                                    length:number = users.length;
+                                if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                    logOutput();
+                                } else {
+                                    let a:number = 1,
+                                        ip:string,
+                                        port:string,
+                                        lastColon:number;
+                                    do {
+                                        lastColon = users[a].lastIndexOf(":");
+                                        ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
+                                        port = users[a].slice(lastColon + 1);
+                                        if (ip.charAt(0) === "[") {
+                                            ip = ip.slice(1, ip.length - 1);
+                                        }
+                                        heartbeat(`{"ip":"${ip}","port":${port},"refresh":false,"status":"active","user":"${settings.name}"}`);
+                                        a = a + 1;
+                                    } while (a < length);
+                                    logOutput();
+                                }
+                            }
+                        });
                     }
                 });
             };

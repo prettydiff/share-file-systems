@@ -202,8 +202,7 @@ interface module_network {
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
-    messages?: Function;
-    settings?: Function;
+    storage?: (type:"messages" | "settings" | "users") => void;
 }
 interface module_context {
     copy?: (element: HTMLElement, type: "copy" | "cut") => void;
@@ -269,6 +268,8 @@ interface module_util {
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectNone?:(element:HTMLElement) => void;
+    shareDelete?:(event:MouseEvent) => void;
+    shareReadOnly?:(event:MouseEvent) => void;
 }
 interface navigate extends EventHandlerNonNull {
     (Event, path?:string, agentName?:string): void;

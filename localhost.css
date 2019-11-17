@@ -148,6 +148,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.2em;margin:0;padding:0;vertical-align:middle;width:100%}
 #spaces .fileList li input.error,
 #spaces .box .header .error{background:#fdd;color:#900;}
+#spaces .userList .localhost button.grant-full-access,
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900;cursor:pointer}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060;cursor:pointer}
 #spaces .box button.save{background:#ffc;border-color:#990;color:#770;cursor:pointer}
@@ -182,10 +183,15 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 
 /* share list */
 #spaces .userList{margin:1em;padding:0}
-#spaces .userList li{display:block;list-style:none}
-#spaces .userList button{background:transparent;border-style:none none solid;border-width:0.05em;color:#00f;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
+#spaces .userList li.full-access{background:#efe;border-color:#9c9}
+#spaces .userList li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
+#spaces .userList button{background:transparent;border-style:none;color:#00f;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
 #spaces .userList .localhost button{width:80%}
 #spaces .userList .localhost button.delete{width:1.25em}
+#spaces .userList .localhost button.make-read-only,
+#spaces .userList .localhost button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:15%}
+#spaces .userList .localhost button.make-read-only{background:#ffc;border-color:#870;color:#870}
+#spaces .userList .read-only-status{color:#666;float:right}
 #spaces .userList button:hover{text-decoration:underline}
 #spaces ul.userList li{border-color:#000}
 #spaces .userList .user{margin:0 0 1em}

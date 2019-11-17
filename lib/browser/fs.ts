@@ -39,7 +39,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         body.appendChild(list[0]);
         fs.listFail(list[1], box);
         browser.data.modals[box.getAttribute("id")].text_value = path;
-        network.settings();
+        network.storage("settings");
     });
 };
 
@@ -415,7 +415,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         body.appendChild(list[0]);
         fs.listFail(list[1], box);
         browser.data.modals[id].text_value = input.value;
-        network.settings();
+        network.storage("settings");
     });
 };
 
@@ -654,7 +654,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
                 fs.listFail(list[1], box);
                 browser.data.modals[id].text_value = element.value;
                 element.removeAttribute("class");
-                network.settings();
+                network.storage("settings");
             }
         });
     }

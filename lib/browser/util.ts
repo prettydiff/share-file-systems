@@ -234,7 +234,7 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
                 document.onmousemove = null;
                 document.onmouseup   = null;
             }
-            network.settings();
+            network.storage("settings");
             e.preventDefault();
             return false;
         },
@@ -422,7 +422,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-            network.settings();
+            network.storage("settings");
         };
     let p:HTMLElement = document.createElement("p"),
         label:HTMLElement = document.createElement("label"),
@@ -532,7 +532,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
-        network.settings();
+        network.storage("settings");
     } else {
         let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
@@ -568,7 +568,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                             shares: invite.shares
                         }
                         util.addUser(user);
-                        network.settings();
+                        network.storage("settings");
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");
@@ -762,6 +762,60 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
             a = a + 1;
         } while (a < inputLength);
     }
+};
+
+
+/* Delete a localhost share */
+util.shareDelete = function local_modal_shares_shareDelete(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
+        shares:userShares = browser.users.localhost.shares,
+        length:number = shares.length;
+    let a:number = 0;
+    parent.parentNode.removeChild(parent);
+    do {
+        if (shares[a].name === address) {
+            shares.splice(a, 1);
+            break;
+        }
+        a = a + 1;
+    } while (a < length);
+    network.storage("users");
+};
+
+/* Toggle a share between read only and full access */
+util.shareReadOnly = function local_modal_shares_shareReadOnly(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
+        shares:userShares = browser.users.localhost.shares,
+        length:number = shares.length,
+        span:HTMLElement = <HTMLElement>parent.getElementsByClassName("read-only-status")[0];
+    let a:number = 0;
+    do {
+        if (shares[a].name === address) {
+            if (shares[a].readOnly === true) {
+                shares[a].readOnly = false;
+            } else {
+                shares[a].readOnly = true;
+            }
+            break;
+        }
+        a = a + 1;
+    } while (a < length);
+    if (element.getAttribute("class") === "grant-full-access") {
+        element.setAttribute("class", "make-read-only");
+        parent.setAttribute("class", "localhost full-access");
+        element.innerHTML = "Make Read Only";
+        span.innerHTML = "(Full Access)";
+    } else {
+        element.setAttribute("class", "grant-full-access");
+        parent.setAttribute("class", "localhost");
+        element.innerHTML = "Grant Full Access";
+        span.innerHTML = "(Read Only)";
+    }
+    network.storage("users");
 };
 
 export default util;

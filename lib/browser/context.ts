@@ -111,7 +111,7 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
             heading.style.width = `${(body.clientWidth - 50) / 18}em`;
             a = a + 1;
         } while (a < length);
-        network.settings();
+        network.storage("settings");
     });
 };
 
@@ -760,7 +760,7 @@ context.share = function local_context_share(element:HTMLElement):void {
         } while (a < addressesLength);
     }
     util.selectNone(element);
-    network.settings();
+    network.storage("users");
 };
 
 export default context;

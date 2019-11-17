@@ -73,7 +73,7 @@ systems.message = function local_systems_message(type:messageType, content:strin
         li.appendChild(ul);
     }
     list.appendChild(li);
-    network.messages();
+    network.storage("messages");
 };
 
 /* Toggles tabs in the systems log modal */
@@ -104,7 +104,7 @@ systems.tabs = function local_systems_tabs(event:MouseEvent):void {
         document.getElementById("system-errors").setAttribute("class", "messageList active");
     }
     browser.data.modals["systems-modal"].text_value = className;
-    network.settings();
+    network.storage("settings");
 };
 
 export default systems;

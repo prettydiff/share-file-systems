@@ -85,7 +85,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                 util.addUser(`${input.value}@localhost`);
                                 browser.pageBody.removeAttribute("class");
                                 browser.loadTest = false;
-                                network.settings();
+                                network.storage("settings");
                                 browser.loadTest = true;
                                 loadComplete();
                             }
