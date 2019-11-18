@@ -14,7 +14,7 @@ This application is currently in early development in an largely experimental st
 ## Build and execute
 ### First build
 1. Install [Node.js](https://nodejs.org)
-1. Clone the application from Github. `git clone https://github.com/prettydiff/shared-spaces.git && cd shared-spaces`
+1. Clone the application from Github. `git clone https://github.com/prettydiff/share-file-systems.git && cd share-file-systems`
 1. Globally install TypeScript: `npm install -g typescript`
 1. Locally install the TypeScript node types. `npm install`
 1. Compile to JavaScript. `tsc --pretty`
@@ -87,7 +87,7 @@ Currently the application is using IP addresses for user identification and addr
 * I am also weak at writing network logic.  Currently this application uses HTTP until it is upgraded to HTTPS.  The application might benefit from a custom protocol using TCP sockets.  Any help with this would also be appreciated.
 
 ## FAQ
-* **I found a defect or wish to make a recommendation.  What should I do?**  Submit an issue on [Github](https://github.com/prettydiff/shared-spaces/issues), or fix the issue and submit a pull request.  This is open software.
+* **I found a defect or wish to make a recommendation.  What should I do?**  Submit an issue on [Github](https://github.com/prettydiff/share-file-systems/issues), or fix the issue and submit a pull request.  This is open software.
 * **Encryption in the browser isn't mature yet.  How will this application solve that problem?**  This application exists as both a browser instance and a Node.js instance on a given computer.  Encryption may not be mature in the browser, but it is mature in Node.  Node will perform encryption of outgoing information and decrypt incoming information.  That information will then be transfer to the browser on the local machine.
 * **I can't share files with my friend across the world. What gives?**  At this time the application only operates on local networks via IP address.  See Phase 2 of the Road map above.
 * **Will I be able to share files from OS X and Linux with Windows?**  Yes.  This application is an abstraction over Node.js and so it works where ever Node is supported. For OS support see all of Node's download options at https://nodejs.org/dist/v13.0.0/ which is the latest version of Node at the time of this writing.
