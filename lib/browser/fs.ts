@@ -129,7 +129,14 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     output.title = list[0][0];
     output.oncontextmenu = context.menu;
     output.onkeyup = util.keys;
-    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent) {
+    output.onclick = function local_fs_list_click(event:MouseEvent):void {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
+            inputs:HTMLCollectionOf<HTMLElement> = listItems[listItems.length - 1].getElementsByTagName("input"),
+            lastInput:HTMLElement = inputs[inputs.length - 1];
+        lastInput.focus();
+    };
+    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
         util.dragSelect(event, function local_fs_list_dragSelect_callback():void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
                 li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
