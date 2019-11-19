@@ -343,6 +343,7 @@ interface serverVars {
     socketReceiver: any;
     socketList: any;
     timeStore:number;
+    users: users;
     watches: {
         [key:string]: FSWatcher;
     };

@@ -4,7 +4,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces{background-color:#cdf;background-image:url("../images/background-desert.jpg");background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
-#spaces *:focus{outline:0.1em solid #39f;}
+#spaces #login h1 .application-version{display:block}
+#spaces *:focus{outline:0.1em solid #39f}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
 #spaces input::placeholder{color:#888}
 #spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
@@ -13,7 +14,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* Login prompt */
 .login #spaces .title,
 .login #spaces #content-area{display:none}
-.login #spaces #login{background:#eee;border-color:#000;border-style:solid;border-width:0.1em;box-shadow:0.15em 0.15em 1em #99c;display:block;margin:0 auto;padding:2em;text-align:center;width:50em;}
+.login #spaces #login{background:#eee;border-color:#000;border-style:solid;border-width:0.1em;box-shadow:0.15em 0.15em 1em #99c;display:block;margin:0 auto;padding:2em;text-align:center;width:60em}
 #spaces #login h1{font-size:6em;margin:0 0 0.5em}
 #spaces #login label,
 #spaces #login input,
@@ -22,9 +23,9 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #login button{width:100%}
 #spaces #login input,
 #spaces #login button{border-style:solid;border-width:0.025em;box-shadow:0.025em 0.025em 0.1em #999}
-#spaces #login label{color:#666;}
-#spaces #login input{border-color:#000;padding:0.1em 2%;width:96%;}
-#spaces #login button{background:#dfd;border-color:#060;color:#060;font-weight:bold;margin:2em 0 0;padding:1em;}
+#spaces #login label{color:#666}
+#spaces #login input{border-color:#000;padding:0.1em 2%;width:96%}
+#spaces #login button{background:#dfd;border-color:#060;color:#060;font-weight:bold;margin:2em 0 0;padding:1em}
 #spaces #login{display:none}
 
 /* Context menu, right click */
@@ -93,7 +94,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #users #invite-user{background:#e8ffe8;color:#070}
 #spaces #users #all-shares{background:#def;color:#00c}
 #spaces #users #invite-user:hover,
-#spaces #users #all-shares:hover{background:#fff;}
+#spaces #users #all-shares:hover{background:#fff}
 #spaces #users #invite-user::before,
 #spaces #users #all-shares::before{content:""}
 
@@ -116,7 +117,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .buttons button,
 #spaces .box .parentDirectory,
 #spaces .box .expansion,
-#spaces .box .footer button{border-radius:0;border-style:solid;box-shadow:0.1em 0.1em 0.25em #ccc;display:inline-block;font-size:2em;}
+#spaces .box .footer button{border-radius:0;border-style:solid;box-shadow:0.1em 0.1em 0.25em #ccc;display:inline-block;font-size:2em}
 #spaces .box .buttons{font-weight:bold;margin:0;padding:0;position:absolute;right:0.5em;top:1.5em;z-index:7}
 #spaces .box .parentDirectory,
 #spaces .box .expansion,
@@ -147,7 +148,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.2em;margin:0;padding:0;vertical-align:middle;width:100%}
 #spaces .fileList li input.error,
-#spaces .box .header .error{background:#fdd;color:#900;}
+#spaces .box .header .error{background:#fdd;color:#900}
 #spaces .userList .localhost button.grant-full-access,
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900;cursor:pointer}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060;cursor:pointer}
@@ -186,10 +187,10 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .userList li.full-access{background:#efe;border-color:#9c9}
 #spaces .userList li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .userList button{background:transparent;border-style:none;color:#00f;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
-#spaces .userList .localhost button{width:80%}
+#spaces .userList .localhost button{width:75%}
 #spaces .userList .localhost button.delete{width:1.25em}
 #spaces .userList .localhost button.make-read-only,
-#spaces .userList .localhost button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:15%}
+#spaces .userList .localhost button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:20%}
 #spaces .userList .localhost button.make-read-only{background:#ffc;border-color:#870;color:#870}
 #spaces .userList .read-only-status{color:#666;float:right}
 #spaces .userList button:hover{text-decoration:underline}
@@ -232,14 +233,14 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 
 /* code for testing */
 /*
-#spaces .box .corner-tl{background:red;}
-#spaces .box .corner-tr{background:red;}
-#spaces .box .corner-bl{background:red;}
-#spaces .box .corner-br{background:red;}
-#spaces .box .side-t{background:blue;}
-#spaces .box .side-r{background:green;}
-#spaces .box .side-b{background:blue;}
-#spaces .box .side-l{background:green;}
+#spaces .box .corner-tl{background:red}
+#spaces .box .corner-tr{background:red}
+#spaces .box .corner-bl{background:red}
+#spaces .box .corner-br{background:red}
+#spaces .box .side-t{background:blue}
+#spaces .box .side-r{background:green}
+#spaces .box .side-b{background:blue}
+#spaces .box .side-l{background:green}
 */
 
 /* cspell:disable */

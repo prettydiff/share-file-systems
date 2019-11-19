@@ -18,7 +18,7 @@ import invite from "./server/invite.js";
 import methodGET from "./server/methodGET.js";
 import serverVars from "./server/serverVars.js";
 import serverWatch from "./server/serverWatch.js";
-import settingsMessages from "./server/settingsMessage.js";
+import storage from "./server/storage.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -90,7 +90,7 @@ const library = {
                         } else if (task === "fs") {
                             fileService(request, response, JSON.parse(dataString));
                         } else if (task === "settings" || task === "messages" || task === "users") {
-                            settingsMessages(dataString, response, task);
+                            storage(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                             heartbeat(dataString, response);
                         } else if (task === "heartbeat-update") {
@@ -193,6 +193,7 @@ const library = {
                             log([eru.toString()]);
                         }
                     } else {
+                        serverVars.users = JSON.parse(userString);
                         vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_readSettings(ers:nodeError, settingString:string):void {
                             if (ers !== null) {
                                 logOutput();
@@ -201,7 +202,7 @@ const library = {
                                 }
                             } else {
                                 const settings:ui_data = JSON.parse(settingString),
-                                    users:string[] = Object.keys(JSON.parse(userString)),
+                                    users:string[] = Object.keys(serverVars.users),
                                     length:number = users.length;
                                 if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                     logOutput();
