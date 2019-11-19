@@ -139,7 +139,7 @@ const webSocket = function local_webSocket():WebSocket {
             browser.users[update.user].shares = update.shares;
             do {
                 if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === update.user)) {
-                    const existingModal:HTMLElement = document.getElementById(browser.data.modals[modals[a]].id),
+                    const existingModal:HTMLElement = document.getElementById(modals[a]),
                         body:HTMLElement = <HTMLElement>existingModal.getElementsByClassName("body")[0];
                     body.innerHTML = "";
                     body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));

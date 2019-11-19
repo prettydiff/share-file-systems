@@ -67,9 +67,7 @@ util.addUser = function local_util_addUser(userName:string):void {
     if (userName.indexOf("@localhost") > -1) {
         button.setAttribute("id", "localhost");
     }
-    if (browser.loadTest === false) {
-        network.storage("users");
-    }
+    network.storage("users");
 };
 
 /* Transforms numbers into a string of 3 digit comma separated groups */
@@ -848,6 +846,11 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
                 item.appendChild(button);
                 item.appendChild(span);
             } else {
+                if (browser.users[user].shares[b].readOnly === true) {
+                    item.setAttribute("class", "localhost");
+                } else {
+                    item.setAttribute("class", "localhost full-access");
+                }
                 item.appendChild(button);
             }
             itemList.appendChild(item);

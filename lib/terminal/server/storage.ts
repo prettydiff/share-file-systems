@@ -47,7 +47,7 @@ const library = {
                                 depth: 1,
                                 id: "",
                                 location: [],
-                                name: `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost)}}`,
+                                name: `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
                                 watch: "no"
                             },
                             errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,

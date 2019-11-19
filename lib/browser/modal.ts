@@ -125,7 +125,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             shares: browser.users.localhost.shares,
             status: "accepted"
         });
-        if (invite.ip.indexOf(":") > 0) {
+        if (invite.ip.indexOf(":") >-1) {
             user = `${invite.name}@[${invite.ip}]:${invite.port}`;
         } else {
             user = `${invite.name}@${invite.ip}:${invite.port}`;
@@ -133,7 +133,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
         browser.users[user] = {
             color: ["", ""],
             shares: invite.shares
-        }
+        };
         util.addUser(user);
     }
     modal.close(event);

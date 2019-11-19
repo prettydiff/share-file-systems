@@ -115,7 +115,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
 
 /* Writes configurations to file storage */
 network.storage = function local_network_storage(type:storageType):void {
-    if (browser.loadTest === true || messageTransmit === false) {
+    if (browser.loadTest === true && ((messageTransmit === false && type === "messages") || type !== "messages")) {
         return;
     }
     messageTransmit = false;
