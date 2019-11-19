@@ -532,7 +532,6 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
-        network.storage("users");
     } else {
         let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
