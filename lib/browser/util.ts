@@ -67,6 +67,9 @@ util.addUser = function local_util_addUser(userName:string):void {
     if (userName.indexOf("@localhost") > -1) {
         button.setAttribute("id", "localhost");
     }
+    if (browser.loadTest === false) {
+        network.storage("users");
+    }
 };
 
 /* Transforms numbers into a string of 3 digit comma separated groups */

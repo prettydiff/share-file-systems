@@ -105,7 +105,6 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
         body.appendChild(util.delay());
         options.text_value = `${inputs[0].value}|spaces|${inputs[1].value}|spaces|${box.getElementsByTagName("textarea")[0].value}`;
         network.inviteRequest(inviteData);
-        network.storage("users");
         return;
     }
     if (options.type === "export") {
