@@ -5,7 +5,8 @@ import modal from "./modal.js";
 import network from "./network.js";
 import { ChildProcess } from "child_process";
 
-const util:module_util = {};
+const util:module_util = {},
+    expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Adds users to the user bar */
 util.addUser = function local_util_addUser(userName:string):void {
@@ -717,12 +718,12 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
             addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
                 ? <HTMLElement>itemList[a].firstChild.nextSibling
                 : <HTMLElement>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, "")]);
+            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(expression, "")]);
             if (type === "cut") {
-                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, " cut"));
+                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(expression, " cut"));
             }
         } else {
-            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(expression, ""));
         }
         a = a + 1;
     } while (a < length);
@@ -731,7 +732,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     }
     output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
     if (type === "cut") {
-        element.setAttribute("class", element.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, " cut"));
+        element.setAttribute("class", element.getAttribute("class").replace(expression, " cut"));
     }
     return output;
 };
@@ -757,7 +758,7 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(expression, ""));
             }
             a = a + 1;
         } while (a < inputLength);
@@ -770,7 +771,7 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
         keyLength:number = userKeys.length,
         fileNavigate = function local_util_shareContent_fileNavigate(event:MouseEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                path:string = element.innerHTML,
+                path:string = element.firstChild.textContent,
                 type:string = element.getAttribute("class"),
                 slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
                     ? "/"
