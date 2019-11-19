@@ -3,6 +3,7 @@ import fs from "./fs.js";
 import network from "./network.js";
 import systems from "./systems.js";
 import util from "./util.js";
+import modal from "./modal.js";
 
 const webSocket = function local_webSocket():WebSocket {
     const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
@@ -130,6 +131,21 @@ const webSocket = function local_webSocket():WebSocket {
             content.parentNode.removeChild(content.parentNode.lastChild);
             content.style.display = "block";
             footer.style.display = "block";
+        } else if (event.data.indexOf("shareUpdate:") === 0) {
+            const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length)),
+                modals:string[] = Object.keys(browser.data.modals),
+                length:number = modals.length;
+            let a:number = 0;
+            browser.users[update.user].shares = update.shares;
+            do {
+                if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === update.user)) {
+                    const existingModal:HTMLElement = document.getElementById(browser.data.modals[modals[a]].id),
+                        body:HTMLElement = <HTMLElement>existingModal.getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
+                }
+                a = a + 1;
+            } while (a < length);
         }
     };
     socket.onclose = function local_socketClose():void {

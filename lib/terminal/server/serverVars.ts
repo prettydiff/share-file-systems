@@ -59,6 +59,7 @@ const socketList:socketList = {},
             }
             return [store, interfaceLongest];
         }()),
+        name: "",
         socketList: socketList,
         socketReceiver: {},
         timeStore: 0,

@@ -87,6 +87,12 @@ const library = {
                             response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
                             response.end();
                             vars.ws.broadcast(body);
+                        } else if (task === "shareUpdate") {
+                            const update:shareUpdate = JSON.parse(dataString);
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(`Received share update from ${update.user}`);
+                            response.end();
+                            vars.ws.broadcast(body);
                         } else if (task === "fs") {
                             fileService(request, response, JSON.parse(dataString));
                         } else if (task === "settings" || task === "messages" || task === "users") {
@@ -203,7 +209,11 @@ const library = {
                             } else {
                                 const settings:ui_data = JSON.parse(settingString),
                                     users:string[] = Object.keys(serverVars.users),
-                                    length:number = users.length;
+                                    length:number = users.length,
+                                    address:string = (serverVars.addresses[0][1][1].indexOf(":") > -1)
+                                        ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
+                                        : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
+                                serverVars.name = `${settings.name}@${address}`;
                                 if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                     logOutput();
                                 } else {

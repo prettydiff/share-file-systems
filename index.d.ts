@@ -11,6 +11,7 @@ type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-request" | "fs-cut-self" | "fs-cut-remove" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type shareType = "directory" | "file" | "link";
+type storageType = "messages" | "settings" | "users";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
 interface applications {
@@ -98,7 +99,7 @@ interface Element {
     getElementsByAttribute: Function;
 }
 interface fileService {
-    action      : serviceType;
+    action      : serviceType | "shareUpdate";
     agent       : string;
     copyAgent   : string;
     depth       : number;
@@ -202,7 +203,7 @@ interface module_network {
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
-    storage?: (type:"messages" | "settings" | "users") => void;
+    storage?: (type:storageType) => void;
 }
 interface module_context {
     copy?: (element: HTMLElement, type: "copy" | "cut") => void;
@@ -268,6 +269,7 @@ interface module_util {
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectNone?:(element:HTMLElement) => void;
+    shareContent?:(users:string) => HTMLElement;
     shareDelete?:(event:MouseEvent) => void;
     shareReadOnly?:(event:MouseEvent) => void;
 }
@@ -339,7 +341,8 @@ interface serverError {
     error: string;
 }
 interface serverVars {
-    addresses: [[string, string, string][], number]
+    addresses: [[string, string, string][], number];
+    name: string;
     socketReceiver: any;
     socketList: any;
     timeStore:number;
@@ -349,6 +352,10 @@ interface serverVars {
     };
     webPort: number;
     wsPort: number;
+}
+interface shareUpdate {
+    user: string;
+    shares: userShares;
 }
 interface simulationItem {
     artifact?: string;

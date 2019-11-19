@@ -184,7 +184,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 
 /* share list */
 #spaces .userList{margin:1em;padding:0}
-#spaces .userList li.full-access{background:#efe;border-color:#9c9}
+#spaces .userList li.full-access{background:#eef;border-color:#99c}
 #spaces .userList li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .userList button{background:transparent;border-style:none;color:#00f;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
 #spaces .userList .localhost button{width:75%}
