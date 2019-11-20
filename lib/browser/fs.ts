@@ -27,7 +27,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     input.value = path;
     network.fs({
         action: "fs-directory",
-        agent: util.getAgent(box),
+        agent: util.getAgent(box)[0],
         copyAgent: "",
         depth: 2,
         location: [path.replace(/\\/g, "\\\\")],
@@ -51,7 +51,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
         button.innerHTML = "-<span>Collapse this folder</span>";
         network.fs({
             action: "fs-directory",
-            agent: util.getAgent(button),
+            agent: util.getAgent(button)[0],
             copyAgent: "",
             depth: 2,
             location: [li.firstChild.nextSibling.textContent.replace(/\\/g, "\\\\")],
@@ -308,13 +308,17 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
 };
 
 /* Create a file navigator modal */
-fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentName?:string):void {
-    if (agentName === undefined) {
-        agentName = "localhost";
-    }
-    const location:string = (typeof path === "string")
-            ? path
+fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):void {
+    const agentName = (config === undefined || config.agentName === undefined)
+            ? "localhost"
+            : config.agentName,
+        location:string = (config !== undefined && typeof config.path === "string")
+            ? config.path
             : "defaultLocation",
+        readOnly:boolean = (config !== undefined && config.readOnly === true),
+        readOnlyString:string = (readOnly === true)
+            ? "(Read Only) "
+            : "",
         callback:Function = (agentName !== "localhost")
             ? function local_fs_navigate_callbackRemote(responseText:string):void {
                 if (responseText === "") {
@@ -345,6 +349,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                     agent: agentName,
                     content: files[0],
                     inputs: ["close", "maximize", "minimize", "text"],
+                    read_only: false,
                     status_bar: true,
                     text_event: fs.text,
                     text_placeholder: "Optionally type a file system address here.",
@@ -353,18 +358,19 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, path?:string, agentNa
                     type: "fileNavigate",
                     width: 800
                 });
-            };
+            };console.log(readOnly);
     let id:string = "";
     if (agentName !== "localhost") {
         const box:HTMLElement = modal.create({
             agent: agentName,
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
+            read_only: readOnly,
             status_bar: true,
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
-            title: `${document.getElementById("fileNavigator").innerHTML} - ${agentName}`,
+            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}`,
             type: "fileNavigate",
             width: 800
         });
@@ -410,7 +416,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
     }
     network.fs({
         action: "fs-directory",
-        agent: util.getAgent(box),
+        agent: util.getAgent(box)[0],
         copyAgent: "",
         depth: 2,
         location: [input.value],
@@ -438,7 +444,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 } else {
                     network.fs({
                         action: "fs-rename",
-                        agent: util.getAgent(element),
+                        agent: util.getAgent(element)[0],
                         copyAgent: "",
                         depth: 1,
                         location: [text.replace(/\\/g, "\\\\")],
@@ -503,12 +509,12 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
             return el;
         }()),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
-        agentName:string = util.getAgent(box);
-    let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agentName} - `)[1];
+        agency:[string, boolean] = util.getAgent(box);
+    let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1];
     network.fs({
         action: "fs-write",
-        agent: agentName,
-        copyAgent: agentName,
+        agent: agency[0],
+        copyAgent: agency[0],
         depth: 1,
         id: box.getAttribute("id"),
         location: [location],
@@ -645,7 +651,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
         network.fs({
             action: "fs-directory",
-            agent: util.getAgent(box),
+            agent: util.getAgent(box)[0],
             copyAgent: "",
             depth: 2,
             location: [element.value.replace(/\\/g, "\\\\")],

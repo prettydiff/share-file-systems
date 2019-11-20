@@ -429,15 +429,17 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
 /* Creates an import/export modal */
 modal.export = function local_modal_export(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        textArea:HTMLTextAreaElement = document.createElement("textarea");
+        textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        agency:[string, boolean] = (element === document.getElementById("export"))
+            ? ["localhost", false]
+            : util.getAgent(element);
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create({
-        agent: (element === document.getElementById("export"))
-            ? "localhost"
-            : util.getAgent(element),
+        agent: agency[0],
         content: textArea,
         inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+        read_only: agency[1],
         single: true,
         title: element.innerHTML,
         type: "export"
@@ -905,6 +907,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             agent: user,
             content: users,
             inputs: ["close", "maximize", "minimize"],
+            read_only: false,
             title: "All Shares",
             type: "shares",
             width: 800
@@ -917,6 +920,7 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             configuration = {
                 agent: user,
                 content: users,
+                read_only: false,
                 title: title,
                 type: "shares",
                 width: 800
@@ -948,7 +952,10 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         titleText:string = (typeof title === "string")
             ? title
             : element.innerHTML,
-        textArea:HTMLTextAreaElement = document.createElement("textarea");
+        textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        agency:[string, boolean] = (element === document.getElementById("textPad"))
+            ? ["localhost", false]
+            : util.getAgent(element);
     if (typeof value === "string") {
         textArea.value = value;
     }
@@ -957,11 +964,10 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         textArea.style.whiteSpace = "normal";
     }
     modal.create({
-        agent: (element === document.getElementById("textPad"))
-            ? "localhost"
-            : util.getAgent(element),
+        agent: agency[0],
         content: textArea,
         inputs: ["close", "maximize", "minimize"],
+        read_only: agency[1],
         title: titleText,
         type: "textPad",
         width: 800

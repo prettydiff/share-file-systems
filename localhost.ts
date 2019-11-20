@@ -168,6 +168,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             agent: "localhost",
                             content: systemsBox,
                             inputs: ["close", "maximize", "minimize"],
+                            read_only: false,
                             single: true,
                             title: "",
                             type: "systems",

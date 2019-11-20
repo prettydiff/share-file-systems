@@ -393,7 +393,7 @@ util.fixHeight = function local_util_fixHeight():void {
 };
 
 /* Get the agent of a given modal */
-util.getAgent = function local_util_getAgent(element:HTMLElement):string {
+util.getAgent = function local_util_getAgent(element:HTMLElement):[string, boolean] {
     const box:HTMLElement = (element.getAttribute("class") === "box")
         ? element
         : (function local_util_getAgent_box():HTMLElement {
@@ -404,7 +404,7 @@ util.getAgent = function local_util_getAgent(element:HTMLElement):string {
             return boxEl;
         }()),
     id:string = box.getAttribute("id");
-    return browser.data.modals[id].agent;
+    return [browser.data.modals[id].agent, browser.data.modals[id].read_only];
 };
 
 /* Invite users to your shared space */
@@ -478,6 +478,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
             agent: "localhost",
             content: invite,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+            read_only: false,
             title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
             type: "invite-request"
         });
@@ -530,6 +531,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             content: div,
             height: 300,
             inputs: ["cancel", "confirm", "close"],
+            read_only: false,
             title: `Invitation from ${invite.name}`,
             type: "invite-accept",
             width: 500
@@ -785,7 +787,11 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
             } else {
                 address = path;
             }
-            fs.navigate(event, address, agent);
+            fs.navigate(event, {
+                agentName: agent,
+                path: address,
+                readOnly: (element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
+            });
         };
     let users:HTMLElement,
         eachUser:HTMLElement;
@@ -808,22 +814,22 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
             b:number = 0,
             shareLength:number,
             type:string;
-        const eachItem = function local_util_shareContent_eachItem(user:string):void {
+        const eachItem = function local_util_shareContent_eachItem(userName:string):void {
             item = document.createElement("li");
             button = document.createElement("button");
-            type = browser.users[user].shares[b].type;
+            type = browser.users[userName].shares[b].type;
             button.setAttribute("class", type);
-            button.innerHTML = browser.users[user].shares[b].name;
-            status = document.createElement("span");
+            button.innerHTML = browser.users[userName].shares[b].name;
+            status = document.createElement("strong");
             status.setAttribute("class", "read-only-status");
-            status.innerHTML = (browser.users[user].shares[b].readOnly === true)
+            status.innerHTML = (browser.users[userName].shares[b].readOnly === true)
                 ? "(Read Only)"
-                : "(Full Control)"
+                : "(Full Access)"
             button.appendChild(status);
             if (type === "directory" || type === "file" || type === "link") {
                 button.onclick = fileNavigate;
             }
-            if (user === "localhost") {
+            if (userName === "localhost") {
                 readOnly = document.createElement("button");
                 if (browser.users.localhost.shares[b].readOnly === true) {
                     item.setAttribute("class", "localhost");
@@ -847,10 +853,10 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
                 item.appendChild(button);
                 item.appendChild(span);
             } else {
-                if (browser.users[user].shares[b].readOnly === true) {
-                    item.setAttribute("class", "localhost");
+                if (browser.users[userName].shares[b].readOnly === true) {
+                    item.removeAttribute("class");
                 } else {
-                    item.setAttribute("class", "localhost full-access");
+                    item.setAttribute("class", "full-access");
                 }
                 item.appendChild(button);
             }

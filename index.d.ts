@@ -259,7 +259,7 @@ interface module_util {
     dragSelect?: eventCallback;
     fileListStatus?: (text:string) => void;
     fixHeight?: functionEvent;
-    getAgent?: (element:HTMLElement) => string;
+    getAgent?: (element:HTMLElement) => [string, boolean];
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
     keys?: (event:KeyboardEvent) => void;
@@ -274,8 +274,13 @@ interface module_util {
     shareReadOnly?:(event:MouseEvent) => void;
     shareUpdate?:(user:string, shares:userShares) => void;
 }
+interface navConfig {
+    agentName:string;
+    path:string;
+    readOnly:boolean;
+}
 interface navigate extends EventHandlerNonNull {
-    (Event, path?:string, agentName?:string): void;
+    (Event, config?:navConfig): void;
 }
 interface nodeCopyParams {
     callback:Function;
@@ -455,6 +460,7 @@ interface ui_modal {
     inputs?: ui_input[];
     left?: number;
     move?: boolean;
+    read_only: boolean;
     resize?: boolean;
     single?: boolean;
     status?: "hidden" | "maximized" | "minimized" | "normal";

@@ -192,7 +192,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .userList .localhost button.make-read-only,
 #spaces .userList .localhost button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:20%}
 #spaces .userList .localhost button.make-read-only{background:#ffc;border-color:#870;color:#870}
-#spaces .userList .read-only-status{color:#666;float:right}
+#spaces .userList .read-only-status{color:#666;float:right;font-weight:normal}
+#spaces .userList .full-access .read-only-status{color:#556;font-weight:bold}
 #spaces .userList button:hover{text-decoration:underline}
 #spaces ul.userList li{border-color:#000}
 #spaces .userList .user{margin:0 0 1em}

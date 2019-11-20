@@ -34,7 +34,7 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
         }
     }
     clipboard = JSON.stringify({
-        agent: util.getAgent(box),
+        agent: util.getAgent(box)[0],
         data: addresses,
         id: box.getAttribute("id"),
         type: type
@@ -45,7 +45,7 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
 context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
     const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
         length:number = addresses.length,
-        agentName:string = util.getAgent(element),
+        agency:[string, boolean] = util.getAgent(element),
         locations:string[] = [];
     let a:number = 0,
         delay:HTMLElement,
@@ -54,15 +54,16 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         if (addresses[a][1] === "file") {
             delay = util.delay();
             modalInstance = modal.create({
-                agent: agentName,
+                agent: agency[0],
                 content: delay,
                 height: 500,
-                inputs: (type === "Edit")
+                inputs: (type === "Edit" && agency[1] === false)
                     ? ["close", "save"]
                     : ["close"],
                 left: event.clientX + (a * 10),
+                read_only: agency[1],
                 single: false,
-                title: `${type} - ${agentName} - ${addresses[a][0]}`,
+                title: `${type} - ${agency[0]} - ${addresses[a][0]}`,
                 top: (event.clientY - 60) + (a * 10),
                 type: "textPad",
                 width: 500
@@ -75,7 +76,7 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         action: (type === "Edit")
             ? "fs-read"
             : `fs-${type.toLowerCase()}`,
-        agent: agentName,
+        agent: agency[0],
         copyAgent: "",
         depth: 1,
         id: "",
@@ -132,7 +133,7 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
     }
     network.fs({
         action: "fs-destroy",
-        agent: util.getAgent(element),
+        agent: util.getAgent(element)[0],
         copyAgent: "",
         depth: 1,
         location: addresses,
@@ -146,16 +147,17 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
 /* Handler for details action of context menu */
 context.details = function local_context_details(event:MouseEvent, element?:HTMLElement):void {
     const div:HTMLElement = util.delay(),
-        agentName:string = util.getAgent(element),
+        agency:[string, boolean] = util.getAgent(element),
         addresses:[string, string][] = util.selectedAddresses(element, "details"),
         modalInstance:HTMLElement = modal.create({
-            agent: agentName,
+            agent: agency[0],
             content: div,
             height: 500,
             inputs: ["close"],
             left: event.clientX,
+            read_only: agency[1],
             single: true,
-            title: `Details - ${agentName} - ${addresses.length} items`,
+            title: `Details - ${agency[0]} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -173,7 +175,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         }());
     network.fs({
         action: "fs-details",
-        agent: agentName,
+        agent: agency[0],
         copyAgent: "",
         depth: 0,
         id: id,
@@ -355,7 +357,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: util.getAgent(element),
+                    agent: util.getAgent(element)[0],
                     copyAgent: "",
                     depth: 1,
                     location: [path + value],
@@ -382,7 +384,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: util.getAgent(element),
+                    agent: util.getAgent(element)[0],
                     copyAgent: "",
                     depth: 1,
                     location: [path + value],
@@ -710,7 +712,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
     network.fs({
         action   : `fs-${clipData.type}`,
         agent    : clipData.agent,
-        copyAgent: util.getAgent(element),
+        copyAgent: util.getAgent(element)[0],
         depth    : 1,
         id       : element.getAttribute("id"),
         location : clipData.data,
