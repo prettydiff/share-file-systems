@@ -94,7 +94,48 @@ const library = {
                             response.end();
                             vars.ws.broadcast(body);
                         } else if (task === "fs") {
-                            fileService(request, response, JSON.parse(dataString));
+                            const data:fileService = JSON.parse(dataString),
+                                shares:userShares = serverVars.users.localhost.shares,
+                                endPop = function terminal_server_create_end_endPop(address:string):string {
+                                    const forward:number = address.indexOf("/"),
+                                        slash:"\\" | "/" = (forward > -1 && (address.indexOf("//") < 0 || forward < address.indexOf("//")))
+                                            ? "/"
+                                            : "\\";
+                                    return address.slice(0, address.lastIndexOf(slash)); 
+                                };
+                            let pathPop:string,
+                                dIndex:number = data.location.length,
+                                sIndex:number = shares.length,
+                                dLength:number,
+                                sLength:number;
+                            do {
+                                dIndex = dIndex - 1;
+                                sIndex = shares.length;
+                                do {
+                                    sIndex = sIndex - 1;
+                                    if (sIndex < 0) {
+                                        data.location.splice(dIndex, 1);
+                                        break;
+                                    }
+                                    dLength = data.location[dIndex].length;
+                                    sLength = shares[sIndex].name.length;
+                                    if (shares[sIndex].name.indexOf(data.location[dIndex]) === sLength - dLength) {
+                                        break;
+                                    }
+                                    pathPop = endPop(data.location[dIndex]);
+                                    dLength = pathPop.length;
+                                    if (shares[sIndex].name.indexOf(pathPop) === sLength - dLength) {
+                                        break;
+                                    }
+                                } while (sIndex > -1);
+                            } while (dIndex > 0);
+                            if (data.location.length > 0) {
+                                fileService(request, response, data);
+                            } else {
+                                response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
+                                response.write("Requesting unshared locations.");
+                                response.end();
+                            }
                         } else if (task === "settings" || task === "messages" || task === "users") {
                             storage(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
