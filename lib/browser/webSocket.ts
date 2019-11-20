@@ -132,20 +132,8 @@ const webSocket = function local_webSocket():WebSocket {
             content.style.display = "block";
             footer.style.display = "block";
         } else if (event.data.indexOf("shareUpdate:") === 0) {
-            const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length)),
-                modals:string[] = Object.keys(browser.data.modals),
-                length:number = modals.length;
-            let a:number = 0;
-            browser.users[update.user].shares = update.shares;
-            do {
-                if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === update.user)) {
-                    const existingModal:HTMLElement = document.getElementById(modals[a]),
-                        body:HTMLElement = <HTMLElement>existingModal.getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
-                }
-                a = a + 1;
-            } while (a < length);
+            const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length));
+            util.shareUpdate(update.user, update.shares);
         }
     };
     socket.onclose = function local_socketClose():void {

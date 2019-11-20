@@ -958,4 +958,21 @@ util.shareReadOnly = function local_util_shareReadOnly(event:MouseEvent):void {
     network.storage("users");
 };
 
+/* Updates the contents of share modals */
+util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShares):void {
+    const modals:string[] = Object.keys(browser.data.modals),
+        length:number = modals.length;
+    let a:number = 0;
+    browser.users[user].shares = shares;
+    do {
+        if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === user)) {
+            const existingModal:HTMLElement = document.getElementById(modals[a]),
+                body:HTMLElement = <HTMLElement>existingModal.getElementsByClassName("body")[0];
+            body.innerHTML = "";
+            body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
+        }
+        a = a + 1;
+    } while (a < length);
+}
+
 export default util;

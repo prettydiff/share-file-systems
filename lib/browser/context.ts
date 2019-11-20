@@ -760,6 +760,7 @@ context.share = function local_context_share(element:HTMLElement):void {
         } while (a < addressesLength);
     }
     util.selectNone(element);
+    util.shareUpdate("localhost", browser.users.localhost.shares);
     network.storage("users");
 };
 

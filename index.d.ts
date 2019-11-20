@@ -272,6 +272,7 @@ interface module_util {
     shareContent?:(users:string) => HTMLElement;
     shareDelete?:(event:MouseEvent) => void;
     shareReadOnly?:(event:MouseEvent) => void;
+    shareUpdate?:(user:string, shares:userShares) => void;
 }
 interface navigate extends EventHandlerNonNull {
     (Event, path?:string, agentName?:string): void;
