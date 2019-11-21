@@ -99,6 +99,7 @@ const library = {
                                 const shares:userShares = (serverVars.users[data.agent] === undefined)
                                         ? serverVars.users.localhost.shares
                                         : serverVars.users[data.agent].shares,
+                                    windows:boolean = (data.location[0].charAt(0) === "\\" || (/^\w:\\/).test(data.location[0]) === true),
                                     readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-file", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read"];
                                 let dIndex:number = data.location.length,
                                     sIndex:number = shares.length;
@@ -111,7 +112,7 @@ const library = {
                                             data.location.splice(dIndex, 1);
                                             break;
                                         }
-                                        if (data.location[dIndex].indexOf(shares[sIndex].name) === 0) {
+                                        if (data.location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && data.location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
                                             if (shares[sIndex].readOnly === true && readOnly.indexOf(data.action) < 0) {
                                                 response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
                                                 response.write(`{"id":"${data.id}","dirs":"readOnly"}`);
