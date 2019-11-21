@@ -123,7 +123,7 @@ interface fsDetails {
     size: number;
 }
 interface fsRemote {
-    dirs: directoryList | "missing";
+    dirs: directoryList | "missing" | "noShare";
     fail: string[];
     id: string;
 }

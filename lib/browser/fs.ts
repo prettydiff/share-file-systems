@@ -30,7 +30,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         agent: util.getAgent(box)[0],
         copyAgent: "",
         depth: 2,
-        location: [path.replace(/\\/g, "\\\\")],
+        location: [path],
         name: "",
         watch: watchValue
     }, function local_fs_directory_callback(responseText:string):void {
@@ -54,7 +54,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
             agent: util.getAgent(button)[0],
             copyAgent: "",
             depth: 2,
-            location: [li.firstChild.nextSibling.textContent.replace(/\\/g, "\\\\")],
+            location: [li.firstChild.nextSibling.textContent],
             name : "",
             watch: "no"
         }, function local_fs_expand_callback(responseText:string) {
@@ -82,7 +82,16 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
             : dirData.fail.length;
     let a:number = 0,
         localLength:number = 0;
-
+    if (dirData.dirs === "missing" || dirData.dirs === "noShare") {
+        const p:HTMLElement = document.createElement("p");
+        p.setAttribute("class", "error");
+        if (dirData.dirs === "missing") {
+            p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
+        } else {
+            p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
+        }
+        return [p, 0];
+    }
     do {
         if (list[a][3] === 0) {
             local.push(list[a]);
@@ -654,12 +663,12 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
             agent: util.getAgent(box)[0],
             copyAgent: "",
             depth: 2,
-            location: [element.value.replace(/\\/g, "\\\\")],
+            location: [element.value],
             name: "",
             watch: watchValue
         }, function local_fs_text_callback(responseText:string):void {
             if (responseText === "") {
-                parent.innerHTML = "<p class=\"error\">Location not found.</p>";
+                parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
             } else {
                 const list:[HTMLElement, number] = fs.list(element.value, JSON.parse(responseText));
                 parent.innerHTML = "";

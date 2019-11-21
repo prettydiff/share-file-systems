@@ -120,7 +120,7 @@ const library = {
                                 fileService(request, response, data);
                             } else {
                                 response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                                response.write(`{"id":"${data.id}","dirs":"missing"}`);
+                                response.write(`{"id":"${data.id}","dirs":"noShare"}`);
                                 response.end();
                             }
                         } else if (task === "settings" || task === "messages" || task === "users") {

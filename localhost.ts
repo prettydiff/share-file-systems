@@ -271,11 +271,15 @@ import webSocket from "./lib/browser/webSocket.js";
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = JSON.parse(responseText),
                                                 id:string = payload.id,
-                                                files:[HTMLElement, number] = (payload.dirs === "missing")
+                                                files:[HTMLElement, number] = (payload.dirs === "missing" || payload.dirs === "noShare")
                                                     ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number] {
                                                         const p:HTMLElement = document.createElement("p");
                                                         p.setAttribute("class", "error");
-                                                        p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
+                                                        if (payload.dirs === "missing") {
+                                                            p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
+                                                        } else {
+                                                            p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
+                                                        }
                                                         return [p, 0];
                                                     }())
                                                     : fs.list(storage.settings.modals[value].text_value, payload),
@@ -290,6 +294,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number], textValue:String):void {
                                             storage.settings.modals[id].content = files[0];
                                             storage.settings.modals[id].id = id;
+                                            storage.settings.modals[value].text_event = fs.text;
                                             if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
                                                 storage.settings.modals[id].text_value = textValue;
                                             }
@@ -330,6 +335,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         const delay:HTMLElement = util.delay();
                                         storage.settings.modals[value].content = delay;
                                         storage.settings.modals[value].id = value;
+                                        storage.settings.modals[value].text_event = fs.text;
                                         modal.create(storage.settings.modals[value]);
                                         z(value);
                                         if (storage.settings.modals[value].status === "maximized") {
