@@ -473,6 +473,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             } while (el !== document.documentElement && el.getAttribute("class") !== "box");
             return el;
         }()),
+        readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
                 item = document.createElement("li");
@@ -537,7 +538,11 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             edit: function local_context_menu_edit():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                if (readOnly === true) {
+                    button.innerHTML = `Read File as Text <em>${command} + ALT + E</em>`;
+                } else {
+                    button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                }
                 button.onclick = function local_context_menu_edit_handler():void {
                     context.dataString(event, element, "Edit");
                 };
@@ -636,29 +641,34 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     event.stopPropagation();
     menu.setAttribute("id", "contextMenu");
     if (element.getAttribute("class") === "fileList") {
+        if (readOnly === true) {
+            return;
+        }
         functions.newDirectory();
         functions.newFile();
         functions.paste();
     } else if (parent.getAttribute("class") === "fileList") {
-
         functions.details();
         if (box.getAttribute("data-agent") === "localhost") {
             functions.share();
         }
-
         if (element.getAttribute("class").indexOf("file") === 0) {
             functions.edit();
             functions.hash();
             functions.base64();
         }
 
-        functions.newDirectory();
-        functions.newFile();
+        if (readOnly === false) {
+            functions.newDirectory();
+            functions.newFile();
+        }
         functions.copy();
-        functions.cut();
-        functions.paste();
-        functions.rename();
-        functions.destroy();
+        if (readOnly === false) {
+            functions.cut();
+            functions.paste();
+            functions.rename();
+            functions.destroy();
+        }
     }
 
     // menu display position
