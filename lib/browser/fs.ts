@@ -82,13 +82,15 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
             : dirData.fail.length;
     let a:number = 0,
         localLength:number = 0;
-    if (dirData.dirs === "missing" || dirData.dirs === "noShare") {
+    if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly") {
         const p:HTMLElement = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
             p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
-        } else {
+        } else if (dirData.dirs === "noShare") {
             p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
+        } else {
+            p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
         }
         return [p, 0];
     }

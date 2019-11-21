@@ -271,14 +271,16 @@ import webSocket from "./lib/browser/webSocket.js";
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = JSON.parse(responseText),
                                                 id:string = payload.id,
-                                                files:[HTMLElement, number] = (payload.dirs === "missing" || payload.dirs === "noShare")
+                                                files:[HTMLElement, number] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                                                     ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number] {
                                                         const p:HTMLElement = document.createElement("p");
                                                         p.setAttribute("class", "error");
                                                         if (payload.dirs === "missing") {
                                                             p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
-                                                        } else {
+                                                        } else if (payload.dirs === "noShare"){
                                                             p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
+                                                        } else {
+                                                            p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
                                                         }
                                                         return [p, 0];
                                                     }())

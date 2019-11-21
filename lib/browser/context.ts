@@ -184,7 +184,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         watch: "no"
     }, function local_context_details_callback(response:string):void {
         const payload:fsRemote = JSON.parse(response),
-            list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare")
+            list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
             body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
