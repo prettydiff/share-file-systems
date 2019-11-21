@@ -96,19 +96,11 @@ const library = {
                         } else if (task === "fs") {
                             const data:fileService = JSON.parse(dataString);
                             if (data.agent !== "localhost") {
-                                const shares:userShares = serverVars.users.localhost.shares,
-                                    endPop = function terminal_server_create_end_endPop(address:string):string {
-                                        const forward:number = address.indexOf("/"),
-                                            slash:"\\" | "/" = (forward > -1 && (address.indexOf("//") < 0 || forward < address.indexOf("//")))
-                                                ? "/"
-                                                : "\\";
-                                        return address.slice(0, address.lastIndexOf(slash)); 
-                                    };
-                                let pathPop:string,
-                                    dIndex:number = data.location.length,
-                                    sIndex:number = shares.length,
-                                    dLength:number,
-                                    sLength:number;
+                                const shares:userShares = (serverVars.users[data.agent] === undefined)
+                                        ? serverVars.users.localhost.shares
+                                        : serverVars.users[data.agent].shares;
+                                let dIndex:number = data.location.length,
+                                    sIndex:number = shares.length;
                                 do {
                                     dIndex = dIndex - 1;
                                     sIndex = shares.length;
@@ -118,14 +110,7 @@ const library = {
                                             data.location.splice(dIndex, 1);
                                             break;
                                         }
-                                        dLength = data.location[dIndex].length;
-                                        sLength = shares[sIndex].name.length;
-                                        if (shares[sIndex].name.indexOf(data.location[dIndex]) === sLength - dLength) {
-                                            break;
-                                        }
-                                        pathPop = endPop(data.location[dIndex]);
-                                        dLength = pathPop.length;
-                                        if (shares[sIndex].name.indexOf(pathPop) === sLength - dLength) {
+                                        if (data.location[dIndex].indexOf(shares[sIndex].name) === 0) {
                                             break;
                                         }
                                     } while (sIndex > -1);

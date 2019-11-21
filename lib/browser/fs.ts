@@ -358,7 +358,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     type: "fileNavigate",
                     width: 800
                 });
-            };console.log(readOnly);
+            };
     let id:string = "";
     if (agentName !== "localhost") {
         const box:HTMLElement = modal.create({
