@@ -309,9 +309,6 @@ const library = {
                                         if (ip.charAt(0) === "[") {
                                             ip = ip.slice(1, ip.length - 1);
                                         }
-                                        //heartbeat(`{"ip":"${ip}","port":${port},"refresh":false,"status":"active","user":"${settings.name}"}`);
-                                        //heartbeat payload -> `heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`
-                                        //provide heartbeat response error handling which lets the browser know the end user is offline
                                         payload = `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`;
                                         http = vars.node.http.request({
                                             headers: {
