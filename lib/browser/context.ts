@@ -44,8 +44,15 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
     const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
+        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
         length:number = addresses.length,
-        agency:[string, boolean] = util.getAgent(element),
+        agency:[string, boolean] = util.getAgent(box),
         locations:string[] = [];
     let a:number = 0,
         delay:HTMLElement,
@@ -79,7 +86,7 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         agent: agency[0],
         copyAgent: "",
         depth: 1,
-        id: "",
+        id: box.getAttribute("id"),
         location: locations,
         name: "",
         watch: "no"
@@ -119,7 +126,14 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function local_context_destroy(element:HTMLElement):void {
     let selected:[string, string][],
-        addresses:string[] = []; 
+        addresses:string[] = [],
+        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()); 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
@@ -136,6 +150,7 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
         agent: util.getAgent(element)[0],
         copyAgent: "",
         depth: 1,
+        id: box.getAttribute("id"),
         location: addresses,
         name: "",
         watch: "no"
@@ -360,6 +375,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                     agent: util.getAgent(element)[0],
                     copyAgent: "",
                     depth: 1,
+                    id: box.getAttribute("id"),
                     location: [path + value],
                     name: type,
                     watch: "no"
@@ -387,6 +403,7 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                     agent: util.getAgent(element)[0],
                     copyAgent: "",
                     depth: 1,
+                    id: box.getAttribute("id"),
                     location: [path + value],
                     name: type,
                     watch: "no"

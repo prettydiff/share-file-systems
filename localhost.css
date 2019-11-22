@@ -146,7 +146,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
 #spaces .box .header span{display:block;position:absolute;top:-200em}
 #spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}
-#spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.2em;margin:0;padding:0;vertical-align:middle;width:100%}
+#spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.9em;margin:0;padding:0;vertical-align:middle;width:100%}
 #spaces .fileList li input.error,
 #spaces .box .header .error{background:#fdd;color:#900}
 #spaces .userList .localhost button.grant-full-access,

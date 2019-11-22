@@ -72,6 +72,7 @@ const webSocket = function local_webSocket():WebSocket {
                         agent: "localhost",
                         copyAgent: "",
                         depth: 2,
+                        id: modalKeys[a],
                         location: [value],
                         name: "",
                         watch: "no"
