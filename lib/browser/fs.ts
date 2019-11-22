@@ -103,7 +103,8 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         shareBest:number = -1,
         shareTop:number = -1;
     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly") {
-        const p:HTMLElement = document.createElement("p");
+        const box:HTMLElement = document.getElementById(dirData.id),
+            p:HTMLElement = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
             p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
@@ -112,8 +113,10 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         } else {
             p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
         }
-        if (document.getElementById(dirData.id) !== null) {
-
+        if (box !== null) {
+            const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0];
+            body.innerHTML = "";
+            body.appendChild(p);
         }
         return [p, 0];
     }

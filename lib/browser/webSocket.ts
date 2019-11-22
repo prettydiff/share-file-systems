@@ -40,7 +40,7 @@ const webSocket = function local_webSocket():WebSocket {
                     fail: data.fail
                 }),
                 modalKeys:string[] = Object.keys(browser.data.modals),
-                keyLength:number = modalKeys.length;console.log(data.agent+" "+data.location)
+                keyLength:number = modalKeys.length;
             let a:number = 0,
                 modalAgent:string,
                 body:HTMLElement;
