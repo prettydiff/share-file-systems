@@ -59,9 +59,11 @@ const socketList:socketList = {},
             }
             return [store, interfaceLongest];
         }()),
+        name: "",
         socketList: socketList,
         socketReceiver: {},
         timeStore: 0,
+        users: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser
         wsPort: 0 // wsPort - web socket port for requests from node

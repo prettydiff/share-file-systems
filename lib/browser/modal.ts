@@ -38,7 +38,7 @@ modal.close = function local_modal_close(event:MouseEvent):void {
         browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
     }
     delete browser.data.modals[id];
-    network.settings();
+    network.storage("settings");
 };
 
 /* Sends a network signal on modal close */
@@ -90,7 +90,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
                 message: box.getElementsByTagName("textarea")[0].value,
                 modal: id,
                 name: browser.data.name,
-                shares: browser.data.users.localhost.shares,
+                shares: browser.users.localhost.shares,
                 status: "invited"
             };
         if (inviteData.ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.ip) === false && (/([a-f0-9]{4}:)+/).test(inviteData.ip) === false)) {
@@ -122,18 +122,18 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             ip: invite.ip,
             modal: invite.modal,
             port: invite.port,
-            shares: browser.data.users.localhost.shares,
+            shares: browser.users.localhost.shares,
             status: "accepted"
         });
-        if (invite.ip.indexOf(":") > 0) {
+        if (invite.ip.indexOf(":") > -1) {
             user = `${invite.name}@[${invite.ip}]:${invite.port}`;
         } else {
             user = `${invite.name}@${invite.ip}:${invite.port}`;
         }
-        browser.data.users[user] = {
+        browser.users[user] = {
             color: ["", ""],
             shares: invite.shares
-        }
+        };
         util.addUser(user);
     }
     modal.close(event);
@@ -253,7 +253,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                             browser.data.modals["systems-modal"].text_placeholder = browser.data.modals["systems-modal"].status;
                             browser.data.modals["systems-modal"].status = "hidden";
                         }
-                        network.settings();
+                        network.storage("settings");
                     };
                     if (options.status === "hidden") {
                         box.style.display = "none";
@@ -280,7 +280,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                                 ip: invite.ip,
                                 modal: invite.modal,
                                 port: invite.port,
-                                shares: browser.data.users.localhost.shares,
+                                shares: browser.users.localhost.shares,
                                 status: "declined"
                             });
                         });
@@ -422,20 +422,24 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     }
     box.appendChild(border);
     browser.content.appendChild(box);
-    network.settings();
+    network.storage("settings");
     return box;
 };
 
 /* Creates an import/export modal */
 modal.export = function local_modal_export(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        textArea:HTMLTextAreaElement = document.createElement("textarea");
+        textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        agency:[string, boolean] = (element === document.getElementById("export"))
+            ? ["localhost", false]
+            : util.getAgent(element);
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create({
-        agent: util.getAgent(element),
+        agent: agency[0],
         content: textArea,
         inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+        read_only: agency[1],
         single: true,
         title: element.innerHTML,
         type: "export"
@@ -459,7 +463,7 @@ modal.importSettings = function local_modal_importSettings(event:MouseEvent):voi
     button = <HTMLButtonElement>document.getElementsByClassName("cancel")[0];
     button.click();
     if (textArea.value !== dataString) {
-        network.settings();
+        network.storage("settings");
         location.replace(location.href);
     }
 };
@@ -513,7 +517,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
             return `${height / 10}em`;
         }());
     }
-    network.settings();
+    network.storage("settings");
 };
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
@@ -569,7 +573,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         document.getElementById("tray").appendChild(li);
         browser.data.modals[id].status = "minimized";
     }
-    network.settings();
+    network.storage("settings");
 };
 
 /* Drag and drop interaction for modals */
@@ -620,7 +624,7 @@ modal.move = function local_modal_move(event:Event):void {
             box.style.height   = "auto";
             settings.top = boxTop;
             settings.left = boxLeft;
-            network.settings();
+            network.storage("settings");
             e.preventDefault();
             return false;
         },
@@ -730,7 +734,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
                 const tabs:HTMLElement = <HTMLElement>box.getElementsByClassName("tabs")[0];
                 tabs.style.width = `${body.clientWidth / 10}em`;
             }
-            network.settings();
+            network.storage("settings");
         },
         sideHeight:number = headerHeight + statusHeight + footerHeight + 1, 
         side:any    = {
@@ -891,118 +895,32 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
 
 /* Displays a list of shared items for each user */
 modal.shares = function local_modal_shares(event:MouseEvent, user?:string, configuration?:ui_modal):void {
-    const userKeys:string[] = Object.keys(browser.data.users),
-        keyLength:number = userKeys.length,
-        fileNavigate = function local_modal_shares_fileNavigate(event:MouseEvent):void {
-            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                path:string = element.innerHTML,
-                type:string = element.getAttribute("class"),
-                slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
-                    ? "/"
-                    : "\\";
-            let address:string,
-                agent:string = element.parentNode.parentNode.previousSibling.firstChild.textContent;
-            if (type === "file" || type === "link") {
-                const dirs:string[] = path.replace(/\\/g, "/").split("/");
-                dirs.pop();
-                address = dirs.join(slash);
-            } else {
-                address = path;
-            }
-            fs.navigate(event, address, agent);
-        };
-    let users:HTMLElement,
-        eachUser:HTMLElement;
+    const userKeys:string[] = Object.keys(browser.users),
+        keyLength:number = userKeys.length;
+    let users:HTMLElement;
     if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
         user = "localhost";
     }
-    if (keyLength === 1 && browser.data.users.localhost.shares.length === 0) {
-        eachUser = document.createElement("h3");
-        eachUser.innerHTML = "There are no shares at this time.";
+    users = util.shareContent(user);
+    if (keyLength === 1 && browser.users.localhost.shares.length === 0) {
         modal.create({
             agent: user,
-            content: eachUser,
+            content: users,
             inputs: ["close", "maximize", "minimize"],
+            read_only: false,
             title: "All Shares",
             type: "shares",
             width: 800
         });
     } else {
-        let userName:HTMLElement,
-            itemList:HTMLElement,
-            item:HTMLElement,
-            button:HTMLElement,
-            a:number = 0,
-            b:number = 0,
-            shareLength:number,
-            title:string;
-        if (user === "") {
-            title = "All Shares";
-            users = document.createElement("ul");
-            users.setAttribute("class", "userList");
-            do {
-                eachUser = document.createElement("li");
-                userName = document.createElement("h3");
-                userName.setAttribute("class", "user");
-                userName.innerHTML = userKeys[a];
-                eachUser.appendChild(userName);
-                shareLength = browser.data.users[userKeys[a]].shares.length;
-                if (shareLength > 0) {
-                    b = 0;
-                    itemList = document.createElement("ul");
-                    do {
-                        item = document.createElement("li");
-                        button = document.createElement("button");
-                        button.setAttribute("class", browser.data.users[userKeys[a]].shares[b][1]);
-                        button.innerHTML = browser.data.users[userKeys[a]].shares[b][0];
-                        if (browser.data.users[userKeys[a]].shares[b][1] === "directory" || browser.data.users[userKeys[a]].shares[b][1] === "file" || browser.data.users[userKeys[a]].shares[b][1] === "link") {
-                            button.onclick = fileNavigate;
-                        }
-                        item.appendChild(button);
-                        itemList.appendChild(item);
-                        b = b + 1;
-                    } while (b < shareLength);
-                } else {
-                    itemList = document.createElement("p");
-                    itemList.innerHTML = "This user is not sharing anything.";
-                }
-                eachUser.appendChild(itemList);
-                users.appendChild(eachUser);
-                a = a + 1;
-            } while (a < keyLength);
-        } else {
-            title = `Shares for user - ${user}`;
-            shareLength = browser.data.users[user].shares.length;
-            users = document.createElement("div");
-            users.setAttribute("class", "userList");
-            userName = document.createElement("h3");
-            userName.setAttribute("class", "user");
-            userName.innerHTML = user;
-            if (shareLength === 0) {
-                itemList = document.createElement("p");
-                itemList.innerHTML = `User ${user} is not sharing anything.`;
-            } else {
-                itemList = document.createElement("ul");
-                do {
-                    item = document.createElement("li");
-                    button = document.createElement("button");
-                    button.setAttribute("class", browser.data.users[user].shares[b][1]);
-                    button.innerHTML = browser.data.users[user].shares[b][0];
-                    if (browser.data.users[user].shares[b][1] === "directory" || browser.data.users[user].shares[b][1] === "file" || browser.data.users[user].shares[b][1] === "link") {
-                        button.onclick = fileNavigate;
-                    }
-                    item.appendChild(button);
-                    itemList.appendChild(item);
-                    b = b + 1;
-                } while (b < shareLength);
-            }
-            users.appendChild(userName);
-            users.appendChild(itemList);
-        }
+        const title:string = (user === "")
+            ? "All Shares"
+            : `Shares for user - ${user}`;
         if (configuration === undefined || configuration === null) {
             configuration = {
                 agent: user,
                 content: users,
+                read_only: false,
                 title: title,
                 type: "shares",
                 width: 800
@@ -1034,7 +952,10 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         titleText:string = (typeof title === "string")
             ? title
             : element.innerHTML,
-        textArea:HTMLTextAreaElement = document.createElement("textarea");
+        textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        agency:[string, boolean] = (element === document.getElementById("textPad"))
+            ? ["localhost", false]
+            : util.getAgent(element);
     if (typeof value === "string") {
         textArea.value = value;
     }
@@ -1043,9 +964,10 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         textArea.style.whiteSpace = "normal";
     }
     modal.create({
-        agent: util.getAgent(element),
+        agent: agency[0],
         content: textArea,
         inputs: ["close", "maximize", "minimize"],
+        read_only: agency[1],
         title: titleText,
         type: "textPad",
         width: 800
@@ -1060,7 +982,7 @@ modal.textSave = function local_modal_textSave(event:MouseEvent):void {
             box = <HTMLElement>box.parentNode;
         } while (box !== document.documentElement && box.getAttribute("class") !== "box");
     browser.data.modals[box.getAttribute("id")].text_value = element.value;
-    network.settings();
+    network.storage("settings");
 };
 
 /* Manages z-index of modals and moves a modal to the top on interaction */

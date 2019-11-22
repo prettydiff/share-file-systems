@@ -18,7 +18,7 @@ import invite from "./server/invite.js";
 import methodGET from "./server/methodGET.js";
 import serverVars from "./server/serverVars.js";
 import serverWatch from "./server/serverWatch.js";
-import settingsMessages from "./server/settingsMessage.js";
+import storage from "./server/storage.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -87,10 +87,55 @@ const library = {
                             response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
                             response.end();
                             vars.ws.broadcast(body);
+                        } else if (task === "shareUpdate") {
+                            const update:shareUpdate = JSON.parse(dataString);
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(`Received share update from ${update.user}`);
+                            response.end();
+                            vars.ws.broadcast(body);
                         } else if (task === "fs") {
-                            fileService(request, response, JSON.parse(dataString));
-                        } else if (task === "settings" || task === "messages") {
-                            settingsMessages(dataString, response, task);
+                            const data:fileService = JSON.parse(dataString);
+                            if (data.agent !== "localhost") {
+                                const shares:userShares = (serverVars.users[data.agent] === undefined)
+                                        ? serverVars.users.localhost.shares
+                                        : serverVars.users[data.agent].shares,
+                                    windows:boolean = (data.location[0].charAt(0) === "\\" || (/^\w:\\/).test(data.location[0]) === true),
+                                    readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-file", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read"];
+                                let dIndex:number = data.location.length,
+                                    sIndex:number = shares.length,
+                                    bestMatch:number = -1;
+                                do {
+                                    dIndex = dIndex - 1;
+                                    sIndex = shares.length;
+                                    do {
+                                        sIndex = sIndex - 1;
+                                        if (data.location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && data.location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
+                                            if (bestMatch < 0 || shares[sIndex].name.length > shares[bestMatch].name.length) {
+                                                bestMatch = sIndex;
+                                            }
+                                        }
+                                    } while (sIndex > 0);
+                                    if (bestMatch < 0) {
+                                        data.location.splice(dIndex, 1);
+                                    } else {
+                                        if (shares[bestMatch].readOnly === true && readOnly.indexOf(data.action) < 0) {
+                                            response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
+                                            response.write(`{"id":"${data.id}","dirs":"readOnly"}`);
+                                            response.end();
+                                            return;
+                                        }
+                                    }
+                                } while (dIndex > 0);
+                            }
+                            if (data.location.length > 0) {
+                                fileService(request, response, data);
+                            } else {
+                                response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
+                                response.write(`{"id":"${data.id}","dirs":"noShare"}`);
+                                response.end();
+                            }
+                        } else if (task === "settings" || task === "messages" || task === "users") {
+                            storage(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                             heartbeat(dataString, response);
                         } else if (task === "heartbeat-update") {
@@ -164,6 +209,8 @@ const library = {
                 if (process.cwd() !== vars.projectPath) {
                     process.chdir(vars.projectPath);
                 }
+
+                // start the server
                 serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
                     recursive: true
                 }, serverWatch);
@@ -186,35 +233,116 @@ const library = {
                 };
 
                 // When coming online send a heartbeat to each user
-                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_readSettings(err:nodeError, fileData:string):void {
-                    if (err !== null) {
+                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_readUsers(eru:nodeError, userString:string):void {
+                    if (eru !== null) {
                         logOutput();
-                        if (err.code !== "ENOENT") {
-                            log([err.toString()]);
+                        if (eru.code !== "ENOENT") {
+                            log([eru.toString()]);
                         }
                     } else {
-                        const settings:ui_data = JSON.parse(fileData),
-                            users:string[] = Object.keys(settings.users),
-                            length:number = users.length;
-                        if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
-                            logOutput();
-                        } else {
-                            let a:number = 1,
-                                ip:string,
-                                port:string,
-                                lastColon:number;
-                            do {
-                                lastColon = users[a].lastIndexOf(":");
-                                ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
-                                port = users[a].slice(lastColon + 1);
-                                if (ip.charAt(0) === "[") {
-                                    ip = ip.slice(1, ip.length - 1);
+                        serverVars.users = JSON.parse(userString);
+                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_readUsers_readSettings(ers:nodeError, settingString:string):void {
+                            if (ers !== null) {
+                                logOutput();
+                                if (ers.code !== "ENOENT") {
+                                    log([ers.toString()]);
                                 }
-                                heartbeat(`{"ip":"${ip}","port":${port},"refresh":false,"status":"active","user":"${settings.name}"}`);
-                                a = a + 1;
-                            } while (a < length);
-                            logOutput();
-                        }
+                            } else {
+                                const settings:ui_data = JSON.parse(settingString),
+                                    users:string[] = Object.keys(serverVars.users),
+                                    length:number = users.length,
+                                    address:string = (serverVars.addresses[0][1][1].indexOf(":") > -1)
+                                        ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
+                                        : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
+                                serverVars.name = `${settings.name}@${address}`;
+                                if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                    logOutput();
+                                } else {
+                                    const callback = function terminal_server_start_readUsers_readSettings_exchange(userResponse:http.IncomingMessage):void {
+                                            const chunks:string[] = [];
+                                            userResponse.setEncoding('utf8');
+                                            userResponse.on("data", function terminal_server_create_end_heartbeatResponse_data(chunk:string):void {
+                                                chunks.push(chunk);
+                                            });
+                                            userResponse.on("end", function terminal_server_create_end_heartbeatResponse_end():void {
+                                                const userString:string = chunks.join(""),
+                                                    userData:userExchange = JSON.parse(userString);
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                serverVars.users[userData.user].shares = userData.shares;
+                                                vars.ws.broadcast(`heartbeat-update:{"ip":"${userData.ip}","port":${userData.port},"refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
+                                                vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
+                                            });
+                                            userResponse.on("error", function terminal_server_create_end_heartbeatResponse_error(errorMessage:nodeError):void {
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                vars.ws.broadcast([errorMessage.toString()]);
+                                                library.log([errorMessage.toString()]);
+                                            });
+                                        },
+                                        allUsers = function terminal_server_start_readUsers_readSettings_allUsers():void {
+                                            const userString = JSON.stringify(serverVars.users);
+                                            if (userString !== settingString) {
+                                                vars.node.fs.writeFile(`${vars.projectPath}storage${vars.sep}users.json`, userString, "utf8", function terminal_server_start_readUsers_readSettings_allUsers_write(usersWriteError:nodeError):void {
+                                                    if (usersWriteError !== null) {
+                                                        vars.ws.broadcast(usersWriteError.toString());
+                                                        library.log([usersWriteError.toString()]);
+                                                    }
+                                                });
+                                            }
+                                        };
+                                    let a:number = 1,
+                                        ip:string,
+                                        port:string,
+                                        lastColon:number,
+                                        payload:string,
+                                        http:http.ClientRequest,
+                                        count:number = 0;
+                                    do {
+                                        lastColon = users[a].lastIndexOf(":");
+                                        ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
+                                        port = users[a].slice(lastColon + 1);
+                                        if (ip.charAt(0) === "[") {
+                                            ip = ip.slice(1, ip.length - 1);
+                                        }
+                                        payload = `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`;
+                                        http = vars.node.http.request({
+                                            headers: {
+                                                "Content-Type": "application/x-www-form-urlencoded",
+                                                "Content-Length": Buffer.byteLength(payload)
+                                            },
+                                            host: ip,
+                                            method: "POST",
+                                            path: "/",
+                                            port: port,
+                                            timeout: 1000
+                                        }, callback);
+                                        http.write(payload);
+                                        http.end();
+                                        http.on("error", function terminal_server_start_readUsers_readSettings_httpError(errorMessage:nodeError):void {
+                                            count = count + 1;
+                                            if (count === length) {
+                                                allUsers();
+                                            }
+                                            if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
+                                                vars.ws.broadcast(`heartbeat-update:{"ip":"${ip}","port":${port},"refresh":false,"status":"offline","user":"${users[a]}"}`);
+                                            } else {
+                                                vars.ws.broadcast(errorMessage.toString());
+                                                library.log([errorMessage.toString()]);
+                                            }
+                                        });
+                                        a = a + 1;
+                                    } while (a < length);
+                                    logOutput();
+                                }
+                            }
+                        });
+
+
                     }
                 });
             };

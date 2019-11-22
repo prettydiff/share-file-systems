@@ -68,11 +68,49 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                     let tool:boolean = false;
                     const pageState = function terminal_server_create_readCallback_pageState():void {
                         const flag:any = {
-                            settings: false,
-                            messages: false
-                        };
+                                settings: false,
+                                messages: false,
+                                users: false
+                            },
+                            storageFiles = function terminal_server_create_readCallback_storageFiles(fileName:string):void {
+                                vars.node.fs.stat(`${vars.projectPath}storage${vars.sep + fileName}.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
+                                    if (erSettings !== null) {
+                                        if (erSettings.code === "ENOENT") {
+                                            flag[fileName] = true;
+                                            if (fileName === "users") {
+                                                list.push("\"users\":{\"localhost\":{\"color\":[\"#fff\",\"#eee\"],\"shares\":[]}}");
+                                            } else {
+                                                list.push(`"${fileName}":{}`);
+                                            }
+                                            if (flag.messages === true && flag.settings === true && flag.users === true) {
+                                                response.write(appliedData());
+                                                response.end();
+                                            }
+                                        } else {
+                                            library.error([erSettings.toString()]);
+                                            response.write(data);
+                                            response.end();
+                                        }
+                                    } else {
+                                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep + fileName}.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
+                                            if (errSettings !== null) {
+                                                library.error([errSettings.toString()]);
+                                                response.write(data);
+                                                response.end();
+                                            } else {
+                                                list.push(`"${fileName}":${settings}`);
+                                                flag[fileName] = true;
+                                                if (flag.messages === true && flag.settings === true && flag.users === true) {
+                                                    response.write(appliedData());
+                                                    response.end();
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            };
                         let list:string[] = [],
-                            appliedData = function terminal_server_create_readFile_appliedData():string {
+                            appliedData = function terminal_server_create_readCallback_appliedData():string {
                                 const start:string = "<!--storage:-->",
                                     startLength:number = data.indexOf(start) + start.length - 3,
                                     dataString:string = (typeof data === "string")
@@ -81,68 +119,9 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                 return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
                             };
                         tool = true;
-                        vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}settings.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
-                            if (erSettings !== null) {
-                                if (erSettings.code === "ENOENT") {
-                                    flag.settings = true;
-                                    list.push(`"settings":{}`);
-                                    if (flag.messages === true) {
-                                        response.write(appliedData());
-                                        response.end();
-                                    }
-                                } else {
-                                    library.error([erSettings.toString()]);
-                                    response.write(data);
-                                    response.end();
-                                }
-                            } else {
-                                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
-                                    if (errSettings !== null) {
-                                        library.error([errSettings.toString()]);
-                                        response.write(data);
-                                        response.end();
-                                    } else {
-                                        list.push(`"settings":${settings}`);
-                                        flag.settings = true;
-                                        if (flag.messages === true) {
-                                            response.write(appliedData());
-                                            response.end();
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                        vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}messages.json`, function terminal_server_create_readFile_statMessages(erMessages:nodeError):void {
-                            if (erMessages !== null) {
-                                if (erMessages.code === "ENOENT") {
-                                    flag.messages = true;
-                                    list.push(`"messages":{}`);
-                                    if (flag.settings === true) {
-                                        response.write(appliedData());
-                                        response.end();
-                                    }
-                                } else {
-                                    library.error([erMessages.toString()]);
-                                    response.write(data);
-                                    response.end();
-                                }
-                            } else {
-                                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}messages.json`, "utf8", function terminal_server_create_readFile_statMessages(errMessages:Error, messages:string):void {
-                                    if (errMessages !== null) {
-                                        library.error([errMessages.toString()]);
-                                        response.write(data);
-                                        response.end();
-                                    } else {
-                                        list.push(`"messages":${messages}`);
-                                        flag.messages = true;
-                                        if (flag.settings === true) {
-                                            response.write(appliedData());
-                                            response.end();
-                                        }
-                                    }
-                                });
-                            }
-                        });
+                        storageFiles("messages");
+                        storageFiles("settings");
+                        storageFiles("users");
                     };
                     if (localPath.indexOf(".js") === localPath.length - 3) {
                         response.writeHead(200, {"Content-Type": "application/javascript"});

@@ -10,6 +10,8 @@ type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-ac
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-request" | "fs-cut-self" | "fs-cut-remove" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
+type shareType = "directory" | "file" | "link";
+type storageType = "messages" | "settings" | "users";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
 interface applications {
@@ -39,6 +41,7 @@ interface browser {
     pageBody:HTMLElement;
     socket?:WebSocket;
     style:HTMLStyleElement;
+    users: users;
 }
 interface clipboard {
     agent: string;
@@ -96,7 +99,7 @@ interface Element {
     getElementsByAttribute: Function;
 }
 interface fileService {
-    action      : serviceType;
+    action      : serviceType | "shareUpdate";
     agent       : string;
     copyAgent   : string;
     depth       : number;
@@ -120,7 +123,7 @@ interface fsDetails {
     size: number;
 }
 interface fsRemote {
-    dirs: directoryList | "missing";
+    dirs: directoryList | "missing" | "noShare" | "readOnly";
     fail: string[];
     id: string;
 }
@@ -173,7 +176,7 @@ interface invite {
     modal: string;
     name: string;
     port: number;
-    shares: [string, string][];
+    shares: userShares;
     status: "accepted" | "declined" | "invited";
 }
 interface localNetwork {
@@ -200,8 +203,7 @@ interface module_network {
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
-    messages?: Function;
-    settings?: Function;
+    storage?: (type:storageType) => void;
 }
 interface module_context {
     copy?: (element: HTMLElement, type: "copy" | "cut") => void;
@@ -257,7 +259,7 @@ interface module_util {
     dragSelect?: eventCallback;
     fileListStatus?: (text:string) => void;
     fixHeight?: functionEvent;
-    getAgent?: (element:HTMLElement) => string;
+    getAgent?: (element:HTMLElement) => [string, boolean];
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
     keys?: (event:KeyboardEvent) => void;
@@ -267,9 +269,18 @@ interface module_util {
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectNone?:(element:HTMLElement) => void;
+    shareContent?:(users:string) => HTMLElement;
+    shareDelete?:(event:MouseEvent) => void;
+    shareReadOnly?:(event:MouseEvent) => void;
+    shareUpdate?:(user:string, shares:userShares) => void;
+}
+interface navConfig {
+    agentName:string;
+    path:string;
+    readOnly:boolean;
 }
 interface navigate extends EventHandlerNonNull {
-    (Event, path?:string, agentName?:string): void;
+    (Event, config?:navConfig): void;
 }
 interface nodeCopyParams {
     callback:Function;
@@ -336,15 +347,21 @@ interface serverError {
     error: string;
 }
 interface serverVars {
-    addresses: [[string, string, string][], number]
+    addresses: [[string, string, string][], number];
+    name: string;
     socketReceiver: any;
     socketList: any;
     timeStore:number;
+    users: users;
     watches: {
         [key:string]: FSWatcher;
     };
     webPort: number;
     wsPort: number;
+}
+interface shareUpdate {
+    user: string;
+    shares: userShares;
 }
 interface simulationItem {
     artifact?: string;
@@ -432,12 +449,6 @@ interface ui_data {
     };
     modalTypes: string[];
     name: string;
-    users: {
-        [key:string]: {
-            color:[string, string];
-            shares:[string, string][]
-        }
-    }
     zIndex: number;
 }
 interface ui_modal {
@@ -449,6 +460,7 @@ interface ui_modal {
     inputs?: ui_input[];
     left?: number;
     move?: boolean;
+    read_only: boolean;
     resize?: boolean;
     single?: boolean;
     status?: "hidden" | "maximized" | "minimized" | "normal";
@@ -461,6 +473,28 @@ interface ui_modal {
     type: modalType;
     width?: number;
     zIndex?: number;
+}
+interface users {
+    [key:string]: {
+        color: [string, string];
+        shares: userShares;
+    }
+}
+interface userExchange {
+    ip: string;
+    port: number;
+    shares: userShares;
+    status: string;
+    user: string;
+}
+interface userShare {
+    execute: boolean;
+    name: string;
+    readOnly: boolean;
+    type: shareType;
+}
+interface userShares extends Array<userShare> {
+    [index:number]: userShare;
 }
 interface version {
     command: string;

@@ -5,7 +5,8 @@ import modal from "./modal.js";
 import network from "./network.js";
 import { ChildProcess } from "child_process";
 
-const util:module_util = {};
+const util:module_util = {},
+    expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Adds users to the user bar */
 util.addUser = function local_util_addUser(userName:string):void {
@@ -34,17 +35,17 @@ util.addUser = function local_util_addUser(userName:string):void {
                     body = code1.join("");
                     heading = code2.join("");
                 };
-            if (browser.data.users[userName].color[0] === "") {
+            if (browser.users[userName].color[0] === "") {
                 generateColor();
                 if (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3)) {
                     do {
                         generateColor();
                     } while (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3));
                 }
-                browser.data.users[userName].color = [body, heading];
+                browser.users[userName].color = [body, heading];
             } else {
-                body = browser.data.users[userName].color[0];
-                heading = browser.data.users[userName].color[1];
+                body = browser.users[userName].color[0];
+                heading = browser.users[userName].color[1];
             }
             browser.style.innerHTML = browser.style.innerHTML + [
                 `#spaces #users button[data-agent="${userName}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
@@ -67,6 +68,7 @@ util.addUser = function local_util_addUser(userName:string):void {
     if (userName.indexOf("@localhost") > -1) {
         button.setAttribute("id", "localhost");
     }
+    network.storage("users");
 };
 
 /* Transforms numbers into a string of 3 digit comma separated groups */
@@ -224,7 +226,7 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
         touchY = (touch === true)
             ? touchEvent.touches[0].clientY
             : 0,   
-        drop       = function local_modal_move_drop(e:Event):boolean {
+        drop       = function local_util_dragSelect_drop(e:Event):boolean {
             callback();
             drag.parentNode.removeChild(drag);
             if (touch === true) {
@@ -234,11 +236,11 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
                 document.onmousemove = null;
                 document.onmouseup   = null;
             }
-            network.settings();
+            network.storage("settings");
             e.preventDefault();
             return false;
         },
-        boxMoveTouch    = function local_modal_move_touch(f:TouchEvent):boolean {
+        boxMoveTouch    = function local_util_dragSelect_touch(f:TouchEvent):boolean {
             f.preventDefault();
             // horizontal
             if (mouseX > f.touches[0].clientX) {
@@ -287,7 +289,7 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
             }
             return false;
         },
-        boxMoveClick = function local_modal_move_click(f:MouseEvent):boolean {
+        boxMoveClick = function local_util_dragSelect_click(f:MouseEvent):boolean {
             f.preventDefault();
             // horizontal
             if (mouseX > f.clientX) {
@@ -352,7 +354,7 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
     }
 };
 
-/* */
+/* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function local_util_fileListStatus(text:string):void {
     const data:copyStatus = JSON.parse(text.slice("fileListStatus:".length)),
         statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
@@ -391,7 +393,7 @@ util.fixHeight = function local_util_fixHeight():void {
 };
 
 /* Get the agent of a given modal */
-util.getAgent = function local_util_getAgent(element:HTMLElement):string {
+util.getAgent = function local_util_getAgent(element:HTMLElement):[string, boolean] {
     const box:HTMLElement = (element.getAttribute("class") === "box")
         ? element
         : (function local_util_getAgent_box():HTMLElement {
@@ -402,7 +404,7 @@ util.getAgent = function local_util_getAgent(element:HTMLElement):string {
             return boxEl;
         }()),
     id:string = box.getAttribute("id");
-    return browser.data.modals[id].agent;
+    return [browser.data.modals[id].agent, browser.data.modals[id].read_only];
 };
 
 /* Invite users to your shared space */
@@ -422,7 +424,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-            network.settings();
+            network.storage("settings");
         };
     let p:HTMLElement = document.createElement("p"),
         label:HTMLElement = document.createElement("label"),
@@ -476,6 +478,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
             agent: "localhost",
             content: invite,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+            read_only: false,
             title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
             type: "invite-request"
         });
@@ -528,11 +531,11 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             content: div,
             height: 300,
             inputs: ["cancel", "confirm", "close"],
+            read_only: false,
             title: `Invitation from ${invite.name}`,
             type: "invite-accept",
             width: 500
         });
-        network.settings();
     } else {
         let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
@@ -543,7 +546,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                 } else {
                     user = `${invite.name}@[${invite.ip}]:${invite.port}`;
                 }
-                browser.data.users[user] = {
+                browser.users[user] = {
                     color:["", ""],
                     shares: invite.shares
                 }
@@ -563,12 +566,12 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                         } else {
                             user = `${invite.name}@[${invite.ip}]:${invite.port}`;
                         }
-                        browser.data.users[user] = {
+                        browser.users[user] = {
                             color:["", ""],
                             shares: invite.shares
                         }
                         util.addUser(user);
-                        network.settings();
+                        network.storage("users");
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");
@@ -717,12 +720,12 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
             addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
                 ? <HTMLElement>itemList[a].firstChild.nextSibling
                 : <HTMLElement>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, "")]);
+            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(expression, "")]);
             if (type === "cut") {
-                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, " cut"));
+                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(expression, " cut"));
             }
         } else {
-            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(expression, ""));
         }
         a = a + 1;
     } while (a < length);
@@ -731,7 +734,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     }
     output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
     if (type === "cut") {
-        element.setAttribute("class", element.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, " cut"));
+        element.setAttribute("class", element.getAttribute("class").replace(expression, " cut"));
     }
     return output;
 };
@@ -757,11 +760,225 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(expression, ""));
             }
             a = a + 1;
         } while (a < inputLength);
     }
 };
+
+/* Generate the content of a share modal */
+util.shareContent = function local_util_shareContent(user:string):HTMLElement {
+    const userKeys:string[] = Object.keys(browser.users),
+        keyLength:number = userKeys.length,
+        fileNavigate = function local_util_shareContent_fileNavigate(event:MouseEvent):void {
+            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                path:string = element.firstChild.textContent,
+                type:string = element.getAttribute("class"),
+                slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
+                    ? "/"
+                    : "\\";
+            let address:string,
+                agent:string = element.parentNode.parentNode.previousSibling.firstChild.textContent;
+            if (type === "file" || type === "link") {
+                const dirs:string[] = path.replace(/\\/g, "/").split("/");
+                dirs.pop();
+                address = dirs.join(slash);
+            } else {
+                address = path;
+            }
+            fs.navigate(event, {
+                agentName: agent,
+                path: address,
+                readOnly: (element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
+            });
+        };
+    let users:HTMLElement,
+        eachUser:HTMLElement;
+    if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
+        user = "localhost";
+    }
+    if (keyLength === 1 && browser.users.localhost.shares.length === 0) {
+        users = document.createElement("h3");
+        users.innerHTML = "There are no shares at this time.";
+    } else {
+        let userName:HTMLElement,
+            itemList:HTMLElement,
+            item:HTMLElement,
+            button:HTMLElement,
+            del:HTMLElement,
+            readOnly:HTMLElement,
+            status:HTMLElement,
+            span:HTMLElement,
+            a:number = 0,
+            b:number = 0,
+            shareLength:number,
+            type:string;
+        const eachItem = function local_util_shareContent_eachItem(userName:string):void {
+            item = document.createElement("li");
+            button = document.createElement("button");
+            type = browser.users[userName].shares[b].type;
+            button.setAttribute("class", type);
+            button.innerHTML = browser.users[userName].shares[b].name;
+            status = document.createElement("strong");
+            status.setAttribute("class", "read-only-status");
+            status.innerHTML = (browser.users[userName].shares[b].readOnly === true)
+                ? "(Read Only)"
+                : "(Full Access)"
+            button.appendChild(status);
+            if (type === "directory" || type === "file" || type === "link") {
+                button.onclick = fileNavigate;
+            }
+            if (userName === "localhost") {
+                readOnly = document.createElement("button");
+                if (browser.users.localhost.shares[b].readOnly === true) {
+                    item.setAttribute("class", "localhost");
+                    readOnly.setAttribute("class", "grant-full-access");
+                    readOnly.innerHTML = ("Grant Full Access");
+                } else {
+                    item.setAttribute("class", "localhost full-access");
+                    readOnly.setAttribute("class", "make-read-only");
+                    readOnly.innerHTML = ("Make Read Only");
+                }
+                readOnly.onclick = util.shareReadOnly;
+                del = document.createElement("button");
+                del.setAttribute("class", "delete");
+                del.innerHTML = "\u2718<span>Delete this share</span>";
+                del.onclick = util.shareDelete;
+                span = document.createElement("span");
+                span.setAttribute("class", "clear");
+                item.appendChild(del);
+                item.appendChild(button);
+                item.appendChild(readOnly);
+                item.appendChild(button);
+                item.appendChild(span);
+            } else {
+                if (browser.users[userName].shares[b].readOnly === true) {
+                    item.removeAttribute("class");
+                } else {
+                    item.setAttribute("class", "full-access");
+                }
+                item.appendChild(button);
+            }
+            itemList.appendChild(item);
+        };
+        if (user === "") {
+            users = document.createElement("ul");
+            users.setAttribute("class", "userList");
+            do {
+                eachUser = document.createElement("li");
+                userName = document.createElement("h3");
+                userName.setAttribute("class", "user");
+                userName.innerHTML = userKeys[a];
+                eachUser.appendChild(userName);
+                shareLength = browser.users[userKeys[a]].shares.length;
+                if (shareLength > 0) {
+                    b = 0;
+                    itemList = document.createElement("ul");
+                    do {
+                        eachItem(userKeys[a]);
+                        b = b + 1;
+                    } while (b < shareLength);
+                } else {
+                    itemList = document.createElement("p");
+                    itemList.innerHTML = "This user is not sharing anything.";
+                }
+                eachUser.appendChild(itemList);
+                users.appendChild(eachUser);
+                a = a + 1;
+            } while (a < keyLength);
+        } else {
+            shareLength = browser.users[user].shares.length;
+            users = document.createElement("div");
+            users.setAttribute("class", "userList");
+            userName = document.createElement("h3");
+            userName.setAttribute("class", "user");
+            userName.innerHTML = user;
+            if (shareLength === 0) {
+                itemList = document.createElement("p");
+                itemList.innerHTML = `User ${user} is not sharing anything.`;
+            } else {
+                itemList = document.createElement("ul");
+                do {
+                    eachItem(user);
+                    b = b + 1;
+                } while (b < shareLength);
+            }
+            users.appendChild(userName);
+            users.appendChild(itemList);
+        }
+    }
+    return users;
+};
+
+/* Delete a localhost share */
+util.shareDelete = function local_util_shareDelete(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
+        shares:userShares = browser.users.localhost.shares,
+        length:number = shares.length;
+    let a:number = 0;
+    parent.parentNode.removeChild(parent);
+    do {
+        if (shares[a].name === address) {
+            shares.splice(a, 1);
+            break;
+        }
+        a = a + 1;
+    } while (a < length);
+    network.storage("users");
+};
+
+/* Toggle a share between read only and full access */
+util.shareReadOnly = function local_util_shareReadOnly(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
+        shares:userShares = browser.users.localhost.shares,
+        length:number = shares.length,
+        span:HTMLElement = <HTMLElement>parent.getElementsByClassName("read-only-status")[0];
+    let a:number = 0;
+    do {
+        if (shares[a].name === address) {
+            if (shares[a].readOnly === true) {
+                shares[a].readOnly = false;
+            } else {
+                shares[a].readOnly = true;
+            }
+            break;
+        }
+        a = a + 1;
+    } while (a < length);
+    if (element.getAttribute("class") === "grant-full-access") {
+        element.setAttribute("class", "make-read-only");
+        parent.setAttribute("class", "localhost full-access");
+        element.innerHTML = "Make Read Only";
+        span.innerHTML = "(Full Access)";
+    } else {
+        element.setAttribute("class", "grant-full-access");
+        parent.setAttribute("class", "localhost");
+        element.innerHTML = "Grant Full Access";
+        span.innerHTML = "(Read Only)";
+    }
+    network.storage("users");
+};
+
+/* Updates the contents of share modals */
+util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShares):void {
+    const modals:string[] = Object.keys(browser.data.modals),
+        length:number = modals.length;
+    let a:number = 0;
+    browser.users[user].shares = shares;
+    do {
+        if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === user)) {
+            const existingModal:HTMLElement = document.getElementById(modals[a]),
+                body:HTMLElement = <HTMLElement>existingModal.getElementsByClassName("body")[0];
+            body.innerHTML = "";
+            body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
+        }
+        a = a + 1;
+    } while (a < length);
+}
 
 export default util;

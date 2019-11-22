@@ -34,7 +34,7 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
         }
     }
     clipboard = JSON.stringify({
-        agent: util.getAgent(box),
+        agent: util.getAgent(box)[0],
         data: addresses,
         id: box.getAttribute("id"),
         type: type
@@ -44,8 +44,15 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
     const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
+        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
         length:number = addresses.length,
-        agentName:string = util.getAgent(element),
+        agency:[string, boolean] = util.getAgent(box),
         locations:string[] = [];
     let a:number = 0,
         delay:HTMLElement,
@@ -54,15 +61,16 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         if (addresses[a][1] === "file") {
             delay = util.delay();
             modalInstance = modal.create({
-                agent: agentName,
+                agent: agency[0],
                 content: delay,
                 height: 500,
-                inputs: (type === "Edit")
+                inputs: (type === "Edit" && agency[1] === false)
                     ? ["close", "save"]
                     : ["close"],
                 left: event.clientX + (a * 10),
+                read_only: agency[1],
                 single: false,
-                title: `${type} - ${agentName} - ${addresses[a][0]}`,
+                title: `${type} - ${agency[0]} - ${addresses[a][0]}`,
                 top: (event.clientY - 60) + (a * 10),
                 type: "textPad",
                 width: 500
@@ -75,10 +83,10 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         action: (type === "Edit")
             ? "fs-read"
             : `fs-${type.toLowerCase()}`,
-        agent: agentName,
+        agent: agency[0],
         copyAgent: "",
         depth: 1,
-        id: "",
+        id: box.getAttribute("id"),
         location: locations,
         name: "",
         watch: "no"
@@ -111,14 +119,21 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
             heading.style.width = `${(body.clientWidth - 50) / 18}em`;
             a = a + 1;
         } while (a < length);
-        network.settings();
+        network.storage("settings");
     });
 };
 
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function local_context_destroy(element:HTMLElement):void {
     let selected:[string, string][],
-        addresses:string[] = []; 
+        addresses:string[] = [],
+        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()); 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
@@ -132,9 +147,10 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
     }
     network.fs({
         action: "fs-destroy",
-        agent: util.getAgent(element),
+        agent: util.getAgent(element)[0],
         copyAgent: "",
         depth: 1,
+        id: box.getAttribute("id"),
         location: addresses,
         name: "",
         watch: "no"
@@ -146,16 +162,17 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
 /* Handler for details action of context menu */
 context.details = function local_context_details(event:MouseEvent, element?:HTMLElement):void {
     const div:HTMLElement = util.delay(),
-        agentName:string = util.getAgent(element),
+        agency:[string, boolean] = util.getAgent(element),
         addresses:[string, string][] = util.selectedAddresses(element, "details"),
         modalInstance:HTMLElement = modal.create({
-            agent: agentName,
+            agent: agency[0],
             content: div,
             height: 500,
             inputs: ["close"],
             left: event.clientX,
+            read_only: agency[1],
             single: true,
-            title: `Details - ${agentName} - ${addresses.length} items`,
+            title: `Details - ${agency[0]} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -173,7 +190,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         }());
     network.fs({
         action: "fs-details",
-        agent: agentName,
+        agent: agency[0],
         copyAgent: "",
         depth: 0,
         id: id,
@@ -182,7 +199,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         watch: "no"
     }, function local_context_details_callback(response:string):void {
         const payload:fsRemote = JSON.parse(response),
-            list:directoryList = (payload.dirs === "missing")
+            list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
             body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
@@ -355,9 +372,10 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: util.getAgent(element),
+                    agent: util.getAgent(element)[0],
                     copyAgent: "",
                     depth: 1,
+                    id: box.getAttribute("id"),
                     location: [path + value],
                     name: type,
                     watch: "no"
@@ -382,9 +400,10 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
                 text.innerHTML = path + value;
                 network.fs({
                     action: "fs-new",
-                    agent: util.getAgent(element),
+                    agent: util.getAgent(element)[0],
                     copyAgent: "",
                     depth: 1,
+                    id: box.getAttribute("id"),
                     location: [path + value],
                     name: type,
                     watch: "no"
@@ -471,6 +490,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             } while (el !== document.documentElement && el.getAttribute("class") !== "box");
             return el;
         }()),
+        readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
                 item = document.createElement("li");
@@ -535,7 +555,11 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             edit: function local_context_menu_edit():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
-                button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                if (readOnly === true) {
+                    button.innerHTML = `Read File as Text <em>${command} + ALT + E</em>`;
+                } else {
+                    button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
+                }
                 button.onclick = function local_context_menu_edit_handler():void {
                     context.dataString(event, element, "Edit");
                 };
@@ -634,29 +658,34 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     event.stopPropagation();
     menu.setAttribute("id", "contextMenu");
     if (element.getAttribute("class") === "fileList") {
+        if (readOnly === true) {
+            return;
+        }
         functions.newDirectory();
         functions.newFile();
         functions.paste();
     } else if (parent.getAttribute("class") === "fileList") {
-
         functions.details();
         if (box.getAttribute("data-agent") === "localhost") {
             functions.share();
         }
-
         if (element.getAttribute("class").indexOf("file") === 0) {
             functions.edit();
             functions.hash();
             functions.base64();
         }
 
-        functions.newDirectory();
-        functions.newFile();
+        if (readOnly === false) {
+            functions.newDirectory();
+            functions.newFile();
+        }
         functions.copy();
-        functions.cut();
-        functions.paste();
-        functions.rename();
-        functions.destroy();
+        if (readOnly === false) {
+            functions.cut();
+            functions.paste();
+            functions.rename();
+            functions.destroy();
+        }
     }
 
     // menu display position
@@ -710,7 +739,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
     network.fs({
         action   : `fs-${clipData.type}`,
         agent    : clipData.agent,
-        copyAgent: util.getAgent(element),
+        copyAgent: util.getAgent(element)[0],
         depth    : 1,
         id       : element.getAttribute("id"),
         location : clipData.data,
@@ -724,7 +753,7 @@ context.paste = function local_context_paste(element:HTMLElement):void {
 
 /* Share utility for the context menu list */
 context.share = function local_context_share(element:HTMLElement):void {
-    const shareLength:number = browser.data.users.localhost.shares.length,
+    const shareLength:number = browser.users.localhost.shares.length,
         addresses:[string, string][] = util.selectedAddresses(element, "share"),
         addressesLength:number = addresses.length;
     let a:number = 0,
@@ -733,24 +762,35 @@ context.share = function local_context_share(element:HTMLElement):void {
         do {
             b = 0;
             do {
-                if (addresses[a][0] === browser.data.users.localhost.shares[b][0] && browser.data.users.localhost.shares[b][1] === addresses[a][1]) {
+                if (addresses[a][0] === browser.users.localhost.shares[b].name && addresses[a][1] === browser.users.localhost.shares[b].type) {
                     break;
                 }
                 b = b + 1;
             } while (b < shareLength);
             if (b === shareLength) {
-                browser.data.users.localhost.shares.push(addresses[a]);
+                browser.users.localhost.shares.push({
+                    execute: false,
+                    name: addresses[a][0],
+                    readOnly: true,
+                    type: <shareType>addresses[a][1]
+                });
             }
             a = a + 1;
         } while (a < addressesLength);
     } else {
         do {
-            browser.data.users.localhost.shares.push(addresses[a]);
+            browser.users.localhost.shares.push({
+                execute: false,
+                name: addresses[a][0],
+                readOnly: true,
+                type: <shareType>addresses[a][1]
+            });
             a = a + 1;
         } while (a < addressesLength);
     }
     util.selectNone(element);
-    network.settings();
+    util.shareUpdate("localhost", browser.users.localhost.shares);
+    network.storage("users");
 };
 
 export default context;

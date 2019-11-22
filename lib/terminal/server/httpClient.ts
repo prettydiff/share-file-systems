@@ -35,7 +35,9 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             }
             return Number(portString);
         }()),
-        payload:string = `fs:${JSON.stringify(config.data)}`,
+        payload:string = (config.data.action === "shareUpdate")
+            ? config.data.name
+            : `fs:${JSON.stringify(config.data)}`,
         fsRequest:http.ClientRequest = vars.node.http.request({
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",

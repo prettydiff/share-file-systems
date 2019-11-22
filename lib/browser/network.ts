@@ -26,7 +26,7 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
                 callback(text, configuration.agent);
-                network.messages();
+                network.storage("messages");
             }
         }
     };
@@ -61,7 +61,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
                 if (xhr.readyState === 4) {
                     if (xhr.status !== 200 && xhr.status !== 0) {
                         systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending heartbeat","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                        network.messages();
+                        network.storage("messages");
                     }
                 }
             };
@@ -86,7 +86,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
                 // todo log invitation acceptance in system log
             } else {
                 systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
-                network.messages();
+                network.storage("messages");
             }
         }
     };
@@ -113,9 +113,9 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     xhr.send(`invite:${JSON.stringify(inviteData)}`);
 };
 
-/* Stores systems log messages to storage/messages.json file */
-network.messages = function local_network_messages():void {
-    if (browser.loadTest === true || messageTransmit === false) {
+/* Writes configurations to file storage */
+network.storage = function local_network_storage(type:storageType):void {
+    if (browser.loadTest === true && ((messageTransmit === false && type === "messages") || type !== "messages")) {
         return;
     }
     messageTransmit = false;
@@ -131,26 +131,11 @@ network.messages = function local_network_messages():void {
     xhr.withCredentials = true;
     xhr.open("POST", loc, true);
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send(`messages:${JSON.stringify(browser.messages)}`);
-};
-
-/* Stores settings data to a storage/settings.json file */
-network.settings = function local_network_settings():void {
-    if (browser.loadTest === true) {
-        return;
+    if (type === "settings") {
+        xhr.send(`settings:${JSON.stringify(browser.data)}`);
+    } else {
+        xhr.send(`${type}:${JSON.stringify(browser[type])}`);
     }
-    const xhr:XMLHttpRequest = new XMLHttpRequest();
-    xhr.onreadystatechange = function local_network_settings_callback():void {
-        if (xhr.readyState === 4) {
-            if (xhr.status !== 200 && xhr.status !== 0) {
-                systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending settings.","stack":${new Error().stack.split("\n")}}`);
-            }
-        }
-    };
-    xhr.withCredentials = true;
-    xhr.open("POST", loc, true);
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send(`settings:${JSON.stringify(browser.data)}`);
 };
 
 export default network;

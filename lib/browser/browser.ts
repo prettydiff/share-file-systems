@@ -6,12 +6,6 @@ const browser:browser = {
         modals: {},
         modalTypes: [],
         name: "",
-        users: {
-            localhost: {
-                color: ["#fff", "#eee"],
-                shares: []
-            }
-        },
         zIndex: 0
     },
     loadTest: true,
@@ -28,7 +22,13 @@ const browser:browser = {
         errors: []
     },
     pageBody: document.getElementsByTagName("body")[0],
-    style: document.createElement("style")
+    style: document.createElement("style"),
+    users: {
+        localhost: {
+            color: ["#fff", "#eee"],
+            shares: []
+        }
+    }
 };
 
 export default browser;

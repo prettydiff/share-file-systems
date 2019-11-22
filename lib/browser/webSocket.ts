@@ -3,6 +3,7 @@ import fs from "./fs.js";
 import network from "./network.js";
 import systems from "./systems.js";
 import util from "./util.js";
+import modal from "./modal.js";
 
 const webSocket = function local_webSocket():WebSocket {
     const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
@@ -39,7 +40,7 @@ const webSocket = function local_webSocket():WebSocket {
                     fail: data.fail
                 }),
                 modalKeys:string[] = Object.keys(browser.data.modals),
-                keyLength:number = modalKeys.length;console.log(data.agent+" "+data.location)
+                keyLength:number = modalKeys.length;
             let a:number = 0,
                 modalAgent:string,
                 body:HTMLElement;
@@ -71,6 +72,7 @@ const webSocket = function local_webSocket():WebSocket {
                         agent: "localhost",
                         copyAgent: "",
                         depth: 2,
+                        id: modalKeys[a],
                         location: [value],
                         name: "",
                         watch: "no"
@@ -130,6 +132,9 @@ const webSocket = function local_webSocket():WebSocket {
             content.parentNode.removeChild(content.parentNode.lastChild);
             content.style.display = "block";
             footer.style.display = "block";
+        } else if (event.data.indexOf("shareUpdate:") === 0) {
+            const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length));
+            util.shareUpdate(update.user, update.shares);
         }
     };
     socket.onclose = function local_socketClose():void {
