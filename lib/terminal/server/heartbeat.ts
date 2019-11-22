@@ -41,10 +41,7 @@ const library = {
             });
         heartbeatRequest.on("error", function terminal_server_create_end_heartbeatRequest_error(errorMessage:nodeError):void {
             if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                const self:string = (data.ip.indexOf(":") > 0)
-                    ? `@[${data.ip}]:${data.port}`
-                    : `@${data.ip}:${data.port}`
-                vars.ws.broadcast(`heartbeat-update:{"ip":"${data.ip}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"offline","user":"${self}"}`);
+                vars.ws.broadcast(`heartbeat-update:{"ip":"${data.ip}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
             } else {
                 vars.ws.broadcast(errorMessage.toString());
                 library.log([errorMessage.toString()]);

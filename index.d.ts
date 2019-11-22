@@ -480,6 +480,13 @@ interface users {
         shares: userShares;
     }
 }
+interface userExchange {
+    ip: string;
+    port: number;
+    shares: userShares;
+    status: string;
+    user: string;
+}
 interface userShare {
     execute: boolean;
     name: string;
