@@ -24,6 +24,11 @@ This application is currently in early development in an largely experimental st
    * `npm install`
 1. Compile to JavaScript.
    * `tsc --pretty`
+   * If this command in not available in Windows close the current shell and open a new shell as administrator. Run the following commands:
+      - `SET PATH=%AppData%\npm;%PATH%` in *cmd* or ``SET PATH=%AppData%\npm`;%PATH%`` in *Powershell*.
+   * If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
+      - `Set-ExecutionPolicy RemoteSigned`
+      - Choose option **Y**
 1. Execute the application. The restart command first builds the application and then enables services.
    * `npm restart`
 1. Open your favorite modern browser to http://localhost
