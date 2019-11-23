@@ -5,15 +5,17 @@ import systems from "./systems.js";
 import util from "./util.js";
 import modal from "./modal.js";
 
-const webSocket = function local_webSocket():WebSocket {
-    const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
-        socket:WebSocket = (browser.localNetwork.family === "ipv4")
+const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
+    titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
+    webSocket = function local_webSocket():WebSocket {
+        const socket:WebSocket = (browser.localNetwork.family === "ipv4")
             ? new WebSocket(`ws://${browser.localNetwork.ip}:${browser.localNetwork.wsPort}`)
             : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`);
     
     /* Handle Web Socket responses */
     socket.onopen = function local_socketOpen():void {
         document.getElementById("localhost").setAttribute("class", "active");
+        title.getElementsByTagName("h1")[0].innerHTML = titleText;
         title.style.background = "#ddd";
     };
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
