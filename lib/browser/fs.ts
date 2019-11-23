@@ -88,20 +88,9 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         output:HTMLElement = document.createElement("ul"),
         failLength:number = (dirData.fail === undefined)
             ? 0
-            : dirData.fail.length,
-        modal:ui_modal = browser.data.modals[dirData.id],
-        agent:string = (modal === undefined)
-            ? ""
-            : modal.agent,
-        shares:userShares = (agent === "")
-            ? []
-            : browser.users[agent].shares,
-        shareLength:number = shares.length,
-        windows:boolean = (list[0][0].charAt(0) === "\\" || (/^\w:\\/).test(list[0][0]) === true);
+            : dirData.fail.length;
     let a:number = 0,
-        localLength:number = 0,
-        shareBest:number = -1,
-        shareTop:number = -1;
+        localLength:number = 0;
     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly") {
         const box:HTMLElement = document.getElementById(dirData.id),
             p:HTMLElement = document.createElement("p");
@@ -120,38 +109,10 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         }
         return [p, 0];
     }
-    if (shareLength > 0) {
-        const box:HTMLElement = document.getElementById(dirData.id);
-        if (box !== null) {
-            const parent:HTMLElement = <HTMLElement>box.getElementsByClassName("parentDirectory")[0],
-                title:HTMLElement = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
-            do {
-                if (list[0][0].indexOf(shares[a].name) === 0 || (windows === true && list[0][0].toLowerCase().indexOf(shares[a].name.toLowerCase()) === 0)) {
-                    if (shareBest < 0) {
-                        shareBest = a;
-                        shareTop = a;
-                    }
-                    if (shares[a].name.length > shares[shareBest].name.length) {
-                        shareBest = a;
-                    } else if (shares[a].name.length < shares[shareTop].name.length) {
-                        shareTop = a;
-                    }
-                }
-                a = a + 1;
-            } while (a < shareLength);
-            if (shares[shareBest].readOnly === true) {
-                browser.data.modals[dirData.id].read_only = true;
-                title.innerHTML = title.innerHTML.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
-            } else {
-                browser.data.modals[dirData.id].read_only = false;
-                title.innerHTML = title.innerHTML.replace(" (Read Only)", "");
-            }
-            if (list[0][0] === shares[shareTop].name || (windows === true && list[0][0].toLowerCase() === shares[shareTop].name.toLowerCase())) {
-                parent.style.display = "none";
-            } else {
-                parent.style.display = "inline-block";
-            }
-        }
+    if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
+        const agent:string = browser.data.modals[dirData.id].agent;
+        browser.data.modals[dirData.id].text_value = list[0][0];
+        util.shareUpdate(agent, browser.users[agent].shares);
     }
     a = 0;
     do {
