@@ -536,6 +536,8 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
+        //eslint-disable-next-line
+        console.log(`Invitation from ${invite.name}.\u0007`);
     } else {
         let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
@@ -983,6 +985,9 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
         modalLength:number = modals.length,
         shareLength:number = shares.length,
         windows:boolean = (function local_util_shareUpdate_windows():boolean {
+            if (shareLength < 1) {
+                return false;
+            }
             do {
                 if (shares[b].type === "directory" || shares[b].type === "file" || shares[b].type === "link") {
                     fileShares = true;
