@@ -15,7 +15,9 @@ This application is currently in early development in an largely experimental st
 ### First build
 1. Install [Node.js](https://nodejs.org), at least version **13.2.0**, using default options.
 1. Clone the application from Github.
-   * `git clone https://github.com/prettydiff/share-file-systems.git && cd share-file-systems`
+   * `git clone https://github.com/prettydiff/share-file-systems.git
+1. Move into the directory.
+   * `cd share-file-systems`
 1. Globally install TypeScript.
    * `npm install -g typescript`
 1. Locally install the TypeScript node types.
