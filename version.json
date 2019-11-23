@@ -1,1 +1,1 @@
-{"command":"node --experimental-modules js/application.js","date":"22 NOV 2019","name":"Share File Systems","number":"0.0.3","port":80}
+{"command":"node js/application","date":"23 NOV 2019","name":"Share File Systems","number":"0.0.3","port":80}

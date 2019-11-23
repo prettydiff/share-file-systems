@@ -13,15 +13,22 @@ This application is currently in early development in an largely experimental st
 
 ## Build and execute
 ### First build
-1. Install [Node.js](https://nodejs.org)
-1. Clone the application from Github. `git clone https://github.com/prettydiff/share-file-systems.git && cd share-file-systems`
-1. Globally install TypeScript: `npm install -g typescript`
-1. Locally install the TypeScript node types. `npm install`
-1. Compile to JavaScript. `tsc --pretty`
-1. Execute the application: `npm restart`
-   * The restart command first builds the application and then enables services.
+1. Install [Node.js](https://nodejs.org), at least version **13.2.0**, using default options.
+1. Clone the application from Github.
+   * `git clone https://github.com/prettydiff/share-file-systems.git && cd share-file-systems`
+1. Globally install TypeScript.
+   * `npm install -g typescript`
+1. Locally install the TypeScript node types.
+   * `npm install`
+1. Compile to JavaScript.
+   * `tsc --pretty`
+1. Execute the application. The restart command first builds the application and then enables services.
+   * `npm restart`
 1. Open your favorite modern browser to http://localhost
    * You may need to make an exception in your local firewall for port 80, or which ever port the user specifies.
+
+### Configuration
+The application's configurations are stored in the file *version.json* including the service port. The default configuration will work properly for most users.
 
 ### Later builds
 1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.

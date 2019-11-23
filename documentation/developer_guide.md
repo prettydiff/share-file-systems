@@ -32,9 +32,9 @@ This application makes heavy use of functions and lexical scope.  OOP convention
 ## Test Automation
 At this time test automation is present only for the libraries in *lib/terminal* excluding *lib/terminal/server.ts*.
 
-* Execute test automation: `node --experimental-modules js/application.js simulation`.
-* Execute code validation using ESLint: `node --experimental-modules js/application.js lint`.
-* Execute all validation tasks: `node --experimental-modules js/application.js test`.
+* Execute test automation: `node js/application simulation`.
+* Execute code validation using ESLint: `node js/application lint`.
+* Execute all validation tasks: `node js/application test`.
 
 **Please note that linting requires installation of ESLint:** `npm install -g eslint`.
 
