@@ -524,10 +524,12 @@ modal.maximize = function local_modal_maximize(event:Event):void {
 modal.minimize = function local_modal_minimize(event:Event):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
     let border:HTMLElement = element,
+        buttons:HTMLElement,
         box:HTMLElement,
         title:HTMLElement,
         id:string,
         children:NodeListOf<ChildNode>,
+        borders:number,
         child:HTMLElement,
         a:number = 1;
     do {
@@ -538,8 +540,8 @@ modal.minimize = function local_modal_minimize(event:Event):void {
     }
     box = <HTMLElement>border.parentNode;
     id = box.getAttribute("id");
-    title = <HTMLElement>border.getElementsByTagName("h2")[0];
-    title.getElementsByTagName("button")[0].onmousedown = modal.move;
+    title = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+    title.onmousedown = modal.move;
     children = border.childNodes;
     if (browser.data.modals[id].status === "minimized") {
         const li:HTMLElement = <HTMLElement>box.parentNode,
@@ -552,13 +554,18 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         document.getElementById("tray").removeChild(li);
         li.removeChild(box);
         box.style.zIndex = browser.data.modals[id].zIndex.toString();
-        title.getElementsByTagName("button")[0].style.cursor = "move";
+        title.style.cursor = "move";
         browser.content.appendChild(box);
         browser.data.modals[id].status = "normal";
         box.style.top = `${browser.data.modals[id].top / 10}em`;
         box.style.left = `${browser.data.modals[id].left / 10}em`;
         body.style.width = `${browser.data.modals[id].width / 10}em`;
         body.style.height = `${browser.data.modals[id].height / 10}em`;
+        buttons = <HTMLElement>box.getElementsByClassName("buttons")[0];
+        borders = (border.getElementsByClassName("corner-tl").length > 0)
+            ? 15
+            : 0;
+        title.style.width = `${(browser.data.modals[id].width - buttons.clientWidth - borders) / 18}em`;
     } else {
         const li:HTMLLIElement = document.createElement("li");
         do {
@@ -568,7 +575,8 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         } while (a < children.length);
         box.style.zIndex = "0";
         box.parentNode.removeChild(box);
-        title.getElementsByTagName("button")[0].style.cursor = "pointer";
+        title.style.width = "11.5em";
+        title.style.cursor = "pointer";
         li.appendChild(box);
         document.getElementById("tray").appendChild(li);
         browser.data.modals[id].status = "minimized";
