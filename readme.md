@@ -31,8 +31,11 @@ This application is currently in early development in an largely experimental st
       - Choose option **Y**
 1. Execute the application. The restart command first builds the application and then enables services.
    * `npm restart`
+   * If in Linux you receive issue starting with *EACCESS* follow these steps:
+      - `sudo apt-get install libcap2-bin`
+      - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
 1. Open your favorite modern browser to http://localhost
-   * You may need to make an exception in your local firewall for port 80, or which ever port the user specifies.
+   * You may need to make an exception in your local firewall for port 80, or which ever port you specify.
 
 ### Configuration
 The application's configurations are stored in the file *version.json* including the service port. The default configuration will work properly for most users.

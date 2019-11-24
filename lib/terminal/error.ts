@@ -28,7 +28,11 @@ const library = {
                             stack: stackTrace.slice(1),
                             error: errText.join(" ")
                         };
-                    vars.ws.broadcast(`error:${JSON.stringify(server)}`);
+                    if (vars.ws.broadcast === undefined) {
+                        console.log(server);
+                    } else {
+                        vars.ws.broadcast(`error:${JSON.stringify(server)}`);
+                    }
                 } else {
                     const stack:string = new Error().stack.replace("Error", `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------`);
                     vars.flags.error = true;
