@@ -1,6 +1,6 @@
 
 import { randomFillSync } from "crypto";
-import PerMessageDeflate from "./permessage-deflate.js";
+import PerMessageDeflate from "./perMessage-deflate.js";
 import { EMPTY_BUFFER } from "./constants.js";
 import { isValidStatusCode } from "./validation.js";
 import { _mask, toBuffer } from "./buffer-util.js";
