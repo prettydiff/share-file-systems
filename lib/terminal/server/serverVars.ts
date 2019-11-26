@@ -25,7 +25,7 @@ const socketList:socketList = {},
                 ipv6 = -1;
                 b = 0;
                 do {
-                    if (interfaces[keys[a]][b].internal === false) {
+                    if (interfaces[keys[a]][b].internal === false && interfaces[keys[a]][b].address.indexOf("fe80") !== 0) {
                         if (interfaces[keys[a]][b].family === "IPv6") {
                             ipv6 = b;
                             if (ipv4 > -1) {
@@ -41,7 +41,7 @@ const socketList:socketList = {},
                     }
                     b = b + 1;
                 } while (b < interfaces[keys[a]].length);
-                if (ipv6 > -1) {
+                if (ipv6 > -1 && interfaces[keys[a]][b].address.indexOf("fe80") !== 0) {
                     store.push([keys[a], interfaces[keys[a]][ipv6].address, "ipv6"]);
                     if (ipv4 > -1) {
                         store.push(["", interfaces[keys[a]][ipv4].address, "ipv4"]);
