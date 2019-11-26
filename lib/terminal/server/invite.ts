@@ -52,7 +52,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             request.on("error", function terminal_server_invite_inviteRequest_error(errorMessage:nodeError):void {
                 if (errorMessage.code === "ETIMEDOUT") {
                     if (data.action === "invite-request") {
-                        data.message = `Remote user, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation not sent.`;
+                        data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
                         vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
                     } else if (data.action === "invite-complete") {
                         data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
@@ -62,10 +62,6 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 log([data.action, errorMessage.toString()]);
                 vars.ws.broadcast(errorMessage.toString());
             });
-            if (data.action === "invite-request") {
-                data.ip = serverVars.addresses[0][1][1];
-                data.port = serverVars.webPort;
-            }
             request.write(payload);
             request.end();
         };
