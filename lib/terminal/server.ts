@@ -217,7 +217,7 @@ const library = {
                     recursive: true
                 }, serverWatch);
                 httpServer.on("error", serverError);
-                httpServer.listen(port, "localhost", function terminal_server_start_listen():void {
+                httpServer.listen(port, function terminal_server_start_listen():void {
                     serverVars.webPort = httpServer.address().port;
                     serverVars.wsPort = (port === 0)
                         ? 0
