@@ -48,7 +48,7 @@ const library = {
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {console.log(request.headers.invite+" "+serverVars.name);
+            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
                 } else if (request.method === "POST" && (request.headers.host === "localhost" || serverVars.users[<string>request.headers.userName] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")) {
