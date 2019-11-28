@@ -76,7 +76,8 @@ const library = {
                                     fsRequest:http.ClientRequest = vars.node.http.request({
                                         headers: {
                                             "Content-Type": "application/x-www-form-urlencoded",
-                                            "Content-Length": Buffer.byteLength(payload)
+                                            "Content-Length": Buffer.byteLength(payload),
+                                            "userName": serverVars.name
                                         },
                                         host: remoteAddress,
                                         method: "POST",

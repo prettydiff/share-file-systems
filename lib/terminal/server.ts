@@ -51,7 +51,7 @@ const library = {
             httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
-                } else {
+                } else if (request.method === "POST" && (request.headers.host === "localhost" || serverVars.users[<string>request.headers.userName] !== undefined || serverVars.name === request.headers.invite)) {
                     let body:string = "",
                         decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
                     request.on('data', function (data:Buffer) {
@@ -313,7 +313,8 @@ const library = {
                                             http = vars.node.http.request({
                                                 headers: {
                                                     "Content-Type": "application/x-www-form-urlencoded",
-                                                    "Content-Length": Buffer.byteLength(payload)
+                                                    "Content-Length": Buffer.byteLength(payload),
+                                                    "userName": serverVars.name
                                                 },
                                                 host: ip,
                                                 method: "POST",
