@@ -536,8 +536,6 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
-        //eslint-disable-next-line
-        console.log(`Invitation from ${invite.name}.\u0007`);
     } else {
         let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
