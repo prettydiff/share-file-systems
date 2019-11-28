@@ -75,8 +75,9 @@ const library = {
                                     payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
                                     fsRequest:http.ClientRequest = vars.node.http.request({
                                         headers: {
-                                            "Content-Type": "application/x-www-form-urlencoded",
-                                            "Content-Length": Buffer.byteLength(payload)
+                                            "content-type": "application/x-www-form-urlencoded",
+                                            "content-length": Buffer.byteLength(payload),
+                                            "username": serverVars.name
                                         },
                                         host: remoteAddress,
                                         method: "POST",

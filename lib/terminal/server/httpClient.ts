@@ -40,8 +40,9 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             : `fs:${JSON.stringify(config.data)}`,
         fsRequest:http.ClientRequest = vars.node.http.request({
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Content-Length": Buffer.byteLength(payload)
+                "content-type": "application/x-www-form-urlencoded",
+                "content-length": Buffer.byteLength(payload),
+                "userName": serverVars.name
             },
             host: ipAddress,
             method: "POST",

@@ -49,9 +49,9 @@ const library = {
                     ? "start"
                     : "xdg-open",
             httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
-                if (request.method === "GET") {
+                if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
-                } else {
+                } else if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers.username] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
                     let body:string = "",
                         decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
                     request.on('data', function (data:Buffer) {
@@ -149,6 +149,10 @@ const library = {
                             invite(dataString, response);
                         }
                     });
+                } else {
+                    response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
+                    response.write(`Forbidden`);
+                    response.end();
                 }
             }),
             serverError = function terminal_server_serverError(error:nodeError, port:number):void {
@@ -195,14 +199,12 @@ const library = {
                         }
                     });
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
-                    output.push(`or                     : ${vars.text.bold + vars.text.green}http://[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
-                    if (serverVars.addresses[0][1][0].charAt(0) === " ") {
-                        output.push(`or                     : ${vars.text.bold + vars.text.green}http://${serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
-                        output.push("");
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                    output.push("");
+                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                    if (webPort === "") {
+                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
                     } else {
-                        output.push("");
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                     }
                     output.push("");
                     log(output);
@@ -217,7 +219,7 @@ const library = {
                     recursive: true
                 }, serverWatch);
                 httpServer.on("error", serverError);
-                httpServer.listen(port, "localhost", function terminal_server_start_listen():void {
+                httpServer.listen(port, serverVars.addresses[0][0], function terminal_server_start_listen():void {
                     serverVars.webPort = httpServer.address().port;
                     serverVars.wsPort = (port === 0)
                         ? 0
@@ -314,8 +316,9 @@ const library = {
                                             payload = `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`;
                                             http = vars.node.http.request({
                                                 headers: {
-                                                    "Content-Type": "application/x-www-form-urlencoded",
-                                                    "Content-Length": Buffer.byteLength(payload)
+                                                    "content-type": "application/x-www-form-urlencoded",
+                                                    "content-length": Buffer.byteLength(payload),
+                                                    "username": serverVars.name
                                                 },
                                                 host: ip,
                                                 method: "POST",
