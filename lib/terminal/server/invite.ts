@@ -24,8 +24,8 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     : `${data.action}:${JSON.stringify(data)}`,
                 request:http.ClientRequest = vars.node.http.request({
                     headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "Content-Length": Buffer.byteLength(payload),
+                        "content-type": "application/x-www-form-urlencoded",
+                        "content-length": Buffer.byteLength(payload),
                         "invite": data.action,
                         "userName": serverVars.name
                     },

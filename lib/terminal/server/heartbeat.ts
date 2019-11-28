@@ -17,9 +17,9 @@ const library = {
             payload:string = `heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`,
             heartbeatRequest:http.ClientRequest = vars.node.http.request({
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "Content-Length": Buffer.byteLength(payload),
-                    "userName": serverVars.name
+                    "content-type": "application/x-www-form-urlencoded",
+                    "content-length": Buffer.byteLength(payload),
+                    "username": serverVars.name
                 },
                 host: data.ip,
                 method: "POST",

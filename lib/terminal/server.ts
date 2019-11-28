@@ -51,7 +51,7 @@ const library = {
             httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
-                } else if (request.method === "POST" && (request.headers.host === "localhost" || serverVars.users[<string>request.headers.userName] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")) {
+                } else if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers.username] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
                     let body:string = "",
                         decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
                     request.on('data', function (data:Buffer) {
@@ -316,9 +316,9 @@ const library = {
                                             payload = `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`;
                                             http = vars.node.http.request({
                                                 headers: {
-                                                    "Content-Type": "application/x-www-form-urlencoded",
-                                                    "Content-Length": Buffer.byteLength(payload),
-                                                    "userName": serverVars.name
+                                                    "content-type": "application/x-www-form-urlencoded",
+                                                    "content-length": Buffer.byteLength(payload),
+                                                    "username": serverVars.name
                                                 },
                                                 host: ip,
                                                 method: "POST",
