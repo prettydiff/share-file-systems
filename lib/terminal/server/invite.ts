@@ -26,7 +26,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
                         "Content-Length": Buffer.byteLength(payload),
-                        "invite": serverVars.name,
+                        "invite": data.action,
                         "userName": serverVars.name
                     },
                     host: data.ip,
