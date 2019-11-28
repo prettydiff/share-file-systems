@@ -195,14 +195,12 @@ const library = {
                         }
                     });
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
-                    output.push(`or                     : ${vars.text.bold + vars.text.green}http://[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
-                    if (serverVars.addresses[0][1][0].charAt(0) === " ") {
-                        output.push(`or                     : ${vars.text.bold + vars.text.green}http://${serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
-                        output.push("");
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                    output.push("");
+                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                    if (webPort === "") {
+                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
                     } else {
-                        output.push("");
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                     }
                     output.push("");
                     log(output);
