@@ -49,7 +49,7 @@ const library = {
                     ? "start"
                     : "xdg-open",
             httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
-                if (request.method === "GET") {
+                if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
                 } else {
                     let body:string = "",

@@ -30,8 +30,8 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
             }
         }
     };
-    xhr.withCredentials = true;
     xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.send(JSON.stringify({
         fs: configuration
@@ -65,8 +65,8 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
                     }
                 }
             };
-            xhr.withCredentials = true;
             xhr.open("POST", loc, true);
+            xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
             xhr.send(`heartbeat:{"ip":"${ip}","port":${port},"refresh":${refresh},"status":"${status}","user":"${local}"}`);
         }
@@ -90,8 +90,8 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
             }
         }
     };
-    xhr.withCredentials = true;
     xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.send(JSON.stringify({"invite-response": configuration}));
 };
@@ -107,8 +107,8 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
             }
         }
     };
-    xhr.withCredentials = true;
     xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.send(`invite:${JSON.stringify(inviteData)}`);
 };
@@ -128,8 +128,8 @@ network.storage = function local_network_storage(type:storageType):void {
             }
         }
     };
-    xhr.withCredentials = true;
     xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     if (type === "settings") {
         xhr.send(`settings:${JSON.stringify(browser.data)}`);
