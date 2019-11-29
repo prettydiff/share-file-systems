@@ -60,9 +60,18 @@ const library = {
             },
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
+                    serverVars.watches[value].time = Date.now();
                     if (data.agent === "localhost") {
                         vars.ws.broadcast(`fsUpdate:${value}`);
                     } else {
+                        const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
+                                if (Date.now() > serverVars.watches[value].time - 7200000) {
+                                    serverVars.watches[value].close();
+                                    delete serverVars.watches[value];
+                                    clearInterval(interval);
+                                }
+                            },
+                            interval = setInterval(intervalHandler, 60000);
                         // create directoryList object and send to remote
                         library.directory({
                             callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
@@ -116,7 +125,7 @@ const library = {
                                     }
                                 });
                                 fsRequest.write(payload);
-                                setTimeout(function () {
+                                setTimeout(function terminal_server_fileService_watchHandler_remote_delay():void {
                                     fsRequest.end();
                                 }, 100);
                             },
@@ -552,6 +561,8 @@ const library = {
                                     }, function terminal_server_fileService_pathEach_putStat_watch():void {
                                         watchHandler(result[0][0]);
                                     });
+                                } else {
+                                    serverVars.watches[result[0][0]].time = Date.now();
                                 }
                             }
                             response.end();

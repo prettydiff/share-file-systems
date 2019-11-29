@@ -145,6 +145,7 @@ interface fsUpdateRemote {
 }
 interface FSWatcher extends Function {
     close: Function;
+    time: number;
 }
 interface functionEvent extends EventHandlerNonNull {
     (Event?:Event): void;

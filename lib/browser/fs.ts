@@ -96,7 +96,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
             p:HTMLElement = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
-            p.innerHTML = "Error 404: Requested location is no longer available or remote user is offline.";
+            p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
         } else if (dirData.dirs === "noShare") {
             p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
         } else {
