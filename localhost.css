@@ -1,7 +1,7 @@
 
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 body{border-style:none;height:100%;margin:0;padding:0;width:100%}
-#spaces{background-color:#cdf;background-image:url("../images/background-desert.jpg");background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
+#spaces{background-color:#cdf;background-image:url("../media/background-desert.jpg");background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
 #spaces #login h1 .application-version{display:block}

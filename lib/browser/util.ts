@@ -1,9 +1,9 @@
+import audio from "./audio.js";
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";
 import modal from "./modal.js";
 import network from "./network.js";
-import { ChildProcess } from "child_process";
 
 const util:module_util = {},
     expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
@@ -69,6 +69,26 @@ util.addUser = function local_util_addUser(userName:string):void {
         button.setAttribute("id", "localhost");
     }
     network.storage("users");
+};
+
+util.audio = function local_util_audio(name:string):void {
+    const context:AudioContext = new AudioContext(),
+        binary:BinaryType = <BinaryType>window.atob(audio[name].data),
+        source:AudioBufferSourceNode  = context.createBufferSource(),
+        buff:ArrayBuffer   = new ArrayBuffer(binary.length),
+        bytes:Uint8Array   = new Uint8Array(buff),
+        byteLength:number = buff.byteLength;
+    let a:number       = 0;
+    do {
+        bytes[a] = binary.charCodeAt(a);
+        a = a + 1;
+    } while (a < byteLength);
+    context.decodeAudioData(buff, function load_util_audio_decode(buffer:AudioBuffer):void {
+        source.buffer = buffer;
+        source.loop   = false;
+        source.connect(context.destination);
+        source.start(0, 0, audio[name].seconds);
+    });
 };
 
 /* Transforms numbers into a string of 3 digit comma separated groups */
@@ -536,6 +556,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             type: "invite-accept",
             width: 500
         });
+        util.audio("invite");
     } else {
         let user:string = "";
         const modal:HTMLElement = document.getElementById(invite.modal);
@@ -570,6 +591,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                             color:["", ""],
                             shares: invite.shares
                         }
+                        util.audio("invite");
                         util.addUser(user);
                         network.storage("users");
                     } else {

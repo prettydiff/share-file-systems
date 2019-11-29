@@ -21,6 +21,15 @@ interface appName {
     command: string,
     name: string
 }
+interface audio {
+    [key:string]: {
+        data: string;
+        licenseAddress: string;
+        licenseName: string;
+        seconds: number;
+        url: string;
+    }
+}
 interface base64Input {
     callback: Function;
     id: string;
@@ -253,6 +262,7 @@ interface module_systems {
 }
 interface module_util {
     addUser?: (username:string) => void;
+    audio?: (name:string) => void;
     commas?: (number:number) => string;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
