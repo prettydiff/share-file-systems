@@ -116,6 +116,9 @@ const library = {
                     index:number = 0;
                 dirList.pop();
                 dirPath = dirList.join(vars.sep);
+                if (dirPath === "") {
+                    dirPath = vars.sep;
+                }
                 index = dirNames.indexOf(dirPath);
                 dirCount[index] = dirCount[index] - 1;
                 if (dirNames.length === 0 && item === startPath) {
@@ -147,10 +150,15 @@ const library = {
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
                             vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                 if (erd !== null) {
-                                    library.error([erd.toString()]);
+                                    list.failures.push(item);
                                     if (vars.command === "server") {
-                                        dirCounter(item);
+                                        if (dirs > 0) {
+                                            dirCounter(item);
+                                        } else {
+                                            args.callback(fileList.sort());
+                                        }
                                     } else {
+                                        library.error([erd.toString()]);
                                         return;
                                     }
                                 } else {
@@ -169,7 +177,11 @@ const library = {
                                         dirs = dirs + 1;
                                     }
                                     files.forEach(function terminal_directory_wrapper_stat_dir_readDir_each(value:string):void {
-                                        terminal_directory_wrapper(item + vars.sep + value, index);
+                                        if (item  === vars.sep) {
+                                            terminal_directory_wrapper(item + value, index);
+                                        } else {
+                                            terminal_directory_wrapper(item + vars.sep + value, index);
+                                        }
                                     });
                                 }
                             });

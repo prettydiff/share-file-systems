@@ -537,6 +537,23 @@ const library = {
                             } else {
                                 response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)},"fail":${JSON.stringify(failures)}}`);
                             }
+                            
+                            // please note
+                            // watch is ignored on all operations other than fs-directory
+                            // fs-directory will only read from the first value in data.location
+                            if (result.length > 0 && data.watch !== "no" && data.watch !== vars.projectPath) {
+                                if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
+                                    serverVars.watches[data.watch].close();
+                                    delete serverVars.watches[data.watch];
+                                }
+                                if (serverVars.watches[result[0][0]] === undefined) {
+                                    serverVars.watches[result[0][0]] = vars.node.fs.watch(result[0][0], {
+                                        recursive: false
+                                    }, function terminal_server_fileService_pathEach_putStat_watch():void {
+                                        watchHandler(result[0][0]);
+                                    });
+                                }
+                            }
                             response.end();
                         }
                     },
@@ -626,23 +643,6 @@ const library = {
                                 library.error([erp.toString()]);
                                 callback([]);
                                 return;
-                            }
-
-                            // please note
-                            // watch is ignored on all operations other than fs-directory
-                            // fs-directory will only read from the first value in data.location
-                            if (data.watch !== "no" && data.watch !== vars.projectPath) {
-                                if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
-                                    serverVars.watches[data.watch].close();
-                                    delete serverVars.watches[data.watch];
-                                }
-                                if (serverVars.watches[value] === undefined) {
-                                    serverVars.watches[value] = vars.node.fs.watch(value, {
-                                        recursive: false
-                                    }, function terminal_server_fileService_pathEach_putStat_watch():void {
-                                        watchHandler(value);
-                                    });
-                                }
                             }
                             library.directory({
                                 callback: callback,
