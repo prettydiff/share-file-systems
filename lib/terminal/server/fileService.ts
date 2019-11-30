@@ -1,6 +1,7 @@
 
 import * as http from "http";
 import * as fs from "fs";
+import * as zlib from "zlib";
 import { Hash } from "crypto";
 
 import base64 from "../base64.js";
@@ -338,6 +339,7 @@ const library = {
                     writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
                         const fileName:string = <string>fileResponse.headers.file_name,
                             filePath:string = data.name + vars.sep + fileName,
+                            decompress:zlib.BrotliDecompress = zlib.createBrotliDecompress(),
                             writeStream:fs.WriteStream = vars.node.fs.createWriteStream(filePath),
                             hash:Hash = vars.node.crypto.createHash("sha512"),
                             fileError = function terminal_server_fileService_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
@@ -346,7 +348,7 @@ const library = {
                                 vars.node.fs.unlink(filePath);
                             };
                         fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data(fileChunk:string):void {
-                            writeStream.write(fileChunk);
+                            writeStream.pipe(decompress).write(fileChunk);
                             const filePlural:string = (countFile === 1)
                                     ? ""
                                     : "s",
@@ -818,13 +820,14 @@ const library = {
                 hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_server_fileService_fileRequest():void {
-                const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
+                const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]),
+                    compress:zlib.BrotliCompress = vars.node.zlib.createBrotliCompress();
                 response.setHeader("hash", hash.digest("hex"));
                 response.setHeader("file_name", data.remoteWatch);
                 response.setHeader("file_size", data.depth);
                 response.setHeader("cut_path", data.location[0]);
                 response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                readStream.pipe(response);
+                readStream.pipe(compress).pipe(response);
             });
             if (data.id.indexOf("fileListStatus:") === 0) {
                 vars.ws.broadcast(data.id);

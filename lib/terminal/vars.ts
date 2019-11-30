@@ -7,6 +7,7 @@ import * as https from "https";
 import * as net from "net";
 import * as os from "os";
 import * as path from "path";
+import * as zlib from "zlib";
 
 // top scoped variables used in the terminal libraries
 const vars:terminalVariables = {
@@ -89,7 +90,8 @@ const vars:terminalVariables = {
             https : https,
             net   : net,
             os    : os,
-            path  : path
+            path  : path,
+            zlib  : zlib
         },
         projectPath: "",
         sep: "/",

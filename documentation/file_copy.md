@@ -49,4 +49,7 @@ The default behavior is designed to maximize performance, but it won't work with
 
 In this behavior files are recursively requested 1 at a time.  The process is the same on the responding side in that the file is streamed through a hash function and then streamed a second time directly into the HTTP response body.  On the receiving side the file is immediately streamed into a file so that it is written to disk directly without caching file contents in memory.  Once the file is written to disk it is streamed through a hash function and this generated hash is compared to the hash in the file's HTTP response header.  If the hashes do not match the file is removed from the file system.  The next file is then requested.
 
+### Compression
+As of version 0.0.6 this application uses Brotli compression algorithm on all files copied from one device to another.
+
 ## File Cut

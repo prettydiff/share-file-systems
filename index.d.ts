@@ -441,6 +441,7 @@ interface terminalVariables {
         net   : any;
         os    : any;
         path  : any;
+        zlib  : any;
     };
     projectPath: string;
     sep: string;
