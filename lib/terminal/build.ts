@@ -14,7 +14,7 @@ const library = {
         log: log,
         simulation: simulation
     },
-    build = function terminal_build(test:boolean):void {
+    build = function terminal_build(test:boolean, callback:Function):void {
         let firstOrder:boolean = true,
             sectionTime:[number, number] = [0, 0];
         const order = {
@@ -102,14 +102,18 @@ const library = {
                     sectionTimer(time);
                 }
                 if (order[type].length < 1) {
-                    vars.verbose = true;
-                    heading(`${vars.text.none}All ${vars.text.green + vars.text.bold + type + vars.text.none} tasks complete... Exiting clean!\u0007`);
-                    library.log([""], true);
-                    process.exit(0);
-                    return;
+                    if (vars.command === "build") {
+                        vars.verbose = true;
+                        heading(`${vars.text.none}All ${vars.text.green + vars.text.bold + type + vars.text.none} tasks complete... Exiting clean!\u0007`);
+                        library.log([""], true);
+                        process.exit(0);
+                        return;
+                    }
+                    callback();
+                } else {
+                    order[type].splice(0, 1);
+                    phases[phase]();
                 }
-                order[type].splice(0, 1);
-                phases[phase]();
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
             phases = {

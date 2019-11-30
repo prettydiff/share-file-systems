@@ -67,7 +67,7 @@ util.addUser = function local_util_addUser(userName:string):void {
             do {
                 element = <HTMLElement>element.parentNode;
             } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
-        }console.log(element);
+        }
         name = element.lastChild.textContent.replace(/^\s+/, "");
         modal.shares(event, name, null);
     };
