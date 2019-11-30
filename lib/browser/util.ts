@@ -52,7 +52,7 @@ util.addUser = function local_util_addUser(userName:string):void {
                 `${prefix}.body,#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`
             ].join("");
         };
-    button.innerHTML = userName;
+    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
     if (userName.split("@")[1] === "localhost") {
         button.setAttribute("class", "active");
     } else {
@@ -61,7 +61,15 @@ util.addUser = function local_util_addUser(userName:string):void {
         addStyle();
     }
     button.onclick = function local_util_addUser(event:MouseEvent) {
-        modal.shares(event, button.innerHTML, null);
+        let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            name:string;
+        if (element.nodeName.toLowerCase() !== "button") {
+            do {
+                element = <HTMLElement>element.parentNode;
+            } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
+        }console.log(element);
+        name = element.lastChild.textContent.replace(/^\s+/, "");
+        modal.shares(event, name, null);
     };
     li.appendChild(button);
     document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);

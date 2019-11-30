@@ -47,13 +47,13 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
         port:number,
         user:string,
         a:number = 0,
-        local:string = document.getElementById("localhost").innerHTML;
+        local:string = document.getElementById("localhost").lastChild.textContent.replace(/^\s+/, "");
     local = (browser.localNetwork.ip.indexOf(":") > 0)
         ? `${local.slice(0, local.indexOf("@"))}@[${browser.localNetwork.ip}]:${browser.localNetwork.tcpPort}`
         : `${local.slice(0, local.indexOf("@"))}@${browser.localNetwork.ip}:${browser.localNetwork.tcpPort}`;
 
     do {
-        user = users[a].innerHTML;
+        user = users[a].lastChild.textContent.replace(/^\s+/, "");
         if (user.indexOf("@") > 0 && user.indexOf("@localhost") < 0) {
             ip = user.slice(user.indexOf("@") + 1, user.lastIndexOf(":"));
             port = Number(user.slice(user.lastIndexOf(":") + 1));
