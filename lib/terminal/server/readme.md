@@ -8,4 +8,4 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **methodGET.ts** - The HTTP server's GET request method is handled by this library.
 * **serverVars.ts** - All variables used across the various server libraries are defined here.
 * **serverWatch.ts** - This library contains a handler for a file system watcher of this application.
-* **settingsMessage.ts** - This library writes to the settings.json and messages.json log files stored in the */storage* **directory.
+* **storage.ts** - This library writes to the various data storage files located in the */storage* **directory.

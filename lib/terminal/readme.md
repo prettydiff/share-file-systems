@@ -20,6 +20,7 @@ The various tools that comprise the terminal (Node.js) application.
 * **makeDir.ts**                - Makes directories in the file system.
 * **readFile.ts**               - Reads files by default as UTF8, or if the file contains control characters common to binary files then will read files as a buffer.
 * **remove.ts**                 - Handles the remove command which recursively removes files and file system structures.
+* **restart.ts**                - Combines the `build` command and the `server` commands so that services are restarted from freshly compiled code.
 * **server.ts**                 - Handles the server command which launches an HTTP server, Web Socket client, and a TCP socket server.
 * **simulation.ts**             - Handles the simulation types of tests.  The simulation tests run the supported commands in various ways, according to *test/simulations.ts* for terminal test automation.
 * **test.ts**                   - Handles the test command.  This is really just a bundler for the *lint* and *simulation* utilities and then executes the test side of the *build* utility.
