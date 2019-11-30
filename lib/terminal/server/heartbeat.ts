@@ -33,7 +33,7 @@ const library = {
                     chunks.push(chunk);
                 });
                 heartbeatResponse.on("end", function terminal_server_create_end_heartbeatResponse_end():void {
-                    //library.log([chunks.join("")]);
+                    vars.ws.broadcast(chunks.join(""));
                 });
                 heartbeatResponse.on("error", function terminal_server_create_end_heartbeatResponse_error(errorMessage:nodeError):void {
                     vars.ws.broadcast([errorMessage.toString()]);
@@ -42,7 +42,7 @@ const library = {
             });
         heartbeatRequest.on("error", function terminal_server_create_end_heartbeatRequest_error(errorMessage:nodeError):void {
             if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                vars.ws.broadcast(`heartbeat-update:{"ip":"${data.ip}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
+                vars.ws.broadcast(`heartbeat-update:{"ip":"${data.ip}","port":${data.port},"refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
             } else {
                 vars.ws.broadcast(errorMessage.toString());
                 library.log([errorMessage.toString()]);

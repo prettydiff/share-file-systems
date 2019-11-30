@@ -139,11 +139,13 @@ const library = {
                         } else if (task === "settings" || task === "messages" || task === "users") {
                             storage(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
+                            const heartbeatData:heartbeat = JSON.parse(dataString);
+                            serverVars.status = heartbeatData.status;
                             heartbeat(dataString, response);
                         } else if (task === "heartbeat-update") {
                             vars.ws.broadcast(body);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`Heartbeat received at ${serverVars.addresses[0][1][1]}`);
+                            response.write(`heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":false,"status":${serverVars.status},"user":"${serverVars.name}"}`);
                             response.end();
                         } else if (task.indexOf("invite") === 0) {
                             invite(dataString, response);

@@ -362,6 +362,7 @@ interface serverVars {
     name: string;
     socketReceiver: any;
     socketList: any;
+    status: heartbeatStatus;
     timeStore:number;
     users: users;
     watches: {
