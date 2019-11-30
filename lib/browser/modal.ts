@@ -224,7 +224,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             section.setAttribute("class", "buttons");
             if (options.inputs.indexOf("minimize") > -1) {
                 button = document.createElement("button");
-                button.innerHTML = "🗕 <span>Minimize</span>";
+                button.innerHTML = "↙ <span>Minimize</span>";
                 button.setAttribute("class", "minimize");
                 button.onclick = modal.minimize;
                 section.appendChild(button);
@@ -232,7 +232,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             }
             if (options.inputs.indexOf("maximize") > -1) {
                 button = document.createElement("button");
-                button.innerHTML = "🗖 <span>Maximize</span>";
+                button.innerHTML = "⇱ <span>Maximize</span>";
                 button.setAttribute("class", "maximize");
                 button.onclick = modal.maximize;
                 section.appendChild(button);
@@ -240,7 +240,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             }
             if (options.inputs.indexOf("close") > -1) {
                 button = document.createElement("button");
-                button.innerHTML = "🗙 <span>close</span>";
+                button.innerHTML = "✖ <span>close</span>";
                 button.setAttribute("class", "close");
                 if (options.type === "systems") {
                     button.onclick = function local_modal_create_systemsHide(event:MouseEvent):void {
