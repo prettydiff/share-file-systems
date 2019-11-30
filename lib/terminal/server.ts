@@ -145,7 +145,7 @@ const library = {
                         } else if (task === "heartbeat-update") {
                             vars.ws.broadcast(body);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":false,"status":${serverVars.status},"user":"${serverVars.name}"}`);
+                            response.write(`heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
                             response.end();
                         } else if (task.indexOf("invite") === 0) {
                             invite(dataString, response);
