@@ -65,7 +65,10 @@ const library = {
                         vars.ws.broadcast(`fsUpdate:${value}`);
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
-                                if (Date.now() > serverVars.watches[value].time - 7200000) {
+                                if (serverVars.watches[value] === undefined) {
+                                    delete serverVars.watches[value];
+                                    clearInterval(interval);
+                                } else if (Date.now() > serverVars.watches[value].time - 7200000) {
                                     serverVars.watches[value].close();
                                     delete serverVars.watches[value];
                                     clearInterval(interval);

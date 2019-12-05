@@ -95,13 +95,15 @@ const library = {
                             vars.ws.broadcast(body);
                         } else if (task === "fs") {
                             const data:fileService = JSON.parse(dataString),
-                                location:string[] = (data.action === "fs-copy-request")
+                                location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
                                     ? [data.name]
                                     : data.location;
                             if (data.agent !== "localhost") {
-                                const shares:userShares = ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
-                                        ? serverVars.users.localhost.shares
-                                        : serverVars.users[data.agent].shares,
+                                const shares:userShares = (data.action === "fs-copy-file" && serverVars.users[data.copyAgent] !== undefined)
+                                        ? serverVars.users[data.copyAgent].shares
+                                        : ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
+                                            ? serverVars.users.localhost.shares
+                                            : serverVars.users[data.agent].shares,
                                     windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
                                     readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-file", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read"];
                                 let dIndex:number = location.length,

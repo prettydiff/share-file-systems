@@ -26,9 +26,7 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             if (config.data.action === "fs-base64" || config.data.action === "fs-destroy" || config.data.action === "fs-details" || config.data.action === "fs-hash" || config.data.action === "fs-new" || config.data.action === "fs-read" || config.data.action === "fs-rename" || config.data.action === "fs-write") {
                 config.data.agent = "localhost";
             } else if (config.data.action === "fs-copy-request" || config.data.action === "fs-cut-request") {
-                config.data.agent = (serverVars.addresses[0][1][1].indexOf(":") > -1)
-                    ? `r@[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
-                    : `r@${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
+                config.data.agent = serverVars.name;
             }
             if (isNaN(Number(portString)) === true) {
                 return 80;
