@@ -408,38 +408,40 @@ util.fileListStatus = function local_util_fileListStatus(text:string):void {
         list:HTMLElement,
         p:HTMLElement,
         clone:HTMLElement,
-        a:number;
-    if (failLength > 0) {
-        let b:number = 0,
-            li:HTMLElement;
+        a:number = 0;
+    if (length > 0) {
+        if (failLength > 0) {
+            let b:number = 0,
+                li:HTMLElement;
+            do {
+                li = document.createElement("li");
+                li.innerHTML = data.failures[b];
+                fails.appendChild(li);
+                b = b + 1;
+            } while (b < failLength);
+            if (data.failures.length > 10) {
+                li = document.createElement("li");
+                li.innerHTML = "more...";
+                fails.appendChild(li);
+            }
+        }
         do {
-            li = document.createElement("li");
-            li.innerHTML = data.failures[b];
-            fails.appendChild(li);
-            b = b + 1;
-        } while (b < failLength);
-        if (data.failures.length > 10) {
-            li = document.createElement("li");
-            li.innerHTML = "more...";
-            fails.appendChild(li);
-        }
+            if (modals[a] !== null) {
+                statusBar = <HTMLElement>modals[a].getElementsByClassName("status-bar")[0];
+                list = statusBar.getElementsByTagName("ul")[0];
+                p = statusBar.getElementsByTagName("p")[0];
+                p.innerHTML = data.message;
+                if (list !== undefined) {
+                    statusBar.removeChild(list);
+                }
+                if (failLength > 0) {
+                    clone = <HTMLElement>fails.cloneNode(true);
+                    statusBar.appendChild(clone);
+                }
+            }
+            a = a + 1;
+        } while (a < length);
     }
-    do {
-        if (modals[a] !== null) {
-            statusBar = <HTMLElement>modals[a].getElementsByClassName("status-bar")[0];
-            list = statusBar.getElementsByTagName("ul")[0];
-            p = statusBar.getElementsByTagName("p")[0];
-            p.innerHTML = data.message;
-            if (list !== undefined) {
-                statusBar.removeChild(list);
-            }
-            if (failLength > 0) {
-                clone = <HTMLElement>fails.cloneNode(true);
-                statusBar.appendChild(clone);
-            }
-        }
-        a = a + 1;
-    } while (a < length);
 };
 
 /* Resizes the interactive area to fit the browser viewport */
