@@ -94,14 +94,17 @@ const library = {
                             response.end();
                             vars.ws.broadcast(body);
                         } else if (task === "fs") {
-                            const data:fileService = JSON.parse(dataString);
+                            const data:fileService = JSON.parse(dataString),
+                                location:string[] = (data.action === "fs-copy-request")
+                                    ? [data.name]
+                                    : data.location;
                             if (data.agent !== "localhost") {
                                 const shares:userShares = ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
                                         ? serverVars.users.localhost.shares
                                         : serverVars.users[data.agent].shares,
-                                    windows:boolean = (data.location[0].charAt(0) === "\\" || (/^\w:\\/).test(data.location[0]) === true),
+                                    windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
                                     readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-file", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read"];
-                                let dIndex:number = data.location.length,
+                                let dIndex:number = location.length,
                                     sIndex:number = shares.length,
                                     bestMatch:number = -1;
                                 if (sIndex > 0) {
@@ -110,14 +113,14 @@ const library = {
                                         sIndex = shares.length;
                                         do {
                                             sIndex = sIndex - 1;
-                                            if (data.location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && data.location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
+                                            if (location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
                                                 if (bestMatch < 0 || shares[sIndex].name.length > shares[bestMatch].name.length) {
                                                     bestMatch = sIndex;
                                                 }
                                             }
                                         } while (sIndex > 0);
                                         if (bestMatch < 0) {
-                                            data.location.splice(dIndex, 1);
+                                            location.splice(dIndex, 1);
                                         } else {
                                             if (shares[bestMatch].readOnly === true && readOnly.indexOf(data.action) < 0) {
                                                 response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
@@ -129,7 +132,7 @@ const library = {
                                     } while (dIndex > 0);
                                 }
                             }
-                            if (data.location.length > 0) {
+                            if (location.length > 0) {
                                 fileService(request, response, data);
                             } else {
                                 response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
