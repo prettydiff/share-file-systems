@@ -96,7 +96,7 @@ const library = {
                         } else if (task === "fs") {
                             const data:fileService = JSON.parse(dataString);
                             if (data.agent !== "localhost") {
-                                const shares:userShares = (serverVars.users[data.agent] === undefined)
+                                const shares:userShares = ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
                                         ? serverVars.users.localhost.shares
                                         : serverVars.users[data.agent].shares,
                                     windows:boolean = (data.location[0].charAt(0) === "\\" || (/^\w:\\/).test(data.location[0]) === true),
