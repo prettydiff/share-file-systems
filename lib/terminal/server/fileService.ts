@@ -343,7 +343,11 @@ const library = {
                             fileError = function terminal_server_fileService_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
                                 hashFail.push(fileAddress);
                                 library.error([message]);
-                                vars.node.fs.unlink(filePath);
+                                vars.node.fs.unlink(filePath, function terminal_server_fileService_requestFiles_writeStream_fileError_unlink(unlinkErr:nodeError):void {
+                                    if (unlinkErr !== null) {
+                                        library.error([unlinkErr.toString()]);
+                                    }
+                                });
                             };
                         fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data(fileChunk:string):void {
                             writeStream.write(fileChunk);
