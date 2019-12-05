@@ -354,9 +354,9 @@ const library = {
                                     }
                                 });
                             };
+                        fileResponse.pipe(decompress).pipe(writeStream);
                         fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data(fileChunk:string):void {
                             //writeStream.write(fileChunk);
-                            fileResponse.pipe(decompress).pipe(writeStream);
                             const filePlural:string = (countFile === 1)
                                     ? ""
                                     : "s",
