@@ -89,7 +89,7 @@ interface contextNew extends EventHandlerNonNull {
 }
 interface copyStatus {
     failures:string[];
-    id:string;
+    target:string;
     message:string;
 }
 interface dataString extends EventHandlerNonNull {

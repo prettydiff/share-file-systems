@@ -385,31 +385,61 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function local_util_fileListStatus(text:string):void {
     const data:copyStatus = JSON.parse(text.slice("fileListStatus:".length)),
-        statusBar:HTMLElement = <HTMLElement>document.getElementById(data.id).getElementsByClassName("status-bar")[0],
-        list:HTMLElement = statusBar.getElementsByTagName("ul")[0],
-        p:HTMLElement = statusBar.getElementsByTagName("p")[0];
-    p.innerHTML = data.message;
-    if (list !== undefined) {
-        statusBar.removeChild(list);
-    }
-    if (data.failures.length > 0) {
-        const failLength:number = Math.min(10, data.failures.length),
-            fails:HTMLElement = document.createElement("ul");
-        let a:number = 0,
+        modals:HTMLElement[] = (data.target.indexOf("remote-") === 0)
+            ? [document.getElementById(data.target.replace("remote-", ""))]
+            : (function local_util_fileListStatus_modals():HTMLElement[] {
+                const names:string[] = Object.keys(browser.data.modals),
+                    address:string = data.target.replace("local-", ""),
+                    namesLength:number = names.length,
+                    output:HTMLElement[] = [];
+                let b:number = 0;
+                do {
+                    if (browser.data.modals[names[b]].text_value === address) {
+                        output.push(document.getElementById(names[b]));
+                    }
+                    b = b + 1;
+                } while (b < namesLength);
+                return output;
+            }()),
+        failLength:number = Math.min(10, data.failures.length),
+        fails:HTMLElement = document.createElement("ul"),
+        length:number = modals.length;
+    let statusBar:HTMLElement,
+        list:HTMLElement,
+        p:HTMLElement,
+        clone:HTMLElement,
+        a:number;
+    if (failLength > 0) {
+        let b:number = 0,
             li:HTMLElement;
         do {
             li = document.createElement("li");
-            li.innerHTML = data.failures[a];
+            li.innerHTML = data.failures[b];
             fails.appendChild(li);
-            a = a + 1;
-        } while (a < failLength);
+            b = b + 1;
+        } while (b < failLength);
         if (data.failures.length > 10) {
             li = document.createElement("li");
             li.innerHTML = "more...";
             fails.appendChild(li);
         }
-        statusBar.appendChild(fails);
     }
+    do {
+        if (modals[a] !== null) {
+            statusBar = <HTMLElement>modals[a].getElementsByClassName("status-bar")[0];
+            list = statusBar.getElementsByTagName("ul")[0];
+            p = statusBar.getElementsByTagName("p")[0];
+            p.innerHTML = data.message;
+            if (list !== undefined) {
+                statusBar.removeChild(list);
+            }
+            if (failLength > 0) {
+                clone = <HTMLElement>fails.cloneNode(true);
+                statusBar.appendChild(clone);
+            }
+        }
+        a = a + 1;
+    } while (a < length);
 };
 
 /* Resizes the interactive area to fit the browser viewport */
