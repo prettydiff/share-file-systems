@@ -30,7 +30,8 @@
     },
     "scripts": {
         "prepublishOnly": "node js/application test",
-        "restart": "node js/application restart",
+        "prerestart": "node js/application build",
+        "restart": "node js/application server",
         "start": "node js/application server",
         "test": "node js/application test"
     },

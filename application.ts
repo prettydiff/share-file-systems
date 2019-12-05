@@ -12,7 +12,6 @@ import hash from "./lib/terminal/hash.js";
 import help from "./lib/terminal/help.js";
 import lint from "./lib/terminal/lint.js";
 import remove from "./lib/terminal/remove.js";
-import restart from "./lib/terminal/restart.js";
 import server from "./lib/terminal/server.js";
 import simulation from "./lib/terminal/simulation.js";
 import test from "./lib/terminal/test.js";
@@ -32,7 +31,6 @@ import version from "./lib/terminal/version.js";
         help: help,
         lint: lint,
         remove: remove,
-        restart: restart,
         server: server,
         simulation: simulation,
         test: test,

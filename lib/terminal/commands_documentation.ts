@@ -194,13 +194,6 @@ const commands_documentation = {
             }
         ]
     },
-    restart: {
-        description: "Runs the 'build' command and then runs the 'server' command. This command takes no options.",
-        example: [{
-            code: `${vars.version.command} restart`,
-            defined: `Restarts the application from a fresh build.`
-        }]
-    },
     server: {
         description: "Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
         example: [
