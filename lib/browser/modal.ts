@@ -337,6 +337,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         height = height + 5;
         section = document.createElement("div");
         section.setAttribute("class", "status-bar");
+        section.style.width = `${(options.width / 10) - 2}em`;
         extra = document.createElement("p");
         section.appendChild(extra);
         border.appendChild(section);

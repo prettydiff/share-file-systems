@@ -2,6 +2,7 @@
 import * as http from "http";
 import * as fs from "fs";
 import { Hash } from "crypto";
+import * as zlib from "zlib";
 
 import base64 from "../base64.js";
 import commas from "../../common/commas.js";
@@ -341,6 +342,7 @@ const library = {
                     writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
                         const fileName:string = <string>fileResponse.headers.file_name,
                             filePath:string = data.name + vars.sep + fileName,
+                            decompress:zlib.BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
                             writeStream:fs.WriteStream = vars.node.fs.createWriteStream(filePath),
                             hash:Hash = vars.node.crypto.createHash("sha512"),
                             fileError = function terminal_server_fileService_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
@@ -352,8 +354,8 @@ const library = {
                                     }
                                 });
                             };
-                        fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data(fileChunk:string):void {
-                            writeStream.write(fileChunk);
+                        fileResponse.pipe(decompress).pipe(writeStream);
+                        fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data():void {
                             const filePlural:string = (countFile === 1)
                                     ? ""
                                     : "s",
@@ -366,7 +368,7 @@ const library = {
                         });
                         fileResponse.on("end", function terminal_server_fileService_requestFiles_writeStream_end():void {
                             const hashStream:fs.ReadStream = vars.node.fs.ReadStream(filePath);
-                            writeStream.end();
+                            decompress.end();
                             hashStream.pipe(hash);
                             hashStream.on("close", function terminal_server_fileServices_requestFiles_writeStream_end_hash():void {
                                 const hashString:string = hash.digest("hex");
@@ -392,33 +394,46 @@ const library = {
                         });
                     },
                     fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
-                        const fileChunks:Buffer[] = [];
-                        fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileRequestCallback_data(fileChunk:string):void {
-                            fileChunks.push(Buffer.from(fileChunk, "binary"));
+                        const fileChunks:Buffer[] = [],
+                            responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd():void {
+                                const file:Buffer = Buffer.concat(fileChunks),
+                                    fileName:string = <string>fileResponse.headers.file_name,
+                                    hash:Hash = vars.node.crypto.createHash("sha512").update(file),
+                                    hashString:string = hash.digest("hex");
+                                if (hashString === fileResponse.headers.hash) {
+                                    fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
+                                    if (writeActive === false) {
+                                        writeActive = true;
+                                        writeFile(fileQueue.length - 1);
+                                    }
+                                } else {
+                                    hashFail.push(fileName);
+                                    library.log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                    library.error([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                    if (countFile + countDir + hashFail.length === listLength) {
+                                        respond();
+                                    }
+                                }
+                                activeRequests = activeRequests - 1;
+                                if (a < listLength) {
+                                    requestFile();
+                                }
+                            };
+                        let endTest:boolean = false;
+                        fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileRequestCallback_data(fileChunk:Buffer):void {
+                            vars.node.zlib.brotliDecompress(fileChunk, function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, segment:Buffer):void {
+                                if (errDecompress !== null) {
+                                    library.error([errDecompress.toString()]);
+                                    return;
+                                }
+                                fileChunks.push(segment);
+                                if (endTest === true) {
+                                    responseEnd();
+                                }
+                            });
                         });
                         fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
-                            const file:Buffer = Buffer.concat(fileChunks),
-                                fileName:string = <string>fileResponse.headers.file_name,
-                                hash:Hash = vars.node.crypto.createHash("sha512").update(file),
-                                hashString:string = hash.digest("hex");
-                            if (hashString === fileResponse.headers.hash) {
-                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
-                                if (writeActive === false) {
-                                    writeActive = true;
-                                    writeFile(fileQueue.length - 1);
-                                }
-                            } else {
-                                hashFail.push(fileName);
-                                library.log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
-                                library.error([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
-                                if (countFile + countDir + hashFail.length === listLength) {
-                                    respond();
-                                }
-                            }
-                            activeRequests = activeRequests - 1;
-                            if (a < listLength) {
-                                requestFile();
-                            }
+                            endTest = true;
                         });
                         fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileRequestCallback_error(fileError:nodeError):void {
                             library.error([fileError.toString()]);
@@ -825,13 +840,16 @@ const library = {
                 hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_server_fileService_fileRequest():void {
-                const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
+                const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]),
+                    compress:zlib.BrotliCompress = vars.node.zlib.createBrotliCompress({
+                        params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: 4}
+                    });
                 response.setHeader("hash", hash.digest("hex"));
                 response.setHeader("file_name", data.remoteWatch);
                 response.setHeader("file_size", data.depth);
                 response.setHeader("cut_path", data.location[0]);
                 response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                readStream.pipe(response);
+                readStream.pipe(compress).pipe(response);
             });
             if (data.id.indexOf("fileListStatus:") === 0) {
                 vars.ws.broadcast(data.id);
