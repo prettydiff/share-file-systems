@@ -83,22 +83,28 @@ const library = {
                                 ? body.slice(body.indexOf(":") + 1, body.length - 1)
                                 : body.slice(body.indexOf(":") + 1);
                         if (task === "fsUpdateRemote") {
+                            // * remote: Changes to the remote user's file system
+                            // * local : Update local "File Navigator" modals for the respective remote user
                             vars.ws.broadcast(body);
-                            storage(dataString, "noSend", "users");
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                             response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
                             response.end();
                         } else if (task === "shareUpdate") {
+                            // * remote: Changes to the remote user's shares
+                            // * local : Updates local share modals and updates the storage/users.json file
                             const update:shareUpdate = JSON.parse(dataString);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                             response.write(`Received share update from ${update.user}`);
                             response.end();
                             vars.ws.broadcast(body);
+                            storage(dataString, "noSend", "users");
                         } else if (task === "fs") {
+                            // * file system interaction for both local and remote
                             const data:fileService = JSON.parse(dataString),
                                 location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
                                     ? [data.name]
                                     : data.location;
+                            // Most of this code evaluates whether the remote location is read only and limits actions that make changes
                             if (data.agent !== "localhost") {
                                 const shares:userShares = (data.action === "fs-copy-file" && serverVars.users[data.copyAgent] !== undefined)
                                         ? serverVars.users[data.copyAgent].shares
@@ -143,17 +149,21 @@ const library = {
                                 response.end();
                             }
                         } else if (task === "settings" || task === "messages" || task === "users") {
+                            // * local: Writes changes to storage files
                             storage(dataString, response, task);
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
+                            // * Send and receive heartbeat signals
                             const heartbeatData:heartbeat = JSON.parse(dataString);
                             serverVars.status = heartbeatData.status;
                             heartbeat(dataString, response);
                         } else if (task === "heartbeat-update") {
+                            // * Respond to heartbeat changes as a result of a page load
                             vars.ws.broadcast(body);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                             response.write(`heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
                             response.end();
                         } else if (task.indexOf("invite") === 0) {
+                            // * Handle all stages of user invitation
                             invite(dataString, response);
                         }
                     });

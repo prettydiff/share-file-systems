@@ -12,6 +12,9 @@ const util:module_util = {},
 util.addUser = function local_util_addUser(userName:string):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
+        name:string = (userName.lastIndexOf("@localhost") === userName.length - "@localhost".length)
+            ? "localhost"
+            : userName,
         addStyle = function local_util_addUser_addStyle() {
             let body:string,
                 heading:string;
@@ -53,7 +56,7 @@ util.addUser = function local_util_addUser(userName:string):void {
             ].join("");
         };
     button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
-    if (userName.split("@")[1] === "localhost") {
+    if (name === "localhost") {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
@@ -73,7 +76,7 @@ util.addUser = function local_util_addUser(userName:string):void {
     };
     li.appendChild(button);
     document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
-    if (userName.indexOf("@localhost") > -1) {
+    if (name === "localhost") {
         button.setAttribute("id", "localhost");
     }
     network.storage("users");
@@ -831,6 +834,9 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
 
 /* Generate the content of a share modal */
 util.shareContent = function local_util_shareContent(user:string):HTMLElement {
+    if (user === undefined) {
+        return document.getElementById("systems-modal");
+    }
     const userKeys:string[] = Object.keys(browser.users),
         keyLength:number = userKeys.length,
         fileNavigate = function local_util_shareContent_fileNavigate(event:MouseEvent):void {
