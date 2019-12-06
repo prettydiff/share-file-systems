@@ -45,13 +45,17 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 keyLength:number = modalKeys.length;
             let a:number = 0,
                 modalAgent:string,
-                body:HTMLElement;
+                body:HTMLElement,
+                box:HTMLElement;
             do {
                 modalAgent = browser.data.modals[modalKeys[a]].agent;
                 if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
-                    body = <HTMLElement>document.getElementById(browser.data.modals[modalKeys[a]].id).getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    body.appendChild(list[0]);
+                    box = document.getElementById(browser.data.modals[modalKeys[a]].id);
+                    if (box !== null) {
+                        body = <HTMLElement>box.getElementsByClassName("body")[0];
+                        body.innerHTML = "";
+                        body.appendChild(list[0]);
+                    }
                 }
                 a = a + 1;
             } while (a < keyLength);

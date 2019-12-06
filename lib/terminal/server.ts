@@ -11,11 +11,11 @@ import makeDir from "./makeDir.js";
 import remove from "./remove.js";
 import vars from "./vars.js";
 
-import fileService from "./server/fileService.js";
 import heartbeat from "./server/heartbeat.js";
 import httpClient from "./server/httpClient.js";
 import invite from "./server/invite.js";
 import methodGET from "./server/methodGET.js";
+import readOnly from "./server/readOnly.js";
 import serverVars from "./server/serverVars.js";
 import serverWatch from "./server/serverWatch.js";
 import storage from "./server/storage.js";
@@ -97,57 +97,11 @@ const library = {
                             response.write(`Received share update from ${update.user}`);
                             response.end();
                             vars.ws.broadcast(body);
-                            storage(dataString, "noSend", "users");
+                            serverVars.users[update.user].shares = update.shares;
+                            storage(JSON.stringify(serverVars.users), "noSend", "users");
                         } else if (task === "fs") {
                             // * file system interaction for both local and remote
-                            const data:fileService = JSON.parse(dataString),
-                                location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
-                                    ? [data.name]
-                                    : data.location;
-                            // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-                            if (data.agent !== "localhost") {
-                                const shares:userShares = (data.action === "fs-copy-file" && serverVars.users[data.copyAgent] !== undefined)
-                                        ? serverVars.users[data.copyAgent].shares
-                                        : ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
-                                            ? serverVars.users.localhost.shares
-                                            : serverVars.users[data.agent].shares,
-                                    windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-                                    readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-file", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read"];
-                                let dIndex:number = location.length,
-                                    sIndex:number = shares.length,
-                                    bestMatch:number = -1;
-                                if (sIndex > 0) {
-                                    do {
-                                        dIndex = dIndex - 1;
-                                        sIndex = shares.length;
-                                        do {
-                                            sIndex = sIndex - 1;
-                                            if (location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
-                                                if (bestMatch < 0 || shares[sIndex].name.length > shares[bestMatch].name.length) {
-                                                    bestMatch = sIndex;
-                                                }
-                                            }
-                                        } while (sIndex > 0);
-                                        if (bestMatch < 0) {
-                                            location.splice(dIndex, 1);
-                                        } else {
-                                            if (shares[bestMatch].readOnly === true && readOnly.indexOf(data.action) < 0) {
-                                                response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                                                response.write(`{"id":"${data.id}","dirs":"readOnly"}`);
-                                                response.end();
-                                                return;
-                                            }
-                                        }
-                                    } while (dIndex > 0);
-                                }
-                            }
-                            if (location.length > 0) {
-                                fileService(request, response, data);
-                            } else {
-                                response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                                response.write(`{"id":"${data.id}","dirs":"noShare"}`);
-                                response.end();
-                            }
+                            readOnly(request, response, dataString);
                         } else if (task === "settings" || task === "messages" || task === "users") {
                             // * local: Writes changes to storage files
                             storage(dataString, response, task);
