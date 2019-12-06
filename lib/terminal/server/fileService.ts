@@ -677,6 +677,9 @@ const library = {
                                 callback([]);
                                 return;
                             }
+                            if ((/^\w:$/).test(value) === true) {
+                                value = value + "\\";
+                            }
                             library.directory({
                                 callback: callback,
                                 depth: data.depth,
