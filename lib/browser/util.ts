@@ -858,7 +858,7 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
             fs.navigate(event, {
                 agentName: agent,
                 path: address,
-                readOnly: (element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
+                readOnly: (agent !== "localhost" && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
             });
         };
     let users:HTMLElement,
@@ -1096,21 +1096,23 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
                 b = b + 1;
             } while (b < shareLength);
             if (shareBest > -1) {
-                if (shares[shareBest].readOnly === true) {
-                    titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
-                    title.innerHTML = titleText;
-                    browser.data.modals[modals[a]].title = titleText;
-                    browser.data.modals[modals[a]].read_only = true;
-                } else {
-                    titleText = titleText.replace(" (Read Only)", "");
-                    title.innerHTML = titleText;
-                    browser.data.modals[modals[a]].title = titleText;
-                    browser.data.modals[modals[a]].read_only = false;
-                }
-                if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
-                    parentDirectory.style.display = "none";
-                } else {
-                    parentDirectory.style.display = "inline-block";
+                if (browser.data.modals[box.getAttribute("id")].agent !== "localhost") {
+                    if (shares[shareBest].readOnly === true) {
+                        titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
+                        title.innerHTML = titleText;
+                        browser.data.modals[modals[a]].title = titleText;
+                        browser.data.modals[modals[a]].read_only = true;
+                    } else {
+                        titleText = titleText.replace(" (Read Only)", "");
+                        title.innerHTML = titleText;
+                        browser.data.modals[modals[a]].title = titleText;
+                        browser.data.modals[modals[a]].read_only = false;
+                    }
+                    if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
+                        parentDirectory.style.display = "none";
+                    } else {
+                        parentDirectory.style.display = "inline-block";
+                    }
                 }
             }
         }

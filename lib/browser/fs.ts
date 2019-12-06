@@ -347,7 +347,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         location:string = (config !== undefined && typeof config.path === "string")
             ? config.path
             : "defaultLocation",
-        readOnly:boolean = (config !== undefined && config.readOnly === true),
+        readOnly:boolean = (agentName !== "localhost" && config !== undefined && config.readOnly === true),
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
