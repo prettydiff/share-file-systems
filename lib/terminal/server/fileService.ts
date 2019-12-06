@@ -421,7 +421,7 @@ const library = {
                             };
                         let endTest:boolean = false;
                         fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileRequestCallback_data(fileChunk:Buffer):void {
-                            vars.node.zlib.BrotliDecompress(fileChunk, function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, segment:Buffer):void {
+                            vars.node.zlib.brotliDecompress(fileChunk, function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, segment:Buffer):void {
                                 if (errDecompress !== null) {
                                     library.error([errDecompress.toString()]);
                                     return;
