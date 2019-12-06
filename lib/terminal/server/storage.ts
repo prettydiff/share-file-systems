@@ -12,18 +12,20 @@ const library = {
         error: error,
         log: log
     },
-    storage = function terminal_server_storage(dataString:string, response:ServerResponse, task:storageType):void {
+    storage = function terminal_server_storage(dataString:string, response:ServerResponse | "noSend", task:storageType):void {
         const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`;
         vars.node.fs.writeFile(fileName, dataString, "utf8", function terminal_server_storage_writeStorage(erSettings:Error):void {
             if (erSettings !== null) {
                 library.error([erSettings.toString()]);
                 library.log([erSettings.toString()]);
-                response.writeHead(200, {"Content-Type": "text/plain"});
-                response.write(erSettings.toString());
-                response.end();
+                if (response !== "noSend") {
+                    response.writeHead(200, {"Content-Type": "text/plain"});
+                    response.write(erSettings.toString());
+                    response.end();
+                }
                 return;
             }
-            if (task === "users") {
+            if (task === "users" && response !== "noSend") {
                 serverVars.users = JSON.parse(dataString);
                 const keys:string[] = Object.keys(serverVars.users),
                     length:number = keys.length,
@@ -66,14 +68,18 @@ const library = {
                             library.error([erUnlink.toString()]);
                         }
                     });
-                    response.writeHead(500, {"Content-Type": "text/plain"});
-                    response.write(erName.toString());
-                    response.end();
+                    if (response !== "noSend") {
+                        response.writeHead(500, {"Content-Type": "text/plain"});
+                        response.write(erName.toString());
+                        response.end();
+                    }
                     return;
                 }
-                response.writeHead(200, {"Content-Type": "text/plain"});
-                response.write(`${task} written.`);
-                response.end();
+                if (response !== "noSend") {
+                    response.writeHead(200, {"Content-Type": "text/plain"});
+                    response.write(`${task} written.`);
+                    response.end();
+                }
             });
         });
     };

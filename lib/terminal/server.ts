@@ -83,10 +83,11 @@ const library = {
                                 ? body.slice(body.indexOf(":") + 1, body.length - 1)
                                 : body.slice(body.indexOf(":") + 1);
                         if (task === "fsUpdateRemote") {
+                            vars.ws.broadcast(body);
+                            storage(dataString, "noSend", "users");
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                             response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
                             response.end();
-                            vars.ws.broadcast(body);
                         } else if (task === "shareUpdate") {
                             const update:shareUpdate = JSON.parse(dataString);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
