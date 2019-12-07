@@ -200,9 +200,9 @@ util.delay = function local_util_delay():HTMLElement {
 };
 
 /* Drag a selection box to capture a collection of items into a selection */
-util.dragSelect = function local_util_dragSelect(event:Event, callback:Function):void {
+util.dragBox = function local_util_dragBox(event:Event, callback:Function):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        list:HTMLElement = (function local_util_dragSelect_list():HTMLElement {
+        list:HTMLElement = (function local_util_dragBox_list():HTMLElement {
             if (element.getAttribute("class") === "fileList") {
                 return element;
             }
@@ -212,14 +212,14 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
             } while (el !== document.documentElement && el.getAttribute("class") !== "fileList");
             return el;
         }()),
-        body:HTMLElement = (function local_util_dragSelect_body():HTMLElement {
+        body:HTMLElement = (function local_util_dragBox_body():HTMLElement {
             let el:HTMLElement = list;
             do {
                 el = <HTMLElement>el.parentNode;
             } while (el !== document.documentElement && el.getAttribute("class") !== "body");
             return el;
         }()),
-        box:HTMLElement = (function local_util_dragSelect_box():HTMLElement {
+        box:HTMLElement = (function local_util_dragBox_box():HTMLElement {
             let el:HTMLElement = body;
             do {
                 el = <HTMLElement>el.parentNode;
@@ -245,20 +245,14 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
         touch:boolean      = (event !== null && event.type === "touchstart"),
         mouseEvent = <MouseEvent>event,
         touchEvent = <TouchEvent>event,
-        mouseX = (touch === true)
-            ? 0
-            : mouseEvent.clientX,
-        mouseY = (touch === true)
-            ? 0
-            : mouseEvent.clientY,
-        touchX = (touch === true)
+        x:number = (touch === true)
             ? touchEvent.touches[0].clientX
-            : 0,
-        touchY = (touch === true)
+            : mouseEvent.clientX,
+        y:number = (touch === true)
             ? touchEvent.touches[0].clientY
-            : 0,   
-        drop       = function local_util_dragSelect_drop(e:Event):boolean {
-            callback();
+            : mouseEvent.clientY,   
+        drop       = function local_util_dragBox_drop(e:Event):boolean {
+            callback(event);
             drag.parentNode.removeChild(drag);
             if (touch === true) {
                 document.ontouchmove = null;
@@ -271,99 +265,62 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
             e.preventDefault();
             return false;
         },
-        boxMoveTouch    = function local_util_dragSelect_touch(f:TouchEvent):boolean {
-            f.preventDefault();
+        boxMove = function local_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
+            const touchEvent:TouchEvent = (touch === true)
+                    ? <TouchEvent>moveEvent
+                    : null,
+                mouseEvent:MouseEvent = (touch === true)
+                    ? null
+                    : <MouseEvent>moveEvent,
+                clientX:number = (touch === true)
+                    ? touchEvent.touches[0].clientX
+                    : mouseEvent.clientX,
+                clientY:number = (touch === true)
+                    ? touchEvent.touches[0].clientY
+                    : mouseEvent.clientY;
+            moveEvent.preventDefault();
             // horizontal
-            if (mouseX > f.touches[0].clientX) {
+            if (x > clientX) {
                 // drag left
-                if (f.touches[0].clientX > maxLeft) {
-                    drag.style.width = `${(touchX - f.touches[0].clientX) / 10}em`;
-                    drag.style.left = `${(f.touches[0].clientX - offsetLeft) / 10}em`;
-                    if (f.touches[0].clientX < (viewportX - bodyWidth - 4)) {
-                        body.scrollLeft = body.scrollLeft - ((viewportX - bodyWidth - 4) - f.touches[0].clientX);
-                        viewportX = f.touches[0].clientX + bodyWidth + 4;
+                if (clientX > maxLeft) {
+                    drag.style.width = `${(x - clientX) / 10}em`;
+                    drag.style.left = `${(clientX - offsetLeft) / 10}em`;
+                    if (clientX < (viewportX - bodyWidth - 4)) {
+                        body.scrollLeft = body.scrollLeft - ((viewportX - bodyWidth - 4) - clientX);
+                        viewportX = clientX + bodyWidth + 4;
                     }
                 }
             } else {
                 // drag right
-                if (f.touches[0].clientX < maxRight) {
-                    drag.style.width = `${(f.touches[0].clientX - touchX) / 10}em`;
-                    drag.style.left = `${(touchX - offsetLeft) / 10}em`;
-                    if (f.touches[0].clientX > viewportX) {
-                        body.scrollLeft = body.scrollLeft + (f.touches[0].clientX - viewportX);
-                        viewportX = f.touches[0].clientX;
+                if (clientX < maxRight) {
+                    drag.style.width = `${(clientX - x) / 10}em`;
+                    drag.style.left = `${(x - offsetLeft) / 10}em`;
+                    if (clientX > viewportX) {
+                        body.scrollLeft = body.scrollLeft + (clientX - viewportX);
+                        viewportX = clientX;
                     }
                 }
             }
 
             // vertical
-            if (touchY > f.touches[0].clientY) {
+            if (y > clientY) {
                 // drag up
-                if (f.touches[0].clientY > maxUp) {
-                    drag.style.height = `${(touchY - f.touches[0].clientY) / 10}em`;
-                    drag.style.top = `${(f.touches[0].clientY - offsetTop) / 10}em`;
-                    if (f.touches[0].clientY < (viewportY - bodyHeight - 50)) {
-                        body.scrollTop = body.scrollTop - ((viewportY - bodyHeight - 50) - f.touches[0].clientY);
-                        viewportY = f.touches[0].clientY + bodyHeight + 50;
+                if (clientY > maxUp) {
+                    drag.style.height = `${(y - clientY) / 10}em`;
+                    drag.style.top = `${(clientY - offsetTop) / 10}em`;
+                    if (clientY < (viewportY - bodyHeight - 50)) {
+                        body.scrollTop = body.scrollTop - ((viewportY - bodyHeight - 50) - clientY);
+                        viewportY = clientY + bodyHeight + 50;
                     }
                 }
             } else {
                 // drag down
-                if (f.touches[0].clientY < maxDown) {
-                    drag.style.height = `${(f.touches[0].clientY - touchY) / 10}em`;
-                    drag.style.top = `${(touchY - offsetTop) / 10}em`;
-                    if (f.touches[0].clientY > viewportY) {
-                        body.scrollTop = body.scrollTop + (f.touches[0].clientY - viewportY);
-                        viewportY = f.touches[0].clientY;
-                    }
-                }
-            }
-            return false;
-        },
-        boxMoveClick = function local_util_dragSelect_click(f:MouseEvent):boolean {
-            f.preventDefault();
-            // horizontal
-            if (mouseX > f.clientX) {
-                // drag left
-                if (f.clientX > maxLeft) {
-                    drag.style.width = `${(mouseX - f.clientX) / 10}em`;
-                    drag.style.left = `${(f.clientX - offsetLeft) / 10}em`;
-                    if (f.clientX < (viewportX - bodyWidth - 4)) {
-                        body.scrollLeft = body.scrollLeft - ((viewportX - bodyWidth - 4) - f.clientX);
-                        viewportX = f.clientX + bodyWidth + 4;
-                    }
-                }
-            } else {
-                // drag right
-                if (f.clientX < maxRight) {
-                    drag.style.width = `${(f.clientX - mouseX) / 10}em`;
-                    drag.style.left = `${(mouseX - offsetLeft) / 10}em`;
-                    if (f.clientX > viewportX) {
-                        body.scrollLeft = body.scrollLeft + (f.clientX - viewportX);
-                        viewportX = f.clientX;
-                    }
-                }
-            }
-
-            // vertical
-            if (mouseY > f.clientY) {
-                // drag up
-                if (f.clientY > maxUp) {
-                    drag.style.height = `${(mouseY - f.clientY) / 10}em`;
-                    drag.style.top = `${(f.clientY - offsetTop) / 10}em`;
-                    if (f.clientY < (viewportY - bodyHeight - 50)) {
-                        body.scrollTop = body.scrollTop - ((viewportY - bodyHeight - 50) - f.clientY);
-                        viewportY = f.clientY + bodyHeight + 50;
-                    }
-                }
-            } else {
-                // drag down
-                if (f.clientY < maxDown) {
-                    drag.style.height = `${(f.clientY - mouseY) / 10}em`;
-                    drag.style.top = `${(mouseY - offsetTop) / 10}em`;
-                    if (f.clientY > viewportY) {
-                        body.scrollTop = body.scrollTop + (f.clientY - viewportY);
-                        viewportY = f.clientY;
+                if (clientY < maxDown) {
+                    drag.style.height = `${(clientY - y) / 10}em`;
+                    drag.style.top = `${(y - offsetTop) / 10}em`;
+                    if (clientY > viewportY) {
+                        body.scrollTop = body.scrollTop + (clientY - viewportY);
+                        viewportY = clientY;
                     }
                 }
             }
@@ -376,12 +333,82 @@ util.dragSelect = function local_util_dragSelect(event:Event, callback:Function)
     body.insertBefore(drag, body.firstChild);
     if (touch === true) {
         document.ontouchend = drop;
-        document.ontouchmove  = boxMoveTouch;
+        document.ontouchmove = boxMove;
         document.ontouchstart = null;
     } else {
         document.onmouseup = drop;
-        document.onmousemove = boxMoveClick;
+        document.onmousemove = boxMove;
         document.onmousedown = null;
+    }
+};
+
+/* Selects list items in response to drawing a drag box */
+util.dragList = function local_fs_listDragSelect_callback(event:Event):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
+        length:number = li.length,
+        dragBox:HTMLElement = document.getElementById("dragBox"),
+        perimeter = function local_fs_listDragSelect_callback_perimeter(node:HTMLElement):perimeter {
+            return {
+                bottom: node.offsetTop + node.clientHeight,
+                left: node.offsetLeft,
+                right: node.offsetLeft + node.clientWidth,
+                top: node.offsetTop
+            };
+        },
+        liLocation:perimeter[] = [],
+        control:string = (browser.characterKey.indexOf("control") > -1)
+            ? "control"
+            : "shift",
+        dragArea:perimeter = perimeter(dragBox);
+    let a:number = 0,
+        first:number = 0,
+        last:number = length - 1;
+    if (dragArea.bottom < 1) {
+        return;
+    }
+    if (length > 0) {
+        do {
+            liLocation.push(perimeter(li[a]));
+            a = a + 1;
+        } while (a < length);
+        // since list items are vertically listed we can account for left and right bounding without a loop
+        if (
+            // overlap from the middle
+            (dragArea.left >= liLocation[0].left && dragArea.right <= liLocation[0].right && (
+                (dragArea.bottom >= liLocation[length - 1].bottom && dragArea.top < liLocation[length - 1].bottom) ||
+                (dragArea.top <= liLocation[0].top && dragArea.bottom > liLocation[0].top)
+            )) ||
+            // overlap from the left
+            (dragArea.left <= liLocation[0].left && dragArea.right <= liLocation[0].right) ||
+            // overlap from the right
+            (dragArea.left <= (liLocation[0].left + li[0].clientWidth) && dragArea.right >= liLocation[0].right)
+        ) {
+            a = 0;
+            do {
+                if (liLocation[a].top < dragArea.top) {
+                    if (liLocation[a].bottom >= dragArea.bottom) {
+                        // drag area covering only a single list item
+                        li[a].click();
+                        return;
+                    }
+                    if (dragArea.top < liLocation[a].bottom) {
+                        first = a;
+                        if (dragArea.bottom > liLocation[length - 1].bottom) {
+                            break;
+                        }
+                    }
+                } else if (liLocation[a].bottom > dragArea.bottom && dragArea.bottom > liLocation[a].top) {
+                    last = a;
+                    break;
+                }
+                a = a + 1;
+            } while (a < length);
+            li[first].click();
+            browser.characterKey = control;
+            li[last].click();
+            browser.characterKey = "";
+        }
     }
 };
 

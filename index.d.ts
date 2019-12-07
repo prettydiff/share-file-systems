@@ -267,7 +267,8 @@ interface module_util {
     commas?: (number:number) => string;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
-    dragSelect?: eventCallback;
+    dragBox?: eventCallback;
+    dragList?: (event:Event) => void;
     fileListStatus?: (text:string) => void;
     fixHeight?: functionEvent;
     getAgent?: (element:HTMLElement) => [string, boolean];
