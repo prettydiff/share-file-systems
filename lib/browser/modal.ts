@@ -608,7 +608,7 @@ modal.move = function local_modal_move(event:Event):void {
         touchY = (touch === true)
             ? touchEvent.touches[0].clientY
             : 0,   
-        drop       = function local_modal_move_drop(e:Event):boolean {
+        drop       = function local_modal_move_drop(dropEvent:Event):boolean {
             const headingWidth:number = box.getElementsByTagName("h2")[0].clientWidth;
             boxLeft = box.offsetLeft;
             boxTop  = box.offsetTop;
@@ -634,23 +634,32 @@ modal.move = function local_modal_move(event:Event):void {
             settings.top = boxTop;
             settings.left = boxLeft;
             network.storage("settings");
-            e.preventDefault();
+            dropEvent.preventDefault();
             return false;
         },
-        boxMoveTouch    = function local_modal_move_touch(f:TouchEvent):boolean {
-            f.preventDefault();
+        boxMove         = function local_modal_move_boxMove(moveEvent:TouchEvent|MouseEvent):boolean {
+            const touchEvent:TouchEvent = (touch === true)
+                    ? <TouchEvent>moveEvent
+                    : null, 
+                mouseEvent:MouseEvent = (touch === true)
+                    ? null
+                    : <MouseEvent>moveEvent,
+                clientX:number = (touch === true)
+                    ? touchEvent.touches[0].clientX
+                    : mouseEvent.clientX,
+                clientY:number = (touch === true)
+                    ? touchEvent.touches[0].clientY
+                    : mouseEvent.clientY,
+                x:number = (touch === true)
+                    ? touchX
+                    : mouseX,
+                y:number = (touch === true)
+                    ? touchY
+                    : mouseY;
+            moveEvent.preventDefault();
             box.style.right = "auto";
-            box.style.left      = `${(boxLeft + (f.touches[0].clientX - touchX)) / 10}em`;
-            box.style.top       = `${(boxTop + (f.touches[0].clientY - touchY)) / 10}em`;
-            document.ontouchend = drop;
-            return false;
-        },
-        boxMoveClick = function local_modal_move_click(f:MouseEvent):boolean {
-            f.preventDefault();
-            box.style.right = "auto";
-            box.style.left     = `${(boxLeft + (f.clientX - mouseX)) / 10}em`;
-            box.style.top      = `${(boxTop + (f.clientY - mouseY)) / 10}em`;
-            document.onmouseup = drop;
+            box.style.left      = `${(boxLeft + (clientX - x)) / 10}em`;
+            box.style.top       = `${(boxTop + (clientY - y)) / 10}em`;
             return false;
         };
     let boxLeft:number    = box.offsetLeft,
@@ -668,11 +677,13 @@ modal.move = function local_modal_move(event:Event):void {
     border.style.opacity = ".5";
     box.style.height   = ".1em";
     if (touch === true) {
-        document.ontouchmove  = boxMoveTouch;
+        document.ontouchmove  = boxMove;
         document.ontouchstart = null;
+        document.ontouchend   = drop;
     } else {
-        document.onmousemove = boxMoveClick;
+        document.onmousemove = boxMove;
         document.onmousedown = null;
+        document.onmouseup   = drop;
     }
 };
 
