@@ -175,9 +175,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                 location : addresses,
                 name     : target,
                 watch    : "no"
-            }, function local_context_paste_callback():void {
-                util.selectNone(box);
-            });
+            }, function local_fs_drag_drop_callback():void {});
         },
         move = function local_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
