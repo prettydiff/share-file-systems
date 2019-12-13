@@ -81,10 +81,17 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
         touch:boolean = (event !== null && event.type === "touchstart"),
         list:HTMLElement = document.createElement("ul"),
         drop = function local_fs_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
+            if (list.parentNode !== null) {
+                list.parentNode.removeChild(list);
+            }
+            if (touch === true) {
+                document.ontouchmove = null;
+                document.ontouchend = null;
+            } else {
+                document.onmousemove = null;
+                document.onmouseup = null;
+            }
             if (init === false) {
-                if (list.parentNode !== null) {
-                    list.parentNode.removeChild(list);
-                }
                 return;
             }
             const addresses:[string, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
@@ -140,14 +147,6 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     }
                     return goal;
                 }());
-            list.parentNode.removeChild(list);
-            if (touch === true) {
-                document.ontouchmove = null;
-                document.ontouchend = null;
-            } else {
-                document.onmousemove = null;
-                document.onmouseup = null;
-            }
             if (target === list) {
                 return;
             }

@@ -796,20 +796,21 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     let a:number = 0,
         length:number = 0,
         itemList:HTMLCollectionOf<HTMLElement>,
-        addressItem:HTMLElement,
-        box:HTMLElement;
+        addressItem:HTMLElement;
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
-    box = element;
-    if (box.getAttribute("class") !== "box") {
-        do {
-            box = <HTMLElement>box.parentNode;
-        } while (box !== document.documentElement && box.getAttribute("class") !== "box");
-    }
     itemList = (drag === true)
         ? parent.getElementsByTagName("li")
-        : box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
+        : (function local_util_selectedAddresses_box():HTMLCollectionOf<HTMLElement> {
+            let box:HTMLElement = element;
+            if (box.getAttribute("class") !== "box") {
+                do {
+                    box = <HTMLElement>box.parentNode;
+                } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+            }
+            return box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
+        }());
     length = itemList.length;
     do {
         if (itemList[a].getElementsByTagName("input")[0].checked === true) {
