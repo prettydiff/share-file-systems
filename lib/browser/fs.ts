@@ -44,6 +44,200 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     });
 };
 
+/* drag and drop of selected list items */
+fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        item:HTMLElement = (function local_fs_drag_item():HTMLElement {
+            let el:HTMLElement = element;
+            if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
+                event.preventDefault();
+            }
+            if (el.nodeName.toLowerCase() === "li") {
+                return el;
+            }
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
+            return el;
+        }()),
+        fileList:HTMLElement = (function local_fs_drag_fileList():HTMLElement {
+            let parent:HTMLElement = <HTMLElement>element.parentNode;
+            if (parent.parentNode.nodeName.toLowerCase() !== "div") {
+                do {
+                    parent = <HTMLElement>parent.parentNode;
+                } while (parent !== document.documentElement && parent.parentNode.nodeName.toLowerCase() !== "div");
+            }
+            return parent;
+        }()),
+        body:HTMLElement = <HTMLElement>fileList.parentNode,
+        box:HTMLElement = <HTMLElement>body.parentNode.parentNode,
+        header:number = (box.getElementsByClassName("header")[0] === undefined)
+            ? 0
+            : box.getElementsByClassName("header")[0].clientHeight + 13,
+        top:number = body.offsetTop + header + box.offsetTop,
+        left:number = body.offsetLeft + box.offsetLeft,
+        bottom:number = top + body.clientHeight,
+        right:number = left+ + body.clientWidth,
+        touch:boolean = (event !== null && event.type === "touchstart"),
+        list:HTMLElement = document.createElement("ul"),
+        drop = function local_fs_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
+            if (init === false) {
+                if (list.parentNode !== null) {
+                    list.parentNode.removeChild(list);
+                }
+                return;
+            }
+            const addresses:[string, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
+                touchDrop:TouchEvent = (touch === true)
+                    ? <TouchEvent>dropEvent
+                    : null, 
+                mouseDrop:MouseEvent = (touch === true)
+                    ? null
+                    : <MouseEvent>dropEvent,
+                clientX:number = (touch === true)
+                    ? touchDrop.touches[0].clientX
+                    : mouseDrop.clientX,
+                clientY:number = (touch === true)
+                    ? touchDrop.touches[0].clientY
+                    : mouseDrop.clientY,
+                target:HTMLElement = (function local_fs_drag_drop_target():HTMLElement {
+                    const ul = browser.content.getElementsByClassName("fileList"),
+                        length:number = ul.length;
+                    let a:number = 0,
+                        ulBody:HTMLElement,
+                        ulBox:HTMLElement,
+                        ulHeader:number,
+                        ulTop:number,
+                        ulLeft:number,
+                        ulBottom:number,
+                        ulRight:number,
+                        ulIndex:number,
+                        goal:HTMLElement,
+                        zIndex:number = 0;
+                    do {
+                        if (ul[a] !== list) {
+                            ulBody = <HTMLElement>ul[a].parentNode;
+                            ulBox = <HTMLElement>ulBody.parentNode.parentNode;
+                            ulHeader = (ulBox.getElementsByClassName("header")[0] === undefined)
+                                ? 0
+                                : box.getElementsByClassName("header")[0].clientHeight + 13;
+                            ulTop = ulBody.offsetTop + ulHeader + ulBox.offsetTop;
+                            ulLeft = ulBody.offsetLeft + ulBox.offsetLeft;
+                            if (ulTop < clientY && ulLeft < clientX) {
+                                ulBottom = ulTop + ulBody.clientHeight;
+                                ulRight = ulLeft + ulBody.clientWidth;
+                                ulIndex = browser.data.modals[ulBox.getAttribute("id")].zIndex;
+                                if (ulBottom > clientY && ulRight > clientX && ulIndex > zIndex) {
+                                    zIndex = ulIndex;
+                                    goal = <HTMLElement>ul[a];
+                                }
+                            }
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    if (goal === undefined || goal === fileList) {
+                        return list;
+                    }
+                    return goal;
+                }());
+            list.parentNode.removeChild(list);
+            if (touch === true) {
+                document.ontouchmove = null;
+                document.ontouchend = null;
+            } else {
+                document.onmousemove = null;
+                document.onmouseup = null;
+            }
+            if (target === list) {
+                return;
+            }
+        },
+        move = function local_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
+            const touchMove:TouchEvent = (touch === true)
+                    ? <TouchEvent>moveEvent
+                    : null, 
+                mouseMove:MouseEvent = (touch === true)
+                    ? null
+                    : <MouseEvent>moveEvent,
+                clientX:number = (touch === true)
+                    ? touchMove.touches[0].clientX
+                    : mouseMove.clientX,
+                clientY:number = (touch === true)
+                    ? touchMove.touches[0].clientY
+                    : mouseMove.clientY;
+            moveEvent.preventDefault();
+            if (outOfBounds === false && (clientX < left || clientX > right || clientY < top || clientY > bottom)) {
+                outOfBounds = true;
+                if (init === false) {
+                    const checkbox:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
+                        selected:HTMLElement[] = [];
+                    let a:number = 0,
+                        length:number = checkbox.length,
+                        listItem:HTMLElement,
+                        cut:boolean = true;
+                    init = true;
+                    list.setAttribute("id", "file-list-drag");
+                    list.setAttribute("class", "fileList");
+                    do {
+                        if (checkbox[a].type === "checkbox" && checkbox[a].checked === true) {
+                            selected.push(checkbox[a]);
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    length = selected.length;
+                    if (length < 1) {
+                        list.setAttribute("data-state", "copy");
+                        list.appendChild(item.cloneNode(true));
+                    } else {
+                        a = 0;
+                        do {
+                            listItem = <HTMLElement>selected[a].parentNode.parentNode;
+                            if (listItem.getAttribute("class").indexOf("cut") < 0) {
+                                cut = false;
+                            }
+                            list.appendChild(listItem.cloneNode(true));
+                            a = a + 1;
+                        } while (a < length);
+                        if (cut === true) {
+                            list.setAttribute("data-state", "cut");
+                        } else {
+                            list.setAttribute("data-state", "copy");
+                        }
+                    }
+                    browser.content.appendChild(list);
+                }
+                list.style.display = "block";
+            }
+            if (outOfBounds === true && clientX > left && clientX < right && clientY > top && clientY < bottom) {
+                outOfBounds = false;
+                list.style.display = "none";
+            }
+            list.style.top = `${(clientY - header) / 10}em`;
+            list.style.left = `${clientX / 10}em`;
+            return false;
+        };
+    let outOfBounds:boolean = false,
+        init:boolean = false;
+    if (element.nodeName.toLowerCase() === "button") {
+        return;
+    }
+    list.style.display = "none";
+    list.style.zIndex = (browser.data.zIndex + 1).toString();
+    event.stopPropagation();
+    document.onmousedown = function local_fs_drag_document(documentEvent:MouseEvent):void {
+        documentEvent.preventDefault();
+    };
+    if (touch === true) {
+        document.ontouchmove  = move;
+        document.ontouchstart = null;
+        document.ontouchend   = drop;
+    } else {
+        document.onmousemove = move;
+        document.onmousedown = null;
+        document.onmouseup   = drop;
+    }
+};
+
 /* Shows child elements of a directory */
 fs.expand = function local_fs_expand(event:MouseEvent):void {
     const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -164,9 +358,15 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     output.onclick = function local_fs_list_click(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
-            inputs:HTMLCollectionOf<HTMLElement> = listItems[listItems.length - 1].getElementsByTagName("input"),
-            lastInput:HTMLElement = inputs[inputs.length - 1];
-        lastInput.focus();
+            inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
+                ? listItems[listItems.length - 1].getElementsByTagName("input")
+                : null,
+            lastInput:HTMLElement = (inputs === null)
+                ? null
+                : inputs[inputs.length - 1];
+        if (lastInput !== null) {
+            lastInput.focus();
+        }
     };
     output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
         util.dragBox(event, util.dragList);
@@ -257,9 +457,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     li.onclick = fs.select;
     li.oncontextmenu = context.menu;
     li.onkeyup = util.keys; // key combinations
-    li.onmousedown = function local_fs_listItem_mouseDown(event:MouseEvent):void {
-        event.stopPropagation();
-    };
+    li.onmousedown = fs.drag;
     li.onmouseover = function local_fs_listItem_mouseOver(event:MouseEvent):void {
         const dragBox:HTMLElement = document.getElementById("dragBox"),
             element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
@@ -269,6 +467,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             }
         }
     };
+    li.ontouchstart = fs.drag;
     return li;
 };
 

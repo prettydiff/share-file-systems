@@ -607,7 +607,7 @@ modal.move = function local_modal_move(event:Event):void {
             : 0,
         touchY = (touch === true)
             ? touchEvent.touches[0].clientY
-            : 0,   
+            : 0,
         drop       = function local_modal_move_drop(dropEvent:Event):boolean {
             const headingWidth:number = box.getElementsByTagName("h2")[0].clientWidth;
             boxLeft = box.offsetLeft;
@@ -688,7 +688,7 @@ modal.move = function local_modal_move(event:Event):void {
 };
 
 /* Allows resizing of modals in 1 of 8 directions */
-modal.resize = function local_modal_resize(event:MouseEvent):void {
+modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
     let bodyWidth:number = 0,
         bodyHeight:number = 0,
         clientWidth:number  = 0,
@@ -703,6 +703,7 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         body:HTMLDivElement       = box.getElementsByTagName("div")[1],
         heading:HTMLElement = box.getElementsByTagName("h2")[0],
         headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
+        touch:boolean = (event !== null && event.type === "touchstart"),
         buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
             ? 0
             : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
@@ -732,8 +733,14 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
             : (footer.clientHeight / 10),
         sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
         sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
-        offX:number = event.clientX,
-        offY:number = event.clientY,
+        mouseEvent:MouseEvent = <MouseEvent>event,
+        touchEvent:TouchEvent = <TouchEvent>event,
+        offX:number = (touch === true)
+            ? touchEvent.touches[0].clientX
+            : mouseEvent.clientX,
+        offY:number = (touch === true)
+            ? touchEvent.touches[0].clientY
+            : mouseEvent.clientY,
         mac:boolean        = (navigator.userAgent.indexOf("macintosh") > 0),
         direction:string = node.getAttribute("class").split("-")[1],
         offsetWidth:number    = (mac === true)
@@ -742,10 +749,16 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
         offsetHeight:number    = (mac === true)
             ? 18
             : -20,
+        sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
         drop       = function local_modal_resize_drop():void {
             const settings:ui_modal = browser.data.modals[box.getAttribute("id")];
-            document.onmousemove = null;
-            document.onmouseup = null;
+            if (touch === true) {
+                document.ontouchmove = null;
+                document.ontouchstart = null;
+            } else {
+                document.onmousemove = null;
+                document.onmouseup = null;
+            }
             clientWidth            = body.clientWidth;
             clientHeight           = body.clientHeight;
             settings.width = clientWidth - offsetWidth;
@@ -756,152 +769,134 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
             }
             network.storage("settings");
         },
-        sideHeight:number = headerHeight + statusHeight + footerHeight + 1, 
+        compute = function local_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
+            if (values[0] > -10) {
+                computedWidth = (leftTest === true)
+                    ? left + (values[0] - offX)
+                    : (clientWidth + ((values[0] - offsetWidth) - offX)) / 10;
+                bodyWidth = (leftTest === true)
+                    ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
+                    : 0;
+                if (leftTest === true && bodyWidth > 35) {
+                    box.style.left = `${computedWidth / 10}em`;
+                    body.style.width = `${bodyWidth}em`;
+                    heading.style.width = `${bodyWidth + 0.2}em`;
+                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                    if (statusBar !== undefined) {
+                        status.style.width = `${bodyWidth - 2}em`;
+                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
+                    }
+                } else if (leftTest === false && computedWidth > 35) {
+                    body.style.width = `${computedWidth}em`;
+                    heading.style.width = `${computedWidth + 0.2}em`;
+                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
+                    if (message !== undefined) {
+                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    }
+                    if (statusBar !== undefined) {
+                        status.style.width = `${computedWidth - 2}em`;
+                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
+                    }
+                }
+            }
+            if (values[1] > -10) {
+                computedHeight = (topTest === true)
+                    ? top + (values[1] - offY)
+                    : (clientHeight + ((values[1] - offsetHeight) - offY)) / 10;
+                bodyHeight = (topTest === true)
+                    ? ((clientHeight - offsetHeight) + (top - computedHeight)) / 10
+                    : 0;
+                if (topTest === true && ((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
+                    box.style.top = `${computedHeight / 10}em`;
+                    body.style.height  = `${bodyHeight}em`;
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
+                } else if (topTest === false && computedHeight > 10) {
+                    body.style.height  = `${computedHeight}em`;
+                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
+                    sideRight.style.height = `${computedHeight + sideHeight}em`;
+                }
+            }
+        },
         side:any    = {
-            b: function local_modal_resize_sizeB(f:MouseEvent):void {
-                computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
-                if (computedHeight > 10) {
-                    body.style.height  = `${computedHeight}em`;
-                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                    sideRight.style.height = `${computedHeight + sideHeight}em`;
-                    
-                }
-                document.onmouseup = drop;
+            b: function local_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    y:number = (touch === true)
+                        ? touchMove.touches[0].clientY
+                        : mouseMove.clientY;
+                compute(false, false, [-10, y]);
             },
-            bl: function local_modal_resize_sizeBL(f:MouseEvent):void {
-                computedWidth = left + (f.clientX - offX);
-                computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
-                bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
-                if (computedHeight > 10) {
-                    body.style.height  = `${computedHeight}em`;
-                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                    sideRight.style.height = `${computedHeight + sideHeight}em`;
-                }
-                if (bodyWidth > 35) {
-                    box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${bodyWidth}em`;
-                    heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
-                    }
-                    if (statusBar !== undefined) {
-                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
-                    }
-                }
-                document.onmouseup = drop;
+            bl: function local_modal_resize_sizeBL(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    x:number = (touch === true)
+                        ? touchMove.touches[0].clientX
+                        : mouseMove.clientX,
+                    y:number = (touch === true)
+                        ? touchMove.touches[0].clientY
+                        : mouseMove.clientY;
+                compute(true, false, [x, y]);
             },
-            br: function local_modal_resize_sizeBR(f:MouseEvent):void {
-                computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
-                computedHeight = (clientHeight + ((f.clientY - offsetHeight) - offY)) / 10;
-                if (computedHeight > 10) {
-                    body.style.height  = `${computedHeight}em`;
-                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                    sideRight.style.height = `${computedHeight + sideHeight}em`;
-                }
-                if (computedWidth > 35) {
-                    body.style.width = `${computedWidth}em`;
-                    heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
-                    }
-                    if (statusBar !== undefined) {
-                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
-                    }
-                }
-                document.onmouseup = drop;
+            br: function local_modal_resize_sizeBR(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    x:number = (touch === true)
+                        ? touchMove.touches[0].clientX
+                        : mouseMove.clientX,
+                    y:number = (touch === true)
+                        ? touchMove.touches[0].clientY
+                        : mouseMove.clientY;
+                compute(false, false, [x, y]);
             },
-            l: function local_modal_resize_sizeL(f:MouseEvent):void {
-                computedWidth = left + (f.clientX - offX);
-                bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
-                if (bodyWidth > 35) {
-                    box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${bodyWidth}em`;
-                    heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
-                    }
-                    if (statusBar !== undefined) {
-                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
-                    }
-                }
-                document.onmouseup = drop;
+            l: function local_modal_resize_sizeL(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    x:number = (touch === true)
+                        ? touchMove.touches[0].clientX
+                        : mouseMove.clientX;
+                compute(true, false, [x, -10]);
             },
-            r: function local_modal_resize_sizeR(f:MouseEvent):void {
-                computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
-                if (computedWidth > 35) {
-                    body.style.width = `${computedWidth}em`;
-                    heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
-                    }
-                    if (statusBar !== undefined) {
-                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
-                    }
-                }
-                document.onmouseup = drop;
+            r: function local_modal_resize_sizeR(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    x:number = (touch === true)
+                        ? touchMove.touches[0].clientX
+                        : mouseMove.clientX;
+                compute(false, false, [f.clientX, -10]);
             },
-            t: function local_modal_resize_sizeT(f:MouseEvent):void {
-                computedHeight = top + (f.clientY - offY);
-                bodyHeight = ((clientHeight - offsetHeight) + (top - computedHeight)) / 10;
-                if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
-                    box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${bodyHeight}em`;
-                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                    sideRight.style.height = `${computedHeight + sideHeight}em`;
-                }
-                document.onmouseup = drop;
+            t: function local_modal_resize_sizeT(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    y:number = (touch === true)
+                        ? touchMove.touches[0].clientY
+                        : mouseMove.clientY;
+                compute(false, true, [-10, y]);
             },
-            tl: function local_modal_resize_sizeTL(f:MouseEvent):void {
-                computedHeight = top + (f.clientY - offY);
-                computedWidth = left + (f.clientX - offX);
-                bodyHeight = ((clientHeight - offsetHeight) + (top - computedHeight)) / 10;
-                bodyWidth = ((clientWidth - offsetWidth) + (left - computedWidth)) / 10;
-                if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
-                    box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${bodyHeight}em`;
-                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                    sideRight.style.height = `${computedHeight + sideHeight}em`;
-                }
-                if (bodyWidth > 35) {
-                    box.style.left = `${computedWidth / 10}em`;
-                    body.style.width  = `${bodyWidth}em`;
-                    heading.style.width = `${bodyWidth + 0.2}em`;
-                    headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
-                    }
-                    if (statusBar !== undefined) {
-                        statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
-                    }
-                }
-                document.onmouseup = drop;
+            tl: function local_modal_resize_sizeTL(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    x:number = (touch === true)
+                        ? touchMove.touches[0].clientX
+                        : mouseMove.clientX,
+                    y:number = (touch === true)
+                        ? touchMove.touches[0].clientY
+                        : mouseMove.clientY;
+                compute(true, true, [x, y]);
             },
-            tr: function local_modal_resize_sizeTR(f:MouseEvent):void {
-                computedHeight = top + (f.clientY - offY);
-                computedWidth = (clientWidth + ((f.clientX - offsetWidth) - offX)) / 10;
-                bodyHeight = ((clientHeight - offsetHeight) + (top - computedHeight)) / 10;
-                if (((clientHeight - offsetHeight) + (top - computedHeight)) / 10 > 10) {
-                    box.style.top = `${computedHeight / 10}em`;
-                    body.style.height  = `${bodyHeight}em`;
-                    sideLeft.style.height = `${computedHeight + sideHeight}em`;
-                    sideRight.style.height = `${computedHeight + sideHeight}em`;
-                }
-                if (computedWidth > 35) {
-                    body.style.width = `${computedWidth}em`;
-                    heading.style.width = `${computedWidth + 0.2}em`;
-                    headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
-                    }
-                    if (statusBar !== undefined) {
-                        statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
-                    }
-                }
-                document.onmouseup = drop;
+            tr: function local_modal_resize_sizeTR(moveEvent:MouseEvent|TouchEvent):void {
+                const mouseMove:MouseEvent = <MouseEvent>moveEvent,
+                    touchMove:TouchEvent = <TouchEvent>moveEvent,
+                    x:number = (touch === true)
+                        ? touchMove.touches[0].clientX
+                        : mouseMove.clientX,
+                    y:number = (touch === true)
+                        ? touchMove.touches[0].clientY
+                        : mouseMove.clientY;
+                compute(false, true, [x, y]);
             }
         };
     if (browser.data.modals[box.getAttribute("id")].status === "maximized" || browser.data.modals[box.getAttribute("id")].status === "minimized") {
@@ -909,8 +904,15 @@ modal.resize = function local_modal_resize(event:MouseEvent):void {
     }
     clientWidth  = body.clientWidth;
     clientHeight = body.clientHeight;
-    document.onmousemove = side[direction];
-    document.onmousedown = null;
+    if (touch === true) {
+        document.ontouchmove  = side[direction];
+        document.ontouchstart = null;
+        document.ontouchend   = drop;
+    } else {
+        document.onmousemove = side[direction];
+        document.onmousedown = null;
+        document.onmouseup = drop;
+    }
 };
 
 /* Displays a list of shared items for each user */

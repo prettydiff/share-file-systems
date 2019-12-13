@@ -790,7 +790,9 @@ util.menu = function local_util_menu():void {
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
 util.selectedAddresses = function local_util_selectedAddresses(element:HTMLElement, type:string):[string, string][] {
-    const output:[string, string][] = [];
+    const output:[string, string][] = [],
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        drag:boolean = (parent.getAttribute("id") === "file-list-drag");
     let a:number = 0,
         length:number = 0,
         itemList:HTMLCollectionOf<HTMLElement>,
@@ -805,7 +807,9 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
             box = <HTMLElement>box.parentNode;
         } while (box !== document.documentElement && box.getAttribute("class") !== "box");
     }
-    itemList = box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
+    itemList = (drag === true)
+        ? parent.getElementsByTagName("li")
+        : box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
     length = itemList.length;
     do {
         if (itemList[a].getElementsByTagName("input")[0].checked === true) {
