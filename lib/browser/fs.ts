@@ -94,7 +94,16 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             if (init === false) {
                 return;
             }
-            const addresses:[string, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
+            let agent:string = "",
+                id:string = "";
+            const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
+                    const addressList:[string, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
+                        output:string[] = [];
+                    addressList.forEach(function local_fs_drag_drop_addresses_each(value:[string, string]) {
+                        output.push(value[0]);
+                    });
+                    return output;
+                }()),
                 touchDrop:TouchEvent = (touch === true)
                     ? <TouchEvent>dropEvent
                     : null, 
@@ -107,7 +116,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                 clientY:number = (touch === true)
                     ? touchDrop.touches[0].clientY
                     : mouseDrop.clientY,
-                target:HTMLElement = (function local_fs_drag_drop_target():HTMLElement {
+                target:string = (function local_fs_drag_drop_target():string {
                     const ul = browser.content.getElementsByClassName("fileList"),
                         length:number = ul.length;
                     let a:number = 0,
@@ -143,13 +152,32 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                         a = a + 1;
                     } while (a < length);
                     if (goal === undefined || goal === fileList) {
-                        return list;
+                        return "";
                     }
-                    return goal;
+                    do {
+                        goal = <HTMLElement>goal.parentNode;
+                    } while (goal !== document.documentElement && goal.getAttribute("class") !== "box");
+                    id = goal.getAttribute("id");
+                    agent = browser.data.modals[id].agent;
+                    return goal.getElementsByTagName("input")[0].value;
                 }());
-            if (target === list) {
+            if (target === "") {
                 return;
             }
+            network.fs({
+                action   : (copy === true)
+                    ? "fs-copy"
+                    : "fs-cut",
+                agent    : agent,
+                copyAgent: util.getAgent(element)[0],
+                depth    : 1,
+                id       : id,
+                location : addresses,
+                name     : target,
+                watch    : "no"
+            }, function local_context_paste_callback():void {
+                util.selectNone(box);
+            });
         },
         move = function local_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
@@ -185,7 +213,6 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     } while (a < length);
                     length = selected.length;
                     if (length < 1) {
-                        list.setAttribute("data-state", "copy");
                         list.appendChild(item.cloneNode(true));
                     } else {
                         a = 0;
@@ -198,9 +225,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                             a = a + 1;
                         } while (a < length);
                         if (cut === true) {
-                            list.setAttribute("data-state", "cut");
-                        } else {
-                            list.setAttribute("data-state", "copy");
+                            copy = false;
                         }
                     }
                     browser.content.appendChild(list);
@@ -216,7 +241,8 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             return false;
         };
     let outOfBounds:boolean = false,
-        init:boolean = false;
+        init:boolean = false,
+        copy:boolean = true;
     if (element.nodeName.toLowerCase() === "button") {
         return;
     }
