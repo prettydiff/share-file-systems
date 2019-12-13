@@ -866,7 +866,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                     x:number = (touch === true)
                         ? touchMove.touches[0].clientX
                         : mouseMove.clientX;
-                compute(false, false, [f.clientX, -10]);
+                compute(false, false, [x, -10]);
             },
             t: function local_modal_resize_sizeT(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
