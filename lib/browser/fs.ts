@@ -241,15 +241,15 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
     let outOfBounds:boolean = false,
         init:boolean = false,
         copy:boolean = true;
+    event.stopPropagation();
+    document.onmousedown = function local_fs_drag_document(documentEvent:MouseEvent):void {
+        documentEvent.preventDefault();
+    };
     if (element.nodeName.toLowerCase() === "button") {
         return;
     }
     list.style.display = "none";
     list.style.zIndex = (browser.data.zIndex + 1).toString();
-    event.stopPropagation();
-    document.onmousedown = function local_fs_drag_document(documentEvent:MouseEvent):void {
-        documentEvent.preventDefault();
-    };
     if (touch === true) {
         document.ontouchmove  = move;
         document.ontouchstart = null;

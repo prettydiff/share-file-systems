@@ -291,10 +291,12 @@ import webSocket from "./lib/browser/webSocket.js";
                                                     : fs.list(storage.settings.modals[value].text_value, payload),
                                                 textValue:string = files[0].getAttribute("title");
                                             files[0].removeAttribute("title");
-                                            if (agent === "localhost") {
-                                                callbackLocal(id, files, textValue);
-                                            } else {
-                                                callbackRemote(id, files);
+                                            if (responseText !== "") {
+                                                if (agent === "localhost") {
+                                                    callbackLocal(id, files, textValue);
+                                                } else {
+                                                    callbackRemote(id, files);
+                                                }
                                             }
                                         },
                                         callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number], textValue:String):void {
