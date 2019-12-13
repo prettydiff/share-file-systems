@@ -228,6 +228,7 @@ interface module_context {
 }
 interface module_fs {
     directory?: EventHandlerNonNull;
+    drag?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
     list?: (location:string, dirData:fsRemote) => [HTMLElement, number];
     listFail?: (count:number, box:HTMLElement) => void;
