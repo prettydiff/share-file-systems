@@ -263,6 +263,10 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
             }
             network.storage("settings");
             e.preventDefault();
+            setTimeout(function local_util_dragBox_drop_scroll():void {
+                body.scrollLeft = bodyScrollLeft;
+                body.scrollTop = bodyScrollTop;
+            }, 5);
             return false;
         },
         boxMove = function local_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
@@ -343,12 +347,12 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
 };
 
 /* Selects list items in response to drawing a drag box */
-util.dragList = function local_fs_listDragSelect_callback(event:Event):void {
+util.dragList = function local_util_dragList(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
         length:number = li.length,
         dragBox:HTMLElement = document.getElementById("dragBox"),
-        perimeter = function local_fs_listDragSelect_callback_perimeter(node:HTMLElement):perimeter {
+        perimeter = function local_util_dragList_perimeter(node:HTMLElement):perimeter {
             return {
                 bottom: node.offsetTop + node.clientHeight,
                 left: node.offsetLeft,
@@ -357,16 +361,14 @@ util.dragList = function local_fs_listDragSelect_callback(event:Event):void {
             };
         },
         liLocation:perimeter[] = [],
-        control:string = (browser.characterKey.indexOf("control") > -1)
-            ? "control"
-            : "shift",
         dragArea:perimeter = perimeter(dragBox);
     let a:number = 0,
         first:number = 0,
-        last:number = length - 1;
+        last:number = 0;
     if (dragArea.bottom < 1) {
         return;
     }
+    event.preventDefault();
     if (length > 0) {
         do {
             liLocation.push(perimeter(li[a]));
@@ -389,7 +391,17 @@ util.dragList = function local_fs_listDragSelect_callback(event:Event):void {
                 if (liLocation[a].top < dragArea.top) {
                     if (liLocation[a].bottom >= dragArea.bottom) {
                         // drag area covering only a single list item
-                        li[a].click();
+                        if (event.ctrlKey === true) {
+                            fs.dragFlag = "control";
+                            li[a].click();
+                            fs.dragFlag = "";
+                        } else if (event.shiftKey === true) {
+                            fs.dragFlag = "shift";
+                            li[a].click();
+                            fs.dragFlag = "";
+                        } else {
+                            li[a].click();
+                        }
                         return;
                     }
                     if (dragArea.top < liLocation[a].bottom) {
@@ -404,12 +416,26 @@ util.dragList = function local_fs_listDragSelect_callback(event:Event):void {
                 }
                 a = a + 1;
             } while (a < length);
-            li[first].click();
-            browser.characterKey = control;
-            li[last].click();
-            browser.characterKey = "";
+            if (event.ctrlKey === true) {
+                fs.dragFlag = "control";
+                a = first;
+                last = last + 1;
+                do {
+                    li[a].click();
+                    a = a + 1
+                } while (a < last);
+            } else {
+                if (li[first].getElementsByTagName("input")[0].checked === true) {
+                    li[first].click();
+                }
+                li[first].click();
+                fs.dragFlag = "shift";
+                li[last].click();
+            }
+            fs.dragFlag = "";
         }
     }
+    return;
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
@@ -696,17 +722,19 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
             return el;
         }());
+    if (key === 116 || (event.ctrlKey === true && key === 82)) {
+        location.reload();
+    }
     if (element.parentNode === null) {
         return;
     }
     event.preventDefault();
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();
-        util.keyup(event);
     }
     if (key === 46) {
         context.destroy(element);
-    } else if (browser.characterKey === "control-alt") {
+    } else if (event.altKey === true && event.ctrlKey === true) {
         if (key === 66 && element.nodeName.toLowerCase() === "li") {
             // key b, base64
             context.dataString(event, element, "Base64");
@@ -732,7 +760,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             // key t, details
             context.details(event, element);
         }
-    } else if (browser.characterKey === "control") {
+    } else if (event.ctrlKey === true) {
         if (key === 65) {
             // key a, select all
             const list:HTMLElement = (element.nodeName.toLowerCase() === "ul")
@@ -759,18 +787,6 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             // key x, cut
             context.copy(element, "cut");
         }
-    }
-};
-
-/* Release control keys necessary for shortcut key combinations */
-util.keyup = function local_util_keys(event:KeyboardEvent):void {
-    const key:number = event.keyCode;
-    if (key === 16) {
-        browser.characterKey = browser.characterKey.replace(/-?shift/, "");
-    } else if (key === 17 || key === 224) {
-        browser.characterKey = browser.characterKey.replace(/control-?/, "");
-    } else if (key === 18) {
-        browser.characterKey = browser.characterKey.replace(/-?alt/, "");
     }
 };
 

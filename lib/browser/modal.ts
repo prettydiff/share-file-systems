@@ -1013,7 +1013,7 @@ modal.zTop     = function local_modal_zTop(event:MouseEvent):void {
         parent:HTMLElement = <HTMLElement>element.parentNode,
         grandParent:HTMLElement = <HTMLElement>parent.parentNode;
     let box:HTMLElement = element;
-    if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && browser.characterKey === "shift") {
+    if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
         event.preventDefault();
     }
     if (element.getAttribute("class") !== "box") {

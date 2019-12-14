@@ -127,28 +127,6 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
                     network.heartbeat("active", true);
-            
-                    // determine if keyboard control keys are held
-                    document.onkeydown = function load_restore_complete_keydown(event:KeyboardEvent):void {
-                        const key:number = event.keyCode;
-                        if (key === 16) {
-                            browser.characterKey = `${browser.characterKey.replace(/-?shift/, "")}-shift`;
-                        } else if (key === 17 || key === 224) {
-                            browser.characterKey = `control-${browser.characterKey.replace(/control-?/, "")}`;
-                        } else if (key === 18) {
-                            browser.characterKey = `${browser.characterKey.replace(/-?alt/, "")}-alt`;
-                        }
-                        browser.characterKey = browser.characterKey.replace(/^-/, "").replace(/-$/, "").replace("alt-shift", "shift-alt");
-                        if (localhost !== null && browser.socket.readyState === 1) {
-                            const status:string = localhost.getAttribute("class");
-                            if (status !== "active") {
-                                localhost.setAttribute("class", "active");
-                                network.heartbeat("active", false);
-                            }
-                        }
-                        active = Date.now();
-                    };
-                    document.onkeyup = util.keyup;
 
                     // watch for local idleness
                     document.onclick = function load_restore_complete_click():void {

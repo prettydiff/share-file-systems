@@ -261,6 +261,8 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
     }
 };
 
+fs.dragFlag = "";
+
 /* Shows child elements of a directory */
 fs.expand = function local_fs_expand(event:MouseEvent):void {
     const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -377,7 +379,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     output.tabIndex = 0;
     output.title = list[0][0];
     output.oncontextmenu = context.menu;
-    output.onkeyup = util.keys;
+    output.onkeydown = util.keys;
     output.onclick = function local_fs_list_click(event:MouseEvent):void {
         const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
             listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
@@ -479,13 +481,13 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     li.appendChild(label);
     li.onclick = fs.select;
     li.oncontextmenu = context.menu;
-    li.onkeyup = util.keys; // key combinations
+    li.onkeydown = util.keys; // key combinations
     li.onmousedown = fs.drag;
     li.onmouseover = function local_fs_listItem_mouseOver(event:MouseEvent):void {
         const dragBox:HTMLElement = document.getElementById("dragBox"),
             element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
         if (dragBox !== null) {
-            if (browser.characterKey.indexOf("control") > -1) {
+            if (event.ctrlKey === true) {
                 element.click();
             }
         }
@@ -751,25 +753,8 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         body = <HTMLElement>body.parentNode;
     } while (body !== document.documentElement && body.getAttribute("class") !== "body");
     box = <HTMLElement>body.parentNode.parentNode;
-    if (browser.characterKey === "") {
-        const inputs = body.getElementsByTagName("input"),
-            inputsLength = inputs.length,
-            selected:boolean = (li.getAttribute("class").indexOf("selected") > 0);
-        let a:number = 0,
-            item:HTMLElement;
-        do {
-            if (inputs[a].checked === true) {
-                inputs[a].checked = false;
-                item = <HTMLElement>inputs[a].parentNode.parentNode;
-                item.setAttribute("class", item.getAttribute("class").replace(/(\s+selected)+/, ""));
-            }
-            a = a + 1;
-        } while (a < inputsLength);
-        input.checked = true;
-        if (selected === false) {
-            li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
-        }
-    } else if (browser.characterKey === "control") {
+
+    if (event.ctrlKey === true || fs.dragFlag === "control") {
         if (state === true) {
             input.checked = false;
             li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
@@ -777,7 +762,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
             input.checked = true;
             li.setAttribute("class", `${li.getAttribute("class")} selected`);
         }
-    } else if (browser.characterKey === "shift") {
+    } else if (event.shiftKey === true || fs.dragFlag === "shift") {
         const liList = body.getElementsByTagName("li"),
             shift = function local_fs_select_shift(index:number, end:number):void {
                 if (state === true) {
@@ -829,6 +814,24 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
             shift(elementIndex, focusIndex);
         } else {
             shift(focusIndex + 1, elementIndex + 1);
+        }
+    } else {
+        const inputs = body.getElementsByTagName("input"),
+            inputsLength = inputs.length,
+            selected:boolean = (li.getAttribute("class").indexOf("selected") > 0);
+        let a:number = 0,
+            item:HTMLElement;
+        do {
+            if (inputs[a].checked === true) {
+                inputs[a].checked = false;
+                item = <HTMLElement>inputs[a].parentNode.parentNode;
+                item.setAttribute("class", item.getAttribute("class").replace(/(\s+selected)+/, ""));
+            }
+            a = a + 1;
+        } while (a < inputsLength);
+        input.checked = true;
+        if (selected === false) {
+            li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
         }
     }
     browser.data.modals[box.getAttribute("id")].focus = li;

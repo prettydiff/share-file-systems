@@ -1,6 +1,5 @@
 
 const browser:browser = {
-    characterKey: "",
     content: document.getElementById("content-area"),
     data: {
         modals: {},

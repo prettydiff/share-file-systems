@@ -1,6 +1,6 @@
 
-type characterKey = "" | "control" | "control-shift" | "shift";
 type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
+type dragFlag = "" | "control" | "shift";
 type eventCallback = (event:Event, callback:Function) => void;
 type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
@@ -41,7 +41,6 @@ interface base64Output {
     id: string;
 }
 interface browser {
-    characterKey: string;
     content: HTMLElement;
     data: ui_data;
     loadTest: boolean;
@@ -229,6 +228,7 @@ interface module_context {
 interface module_fs {
     directory?: EventHandlerNonNull;
     drag?: EventHandlerNonNull;
+    dragFlag?: dragFlag;
     expand?: EventHandlerNonNull;
     list?: (location:string, dirData:fsRemote) => [HTMLElement, number];
     listFail?: (count:number, box:HTMLElement) => void;
@@ -276,7 +276,6 @@ interface module_util {
     inviteStart?: modalSettings;
     inviteRespond?: (message:string) => void;
     keys?: (event:KeyboardEvent) => void;
-    keyup?: (event:KeyboardEvent) => void;
     login?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
     prettyBytes?: (an_integer:number) => string;
