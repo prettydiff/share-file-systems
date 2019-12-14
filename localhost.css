@@ -227,9 +227,9 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList .link::before{content: "🔗 "}
 #spaces .fileList .lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
-#spaces .fileList li.selected{background:#ffffe8;outline:0.2em solid #ee0}
+#spaces .fileList li.selected{background:#def;outline:0.2em solid #9af}
 #spaces .fileList li.selected.cut{background:#cfc;outline:0.2em solid #3f3}
-#spaces .fileList li.cut{background:#cef;opacity:0.5;outline:0.2em solid #9af}
+#spaces .fileList li.cut{background:#ffd;opacity:0.5;outline:0.2em solid #ee0}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 2em 0 0;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
