@@ -754,6 +754,10 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     } while (body !== document.documentElement && body.getAttribute("class") !== "body");
     box = <HTMLElement>body.parentNode.parentNode;
 
+    if (document.getElementById("dragBox") !== null) {
+        return;
+    }
+
     if (event.ctrlKey === true || fs.dragFlag === "control") {
         if (state === true) {
             input.checked = false;

@@ -252,8 +252,10 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
             ? touchEvent.touches[0].clientY
             : mouseEvent.clientY,   
         drop       = function local_util_dragBox_drop(e:Event):boolean {
-            callback(event);
-            drag.parentNode.removeChild(drag);
+            callback(event, drag);
+            if (drag.parentNode !== null) {
+                drag.parentNode.removeChild(drag);
+            }
             if (touch === true) {
                 document.ontouchmove = null;
                 document.ontouchend  = null;
@@ -347,11 +349,10 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
 };
 
 /* Selects list items in response to drawing a drag box */
-util.dragList = function local_util_dragList(event:MouseEvent):void {
+util.dragList = function local_util_dragList(event:MouseEvent, dragBox:HTMLElement):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
         length:number = li.length,
-        dragBox:HTMLElement = document.getElementById("dragBox"),
         perimeter = function local_util_dragList_perimeter(node:HTMLElement):perimeter {
             return {
                 bottom: node.offsetTop + node.clientHeight,
@@ -365,6 +366,7 @@ util.dragList = function local_util_dragList(event:MouseEvent):void {
     let a:number = 0,
         first:number = 0,
         last:number = 0;
+    dragBox.parentNode.removeChild(dragBox);
     if (dragArea.bottom < 1) {
         return;
     }
