@@ -237,6 +237,9 @@ interface module_fs {
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
     saveFile?: EventHandlerNonNull;
+    search?: EventHandlerNonNull;
+    searchBlur?: EventHandlerNonNull;
+    searchFocus?: EventHandlerNonNull;
     select?: EventHandlerNonNull;
     text?: EventHandlerNonNull;
 }

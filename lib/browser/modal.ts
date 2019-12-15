@@ -301,14 +301,6 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             span.innerHTML = "Text of file system address.";
             label.appendChild(span);
             extra = document.createElement("p");
-            if (options.type === "fileNavigate") {
-                extra.style.paddingLeft = "5em";
-                button = document.createElement("button");
-                button.innerHTML = "▲<span>Parent directory</span>";
-                button.setAttribute("class", "parentDirectory");
-                button.onclick = fs.parent;
-                extra.appendChild(button);
-            }
             input = document.createElement("input");
             input.type = "text";
             input.spellcheck = false;
@@ -322,9 +314,33 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             if (options.text_value !== undefined) {
                 input.value = options.text_value;
             }
-            extra.setAttribute("class", "header");
-            label.appendChild(input);
-            extra.appendChild(label);
+            if (options.type === "fileNavigate") {
+                const searchLabel:HTMLElement = document.createElement("label"),
+                    search:HTMLInputElement = document.createElement("input");
+                extra.style.paddingLeft = "5em";
+                button = document.createElement("button");
+                button.innerHTML = "▲<span>Parent directory</span>";
+                button.setAttribute("class", "parentDirectory");
+                button.onclick = fs.parent;
+                extra.appendChild(button);
+                search.type = "text";
+                search.placeholder = "⌕ Search";
+                search.onblur = fs.searchBlur;
+                search.onfocus = fs.searchFocus;
+                search.onkeyup = fs.search;
+                searchLabel.innerHTML = "<span>Search for file system artifacts from this location.</span>";
+                searchLabel.setAttribute("class", "fileSearch");
+                searchLabel.appendChild(search);
+                extra.setAttribute("class", "header");
+                label.setAttribute("class", "fileAddress");
+                label.appendChild(input);
+                extra.appendChild(label);
+                extra.appendChild(searchLabel);
+            } else {
+                extra.setAttribute("class", "header");
+                label.appendChild(input);
+                extra.appendChild(label);
+            }
             border.appendChild(extra);
         }
     }

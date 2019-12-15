@@ -734,6 +734,32 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     });
 };
 
+/* Search for file system artifacts from a modal's current location */
+fs.search = function local_fs_search(event:KeyboardEvent):void {
+    // write search service
+    // onfocus expand this to 60%
+    // onblur return to 12.5%
+    // on horizontal resize the header bar must be sized and test this on minimal horizontal modal
+};
+
+/* Return the search field to its regular size when blurred */
+fs.searchBlur = function local_fs_searchBlur(event:Event):void {
+    const search:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        searchParent:HTMLElement = <HTMLElement>search.parentNode,
+        address:HTMLElement = <HTMLElement>searchParent.previousSibling;
+    searchParent.style.width = "12.5%";
+    address.style.width = "87.5%";
+};
+
+/* Expand the search field to a large size when focused */
+fs.searchFocus = function local_fs_searchFocus(event:Event):void {
+    const search:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        searchParent:HTMLElement = <HTMLElement>search.parentNode,
+        address:HTMLElement = <HTMLElement>searchParent.previousSibling;
+    searchParent.style.width = "60%";
+    address.style.width = "40%";
+};
+
 /* Select a file system item for an action */
 fs.select = function local_fs_select(event:KeyboardEvent):void {
     event.preventDefault();
@@ -852,7 +878,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     box = <HTMLElement>parent.parentNode;
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
-    if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
+    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
         network.fs({
             action: "fs-directory",
             agent: util.getAgent(box)[0],
