@@ -17,7 +17,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
                     ? serverVars.users.localhost.shares
                     : serverVars.users[data.agent].shares,
             windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-            readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read"];
+            readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
             sIndex:number = shares.length,
             bestMatch:number = -1;

@@ -380,19 +380,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     output.title = list[0][0];
     output.oncontextmenu = context.menu;
     output.onkeydown = util.keys;
-    output.onclick = function local_fs_list_click(event:MouseEvent):void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
-            inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
-                ? listItems[listItems.length - 1].getElementsByTagName("input")
-                : null,
-            lastInput:HTMLElement = (inputs === null)
-                ? null
-                : inputs[inputs.length - 1];
-        if (lastInput !== null) {
-            lastInput.focus();
-        }
-    };
+    output.onclick = fs.listFocus;
     output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
         util.dragBox(event, util.dragList);
     };
@@ -415,6 +403,21 @@ fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
         p.innerHTML = "";
     } else {
         p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operation system.`;
+    }
+};
+
+/* When clicking on a file list give focus to an input field so that the list can receive focus */
+fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
+        inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
+            ? listItems[listItems.length - 1].getElementsByTagName("input")
+            : null,
+        lastInput:HTMLElement = (inputs === null)
+            ? null
+            : inputs[inputs.length - 1];
+    if (lastInput !== null) {
+        lastInput.focus();
     }
 };
 
@@ -736,10 +739,80 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 
 /* Search for file system artifacts from a modal's current location */
 fs.search = function local_fs_search(event:KeyboardEvent):void {
-    // write search service
-    // onfocus expand this to 60%
-    // onblur return to 12.5%
-    // on horizontal resize the header bar must be sized and test this on minimal horizontal modal
+    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        box:HTMLElement = (function local_fs_search_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+        addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
+        address:string = addressLabel.getElementsByTagName("input")[0].value,
+        id:string = box.getAttribute("id");
+    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+        body.innerHTML = "";
+        body.append(util.delay());
+        network.fs({
+            action: "fs-search",
+            agent: util.getAgent(box)[0],
+            copyAgent: "",
+            depth: 0,
+            id: id,
+            location: [address],
+            name: element.value,
+            watch: "no"
+        }, function local_fs_search_callback(responseText:string):void {
+            if (responseText === "") {
+                body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
+            } else {
+                const dirData = JSON.parse(responseText),
+                    length:number = dirData.dirs.length;
+                if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>0</strong> matches.</p>`;
+                } else {
+                    const plural:string = (dirData.dirs.length === 1)
+                            ? ""
+                            : "es",
+                        output:HTMLElement = document.createElement("ul");
+                    let a:number = 0;
+                    output.tabIndex = 0;
+                    output.oncontextmenu = context.menu;
+                    output.onkeydown = util.keys;
+                    output.onclick = fs.listFocus;
+                    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
+                        util.dragBox(event, util.dragList);
+                    };
+                    output.setAttribute("class", "fileList");
+                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>${length}</strong> match${plural}.</p>`;
+                    dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
+                        // when types are the same
+                        if (a[1] === b[1]) {
+                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                                return -1;
+                            }
+                            return 1;
+                        }
+                
+                        // when types are different
+                        if (a[1] === "directory") {
+                            return -1;
+                        }
+                        if (a[1] === "link" && b[1] === "file") {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    do {
+                        output.appendChild(fs.listItem(dirData.dirs[a], ""));
+                        a = a + 1;
+                    } while (a < length);
+                    body.appendChild(output);
+                }
+            }
+        });
+    }
 };
 
 /* Return the search field to its regular size when blurred */

@@ -119,6 +119,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box{border-style:none;box-shadow:0.1em 0.1em 1em #999;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
 #spaces .box p.error{color:#c00;font-size:2em}
+#spaces .box p.summary{color:#33f;font-size:2em}
 #spaces .messageList .expansion span,
 #spaces .box .parentDirectory span,
 #spaces .fileList .expansion span,
