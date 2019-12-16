@@ -123,7 +123,7 @@ const library = {
                     });
                 } else {
                     response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(`Forbidden`);
+                    response.write(`Forbidden:${serverVars.name}`);
                     response.end();
                 }
             }),

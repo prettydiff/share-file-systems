@@ -119,6 +119,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("all-shares").onclick = function local_restore_complete_sharesAll(event:MouseEvent):void {
                         modal.shares(event, "", null);
                     };
+                    document.getElementById("delete-shares").onclick = modal.sharesDeleteList;
                     document.getElementById("invite-user").onclick = util.inviteStart;
                     document.getElementById("login-input").onkeyup = util.login;
                     document.getElementById("menuToggle").onclick = util.menu;
@@ -379,6 +380,9 @@ import webSocket from "./lib/browser/webSocket.js";
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {
                                     modal.shares(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
+                                    z(value);
+                                } else if (storage.settings.modals[value].type === "share_delete") {
+                                    modal.sharesDeleteList(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "invite-request") {
                                     util.inviteStart(null, "", storage.settings.modals[value]);

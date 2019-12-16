@@ -66,6 +66,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .icon-textPad{color:#c0f}
 #spaces .icon-export{color:#aa0}
 #spaces .icon-inviteUser{color:#faa}
+#spaces .icon-shares-delete{color:#f00}
 #spaces #menu{border:0.1em solid #000;box-shadow:0.1em 0.1em 0.25em #999;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
 #spaces #menu li{display:block;padding:0}
 #spaces #menu button{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
@@ -103,10 +104,14 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #users span{background:#000;display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
 #spaces #users #invite-user{background:#e8ffe8;color:#040}
 #spaces #users #all-shares{background:#def;color:#00c}
+#spaces #users #delete-shares{background:#fed;color:#800}
 #spaces #users #invite-user:hover,
-#spaces #users #all-shares:hover{background:#fff}
+#spaces #users #all-shares:hover,
+#spaces #users #delete-shares:hover{background:#fff}
 #spaces #users #invite-user::before,
-#spaces #users #all-shares::before{content:""}
+#spaces #users #all-shares::before,
+#spaces #users #delete-shares::before{content:""}
+
 
 /* minimize tray at bottom */
 #spaces #tray{background:#ddd;border-color:#666;border-style:solid none none;border-width:0.1em;bottom:0;display:block;height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
@@ -119,7 +124,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box{border-style:none;box-shadow:0.1em 0.1em 1em #999;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
 #spaces .box p.error{color:#c00;font-size:2em}
-#spaces .box p.summary{color:#33f;font-size:2em}
+#spaces .box p.summary{color:#33f;font-size:2em;margin:0 2em}
+#spaces .box p.summary strong{display:block}
 #spaces .messageList .expansion span,
 #spaces .box .header button span,
 #spaces .fileList .expansion span,
@@ -216,6 +222,14 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .userList .user::before{content:"👤 "}
 #spaces div.userList li,
 #spaces ul.userList li li{border-color:#ccc}
+
+/* share delete */
+#spaces .sharesDeleteList{padding:0 5em}
+#spaces .sharesDeleteList li{display:block;list-style:none;margin:2em 0 0}
+#spaces .sharesDeleteList input{display:inline-block;margin:0 1em 0 0}
+#spaces .sharesDeleteList label{background:#eee;border:0.05em solid #666;display:block;font-size:2em;padding:0.5em}
+#spaces .sharesDeleteList label:hover{text-decoration:underline}
+#spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
 #spaces .fileList{margin:0;min-height:100%;padding:0 5em}

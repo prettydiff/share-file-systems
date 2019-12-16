@@ -135,6 +135,43 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             shares: invite.shares
         };
         util.addUser(user);
+    } else if (options.type === "share_delete") {
+        const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            list:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("li"),
+            users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
+            names:string[] = [];
+        let a:number = list.length,
+            usersLength:number = users.length,
+            b:number = 3,
+            text:string,
+            length:number;
+        do {
+            a = a - 1;
+            if (list[a].getElementsByTagName("input")[0].checked === true) {
+                text = list[a].lastChild.textContent;
+                names.push(text);
+                list[a].parentNode.removeChild(list[a]);
+                delete browser.users[text];
+            }
+        } while (a > 0);
+        if (names.length < 1) {
+            return;
+        }
+        a = 0;
+        length = names.length;
+        do {
+            b = usersLength;
+            do {
+                b = b - 1;
+                if (users[b].getElementsByTagName("button")[0].getAttribute("data-agent") === names[a]) {
+                    users[b].parentNode.removeChild(users[b]);
+                    break;
+                }
+            } while (b > 3);
+            usersLength = usersLength - 1;
+            a = a + 1;
+        } while (a < length);
+        network.storage("users");
     }
     modal.close(event);
 };
@@ -1024,6 +1061,84 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
         configuration.text_value = user;
         configuration.inputs = ["close", "maximize", "minimize"];
         modal.create(configuration);
+    }
+};
+
+/* Creates a confirmation modal listing users for deletion */
+modal.sharesDeleteList = function local_modal_sharesDeleteList(event:MouseEvent, configuration?:ui_modal):void {
+    const content:HTMLElement = document.createElement("div"),
+        p:HTMLElement = document.createElement("p"),
+        ul:HTMLElement = document.createElement("ul"),
+        users:users = browser.users,
+        names:string[] = Object.keys(users),
+        length:number = names.length;
+    let li:HTMLElement,
+        a:number = 0,
+        input:HTMLInputElement,
+        label:HTMLElement,
+        text:Text;
+    p.setAttribute("class", "summary");
+    if (length > 1) {
+        p.innerHTML = "<strong>Please be warned that confirming this change is permanent.</strong> The user will be deleted from your devices and you from theirs.";
+        ul.setAttribute("class", "sharesDeleteList");
+        do {
+            if (names[a] !== "localhost") {
+                li = document.createElement("li");
+                label = document.createElement("label");
+                input = document.createElement("input");
+                text = document.createTextNode(names[a]);
+                input.type = "checkbox";
+                input.onclick = modal.sharesDeleteToggle;
+                label.appendChild(input);
+                label.appendChild(text);
+                li.appendChild(label);
+                ul.appendChild(li);
+            }
+            a = a + 1;
+        } while (a < length);
+        content.appendChild(p);
+        content.appendChild(ul);
+    } else {
+        p.innerHTML = "No users to delete."
+        content.appendChild(p);
+    }
+    if (configuration === undefined) {
+        modal.create({
+            agent: "localhost",
+            content: content,
+            inputs: (length > 1)
+                ? ["confirm", "cancel", "close"]
+                : ["close"],
+            read_only: false,
+            single: true,
+            title: "<span class=\"icon-shares-delete\">☣</span> Delete Shares",
+            type: "share_delete",
+            width: 750
+        });
+        network.storage("settings");
+    } else {
+        configuration.agent = "localhost";
+        configuration.content = content;
+        if (length > 1) {
+            configuration.inputs = ["confirm", "cancel", "close"];
+        } else {
+            configuration.inputs = ["close"];
+        }
+        configuration.single = true;
+        configuration.title = "<span class=\"icon-shares-delete\">☣</span> Delete Shares";
+        configuration.type = "share_delete";
+        modal.create(configuration);
+    }
+};
+
+/* Changes visual state of items in the shares delete list as they are checked or unchecked*/
+modal.sharesDeleteToggle = function local_modal_sharesDeleteToggle(event:MouseEvent):void {
+    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        label:HTMLElement = <HTMLElement>element.parentNode;
+    if (element.checked === true) {
+        label.setAttribute("class", "checked");
+    } else {
+        label.removeAttribute("class");
     }
 };
 

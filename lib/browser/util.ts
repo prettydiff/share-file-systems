@@ -946,7 +946,7 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
                 del.setAttribute("class", "delete");
                 del.setAttribute("title", "Delete this share");
                 del.innerHTML = "\u2718<span>Delete this share</span>";
-                del.onclick = util.shareDelete;
+                del.onclick = util.shareItemDelete;
                 span = document.createElement("span");
                 span.setAttribute("class", "clear");
                 item.appendChild(del);
@@ -1014,7 +1014,7 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
 };
 
 /* Delete a localhost share */
-util.shareDelete = function local_util_shareDelete(event:MouseEvent):void {
+util.shareItemDelete = function local_util_shareItemDelete(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         parent:HTMLElement = <HTMLElement>element.parentNode,
         address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,

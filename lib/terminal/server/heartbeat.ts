@@ -33,7 +33,8 @@ const library = {
                     chunks.push(chunk);
                 });
                 heartbeatResponse.on("end", function terminal_server_create_end_heartbeatResponse_end():void {
-                    vars.ws.broadcast(chunks.join(""));
+                    const message:string = chunks.join("");
+                    vars.ws.broadcast(message);
                 });
                 heartbeatResponse.on("error", function terminal_server_create_end_heartbeatResponse_error(errorMessage:nodeError):void {
                     vars.ws.broadcast([errorMessage.toString()]);
