@@ -54,7 +54,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location: string[]
       * name    : ""
       * watch   : "no"*
-**fs-copy**
+* **fs-copy**
    - description: Replicates existing file system artifacts into a new location in the file system.
    - output     : void
    - parameters
@@ -66,7 +66,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
-**fs-copy-file**
+* **fs-copy-file**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-copy-list* to retrieve a single file from a different agent.
    - output     : void
    - parameters
@@ -78,7 +78,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
-**fs-copy-list**
+* **fs-copy-list**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-copy* if the file's agent and destination agent are not the same.
    - output     : void
    - parameters
@@ -90,7 +90,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
-**fs-copy-request**
+* **fs-copy-request**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-copy* so that a remote requests files from localhost.
    - output     : void
    - parameters
@@ -100,9 +100,21 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * depth    : 1
       * id       : string
       * location : string[]
-      * name     : string  - sort list of files to be requested
+      * name     : string  - *sort list of files to be requested*
       * watch    : "no"
-**fs-cut**
+* **fs-copy-self**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-copy* to copy file system artifacts from one location to another on the same remote device.
+   - output     : void
+   - parameters
+      * action   : **"fs-copy-self"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string  - *file system destination address*
+      * watch    : "no"
+* **fs-cut**
    - description: Same as copy, but deletes the original artifacts after writing them to the new location.
    - output     : void
    - parameters
@@ -114,7 +126,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
-**fs-cut-file**
+* **fs-cut-file**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-cut-list* to retrieve a single file from a different agent.
    - output     : void
    - parameters
@@ -126,7 +138,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
-**fs-cut-list**
+* **fs-cut-list**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-cut* if the file's agent and destination agent are not the same.
    - output     : void
    - parameters
@@ -138,7 +150,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * location : string[]
       * name     : ""
       * watch    : "no"
-**fs-cut-remove**
+* **fs-cut-remove**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut-request* so that files are removed after successfully written onto a different computer.
    - output     : void
    - parameters
@@ -148,9 +160,9 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * depth    : 1
       * id       : string
       * location : string[]
-      * name     : string - stringified list of values "file" or "directory" corresponding to data.location
+      * name     : string - *stringified list of values "file" or "directory" corresponding to data.location*
       * watch    : "no"
-**fs-cut-request**
+* **fs-cut-request**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut* so that a remote requests files from localhost.
    - output     : void
    - parameters
@@ -160,7 +172,19 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * depth    : 1
       * id       : string
       * location : string[]
-      * name     : string  - sort list of files to be requested
+      * name     : string  - *sort list of files to be requested*
+      * watch    : "no"
+* **fs-cut-self**
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut* to move file system artifacts from one location to another on the same remote device.
+   - output     : void
+   - parameters
+      * action   : **"fs-cut-self"**
+      * agent    : string
+      * copyAgent: string
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string  - *file system destination*
       * watch    : "no"
 * **fs-destroy**
    - description: Remove file system artifacts from the file system.
@@ -237,7 +261,29 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * depth   : 1
       * id      : string
       * location: string[]
-      * name    : string
+      * name    : string - *new artifact name*
+      * watch   : "no"
+* **fs-search**:
+   - description: Searches a file system tree for artifacts containing a specified string fragment.
+   - output     : void
+   - parameters
+      * action  : **"fs-search"**
+      * agent   : string
+      * depth   : 0
+      * id      : string
+      * location: string[]
+      * name    : string - *search string fragment*
+      * watch   : "no"
+* **fs-write**:
+   - description: Writes changes to a file.
+   - output     : void
+   - parameters
+      * action  : **"fs-write"**
+      * agent   : string
+      * depth   : 1
+      * id      : string
+      * location: string[]
+      * name    : string - *name of file to modify*
       * watch   : "no"
 
 ## Data Storage
