@@ -40,7 +40,7 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             headers: {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(payload),
-                "userName": serverVars.name
+                "user-name": serverVars.name
             },
             host: ipAddress,
             method: "POST",

@@ -9,16 +9,16 @@ const util:module_util = {},
     expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Adds users to the user bar */
-util.addUser = function local_util_addUser(userName:string):void {
+util.addUser = function local_util_addUser(user:string):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
-        name:string = (userName.lastIndexOf("@localhost") === userName.length - "@localhost".length)
+        name:string = (user.lastIndexOf("@localhost") === user.length - "@localhost".length)
             ? "localhost"
-            : userName,
+            : user,
         addStyle = function local_util_addUser_addStyle() {
             let body:string,
                 heading:string;
-            const prefix:string = `#spaces .box[data-agent="${userName}"] `,
+            const prefix:string = `#spaces .box[data-agent="${user}"] `,
                 generateColor = function local_util_addUser_addStyle_generateColor():void {
                     const rand:[number, number, number] = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)],
                         code1:string[] = ["#"],
@@ -38,29 +38,29 @@ util.addUser = function local_util_addUser(userName:string):void {
                     body = code1.join("");
                     heading = code2.join("");
                 };
-            if (browser.users[userName].color[0] === "") {
+            if (browser.users[user].color[0] === "") {
                 generateColor();
                 if (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3)) {
                     do {
                         generateColor();
                     } while (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3));
                 }
-                browser.users[userName].color = [body, heading];
+                browser.users[user].color = [body, heading];
             } else {
-                body = browser.users[userName].color[0];
-                heading = browser.users[userName].color[1];
+                body = browser.users[user].color[0];
+                heading = browser.users[user].color[1];
             }
             browser.style.innerHTML = browser.style.innerHTML + [
-                `#spaces #users button[data-agent="${userName}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
-                `${prefix}.body,#spaces #users button[data-agent="${userName}"]:hover{background-color:${body}}`
+                `#spaces #users button[data-agent="${user}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
+                `${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${body}}`
             ].join("");
         };
-    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
+    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${user}`;
     if (name === "localhost") {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
-        button.setAttribute("data-agent", userName);
+        button.setAttribute("data-agent", user);
         addStyle();
     }
     button.onclick = function local_util_addUser(event:MouseEvent) {

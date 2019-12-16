@@ -89,7 +89,7 @@ const library = {
                                         headers: {
                                             "content-type": "application/x-www-form-urlencoded",
                                             "content-length": Buffer.byteLength(payload),
-                                            "username": serverVars.name
+                                            "user-name": serverVars.name
                                         },
                                         host: remoteAddress,
                                         method: "POST",
