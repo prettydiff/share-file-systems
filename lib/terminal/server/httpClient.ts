@@ -23,7 +23,7 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
         }()),
         port:number = (function terminal_server_httpClient_port():number {
             const portString:string = config.data.agent.slice(config.data.agent.lastIndexOf(":") + 1);
-            if (config.data.action === "fs-base64" || config.data.action === "fs-destroy" || config.data.action === "fs-details" || config.data.action === "fs-hash" || config.data.action === "fs-new" || config.data.action === "fs-read" || config.data.action === "fs-rename" || config.data.action === "fs-write") {
+            if (config.data.action === "fs-base64" || config.data.action === "fs-destroy" || config.data.action === "fs-details" || config.data.action === "fs-hash" || config.data.action === "fs-new" || config.data.action === "fs-read" || config.data.action === "fs-rename" || config.data.action === "fs-search" || config.data.action === "fs-write") {
                 config.data.agent = "localhost";
             } else if (config.data.action === "fs-copy-request" || config.data.action === "fs-cut-request") {
                 config.data.agent = serverVars.name;
@@ -40,7 +40,7 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             headers: {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(payload),
-                "userName": serverVars.name
+                "user-name": serverVars.name
             },
             host: ipAddress,
             method: "POST",

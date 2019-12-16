@@ -249,9 +249,8 @@ const library = {
                         },
                         depth: 0,
                         exclusions: vars.exclusions,
-                        hash: false,
+                        mode: "read",
                         path: <string>input.source,
-                        recursive: true,
                         symbolic: true
                     });
                 } else {

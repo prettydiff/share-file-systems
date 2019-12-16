@@ -52,9 +52,8 @@ const library = {
                         },
                         depth: 2,
                         exclusions: [],
-                        hash: false,
+                        mode: "read",
                         path: data.name,
-                        recursive: true,
                         symbolic: true
                     });
                 }
@@ -90,7 +89,7 @@ const library = {
                                         headers: {
                                             "content-type": "application/x-www-form-urlencoded",
                                             "content-length": Buffer.byteLength(payload),
-                                            "username": serverVars.name
+                                            "user-name": serverVars.name
                                         },
                                         host: remoteAddress,
                                         method: "POST",
@@ -135,9 +134,8 @@ const library = {
                             },
                             depth: 2,
                             exclusions: [],
-                            hash: false,
+                            mode: "read",
                             path: value,
-                            recursive: true,
                             symbolic: true
                         });
                     }
@@ -190,9 +188,8 @@ const library = {
                                 callback: terminal_server_fileService_remoteCopyList_callback,
                                 depth: 0,
                                 exclusions: [],
-                                hash: false,
+                                mode: "read",
                                 path: data.location[config.index],
-                                recursive: true,
                                 symbolic: false
                             });
                         } else {
@@ -233,9 +230,8 @@ const library = {
                     callback: callback,
                     depth: 0,
                     exclusions: [],
-                    hash: false,
+                    mode: "read",
                     path: data.location[config.index],
-                    recursive: true,
                     symbolic: false
                 });
             },
@@ -528,7 +524,7 @@ const library = {
                     });
                 });
             };
-        if (data.agent !== "localhost" && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-write")) {
+        if (data.agent !== "localhost" && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
             library.httpClient({
                 callback: function terminal_server_fileService_remoteString(fsResponse:http.IncomingMessage):void {
                     const chunks:string[] = [];
@@ -651,9 +647,8 @@ const library = {
                                     callback: driveList,
                                     depth: 1,
                                     exclusions: [],
-                                    hash: false,
+                                    mode: "read",
                                     path: `${value}\\`,
-                                    recursive: true,
                                     symbolic: true
                                 });
                             });
@@ -684,9 +679,8 @@ const library = {
                                 callback: callback,
                                 depth: data.depth,
                                 exclusions: [],
-                                hash: false,
+                                mode: "read",
                                 path: value,
-                                recursive: true,
                                 symbolic: true
                             });
                         });
@@ -1024,6 +1018,22 @@ const library = {
                     }
                 });
             }
+        } else if (data.action === "fs-search") {
+            const callback = function terminal_server_fileService_searchCallback(result:directoryList):void {
+                delete result.failures;
+                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                response.write(`{"id":"${data.id}","dirs":${JSON.stringify(result)},"fail":[]}`);
+                response.end();
+            };
+            library.directory({
+                callback: callback,
+                depth: data.depth,
+                exclusions: [],
+                mode: "search",
+                path: data.location[0],
+                search: data.name,
+                symbolic: true
+            });
         } else if (data.action === "fs-write") {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
                 let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;

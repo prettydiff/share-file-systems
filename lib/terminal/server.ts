@@ -51,23 +51,23 @@ const library = {
             httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
-                } else if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers.username] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
+                } else if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers["user-name"]] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
                     let body:string = "",
                         decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
-                    request.on('data', function (data:Buffer) {
+                    request.on('data', function terminal_server_create_data(data:Buffer) {
                         body = body + decoder.write(data);
                         if (body.length > 1e6) {
                             request.connection.destroy();
                         }
                     });
                     
-                    request.on("error", function terminal_server_create_end_errorRequest(errorMessage:nodeError):void {
+                    request.on("error", function terminal_server_create_errorRequest(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
                             library.log([body, "request", errorMessage.toString()]);
                             vars.ws.broadcast(errorMessage.toString());
                         }
                     });
-                    response.on("error", function terminal_server_create_end_errorResponse(errorMessage:nodeError):void {
+                    response.on("error", function terminal_server_create_errorResponse(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
                             library.log([body, "response"]);
                             if (errorMessage.toString().indexOf("write after end") > -1) {
@@ -290,7 +290,7 @@ const library = {
                                                 headers: {
                                                     "content-type": "application/x-www-form-urlencoded",
                                                     "content-length": Buffer.byteLength(payload),
-                                                    "username": serverVars.name
+                                                    "user-name": serverVars.name
                                                 },
                                                 host: ip,
                                                 method: "POST",

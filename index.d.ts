@@ -1,5 +1,6 @@
 
 type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
+type directoryMode = "hash" | "list" | "read" | "search";
 type dragFlag = "" | "control" | "shift";
 type eventCallback = (event:Event, callback:Function) => void;
 type heartbeatStatus = "" | "active" | "idle" | "offline";
@@ -8,7 +9,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
-type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-request" | "fs-cut-self" | "fs-cut-remove" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-write";
+type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type shareType = "directory" | "file" | "link";
 type storageType = "messages" | "settings" | "users";
@@ -232,11 +233,15 @@ interface module_fs {
     expand?: EventHandlerNonNull;
     list?: (location:string, dirData:fsRemote) => [HTMLElement, number];
     listFail?: (count:number, box:HTMLElement) => void;
+    listFocus?: EventHandlerNonNull;
     listItem?: (item:directoryItem, extraClass:string) => HTMLElement;
     navigate?: navigate;
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
     saveFile?: EventHandlerNonNull;
+    search?: EventHandlerNonNull;
+    searchBlur?: EventHandlerNonNull;
+    searchFocus?: EventHandlerNonNull;
     select?: EventHandlerNonNull;
     text?: EventHandlerNonNull;
 }
@@ -265,7 +270,6 @@ interface module_systems {
 interface module_util {
     addUser?: (username:string) => void;
     audio?: (name:string) => void;
-    commas?: (number:number) => string;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
     dragBox?: eventCallback;
@@ -327,9 +331,9 @@ interface readDirectory {
     callback: Function;
     depth: number;
     exclusions: string[];
-    hash: boolean;
+    mode: directoryMode;
     path: string;
-    recursive: boolean;
+    search?: string;
     symbolic: boolean;
 }
 interface readFile {

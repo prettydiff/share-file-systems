@@ -301,14 +301,6 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             span.innerHTML = "Text of file system address.";
             label.appendChild(span);
             extra = document.createElement("p");
-            if (options.type === "fileNavigate") {
-                extra.style.paddingLeft = "5em";
-                button = document.createElement("button");
-                button.innerHTML = "▲<span>Parent directory</span>";
-                button.setAttribute("class", "parentDirectory");
-                button.onclick = fs.parent;
-                extra.appendChild(button);
-            }
             input = document.createElement("input");
             input.type = "text";
             input.spellcheck = false;
@@ -322,9 +314,33 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             if (options.text_value !== undefined) {
                 input.value = options.text_value;
             }
-            extra.setAttribute("class", "header");
-            label.appendChild(input);
-            extra.appendChild(label);
+            if (options.type === "fileNavigate") {
+                const searchLabel:HTMLElement = document.createElement("label"),
+                    search:HTMLInputElement = document.createElement("input");
+                extra.style.paddingLeft = "5em";
+                button = document.createElement("button");
+                button.innerHTML = "▲<span>Parent directory</span>";
+                button.setAttribute("class", "parentDirectory");
+                button.onclick = fs.parent;
+                extra.appendChild(button);
+                search.type = "text";
+                search.placeholder = "⌕ Search";
+                search.onblur = fs.searchBlur;
+                search.onfocus = fs.searchFocus;
+                search.onkeyup = fs.search;
+                searchLabel.innerHTML = "<span>Search for file system artifacts from this location.</span>";
+                searchLabel.setAttribute("class", "fileSearch");
+                searchLabel.appendChild(search);
+                extra.setAttribute("class", "header");
+                label.setAttribute("class", "fileAddress");
+                label.appendChild(input);
+                extra.appendChild(label);
+                extra.appendChild(searchLabel);
+            } else {
+                extra.setAttribute("class", "header");
+                label.appendChild(input);
+                extra.appendChild(label);
+            }
             border.appendChild(extra);
         }
     }
@@ -490,6 +506,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         title = title.getElementsByTagName("button")[0];
     }
     if (browser.data.modals[id].status === "maximized") {
+        const status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0];
         title.style.cursor = "move";
         title.onmousedown = modal.move;
         browser.data.modals[id].status = "normal";
@@ -497,6 +514,9 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         box.style.left = `${browser.data.modals[id].left / 10}em`;
         body.style.width = `${browser.data.modals[id].width / 10}em`;
         body.style.height = `${browser.data.modals[id].height / 10}em`;
+        if (status !== undefined) {
+            status.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
+        }
     } else {
         browser.data.modals[id].status = "maximized";
         title.style.cursor = "default";
@@ -507,13 +527,18 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         body.style.height = (function local_modal_maximize_maxHeight():string {
             let height:number = contentArea.clientHeight,
                 footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-                header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0];
+                header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
+                status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0];
             height = (height - title.clientHeight) - 27;
             if (footer !== undefined) {
                 height = height - footer.clientHeight;
             }
             if (header !== undefined) {
                 height = height - header.clientHeight;
+            }
+            if (status !== undefined) {
+                height = height - status.clientHeight;
+                status.style.width = `${(contentArea.clientWidth - 40) / 10}em`;
             }
             return `${height / 10}em`;
         }());
@@ -689,12 +714,8 @@ modal.move = function local_modal_move(event:Event):void {
 
 /* Allows resizing of modals in 1 of 8 directions */
 modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
-    let bodyWidth:number = 0,
-        bodyHeight:number = 0,
-        clientWidth:number  = 0,
-        clientHeight:number = 0,
-        computedHeight:number = 0,
-        computedWidth:number = 0;
+    let clientWidth:number  = 0,
+        clientHeight:number = 0;
     const node:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         parent:HTMLElement     = <HTMLElement>node.parentNode,
         box:HTMLElement        = <HTMLElement>parent.parentNode,
@@ -770,6 +791,11 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
             network.storage("settings");
         },
         compute = function local_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
+            const minWidth:number = 44.5;
+            let bodyWidth:number,
+                bodyHeight:number,
+                computedWidth:number,
+                computedHeight:number;
             if (values[0] > -10) {
                 computedWidth = (leftTest === true)
                     ? left + (values[0] - offX)
@@ -777,7 +803,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                 bodyWidth = (leftTest === true)
                     ? ((clientWidth - offsetWidth) + (left - computedWidth)) / 10
                     : 0;
-                if (leftTest === true && bodyWidth > 35) {
+                if (leftTest === true && bodyWidth > minWidth) {
                     box.style.left = `${computedWidth / 10}em`;
                     body.style.width = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
@@ -789,7 +815,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         status.style.width = `${bodyWidth - 2}em`;
                         statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                     }
-                } else if (leftTest === false && computedWidth > 35) {
+                } else if (leftTest === false && computedWidth > minWidth) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
                     headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;

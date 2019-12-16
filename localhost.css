@@ -8,7 +8,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #login h1 .application-version{display:block}
 #spaces *:focus{outline:0.1em solid #39f}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
-#spaces input::placeholder{color:#888}
+#spaces input::placeholder{color:#933;opacity:1}
 #spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
 
@@ -119,6 +119,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box{border-style:none;box-shadow:0.1em 0.1em 1em #999;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
 #spaces .box p.error{color:#c00;font-size:2em}
+#spaces .box p.summary{color:#33f;font-size:2em}
 #spaces .messageList .expansion span,
 #spaces .box .parentDirectory span,
 #spaces .fileList .expansion span,
@@ -152,10 +153,14 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .footer .message{float:left;font-size:1.5em}
 #spaces .box .status-bar{border-color:#000;border-style:none solid solid;border-width:0.1em;background:#eee;padding:1em;position:relative;z-index:4}
 #spaces .box .status-bar p{font-size:1.5em;height:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0.5em 0.5em 0}
+#spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0 0.5em}
+#spaces .box .header label{display:inline-block}
 #spaces .box .header span{display:block;position:absolute;top:-200em}
-#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0 0.825em 0.5em -2.35em}
-#spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.9em;margin:0;padding:0;vertical-align:middle;width:100%}
+#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0.25em 0.825em 0.5em -2.35em}
+#spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.9em;margin:-0.125em 0 0 0;padding:0;vertical-align:middle;width:100%}
+#spaces .box .header .fileAddress{width:87.5%}
+#spaces .box .header .fileSearch{width:12.5%}
+#spaces .box .header .fileSearch input{border-color:#000;border-style:none none none solid;border-width:0.06em;margin:0;padding:0 0 0.13em 0.1em}
 #spaces .fileList li input.error,
 #spaces .box .header .error{background:#fdd;color:#900}
 #spaces .userList .localhost button.grant-full-access,

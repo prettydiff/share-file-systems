@@ -91,11 +91,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" depth:9`,
-                defined: "The depth of child directories to traverse. The default value of 0 ignores any limit."
-            },
-            {
-                code: `${vars.version.command} directory source:"my/directory/path" list`,
-                defined: "Returns an array of strings where each index is an absolute path"
+                defined: "The depth of child directories to traverse. The default value of 0 applies full recursion."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" symbolic`,
@@ -110,8 +106,16 @@ const commands_documentation = {
                 defined: "Returns a string describing the artifact type."
             },
             {
-                code: `${vars.version.command} directory source:"my/path" hash`,
+                code: `${vars.version.command} directory source:"my/path" mode:"hash"`,
                 defined: "Includes a SHA512 hash in the output for each file system object of type 'file'."
+            },
+            {
+                code: `${vars.version.command} directory source:"my/directory/path" mode:"list"`,
+                defined: "Returns an array of strings where each index is an absolute path."
+            },
+            {
+                code: `${vars.version.command} directory source:"my/directory/path" search:"any string"`,
+                defined: "Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied."
             }
         ]
     },

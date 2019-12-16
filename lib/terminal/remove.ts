@@ -114,9 +114,8 @@ const library = {
             callback: removeItems,
             depth: 0,
             exclusions: [],
-            hash: false,
+            mode: "read",
             path: filePath,
-            recursive: true,
             symbolic: true
         });
     };

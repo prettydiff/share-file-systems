@@ -21,7 +21,6 @@ const library = {
         // * hash - boolean - whether file types should be hashed
         // * exclusions - string array - a list of items to exclude
         // * path - string - where to start in the local file system
-        // * recursive - boolean - if child directories should be scanned
         // * symbolic - boolean - if symbolic links should be identified
         // -
         // output: [].failures
@@ -34,10 +33,10 @@ const library = {
         // * property "failures" is a list of file paths that could not be read or opened
         let dirTest:boolean = false,
             size:number = 0,
-            dirs:number = 0;
+            dirs:number = 0,
+            search:string;
         const dirCount:number[] = [],
             dirNames:string[] = [],
-            listOnly:boolean = (vars.command === "directory" && process.argv.indexOf("list") > -1),
             type:boolean = (function terminal_directory_typeof():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
                 if (vars.command === "directory" && typeIndex > -1) {
@@ -73,14 +72,32 @@ const library = {
                             return 0;
                         }()),
                         exclusions: vars.exclusions,
-                        hash: (process.argv.indexOf("hash") > -1),
+                        mode: (function terminal_directory_startPath_mode():directoryMode {
+                            let b:number = 0;
+                            do {
+                                if ((/^mode:/).test(process.argv[b]) === true) {
+                                    if (process.argv[b].indexOf("hash") > 0) {
+                                        return "hash";
+                                    }
+                                    if (process.argv[b].indexOf("list") > 0) {
+                                        return "list";
+                                    }
+                                    if (process.argv[b].indexOf("read") > 0) {
+                                        return "hash";
+                                    }
+                                }
+                                if ((/^search:/).test(process.argv[b]) === true) {
+                                    search = process.argv[b].replace("search:", "");
+                                    if ((search.charAt(0) === "\"" && search.charAt(search.length - 1) === "\"") || (search.charAt(0) === "'" && search.charAt(search.length - 1) === "'")) {
+                                        search = search.slice(1, search.length - 1);
+                                    }
+                                    return "search";
+                                }
+                                b = b + 1;
+                            } while (b < process.argv.length);
+                            return "read";
+                        }()),
                         path: "",
-                        recursive: (process.argv.indexOf("shallow") > -1)
-                            ? (function terminal_directory_startPath_recursive():boolean {
-                                process.argv.splice(process.argv.indexOf("shallow"), 1);
-                                return false;
-                            }())
-                            : true,
                         symbolic: (process.argv.indexOf("symbolic") > -1)
                             ? (function terminal_directory_startPath_symbolic():boolean {
                                 process.argv.splice(process.argv.indexOf("symbolic"), 1);
@@ -123,7 +140,7 @@ const library = {
                 dirCount[index] = dirCount[index] - 1;
                 if (dirNames.length === 0 && item === startPath) {
                     // empty directory, nothing to traverse
-                    if (listOnly === true) {
+                    if (args.mode === "list") {
                         args.callback(fileList.sort());
                     } else {
                         args.callback(list);
@@ -134,7 +151,7 @@ const library = {
                     dirNames.splice(index, 1);
                     dirs = dirs - 1;
                     if (dirs < 1) {
-                        if (listOnly === true) {
+                        if (args.mode === "list") {
                             args.callback(fileList.sort());
                         } else {
                             args.callback(list);
@@ -163,10 +180,17 @@ const library = {
                                     }
                                 } else {
                                     const index:number = list.length;
-                                    if (listOnly === true) {
+                                    if (args.mode === "list") {
                                         fileList.push(item);
                                     } else {
-                                        list.push([item, "directory", "", parent, files.length, stat]);
+                                        if (args.mode === "search") {
+                                            const names:string[] = filePath.split(vars.sep);
+                                            if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                                list.push([filePath, "directory", "", parent, files.length, stat]);
+                                            }
+                                        } else {
+                                            list.push([item, "directory", "", parent, files.length, stat]);
+                                        }
                                     }
                                     if (files.length < 1) {
                                         dirCounter(item);
@@ -201,14 +225,24 @@ const library = {
                                     } else {
                                         args.callback(fileList.sort());
                                     }
-                                } else if (listOnly === true) {
+                                } else if (args.mode === "search") {
+                                    const names:string[] = filePath.split(vars.sep);
+                                    if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                        list.push([filePath, type, "", parent, 0, stat]);
+                                    }
+                                    if (dirs > 0) {
+                                        dirCounter(filePath);
+                                    } else {
+                                        args.callback(list);
+                                    }
+                                } else if (args.mode === "list") {
                                     fileList.push(filePath);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
                                         args.callback(fileList.sort());
                                     }
-                                } else if (args.hash === true) {
+                                } else if (args.mode === "hash") {
                                     library.hash({
                                         callback: function terminal_directory_wrapper_stat_populate_hashCallback(output:hashOutput):void {
                                             list.push([output.filePath, "file", output.hash, output.parent, 0, output.stat]);
@@ -254,7 +288,7 @@ const library = {
                             library.log(["directory"]);
                             return;
                         }
-                        if (((args.recursive === true && (args.depth < 1 || filePath.replace(startPath + vars.sep, "").split(vars.sep).length < args.depth)) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
+                        if (((args.depth < 1 || filePath.replace(startPath + vars.sep, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
                             dirTest = true;
                             dir(filePath);
                         } else {
@@ -294,6 +328,9 @@ const library = {
                     }
                 });
             };
+        if (vars.command === "directory" && args.mode === "search") {
+            args.search = search;
+        }
         list.failures = [];
         if (args.depth === undefined) {
             args.depth = 0;
