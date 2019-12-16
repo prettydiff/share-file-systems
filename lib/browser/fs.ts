@@ -299,6 +299,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
         button.innerHTML = "-<span>Collapse this folder</span>";
+        button.setAttribute("title", "Collapse this folder");
         network.fs({
             action: "fs-directory",
             agent: util.getAgent(button)[0],
@@ -315,6 +316,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
     } else {
         const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
         button.innerHTML = "+<span>Expand this folder</span>";
+        button.setAttribute("title", "Collapse this folder");
         if (ul.length > 0) {
             li.removeChild(li.getElementsByTagName("ul")[0]);
         }
@@ -482,6 +484,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             const button = document.createElement("button");
             button.setAttribute("class", "expansion");
             button.innerHTML = "+<span>Expand this folder</span>";
+            button.setAttribute("title", "Expand this folder");
             button.onclick = fs.expand;
             li.insertBefore(button, li.firstChild);
         }

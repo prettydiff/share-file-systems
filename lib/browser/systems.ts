@@ -14,9 +14,11 @@ systems.expand = function local_systems_expand(event:MouseEvent):void {
     if (button.innerHTML.indexOf("+") === 0) {
         ul.style.display = "block";
         button.innerHTML = "-<span>Collapse stack trace</span>";
+        button.setAttribute("title", "Collapse stack trace");
     } else {
         ul.style.display = "none";
         button.innerHTML = "+<span>Expand stack trace</span>";
+        button.setAttribute("title", "Expand stack trace");
     }
     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
 };
@@ -42,7 +44,8 @@ systems.message = function local_systems_message(type:messageType, content:strin
         ul = document.createElement("ul");
         ul.setAttribute("class", "stack");
         button.setAttribute("class", "expansion");
-        button.innerHTML = "+<span>Expand this folder</span>";
+        button.innerHTML = "+<span>Expand stack trace</span>";
+        button.setAttribute("title", "Expand stack trace");
         button.onclick = systems.expand;
         messageContent.stack.forEach(function local_systems_message_stack(value:string) {
             if (value.replace(/\s+/, "") !== "") {

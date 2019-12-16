@@ -944,6 +944,7 @@ util.shareContent = function local_util_shareContent(user:string):HTMLElement {
                 readOnly.onclick = util.shareReadOnly;
                 del = document.createElement("button");
                 del.setAttribute("class", "delete");
+                del.setAttribute("title", "Delete this share");
                 del.innerHTML = "\u2718<span>Delete this share</span>";
                 del.onclick = util.shareDelete;
                 span = document.createElement("span");

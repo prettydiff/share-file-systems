@@ -226,6 +226,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button = document.createElement("button");
                 button.innerHTML = "↙ <span>Minimize</span>";
                 button.setAttribute("class", "minimize");
+                button.setAttribute("title", "Minimize");
                 button.onclick = modal.minimize;
                 section.appendChild(button);
                 buttonCount = buttonCount + 1;
@@ -234,6 +235,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button = document.createElement("button");
                 button.innerHTML = "⇱ <span>Maximize</span>";
                 button.setAttribute("class", "maximize");
+                button.setAttribute("title", "Maximize");
                 button.onclick = modal.maximize;
                 section.appendChild(button);
                 buttonCount = buttonCount + 1;
@@ -242,6 +244,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button = document.createElement("button");
                 button.innerHTML = "✖ <span>close</span>";
                 button.setAttribute("class", "close");
+                button.setAttribute("title", "Close");
                 if (options.type === "systems") {
                     button.onclick = function local_modal_create_systemsHide(event:MouseEvent):void {
                         let box:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
@@ -328,16 +331,19 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button = document.createElement("button");
                 button.innerHTML = "▲<span>Parent directory</span>";
                 button.setAttribute("class", "parentDirectory");
+                button.setAttribute("title", "Parent directory");
                 button.onclick = fs.parent;
                 extra.appendChild(button);
                 button = document.createElement("button");
                 button.innerHTML = "◀<span>Previous address</span>";
                 button.setAttribute("class", "backDirectory");
+                button.setAttribute("title", "Back to previous address");
                 button.onclick = fs.back;
                 extra.appendChild(button);
                 button = document.createElement("button");
                 button.innerHTML = "⭮<span>Reload</span>";
                 button.setAttribute("class", "reloadDirectory");
+                button.setAttribute("title", "Reload directory");
                 button.onclick = fs.text;
                 extra.appendChild(button);
                 search.type = "text";
