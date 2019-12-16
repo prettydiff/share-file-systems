@@ -270,7 +270,6 @@ interface module_systems {
 interface module_util {
     addUser?: (username:string) => void;
     audio?: (name:string) => void;
-    commas?: (number:number) => string;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;
     dragBox?: eventCallback;

@@ -102,23 +102,6 @@ util.audio = function local_util_audio(name:string):void {
     });
 };
 
-/* Transforms numbers into a string of 3 digit comma separated groups */
-util.commas = function local_util_commas(number:number):string {
-    const str:string = String(number);
-    let arr:string[] = [],
-        a:number   = str.length;
-    if (a < 4) {
-        return str;
-    }
-    arr = String(number).split("");
-    a   = arr.length;
-    do {
-        a      = a - 3;
-        arr[a] = "," + arr[a];
-    } while (a > 3);
-    return arr.join("");
-};
-
 /* Converts a date object into US Army date format */
 util.dateFormat = function local_util_dateFormat(date:Date):string {
     const dateData:string[] = [

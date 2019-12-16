@@ -3,6 +3,7 @@ import fs from "./fs.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
+import commas from "../common/commas.js";
 
 const context:module_context = {};
 let clipboard:string = "";
@@ -274,9 +275,9 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         tr.appendChild(td);
         td = document.createElement("td");
         if (details.size > 1024) {
-            td.innerHTML = `${util.commas(details.size)} bytes (${util.prettyBytes(details.size)})`;
+            td.innerHTML = `${commas(details.size)} bytes (${util.prettyBytes(details.size)})`;
         } else {
-            td.innerHTML = `${util.commas(details.size)} bytes`;
+            td.innerHTML = `${commas(details.size)} bytes`;
         }
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -296,7 +297,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         td.innerHTML = "Files";
         tr.appendChild(td);
         td = document.createElement("td");
-        td.innerHTML = util.commas(details.files);
+        td.innerHTML = commas(details.files);
         tr.appendChild(td);
         tbody.appendChild(tr);
         tr = document.createElement("tr");
@@ -304,7 +305,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         td.innerHTML = "Directories";
         tr.appendChild(td);
         td = document.createElement("td");
-        td.innerHTML = util.commas(details.directories);
+        td.innerHTML = commas(details.directories);
         tr.appendChild(td);
         tbody.appendChild(tr);
         tr = document.createElement("tr");
@@ -312,7 +313,7 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         td.innerHTML = "Symbolic Links";
         tr.appendChild(td);
         td = document.createElement("td");
-        td.innerHTML = util.commas(details.links);
+        td.innerHTML = commas(details.links);
         tr.appendChild(td);
         tbody.appendChild(tr);
         table.appendChild(tbody);

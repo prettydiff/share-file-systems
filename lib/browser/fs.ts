@@ -3,6 +3,7 @@ import context from "./context.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
+import commas from "../common/commas.js";
 
 const fs:module_fs = {};
 
@@ -453,7 +454,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         } else {
             plural = "s";
         }
-        span.textContent = `file - ${util.commas(item[5].size)} byte${plural}`;
+        span.textContent = `file - ${commas(item[5].size)} byte${plural}`;
     } else if (item[1] === "directory") {
         if (item[4] > 0) {
             const button = document.createElement("button");
@@ -468,7 +469,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         } else {
             plural = "s";
         }
-        span.textContent = `directory - ${util.commas(item[4])} item${plural}`;
+        span.textContent = `directory - ${commas(item[4])} item${plural}`;
         li.ondblclick = fs.directory;
     } else {
         span = document.createElement("span");
@@ -785,7 +786,7 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                         util.dragBox(event, util.dragList);
                     };
                     output.setAttribute("class", "fileList");
-                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>${length}</strong> match${plural}.</p>`;
+                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>${commas(length)}</strong> match${plural}.</p>`;
                     dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
                         // when types are the same
                         if (a[1] === b[1]) {
