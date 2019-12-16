@@ -317,11 +317,28 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             if (options.type === "fileNavigate") {
                 const searchLabel:HTMLElement = document.createElement("label"),
                     search:HTMLInputElement = document.createElement("input");
-                extra.style.paddingLeft = "5em";
+                if (options.history === undefined) {
+                    if (options.text_value === undefined) {
+                        options.history = [];
+                    } else {
+                        options.history = [options.text_value];
+                    }
+                }
+                extra.style.paddingLeft = "15em";
                 button = document.createElement("button");
                 button.innerHTML = "▲<span>Parent directory</span>";
                 button.setAttribute("class", "parentDirectory");
                 button.onclick = fs.parent;
+                extra.appendChild(button);
+                button = document.createElement("button");
+                button.innerHTML = "◀<span>Previous address</span>";
+                button.setAttribute("class", "backDirectory");
+                button.onclick = fs.back;
+                extra.appendChild(button);
+                button = document.createElement("button");
+                button.innerHTML = "⭮<span>Reload</span>";
+                button.setAttribute("class", "reloadDirectory");
+                button.onclick = fs.text;
                 extra.appendChild(button);
                 search.type = "text";
                 search.placeholder = "⌕ Search";
@@ -492,7 +509,13 @@ modal.maximize = function local_modal_maximize(event:Event):void {
     let box:HTMLElement = element,
         body:HTMLElement,
         title:HTMLElement,
-        id:string;
+        id:string,
+        status:HTMLElement,
+        statusBar:HTMLElement,
+        footer:HTMLElement,
+        footerButtons:HTMLElement,
+        footerOffset:number,
+        message:HTMLElement;
     do {
         box = <HTMLElement>box.parentNode;
     } while (box !== document.documentElement && box.getAttribute("class") !== "box");
@@ -502,11 +525,22 @@ modal.maximize = function local_modal_maximize(event:Event):void {
     id = box.getAttribute("id");
     body = box.getElementsByTagName("div")[1];
     title = <HTMLElement>box.getElementsByTagName("h2")[0];
+    status = <HTMLElement>box.getElementsByClassName("status-bar")[0];
+    statusBar = <HTMLElement>status.getElementsByTagName("p")[0];
+    footer = <HTMLElement>box.getElementsByClassName("footer")[0];
+    footerButtons = (footer === undefined)
+        ? undefined
+        : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0];
+    footerOffset = (footerButtons === undefined)
+        ? 0
+        : footerButtons.clientWidth;
+    message = (footer === undefined)
+        ? undefined
+        : <HTMLElement>footer.getElementsByClassName("message")[0];
     if (title !== undefined) {
         title = title.getElementsByTagName("button")[0];
     }
     if (browser.data.modals[id].status === "maximized") {
-        const status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0];
         title.style.cursor = "move";
         title.onmousedown = modal.move;
         browser.data.modals[id].status = "normal";
@@ -516,6 +550,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         body.style.height = `${browser.data.modals[id].height / 10}em`;
         if (status !== undefined) {
             status.style.width = `${(browser.data.modals[id].width - 20) / 10}em`;
+            statusBar.style.width = `${(browser.data.modals[id].width - 40) / 15}em`;
         }
     } else {
         browser.data.modals[id].status = "maximized";
@@ -526,9 +561,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         body.style.width = `${(contentArea.clientWidth - 20) / 10}em`;
         body.style.height = (function local_modal_maximize_maxHeight():string {
             let height:number = contentArea.clientHeight,
-                footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-                header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
-                status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0];
+                header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0];
             height = (height - title.clientHeight) - 27;
             if (footer !== undefined) {
                 height = height - footer.clientHeight;
@@ -539,6 +572,10 @@ modal.maximize = function local_modal_maximize(event:Event):void {
             if (status !== undefined) {
                 height = height - status.clientHeight;
                 status.style.width = `${(contentArea.clientWidth - 40) / 10}em`;
+                statusBar.style.width = `${(contentArea.clientWidth - 60) / 15}em`;
+            }
+            if (message !== undefined) {
+                message.style.width = `${(contentArea.clientWidth - footerOffset - 60) / 15}em`;
             }
             return `${height / 10}em`;
         }());
@@ -791,7 +828,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
             network.storage("settings");
         },
         compute = function local_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
-            const minWidth:number = 44.5;
+            const minWidth:number = 55.7;
             let bodyWidth:number,
                 bodyHeight:number,
                 computedWidth:number,
@@ -956,14 +993,14 @@ modal.shares = function local_modal_shares(event:MouseEvent, user?:string, confi
             content: users,
             inputs: ["close", "maximize", "minimize"],
             read_only: false,
-            title: "All Shares",
+            title: "⌘ All Shares",
             type: "shares",
             width: 800
         });
     } else {
         const title:string = (user === "")
-            ? "All Shares"
-            : `Shares for user - ${user}`;
+            ? "⌘ All Shares"
+            : `⌘ Shares for user - ${user}`;
         if (configuration === undefined || configuration === null) {
             configuration = {
                 agent: user,

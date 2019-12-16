@@ -227,6 +227,7 @@ interface module_context {
     share?: (element: HTMLElement) => void;
 }
 interface module_fs {
+    back?: EventHandlerNonNull;
     directory?: EventHandlerNonNull;
     drag?: EventHandlerNonNull;
     dragFlag?: dragFlag;
@@ -473,6 +474,7 @@ interface ui_modal {
     agent: string;
     content: HTMLElement;
     focus?: HTMLElement;
+    history?: string[];
     height?: number;
     id?: string;
     inputs?: ui_input[];

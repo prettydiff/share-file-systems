@@ -7,6 +7,27 @@ import commas from "../common/commas.js";
 
 const fs:module_fs = {};
 
+/* step back through a modal's address history */
+fs.back = function local_fs_back(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        box:HTMLElement = (function local_fs_back_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        id:string = box.getAttribute("id"),
+        header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
+        address:HTMLInputElement = <HTMLInputElement>header.getElementsByTagName("input")[0],
+        history = browser.data.modals[id].history;
+    if (history.length > 1) {
+        history.pop();
+        address.value = history[history.length - 1];
+        fs.text(event);
+    }
+};
+
 /* navigate into a directory by double click */
 fs.directory = function local_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
@@ -26,6 +47,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     input = box.getElementsByTagName("input")[0];
     watchValue = input.value;
     input.value = path;
+    browser.data.modals[box.getAttribute("id")].history.push(path);
     network.fs({
         action: "fs-directory",
         agent: util.getAgent(box)[0],
@@ -584,8 +606,8 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
 /* Request file system information of the parent directory */
 fs.parent = function local_fs_parent(event:MouseEvent):boolean {
     const element:HTMLElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        label:HTMLElement = <HTMLElement>element.nextSibling,
-        input:HTMLInputElement = label.getElementsByTagName("input")[0],
+        header:HTMLElement = <HTMLElement>element.parentNode,
+        input:HTMLInputElement = header.getElementsByTagName("input")[0],
         slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
             ? "/"
             : "\\",
@@ -607,6 +629,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
     } else {
         input.value = value.slice(0, value.lastIndexOf(slash));
     }
+    browser.data.modals[id].history.push(input.value);
     network.fs({
         action: "fs-directory",
         agent: util.getAgent(box)[0],
@@ -943,16 +966,28 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
 
 /* Requests file system data from a text field, such as manually typing an address */
 fs.text = function local_fs_text(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        watchValue:string = element.value;
-    let parent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
+    let parent:HTMLElement,
         box:HTMLElement,
-        id:string;
-    parent = <HTMLElement>parent.parentNode;
+        id:string,
+        button:boolean = false;
+    const element:HTMLInputElement = (function local_fs_text_element():HTMLInputElement {
+            let el = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
+            if (el.nodeName.toLowerCase() === "input") {
+                return el;
+            }
+            el = <HTMLInputElement>el.parentNode;
+            button = true;
+            return el.getElementsByTagName("input")[0];
+        }()),
+        watchValue:string = element.value;
+    parent = <HTMLElement>element.parentNode.parentNode.parentNode;
     box = <HTMLElement>parent.parentNode;
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
-    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+    if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+        if (button === false) {
+            browser.data.modals[id].history.push(element.value);
+        }
         network.fs({
             action: "fs-directory",
             agent: util.getAgent(box)[0],
