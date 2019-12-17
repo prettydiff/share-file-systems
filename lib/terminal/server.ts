@@ -234,31 +234,49 @@ const library = {
                                     if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                         logOutput();
                                     } else {
-                                        const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(userResponse:http.IncomingMessage):void {
-                                                const chunks:string[] = [];
-                                                userResponse.setEncoding('utf8');
-                                                userResponse.on("data", function terminal_server_start_listen_readSettings_exchange_data(chunk:string):void {
-                                                    chunks.push(chunk);
-                                                });
-                                                userResponse.on("end", function terminal_server_start_listen_readSettings_exchange_end():void {
-                                                    const userString:string = chunks.join(""),
-                                                        userData:userExchange = JSON.parse(userString);
-                                                    count = count + 1;
-                                                    if (count === length) {
-                                                        allUsers();
-                                                    }
-                                                    serverVars.users[userData.user].shares = userData.shares;
-                                                    vars.ws.broadcast(`heartbeat-update:{"ip":"${userData.ip}","port":${userData.port},"refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
-                                                    vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
-                                                });
-                                                userResponse.on("error", function terminal_server_start_listen_readSettings_exchange_error(errorMessage:nodeError):void {
-                                                    count = count + 1;
-                                                    if (count === length) {
-                                                        allUsers();
-                                                    }
-                                                    vars.ws.broadcast([errorMessage.toString()]);
+                                        const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(responseBody:Buffer|string):void {
+                                            const userData:userExchange = JSON.parse(<string>responseBody);
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                serverVars.users[userData.user].shares = userData.shares;
+                                                vars.ws.broadcast(`heartbeat-update:{"ip":"${userData.ip}","port":${userData.port},"refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
+                                                vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
+                                            },
+                                            responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                vars.ws.broadcast([errorMessage.toString()]);
+                                                library.log([errorMessage.toString()]);
+                                            },
+                                            requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError):void {
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
+                                                    vars.ws.broadcast(`heartbeat-update:{"ip":"${ip}","port":${port},"refresh":false,"status":"offline","user":"${users[a]}"}`);
+                                                } else {
+                                                    vars.ws.broadcast(errorMessage.toString());
                                                     library.log([errorMessage.toString()]);
-                                                });
+                                                }
+                                            },
+                                            ipFinder = function terminal_server_start_listen_readUsers_readSettings_ipFinder():string {
+                                                let address:string = users[a].slice(users[a].lastIndexOf("@") + 1, users[a].lastIndexOf(":"));
+                                                if (address.charAt(0) === "[") {
+                                                    address = address.slice(1, address.length - 1);
+                                                }
+                                                return address;
+                                            },
+                                            portFinder = function terminal_server_start_listen_readUsers_readSettings_portFinder():number {
+                                                let address:string = users[a].slice(users[a].lastIndexOf(":") + 1);
+                                                if (isNaN(Number(address)) === true) {
+                                                    return 80;
+                                                }
+                                                return Number(address);
                                             },
                                             allUsers = function terminal_server_start_listen_readUsers_readSettings_allUsers():void {
                                                 const userString = JSON.stringify(serverVars.users);
@@ -273,45 +291,19 @@ const library = {
                                             };
                                         let a:number = 1,
                                             ip:string,
-                                            port:string,
-                                            lastColon:number,
-                                            payload:string,
-                                            http:http.ClientRequest,
+                                            port:number,
                                             count:number = 0;
                                         do {
-                                            lastColon = users[a].lastIndexOf(":");
-                                            ip = users[a].slice(users[a].lastIndexOf("@") + 1, lastColon);
-                                            port = users[a].slice(lastColon + 1);
-                                            if (ip.charAt(0) === "[") {
-                                                ip = ip.slice(1, ip.length - 1);
-                                            }
-                                            payload = `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`;
-                                            http = vars.node.http.request({
-                                                headers: {
-                                                    "content-type": "application/x-www-form-urlencoded",
-                                                    "content-length": Buffer.byteLength(payload),
-                                                    "user-name": serverVars.name,
-                                                    "remote-name": users[a]
-                                                },
-                                                host: ip,
-                                                method: "POST",
-                                                path: "/",
-                                                port: port,
-                                                timeout: 1000
-                                            }, callback);
-                                            http.write(payload);
-                                            http.end();
-                                            http.on("error", function terminal_server_start_readUsers_readSettings_httpError(errorMessage:nodeError):void {
-                                                count = count + 1;
-                                                if (count === length) {
-                                                    allUsers();
-                                                }
-                                                if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(`heartbeat-update:{"ip":"${ip}","port":${port},"refresh":false,"status":"offline","user":"${users[a]}"}`);
-                                                } else {
-                                                    vars.ws.broadcast(errorMessage.toString());
-                                                    library.log([errorMessage.toString()]);
-                                                }
+                                            ip = ipFinder();
+                                            port = portFinder();
+                                            library.httpClient({
+                                                callback: callback,
+                                                errorMessage: `User ${users[a]} is offline or unreachable.`,
+                                                id: "",
+                                                payload: `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                                                remoteName: users[a],
+                                                requestError: requestError,
+                                                responseError: responseError
                                             });
                                             a = a + 1;
                                         } while (a < length);

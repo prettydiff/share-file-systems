@@ -6,6 +6,7 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **httpClient.ts** - A library that spawns an HTTP client to make a request to another computer.
 * **invite.ts** - All network tasks related to inviting a user is handled in this file.
 * **methodGET.ts** - The HTTP server's GET request method is handled by this library.
+* **readOnly.ts** - A security layer to prevent block outgoing and incoming instructions that violate modification to areas designated as read only.
 * **serverVars.ts** - All variables used across the various server libraries are defined here.
 * **serverWatch.ts** - This library contains a handler for a file system watcher of this application.
 * **storage.ts** - This library writes to the various data storage files located in the */storage* **directory.

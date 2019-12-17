@@ -4,6 +4,7 @@ import * as http from "http";
 import log from "../log.js";
 import vars from "../vars.js";
 
+import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
@@ -21,51 +22,36 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         data.port = port;
                         return output;
                     }())
-                    : `${data.action}:${JSON.stringify(data)}`,
-                request:http.ClientRequest = vars.node.http.request({
-                    headers: {
-                        "content-type": "application/x-www-form-urlencoded",
-                        "content-length": Buffer.byteLength(payload),
-                        "invite": data.action,
-                        "user-name": serverVars.name
-                    },
-                    host: data.ip,
-                    method: "POST",
-                    path: "/",
-                    port: data.port,
-                    timeout: (data.action === "invite-request")
-                        ? 300000
-                        : 2000
-                }, function terminal_server_invite_inviteResponse(inviteResponse:http.IncomingMessage):void {
-                    const chunks:string[] = [];
-                    inviteResponse.setEncoding('utf8');
-                    inviteResponse.on("data", function terminal_server_invite_inviteResponse_data(chunk:string):void {
-                        chunks.push(chunk);
-                    });
-                    inviteResponse.on("end", function terminal_server_invite_inviteResponse_end():void {
-                        const responseData:string = chunks.join("");
-                        log([responseData]);
-                    });
-                    inviteResponse.on("error", function terminal_server_invite_inviteResponse_error(errorMessage:nodeError):void {
-                        log([data.action, errorMessage.toString()]);
-                        vars.ws.broadcast(errorMessage.toString());
-                    });
-                });
-            request.on("error", function terminal_server_invite_inviteRequest_error(errorMessage:nodeError):void {
-                if (errorMessage.code === "ETIMEDOUT") {
-                    if (data.action === "invite-request") {
-                        data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
-                        vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
-                    } else if (data.action === "invite-complete") {
-                        data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
-                        vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                    : `${data.action}:${JSON.stringify(data)}`;
+            httpClient({
+                callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
+                    log([<string>responseBody]);
+                },
+                errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
+                id: "",
+                payload: payload,
+                remoteName: (data.ip.indexOf(":") > -1)
+                    ? `r@[${data.ip}]:${data.port}`
+                    : `r@${data.ip}:${data.port}`,
+                requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
+                    if (errorMessage.code === "ETIMEDOUT") {
+                        if (data.action === "invite-request") {
+                            data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
+                            vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                        } else if (data.action === "invite-complete") {
+                            data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
+                            vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                        }
                     }
+                    log([data.action, errorMessage.toString()]);
+                    vars.ws.broadcast(errorMessage.toString());
+                },
+                response: response,
+                responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
+                    log([data.action, errorMessage.toString()]);
+                    vars.ws.broadcast(errorMessage.toString());
                 }
-                log([data.action, errorMessage.toString()]);
-                vars.ws.broadcast(errorMessage.toString());
             });
-            request.write(payload);
-            request.end();
         };
     let responseString:string;
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});

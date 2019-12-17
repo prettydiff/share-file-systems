@@ -28,32 +28,19 @@ const library = {
             if (task === "users" && response !== "noSend") {
                 serverVars.users = JSON.parse(dataString);
                 const keys:string[] = Object.keys(serverVars.users),
-                    length:number = keys.length,
-                    callback = function terminal_server_storage_userResponse(fsResponse:IncomingMessage):void {
-                        fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT") {
-                                library.log([errorMessage.toString()]);
-                                vars.ws.broadcast(errorMessage.toString());
-                            }
-                        });
-                    };
+                    length:number = keys.length;
                 let a:number = 0;
                 do {
                     if (keys[a] !== "localhost") {
                         httpClient({
-                            callback: callback,
-                            data: {
-                                action: "shareUpdate",
-                                agent: keys[a],
-                                copyAgent: "",
-                                depth: 1,
-                                id: "",
-                                location: [],
-                                name: `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
-                                watch: "no"
+                            callback: function terminal_server_storage_callback(responseBody:Buffer|string):void {
+                                library.log([<string>responseBody]);
                             },
                             errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
-                            response:response
+                            id: "",
+                            payload:  `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                            remoteName: keys[a],
+                            response: response
                         });
                     }
                     a = a + 1;

@@ -172,11 +172,15 @@ interface heartbeat {
     status: heartbeatStatus;
     user: string;
 }
-interface httpClient {
+interface httpConfiguration {
     callback: Function;
-    data: fileService;
     errorMessage: string;
-    response: any;
+    id: string;
+    payload: Buffer|string;
+    remoteName: string;
+    requestError?: (error:nodeError) => void;
+    response?: any;
+    responseError?: (error:nodeError) => void;
 }
 interface invite {
     action: "invite" | "invite-request" | "invite-response" | "invite-complete";
