@@ -19,7 +19,8 @@ const library = {
                 headers: {
                     "content-type": "application/x-www-form-urlencoded",
                     "content-length": Buffer.byteLength(payload),
-                    "user-name": serverVars.name
+                    "user-name": serverVars.name,
+                    "remote-name": data.user
                 },
                 host: data.ip,
                 method: "POST",

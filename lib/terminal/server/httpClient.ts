@@ -12,7 +12,8 @@ For consistency and security this library must be the only means by which the ap
 */
 const httpClient = function terminal_server_httpClient(config:httpClient):void {
     const ipAddress:string = (function terminal_server_httpClient_ip():string {
-            const address:string = config.data.agent.slice(config.data.agent.indexOf("@") + 1, config.data.agent.lastIndexOf(":"));
+            const userIndex:number = config.data.agent.lastIndexOf("@"),
+                address:string = config.data.agent.slice(userIndex + 1, config.data.agent.lastIndexOf(":"));
             if (config.data.action === "fs-directory" && config.data.agent !== "localhost") {
                 config.data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
             }
@@ -40,7 +41,8 @@ const httpClient = function terminal_server_httpClient(config:httpClient):void {
             headers: {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(payload),
-                "user-name": serverVars.name
+                "user-name": serverVars.name,
+                "remote-user": config.data.agent
             },
             host: ipAddress,
             method: "POST",

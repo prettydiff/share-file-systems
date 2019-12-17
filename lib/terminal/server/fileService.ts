@@ -19,6 +19,7 @@ import vars from "../vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
+import storage from "./storage.js";
 
 const library = {
         base64: base64,
@@ -32,7 +33,8 @@ const library = {
         makeDir: makeDir,
         prettyBytes: prettyBytes,
         readFile: readFile,
-        remove: remove
+        remove: remove,
+        storage: storage
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
         const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
@@ -89,7 +91,8 @@ const library = {
                                         headers: {
                                             "content-type": "application/x-www-form-urlencoded",
                                             "content-length": Buffer.byteLength(payload),
-                                            "user-name": serverVars.name
+                                            "user-name": serverVars.name,
+                                            "remote-name": data.agent
                                         },
                                         host: remoteAddress,
                                         method: "POST",
@@ -104,9 +107,24 @@ const library = {
                                         });
                                         fsResponse.on("end", function terminal_server_fileService_watchHandler_remote_callback_end():void {
                                             if (response.finished === false) {
-                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                                response.write(chunks.join(""));
-                                                response.end();
+                                                let message:string = chunks.join("");
+                                                if (message.indexOf("Forbidden:") === 0) {
+                                                    // create a forbidden file
+
+
+
+
+                                                    
+                                                    delete serverVars.users[message];
+                                                    message = message.replace("Forbidden:", "");
+                                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                    vars.ws.broadcast(`userDelete:${message}`);
+                                                    library.storage(JSON.stringify(serverVars.users), response, "users");
+                                                } else {
+                                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                    response.write(message);
+                                                    response.end();
+                                                }
                                             }
                                         });
                                         fsResponse.on("error", function terminal_server_fileService_watchHandler_remote_callback_error(errorMessage:nodeError):void {

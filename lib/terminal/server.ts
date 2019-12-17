@@ -123,7 +123,7 @@ const library = {
                     });
                 } else {
                     response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(`Forbidden:${serverVars.name}`);
+                    response.write(`Forbidden:${request.headers["remote-name"]}`);
                     response.end();
                 }
             }),
@@ -237,10 +237,10 @@ const library = {
                                         const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(userResponse:http.IncomingMessage):void {
                                                 const chunks:string[] = [];
                                                 userResponse.setEncoding('utf8');
-                                                userResponse.on("data", function terminal_server_start_listen__readSettings_exchange_data(chunk:string):void {
+                                                userResponse.on("data", function terminal_server_start_listen_readSettings_exchange_data(chunk:string):void {
                                                     chunks.push(chunk);
                                                 });
-                                                userResponse.on("end", function terminal_server_start_listen__readSettings_exchange_end():void {
+                                                userResponse.on("end", function terminal_server_start_listen_readSettings_exchange_end():void {
                                                     const userString:string = chunks.join(""),
                                                         userData:userExchange = JSON.parse(userString);
                                                     count = count + 1;
@@ -251,7 +251,7 @@ const library = {
                                                     vars.ws.broadcast(`heartbeat-update:{"ip":"${userData.ip}","port":${userData.port},"refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
                                                     vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
                                                 });
-                                                userResponse.on("error", function terminal_server_start_listen__readSettings_exchange_error(errorMessage:nodeError):void {
+                                                userResponse.on("error", function terminal_server_start_listen_readSettings_exchange_error(errorMessage:nodeError):void {
                                                     count = count + 1;
                                                     if (count === length) {
                                                         allUsers();
@@ -280,7 +280,7 @@ const library = {
                                             count:number = 0;
                                         do {
                                             lastColon = users[a].lastIndexOf(":");
-                                            ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
+                                            ip = users[a].slice(users[a].lastIndexOf("@") + 1, lastColon);
                                             port = users[a].slice(lastColon + 1);
                                             if (ip.charAt(0) === "[") {
                                                 ip = ip.slice(1, ip.length - 1);
@@ -290,7 +290,8 @@ const library = {
                                                 headers: {
                                                     "content-type": "application/x-www-form-urlencoded",
                                                     "content-length": Buffer.byteLength(payload),
-                                                    "user-name": serverVars.name
+                                                    "user-name": serverVars.name,
+                                                    "remote-name": users[a]
                                                 },
                                                 host: ip,
                                                 method: "POST",
