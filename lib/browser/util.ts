@@ -674,7 +674,6 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                         }
                         util.audio("invite");
                         util.addUser(user);
-                        network.storage("users");
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");

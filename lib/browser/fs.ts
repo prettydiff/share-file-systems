@@ -355,7 +355,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     }
     if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
         const agent:string = browser.data.modals[dirData.id].agent;
-        browser.data.modals[dirData.id].text_value = list[0][0];console.log("fs.list");
+        browser.data.modals[dirData.id].text_value = list[0][0];
         util.shareUpdate(agent, browser.users[agent].shares);
     }
     a = 0;
