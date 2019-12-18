@@ -82,9 +82,6 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             }()),
             inviteData:invite = {
                 action: "invite",
-                family: (inputs[0].value.indexOf(":") > 0)
-                    ? "ipv6"
-                    : "ipv4",
                 ip: inputs[0].value,
                 port: port,
                 message: box.getElementsByTagName("textarea")[0].value,
@@ -116,7 +113,6 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             invite:invite = JSON.parse(dataString);
         network.inviteAccept({
             action: "invite-response",
-            family: invite.family,
             message: `Invite accepted: ${util.dateFormat(new Date())}`,
             name: browser.data.name,
             ip: invite.ip,
@@ -125,10 +121,10 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
             shares: browser.users.localhost.shares,
             status: "accepted"
         });
-        if (invite.ip.indexOf(":") > -1) {
-            user = `${invite.name}@[${invite.ip}]:${invite.port}`;
-        } else {
+        if (invite.ip.indexOf(":") < 0) {
             user = `${invite.name}@${invite.ip}:${invite.port}`;
+        } else {
+            user = `${invite.name}@[${invite.ip}]:${invite.port}`;
         }
         browser.users[user] = {
             color: ["", ""],
@@ -314,7 +310,6 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                                 invite:invite = JSON.parse(dataString);
                             network.inviteAccept({
                                 action: "invite-response",
-                                family: invite.family,
                                 message: `Invite declined: ${util.dateFormat(new Date())}`,
                                 name: browser.data.name,
                                 ip: invite.ip,

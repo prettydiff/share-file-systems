@@ -167,8 +167,6 @@ interface hashOutput {
 }
 interface heartbeat {
     agent: string;
-    ip: string;
-    port: number;
     refresh: boolean;
     status: heartbeatStatus;
     user: string;
@@ -185,7 +183,6 @@ interface httpConfiguration {
 }
 interface invite {
     action: "invite" | "invite-request" | "invite-response" | "invite-complete";
-    family: "ipv4" | "ipv6";
     ip: string;
     message: string;
     modal: string;

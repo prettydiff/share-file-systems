@@ -608,7 +608,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             a = a + 1;
         } while (a < length);
         div.setAttribute("class", "userInvitation");
-        if (invite.family === "ipv4") {
+        if (invite.ip.indexOf(":") < 0) {
             text.innerHTML = `User <strong>${invite.name}</strong> from ${invite.ip}:${invite.port} is inviting you to share spaces.`;
         } else {
             text.innerHTML = `User <strong>${invite.name}</strong> from [${invite.ip}]:${invite.port} is inviting you to share spaces.`;
@@ -643,7 +643,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
         const modal:HTMLElement = document.getElementById(invite.modal);
         if (modal === null) {
             if (invite.status === "accepted") {
-                if (invite.family === "ipv4") {
+                if (invite.ip.indexOf(":") < 0) {
                     user = `${invite.name}@${invite.ip}:${invite.port}`;
                 } else {
                     user = `${invite.name}@[${invite.ip}]:${invite.port}`;
@@ -663,7 +663,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                     if (invite.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
-                        if (invite.family === "ipv4") {
+                        if (invite.ip.indexOf(":") < 0) {
                             user = `${invite.name}@${invite.ip}:${invite.port}`;
                         } else {
                             user = `${invite.name}@[${invite.ip}]:${invite.port}`;

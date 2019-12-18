@@ -43,10 +43,8 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;
-    let ip:string,
-        port:number,
-        user:string,
-        a:number = 0,
+    let user:string,
+        a:number = 3,
         local:string = document.getElementById("localhost").lastChild.textContent.replace(/^\s+/, "");
     local = (browser.localNetwork.ip.indexOf(":") > 0)
         ? `${local.slice(0, local.indexOf("@"))}@[${browser.localNetwork.ip}]:${browser.localNetwork.tcpPort}`
@@ -54,9 +52,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
 
     do {
         user = users[a].lastChild.textContent.replace(/^\s+/, "");
-        if (user.indexOf("@") > 0 && user.indexOf("@localhost") < 0) {
-            ip = user.slice(user.indexOf("@") + 1, user.lastIndexOf(":"));
-            port = Number(user.slice(user.lastIndexOf(":") + 1));
+        if (user.indexOf("@") > 0 && user.lastIndexOf("@localhost") !== user.length - 10) {
             xhr.onreadystatechange = function local_network_fs_readyState():void {
                 if (xhr.readyState === 4) {
                     if (xhr.status !== 200 && xhr.status !== 0) {
@@ -68,7 +64,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.send(`heartbeat:{"agent":"${user}","ip":"${ip}","port":${port},"refresh":${refresh},"status":"${status}","user":"${local}"}`);
+            xhr.send(`heartbeat:{"agent":"${user}","refresh":${refresh},"status":"${status}","user":"${local}"}`);
         }
         a = a + 1;
     } while (a < length);
