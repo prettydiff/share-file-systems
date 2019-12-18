@@ -68,7 +68,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.send(`heartbeat:{"ip":"${ip}","port":${port},"refresh":${refresh},"status":"${status}","user":"${local}"}`);
+            xhr.send(`heartbeat:{"agent":"${user}","ip":"${ip}","port":${port},"refresh":${refresh},"status":"${status}","user":"${local}"}`);
         }
         a = a + 1;
     } while (a < length);

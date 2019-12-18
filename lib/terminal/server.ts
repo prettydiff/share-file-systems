@@ -114,7 +114,7 @@ const library = {
                             // * Send and receive heartbeat signals
                             const heartbeatData:heartbeat = JSON.parse(dataString);
                             serverVars.status = heartbeatData.status;
-                            heartbeat(dataString);
+                            heartbeat(heartbeatData);
                         } else if (task === "heartbeat-update") {
                             // * Respond to heartbeat changes as a result of a page load
                             vars.ws.broadcast(body);

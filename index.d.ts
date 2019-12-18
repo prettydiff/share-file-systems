@@ -166,6 +166,7 @@ interface hashOutput {
     stat?: Stats;
 }
 interface heartbeat {
+    agent: string;
     ip: string;
     port: number;
     refresh: boolean;
