@@ -106,7 +106,7 @@ const library = {
                             // * local: Writes changes to storage files
                             const length:number = dataString.length;
                             if (dataString.slice(length - 7) === ",noSend") {
-                                storage(dataString.slice(length - 7), "noSend", task);
+                                storage(dataString.slice(0, length - 7), "noSend", task);
                             } else {
                                 storage(dataString, response, task);
                             }
