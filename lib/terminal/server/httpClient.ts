@@ -7,7 +7,7 @@ import storage from "./storage.js";
 import log from "../log.js";
 import vars from "../vars.js";
 
-const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {console.log(config.payload);
+const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
     const ip:string = (function terminal_server_httpClient_ip():string {
             let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
             if (address.charAt(0) === "[") {
@@ -41,13 +41,27 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 }
             }
             : config.responseError,
-        fsRequest:http.ClientRequest = vars.node.http.request({
-            headers: {
+        invite:string = (config.payload.indexOf("invite-request") === 0)
+            ? "invite-request"
+            : (config.payload.indexOf("invite-complete") === 0)
+                ? "invite-complete"
+                : "",
+        headers:Object = (invite === "")
+            ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
                 "user-name": serverVars.name,
                 "remote-user": config.remoteName
+            }
+            : {
+                "content-type": "application/x-www-form-urlencoded",
+                "content-length": Buffer.byteLength(config.payload),
+                "user-name": serverVars.name,
+                "remote-user": config.remoteName,
+                "invite": invite
             },
+        fsRequest:http.ClientRequest = vars.node.http.request({
+            headers: headers,
             host: ip,
             method: "POST",
             path: "/",
