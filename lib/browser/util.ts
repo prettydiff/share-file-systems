@@ -1077,6 +1077,8 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
         body:HTMLElement,
         titleText:string,
         parentDirectory:HTMLElement,
+        back:HTMLElement,
+        header:HTMLElement,
         address:string,
         fileShares:boolean = false;
     const modals:string[] = (id === undefined)
@@ -1114,6 +1116,8 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
             title = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
             titleText = title.innerHTML;
             parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
+            back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];
+            header = <HTMLElement>parentDirectory.parentNode;
             address = browser.data.modals[modals[a]].text_value;
             do {
                 if (address.indexOf(shares[b].name) === 0 || (windows === true && address.toLowerCase().indexOf(shares[b].name.toLowerCase()) === 0)) {
@@ -1144,8 +1148,12 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
                     }
                     if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
                         parentDirectory.style.display = "none";
+                        back.style.marginLeft = "-6em";
+                        header.style.paddingLeft = "10.5em";
                     } else {
                         parentDirectory.style.display = "inline-block";
+                        back.style.marginLeft = "-9em";
+                        header.style.paddingLeft = "15em";
                     }
                 }
             }

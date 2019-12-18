@@ -366,12 +366,6 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 }
                 extra.style.paddingLeft = "15em";
                 button = document.createElement("button");
-                button.innerHTML = "▲<span>Parent directory</span>";
-                button.setAttribute("class", "parentDirectory");
-                button.setAttribute("title", "Parent directory");
-                button.onclick = fs.parent;
-                extra.appendChild(button);
-                button = document.createElement("button");
                 button.innerHTML = "◀<span>Previous address</span>";
                 button.setAttribute("class", "backDirectory");
                 button.setAttribute("title", "Back to previous address");
@@ -382,6 +376,12 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.setAttribute("class", "reloadDirectory");
                 button.setAttribute("title", "Reload directory");
                 button.onclick = fs.text;
+                extra.appendChild(button);
+                button = document.createElement("button");
+                button.innerHTML = "▲<span>Parent directory</span>";
+                button.setAttribute("class", "parentDirectory");
+                button.setAttribute("title", "Parent directory");
+                button.onclick = fs.parent;
                 extra.appendChild(button);
                 search.type = "text";
                 search.placeholder = "⌕ Search";
