@@ -104,7 +104,12 @@ const library = {
                             readOnly(request, response, dataString);
                         } else if (task === "settings" || task === "messages" || task === "users") {
                             // * local: Writes changes to storage files
-                            storage(dataString, response, task);
+                            const length:number = dataString.length;
+                            if (dataString.slice(length - 7) === ",noSend") {
+                                storage(dataString.slice(length - 7), "noSend", task);
+                            } else {
+                                storage(dataString, response, task);
+                            }
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                             // * Send and receive heartbeat signals
                             const heartbeatData:heartbeat = JSON.parse(dataString);

@@ -114,7 +114,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
 };
 
 /* Writes configurations to file storage */
-network.storage = function local_network_storage(type:storageType):void {
+network.storage = function local_network_storage(type:storageType, send?:boolean):void {
     if (browser.loadTest === true && ((messageTransmit === false && type === "messages") || type !== "messages")) {
         return;
     }
@@ -133,6 +133,8 @@ network.storage = function local_network_storage(type:storageType):void {
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     if (type === "settings") {
         xhr.send(`settings:${JSON.stringify(browser.data)}`);
+    } else if (send === false) {
+        xhr.send(`${type}:${JSON.stringify(browser[type])},noSend`);
     } else {
         xhr.send(`${type}:${JSON.stringify(browser[type])}`);
     }

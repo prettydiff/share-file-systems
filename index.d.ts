@@ -217,7 +217,7 @@ interface module_network {
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
-    storage?: (type:storageType) => void;
+    storage?: (type:storageType, send?:boolean) => void;
 }
 interface module_context {
     copy?: (element: HTMLElement, type: "copy" | "cut") => void;

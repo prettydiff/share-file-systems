@@ -31,8 +31,8 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 id: "",
                 payload: payload,
                 remoteName: (data.ip.indexOf(":") > -1)
-                    ? `r@[${data.ip}]:${data.port}`
-                    : `r@${data.ip}:${data.port}`,
+                    ? `invite@[${data.ip}]:${data.port}`
+                    : `invite@${data.ip}:${data.port}`,
                 requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
                     if (errorMessage.code === "ETIMEDOUT") {
                         if (data.action === "invite-request") {

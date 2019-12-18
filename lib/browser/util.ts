@@ -79,7 +79,7 @@ util.addUser = function local_util_addUser(user:string):void {
     if (name === "localhost") {
         button.setAttribute("id", "localhost");
     }
-    network.storage("users");
+    network.storage("users", false);
 };
 
 util.audio = function local_util_audio(name:string):void {
