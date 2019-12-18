@@ -23,7 +23,7 @@ const library = {
             errorMessage: `Error with heartbeat to user ${data.agent}.`,
             id: "",
             payload: payload,
-            remoteName: data.user,
+            remoteName: data.agent,
             requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
                     vars.ws.broadcast(`heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
