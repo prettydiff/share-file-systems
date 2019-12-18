@@ -7,7 +7,7 @@ import storage from "./storage.js";
 import log from "../log.js";
 import vars from "../vars.js";
 
-const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
+const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {console.log(config.payload);
     const ip:string = (function terminal_server_httpClient_ip():string {
             let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
             if (address.charAt(0) === "[") {
@@ -66,7 +66,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 if (chunks[0].toString().indexOf("Forbidden:") === 0) {
                     const userName:string = body.toString().replace("Forbidden:", "");
                     delete serverVars.users[userName];
-                    storage(JSON.stringify(serverVars.users), config.response, "users");
+                    storage(JSON.stringify(serverVars.users), "noSend", "users");
                     vars.ws.broadcast(`deleteUser:${userName}`);
                 } else {
                     config.callback(body);

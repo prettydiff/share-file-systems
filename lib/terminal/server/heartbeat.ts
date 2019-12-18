@@ -14,7 +14,7 @@ const library = {
         log: log
     },
     // This logic will push out heartbeat data
-    heartbeat = function terminal_server_heartbeat(dataString:string, response?:http.ServerResponse):void {
+    heartbeat = function terminal_server_heartbeat(dataString:string):void {
         const data:heartbeat = JSON.parse(dataString),
             payload:string = `heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`;
         library.httpClient({
@@ -33,7 +33,10 @@ const library = {
                     library.log([errorMessage.toString()]);
                 }
             },
-            response: response
+            responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError):void {
+                vars.ws.broadcast([errorMessage.toString()]);
+                library.log([errorMessage.toString()]);
+            }
         });
     };
 
