@@ -22,6 +22,29 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             }
             return Number(address);
         }()),
+        callback: Function = (config.callbackType === "object")
+            ? config.callback
+            : function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
+                const chunks:Buffer[] = [];
+                fsResponse.setEncoding("utf8");
+                fsResponse.on("data", function terminal_server_httpClient_data(chunk:Buffer):void {
+                    chunks.push(chunk);
+                });
+                fsResponse.on("end", function terminal_server_httpClient_end():void {
+                    const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
+                        ? Buffer.concat(chunks)
+                        : chunks.join("");
+                    if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
+                        const userName:string = body.toString().replace("ForbiddenAccess:", "");
+                        delete serverVars.users[userName];
+                        storage(JSON.stringify(serverVars.users), "noSend", "users");
+                        vars.ws.broadcast(`deleteUser:${userName}`);
+                    } else {
+                        config.callback(body);
+                    }
+                });
+                fsResponse.on("error", responseError);
+            },
         requestError = (config.payload.indexOf("share-exchange:") === 0)
             ? function terminal_server_httpClient_shareRequestError(errorMessage:nodeError):void {
                 config.requestError(errorMessage, config.remoteName);
@@ -71,27 +94,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             path: "/",
             port: port,
             timeout: 1000
-        }, function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
-            const chunks:Buffer[] = [];
-            fsResponse.setEncoding("utf8");
-            fsResponse.on("data", function terminal_server_httpClient_data(chunk:Buffer):void {
-                chunks.push(chunk);
-            });
-            fsResponse.on("end", function terminal_server_httpClient_end():void {
-                const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
-                    ? Buffer.concat(chunks)
-                    : chunks.join("");
-                if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-                    const userName:string = body.toString().replace("ForbiddenAccess:", "");
-                    delete serverVars.users[userName];
-                    storage(JSON.stringify(serverVars.users), "noSend", "users");
-                    vars.ws.broadcast(`deleteUser:${userName}`);
-                } else {
-                    config.callback(body);
-                }
-            });
-            fsResponse.on("error", responseError);
-        });
+        }, callback);
     fsRequest.on("error", requestError);
     fsRequest.write(config.payload);
     setTimeout(function terminal_server_httpClient_delay():void {

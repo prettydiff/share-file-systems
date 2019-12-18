@@ -27,6 +27,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
                     log([<string>responseBody]);
                 },
+                callbackType: "body",
                 errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
                 id: "",
                 payload: payload,

@@ -286,6 +286,7 @@ const library = {
                                         do {
                                             library.httpClient({
                                                 callback: callback,
+                                                callbackType: "body",
                                                 errorMessage: `User ${users[a]} is offline or unreachable.`,
                                                 id: "",
                                                 payload: `share-exchange:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,

@@ -173,6 +173,7 @@ interface heartbeat {
 }
 interface httpConfiguration {
     callback: Function;
+    callbackType: "body" | "object";
     errorMessage: string;
     id: string;
     payload: Buffer|string;

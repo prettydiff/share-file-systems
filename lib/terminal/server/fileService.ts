@@ -85,6 +85,7 @@ const library = {
                 }());
                 library.httpClient({
                     callback: callback,
+                    callbackType: "object",
                     errorMessage: errorMessage,
                     id: data.id,
                     payload: payload,
@@ -122,6 +123,7 @@ const library = {
                                             response.write(responseBody);
                                             response.end();
                                         },
+                                        callbackType: "body",
                                         errorMessage: `Error related to remote file system watch at ${data.agent}.`,
                                         id: "",
                                         payload: payload,

@@ -20,6 +20,7 @@ const library = {
             callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                 vars.ws.broadcast(<string>responseBody);
             },
+            callbackType: "body",
             errorMessage: `Error with heartbeat to user ${data.agent}.`,
             id: "",
             payload: payload,

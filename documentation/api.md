@@ -85,6 +85,35 @@ interface heartbeat {
 
 ---
 
+## httpClient
+A generalized abstraction for making HTTP child requests from a single point with managed responses.
+
+```typescript
+interface httpConfiguration {
+    callback: Function;
+    callbackType: "body" | "object";
+    errorMessage: string;
+    id: string;
+    payload: Buffer|string;
+    remoteName: string;
+    requestError?: (error:nodeError, agent?:string) => void;
+    response?: any;
+    responseError?: (error:nodeError) => void;
+}
+```
+
+* **callback** - A function to either handle the response body or a function wrapping the response object itself as determined by the property *callbackType*.
+* **callbackType** - The value *body* indicates to use the default function and executes a function with the response body as the function's argument.  The value *object* provides a function that wraps the response object and handles the response directly.
+* **errorMessage** - A custom message to pass into the default request error handler and the default response error handler.
+* **id** - The id refers to a modal id so that in the case of an error the error messaging can be relayed to the user at the proper location in the browser.
+* **payload** - The POST message to send in the HTTP request.
+* **remoteName** - The local user's name.  If the remote user had delete the local user this information is extracted from the response to auto-delete the remote user from the local application.
+* **requestError** - Custom error handling on the request.
+* **response** - The response object from the parent HTTP service, which is used in default error handling.
+* **responseError** - Custom error handling on the response.
+
+---
+
 ## invite
 A data service to invite a remote user to share.  Upon acceptance of the invitation the two users establish a peer-to-peer relationship.  For more information on the invitation process please see [invitation.md](invitation.md).
 

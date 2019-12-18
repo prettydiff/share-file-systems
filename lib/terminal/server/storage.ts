@@ -13,7 +13,31 @@ const library = {
         log: log
     },
     storage = function terminal_server_storage(dataString:string, response:ServerResponse | "noSend", task:storageType):void {
-        const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`;
+        const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`,
+            rename = function terminal_server_storage_rename():void {
+                vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_renameNode(erName:Error) {
+                    if (erName !== null) {
+                        library.error([erName.toString()]);
+                        library.log([erName.toString()]);
+                        vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
+                            if (erUnlink !== null) {
+                                library.error([erUnlink.toString()]);
+                            }
+                        });
+                        if (response !== "noSend") {
+                            response.writeHead(500, {"Content-Type": "text/plain"});
+                            response.write(erName.toString());
+                            response.end();
+                        }
+                        return;
+                    }
+                    if (response !== "noSend") {
+                        response.writeHead(200, {"Content-Type": "text/plain"});
+                        response.write(`${task} written.`);
+                        response.end();
+                    }
+                });
+            };
         vars.node.fs.writeFile(fileName, dataString, "utf8", function terminal_server_storage_writeStorage(erSettings:Error):void {
             if (erSettings !== null) {
                 library.error([erSettings.toString()]);
@@ -37,6 +61,7 @@ const library = {
                                 callback: function terminal_server_storage_callback(responseBody:Buffer|string):void {
                                     library.log([<string>responseBody]);
                                 },
+                                callbackType: "body",
                                 errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
                                 id: "",
                                 payload:  `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
@@ -47,28 +72,9 @@ const library = {
                         a = a + 1;
                     } while (a < length);
                 }
-                vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_writeStorage_rename(erName:Error) {
-                    if (erName !== null) {
-                        library.error([erName.toString()]);
-                        library.log([erName.toString()]);
-                        vars.node.fs.unlink(fileName, function terminal_server_storage_writeStorage_rename_unlink(erUnlink:Error) {
-                            if (erUnlink !== null) {
-                                library.error([erUnlink.toString()]);
-                            }
-                        });
-                        if (response !== "noSend") {
-                            response.writeHead(500, {"Content-Type": "text/plain"});
-                            response.write(erName.toString());
-                            response.end();
-                        }
-                        return;
-                    }
-                    if (response !== "noSend") {
-                        response.writeHead(200, {"Content-Type": "text/plain"});
-                        response.write(`${task} written.`);
-                        response.end();
-                    }
-                });
+                rename();
+            } else {
+                rename();
             }
         });
     };
