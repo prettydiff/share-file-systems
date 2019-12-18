@@ -60,7 +60,7 @@ const library = {
                     });
                 }
             },
-            httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string) {
+            httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
                 const payload:string = (function terminal_server_fileService_httpRequest_payload():string {
                     const keys:string[] = Object.keys(data),
                         length:number = keys.length,
@@ -85,7 +85,7 @@ const library = {
                 }());
                 library.httpClient({
                     callback: callback,
-                    callbackType: "object",
+                    callbackType: type,
                     errorMessage: errorMessage,
                     id: data.id,
                     payload: payload,
@@ -273,7 +273,7 @@ const library = {
                                     data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
                                     httpRequest(function terminal_server_fileService_requestFiles_respond_cut_cutCall(responseBody:string|Buffer):void {
                                         library.log([<string>responseBody]);
-                                    }, "Error requesting file removal for fs-cut.");
+                                    }, "Error requesting file removal for fs-cut.", "body");
                                 }
                             };
                         library.log([``]);
@@ -432,7 +432,7 @@ const library = {
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
-                        httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`);
+                        httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`, "object");
                         if (fileData.stream === false) {
                             a = a + 1;
                             if (a < listLength) {
@@ -505,7 +505,7 @@ const library = {
                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                 response.write(responseBody);
                 response.end();
-            }, `Error requesting ${data.action} from remote.`);
+            }, `Error requesting ${data.action} from remote.`, "body");
         } else if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
@@ -654,7 +654,7 @@ const library = {
                         response.write(responseBody);
                     }
                     response.end();
-                }, `Error on reading from remote file system at agent ${data.agent}`);
+                }, `Error on reading from remote file system at agent ${data.agent}`, "body");
             }
         } else if (data.action === "fs-close") {
             if (serverVars.watches[data.location[0]] !== undefined) {
@@ -682,7 +682,7 @@ const library = {
                                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                                 response.write(responseBody);
                                 response.end();
-                            }, "Error sending list of files to remote for copy from localhost.");
+                            }, "Error sending list of files to remote for copy from localhost.", "body");
                         },
                         files: [],
                         id: data.id,
@@ -696,7 +696,7 @@ const library = {
                 data.action = <serviceType>`${data.action}-list`;
                 httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
                     requestFiles(JSON.parse(<string>responseBody));
-                }, "Error copying from remote to localhost");
+                }, "Error copying from remote to localhost", "body");
             } else if (data.agent === data.copyAgent) {
                 // * data.agent === sameRemoteAgent
                 // * data.agent === sameRemoteAgent
@@ -705,7 +705,7 @@ const library = {
                     response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                     response.write(responseBody);
                     response.end();
-                }, `Error copying files to and from agent ${data.agent}.`);
+                }, `Error copying files to and from agent ${data.agent}.`, "body");
             } else {
                 // * data.agent === remoteAgent
                 // * data.copyAgent === differentRemoteAgent
