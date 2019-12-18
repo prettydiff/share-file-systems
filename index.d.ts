@@ -511,8 +511,7 @@ interface users {
     }
 }
 interface userExchange {
-    ip: string;
-    port: number;
+    agent: string;
     shares: userShares;
     status: string;
     user: string;

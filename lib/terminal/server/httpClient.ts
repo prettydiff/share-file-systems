@@ -77,8 +77,8 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
                     ? Buffer.concat(chunks)
                     : chunks.join("");
-                if (chunks[0].toString().indexOf("Forbidden:") === 0) {
-                    const userName:string = body.toString().replace("Forbidden:", "");
+                if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
+                    const userName:string = body.toString().replace("ForbiddenAccess:", "");
                     delete serverVars.users[userName];
                     storage(JSON.stringify(serverVars.users), "noSend", "users");
                     vars.ws.broadcast(`deleteUser:${userName}`);

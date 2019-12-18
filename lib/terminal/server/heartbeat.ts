@@ -20,13 +20,13 @@ const library = {
             callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                 vars.ws.broadcast(<string>responseBody);
             },
-            errorMessage: `Error with heartbeat to user ${data.user}.`,
+            errorMessage: `Error with heartbeat to user ${data.agent}.`,
             id: "",
             payload: payload,
-            remoteName: data.agent,
+            remoteName: data.user,
             requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                    vars.ws.broadcast(`heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
+                    vars.ws.broadcast(`heartbeat-update:{"agent":"${serverVars.name}","refresh":${data.refresh},"status":"offline","user":"${data.agent}"}`);
                 } else {
                     vars.ws.broadcast(errorMessage.toString());
                     library.log([errorMessage.toString()]);

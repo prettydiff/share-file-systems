@@ -119,7 +119,7 @@ const library = {
                             // * Respond to heartbeat changes as a result of a page load
                             vars.ws.broadcast(body);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
+                            response.write(`heartbeat-update:{"agent":"${serverVars.name}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
                             response.end();
                         } else if (task.indexOf("invite") === 0) {
                             // * Handle all stages of user invitation
@@ -128,7 +128,7 @@ const library = {
                     });
                 } else {
                     response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(`Forbidden:${request.headers["remote-user"]}`);
+                    response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
                     response.end();
                 }
             }),
@@ -246,7 +246,7 @@ const library = {
                                                     allUsers();
                                                 }
                                                 serverVars.users[userData.user].shares = userData.shares;
-                                                vars.ws.broadcast(`heartbeat-update:{"ip":"${userData.ip}","port":${userData.port},"refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
+                                                vars.ws.broadcast(`heartbeat-update:{"agent","${userData.agent}"."refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
                                                 vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
                                             },
                                             responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
@@ -263,25 +263,11 @@ const library = {
                                                     allUsers();
                                                 }
                                                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(`heartbeat-update:{"ip":"${ip}","port":${port},"refresh":false,"status":"offline","user":"${users[a]}"}`);
+                                                    vars.ws.broadcast(`heartbeat-update:{"agent":"${users[a]}","refresh":false,"status":"offline","user":"${serverVars.name}"}`);
                                                 } else {
                                                     vars.ws.broadcast(errorMessage.toString());
                                                     library.log([errorMessage.toString()]);
                                                 }
-                                            },
-                                            ipFinder = function terminal_server_start_listen_readUsers_readSettings_ipFinder():string {
-                                                let address:string = users[a].slice(users[a].lastIndexOf("@") + 1, users[a].lastIndexOf(":"));
-                                                if (address.charAt(0) === "[") {
-                                                    address = address.slice(1, address.length - 1);
-                                                }
-                                                return address;
-                                            },
-                                            portFinder = function terminal_server_start_listen_readUsers_readSettings_portFinder():number {
-                                                let address:string = users[a].slice(users[a].lastIndexOf(":") + 1);
-                                                if (isNaN(Number(address)) === true) {
-                                                    return 80;
-                                                }
-                                                return Number(address);
                                             },
                                             allUsers = function terminal_server_start_listen_readUsers_readSettings_allUsers():void {
                                                 const userString = JSON.stringify(serverVars.users);
@@ -295,17 +281,13 @@ const library = {
                                                 }
                                             };
                                         let a:number = 1,
-                                            ip:string,
-                                            port:number,
                                             count:number = 0;
                                         do {
-                                            ip = ipFinder();
-                                            port = portFinder();
                                             library.httpClient({
                                                 callback: callback,
                                                 errorMessage: `User ${users[a]} is offline or unreachable.`,
                                                 id: "",
-                                                payload: `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                                                payload: `share-exchange:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
                                                 remoteName: users[a],
                                                 requestError: requestError,
                                                 responseError: responseError

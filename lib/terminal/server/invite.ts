@@ -70,7 +70,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         vars.ws.broadcast(`invite-request:${dataString}`);
         responseString = `Invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
     }
-    log([responseString]);
+    // log([responseString]);
     response.write(responseString);
     response.end();
 };
