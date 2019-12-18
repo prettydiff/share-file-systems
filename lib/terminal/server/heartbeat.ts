@@ -15,7 +15,7 @@ const library = {
     },
     // This logic will push out heartbeat data
     heartbeat = function terminal_server_heartbeat(data:heartbeat):void {
-        const payload:string = `heartbeat-update:{"agent":"${data.user}","refresh":${data.refresh},"status":"${data.status}","user":"${data.agent}"}`;
+        const payload:string = `heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`;
         library.httpClient({
             callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                 vars.ws.broadcast(<string>responseBody);
