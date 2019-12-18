@@ -177,7 +177,7 @@ interface httpConfiguration {
     id: string;
     payload: Buffer|string;
     remoteName: string;
-    requestError?: (error:nodeError) => void;
+    requestError?: (error:nodeError, agent?:string) => void;
     response?: any;
     responseError?: (error:nodeError) => void;
 }

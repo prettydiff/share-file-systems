@@ -25,49 +25,51 @@ const library = {
                 }
                 return;
             }
-            if (task === "users" && response !== "noSend") {
+            if (task === "users") {
                 serverVars.users = JSON.parse(dataString);
-                const keys:string[] = Object.keys(serverVars.users),
-                    length:number = keys.length;
-                let a:number = 0;
-                do {
-                    if (keys[a] !== "localhost") {
-                        httpClient({
-                            callback: function terminal_server_storage_callback(responseBody:Buffer|string):void {
-                                library.log([<string>responseBody]);
-                            },
-                            errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
-                            id: "",
-                            payload:  `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
-                            remoteName: keys[a],
-                            response: response
-                        });
-                    }
-                    a = a + 1;
-                } while (a < length);
-            }
-            vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_writeStorage_rename(erName:Error) {
-                if (erName !== null) {
-                    library.error([erName.toString()]);
-                    library.log([erName.toString()]);
-                    vars.node.fs.unlink(fileName, function terminal_server_storage_writeStorage_rename_unlink(erUnlink:Error) {
-                        if (erUnlink !== null) {
-                            library.error([erUnlink.toString()]);
+                if (response !== "noSend") {
+                    const keys:string[] = Object.keys(serverVars.users),
+                        length:number = keys.length;
+                    let a:number = 0;
+                    do {
+                        if (keys[a] !== "localhost") {
+                            httpClient({
+                                callback: function terminal_server_storage_callback(responseBody:Buffer|string):void {
+                                    library.log([<string>responseBody]);
+                                },
+                                errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
+                                id: "",
+                                payload:  `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                                remoteName: keys[a],
+                                response: response
+                            });
                         }
-                    });
+                        a = a + 1;
+                    } while (a < length);
+                }
+                vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_writeStorage_rename(erName:Error) {
+                    if (erName !== null) {
+                        library.error([erName.toString()]);
+                        library.log([erName.toString()]);
+                        vars.node.fs.unlink(fileName, function terminal_server_storage_writeStorage_rename_unlink(erUnlink:Error) {
+                            if (erUnlink !== null) {
+                                library.error([erUnlink.toString()]);
+                            }
+                        });
+                        if (response !== "noSend") {
+                            response.writeHead(500, {"Content-Type": "text/plain"});
+                            response.write(erName.toString());
+                            response.end();
+                        }
+                        return;
+                    }
                     if (response !== "noSend") {
-                        response.writeHead(500, {"Content-Type": "text/plain"});
-                        response.write(erName.toString());
+                        response.writeHead(200, {"Content-Type": "text/plain"});
+                        response.write(`${task} written.`);
                         response.end();
                     }
-                    return;
-                }
-                if (response !== "noSend") {
-                    response.writeHead(200, {"Content-Type": "text/plain"});
-                    response.write(`${task} written.`);
-                    response.end();
-                }
-            });
+                });
+            }
         });
     };
 

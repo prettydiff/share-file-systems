@@ -15,7 +15,7 @@ const library = {
     },
     // This logic will push out heartbeat data
     heartbeat = function terminal_server_heartbeat(data:heartbeat):void {
-        const payload:string = `heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"${data.status}","user":"${data.user}"}`;
+        const payload:string = `heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"${data.status}","user":"${serverVars.name}"}`;
         library.httpClient({
             callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                 vars.ws.broadcast(<string>responseBody);
@@ -26,7 +26,7 @@ const library = {
             remoteName: data.user,
             requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                    vars.ws.broadcast(`heartbeat-update:{"agent":"${serverVars.name}","refresh":${data.refresh},"status":"offline","user":"${data.agent}"}`);
+                    vars.ws.broadcast(`heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
                 } else {
                     vars.ws.broadcast(errorMessage.toString());
                     library.log([errorMessage.toString()]);

@@ -81,7 +81,7 @@ interface heartbeat {
 * **agent** - The identity of the remote user.
 * **refresh** - Whether the heartbeat should trigger a browser page refresh.
 * **status** - Whether the local or remote user is offline, online, or idle depending upon whether the heartbeat came from the remote or the local browser.
-* **user** - The local user identity.
+* **user** - The local user identity, typically populated from the reference `serverVars.name`.
 
 ---
 

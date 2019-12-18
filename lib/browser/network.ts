@@ -44,11 +44,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;
     let user:string,
-        a:number = 3,
-        local:string = document.getElementById("localhost").lastChild.textContent.replace(/^\s+/, "");
-    local = (browser.localNetwork.ip.indexOf(":") > 0)
-        ? `${local.slice(0, local.indexOf("@"))}@[${browser.localNetwork.ip}]:${browser.localNetwork.tcpPort}`
-        : `${local.slice(0, local.indexOf("@"))}@${browser.localNetwork.ip}:${browser.localNetwork.tcpPort}`;
+        a:number = 3;
 
     do {
         user = users[a].lastChild.textContent.replace(/^\s+/, "");
@@ -64,7 +60,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.send(`heartbeat:{"agent":"${user}","refresh":${refresh},"status":"${status}","user":"${local}"}`);
+            xhr.send(`heartbeat:{"agent":"${user}","refresh":${refresh},"status":"${status}","user":""}`);
         }
         a = a + 1;
     } while (a < length);

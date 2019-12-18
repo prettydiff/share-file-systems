@@ -22,17 +22,21 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             }
             return Number(address);
         }()),
-        requestError = (config.requestError === undefined)
-            ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
-                if (errorMessage.code !== "ETIMEDOUT") {
-                    log([config.errorMessage, errorMessage.toString()]);
-                    vars.ws.broadcast(errorMessage.toString());
-                }
-                config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                config.response.write(`{"id":"${config.id}","dirs":"missing"}`);
-                config.response.end();
+        requestError = (config.payload.indexOf("share-exchange:") === 0)
+            ? function terminal_server_httpClient_shareRequestError(errorMessage:nodeError):void {
+                config.requestError(errorMessage, config.remoteName);
             }
-            : config.requestError,
+            : (config.requestError === undefined)
+                ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT") {
+                        log([config.errorMessage, errorMessage.toString()]);
+                        vars.ws.broadcast(errorMessage.toString());
+                    }
+                    config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                    config.response.write(`{"id":"${config.id}","dirs":"missing"}`);
+                    config.response.end();
+                }
+                : config.requestError,
         responseError = (config.responseError === undefined)
             ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
                 if (errorMessage.code !== "ETIMEDOUT") {

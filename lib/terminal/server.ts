@@ -117,9 +117,10 @@ const library = {
                             heartbeat(heartbeatData);
                         } else if (task === "heartbeat-update") {
                             // * Respond to heartbeat changes as a result of a page load
+                            const heartbeatData:heartbeat = JSON.parse(dataString);
                             vars.ws.broadcast(body);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`heartbeat-update:{"agent":"${serverVars.name}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
+                            response.write(`heartbeat-update:{"agent":"${heartbeatData.agent}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
                             response.end();
                         } else if (task.indexOf("invite") === 0) {
                             // * Handle all stages of user invitation
@@ -257,13 +258,13 @@ const library = {
                                                 vars.ws.broadcast([errorMessage.toString()]);
                                                 library.log([errorMessage.toString()]);
                                             },
-                                            requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError):void {
+                                            requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError, agent:string):void {
                                                 count = count + 1;
                                                 if (count === length) {
                                                     allUsers();
                                                 }
                                                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(`heartbeat-update:{"agent":"${users[a]}","refresh":false,"status":"offline","user":"${serverVars.name}"}`);
+                                                    vars.ws.broadcast(`heartbeat-update:{"agent":"${agent}","refresh":false,"status":"offline","user":"${serverVars.name}"}`);
                                                 } else {
                                                     vars.ws.broadcast(errorMessage.toString());
                                                     library.log([errorMessage.toString()]);
