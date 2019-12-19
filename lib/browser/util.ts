@@ -580,7 +580,7 @@ util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:strin
             content: invite,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             read_only: false,
-            title: "<span class=\"icon-inviteUser\">❤</span> Invite User",
+            title: "<span class=\"icon-invite\">❤</span> Invite User",
             type: "invite-request"
         });
     } else {

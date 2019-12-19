@@ -44,7 +44,7 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length;
     let user:string,
-        a:number = 3;
+        a:number = 1;
 
     do {
         user = users[a].lastChild.textContent.replace(/^\s+/, "");

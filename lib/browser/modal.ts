@@ -1106,7 +1106,7 @@ modal.sharesDeleteList = function local_modal_sharesDeleteList(event:MouseEvent,
                 : ["close"],
             read_only: false,
             single: true,
-            title: "<span class=\"icon-shares-delete\">☣</span> Delete Shares",
+            title: "<span class=\"icon-delete\">☣</span> Delete Shares",
             type: "share_delete",
             width: 750
         });
@@ -1120,7 +1120,7 @@ modal.sharesDeleteList = function local_modal_sharesDeleteList(event:MouseEvent,
             configuration.inputs = ["close"];
         }
         configuration.single = true;
-        configuration.title = "<span class=\"icon-shares-delete\">☣</span> Delete Shares";
+        configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
         configuration.type = "share_delete";
         modal.create(configuration);
     }

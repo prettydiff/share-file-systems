@@ -26,7 +26,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 const user:string = event.data.replace("deleteUser:", ""),
                     userList:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
                     length:number = userList.length;
-                let a:number = 3;
+                let a:number = 1;
                 delete browser.users[user];
                 do {
                     if (userList[a].innerHTML.indexOf(user) > 0) {
