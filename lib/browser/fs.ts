@@ -873,6 +873,9 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     let state:boolean = input.checked,
         body:HTMLElement = li,
         box:HTMLElement;
+    if (document.getElementById("newFileItem") !== null) {
+        return;
+    }
     input.focus();
     modal.zTop(event);
     do {

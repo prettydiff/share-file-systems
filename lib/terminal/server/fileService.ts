@@ -19,7 +19,6 @@ import vars from "../vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
 
 const library = {
         base64: base64,
@@ -33,8 +32,7 @@ const library = {
         makeDir: makeDir,
         prettyBytes: prettyBytes,
         readFile: readFile,
-        remove: remove,
-        storage: storage
+        remove: remove
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
         const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
@@ -66,6 +64,9 @@ const library = {
                         length:number = keys.length,
                         store:Object = {};
                     let a:number = 0;
+                    if (data.action === "fs-directory" && data.agent !== "localhost") {
+                        data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
+                    }
                     do {
                         store[keys[a]] = data[keys[a]];
                         a = a + 1;
@@ -74,9 +75,6 @@ const library = {
                         store["agent"] = "localhost";
                     } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
                         store["agent"] = serverVars.name;
-                    }
-                    if (data.action === "fs-directory" && data.agent !== "localhost") {
-                        store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                     }
                     if (data.action === "shareUpdate") {
                         return data.name;

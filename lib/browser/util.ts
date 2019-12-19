@@ -709,7 +709,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     if (key === 116 || (event.ctrlKey === true && key === 82)) {
         location.reload();
     }
-    if (element.parentNode === null) {
+    if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
     event.preventDefault();
@@ -844,6 +844,9 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
         inputs:HTMLCollectionOf<HTMLInputElement>,
         box:HTMLElement = element,
         fileList:HTMLElement;
+    if (document.getElementById("newFileItem") !== null) {
+        return;
+    }
     if (box.getAttribute("class") !== "box") {
         do {
             box = <HTMLElement>box.parentNode;

@@ -369,20 +369,22 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
             // 13 is enter
             if (actionEvent.keyCode === 13) {
                 const value:string = field.value.replace(/(\s+|\.)$/, "");
-                field.value = value;
-                text.innerHTML = path + value;
-                network.fs({
-                    action: "fs-new",
-                    agent: util.getAgent(element)[0],
-                    copyAgent: "",
-                    depth: 1,
-                    id: box.getAttribute("id"),
-                    location: [path + value],
-                    name: type,
-                    watch: "no"
-                }, function local_context_fsNew_actionKeyboard_callback():void {
-                    // todo: log in systems log
-                });
+                if (value.replace(/\s+/, "") !== "") {
+                    field.value = value;
+                    text.innerHTML = path + value;
+                    network.fs({
+                        action: "fs-new",
+                        agent: util.getAgent(element)[0],
+                        copyAgent: "",
+                        depth: 1,
+                        id: box.getAttribute("id"),
+                        location: [path + value],
+                        name: type,
+                        watch: "no"
+                    }, function local_context_fsNew_actionKeyboard_callback():void {
+                        // todo: log in systems log
+                    });
+                }
             } else {
                 // 27 is escape
                 if (actionEvent.keyCode === 27) {
@@ -397,20 +399,22 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
         actionBlur = function local_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
             if (actionEvent.type === "blur" && field.value.replace(/\s+/, "") !== "") {
                 const value:string = field.value.replace(/(\s+|\.)$/, "");
-                field.value = value;
-                text.innerHTML = path + value;
-                network.fs({
-                    action: "fs-new",
-                    agent: util.getAgent(element)[0],
-                    copyAgent: "",
-                    depth: 1,
-                    id: box.getAttribute("id"),
-                    location: [path + value],
-                    name: type,
-                    watch: "no"
-                }, function local_context_fsNew_actionBlur_callback():void {
-                    // todo: log in systems log
-                });
+                if (value.replace(/\s+/, "") !== "") {
+                    field.value = value;
+                    text.innerHTML = path + value;
+                    network.fs({
+                        action: "fs-new",
+                        agent: util.getAgent(element)[0],
+                        copyAgent: "",
+                        depth: 1,
+                        id: box.getAttribute("id"),
+                        location: [path + value],
+                        name: type,
+                        watch: "no"
+                    }, function local_context_fsNew_actionBlur_callback():void {
+                        // todo: log in systems log
+                    });
+                }
             }
         },
         build = function local_context_fsNew_build():HTMLElement {
@@ -692,7 +696,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     // menu display position
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
     // vertical
-    if (browser.content.clientHeight < ((itemList.length * 57) + 1) + event.clientY) {
+    if (browser.content.clientHeight < ((itemList.length * 45) + 1) + event.clientY) {
         reverse = true;
         menu.style.top = `${(event.clientY - ((itemList.length * 57) + 1)) / 10}em`;
     } else {
