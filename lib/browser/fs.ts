@@ -873,6 +873,9 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     let state:boolean = input.checked,
         body:HTMLElement = li,
         box:HTMLElement;
+    if (document.getElementById("newFileItem") !== null) {
+        return;
+    }
     input.focus();
     modal.zTop(event);
     do {
@@ -972,7 +975,9 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     let parent:HTMLElement,
         box:HTMLElement,
         id:string,
-        button:boolean = false;
+        button:boolean = false,
+        windows:boolean = false,
+        historyLength:number;
     const element:HTMLInputElement = (function local_fs_text_element():HTMLInputElement {
             let el = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
             if (el.nodeName.toLowerCase() === "input") {
@@ -988,7 +993,11 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
     if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        if (button === false) {
+        if (/^\w:/.test(element.value.replace(/\s+/, "")) === true) {
+            windows = true;
+        }
+        historyLength = browser.data.modals[id].history.length - 1;
+        if (button === false && ((windows === false && element.value !== browser.data.modals[id].history[historyLength]) || (windows === true && element.value.toLowerCase() !== browser.data.modals[id].history[historyLength].toLowerCase()))) {
             browser.data.modals[id].history.push(element.value);
         }
         network.fs({

@@ -79,7 +79,7 @@ util.addUser = function local_util_addUser(user:string):void {
     if (name === "localhost") {
         button.setAttribute("id", "localhost");
     }
-    network.storage("users");
+    network.storage("users", false);
 };
 
 util.audio = function local_util_audio(name:string):void {
@@ -608,7 +608,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
             a = a + 1;
         } while (a < length);
         div.setAttribute("class", "userInvitation");
-        if (invite.family === "ipv4") {
+        if (invite.ip.indexOf(":") < 0) {
             text.innerHTML = `User <strong>${invite.name}</strong> from ${invite.ip}:${invite.port} is inviting you to share spaces.`;
         } else {
             text.innerHTML = `User <strong>${invite.name}</strong> from [${invite.ip}]:${invite.port} is inviting you to share spaces.`;
@@ -643,7 +643,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
         const modal:HTMLElement = document.getElementById(invite.modal);
         if (modal === null) {
             if (invite.status === "accepted") {
-                if (invite.family === "ipv4") {
+                if (invite.ip.indexOf(":") < 0) {
                     user = `${invite.name}@${invite.ip}:${invite.port}`;
                 } else {
                     user = `${invite.name}@[${invite.ip}]:${invite.port}`;
@@ -663,7 +663,7 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                     if (invite.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
-                        if (invite.family === "ipv4") {
+                        if (invite.ip.indexOf(":") < 0) {
                             user = `${invite.name}@${invite.ip}:${invite.port}`;
                         } else {
                             user = `${invite.name}@[${invite.ip}]:${invite.port}`;
@@ -674,7 +674,6 @@ util.inviteRespond = function local_util_inviteRespond(message:string):void {
                         }
                         util.audio("invite");
                         util.addUser(user);
-                        network.storage("users");
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");
@@ -710,7 +709,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     if (key === 116 || (event.ctrlKey === true && key === 82)) {
         location.reload();
     }
-    if (element.parentNode === null) {
+    if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
     event.preventDefault();
@@ -845,6 +844,9 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
         inputs:HTMLCollectionOf<HTMLInputElement>,
         box:HTMLElement = element,
         fileList:HTMLElement;
+    if (document.getElementById("newFileItem") !== null) {
+        return;
+    }
     if (box.getAttribute("class") !== "box") {
         do {
             box = <HTMLElement>box.parentNode;
@@ -1077,6 +1079,8 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
         body:HTMLElement,
         titleText:string,
         parentDirectory:HTMLElement,
+        back:HTMLElement,
+        header:HTMLElement,
         address:string,
         fileShares:boolean = false;
     const modals:string[] = (id === undefined)
@@ -1114,6 +1118,8 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
             title = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
             titleText = title.innerHTML;
             parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
+            back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];
+            header = <HTMLElement>parentDirectory.parentNode;
             address = browser.data.modals[modals[a]].text_value;
             do {
                 if (address.indexOf(shares[b].name) === 0 || (windows === true && address.toLowerCase().indexOf(shares[b].name.toLowerCase()) === 0)) {
@@ -1144,8 +1150,12 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
                     }
                     if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
                         parentDirectory.style.display = "none";
+                        back.style.marginLeft = "-6em";
+                        header.style.paddingLeft = "10.5em";
                     } else {
                         parentDirectory.style.display = "inline-block";
+                        back.style.marginLeft = "-9em";
+                        header.style.paddingLeft = "15em";
                     }
                 }
             }

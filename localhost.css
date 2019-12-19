@@ -162,9 +162,9 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0 0.5em}
 #spaces .box .header label{display:inline-block}
 #spaces .box .header span{display:block;position:absolute;top:-200em}
-#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0.25em 1.5em 0.5em -9em}
-#spaces .box .header .backDirectory{background:#ffd;border-color:#660;color:#660;margin:0.25em 1.5em 0.5em 0}
-#spaces .box .header .reloadDirectory{background:#dfd;border-color:#060;color:#060;margin:0.25em 1.5em 0.5em 0}
+#spaces .box .header .backDirectory{background:#ffa;border-color:#440;color:#440;margin:0.25em 1.5em 0.5em -9em}
+#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0.25em 1.5em 0.5em 0}
+#spaces .box .header .reloadDirectory{background:#dfd;border-color:#050;color:#050;margin:0.25em 1.5em 0.5em 0}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.9em;margin:-0.125em 0 0 0;padding:0;vertical-align:middle;width:100%}
 #spaces .box .header .fileAddress{width:87.5%}
 #spaces .box .header .fileSearch{width:12.5%}

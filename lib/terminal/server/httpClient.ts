@@ -1,66 +1,103 @@
 
 import * as http from "http";
 
+import serverVars from "./serverVars.js";
+import storage from "./storage.js";
+
 import log from "../log.js";
 import vars from "../vars.js";
 
-import serverVars from "./serverVars.js";
-
-/*  
-This library is the means by which the local terminal instance talks with remote terminal instances.
-For consistency and security this library must be the only means by which the applications talk to each other.
-*/
-const httpClient = function terminal_server_httpClient(config:httpClient):void {
-    const ipAddress:string = (function terminal_server_httpClient_ip():string {
-            const address:string = config.data.agent.slice(config.data.agent.indexOf("@") + 1, config.data.agent.lastIndexOf(":"));
-            if (config.data.action === "fs-directory" && config.data.agent !== "localhost") {
-                config.data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
-            }
+const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
+    const ip:string = (function terminal_server_httpClient_ip():string {
+            let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
             if (address.charAt(0) === "[") {
-                return address.slice(1, address.length - 1);
+                address = address.slice(1, address.length - 1);
             }
             return address;
         }()),
         port:number = (function terminal_server_httpClient_port():number {
-            const portString:string = config.data.agent.slice(config.data.agent.lastIndexOf(":") + 1);
-            if (config.data.action === "fs-base64" || config.data.action === "fs-destroy" || config.data.action === "fs-details" || config.data.action === "fs-hash" || config.data.action === "fs-new" || config.data.action === "fs-read" || config.data.action === "fs-rename" || config.data.action === "fs-search" || config.data.action === "fs-write") {
-                config.data.agent = "localhost";
-            } else if (config.data.action === "fs-copy-request" || config.data.action === "fs-cut-request") {
-                config.data.agent = serverVars.name;
-            }
-            if (isNaN(Number(portString)) === true) {
+            let address:string = config.remoteName.slice(config.remoteName.lastIndexOf(":") + 1);
+            if (isNaN(Number(address)) === true) {
                 return 80;
             }
-            return Number(portString);
+            return Number(address);
         }()),
-        payload:string = (config.data.action === "shareUpdate")
-            ? config.data.name
-            : `fs:${JSON.stringify(config.data)}`,
-        fsRequest:http.ClientRequest = vars.node.http.request({
-            headers: {
-                "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(payload),
-                "user-name": serverVars.name
+        callback: Function = (config.callbackType === "object")
+            ? config.callback
+            : function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
+                const chunks:Buffer[] = [];
+                fsResponse.setEncoding("utf8");
+                fsResponse.on("data", function terminal_server_httpClient_data(chunk:Buffer):void {
+                    chunks.push(chunk);
+                });
+                fsResponse.on("end", function terminal_server_httpClient_end():void {
+                    const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
+                        ? Buffer.concat(chunks)
+                        : chunks.join("");
+                    if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
+                        const userName:string = body.toString().replace("ForbiddenAccess:", "");
+                        delete serverVars.users[userName];
+                        storage(JSON.stringify(serverVars.users), "noSend", "users");
+                        vars.ws.broadcast(`deleteUser:${userName}`);
+                    } else {
+                        config.callback(body);
+                    }
+                });
+                fsResponse.on("error", responseError);
             },
-            host: ipAddress,
+        requestError = (config.payload.indexOf("share-exchange:") === 0)
+            ? function terminal_server_httpClient_shareRequestError(errorMessage:nodeError):void {
+                config.requestError(errorMessage, config.remoteName);
+            }
+            : (config.requestError === undefined)
+                ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT") {
+                        log([config.errorMessage, errorMessage.toString()]);
+                        vars.ws.broadcast(errorMessage.toString());
+                    }
+                    config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
+                    config.response.write(`{"id":"${config.id}","dirs":"missing"}`);
+                    config.response.end();
+                }
+                : config.requestError,
+        responseError = (config.responseError === undefined)
+            ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
+                if (errorMessage.code !== "ETIMEDOUT") {
+                    log([config.errorMessage, errorMessage.toString()]);
+                    vars.ws.broadcast(errorMessage.toString());
+                }
+            }
+            : config.responseError,
+        invite:string = (config.payload.indexOf("invite-request") === 0)
+            ? "invite-request"
+            : (config.payload.indexOf("invite-complete") === 0)
+                ? "invite-complete"
+                : "",
+        headers:Object = (invite === "")
+            ? {
+                "content-type": "application/x-www-form-urlencoded",
+                "content-length": Buffer.byteLength(config.payload),
+                "user-name": serverVars.name,
+                "remote-user": config.remoteName
+            }
+            : {
+                "content-type": "application/x-www-form-urlencoded",
+                "content-length": Buffer.byteLength(config.payload),
+                "user-name": serverVars.name,
+                "remote-user": config.remoteName,
+                "invite": invite
+            },
+        fsRequest:http.ClientRequest = vars.node.http.request({
+            headers: headers,
+            host: ip,
             method: "POST",
             path: "/",
             port: port,
             timeout: 1000
-        }, function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
-            config.callback(fsResponse);
-        });
-    fsRequest.on("error", function terminal_server_create_end_fsRequest_error(errorMessage:nodeError):void {
-        if (errorMessage.code !== "ETIMEDOUT") {
-            log([config.errorMessage, errorMessage.toString()]);
-            vars.ws.broadcast(errorMessage.toString());
-        }
-        config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-        config.response.write(`{"id":"${config.data.id}","dirs":"missing"}`);
-        config.response.end();
-    });
-    fsRequest.write(payload);
-    setTimeout(function () {
+        }, callback);
+    fsRequest.on("error", requestError);
+    fsRequest.write(config.payload);
+    setTimeout(function terminal_server_httpClient_delay():void {
         fsRequest.end();
     }, 100);
 };

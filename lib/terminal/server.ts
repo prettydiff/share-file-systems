@@ -104,17 +104,23 @@ const library = {
                             readOnly(request, response, dataString);
                         } else if (task === "settings" || task === "messages" || task === "users") {
                             // * local: Writes changes to storage files
-                            storage(dataString, response, task);
+                            const length:number = dataString.length;
+                            if (dataString.slice(length - 7) === ",noSend") {
+                                storage(dataString.slice(0, length - 7), "noSend", task);
+                            } else {
+                                storage(dataString, response, task);
+                            }
                         } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                             // * Send and receive heartbeat signals
                             const heartbeatData:heartbeat = JSON.parse(dataString);
                             serverVars.status = heartbeatData.status;
-                            heartbeat(dataString, response);
+                            heartbeat(heartbeatData);
                         } else if (task === "heartbeat-update") {
                             // * Respond to heartbeat changes as a result of a page load
+                            const heartbeatData:heartbeat = JSON.parse(dataString);
                             vars.ws.broadcast(body);
                             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`heartbeat-update:{"ip":"${serverVars.addresses[0][1][1]}","port":${serverVars.webPort},"refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
+                            response.write(`heartbeat-update:{"agent":"${heartbeatData.agent}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
                             response.end();
                         } else if (task.indexOf("invite") === 0) {
                             // * Handle all stages of user invitation
@@ -123,7 +129,7 @@ const library = {
                     });
                 } else {
                     response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(`Forbidden:${serverVars.name}`);
+                    response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
                     response.end();
                 }
             }),
@@ -234,31 +240,35 @@ const library = {
                                     if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                         logOutput();
                                     } else {
-                                        const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(userResponse:http.IncomingMessage):void {
-                                                const chunks:string[] = [];
-                                                userResponse.setEncoding('utf8');
-                                                userResponse.on("data", function terminal_server_start_listen__readSettings_exchange_data(chunk:string):void {
-                                                    chunks.push(chunk);
-                                                });
-                                                userResponse.on("end", function terminal_server_start_listen__readSettings_exchange_end():void {
-                                                    const userString:string = chunks.join(""),
-                                                        userData:userExchange = JSON.parse(userString);
-                                                    count = count + 1;
-                                                    if (count === length) {
-                                                        allUsers();
-                                                    }
-                                                    serverVars.users[userData.user].shares = userData.shares;
-                                                    vars.ws.broadcast(`heartbeat-update:{"ip":"${userData.ip}","port":${userData.port},"refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
-                                                    vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
-                                                });
-                                                userResponse.on("error", function terminal_server_start_listen__readSettings_exchange_error(errorMessage:nodeError):void {
-                                                    count = count + 1;
-                                                    if (count === length) {
-                                                        allUsers();
-                                                    }
-                                                    vars.ws.broadcast([errorMessage.toString()]);
+                                        const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(responseBody:Buffer|string):void {
+                                            const userData:userExchange = JSON.parse(<string>responseBody);
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                serverVars.users[userData.user].shares = userData.shares;
+                                                vars.ws.broadcast(`heartbeat-update:{"agent","${userData.agent}"."refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
+                                                vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
+                                            },
+                                            responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                vars.ws.broadcast([errorMessage.toString()]);
+                                                library.log([errorMessage.toString()]);
+                                            },
+                                            requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError, agent:string):void {
+                                                count = count + 1;
+                                                if (count === length) {
+                                                    allUsers();
+                                                }
+                                                if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
+                                                    vars.ws.broadcast(`heartbeat-update:{"agent":"${agent}","refresh":false,"status":"offline","user":"${serverVars.name}"}`);
+                                                } else {
+                                                    vars.ws.broadcast(errorMessage.toString());
                                                     library.log([errorMessage.toString()]);
-                                                });
+                                                }
                                             },
                                             allUsers = function terminal_server_start_listen_readUsers_readSettings_allUsers():void {
                                                 const userString = JSON.stringify(serverVars.users);
@@ -272,45 +282,17 @@ const library = {
                                                 }
                                             };
                                         let a:number = 1,
-                                            ip:string,
-                                            port:string,
-                                            lastColon:number,
-                                            payload:string,
-                                            http:http.ClientRequest,
                                             count:number = 0;
                                         do {
-                                            lastColon = users[a].lastIndexOf(":");
-                                            ip = users[a].slice(users[a].indexOf("@") + 1, lastColon);
-                                            port = users[a].slice(lastColon + 1);
-                                            if (ip.charAt(0) === "[") {
-                                                ip = ip.slice(1, ip.length - 1);
-                                            }
-                                            payload = `share-exchange:{"user":"${serverVars.name}","ip":"${ip}","port":${port},"shares":${JSON.stringify(serverVars.users.localhost.shares)}}`;
-                                            http = vars.node.http.request({
-                                                headers: {
-                                                    "content-type": "application/x-www-form-urlencoded",
-                                                    "content-length": Buffer.byteLength(payload),
-                                                    "user-name": serverVars.name
-                                                },
-                                                host: ip,
-                                                method: "POST",
-                                                path: "/",
-                                                port: port,
-                                                timeout: 1000
-                                            }, callback);
-                                            http.write(payload);
-                                            http.end();
-                                            http.on("error", function terminal_server_start_readUsers_readSettings_httpError(errorMessage:nodeError):void {
-                                                count = count + 1;
-                                                if (count === length) {
-                                                    allUsers();
-                                                }
-                                                if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(`heartbeat-update:{"ip":"${ip}","port":${port},"refresh":false,"status":"offline","user":"${users[a]}"}`);
-                                                } else {
-                                                    vars.ws.broadcast(errorMessage.toString());
-                                                    library.log([errorMessage.toString()]);
-                                                }
+                                            library.httpClient({
+                                                callback: callback,
+                                                callbackType: "body",
+                                                errorMessage: `User ${users[a]} is offline or unreachable.`,
+                                                id: "",
+                                                payload: `share-exchange:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                                                remoteName: users[a],
+                                                requestError: requestError,
+                                                responseError: responseError
                                             });
                                             a = a + 1;
                                         } while (a < length);

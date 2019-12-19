@@ -1,7 +1,8 @@
 
-import * as http from "http";
-import * as fs from "fs";
 import { Hash } from "crypto";
+import * as fs from "fs";
+import * as http from "http";
+import { Stream, Writable } from "stream";
 import * as zlib from "zlib";
 
 import base64 from "../base64.js";
@@ -58,6 +59,39 @@ const library = {
                     });
                 }
             },
+            httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
+                const payload:string = (function terminal_server_fileService_httpRequest_payload():string {
+                    const keys:string[] = Object.keys(data),
+                        length:number = keys.length,
+                        store:Object = {};
+                    let a:number = 0;
+                    do {
+                        store[keys[a]] = data[keys[a]];
+                        a = a + 1;
+                    } while (a < length);
+                    if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
+                        store["agent"] = "localhost";
+                    } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
+                        store["agent"] = serverVars.name;
+                    }
+                    if (data.action === "fs-directory" && data.agent !== "localhost") {
+                        store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
+                    }
+                    if (data.action === "shareUpdate") {
+                        return data.name;
+                    }
+                    return `fs:${JSON.stringify(store)}`;
+                }());
+                library.httpClient({
+                    callback: callback,
+                    callbackType: type,
+                    errorMessage: errorMessage,
+                    id: data.id,
+                    payload: payload,
+                    remoteName: data.agent,
+                    response: response
+                });
+            },
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
                     serverVars.watches[value].time = Date.now();
@@ -78,59 +112,23 @@ const library = {
                         // create directoryList object and send to remote
                         library.directory({
                             callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
-                                const remoteData:string[] = data.remoteWatch.split("_"),
-                                    remoteAddress:string = remoteData[0],
-                                    remotePort:number = Number(remoteData[1]),
-                                    location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
+                                const location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
                                         ? value
                                         : value.replace(/\\/g, "\\\\"),
-                                    payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`,
-                                    fsRequest:http.ClientRequest = vars.node.http.request({
-                                        headers: {
-                                            "content-type": "application/x-www-form-urlencoded",
-                                            "content-length": Buffer.byteLength(payload),
-                                            "user-name": serverVars.name
+                                    payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`;
+                                    library.httpClient({
+                                        callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
+                                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                            response.write(responseBody);
+                                            response.end();
                                         },
-                                        host: remoteAddress,
-                                        method: "POST",
-                                        path: "/",
-                                        port: remotePort,
-                                        timeout: 4000
-                                    }, function terminal_server_fileService_watchHandler_remote_callback(fsResponse:http.IncomingMessage):void {
-                                        const chunks:string[] = [];
-                                        fsResponse.setEncoding("utf8");
-                                        fsResponse.on("data", function terminal_server_fileService_watchHandler_remote_callback_data(chunk:string):void {
-                                            chunks.push(chunk);
-                                        });
-                                        fsResponse.on("end", function terminal_server_fileService_watchHandler_remote_callback_end():void {
-                                            if (response.finished === false) {
-                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                                response.write(chunks.join(""));
-                                                response.end();
-                                            }
-                                        });
-                                        fsResponse.on("error", function terminal_server_fileService_watchHandler_remote_callback_error(errorMessage:nodeError):void {
-                                            if (errorMessage.code !== "ETIMEDOUT") {
-                                                library.log([errorMessage.toString()]);
-                                                vars.ws.broadcast(errorMessage.toString());
-                                            }
-                                        });
+                                        callbackType: "body",
+                                        errorMessage: `Error related to remote file system watch at ${data.agent}.`,
+                                        id: "",
+                                        payload: payload,
+                                        remoteName: data.agent,
+                                        response: response
                                     });
-                                fsRequest.on("error", function terminal_server_fileService_watchHandler_remote_requestError(errorMessage:nodeError):void {
-                                    if (errorMessage.code !== "ETIMEDOUT") {
-                                        library.log(["watch-remote", errorMessage.stack]);
-                                        vars.ws.broadcast(errorMessage.toString());
-                                    }
-                                    if (response.finished === false) {
-                                        response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                                        response.write("Error sending directory watch to remote.");
-                                        response.end();
-                                    }
-                                });
-                                fsRequest.write(payload);
-                                setTimeout(function terminal_server_fileService_watchHandler_remote_delay():void {
-                                    fsRequest.end();
-                                }, 100);
                             },
                             depth: 2,
                             exclusions: [],
@@ -272,28 +270,9 @@ const library = {
                                     data.action = "fs-cut-remove";
                                     data.name = JSON.stringify(types);
                                     data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
-                                    library.httpClient({
-                                        callback: function terminal_server_fileService_requestFiles_respond_cut_cutCall(fsResponse:http.IncomingMessage):void {
-                                            const chunks:string[] = [];
-                                            fsResponse.setEncoding("utf8");
-                                            fsResponse.on("data", function terminal_server_fileService_requestFiles_respond_cut_cutCall_data(chunk:string):void {
-                                                chunks.push(chunk);
-                                            });
-                                            fsResponse.on("end", function terminal_server_fileService_requestFiles_respond_cut_cutCall_end():void {
-                                                const body:string = chunks.join("");
-                                                library.log([body]);
-                                            });
-                                            fsResponse.on("error", function terminal_server_fileService_requestFiles_respond_cut_cutCall_error(errorMessage:nodeError):void {
-                                                if (errorMessage.code !== "ETIMEDOUT") {
-                                                    library.log([errorMessage.toString()]);
-                                                    vars.ws.broadcast(errorMessage.toString());
-                                                }
-                                            });
-                                        },
-                                        data:data,
-                                        errorMessage: "Error requesting file removal for fs-cut.",
-                                        response: response
-                                    });
+                                    httpRequest(function terminal_server_fileService_requestFiles_respond_cut_cutCall(responseBody:string|Buffer):void {
+                                        library.log([<string>responseBody]);
+                                    }, "Error requesting file removal for fs-cut.", "body");
                                 }
                             };
                         library.log([``]);
@@ -391,9 +370,9 @@ const library = {
                     },
                     fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
                         const fileChunks:Buffer[] = [],
-                            responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd():void {
-                                const file:Buffer = Buffer.concat(fileChunks),
-                                    fileName:string = <string>fileResponse.headers.file_name,
+                            writeable:Writable = new Stream.Writable(),
+                            responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd(file:Buffer):void {
+                                const fileName:string = <string>fileResponse.headers.file_name,
                                     hash:Hash = vars.node.crypto.createHash("sha512").update(file),
                                     hashString:string = hash.digest("hex");
                                 if (hashString === fileResponse.headers.hash) {
@@ -416,26 +395,30 @@ const library = {
                                 }
                             };
                         let endTest:boolean = false;
+                        writeable.write = function (writeableChunk:Buffer):boolean {
+                            fileChunks.push(writeableChunk);
+                            return false;
+                        };
                         fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileRequestCallback_data(fileChunk:Buffer):void {
-                            vars.node.zlib.brotliDecompress(fileChunk, function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, segment:Buffer):void {
+                            fileChunks.push(fileChunk);
+                        });
+                        fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
+                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
                                 if (errDecompress !== null) {
                                     library.error([errDecompress.toString()]);
                                     return;
                                 }
-                                fileChunks.push(segment);
-                                if (endTest === true) {
-                                    responseEnd();
-                                }
+                                responseEnd(file);
                             });
-                        });
-                        fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
-                            endTest = true;
                         });
                         fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileRequestCallback_error(fileError:nodeError):void {
                             library.error([fileError.toString()]);
                         });
                     },
                     requestFile = function terminal_server_fileService_requestFiles_requestFile():void {
+                        const writeCallback:Function = (fileData.stream === true)
+                            ? writeStream
+                            : fileRequestCallback;
                         data.depth = fileData.list[a][3];
                         if (data.copyAgent !== "localhost") {
                             const filePlural:string = (countFile === 1)
@@ -449,14 +432,7 @@ const library = {
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
-                        library.httpClient({
-                            callback: (fileData.stream === true)
-                                ? writeStream
-                                : fileRequestCallback,
-                            data: data,
-                            errorMessage: `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`,
-                            response: response
-                        });
+                        httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`, "object");
                         if (fileData.stream === false) {
                             a = a + 1;
                             if (a < listLength) {
@@ -525,30 +501,11 @@ const library = {
                 });
             };
         if (data.agent !== "localhost" && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
-            library.httpClient({
-                callback: function terminal_server_fileService_remoteString(fsResponse:http.IncomingMessage):void {
-                    const chunks:string[] = [];
-                    fsResponse.setEncoding("utf8");
-                    fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
-                        chunks.push(chunk);
-                    });
-                    fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
-                        const body:string = chunks.join("");
-                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        response.write(body);
-                        response.end();
-                    });
-                    fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
-                        if (errorMessage.code !== "ETIMEDOUT") {
-                            library.log([errorMessage.toString()]);
-                            vars.ws.broadcast(errorMessage.toString());
-                        }
-                    });
-                },
-                data: data,
-                errorMessage: `Error requesting ${data.action} from remote.`,
-                response: response
-            });
+            httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
+                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                response.write(responseBody);
+                response.end();
+            }, `Error requesting ${data.action} from remote.`, "body");
         } else if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
@@ -688,35 +645,16 @@ const library = {
                 });
             } else {
                 // remote file server access
-                library.httpClient({
-                    callback: function terminal_server_fileService_remoteCopy(fsResponse:http.IncomingMessage):void {
-                        const chunks:string[] = [];
-                        fsResponse.setEncoding("utf8");
-                        fsResponse.on("data", function terminal_server_fileService_remoteCopy_data(chunk:string):void {
-                            chunks.push(chunk);
-                        });
-                        fsResponse.on("end", function terminal_server_fileService_remoteCopy_end():void {
-                            const body:string = chunks.join("");
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            if (body.indexOf("fsUpdateRemote:") === 0) {
-                                vars.ws.broadcast(body);
-                                response.write("Terminal received file system response from remote.");
-                            } else {
-                                response.write(body);
-                            }
-                            response.end();
-                        });
-                        fsResponse.on("error", function terminal_server_fileService_remoteCopy_error(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT") {
-                                library.log([errorMessage.toString()]);
-                                vars.ws.broadcast(errorMessage.toString());
-                            }
-                        });
-                    },
-                    data: data,
-                    errorMessage: `Error on reading from remote file system at agent ${data.agent}`,
-                    response: response
-                });
+                httpRequest(function terminal_server_fileService_remoteFileAccess(responseBody:string|Buffer):void {
+                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                    if (responseBody.indexOf("fsUpdateRemote:") === 0) {
+                        vars.ws.broadcast(responseBody);
+                        response.write("Terminal received file system response from remote.");
+                    } else {
+                        response.write(responseBody);
+                    }
+                    response.end();
+                }, `Error on reading from remote file system at agent ${data.agent}`, "body");
             }
         } else if (data.action === "fs-close") {
             if (serverVars.watches[data.location[0]] !== undefined) {
@@ -740,28 +678,11 @@ const library = {
                             data.action = <serviceType>`${data.action}-request`;
                             data.agent = data.copyAgent;
                             data.remoteWatch = JSON.stringify(listData);
-                            library.httpClient({
-                                callback: function terminal_server_fileServices_remoteListCallback_http(fsResponse:http.IncomingMessage):void {
-                                    const chunks:string[] = [];
-                                    fsResponse.on("data", function terminal_server_fileService_remoteListCallback_http_data(chunk:string):void {
-                                        chunks.push(chunk);
-                                    });
-                                    fsResponse.on("end", function terminal_server_fileService_remoteListCallback_end():void {
-                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                        response.write(chunks.join(""));
-                                        response.end();
-                                    });
-                                    fsResponse.on("error", function terminal_server_fileService_remoteListCallback_http_error(errorMessage:nodeError):void {
-                                        if (errorMessage.code !== "ETIMEDOUT") {
-                                            library.log([errorMessage.toString()]);
-                                            vars.ws.broadcast(errorMessage.toString());
-                                        }
-                                    });
-                                },
-                                data: data,
-                                errorMessage: "Error sending list of files to remote for copy from localhost.",
-                                response: response
-                            });
+                            httpRequest(function terminal_server_fileService_remoteListCallback_http(responseBody:string|Buffer):void {
+                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                response.write(responseBody);
+                                response.end();
+                            }, "Error sending list of files to remote for copy from localhost.", "body");
                         },
                         files: [],
                         id: data.id,
@@ -772,58 +693,19 @@ const library = {
             } else if (data.copyAgent === "localhost") {
                 // data.agent === remoteAgent
                 // data.copyAgent === "localhost"
-                const action:serviceType = <serviceType>`${data.action}-list`,
-                    callback = function terminal_server_fileService_response(fsResponse:http.IncomingMessage):void {
-                        const chunks:string[] = [];
-                        fsResponse.on("data", function terminal_server_fileService_response_data(chunk:string):void {
-                            chunks.push(chunk);
-                        });
-                        fsResponse.on("end", function terminal_server_fileService_response_end():void {
-                            requestFiles(JSON.parse(chunks.join("")));
-                        });
-                        fsResponse.on("error", function terminal_server_fileService_response_error(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT") {
-                                library.log([errorMessage.toString()]);
-                                vars.ws.broadcast(errorMessage.toString());
-                            }
-                        });
-                    };
-                data.action = action;
-                library.httpClient({
-                    callback: callback,
-                    data: data,
-                    errorMessage: "copy from remote to localhost",
-                    response: response
-                });
+                data.action = <serviceType>`${data.action}-list`;
+                httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                    requestFiles(JSON.parse(<string>responseBody));
+                }, "Error copying from remote to localhost", "body");
             } else if (data.agent === data.copyAgent) {
                 // * data.agent === sameRemoteAgent
                 // * data.agent === sameRemoteAgent
-                const action:serviceType = <serviceType>`${data.action}-self`;
-                data.action = action;
-                library.httpClient({
-                    callback: function terminal_server_fileService_selfResponse(fsResponse:http.IncomingMessage):void {
-                        const chunks:string[] = [];
-                        fsResponse.setEncoding("utf8");
-                        fsResponse.on("data", function terminal_server_fileService_remoteString_data(chunk:string):void {
-                            chunks.push(chunk);
-                        });
-                        fsResponse.on("end", function terminal_server_fileService_remoteString_end():void {
-                            const body:string = chunks.join("");
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(body);
-                            response.end();
-                        });
-                        fsResponse.on("error", function terminal_server_fileService_remoteString_error(errorMessage:nodeError):void {
-                            if (errorMessage.code !== "ETIMEDOUT") {
-                                library.log([errorMessage.toString()]);
-                                vars.ws.broadcast(errorMessage.toString());
-                            }
-                        });
-                    },
-                    data: data,
-                    errorMessage: `Error copying files to and from agent ${data.agent}.`,
-                    response: response
-                });
+                data.action = <serviceType>`${data.action}-self`;
+                httpRequest(function terminal_server_fileService_sameRemote(responseBody:string|Buffer):void {
+                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                    response.write(responseBody);
+                    response.end();
+                }, `Error copying files to and from agent ${data.agent}.`, "body");
             } else {
                 // * data.agent === remoteAgent
                 // * data.copyAgent === differentRemoteAgent

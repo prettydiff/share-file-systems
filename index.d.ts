@@ -166,21 +166,24 @@ interface hashOutput {
     stat?: Stats;
 }
 interface heartbeat {
-    ip: string;
-    port: number;
+    agent: string;
     refresh: boolean;
     status: heartbeatStatus;
     user: string;
 }
-interface httpClient {
+interface httpConfiguration {
     callback: Function;
-    data: fileService;
+    callbackType: "body" | "object";
     errorMessage: string;
-    response: any;
+    id: string;
+    payload: Buffer|string;
+    remoteName: string;
+    requestError?: (error:nodeError, agent?:string) => void;
+    response?: any;
+    responseError?: (error:nodeError) => void;
 }
 interface invite {
     action: "invite" | "invite-request" | "invite-response" | "invite-complete";
-    family: "ipv4" | "ipv6";
     ip: string;
     message: string;
     modal: string;
@@ -213,7 +216,7 @@ interface module_network {
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
-    storage?: (type:storageType) => void;
+    storage?: (type:storageType, send?:boolean) => void;
 }
 interface module_context {
     copy?: (element: HTMLElement, type: "copy" | "cut") => void;
@@ -509,8 +512,7 @@ interface users {
     }
 }
 interface userExchange {
-    ip: string;
-    port: number;
+    agent: string;
     shares: userShares;
     status: string;
     user: string;
