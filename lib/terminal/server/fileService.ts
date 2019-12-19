@@ -1,7 +1,8 @@
 
-import * as http from "http";
-import * as fs from "fs";
 import { Hash } from "crypto";
+import * as fs from "fs";
+import * as http from "http";
+import { Stream, Writable } from "stream";
 import * as zlib from "zlib";
 
 import base64 from "../base64.js";
@@ -369,9 +370,9 @@ const library = {
                     },
                     fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
                         const fileChunks:Buffer[] = [],
-                            responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd():void {
-                                const file:Buffer = Buffer.concat(fileChunks),
-                                    fileName:string = <string>fileResponse.headers.file_name,
+                            writeable:Writable = new Stream.Writable(),
+                            responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd(file:Buffer):void {
+                                const fileName:string = <string>fileResponse.headers.file_name,
                                     hash:Hash = vars.node.crypto.createHash("sha512").update(file),
                                     hashString:string = hash.digest("hex");
                                 if (hashString === fileResponse.headers.hash) {
@@ -394,20 +395,21 @@ const library = {
                                 }
                             };
                         let endTest:boolean = false;
+                        writeable.write = function (writeableChunk:Buffer):boolean {
+                            fileChunks.push(writeableChunk);
+                            return false;
+                        };
                         fileResponse.on("data", function terminal_server_fileServices_requestFiles_fileRequestCallback_data(fileChunk:Buffer):void {
-                            vars.node.zlib.brotliDecompress(fileChunk, function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, segment:Buffer):void {
+                            fileChunks.push(fileChunk);
+                        });
+                        fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
+                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
                                 if (errDecompress !== null) {
                                     library.error([errDecompress.toString()]);
                                     return;
                                 }
-                                fileChunks.push(segment);
-                                if (endTest === true) {
-                                    responseEnd();
-                                }
+                                responseEnd(file);
                             });
-                        });
-                        fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
-                            endTest = true;
                         });
                         fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileRequestCallback_error(fileError:nodeError):void {
                             library.error([fileError.toString()]);
