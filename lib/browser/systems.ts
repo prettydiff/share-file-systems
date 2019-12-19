@@ -76,7 +76,9 @@ systems.message = function local_systems_message(type:messageType, content:strin
         li.appendChild(ul);
     }
     list.appendChild(li);
-    network.storage("messages");
+    if (JSON.stringify(browser.messages) !== "{\"status\":[],\"users\":[],\"errors\":[]}") {
+        network.storage("messages");
+    }
 };
 
 /* Toggles tabs in the systems log modal */

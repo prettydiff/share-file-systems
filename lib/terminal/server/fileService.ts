@@ -64,9 +64,6 @@ const library = {
                         length:number = keys.length,
                         store:Object = {};
                     let a:number = 0;
-                    if (data.action === "fs-directory" && data.agent !== "localhost") {
-                        data.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
-                    }
                     do {
                         store[keys[a]] = data[keys[a]];
                         a = a + 1;
@@ -75,6 +72,9 @@ const library = {
                         store["agent"] = "localhost";
                     } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
                         store["agent"] = serverVars.name;
+                    }
+                    if (data.action === "fs-directory" && data.agent !== "localhost") {
+                        store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                     }
                     if (data.action === "shareUpdate") {
                         return data.name;
