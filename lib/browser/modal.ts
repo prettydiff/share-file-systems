@@ -367,7 +367,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.onclick = fs.back;
                 extra.appendChild(button);
                 button = document.createElement("button");
-                button.innerHTML = "⭮<span>Reload</span>";
+                button.innerHTML = "↺<span>Reload</span>";
                 button.setAttribute("class", "reloadDirectory");
                 button.setAttribute("title", "Reload directory");
                 button.onclick = fs.text;
