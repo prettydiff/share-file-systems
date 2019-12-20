@@ -128,6 +128,13 @@ const library = {
                         }
                     });
                 } else {
+                    vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_usersStat(err:nodeError):void {
+                        if (err === null) {
+                            const userName:string = <string>request.headers["user-name"];
+                            delete serverVars.users[userName];
+                            storage(JSON.stringify(serverVars.users), "noSend", "users");
+                        }
+                    });
                     response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
                     response.end();
