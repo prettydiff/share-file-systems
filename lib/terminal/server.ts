@@ -49,11 +49,8 @@ const library = {
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
-                if (request.method === "GET" && request.headers.host === "localhost") {
-                    methodGET(request, response);
-                } else if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers["user-name"]] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
-                    let body:string = "",
+            post = function terminal_server_post(request:http.IncomingMessage, response:http.ServerResponse) {
+                let body:string = "",
                         decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
                     request.on('data', function terminal_server_create_data(data:Buffer) {
                         body = body + decoder.write(data);
@@ -78,65 +75,84 @@ const library = {
                         }
                     });
 
-                    request.on('end', function terminal_server_create_end():void {
-                        let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, ""),
-                            dataString:string = (body.charAt(0) === "{")
-                                ? body.slice(body.indexOf(":") + 1, body.length - 1)
-                                : body.slice(body.indexOf(":") + 1);
-                        if (task === "fsUpdateRemote") {
-                            // * remote: Changes to the remote user's file system
-                            // * local : Update local "File Navigator" modals for the respective remote user
-                            vars.ws.broadcast(body);
-                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
-                            response.end();
-                        } else if (task === "shareUpdate") {
-                            // * remote: Changes to the remote user's shares
-                            // * local : Updates local share modals and updates the storage/users.json file
-                            const update:shareUpdate = JSON.parse(dataString);
-                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`Received share update from ${update.user}`);
-                            response.end();
-                            vars.ws.broadcast(body);
-                            serverVars.users[update.user].shares = update.shares;
-                            storage(JSON.stringify(serverVars.users), "noSend", "users");
-                        } else if (task === "fs") {
-                            // * file system interaction for both local and remote
-                            readOnly(request, response, dataString);
-                        } else if (task === "settings" || task === "messages" || task === "users") {
-                            // * local: Writes changes to storage files
-                            const length:number = dataString.length;
-                            if (dataString.slice(length - 7) === ",noSend") {
-                                storage(dataString.slice(0, length - 7), "noSend", task);
-                            } else {
-                                storage(dataString, response, task);
-                            }
-                        } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
-                            // * Send and receive heartbeat signals
-                            const heartbeatData:heartbeat = JSON.parse(dataString);
-                            serverVars.status = heartbeatData.status;
-                            heartbeat(heartbeatData);
-                        } else if (task === "heartbeat-update") {
-                            // * Respond to heartbeat changes as a result of a page load
-                            const heartbeatData:heartbeat = JSON.parse(dataString);
-                            vars.ws.broadcast(body);
-                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`heartbeat-update:{"agent":"${heartbeatData.agent}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
-                            response.end();
-                        } else if (task.indexOf("invite") === 0) {
-                            // * Handle all stages of user invitation
-                            invite(dataString, response);
+                request.on('end', function terminal_server_create_end():void {
+                    let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, ""),
+                        dataString:string = (body.charAt(0) === "{")
+                            ? body.slice(body.indexOf(":") + 1, body.length - 1)
+                            : body.slice(body.indexOf(":") + 1);
+                    if (task === "fsUpdateRemote") {
+                        // * remote: Changes to the remote user's file system
+                        // * local : Update local "File Navigator" modals for the respective remote user
+                        vars.ws.broadcast(body);
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
+                        response.end();
+                    } else if (task === "shareUpdate") {
+                        // * remote: Changes to the remote user's shares
+                        // * local : Updates local share modals and updates the storage/users.json file
+                        const update:shareUpdate = JSON.parse(dataString);
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write(`Received share update from ${update.user}`);
+                        response.end();
+                        vars.ws.broadcast(body);
+                        serverVars.users[update.user].shares = update.shares;
+                        storage(JSON.stringify(serverVars.users), "noSend", "users");
+                    } else if (task === "fs") {
+                        // * file system interaction for both local and remote
+                        readOnly(request, response, dataString);
+                    } else if (task === "settings" || task === "messages" || task === "users") {
+                        // * local: Writes changes to storage files
+                        const length:number = dataString.length;
+                        if (dataString.slice(length - 7) === ",noSend") {
+                            storage(dataString.slice(0, length - 7), "noSend", task);
+                        } else {
+                            storage(dataString, response, task);
                         }
-                    });
+                    } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
+                        // * Send and receive heartbeat signals
+                        const heartbeatData:heartbeat = JSON.parse(dataString);
+                        serverVars.status = heartbeatData.status;
+                        heartbeat(heartbeatData);
+                    } else if (task === "heartbeat-update") {
+                        // * Respond to heartbeat changes as a result of a page load
+                        const heartbeatData:heartbeat = JSON.parse(dataString);
+                        vars.ws.broadcast(body);
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write(`heartbeat-update:{"agent":"${heartbeatData.agent}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
+                        response.end();
+                    } else if (task.indexOf("invite") === 0) {
+                        // * Handle all stages of user invitation
+                        invite(dataString, response);
+                    }
+                });
+            },
+            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
+                const postTest = function terminal_server_create_postTest():boolean {
+                    if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers["user-name"]] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
+                        return true;
+                    }
+                    return false;
+                };
+                if (request.method === "GET" && request.headers.host === "localhost") {
+                    methodGET(request, response);
+                } else if (postTest() === true) {
+                    post(request, response);
                 } else {
-                    vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_usersStat(err:nodeError):void {
-                        if (err === null) {
-                            forbiddenUser(<string>request.headers["user-name"]);
+                    // the delay is necessary to prevent a race condition against updating the serverVars.users object
+                    setTimeout(function terminal_server_create_delay():void {
+                        if (postTest() === true) {
+                            post(request, response);
+                        } else {
+                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_usersStat(err:nodeError):void {
+                                if (err === null) {
+                                    forbiddenUser(<string>request.headers["user-name"]);
+                                }
+                            });
+                            response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
+                            response.end();
                         }
-                    });
-                    response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
-                    response.end();
+                    }, 100);
                 }
             }),
             serverError = function terminal_server_serverError(error:nodeError, port:number):void {
