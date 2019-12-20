@@ -394,7 +394,6 @@ const library = {
                                     requestFile();
                                 }
                             };
-                        let endTest:boolean = false;
                         writeable.write = function (writeableChunk:Buffer):boolean {
                             fileChunks.push(writeableChunk);
                             return false;

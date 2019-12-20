@@ -83,7 +83,7 @@ const library = {
                                         return "list";
                                     }
                                     if (process.argv[b].indexOf("read") > 0) {
-                                        return "hash";
+                                        return "read";
                                     }
                                 }
                                 if ((/^search:/).test(process.argv[b]) === true) {
@@ -92,6 +92,15 @@ const library = {
                                         search = search.slice(1, search.length - 1);
                                     }
                                     return "search";
+                                }
+                                if (process.argv[b] === "list") {
+                                    return "list";
+                                }
+                                if (process.argv[b] === "hash") {
+                                    return "hash";
+                                }
+                                if (process.argv[b] === "read") {
+                                    return "read";
                                 }
                                 b = b + 1;
                             } while (b < process.argv.length);

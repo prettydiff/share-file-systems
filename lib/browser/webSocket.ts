@@ -35,6 +35,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
+                util.shareUpdate(user, "deleted");
             },
             error = function local_socketMessage_error():void {
                 const errorData:string = event.data.slice(6),

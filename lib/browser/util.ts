@@ -1069,7 +1069,7 @@ util.shareReadOnly = function local_util_shareReadOnly(event:MouseEvent):void {
 };
 
 /* Updates the contents of share modals */
-util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShares, id?:string):void {
+util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShares|"deleted", id?:string):void {
     let a:number = 0,
         b:number = 0,
         shareBest:number = -1,
@@ -1081,15 +1081,19 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
         parentDirectory:HTMLElement,
         back:HTMLElement,
         header:HTMLElement,
+        headings:HTMLCollectionOf<HTMLElement>,
+        close:HTMLButtonElement,
         address:string,
         fileShares:boolean = false;
     const modals:string[] = (id === undefined)
             ? Object.keys(browser.data.modals)
             : [id],
         modalLength:number = modals.length,
-        shareLength:number = shares.length,
+        shareLength:number = (shares === "deleted")
+            ? 0
+            : shares.length,
         windows:boolean = (function local_util_shareUpdate_windows():boolean {
-            if (shareLength < 1) {
+            if (shares === "deleted" || shareLength < 1) {
                 return false;
             }
             do {
@@ -1104,58 +1108,83 @@ util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShare
             } while (b < shareLength);
             return false;
         }());
-    browser.users[user].shares = shares;
+    if (shares !== "deleted") {
+        browser.users[user].shares = shares;
+    }
     do {
         box = document.getElementById(modals[a]);
         if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === user)) {
-            body = <HTMLElement>box.getElementsByClassName("body")[0];
-            body.innerHTML = "";
-            body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
-        } else if (fileShares === true && browser.data.modals[modals[a]].type === "fileNavigate" && browser.data.modals[modals[a]].agent === user && shareLength > 0) {
-            b = 0;
-            shareBest = -1;
-            shareTop = -1;
-            title = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
-            titleText = title.innerHTML;
-            parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
-            back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];
-            header = <HTMLElement>parentDirectory.parentNode;
-            address = browser.data.modals[modals[a]].text_value;
-            do {
-                if (address.indexOf(shares[b].name) === 0 || (windows === true && address.toLowerCase().indexOf(shares[b].name.toLowerCase()) === 0)) {
-                    if (shareBest < 0) {
-                        shareBest = b;
-                        shareTop = b;
-                    }
-                    if (shares[b].name.length > shares[shareBest].name.length) {
-                        shareBest = b;
-                    } else if (shares[b].name.length < shares[shareTop].name.length) {
-                        shareTop = b;
-                    }
+            if (shares === "deleted") {
+                if (browser.data.modals[modals[a]].agent === user) {
+                    close = <HTMLButtonElement>box.getElementsByClassName("close")[0];
+                    close.click();
+                } else {
+                    body = <HTMLElement>box.getElementsByClassName("body")[0];
+                    headings = body.getElementsByTagName("h3");
+                    b = headings.length;
+                    do {
+                        b = b - 1;
+                        if (headings[b].innerHTML === user) {
+                            headings[b].parentNode.parentNode.removeChild(headings[b].parentNode);
+                            break;
+                        }
+                    } while (b > 0);
                 }
-                b = b + 1;
-            } while (b < shareLength);
-            if (shareBest > -1) {
-                if (browser.data.modals[box.getAttribute("id")].agent !== "localhost") {
-                    if (shares[shareBest].readOnly === true) {
-                        titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
-                        title.innerHTML = titleText;
-                        browser.data.modals[modals[a]].title = titleText;
-                        browser.data.modals[modals[a]].read_only = true;
-                    } else {
-                        titleText = titleText.replace(" (Read Only)", "");
-                        title.innerHTML = titleText;
-                        browser.data.modals[modals[a]].title = titleText;
-                        browser.data.modals[modals[a]].read_only = false;
+            } else {
+                body = <HTMLElement>box.getElementsByClassName("body")[0];
+                body.innerHTML = "";
+                body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
+            }
+        } else if (fileShares === true && browser.data.modals[modals[a]].type === "fileNavigate" && browser.data.modals[modals[a]].agent === user) {
+            if (shares === "deleted") {
+                close = <HTMLButtonElement>box.getElementsByClassName("close")[0];
+                close.click();
+            } else if (shareLength > 0) {
+                b = 0;
+                shareBest = -1;
+                shareTop = -1;
+                title = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
+                titleText = title.innerHTML;
+                parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
+                back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];
+                header = <HTMLElement>parentDirectory.parentNode;
+                address = browser.data.modals[modals[a]].text_value;
+                do {
+                    if (address.indexOf(shares[b].name) === 0 || (windows === true && address.toLowerCase().indexOf(shares[b].name.toLowerCase()) === 0)) {
+                        if (shareBest < 0) {
+                            shareBest = b;
+                            shareTop = b;
+                        }
+                        if (shares[b].name.length > shares[shareBest].name.length) {
+                            shareBest = b;
+                        } else if (shares[b].name.length < shares[shareTop].name.length) {
+                            shareTop = b;
+                        }
                     }
-                    if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
-                        parentDirectory.style.display = "none";
-                        back.style.marginLeft = "-6em";
-                        header.style.paddingLeft = "10.5em";
-                    } else {
-                        parentDirectory.style.display = "inline-block";
-                        back.style.marginLeft = "-9em";
-                        header.style.paddingLeft = "15em";
+                    b = b + 1;
+                } while (b < shareLength);
+                if (shareBest > -1) {
+                    if (browser.data.modals[box.getAttribute("id")].agent !== "localhost") {
+                        if (shares[shareBest].readOnly === true) {
+                            titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
+                            title.innerHTML = titleText;
+                            browser.data.modals[modals[a]].title = titleText;
+                            browser.data.modals[modals[a]].read_only = true;
+                        } else {
+                            titleText = titleText.replace(" (Read Only)", "");
+                            title.innerHTML = titleText;
+                            browser.data.modals[modals[a]].title = titleText;
+                            browser.data.modals[modals[a]].read_only = false;
+                        }
+                        if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
+                            parentDirectory.style.display = "none";
+                            back.style.marginLeft = "-6em";
+                            header.style.paddingLeft = "10.5em";
+                        } else {
+                            parentDirectory.style.display = "inline-block";
+                            back.style.marginLeft = "-9em";
+                            header.style.paddingLeft = "15em";
+                        }
                     }
                 }
             }

@@ -11,6 +11,7 @@ import makeDir from "./makeDir.js";
 import remove from "./remove.js";
 import vars from "./vars.js";
 
+import forbiddenUser from "./server/forbiddenUser.js";
 import heartbeat from "./server/heartbeat.js";
 import httpClient from "./server/httpClient.js";
 import invite from "./server/invite.js";
@@ -130,9 +131,7 @@ const library = {
                 } else {
                     vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_usersStat(err:nodeError):void {
                         if (err === null) {
-                            const userName:string = <string>request.headers["user-name"];
-                            delete serverVars.users[userName];
-                            storage(JSON.stringify(serverVars.users), "noSend", "users");
+                            forbiddenUser(<string>request.headers["user-name"]);
                         }
                     });
                     response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});

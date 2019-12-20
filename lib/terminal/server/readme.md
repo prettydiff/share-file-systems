@@ -2,6 +2,7 @@
 These files are libraries that comprise */lib/terminal/server.ts* **which in turn comprises *application.ts*.
 
 * **fileService.ts** - This library executes various file system tasks as requested by user interaction from the browser.
+* **forbiddenUser.ts** - Provides a single location for deleting users based upon network response whether local or remote.
 * **heartbeat.ts** - This library executes network related tasks for user activity status.
 * **httpClient.ts** - A library that spawns an HTTP client to make a request to another computer.
 * **invite.ts** - All network tasks related to inviting a user is handled in this file.

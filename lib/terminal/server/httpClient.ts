@@ -1,8 +1,8 @@
 
 import * as http from "http";
 
+import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
 
 import log from "../log.js";
 import vars from "../vars.js";
@@ -35,10 +35,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                         ? Buffer.concat(chunks)
                         : chunks.join("");
                     if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-                        const userName:string = body.toString().replace("ForbiddenAccess:", "");
-                        delete serverVars.users[userName];
-                        storage(JSON.stringify(serverVars.users), "noSend", "users");
-                        vars.ws.broadcast(`deleteUser:${userName}`);
+                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""));
                     } else {
                         config.callback(body);
                     }

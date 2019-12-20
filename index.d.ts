@@ -294,7 +294,7 @@ interface module_util {
     shareContent?:(users:string) => HTMLElement;
     shareItemDelete?:(event:MouseEvent) => void;
     shareReadOnly?:(event:MouseEvent) => void;
-    shareUpdate?:(user:string, shares:userShares) => void;
+    shareUpdate?:(user:string, shares:userShares|"deleted", id?:string) => void;
 }
 interface navConfig {
     agentName:string;

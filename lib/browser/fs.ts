@@ -993,7 +993,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
     if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        if (/^\w:/.test(element.value.replace(/\s+/, "")) === true) {
+        if ((/^\w:/).test(element.value.replace(/\s+/, "")) === true) {
             windows = true;
         }
         historyLength = browser.data.modals[id].history.length - 1;
