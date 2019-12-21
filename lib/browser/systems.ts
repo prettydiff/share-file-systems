@@ -4,6 +4,19 @@ import util from "./util.js";
 
 const systems:module_systems = {};
 
+/* Visually hide the systems modal */
+systems.close = function local_systems_close(event:MouseEvent):void {
+    let box:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+    do {
+        box = <HTMLElement>box.parentNode;
+    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    if (box.getAttribute("class") === "box") {
+        box.style.display = "none";
+        browser.data.modals["systems-modal"].status = "hidden";
+    }
+    network.storage("settings");
+};
+
 /* Show/hide of stack trace information for error messages in the system log */
 systems.expand = function local_systems_expand(event:MouseEvent):void {
     const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,

@@ -7,6 +7,7 @@ type heartbeatStatus = "" | "active" | "idle" | "offline";
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
+type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
 type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "systems" | "textPad";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
@@ -211,6 +212,9 @@ interface messages {
 interface modalSettings extends EventHandlerNonNull {
     (Event, user?:string, configuration?:ui_modal): void;
 }
+interface modalTop extends EventHandlerNonNull {
+    (Event, srcElement?:HTMLElement): void;
+}
 interface module_network {
     fs?: (localService, callback:Function, id?:string) => void;
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
@@ -266,9 +270,10 @@ interface module_modal {
     systems?: EventHandlerNonNull;
     textPad?: textPad;
     textSave?: EventHandlerNonNull;
-    zTop?: EventHandlerNonNull;
+    zTop?: modalTop;
 }
 interface module_systems {
+    close?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
     message?: (type:string, content:string, timeStore?:string) => void;
     tabs?: EventHandlerNonNull;
@@ -494,7 +499,7 @@ interface ui_modal {
     read_only: boolean;
     resize?: boolean;
     single?: boolean;
-    status?: "hidden" | "maximized" | "minimized" | "normal";
+    status?: modalStatus;
     status_bar?: boolean;
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;

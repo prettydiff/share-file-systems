@@ -1,6 +1,7 @@
 import browser from "./browser.js";
 import fs from "./fs.js";
 import network from "./network.js";
+import systems from "./systems.js";
 import util from "./util.js";
 
 const modal:module_modal = {};
@@ -207,6 +208,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     } else {
         browser.data.modalTypes.push(options.type);
     }
+    options.id = id;
     if (options.left === undefined) {
         options.left = 200 + (modalCount * 10);
     }
@@ -279,18 +281,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.setAttribute("class", "close");
                 button.setAttribute("title", "Close");
                 if (options.type === "systems") {
-                    button.onclick = function local_modal_create_systemsHide(event:MouseEvent):void {
-                        let box:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-                        do {
-                            box = <HTMLElement>box.parentNode;
-                        } while (box !== document.documentElement && box.getAttribute("class") !== "box");
-                        if (box.getAttribute("class") === "box") {
-                            box.style.display = "none";
-                            browser.data.modals["systems-modal"].text_placeholder = browser.data.modals["systems-modal"].status;
-                            browser.data.modals["systems-modal"].status = "hidden";
-                        }
-                        network.storage("settings");
-                    };
+                    button.onclick = systems.close;
                     if (options.status === "hidden") {
                         box.style.display = "none";
                     }
@@ -494,6 +485,21 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     }
     box.appendChild(border);
     browser.content.appendChild(box);
+    if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
+        const minimize:HTMLElement = <HTMLElement>box.getElementsByClassName("minimize")[0];
+        options.status = "normal";
+        if (options.type === "systems") {
+            box.style.display = "block";
+        }
+        minimize.click();
+    } else if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
+        const maximize:HTMLElement = <HTMLElement>box.getElementsByClassName("maximize")[0];
+        options.status = "normal";
+        if (options.type === "systems") {
+            box.style.display = "block";
+        }
+        maximize.click();
+    }
     network.storage("settings");
     return box;
 };
@@ -632,7 +638,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         children:NodeListOf<ChildNode>,
         borders:number,
         child:HTMLElement,
-        a:number = 1;
+        a:number = 1;console.trace();
     do {
         border = <HTMLElement>border.parentNode;
     } while (border !== document.documentElement && border.getAttribute("class") !== "border");
@@ -1138,12 +1144,18 @@ modal.sharesDeleteToggle = function local_modal_sharesDeleteToggle(event:MouseEv
 };
 
 /* Shows the system log modal in the correct visual status */
-modal.systems = function local_modal_systems() {
-    document.getElementById("systems-modal").style.display = "block";
-    if (browser.data.modals["systems-modal"].text_placeholder === "maximized" || browser.data.modals["systems-modal"].text_placeholder === "normal") {
-        browser.data.modals["systems-modal"].status = browser.data.modals["systems-modal"].text_placeholder;
+modal.systems = function local_modal_systems(event:MouseEvent) {
+    const systems:HTMLElement = document.getElementById("systems-modal"),
+        data:ui_modal = browser.data.modals["systems-modal"],
+        minimize:HTMLElement = <HTMLElement>systems.getElementsByClassName("minimize")[0];
+    if (<modalStatus>data.status === "minimized") {
+        minimize.click();
     } else {
-        browser.data.modals["systems-modal"].status = "normal";
+        modal.zTop(event, systems);
+        if (data.status === "hidden") {
+            systems.style.display = "block";
+        }
+        data.status = "normal";
     }
 };
 
@@ -1187,8 +1199,10 @@ modal.textSave = function local_modal_textSave(event:MouseEvent):void {
 };
 
 /* Manages z-index of modals and moves a modal to the top on interaction */
-modal.zTop     = function local_modal_zTop(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+modal.zTop     = function local_modal_zTop(event:MouseEvent, elementInput?:HTMLElement):void {
+    const element:HTMLElement = (elementInput === undefined)
+            ? <HTMLElement>event.srcElement || <HTMLElement>event.target
+            : elementInput,
         parent:HTMLElement = <HTMLElement>element.parentNode,
         grandParent:HTMLElement = <HTMLElement>parent.parentNode;
     let box:HTMLElement = element;

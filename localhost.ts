@@ -289,15 +289,6 @@ import webSocket from "./lib/browser/webSocket.js";
                                             const box:HTMLElement = modal.create(storage.settings.modals[id]);
                                             fs.listFail(files[1], box);
                                             z(id);
-                                            if (storage.settings.modals[id].status === "maximized") {
-                                                const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("maximize")[0];
-                                                browser.data.modals[id].status = "normal";
-                                                button.click();
-                                            } else if (storage.settings.modals[id].status === "minimized") {
-                                                const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(id).getElementsByClassName("minimize")[0];
-                                                browser.data.modals[id].status = "normal";
-                                                button.click();
-                                            }
                                         },
                                         callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number]):void {
                                             const fsModal:HTMLElement = document.getElementById(id),
@@ -325,15 +316,6 @@ import webSocket from "./lib/browser/webSocket.js";
                                         storage.settings.modals[value].text_event = fs.text;
                                         modal.create(storage.settings.modals[value]);
                                         z(value);
-                                        if (storage.settings.modals[value].status === "maximized") {
-                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(value).getElementsByClassName("maximize")[0];
-                                            browser.data.modals[value].status = "normal";
-                                            button.click();
-                                        } else if (storage.settings.modals[value].status === "minimized") {
-                                            const button:HTMLButtonElement = <HTMLButtonElement>document.getElementById(value).getElementsByClassName("minimize")[0];
-                                            browser.data.modals[value].status = "normal";
-                                            button.click();
-                                        }
                                         network.fs({
                                             action: "fs-directory",
                                             agent: agent,
