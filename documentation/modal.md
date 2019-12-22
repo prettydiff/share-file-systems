@@ -1,0 +1,89 @@
+# Share File Systems - Modals
+The modals are the central means of communicating specific content to the user in the browser.  They are designed to be fluid and flexible to visual users much like an OS graphic user interface without sacrificing keyboard access or accessibility.
+
+## Features
+* *Buttons* - The interactive buttons available to a modal are all optional specified.
+* *Movement* - The modals can be moved around the content area by holding the mouse down on the modal's title bar and moving the mouse cursor.
+* *Resize* - If a modal allows resizing it can be adjusted by holding the mouse down on any side or corner and dragging the mouse cursor around the content area.
+
+## API
+The API is defined as a TypeScript interface.
+
+### Primary modal interface
+```typescript
+interface ui_modal {
+    agent: string;
+    content: HTMLElement;
+    focus?: HTMLElement;
+    history?: string[];
+    height?: number;
+    id?: string;
+    inputs?: ui_input[];
+    left?: number;
+    move?: boolean;
+    read_only: boolean;
+    resize?: boolean;
+    single?: boolean;
+    status?: modalStatus;
+    status_bar?: boolean;
+    text_event?: EventHandlerNonNull;
+    text_placeholder?: string;
+    text_value?: string;
+    title: string;
+    top?: number;
+    type: modalType;
+    width?: number;
+    zIndex?: number;
+}
+```
+
+* **agent** - The user/device the given modal is displaying content from.
+* **content** - A DOM node containing the modal's content that is appended to the modal's content body.
+* **focus** - 
+* **history** - File Navigator type modal's retain a history of prior locations. This is necessary for the *back* button's operation.
+* **height** - Determines the height of the modal.  The default is 400, which is 400 pixels.
+* **id** - The unique identifier for the given modal.  This usually created dynamically as the modal is created unless the modal already exists upon page load.
+* **inputs** - An array of buttons to appear in the modal.  See the next section for a description of the buttons available.
+* **left** - The horizontal location of the modal as measured by the distance it's left side is offset from the left edge of the content area in pixels.
+* **move** - Whether or not the modal can be moved by dragging onto the title bar.
+* **read_only** - Whether or not the modal is in read_only mode.  A read_only modal receives a different context menu with fewer buttons and rejects certain actions.
+* **resize** - Whether or not the modal can be resized.  If false the resize controls are not created for the modal.
+* **single** - Whether only one instance of the given modal type may be available at a time or if many instances may be available.
+* **status_bar** - A text that appears along the bottom border of the modal that may dynamically receive status updates and output text data.
+* **text_event** - The event to execute on the *keyup* event of input type *text*.
+* **text_placeholder** - The default place holder text that is to appear in input type *text*.
+* **text_value** - A default or stored value that should be populated in input type *text*, if present.
+* **title** - The text will populate the modal's title bar.
+* **top** - The vertical placement of the modal as measured by the modal's top edge offset from the content area's top in pixels.
+* **type** - The types of modals available.  See the section below on *type modalType*.
+* **width** - The width of the modal.  The default is 400, which is 400 pixels.
+* **zIndex** - Determines which modals visually overlap other modals.
+
+### type ui_input, Buttons available to the modal
+```typescript
+type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
+```
+
+* **cancel** - A red button that appears in a summary area below the modal's body content.  This button is intended to be optional neighbor to a *confirm* type button.  This button is identical functionality to the *close* button and is only different in appearance and location.
+* **close** - A red button that looks like the letter X and appears near the top right corner of the modal.  Clicking this button will close the modal.  Once closed the modal is gone forever.
+* **confirm** - A green confirmation button that appears in a summary area below the modal's body content.  Clicking this button will execute specific task depending upon the modal type.
+* **maximize** - A blue button with an arrow icon pointing to a rectangular corner located near the top right corner of the modal.  Clicking this button will change the modal's size so that it occupies the entirety of the content area.
+* **minimize** - An orange button with a diagonal downward pointing arrow that appears near the top right corner of the modal.  Clicking this button will visually hide all aspects of the modal except for a size reduced title bar and move the modal into the tray at the bottom of the content area.
+* **save** - A button that appears in a summary area under the body content.  Clicking this button allows functionality for writing modal content to a file saved onto the file system.
+* **text** - Provides a text input area near the top of the modal.  The file address at the top of the File Navigator modals is an example of this text feature.
+
+### type modal_types, The type of modal supported
+```typescript
+type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "systems" | "textPad";
+```
+
+* **details** - Details recursive details about a file system artifact.
+* **export** - A text pad modal with the settings loaded as the default value and a confirmation button to apply changes.
+* **fileEdit** - Allows editing a file as text and writing those changes back into the file.
+* **fileNavigate** - A means of walking, visualizing, and interacting with a device's file system.
+* **invite-accept** - The modal that appears on the remote device when an invitation is sent.
+* **invite-request** - The modal that appears on the local device when starting the invitation process.
+* **shares** The modal that displays a user's current shares when click on the user's button from the right side user list.
+* **share_delete** - The modal that displays when attempting to terminal a relationship with another user/device.
+* **systems** - A systems utility modal that logs various system information, such as errors.
+* **textPad** - A minimal modal where the body area is filled with a textarea HTML element for free type text.

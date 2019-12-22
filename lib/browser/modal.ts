@@ -638,7 +638,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         children:NodeListOf<ChildNode>,
         borders:number,
         child:HTMLElement,
-        a:number = 1;console.trace();
+        a:number = 1;
     do {
         border = <HTMLElement>border.parentNode;
     } while (border !== document.documentElement && border.getAttribute("class") !== "border");
