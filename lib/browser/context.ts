@@ -2,6 +2,7 @@ import browser from "./browser.js";
 import fs from "./fs.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import share from "./share.js";
 import util from "./util.js";
 import commas from "../common/commas.js";
 
@@ -9,10 +10,12 @@ const context:module_context = {};
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
-context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut"):void {
+context.copy = function local_context_copy():void {
     let selected:[string, string][],
         addresses:string[] = [],
-        box:HTMLElement; 
+        box:HTMLElement,
+        element:HTMLElement = context.element,
+        type:contextType = context.type; 
     if (element.nodeName !== "li") {
         element = <HTMLElement>element.parentNode;
     }
@@ -40,11 +43,15 @@ context.copy = function local_context_copy(element:HTMLElement, type:"copy"|"cut
         id: box.getAttribute("id"),
         type: type
     });
+    context.element = null;
+    context.type = "";
 };
 
 /* Handler for base64, edit, and hash operations from the context menu */
-context.dataString = function local_context_dataString(event:MouseEvent, element?:HTMLElement, type?:"Base64" | "Edit" | "Hash"):void {
-    const addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
+context.dataString = function local_context_dataString(event:MouseEvent):void {
+    const element:HTMLElement = context.element,
+        type:contextType = context.type,
+        addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
         box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
             let el:HTMLElement = element;
             do {
@@ -122,11 +129,14 @@ context.dataString = function local_context_dataString(event:MouseEvent, element
         } while (a < length);
         network.storage("settings");
     });
+    context.element = null;
+    context.type = "";
 };
 
 /* Handler for removing file system artifacts via context menu */
-context.destroy = function local_context_destroy(element:HTMLElement):void {
-    let selected:[string, string][],
+context.destroy = function local_context_destroy():void {
+    let element:HTMLElement = context.element,
+        selected:[string, string][],
         addresses:string[] = [],
         box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
             let el:HTMLElement = element;
@@ -158,11 +168,13 @@ context.destroy = function local_context_destroy(element:HTMLElement):void {
     }, function local_context_destroy_callback():void {
         // todo: log to systems list
     });
+    context.element = null;
 };
 
 /* Handler for details action of context menu */
-context.details = function local_context_details(event:MouseEvent, element?:HTMLElement):void {
-    const div:HTMLElement = util.delay(),
+context.details = function local_context_details(event:MouseEvent):void {
+    const element:HTMLElement = context.element,
+        div:HTMLElement = util.delay(),
         agency:[string, boolean] = util.getAgent(element),
         addresses:[string, string][] = util.selectedAddresses(element, "details"),
         modalInstance:HTMLElement = modal.create({
@@ -359,11 +371,20 @@ context.details = function local_context_details(event:MouseEvent, element?:HTML
         body.appendChild(output);
     });
     util.selectNone(element);
+    context.element = null;
 };
 
+context.element = null;
+
 /* Handler for creating new directories */
-context.fsNew = function local_context_fsNew(element:HTMLElement, type:"directory" | "file"):void {
-    const field:HTMLInputElement = document.createElement("input"),
+context.fsNew = function local_context_fsNew():void {
+    let item:HTMLElement,
+        box:HTMLElement,
+        path:string,
+        slash:"\\" | "/",
+        element:HTMLElement = context.element;
+    const type:contextType = context.type,
+        field:HTMLInputElement = document.createElement("input"),
         text:HTMLElement = document.createElement("label"),
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
             // 13 is enter
@@ -448,10 +469,6 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
             li.onclick = fs.select;
             return li;
         };
-    let item:HTMLElement,
-        box:HTMLElement,
-        path:string,
-        slash:"\\" | "/";
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
@@ -474,6 +491,8 @@ context.fsNew = function local_context_fsNew(element:HTMLElement, type:"director
     item = build();
     element.appendChild(item);
     field.focus();
+    context.element = null;
+    context.type = "";
 };
 
 /* Creates context menu */
@@ -501,9 +520,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
-                button.onclick = function local_context_menu_base64_handler():void {
-                    context.dataString(event, element, "Base64");
-                };
+                context.element = element;
+                context.type = "Base64";
+                button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -511,9 +530,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Copy <em>${command} + C</em>`;
-                button.onclick = function local_context_menu_copy_handler():void {
-                    context.copy(element, "copy");
-                }
+                context.element = element;
+                context.type = "copy";
+                button.onclick = context.copy;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -521,9 +540,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Cut <em>${command} + X</em>`;
-                button.onclick = function local_context_menu_cut_handler():void {
-                    context.copy(element, "cut");
-                }
+                context.element = element;
+                context.type = "cut";
+                button.onclick = context.copy;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -540,9 +559,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    button.onclick = function local_context_menu_destroy():void {
-                        context.destroy(element);
-                    };
+                    context.element = element;
+                    button.onclick = context.destroy;
                 }
                 item.appendChild(button);
                 itemList.push(item);
@@ -551,9 +569,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Details <em>${command} + ALT + T</em>`;
-                button.onclick = function local_context_menu_details_handler():void {
-                    context.details(event, element);
-                };
+                context.element = element;
+                button.onclick = context.details;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -565,9 +582,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 } else {
                     button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
                 }
-                button.onclick = function local_context_menu_edit_handler():void {
-                    context.dataString(event, element, "Edit");
-                };
+                context.element = element;
+                context.type = "Edit";
+                button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -575,9 +592,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
-                button.onclick = function local_context_menu_hash_handler():void {
-                    context.dataString(event, element, "Hash");
-                };
+                context.element = element;
+                context.type = "Hash";
+                button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -585,9 +602,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
-                button.onclick = function local_context_menu_newDirectory_handler():void {
-                    context.fsNew(element, "directory");
-                };
+                context.element = element;
+                context.type = "directory";
+                button.onclick = context.fsNew;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -595,9 +612,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New File <em>${command} + ALT + F</em>`;
-                button.onclick = function local_context_menu_newFile_handler():void {
-                    context.fsNew(element, "file");
-                };
+                context.element = element;
+                context.type = "file";
+                button.onclick = context.fsNew;
                 item.appendChild(button);
                 itemList.push(item);
             },
@@ -605,9 +622,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Paste <em>${command} + V</em>`;
-                button.onclick = function local_context_menu_paste_handler():void {
-                    context.paste(element);
-                };
+                context.element = element;
+                button.onclick = context.paste;
                 if (clipboard === "" || (
                     (element.getAttribute("class") === "fileList" || parent.getAttribute("class") === "fileList") &&
                     (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)
@@ -629,9 +645,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    button.onclick = function local_context_menu_rename():void {
-                        fs.rename(event);
-                    };
+                    context.element = element;
+                    button.onclick = fs.rename;
                 }
                 item.appendChild(button);
                 itemList.push(item);
@@ -640,9 +655,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Share <em>${command} + ALT + S</em>`;
-                button.onclick = function local_context_menu_share_handler():void {
-                    context.share(element);
-                };
+                context.element = element;
+                button.onclick = share.context;
                 item.appendChild(button);
                 itemList.push(item);
             }
@@ -734,8 +748,9 @@ context.menuRemove = function local_context_menuRemove():void {
 };
 
 /* Prepare the network action to write files */
-context.paste = function local_context_paste(element:HTMLElement):void {
-    let destination:string,
+context.paste = function local_context_paste():void {
+    let element:HTMLElement = context.element,
+        destination:string,
         clipData:clipboard = JSON.parse(clipboard);
     do {
         element = <HTMLElement>element.parentNode;
@@ -754,48 +769,9 @@ context.paste = function local_context_paste(element:HTMLElement):void {
         clipboard = "";
         util.selectNone(document.getElementById(clipData.id));
     });
+    context.element = null;
 };
 
-/* Share utility for the context menu list */
-context.share = function local_context_share(element:HTMLElement):void {
-    const shareLength:number = browser.users.localhost.shares.length,
-        addresses:[string, string][] = util.selectedAddresses(element, "share"),
-        addressesLength:number = addresses.length;
-    let a:number = 0,
-        b:number = 0;
-    if (shareLength > 0) {
-        do {
-            b = 0;
-            do {
-                if (addresses[a][0] === browser.users.localhost.shares[b].name && addresses[a][1] === browser.users.localhost.shares[b].type) {
-                    break;
-                }
-                b = b + 1;
-            } while (b < shareLength);
-            if (b === shareLength) {
-                browser.users.localhost.shares.push({
-                    execute: false,
-                    name: addresses[a][0],
-                    readOnly: true,
-                    type: <shareType>addresses[a][1]
-                });
-            }
-            a = a + 1;
-        } while (a < addressesLength);
-    } else {
-        do {
-            browser.users.localhost.shares.push({
-                execute: false,
-                name: addresses[a][0],
-                readOnly: true,
-                type: <shareType>addresses[a][1]
-            });
-            a = a + 1;
-        } while (a < addressesLength);
-    }
-    util.selectNone(element);
-    util.shareUpdate("localhost", browser.users.localhost.shares);
-    network.storage("users");
-};
+context.type = "";
 
 export default context;

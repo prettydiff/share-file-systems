@@ -4,6 +4,7 @@ import context from "./context.js";
 import fs from "./fs.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import share from "./share.js";
 
 const util:module_util = {},
     expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
@@ -54,6 +55,17 @@ util.addUser = function local_util_addUser(user:string):void {
                 `#spaces #users button[data-agent="${user}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
                 `${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${body}}`
             ].join("");
+        },
+        sharesModal = function local_util_addUser_sharesModal(event:MouseEvent) {
+            let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                name:string;
+            if (element.nodeName.toLowerCase() !== "button") {
+                do {
+                    element = <HTMLElement>element.parentNode;
+                } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
+            }
+            name = element.lastChild.textContent.replace(/^\s+/, "");
+            share.modal(event, name, null);
         };
     button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${user}`;
     if (name === "localhost") {
@@ -63,17 +75,7 @@ util.addUser = function local_util_addUser(user:string):void {
         button.setAttribute("data-agent", user);
         addStyle();
     }
-    button.onclick = function local_util_addUser(event:MouseEvent) {
-        let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            name:string;
-        if (element.nodeName.toLowerCase() !== "button") {
-            do {
-                element = <HTMLElement>element.parentNode;
-            } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
-        }
-        name = element.lastChild.textContent.replace(/^\s+/, "");
-        modal.shares(event, name, null);
-    };
+    button.onclick = sharesModal;
     li.appendChild(button);
     document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
     if (name === "localhost") {
@@ -508,191 +510,6 @@ util.getAgent = function local_util_getAgent(element:HTMLElement):[string, boole
     return [browser.data.modals[id].agent, browser.data.modals[id].read_only];
 };
 
-/* Invite users to your shared space */
-util.inviteStart = function local_util_invite(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
-    const invite:HTMLElement = document.createElement("div"),
-        separator:string = "|spaces|",
-        blur = function local_util_invite_blur(event:FocusEvent):void {
-            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                box:HTMLElement = (function local_util_invite_blur_box():HTMLElement {
-                    let item:HTMLElement = element;
-                    do {
-                        item = <HTMLElement>item.parentNode;
-                    } while (item !== document.documentElement && item.getAttribute("class") !== "box");
-                    return item;
-                }()),
-                id:string = box.getAttribute("id"),
-                inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
-                textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-            browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-            network.storage("settings");
-        };
-    let p:HTMLElement = document.createElement("p"),
-        label:HTMLElement = document.createElement("label"),
-        input:HTMLInputElement = document.createElement("input"),
-        text:HTMLTextAreaElement = document.createElement("textarea"),
-        textStorage:string,
-        values:string[] = [];
-    if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {
-        textStorage = settings.text_value;
-        values.push(textStorage.slice(0, textStorage.indexOf(separator)));
-        textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
-        values.push(textStorage.slice(0, textStorage.indexOf(separator)));
-        textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
-        values.push(textStorage);
-    }
-    label.innerHTML = "IP Address";
-    input.setAttribute("type", "text");
-    if (values.length > 0) {
-        input.value = values[0];
-    }
-    input.onblur = blur;
-    label.appendChild(input);
-    p.appendChild(label);
-    invite.appendChild(p);
-    p = document.createElement("p");
-    label = document.createElement("label");
-    input = document.createElement("input");
-    label.innerHTML = "Port";
-    input.setAttribute("type", "text");
-    input.placeholder = "Number 1024-65535";
-    if (values.length > 0) {
-        input.value = values[1];
-    }
-    input.onblur = blur;
-    label.appendChild(input);
-    p.appendChild(label);
-    invite.appendChild(p);
-    p = document.createElement("p");
-    label = document.createElement("label");
-    label.innerHTML = "Invitation Message";
-    if (values.length > 0) {
-        text.value = values[2];
-    }
-    text.onblur = blur;
-    label.appendChild(text);
-    p.appendChild(label);
-    invite.appendChild(p);
-    invite.setAttribute("class", "inviteUser");
-    if (settings === undefined) {
-        modal.create({
-            agent: "localhost",
-            content: invite,
-            inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-            read_only: false,
-            title: "<span class=\"icon-invite\">❤</span> Invite User",
-            type: "invite-request"
-        });
-    } else {
-        settings.content = invite;
-        modal.create(settings);
-    }
-};
-
-/* Receive an invitation from another user */
-util.inviteRespond = function local_util_inviteRespond(message:string):void {
-    const invite:invite = JSON.parse(message);
-    if (invite.status === "invited") {
-        const div:HTMLElement = document.createElement("div"),
-            modals:string[] = Object.keys(browser.data.modals),
-            length:number = modals.length;
-        let text:HTMLElement = document.createElement("h3"),
-            label:HTMLElement = document.createElement("label"),
-            textarea:HTMLTextAreaElement = document.createElement("textarea"),
-            a:number = 0;
-        do {
-            if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${invite.name}`) {
-                // there should only be one invitation at a time from a given user otherwise there is spam
-                return;
-            }
-            a = a + 1;
-        } while (a < length);
-        div.setAttribute("class", "userInvitation");
-        if (invite.ip.indexOf(":") < 0) {
-            text.innerHTML = `User <strong>${invite.name}</strong> from ${invite.ip}:${invite.port} is inviting you to share spaces.`;
-        } else {
-            text.innerHTML = `User <strong>${invite.name}</strong> from [${invite.ip}]:${invite.port} is inviting you to share spaces.`;
-        }
-        div.appendChild(text);
-        text = document.createElement("p");
-        label.innerHTML = `${invite.name} said:`;
-        textarea.value = invite.message;
-        label.appendChild(textarea);
-        text.appendChild(label);
-        div.appendChild(text);
-        text = document.createElement("p");
-        text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
-        div.appendChild(text);
-        text = document.createElement("p");
-        text.innerHTML = message;
-        text.style.display = "none";
-        div.appendChild(text);
-        modal.create({
-            agent: "localhost",
-            content: div,
-            height: 300,
-            inputs: ["cancel", "confirm", "close"],
-            read_only: false,
-            title: `Invitation from ${invite.name}`,
-            type: "invite-accept",
-            width: 500
-        });
-        util.audio("invite");
-    } else {
-        let user:string = "";
-        const modal:HTMLElement = document.getElementById(invite.modal);
-        if (modal === null) {
-            if (invite.status === "accepted") {
-                if (invite.ip.indexOf(":") < 0) {
-                    user = `${invite.name}@${invite.ip}:${invite.port}`;
-                } else {
-                    user = `${invite.name}@[${invite.ip}]:${invite.port}`;
-                }
-                browser.users[user] = {
-                    color:["", ""],
-                    shares: invite.shares
-                }
-                util.addUser(user);
-            }
-        } else {
-            const error:HTMLElement = <HTMLElement>modal.getElementsByClassName("error")[0],
-                delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
-                footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-                inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                prepOutput = function local_util_inviteRespond_prepOutput(output:HTMLElement):void {
-                    if (invite.status === "accepted") {
-                        output.innerHTML = "Invitation accepted!";
-                        output.setAttribute("class", "accepted");
-                        if (invite.ip.indexOf(":") < 0) {
-                            user = `${invite.name}@${invite.ip}:${invite.port}`;
-                        } else {
-                            user = `${invite.name}@[${invite.ip}]:${invite.port}`;
-                        }
-                        browser.users[user] = {
-                            color:["", ""],
-                            shares: invite.shares
-                        }
-                        util.audio("invite");
-                        util.addUser(user);
-                    } else {
-                        output.innerHTML = "Invitation declined. :(";
-                        output.setAttribute("class", "error");
-                    }
-                };
-            footer.style.display = "none";
-            delay.style.display = "none";
-            inviteUser.style.display = "block";
-            if (error === null || error === undefined) {
-                const p:HTMLElement = document.createElement("p");
-                prepOutput(p);
-                modal.getElementsByClassName("inviteUser")[0].appendChild(p);
-            } else {
-                prepOutput(error);
-            }
-        }
-    }
-};
-
 /* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
     const key:number = event.keyCode,
@@ -717,29 +534,41 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
         event.stopPropagation();
     }
     if (key === 46) {
-        context.destroy(element);
+        context.element = element;
+        context.destroy(event);
     } else if (event.altKey === true && event.ctrlKey === true) {
         if (key === 66 && element.nodeName.toLowerCase() === "li") {
             // key b, base64
-            context.dataString(event, element, "Base64");
+            context.element = element;
+            context.type = "Base64";
+            context.dataString(event);
         } else if (key === 68) {
             // key d, new directory
-            context.fsNew(element, "directory");
+            context.element = element;
+            context.type = "directory";
+            context.fsNew;
         } else if (key === 69) {
             // key e, edit file
-            context.dataString(event, element, "Edit");
+            context.element = element;
+            context.type = "Edit";
+            context.dataString(event);
         } else if (key === 70) {
             // key f, new file
-            context.fsNew(element, "file");
+            context.element = element;
+            context.type = "file";
+            context.fsNew;
         } else if (key === 72 && element.nodeName.toLowerCase() === "li") {
             // key h, hash
-            context.dataString(event, element, "Hash");
+            context.element = element;
+            context.type = "Hash";
+            context.dataString(event);
         } else if (key === 82 && element.nodeName.toLowerCase() === "li") {
             // key r, rename
             fs.rename(event);
         } else if (key === 83) {
             // key s, share
-            context.share(element);
+            context.element = element;
+            share.context(event);
         } else if (key === 84) {
             // key t, details
             context.details(event, element);
@@ -760,16 +589,22 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             } while (a < length);
         } else if (key === 67) {
             // key c, copy
-            context.copy(element, "copy");
+            context.element = element;
+            context.type = "copy";
+            context.copy(event);
         } else if (key === 68 && element.nodeName.toLowerCase() === "li") {
             // key d, destroy
-            context.destroy(element);
+            context.element = element;
+            context.destroy(event);
         } else if (key === 86) {
             // key v, paste
-            context.paste(element);
+            context.element = element;
+            context.paste(event);
         } else if (key === 88) {
             // key x, cut
-            context.copy(element, "cut");
+            context.element = element;
+            context.type = "cut";
+            context.copy(event);
         }
     }
 };
@@ -865,332 +700,6 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
             a = a + 1;
         } while (a < inputLength);
     }
-};
-
-/* Generate the content of a share modal */
-util.shareContent = function local_util_shareContent(user:string):HTMLElement {
-    if (user === undefined) {
-        return document.getElementById("systems-modal");
-    }
-    const userKeys:string[] = Object.keys(browser.users),
-        keyLength:number = userKeys.length,
-        fileNavigate = function local_util_shareContent_fileNavigate(event:MouseEvent):void {
-            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                path:string = element.firstChild.textContent,
-                type:string = element.getAttribute("class"),
-                slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
-                    ? "/"
-                    : "\\";
-            let address:string,
-                agent:string = element.parentNode.parentNode.previousSibling.firstChild.textContent;
-            if (type === "file" || type === "link") {
-                const dirs:string[] = path.replace(/\\/g, "/").split("/");
-                dirs.pop();
-                address = dirs.join(slash);
-            } else {
-                address = path;
-            }
-            fs.navigate(event, {
-                agentName: agent,
-                path: address,
-                readOnly: (agent !== "localhost" && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
-            });
-        };
-    let users:HTMLElement,
-        eachUser:HTMLElement;
-    if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
-        user = "localhost";
-    }
-    if (keyLength === 1 && browser.users.localhost.shares.length === 0) {
-        users = document.createElement("h3");
-        users.innerHTML = "There are no shares at this time.";
-    } else {
-        let userName:HTMLElement,
-            itemList:HTMLElement,
-            item:HTMLElement,
-            button:HTMLElement,
-            del:HTMLElement,
-            readOnly:HTMLElement,
-            status:HTMLElement,
-            span:HTMLElement,
-            a:number = 0,
-            b:number = 0,
-            shareLength:number,
-            type:string;
-        const eachItem = function local_util_shareContent_eachItem(userName:string):void {
-            item = document.createElement("li");
-            button = document.createElement("button");
-            type = browser.users[userName].shares[b].type;
-            button.setAttribute("class", type);
-            button.innerHTML = browser.users[userName].shares[b].name;
-            status = document.createElement("strong");
-            status.setAttribute("class", "read-only-status");
-            status.innerHTML = (browser.users[userName].shares[b].readOnly === true)
-                ? "(Read Only)"
-                : "(Full Access)"
-            button.appendChild(status);
-            if (type === "directory" || type === "file" || type === "link") {
-                button.onclick = fileNavigate;
-            }
-            if (userName === "localhost") {
-                readOnly = document.createElement("button");
-                if (browser.users.localhost.shares[b].readOnly === true) {
-                    item.setAttribute("class", "localhost");
-                    readOnly.setAttribute("class", "grant-full-access");
-                    readOnly.innerHTML = ("Grant Full Access");
-                } else {
-                    item.setAttribute("class", "localhost full-access");
-                    readOnly.setAttribute("class", "make-read-only");
-                    readOnly.innerHTML = ("Make Read Only");
-                }
-                readOnly.onclick = util.shareReadOnly;
-                del = document.createElement("button");
-                del.setAttribute("class", "delete");
-                del.setAttribute("title", "Delete this share");
-                del.innerHTML = "\u2718<span>Delete this share</span>";
-                del.onclick = util.shareItemDelete;
-                span = document.createElement("span");
-                span.setAttribute("class", "clear");
-                item.appendChild(del);
-                item.appendChild(button);
-                item.appendChild(readOnly);
-                item.appendChild(button);
-                item.appendChild(span);
-            } else {
-                if (browser.users[userName].shares[b].readOnly === true) {
-                    item.removeAttribute("class");
-                } else {
-                    item.setAttribute("class", "full-access");
-                }
-                item.appendChild(button);
-            }
-            itemList.appendChild(item);
-        };
-        if (user === "") {
-            users = document.createElement("ul");
-            users.setAttribute("class", "userList");
-            do {
-                eachUser = document.createElement("li");
-                userName = document.createElement("h3");
-                userName.setAttribute("class", "user");
-                userName.innerHTML = userKeys[a];
-                eachUser.appendChild(userName);
-                shareLength = browser.users[userKeys[a]].shares.length;
-                if (shareLength > 0) {
-                    b = 0;
-                    itemList = document.createElement("ul");
-                    do {
-                        eachItem(userKeys[a]);
-                        b = b + 1;
-                    } while (b < shareLength);
-                } else {
-                    itemList = document.createElement("p");
-                    itemList.innerHTML = "This user is not sharing anything.";
-                }
-                eachUser.appendChild(itemList);
-                users.appendChild(eachUser);
-                a = a + 1;
-            } while (a < keyLength);
-        } else {
-            shareLength = browser.users[user].shares.length;
-            users = document.createElement("div");
-            users.setAttribute("class", "userList");
-            userName = document.createElement("h3");
-            userName.setAttribute("class", "user");
-            userName.innerHTML = user;
-            if (shareLength === 0) {
-                itemList = document.createElement("p");
-                itemList.innerHTML = `User ${user} is not sharing anything.`;
-            } else {
-                itemList = document.createElement("ul");
-                do {
-                    eachItem(user);
-                    b = b + 1;
-                } while (b < shareLength);
-            }
-            users.appendChild(userName);
-            users.appendChild(itemList);
-        }
-    }
-    return users;
-};
-
-/* Delete a localhost share */
-util.shareItemDelete = function local_util_shareItemDelete(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        parent:HTMLElement = <HTMLElement>element.parentNode,
-        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-        shares:userShares = browser.users.localhost.shares,
-        length:number = shares.length;
-    let a:number = 0;
-    parent.parentNode.removeChild(parent);
-    do {
-        if (shares[a].name === address) {
-            shares.splice(a, 1);
-            break;
-        }
-        a = a + 1;
-    } while (a < length);
-    network.storage("users");
-};
-
-/* Toggle a share between read only and full access */
-util.shareReadOnly = function local_util_shareReadOnly(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        parent:HTMLElement = <HTMLElement>element.parentNode,
-        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-        shares:userShares = browser.users.localhost.shares,
-        length:number = shares.length,
-        span:HTMLElement = <HTMLElement>parent.getElementsByClassName("read-only-status")[0];
-    let a:number = 0;
-    do {
-        if (shares[a].name === address) {
-            if (shares[a].readOnly === true) {
-                shares[a].readOnly = false;
-            } else {
-                shares[a].readOnly = true;
-            }
-            break;
-        }
-        a = a + 1;
-    } while (a < length);
-    if (element.getAttribute("class") === "grant-full-access") {
-        element.setAttribute("class", "make-read-only");
-        parent.setAttribute("class", "localhost full-access");
-        element.innerHTML = "Make Read Only";
-        span.innerHTML = "(Full Access)";
-    } else {
-        element.setAttribute("class", "grant-full-access");
-        parent.setAttribute("class", "localhost");
-        element.innerHTML = "Grant Full Access";
-        span.innerHTML = "(Read Only)";
-    }
-    network.storage("users");
-};
-
-/* Updates the contents of share modals */
-util.shareUpdate = function local_util_shareUpdate(user:string, shares:userShares|"deleted", id?:string):void {
-    let a:number = 0,
-        b:number = 0,
-        shareBest:number = -1,
-        shareTop:number = -1,
-        title:HTMLElement,
-        box:HTMLElement,
-        body:HTMLElement,
-        titleText:string,
-        parentDirectory:HTMLElement,
-        back:HTMLElement,
-        header:HTMLElement,
-        headings:HTMLCollectionOf<HTMLElement>,
-        close:HTMLButtonElement,
-        address:string,
-        fileShares:boolean = false;
-    const modals:string[] = (id === undefined)
-            ? Object.keys(browser.data.modals)
-            : [id],
-        modalLength:number = modals.length,
-        shareLength:number = (shares === "deleted")
-            ? 0
-            : shares.length,
-        windows:boolean = (function local_util_shareUpdate_windows():boolean {
-            if (shares === "deleted" || shareLength < 1) {
-                return false;
-            }
-            do {
-                if (shares[b].type === "directory" || shares[b].type === "file" || shares[b].type === "link") {
-                    fileShares = true;
-                    if (shares[0].name.charAt(0) === "\\" || (/^\w:\\/).test(shares[0].name) === true) {
-                        return true;
-                    }
-                    return false;
-                }
-                b = b + 1;
-            } while (b < shareLength);
-            return false;
-        }());
-    if (shares !== "deleted") {
-        browser.users[user].shares = shares;
-    }
-    do {
-        box = document.getElementById(modals[a]);
-        if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === user)) {
-            if (shares === "deleted") {
-                if (browser.data.modals[modals[a]].agent === user) {
-                    close = <HTMLButtonElement>box.getElementsByClassName("close")[0];
-                    close.click();
-                } else {
-                    body = <HTMLElement>box.getElementsByClassName("body")[0];
-                    headings = body.getElementsByTagName("h3");
-                    b = headings.length;
-                    do {
-                        b = b - 1;
-                        if (headings[b].innerHTML === user) {
-                            headings[b].parentNode.parentNode.removeChild(headings[b].parentNode);
-                            break;
-                        }
-                    } while (b > 0);
-                }
-            } else {
-                body = <HTMLElement>box.getElementsByClassName("body")[0];
-                body.innerHTML = "";
-                body.appendChild(util.shareContent(browser.data.modals[modals[a]].agent));
-            }
-        } else if (fileShares === true && browser.data.modals[modals[a]].type === "fileNavigate" && browser.data.modals[modals[a]].agent === user) {
-            if (shares === "deleted") {
-                close = <HTMLButtonElement>box.getElementsByClassName("close")[0];
-                close.click();
-            } else if (shareLength > 0) {
-                b = 0;
-                shareBest = -1;
-                shareTop = -1;
-                title = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
-                titleText = title.innerHTML;
-                parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
-                back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];
-                header = <HTMLElement>parentDirectory.parentNode;
-                address = browser.data.modals[modals[a]].text_value;
-                do {
-                    if (address.indexOf(shares[b].name) === 0 || (windows === true && address.toLowerCase().indexOf(shares[b].name.toLowerCase()) === 0)) {
-                        if (shareBest < 0) {
-                            shareBest = b;
-                            shareTop = b;
-                        }
-                        if (shares[b].name.length > shares[shareBest].name.length) {
-                            shareBest = b;
-                        } else if (shares[b].name.length < shares[shareTop].name.length) {
-                            shareTop = b;
-                        }
-                    }
-                    b = b + 1;
-                } while (b < shareLength);
-                if (shareBest > -1) {
-                    if (browser.data.modals[box.getAttribute("id")].agent !== "localhost") {
-                        if (shares[shareBest].readOnly === true) {
-                            titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
-                            title.innerHTML = titleText;
-                            browser.data.modals[modals[a]].title = titleText;
-                            browser.data.modals[modals[a]].read_only = true;
-                        } else {
-                            titleText = titleText.replace(" (Read Only)", "");
-                            title.innerHTML = titleText;
-                            browser.data.modals[modals[a]].title = titleText;
-                            browser.data.modals[modals[a]].read_only = false;
-                        }
-                        if (address === shares[shareTop].name || (windows === true && address.toLowerCase() === shares[shareTop].name.toLowerCase())) {
-                            parentDirectory.style.display = "none";
-                            back.style.marginLeft = "-6em";
-                            header.style.paddingLeft = "10.5em";
-                        } else {
-                            parentDirectory.style.display = "inline-block";
-                            back.style.marginLeft = "-9em";
-                            header.style.paddingLeft = "15em";
-                        }
-                    }
-                }
-            }
-        }
-        a = a + 1;
-    } while (a < modalLength);
 };
 
 export default util;

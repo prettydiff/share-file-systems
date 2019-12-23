@@ -2,6 +2,7 @@ import browser from "./browser.js";
 import context from "./context.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import share from "./share.js";
 import util from "./util.js";
 import commas from "../common/commas.js";
 
@@ -103,6 +104,9 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
         right:number = left+ + body.clientWidth,
         touch:boolean = (event !== null && event.type === "touchstart"),
         list:HTMLElement = document.createElement("ul"),
+        mouseDown = function local_fs_drag_document(documentEvent:MouseEvent):void {
+            documentEvent.preventDefault();
+        },
         drop = function local_fs_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
             if (list.parentNode !== null) {
                 list.parentNode.removeChild(list);
@@ -265,9 +269,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
         init:boolean = false,
         copy:boolean = true;
     event.stopPropagation();
-    document.onmousedown = function local_fs_drag_document(documentEvent:MouseEvent):void {
-        documentEvent.preventDefault();
-    };
+    document.onmousedown = mouseDown;
     if (element.nodeName.toLowerCase() === "button") {
         return;
     }
@@ -356,7 +358,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
         const agent:string = browser.data.modals[dirData.id].agent;
         browser.data.modals[dirData.id].text_value = list[0][0];
-        util.shareUpdate(agent, browser.users[agent].shares);
+        share.update(agent, browser.users[agent].shares);
     }
     a = 0;
     do {
@@ -454,7 +456,16 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         li:HTMLElement = document.createElement("li"),
         label:HTMLLabelElement = document.createElement("label"),
         text:HTMLElement = document.createElement("label"),
-        input:HTMLInputElement = document.createElement("input");
+        input:HTMLInputElement = document.createElement("input"),
+        mouseOver = function local_fs_listItem_mouseOver(event:MouseEvent):void {
+            const dragBox:HTMLElement = document.getElementById("dragBox"),
+                element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+            if (dragBox !== null) {
+                if (event.ctrlKey === true) {
+                    element.click();
+                }
+            }
+        };
     let span:HTMLElement,
         plural:string;
     if (extraClass.replace(/\s+/, "") !== "") {
@@ -512,15 +523,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     li.oncontextmenu = context.menu;
     li.onkeydown = util.keys; // key combinations
     li.onmousedown = fs.drag;
-    li.onmouseover = function local_fs_listItem_mouseOver(event:MouseEvent):void {
-        const dragBox:HTMLElement = document.getElementById("dragBox"),
-            element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-        if (dragBox !== null) {
-            if (event.ctrlKey === true) {
-                element.click();
-            }
-        }
-    };
+    li.onmouseover = mouseOver;
     li.ontouchstart = fs.drag;
     return li;
 };
@@ -654,7 +657,9 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
 
 /* The front-side of renaming a file system object */
 fs.rename = function local_fs_rename(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:HTMLElement = (context.element === null)
+            ? <HTMLElement>event.srcElement || <HTMLElement>event.target
+            : context.element,
         box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
             let el:HTMLElement = element;
             do {
@@ -724,6 +729,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
     label.innerHTML = dir;
     label.appendChild(input);
     input.focus();
+    context.element = null;
 };
 
 /* A service to write file changes to the file system */

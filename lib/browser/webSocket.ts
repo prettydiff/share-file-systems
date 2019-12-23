@@ -1,24 +1,19 @@
 import browser from "./browser.js";
 import fs from "./fs.js";
+import invite from "./invite.js";
 import network from "./network.js";
+import share from "./share.js";
 import systems from "./systems.js";
 import util from "./util.js";
-import modal from "./modal.js";
 
 const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
-    webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = (browser.localNetwork.family === "ipv4")
-            ? new WebSocket(`ws://${browser.localNetwork.ip}:${browser.localNetwork.wsPort}`)
-            : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`);
-    
-    /* Handle Web Socket responses */
-    socket.onopen = function local_socketOpen():void {
-        document.getElementById("localhost").setAttribute("class", "active");
-        title.getElementsByTagName("h1")[0].innerHTML = titleText;
-        title.removeAttribute("style");
-    };
-    socket.onmessage = function local_socketMessage(event:SocketEvent):void {
+    close = function local_socketClose():void {
+        title.style.background = "#ff6";
+        title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+        document.getElementById("localhost").setAttribute("class", "offline");
+    },
+    message = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
         }
@@ -35,7 +30,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
-                util.shareUpdate(user, "deleted");
+                share.update(user, "deleted");
             },
             error = function local_socketMessage_error():void {
                 const errorData:string = event.data.slice(6),
@@ -136,7 +131,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     a = a + 1;
                 } while (a < length);
             },
-            invite = function local_socketMessage_invite():void {
+            invitation = function local_socketMessage_invite():void {
                 const inviteData:invite = JSON.parse(event.data.slice(13)),
                     modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
                 if (modal === null) {
@@ -165,26 +160,36 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         } else if (event.data.indexOf("heartbeat-update:") === 0) {
             heartbeat();
         } else if (event.data.indexOf("invite-error:") === 0) {
-            invite();
+            invitation();
         } else if (event.data.indexOf("invite-request:") === 0) {
-            util.inviteRespond(event.data.slice(15));
+            invite.respond(event.data.slice(15));
         } else if (event.data === "reload") {
             location.reload();
         } else if (event.data.indexOf("shareUpdate:") === 0) {
             const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length));
-            util.shareUpdate(update.user, update.shares);
+            share.update(update.user, update.shares);
         }
-    };
-    socket.onclose = function local_socketClose():void {
-        title.style.background = "#ff6";
-        title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
-        document.getElementById("localhost").setAttribute("class", "offline");
-    };
-    socket.onerror = function local_socketError(this:WebSocket):any {
+    },
+    open = function local_socketOpen():void {
+        document.getElementById("localhost").setAttribute("class", "active");
+        title.getElementsByTagName("h1")[0].innerHTML = titleText;
+        title.removeAttribute("style");
+    },
+    webSocket = function local_webSocket():WebSocket {
+        const socket:WebSocket = (browser.localNetwork.family === "ipv4")
+            ? new WebSocket(`ws://${browser.localNetwork.ip}:${browser.localNetwork.wsPort}`)
+            : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`),
+    error = function local_socketError(this:WebSocket):any {
         setTimeout(function local_socketError_timeout():void {
             browser.socket = local_webSocket();
         }, 5000);
     };
+    
+    /* Handle Web Socket responses */
+    socket.onopen = open;
+    socket.onmessage = message;
+    socket.onclose = close;
+    socket.onerror = error;
     return socket;
 };
 

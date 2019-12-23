@@ -9,6 +9,7 @@ type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
 type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "systems" | "textPad";
+type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
@@ -93,9 +94,6 @@ interface copyStatus {
     target:string;
     message:string;
 }
-interface dataString extends EventHandlerNonNull {
-    (Event, element?:HTMLElement, type?: "Base64" | "Edit" | "Hash"): void;
-}
 interface directoryList extends Array<directoryItem> {
     [index:number]: directoryItem;
     failures?: string[];
@@ -147,9 +145,6 @@ interface fsUpdateRemote {
 interface FSWatcher extends Function {
     close: Function;
     time: number;
-}
-interface functionEvent extends EventHandlerNonNull {
-    (Event?:Event): void;
 }
 interface hashInput {
     callback: Function;
@@ -223,15 +218,16 @@ interface module_network {
     storage?: (type:storageType, send?:boolean) => void;
 }
 interface module_context {
-    copy?: (element: HTMLElement, type: "copy" | "cut") => void;
-    dataString?: dataString;
-    destroy?: (element: HTMLElement) => void;
+    copy?: EventHandlerNonNull;
+    dataString?: EventHandlerNonNull;
+    destroy?: EventHandlerNonNull;
     details?: context;
-    fsNew?: (element: HTMLElement, type: "directory" | "file") => void;
+    element?: HTMLElement;
+    fsNew?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
-    menuRemove?: functionEvent;
-    paste?: (element: HTMLElement) => void;
-    share?: (element: HTMLElement) => void;
+    menuRemove?: () => void;
+    paste?: EventHandlerNonNull;
+    type?: contextType;
 }
 interface module_fs {
     back?: EventHandlerNonNull;
@@ -253,6 +249,13 @@ interface module_fs {
     select?: EventHandlerNonNull;
     text?: EventHandlerNonNull;
 }
+interface module_invite {
+    accept?: (box:HTMLElement) => void;
+    decline?: EventHandlerNonNull;
+    request?: (options:ui_modal) => void;
+    respond?: (message:string) => void;
+    start?: modalSettings;
+}
 interface module_modal {
     close?: EventHandlerNonNull;
     closeDecline?: (event:MouseEvent, action:Function) => void;
@@ -264,13 +267,20 @@ interface module_modal {
     minimize?: EventHandlerNonNull;
     move?: EventHandlerNonNull;
     resize?: EventHandlerNonNull;
-    shares?: modalSettings;
-    sharesDeleteList?: sharesDeleteList;
-    sharesDeleteToggle?: EventHandlerNonNull;
     systems?: EventHandlerNonNull;
     textPad?: textPad;
     textSave?: EventHandlerNonNull;
     zTop?: modalTop;
+}
+interface module_share {
+    content?: (user:string) => HTMLElement;
+    context?: EventHandlerNonNull;
+    deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
+    deleteToggle?: EventHandlerNonNull;
+    itemDelete?: EventHandlerNonNull;
+    modal?: (event:MouseEvent, user?:string, configuration?:ui_modal) => void;
+    readOnly?: EventHandlerNonNull;
+    update?: (user:string, shares:userShares|"deleted", id?:string) => void;
 }
 interface module_systems {
     close?: EventHandlerNonNull;
@@ -286,20 +296,14 @@ interface module_util {
     dragBox?: eventCallback;
     dragList?: (event:Event, dragBox:HTMLElement) => void;
     fileListStatus?: (text:string) => void;
-    fixHeight?: functionEvent;
+    fixHeight?: () => void;
     getAgent?: (element:HTMLElement) => [string, boolean];
-    inviteStart?: modalSettings;
-    inviteRespond?: (message:string) => void;
     keys?: (event:KeyboardEvent) => void;
     login?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectNone?:(element:HTMLElement) => void;
-    shareContent?:(users:string) => HTMLElement;
-    shareItemDelete?:(event:MouseEvent) => void;
-    shareReadOnly?:(event:MouseEvent) => void;
-    shareUpdate?:(user:string, shares:userShares|"deleted", id?:string) => void;
 }
 interface navConfig {
     agentName:string;

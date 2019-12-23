@@ -1,5 +1,6 @@
 import browser from "./browser.js";
 import fs from "./fs.js";
+import invite from "./invite.js";
 import network from "./network.js";
 import systems from "./systems.js";
 import util from "./util.js";
@@ -62,76 +63,13 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
         options = browser.data.modals[id];
 
     if (options.type === "invite-request") {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            box:HTMLElement = (function local_modal_confirm_box():HTMLElement {
-                let bx:HTMLElement = element;
-                do {
-                    bx = <HTMLElement>bx.parentNode;
-                } while (bx !== document.documentElement && bx.getAttribute("class") !== "box");
-                return bx;
-            }()),
-            inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
-            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-            content:HTMLElement = <HTMLElement>body.getElementsByClassName("inviteUser")[0],
-            footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-            port:number = (function local_modal_confirm_port():number {
-                const numb:number = Number(inputs[1].value);
-                if (inputs[1].value.replace(/^\s+$/, "") === "" || isNaN(numb) === true || numb < 0 || numb > 65535) {
-                    return 80;
-                }
-                return numb;
-            }()),
-            inviteData:invite = {
-                action: "invite",
-                ip: inputs[0].value,
-                port: port,
-                message: box.getElementsByTagName("textarea")[0].value,
-                modal: id,
-                name: browser.data.name,
-                shares: browser.users.localhost.shares,
-                status: "invited"
-            };
-        if (inviteData.ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(inviteData.ip) === false && (/([a-f0-9]{4}:)+/).test(inviteData.ip) === false)) {
-            inputs[0].focus();
-            return;
-        }
-        content.style.display = "none";
-        footer.style.display = "none";
-        if (content.getElementsByClassName("error").length > 0) {
-            content.removeChild(content.getElementsByClassName("error")[0]);
-        }
-        body.appendChild(util.delay());
-        options.text_value = `${inputs[0].value}|spaces|${inputs[1].value}|spaces|${box.getElementsByTagName("textarea")[0].value}`;
-        network.inviteRequest(inviteData);
+        invite.request(options);
         return;
     }
     if (options.type === "export") {
         modal.importSettings(event);
     } else if (options.type === "invite-accept") {
-        let user:string = "";
-        const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
-            dataString:string = para[para.length - 1].innerHTML,
-            invite:invite = JSON.parse(dataString);
-        network.inviteAccept({
-            action: "invite-response",
-            message: `Invite accepted: ${util.dateFormat(new Date())}`,
-            name: browser.data.name,
-            ip: invite.ip,
-            modal: invite.modal,
-            port: invite.port,
-            shares: browser.users.localhost.shares,
-            status: "accepted"
-        });
-        if (invite.ip.indexOf(":") < 0) {
-            user = `${invite.name}@${invite.ip}:${invite.port}`;
-        } else {
-            user = `${invite.name}@[${invite.ip}]:${invite.port}`;
-        }
-        browser.users[user] = {
-            color: ["", ""],
-            shares: invite.shares
-        };
-        util.addUser(user);
+        invite.accept(box);
     } else if (options.type === "share_delete") {
         const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
             list:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("li"),
@@ -286,31 +224,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                         box.style.display = "none";
                     }
                 } else if (options.type === "invite-accept") {
-                    button.onclick = function local_modal_create_inviteDecline(event:MouseEvent):void {
-                        modal.closeDecline(event, function local_modal_create_inviteDecline_action():void {
-                            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                                boxLocal:HTMLElement = (function local_modal_confirm_box():HTMLElement {
-                                    let el:HTMLElement = element;
-                                    do {
-                                        el = <HTMLElement>el.parentNode;
-                                    } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-                                    return el;
-                                }()),
-                                para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
-                                dataString:string = para[para.length - 1].innerHTML,
-                                invite:invite = JSON.parse(dataString);
-                            network.inviteAccept({
-                                action: "invite-response",
-                                message: `Invite declined: ${util.dateFormat(new Date())}`,
-                                name: browser.data.name,
-                                ip: invite.ip,
-                                modal: invite.modal,
-                                port: invite.port,
-                                shares: browser.users.localhost.shares,
-                                status: "declined"
-                            });
-                        });
-                    };
+                    button.onclick = invite.decline;
                 } else {
                     button.onclick = modal.close;
                 }
@@ -1019,127 +933,6 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
         document.onmousemove = side[direction];
         document.onmousedown = null;
         document.onmouseup = drop;
-    }
-};
-
-/* Displays a list of shared items for each user */
-modal.shares = function local_modal_shares(event:MouseEvent, user?:string, configuration?:ui_modal):void {
-    const userKeys:string[] = Object.keys(browser.users),
-        keyLength:number = userKeys.length;
-    let users:HTMLElement;
-    if (typeof user === "string" && user.indexOf("@localhost") === user.length - 10) {
-        user = "localhost";
-    }
-    users = util.shareContent(user);
-    if (keyLength === 1 && browser.users.localhost.shares.length === 0) {
-        modal.create({
-            agent: user,
-            content: users,
-            inputs: ["close", "maximize", "minimize"],
-            read_only: false,
-            title: "⌘ All Shares",
-            type: "shares",
-            width: 800
-        });
-    } else {
-        const title:string = (user === "")
-            ? "⌘ All Shares"
-            : `⌘ Shares for user - ${user}`;
-        if (configuration === undefined || configuration === null) {
-            configuration = {
-                agent: user,
-                content: users,
-                read_only: false,
-                title: title,
-                type: "shares",
-                width: 800
-            };
-        } else {
-            configuration.content = users;
-            configuration.title = title;
-            configuration.type = "shares";
-        }
-        configuration.text_value = user;
-        configuration.inputs = ["close", "maximize", "minimize"];
-        modal.create(configuration);
-    }
-};
-
-/* Creates a confirmation modal listing users for deletion */
-modal.sharesDeleteList = function local_modal_sharesDeleteList(event:MouseEvent, configuration?:ui_modal):void {
-    const content:HTMLElement = document.createElement("div"),
-        p:HTMLElement = document.createElement("p"),
-        ul:HTMLElement = document.createElement("ul"),
-        users:users = browser.users,
-        names:string[] = Object.keys(users),
-        length:number = names.length;
-    let li:HTMLElement,
-        a:number = 0,
-        input:HTMLInputElement,
-        label:HTMLElement,
-        text:Text;
-    p.setAttribute("class", "summary");
-    if (length > 1) {
-        p.innerHTML = "<strong>Please be warned that confirming this change is permanent.</strong> The user will be deleted from your devices and you from theirs.";
-        ul.setAttribute("class", "sharesDeleteList");
-        do {
-            if (names[a] !== "localhost") {
-                li = document.createElement("li");
-                label = document.createElement("label");
-                input = document.createElement("input");
-                text = document.createTextNode(names[a]);
-                input.type = "checkbox";
-                input.onclick = modal.sharesDeleteToggle;
-                label.appendChild(input);
-                label.appendChild(text);
-                li.appendChild(label);
-                ul.appendChild(li);
-            }
-            a = a + 1;
-        } while (a < length);
-        content.appendChild(p);
-        content.appendChild(ul);
-    } else {
-        p.innerHTML = "No users to delete."
-        content.appendChild(p);
-    }
-    if (configuration === undefined) {
-        modal.create({
-            agent: "localhost",
-            content: content,
-            inputs: (length > 1)
-                ? ["confirm", "cancel", "close"]
-                : ["close"],
-            read_only: false,
-            single: true,
-            title: "<span class=\"icon-delete\">☣</span> Delete Shares",
-            type: "share_delete",
-            width: 750
-        });
-        network.storage("settings");
-    } else {
-        configuration.agent = "localhost";
-        configuration.content = content;
-        if (length > 1) {
-            configuration.inputs = ["confirm", "cancel", "close"];
-        } else {
-            configuration.inputs = ["close"];
-        }
-        configuration.single = true;
-        configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
-        configuration.type = "share_delete";
-        modal.create(configuration);
-    }
-};
-
-/* Changes visual state of items in the shares delete list as they are checked or unchecked*/
-modal.sharesDeleteToggle = function local_modal_sharesDeleteToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        label:HTMLElement = <HTMLElement>element.parentNode;
-    if (element.checked === true) {
-        label.setAttribute("class", "checked");
-    } else {
-        label.removeAttribute("class");
     }
 };
 

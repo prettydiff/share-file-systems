@@ -2,8 +2,10 @@ import browser from "./lib/browser/browser.js";
 import context from "./lib/browser/context.js";
 import fs from "./lib/browser/fs.js";
 import getNodesByType from "./lib/browser/getNodesByType.js";
+import invite from "./lib/browser/invite.js";
 import modal from "./lib/browser/modal.js";
 import network from "./lib/browser/network.js";
+import share from "./lib/browser/share.js";
 import systems from "./lib/browser/systems.js";
 import util from "./lib/browser/util.js";
 import webSocket from "./lib/browser/webSocket.js";
@@ -103,24 +105,32 @@ import webSocket from "./lib/browser/webSocket.js";
                     button.onclick = handlerMouse;
                 },
                 loadComplete = function local_restore_complete():void {
-                    const idleness = function local_restore_idleness():void {
-                        const time:number = Date.now();
-                        if (time - active > idleTime && localhost !== null && browser.socket.readyState === 1) {
-                            localhost.setAttribute("class", "idle");
-                            network.heartbeat("idle", false);
-                        }
-                        setTimeout(local_restore_idleness, idleTime);
-                    };
+                    const idleness = function local_restore_complete_idleness():void {
+                            const time:number = Date.now();
+                            if (time - active > idleTime && localhost !== null && browser.socket.readyState === 1) {
+                                localhost.setAttribute("class", "idle");
+                                network.heartbeat("idle", false);
+                            }
+                            setTimeout(local_restore_complete_idleness, idleTime);
+                        },
+                        activate = function load_restore_complete_activate():void {
+                            if (localhost !== null) {
+                                const status:string = localhost.getAttribute("class");
+                                if (status !== "active" && browser.socket.readyState === 1) {
+                                    localhost.setAttribute("class", "active");
+                                    network.heartbeat("active", false);
+                                }
+                            }
+                            active = Date.now();
+                        };
                     browser.socket = webSocket();
                     setTimeout(idleness, idleTime);
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
-                    document.getElementById("all-shares").onclick = function local_restore_complete_sharesAll(event:MouseEvent):void {
-                        modal.shares(event, "", null);
-                    };
-                    document.getElementById("user-delete").onclick = modal.sharesDeleteList;
-                    document.getElementById("user-invite").onclick = util.inviteStart;
+                    document.getElementById("all-shares").onclick = share.modal;
+                    document.getElementById("user-delete").onclick = share.deleteList;
+                    document.getElementById("user-invite").onclick = invite.start;
                     document.getElementById("login-input").onkeyup = util.login;
                     document.getElementById("menuToggle").onclick = util.menu;
                     document.getElementById("systemLog").onclick = modal.systems;
@@ -130,16 +140,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     network.heartbeat("active", true);
 
                     // watch for local idleness
-                    document.onclick = function load_restore_complete_click():void {
-                        if (localhost !== null) {
-                            const status:string = localhost.getAttribute("class");
-                            if (status !== "active" && browser.socket.readyState === 1) {
-                                localhost.setAttribute("class", "active");
-                                network.heartbeat("active", false);
-                            }
-                        }
-                        active = Date.now();
-                    };
+                    document.onclick = activate;
             
                     // building logging utility (systems log)
                     if (document.getElementById("systems-modal") === null) {
@@ -361,13 +362,13 @@ import webSocket from "./lib/browser/webSocket.js";
                                     }
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {
-                                    modal.shares(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
+                                    share.modal(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "share_delete") {
-                                    modal.sharesDeleteList(null, storage.settings.modals[value]);
+                                    share.deleteList(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "invite-request") {
-                                    util.inviteStart(null, "", storage.settings.modals[value]);
+                                    invite.start(null, "", storage.settings.modals[value]);
                                     z(value);
                                 } else {
                                     z(value);
