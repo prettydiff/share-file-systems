@@ -17,3 +17,7 @@
    - Author: lonewolf6738
    - License: none
    - Source: https://wall.alphacoders.com/big.php?i=651070
+* Desert Night Background
+   - Author: xGhostx
+   - License: none
+   - Source: https://wall.alphacoders.com/big.php?i=951667

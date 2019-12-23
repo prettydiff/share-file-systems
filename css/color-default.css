@@ -1,0 +1,134 @@
+
+#spaces{background-color:#cdf;background-image:url("../media/background-desert.jpg")}
+#spaces *:focus{outline-color:#39f}
+#spaces input::placeholder{color:#933}
+
+/* Login prompt */
+.login #spaces #login{background:#eee;border-color:#000;box-shadow:0.15em 0.15em 1em #99c}
+#spaces #login button{box-shadow:0.025em 0.025em 0.1em #999}
+#spaces #login label{color:#666}
+#spaces #login input{border-color:#000}
+#spaces #login button{background:#dfd;border-color:#060;color:#060}
+
+/* Context menu, right click */
+#spaces #contextMenu{border-color:#000}
+#spaces #contextMenu button{background:#ddd;border-color:#000}
+#spaces #contextMenu button:hover{background:#eee;color:#00f}
+#spaces #contextMenu .destroy{background:#fdd;color:#c00}
+#spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
+#spaces #contextMenu .destroy[disabled],
+#spaces #contextMenu button[disabled]{background:#eee;color:#999}
+
+/* file system details modal content, accessed from context menu */
+#spaces .box .fileDetailOutput h3{color:#009}
+
+/* Title bar and main menu */
+#spaces .title{background:#ddd;border-color:#666;box-shadow:0 0.05em 0.5em #66c}
+#spaces #menuToggle{background:#eee;border-color:#999}
+#spaces #menuToggle:hover{background:#fff}
+#spaces .icon-fileNavigator{color:#969}
+#spaces .icon-systemLog{color:#09f}
+#spaces .icon-textPad{color:#963}
+#spaces .icon-export{color:#c0f}
+#spaces .icon-invite{color:#090}
+#spaces .icon-delete{color:#c00}
+#spaces #menu{border-color:#000;box-shadow:0.1em 0.1em 0.25em #999}
+#spaces #menu button{background:#ddd;border-color:#000}
+#spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
+
+/* invite user */
+#spaces .box .inviteUser .error{color:#c00;font-weight:bold}
+#spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
+
+/* users list */
+#spaces #users{border-color:#000}
+#spaces #users h2{background:#ddd;border-color:#000}
+#spaces #users button{background:#eee;border-color:#000}
+#spaces #users button:hover{background:#fff}
+#spaces #users .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
+#spaces #users .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
+#spaces #users .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
+#spaces #users span{background:#000}
+#spaces #users #all-shares{background:#def;color:#00c}
+#spaces #users #all-shares:hover{background:#fff}
+
+
+/* minimize tray at bottom */
+#spaces #tray{background:#ddd;border-color:#666}
+#spaces #tray li{box-shadow:0.15em 0.15em 0.5em #ccc}
+
+/* modal */
+#spaces .box{box-shadow:0.1em 0.1em 1em #999}
+#spaces .box p.error{color:#c00}
+#spaces .box p.summary{color:#33f}
+#spaces .box .buttons button,
+#spaces .box .header button,
+#spaces .box .expansion,
+#spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em #ccc}
+#spaces .box .buttons button.minimize{background:#fdb;border-color:#930;color:#930}
+#spaces .box .buttons button.maximize{background:#ddf;border-color:#009;color:#009}
+#spaces .box .buttons button.close{background:#fdd;border-color:#900;color:#900}
+#spaces .box h2.heading{background:#eee;border-color:#000}
+#spaces .box .body{background:#fff;border-color:#000}
+#spaces .box .border{background:#ccc;border-color:#000}
+#spaces .box .corner-tl,
+#spaces .box .corner-tr,
+#spaces .box .corner-bl,
+#spaces .box .corner-br{border-color:#000}
+#spaces .box .footer{background:#eee;border-color:#000}
+#spaces .box .status-bar{border-color:#000;background:#eee}
+#spaces .box .header{background:#fff;border-color:#000}
+#spaces .box .header .backDirectory{background:#ffa;border-color:#440;color:#440}
+#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606}
+#spaces .box .header .reloadDirectory{background:#dfd;border-color:#050;color:#050}
+#spaces .box .header .fileSearch input{border-color:#000}
+#spaces .fileList li input.error,
+#spaces .box .header .error{background:#fdd;color:#900}
+#spaces .userList .localhost button.grant-full-access,
+#spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
+#spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
+#spaces .box button.save{background:#ffc;border-color:#990;color:#770}
+#spaces .box .delay svg{stroke:#cdf}
+#spaces .box .body > textarea{background:#fff;color:#000}
+#spaces .box .delete{background:#fdd;border-color:#900;box-shadow:0.075em 0.075em 0.25em #ccc;color:#900}
+#spaces #dragBox{background:#9cf;border-color:#69c}
+
+/* systems modal content */
+#spaces .box .tabs{background:#999}
+#spaces .box .tabs button{background:#ddd;border-color:#000}
+#spaces .box .tabs button.active{background:#fff}
+#spaces .box .tabs .status{color:#00c}
+#spaces .box .tabs .users{color:#060}
+#spaces .box .tabs .errors{color:#c00}
+#spaces .messageList{border-color:#000}
+#spaces .messageList li{border-color:#ccc}
+#spaces #system-errors span{color:#c00}
+
+/* share list */
+#spaces .userList li.full-access{background:#eef;border-color:#99c}
+#spaces .userList button{color:#00f}
+#spaces .userList .localhost button.make-read-only{background:#ffc;border-color:#870;color:#870}
+#spaces .userList .read-only-status{color:#666}
+#spaces .userList .full-access .read-only-status{color:#556}
+#spaces ul.userList li{border-color:#000}
+#spaces div.userList li,
+#spaces ul.userList li li{border-color:#ccc}
+
+/* share delete */
+#spaces .sharesDeleteList label{background:#eee}
+#spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
+
+/* file navigator modal content */
+#spaces .fileList li{border-color:#eee}
+#spaces .fileList li ul{border-color:#eee}
+#spaces .fileList li.cut:hover{background:#ddb}
+#spaces .fileList li.selected:hover{background:#cde}
+#spaces .fileList li.selected.cut:hover{background:#ada}
+#spaces .fileList li:hover{background:#eee}
+#spaces .fileList .lastType{border-color:#000}
+#spaces .fileList li.selected{background:#eef8ff;outline-color:#bcf}
+#spaces .fileList li.selected.cut{background:#cfc;outline-color:#3f3}
+#spaces .fileList li.cut{background:#ffd;opacity:0.5;outline-color:#ee0}
+#spaces .messageList .expansion,
+#spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc}
+#spaces #file-list-drag{background:#fff}

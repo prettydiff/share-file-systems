@@ -207,7 +207,7 @@ const library = {
                         output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                     }
                     output.push("");
-                    log(output);
+                    library.log(output);
                 };
 
                 if (process.cwd() !== vars.projectPath) {
@@ -241,7 +241,7 @@ const library = {
                         if (eru !== null) {
                             logOutput();
                             if (eru.code !== "ENOENT") {
-                                log([eru.toString()]);
+                                library.log([eru.toString()]);
                             }
                         } else {
                             serverVars.users = JSON.parse(userString);
@@ -249,7 +249,7 @@ const library = {
                                 if (ers !== null) {
                                     logOutput();
                                     if (ers.code !== "ENOENT") {
-                                        log([ers.toString()]);
+                                        library.log([ers.toString()]);
                                     }
                                 } else {
                                     const settings:ui_data = JSON.parse(settingString),

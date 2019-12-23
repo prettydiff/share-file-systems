@@ -1,21 +1,24 @@
 
+@import url("./color-default.css");
+@import url("./color-dark.css");
+
 html{border-style:none;font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;font-size:10px;letter-spacing:0.1em;margin:0;padding:0}
 html button{letter-spacing:0.1em}
 body{border-style:none;height:100%;margin:0;padding:0;width:100%}
-#spaces{background-color:#cdf;background-image:url("../media/background-desert.jpg");background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
+#spaces{background-size:cover;border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
 #spaces #login h1 .application-version{display:block}
-#spaces *:focus{outline:0.1em solid #39f}
+#spaces *:focus{outline-style:solid;outline-width:0.1em}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
-#spaces input::placeholder{color:#933;opacity:1}
+#spaces input::placeholder{opacity:1}
 #spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
 
 /* Login prompt */
 .login #spaces .title,
 .login #spaces #content-area{display:none}
-.login #spaces #login{background:#eee;border-color:#000;border-style:solid;border-width:0.1em;box-shadow:0.15em 0.15em 1em #99c;display:block;margin:0 auto;padding:2em;text-align:center;width:60em}
+.login #spaces #login{border-style:solid;border-width:0.1em;display:block;margin:0 auto;padding:2em;text-align:center;width:60em}
 #spaces #login h1{font-size:6em;margin:0 0 0.5em}
 #spaces #login label,
 #spaces #login input,
@@ -23,53 +26,42 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #login label,
 #spaces #login button{width:100%}
 #spaces #login input,
-#spaces #login button{border-style:solid;border-width:0.025em;box-shadow:0.025em 0.025em 0.1em #999}
-#spaces #login label{color:#666}
-#spaces #login input{border-color:#000;padding:0.1em 2%;width:96%}
-#spaces #login button{background:#dfd;border-color:#060;color:#060;font-weight:bold;margin:2em 0 0;padding:1em}
+#spaces #login button{border-style:solid;border-width:0.025em}
+#spaces #login input{padding:0.1em 2%;width:96%}
+#spaces #login button{font-weight:bold;margin:2em 0 0;padding:1em}
 #spaces #login{display:none}
 
 /* Context menu, right click */
-#spaces #contextMenu{border-color:#000;border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
+#spaces #contextMenu{border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
-#spaces #contextMenu button{background:#ddd;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:10em}
-#spaces #contextMenu button:hover{background:#eee;color:#00f;text-decoration:underline}
-#spaces #contextMenu .destroy{background:#fdd;color:#c00}
-#spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
+#spaces #contextMenu button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:10em}
+#spaces #contextMenu button:hover{text-decoration:underline}
 #spaces #contextMenu .destroy[disabled],
-#spaces #contextMenu button[disabled]{background:#eee;color:#999;cursor:not-allowed}
+#spaces #contextMenu button[disabled]{cursor:not-allowed}
 #spaces #contextMenu button em{display:block;font-size:0.5em;font-style:normal;letter-spacing:0.15em;opacity:0.6}
 
 /* file system details modal content, accessed from context menu */
 #spaces .fileDetailOutput{font-size:1.5em;padding:0.5em}
-#spaces .box .fileDetailOutput h3{color:#009;font-size:1em}
+#spaces .box .fileDetailOutput h3{font-size:1em}
 #spaces .fileDetailOutput h3,
 #spaces .fileDetailOutput p{margin:0}
 #spaces .fileDetailOutput th{font-weight:bold;min-width:10em;text-align:left;width:10em}
-#spaces .fileDetailOutput table{border-color:#000;border-style:none none solid;border-width:0.05em;margin:0 0 3em}
+#spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
 #spaces .fileDetailOutput .directory::before{content: "📂 "}
 #spaces .fileDetailOutput .file::before{content: "📃 "}
 #spaces .fileDetailOutput .link::before{content: "🔗 "}
 
 /* Title bar and main menu */
-#spaces .title{background:#ddd;border-color:#666;border-style:none none solid;border-width:0.1em;box-shadow:0 0.05em 0.5em #66c;display:block;height:5em}
+#spaces .title{border-style:none none solid;border-width:0.1em;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
 #spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
-#spaces #menuToggle{background:#eee;border-color:#999;border-style:solid;border-width:0.05em;display:inline-block;font-size:2.4em;height:2.1em;margin:0 1em 0 0;padding:0;width:2.1em}
-#spaces #menuToggle:hover{background:#fff}
+#spaces #menuToggle{border-style:solid;border-width:0.05em;display:inline-block;font-size:2.4em;height:2.1em;margin:0 1em 0 0;padding:0;width:2.1em}
 #spaces #menuToggle span{position:absolute;top:-200em}
 #spaces button{font-family:inherit}
-#spaces .icon-fileNavigator{color:#969}
-#spaces .icon-systemLog{color:#09f}
-#spaces .icon-textPad{color:#963}
-#spaces .icon-export{color:#c0f}
-#spaces .icon-invite{color:#090}
-#spaces .icon-delete{color:#c00}
-#spaces #menu{border:0.1em solid #000;box-shadow:0.1em 0.1em 0.25em #999;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
+#spaces #menu{border-style:solid;border-width:0.1em;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
 #spaces #menu li{display:block;padding:0}
-#spaces #menu button{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
-#spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
+#spaces #menu button{border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
 /* invite user */
@@ -77,17 +69,16 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .inviteUser p{font-size:1.5em}
 #spaces .box .inviteUser input,
 #spaces .box .inviteUser textarea{display:block;font-size:1.2em;width:90%}
-#spaces .box .inviteUser .error{color:#c00;font-weight:bold}
-#spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
+#spaces .box .inviteUser .error{font-weight:bold}
+#spaces .box .inviteUser .accepted{font-weight:bold}
 
 /* users list */
-#spaces #users{border-color:#000;border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
-#spaces #users h2{background:#ddd;border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
+#spaces #users{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
+#spaces #users h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
 #spaces #users ul{margin:0;padding:0;position:relative;z-index:2}
 #spaces #users li{display:block;list-style:none}
-#spaces #users button{background:#eee;border-color:#000;border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
+#spaces #users button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
 #spaces #users button span{background:transparent;display:block;height:0;position:absolute;text-shadow:none;width:0;z-index:-10}
-#spaces #users button:hover{background:#fff}
 #spaces #users .active .status-active,
 #spaces #users .idle .status-idle,
 #spaces #users .offline .status-offline{display:inline-block}
@@ -97,27 +88,23 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #users .idle .status-offline,
 #spaces #users .offline .status-active,
 #spaces #users .offline .status-idle{display:none}
-#spaces #users .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
-#spaces #users .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
-#spaces #users .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
-#spaces #users span{background:#000;display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
-#spaces #users #all-shares{background:#def;color:#00c}
-#spaces #users #all-shares:hover{background:#fff}
+#spaces #users span{display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
 #spaces #users #all-shares::before{content:""}
 
 
 /* minimize tray at bottom */
-#spaces #tray{background:#ddd;border-color:#666;border-style:solid none none;border-width:0.1em;bottom:0;display:block;height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
-#spaces #tray li{box-shadow:0.15em 0.15em 0.5em #ccc;display:inline-block;margin:1em 1.5em 0}
+#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
+#spaces #tray li{display:inline-block;margin:1em 1.5em 0}
+#spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
 #spaces #tray .border{border-style:none;padding:0}
 #spaces #tray h2 button{border-style:solid}
 
 /* modal */
-#spaces .box{border-style:none;box-shadow:0.1em 0.1em 1em #999;left:auto;margin:0;padding:0;position:absolute;z-index:10}
+#spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
-#spaces .box p.error{color:#c00;font-size:2em}
-#spaces .box p.summary{color:#33f;font-size:2em;margin:0 2em}
+#spaces .box p.error{font-size:2em}
+#spaces .box p.summary{font-size:2em;margin:0 2em}
 #spaces .box p.summary strong{display:block}
 #spaces .messageList .expansion span,
 #spaces .box .header button span,
@@ -126,67 +113,60 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .buttons button,
 #spaces .box .header button,
 #spaces .box .expansion,
-#spaces .box .footer button{border-radius:0;border-style:solid;box-shadow:0.1em 0.1em 0.25em #ccc;display:inline-block;font-size:2em}
+#spaces .box .footer button{border-radius:0;border-style:solid;display:inline-block;font-size:2em}
 #spaces .box .buttons{font-weight:bold;margin:0;padding:0;position:absolute;right:0.5em;top:1.5em;z-index:7}
 #spaces .box .header button,
 #spaces .box .expansion,
 #spaces .box .buttons button{border-width:0.05em;cursor:pointer;font-size:1.5em;font-weight:bold;height:1.5em;line-height:1;margin:0 1.5em 0 0;padding:0;width:1.5em}
-#spaces .box .buttons button.minimize{background:#fdb;border-color:#930;color:#930}
-#spaces .box .buttons button.maximize{background:#ddf;border-color:#009;color:#009;font-weight:normal}
-#spaces .box .buttons button.close{background:#fdd;border-color:#900;color:#900}
-#spaces .box h2.heading{background:#eee;border-color:#000;border-radius:0;border-style:solid solid none;border-width:0.1em;box-sizing:border-box;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
+#spaces .box .buttons button.maximize{font-weight:normal}
+#spaces .box h2.heading{border-radius:0;border-style:solid solid none;border-width:0.1em;box-sizing:border-box;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
 #spaces .box h2.heading button{background:transparent;border-style:none;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
-#spaces .box .body{background:#fff;border-color:#000;border-style:solid;border-width:0.1em;clear:both;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
-#spaces .box .border{background:#ccc;border-color:#000;border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
-#spaces .box .corner-tl{background:transparent;border-color:#000;border-style:solid;border-width:0 0.1em 0.1em 0;cursor:nw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;top:0;width:2em;z-index:3}
-#spaces .box .corner-tr{background:transparent;border-color:#000;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;top:0;width:2em;z-index:3}
-#spaces .box .corner-bl{background:transparent;border-color:#000;border-style:solid;border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;width:2em;z-index:3}
-#spaces .box .corner-br{background:transparent;border-color:#000;border-style:solid;border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;width:2em;z-index:3}
+#spaces .box .body{border-style:solid;border-width:0.1em;clear:both;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
+#spaces .box .border{border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
+#spaces .box .corner-tl{background:transparent;border-style:solid;border-width:0 0.1em 0.1em 0;cursor:nw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;top:0;width:2em;z-index:3}
+#spaces .box .corner-tr{background:transparent;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;top:0;width:2em;z-index:3}
+#spaces .box .corner-bl{background:transparent;border-style:solid;border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;width:2em;z-index:3}
+#spaces .box .corner-br{background:transparent;border-style:solid;border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;width:2em;z-index:3}
 #spaces .box .side-t{background:transparent;border-style:none;cursor:ns-resize;font-size:1em;left:2em;height:1em;position:absolute;text-indent:-2000em;top:0;z-index:2}
 #spaces .box .side-r{background:transparent;border-style:none;cursor:ew-resize;font-size:1em;right:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
 #spaces .box .side-b{background:transparent;border-style:none;bottom:0;cursor:ns-resize;font-size:1em;left:2em;height:1em;position:absolute;text-indent:-2000em;z-index:2}
 #spaces .box .side-l{background:transparent;border-style:none;cursor:ew-resize;font-size:1em;left:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
-#spaces .box .footer{background:#eee;border-color:#000;border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
+#spaces .box .footer{border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
 #spaces .box .footer .message{float:left;font-size:1.5em}
-#spaces .box .status-bar{border-color:#000;border-style:none solid solid;border-width:0.1em;background:#eee;padding:1em;position:relative;z-index:4}
+#spaces .box .status-bar{border-style:none solid solid;border-width:0.1em;padding:1em;position:relative;z-index:4}
 #spaces .box .status-bar p{font-size:1.5em;height:1.5em;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#spaces .box .header{background:#fff;border-color:#000;border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0 0.5em}
+#spaces .box .header{border-style:solid solid none;border-width:0.1em;clear:both;display:block;margin:0;padding:0 0.5em}
 #spaces .box .header label{display:inline-block}
 #spaces .box .header span{display:block;position:absolute;top:-200em}
-#spaces .box .header .backDirectory{background:#ffa;border-color:#440;color:#440;margin:0.25em 1.5em 0.5em -9em}
-#spaces .box .header .parentDirectory{background:#fdf;border-color:#606;color:#606;margin:0.25em 1.5em 0.5em 0}
-#spaces .box .header .reloadDirectory{background:#dfd;border-color:#050;color:#050;margin:0.25em 1.5em 0.5em 0}
+#spaces .box .header .backDirectory{margin:0.25em 1.5em 0.5em -9em}
+#spaces .box .header .parentDirectory{margin:0.25em 1.5em 0.5em 0}
+#spaces .box .header .reloadDirectory{margin:0.25em 1.5em 0.5em 0}
 #spaces .box .header input{border-style:none;display:inline-block;font-size:1.8em;height:1.9em;margin:-0.125em 0 0 0;padding:0;vertical-align:middle;width:100%}
 #spaces .box .header .fileAddress{width:87.5%}
 #spaces .box .header .fileSearch{width:12.5%}
-#spaces .box .header .fileSearch input{border-color:#000;border-style:none none none solid;border-width:0.06em;margin:0;padding:0 0 0.13em 0.1em}
-#spaces .fileList li input.error,
-#spaces .box .header .error{background:#fdd;color:#900}
+#spaces .box .header .fileSearch input{border-style:none none none solid;border-width:0.06em;margin:0;padding:0 0 0.13em 0.1em}
 #spaces .userList .localhost button.grant-full-access,
-#spaces .box button.cancel{background:#fdd;border-color:#900;color:#900;cursor:pointer}
-#spaces .box button.confirm{background:#dfd;border-color:#060;color:#060;cursor:pointer}
-#spaces .box button.save{background:#ffc;border-color:#990;color:#770;cursor:pointer}
+#spaces .box button.cancel{cursor:pointer}
+#spaces .box button.confirm{cursor:pointer}
+#spaces .box button.save{cursor:pointer}
 #spaces .box .delay{height:100%;width:100%}
-#spaces .box .delay svg{display:block;height:80%;margin:0 auto;stroke:#cdf;width:50%}
+#spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
-#spaces .box .body > textarea{background:#fff;border-style:none;color:#000;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;white-space:pre;width:100%}
-#spaces .box .delete{background:#fdd;border:0.1em solid #900;box-shadow:0.075em 0.075em 0.25em #ccc;color:#900;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 0 0 -2.5em;padding:0.125em;width:1.25em}
+#spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;white-space:pre;width:100%}
+#spaces .box .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 0 0 -2.5em;padding:0.125em;width:1.25em}
 #spaces .box .delete span{display:block;text-indent:-2000em}
-#spaces #dragBox{background:#9cf;border:0.2em solid #69c;display:block;opacity:0.25;position:absolute;z-index:5}
+#spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 
 /* systems modal content */
-#spaces .box .tabs{background:#999;height:5.7em;margin:0;padding:0}
+#spaces .box .tabs{height:5.7em;margin:0;padding:0}
 #spaces .box .tabs li{border-style:none;display:block;margin:0;padding:0}
-#spaces .box .tabs button{background:#ddd;border-color:#000;border-style:solid solid solid none;border-width:0.05em;cursor:pointer;display:block;float:left;font-size:2em;font-weight:bold;list-style:none;margin:0.25em 0 -0.1em 0;padding:0.5em 2%;width:33.3%}
-#spaces .box .tabs button.active{background:#fff;border-style:none solid none none;margin:0 0 -0.1em 0;padding:0.8em 2% 0.55em;text-decoration:underline}
-#spaces .box .tabs .status{color:#00c}
-#spaces .box .tabs .users{color:#060}
-#spaces .box .tabs .errors{color:#c00}
-#spaces .messageList{border-color:#000;border-style:solid none none;border-width:0.1em;display:none;margin:-0.1em 0 0;padding:1em}
+#spaces .box .tabs button{border-style:solid solid solid none;border-width:0.05em;cursor:pointer;display:block;float:left;font-size:2em;font-weight:bold;list-style:none;margin:0.25em 0 -0.1em 0;padding:0.5em 2%;width:33.3%}
+#spaces .box .tabs button.active{border-style:none solid none none;margin:0 0 -0.1em 0;padding:0.8em 2% 0.55em;text-decoration:underline}
+#spaces .messageList{border-style:solid none none;border-width:0.1em;display:none;margin:-0.1em 0 0;padding:1em}
 #spaces .messageList.active{display:block}
-#spaces .messageList li{border-color:#ccc;border-style:none none solid;border-width:0 0 0.05em;font-family:monospace;font-size:1.25em;list-style:none;padding:0.25em 0;white-space:pre}
+#spaces .messageList li{border-style:none none solid;border-width:0 0 0.05em;font-family:monospace;font-size:1.25em;list-style:none;padding:0.25em 0;white-space:pre}
 #spaces .messageList span{display:inline-block;font-weight:bold;margin:0 1em 0 0}
 #spaces .messageList li .expansion{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;margin:0 0.5em 0 0}
 #spaces .messageList li ul{display:none}
@@ -194,45 +174,35 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #system-status,
 #spaces #system-user,
 #spaces #system-errors{clear:both;float:none}
-#spaces #system-errors span{color:#c00}
 #spaces #systems-modal{display:none}
 
 /* share list */
 #spaces .userList{margin:1em;padding:0}
-#spaces .userList li.full-access{background:#eef;border-color:#99c}
-#spaces .userList li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
-#spaces .userList button{background:transparent;border-style:none;color:#00f;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
+#spaces .userList li{border-style:none}
+#spaces .userList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
+#spaces .userList button{background:transparent;border-style:none;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
 #spaces .userList .localhost button{width:75%}
 #spaces .userList .localhost button.delete{width:1.25em}
 #spaces .userList .localhost button.make-read-only,
 #spaces .userList .localhost button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:20%}
-#spaces .userList .localhost button.make-read-only{background:#ffc;border-color:#870;color:#870}
-#spaces .userList .read-only-status{color:#666;float:right;font-weight:normal}
-#spaces .userList .full-access .read-only-status{color:#556;font-weight:bold}
+#spaces .userList .read-only-status{float:right;font-weight:normal}
+#spaces .userList .full-access .read-only-status{font-weight:bold}
 #spaces .userList button:hover{text-decoration:underline}
-#spaces ul.userList li{border-color:#000}
 #spaces .userList .user{margin:0 0 1em}
 #spaces .userList .user::before{content:"👤 "}
-#spaces div.userList li,
-#spaces ul.userList li li{border-color:#ccc}
 
 /* share delete */
 #spaces .sharesDeleteList{padding:0 5em}
 #spaces .sharesDeleteList li{display:block;list-style:none;margin:2em 0 0}
 #spaces .sharesDeleteList input{display:inline-block;margin:0 1em 0 0}
-#spaces .sharesDeleteList label{background:#eee;border:0.05em solid #666;display:block;font-size:2em;padding:0.5em}
+#spaces .sharesDeleteList label{border-style:solid;border-width:0.05em;display:block;font-size:2em;padding:0.5em}
 #spaces .sharesDeleteList label:hover{text-decoration:underline}
-#spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
 #spaces .fileList{margin:0;min-height:100%;padding:0 5em}
 #spaces .fileList label{cursor:text;display:inline-block}
-#spaces .fileList li{border-color:#eee;border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
-#spaces .fileList li ul{border-color:#eee;border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}
-#spaces .fileList li.cut:hover{background:#ddb}
-#spaces .fileList li.selected:hover{background:#cde}
-#spaces .fileList li.selected.cut:hover{background:#ada}
-#spaces .fileList li:hover{background:#eee}
+#spaces .fileList li{border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
+#spaces .fileList li ul{border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}
 #spaces .userList .directory::before,
 #spaces .fileList .directory::before{content: "📂 "}
 #spaces .userList .file::before,
@@ -241,15 +211,15 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList .link::before{content: "🔗 "}
 #spaces .fileList .lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
-#spaces .fileList li.selected{background:#eef8ff;outline:0.2em solid #bcf}
-#spaces .fileList li.selected.cut{background:#cfc;outline:0.2em solid #3f3}
-#spaces .fileList li.cut{background:#ffd;opacity:0.5;outline:0.2em solid #ee0}
+#spaces .fileList li.selected{outline-style:solid;outline-width:0.2em}
+#spaces .fileList li.selected.cut{outline-style:solid;outline-width:0.2em}
+#spaces .fileList li.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 2em 0 0;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
 #spaces .messageList .expansion,
-#spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc;color:#333;font-size:2em;font-weight:normal;height:0.75em;line-height:0.75;margin:0.15em 1.2em 0 -2.1em;padding:0;vertical-align:top;width:0.75em}
-#spaces #file-list-drag{background:#fff;min-height:auto;opacity:0.75;padding:0;position:absolute}
+#spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.75;margin:0.15em 1.2em 0 -2.1em;padding:0;vertical-align:top;width:0.75em}
+#spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 
 #spaces .userInvitation{padding:1em}
 #spaces .userInvitation h3{font-weight:normal;margin:0}

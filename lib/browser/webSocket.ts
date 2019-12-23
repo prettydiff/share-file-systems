@@ -16,7 +16,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
     socket.onopen = function local_socketOpen():void {
         document.getElementById("localhost").setAttribute("class", "active");
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
-        title.style.background = "#ddd";
+        title.removeAttribute("style");
     };
     socket.onmessage = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {

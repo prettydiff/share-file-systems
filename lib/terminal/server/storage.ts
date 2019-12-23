@@ -18,7 +18,6 @@ const library = {
                 vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_renameNode(erName:Error) {
                     if (erName !== null) {
                         library.error([erName.toString()]);
-                        library.log([erName.toString()]);
                         vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
                             if (erUnlink !== null) {
                                 library.error([erUnlink.toString()]);
@@ -58,8 +57,8 @@ const library = {
                     do {
                         if (keys[a] !== "localhost") {
                             httpClient({
-                                callback: function terminal_server_storage_callback(responseBody:Buffer|string):void {
-                                    library.log([<string>responseBody]);
+                                callback: function terminal_server_storage_callback():void {
+                                    return;
                                 },
                                 callbackType: "body",
                                 errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
