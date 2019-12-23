@@ -277,6 +277,7 @@ interface module_share {
     context?: EventHandlerNonNull;
     deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
     deleteToggle?: EventHandlerNonNull;
+    deleteUser?: (box:HTMLElement) => void;
     itemDelete?: EventHandlerNonNull;
     modal?: (event:MouseEvent, user?:string, configuration?:ui_modal) => void;
     readOnly?: EventHandlerNonNull;

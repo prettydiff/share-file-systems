@@ -4,6 +4,7 @@ import invite from "./invite.js";
 import network from "./network.js";
 import systems from "./systems.js";
 import util from "./util.js";
+import share from "./share.js";
 
 const modal:module_modal = {};
 
@@ -71,42 +72,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
     } else if (options.type === "invite-accept") {
         invite.accept(box);
     } else if (options.type === "share_delete") {
-        const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-            list:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("li"),
-            users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
-            names:string[] = [];
-        let a:number = list.length,
-            usersLength:number = users.length,
-            b:number = 3,
-            text:string,
-            length:number;
-        do {
-            a = a - 1;
-            if (list[a].getElementsByTagName("input")[0].checked === true) {
-                text = list[a].lastChild.textContent;
-                names.push(text);
-                list[a].parentNode.removeChild(list[a]);
-                delete browser.users[text];
-            }
-        } while (a > 0);
-        if (names.length < 1) {
-            return;
-        }
-        a = 0;
-        length = names.length;
-        do {
-            b = usersLength;
-            do {
-                b = b - 1;
-                if (users[b].getElementsByTagName("button")[0].getAttribute("data-agent") === names[a]) {
-                    users[b].parentNode.removeChild(users[b]);
-                    break;
-                }
-            } while (b > 3);
-            usersLength = usersLength - 1;
-            a = a + 1;
-        } while (a < length);
-        network.storage("users");
+        share.deleteUser(box);
     }
     modal.close(event);
 };
@@ -134,10 +100,13 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         if (options.single === true) {
             const keys:string[] = Object.keys(browser.data.modals),
                 length:number = keys.length;
-            let a:number = 0;
+            let a:number = 0,
+                modalSingle:HTMLElement;
             do {
                 if (browser.data.modals[keys[a]].type === options.type) {
-                    return document.getElementById(keys[a]);
+                    modalSingle = document.getElementById(keys[a]);
+                    modal.zTop(event, modalSingle);
+                    return modalSingle;
                 }
                 a = a + 1;
             } while (a < length);

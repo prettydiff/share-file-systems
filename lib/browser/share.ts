@@ -278,6 +278,74 @@ share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
     }
 };
 
+/* Terminates one or more users */
+share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
+    const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+        list:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("li"),
+        users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
+        names:string[] = [],
+        modals:string[] = Object.keys(browser.data.modals),
+        modalsLength:number = modals.length;
+    let a:number = list.length,
+        usersLength:number = users.length,
+        b:number = 3,
+        c:number,
+        text:string,
+        length:number,
+        h3:HTMLCollectionOf<HTMLElement>,
+        close:HTMLButtonElement;
+    do {
+        a = a - 1;
+        if (list[a].getElementsByTagName("input")[0].checked === true) {
+            text = list[a].lastChild.textContent;
+            names.push(text);
+            list[a].parentNode.removeChild(list[a]);
+            delete browser.users[text];
+        }
+    } while (a > 0);
+    if (names.length < 1) {
+        return;
+    }
+    a = 0;
+    length = names.length;
+    do {
+        b = usersLength;
+        // loop through user buttons to remove the user
+        do {
+            b = b - 1;
+            if (users[b].getElementsByTagName("button")[0].getAttribute("data-agent") === names[a]) {
+                users[b].parentNode.removeChild(users[b]);
+                break;
+            }
+        } while (b > 3);
+        usersLength = usersLength - 1;
+        // loop through shares modals to remove the deleted user
+        c = 0;
+        do {
+            if (browser.data.modals[modals[c]].type === "shares") {
+                // on the all shares modal simply remove the concerned user
+                if (browser.data.modals[modals[c]].agent === "") {
+                    h3 = document.getElementById(modals[c]).getElementsByTagName("h3");
+                    b = h3.length;
+                    do {
+                        b = b - 1;
+                        if (h3[b].innerHTML.indexOf(names[a]) === 0) {
+                            h3[b].parentNode.parentNode.removeChild(h3[b].parentNode);
+                        }
+                    } while (b > 0);
+                // simply close the deleted user's share modals
+                } else if (browser.data.modals[modals[c]].agent === names[a]) {
+                    close = <HTMLButtonElement>document.getElementById(modals[c]).getElementsByClassName("close")[0];
+                    close.click();
+                }
+            }
+            c = c + 1;
+        } while (c < modalsLength);
+        a = a + 1;
+    } while (a < length);
+    network.storage("users");
+};
+
 /* Delete a localhost share */
 share.itemDelete = function local_share_itemDelete(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,

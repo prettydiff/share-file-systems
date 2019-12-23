@@ -1,8 +1,8 @@
+
 import audio from "./audio.js";
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";
-import modal from "./modal.js";
 import network from "./network.js";
 import share from "./share.js";
 
@@ -66,7 +66,11 @@ util.addUser = function local_util_addUser(user:string):void {
             }
             name = element.lastChild.textContent.replace(/^\s+/, "");
             share.modal(event, name, null);
-        };
+        },
+        modals:string[] = Object.keys(browser.data.modals),
+        length: number = modals.length;
+    let a:number = 0,
+        shareUser:HTMLElement;
     button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${user}`;
     if (name === "localhost") {
         button.setAttribute("class", "active");
@@ -80,6 +84,16 @@ util.addUser = function local_util_addUser(user:string):void {
     document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
     if (name === "localhost") {
         button.setAttribute("id", "localhost");
+    }
+    if (browser.loadTest === false) {
+        do {
+            if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
+                shareUser = document.createElement("li");
+                shareUser.appendChild(share.content(user));
+                document.getElementById(modals[a]).getElementsByClassName("userList")[0].appendChild(shareUser);
+            }
+            a = a + 1;
+        } while (a < length);
     }
     network.storage("users", false);
 };
