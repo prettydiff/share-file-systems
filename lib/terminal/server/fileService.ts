@@ -317,7 +317,9 @@ const library = {
                     writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
                         const fileName:string = <string>fileResponse.headers.file_name,
                             filePath:string = data.name + vars.sep + fileName,
-                            decompress:zlib.BrotliDecompress = vars.node.zlib.createBrotliDecompress(),
+                            decompress:zlib.BrotliDecompress = (fileResponse.headers.compression === "true")
+                                ? vars.node.zlib.createBrotliDecompress()
+                                : null,
                             writeStream:fs.WriteStream = vars.node.fs.createWriteStream(filePath),
                             hash:Hash = vars.node.crypto.createHash("sha512"),
                             fileError = function terminal_server_fileService_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
@@ -329,7 +331,11 @@ const library = {
                                     }
                                 });
                             };
-                        fileResponse.pipe(decompress).pipe(writeStream);
+                        if (fileResponse.headers.compression === "true") {
+                            fileResponse.pipe(decompress).pipe(writeStream);
+                        } else {
+                            fileResponse.pipe(writeStream);
+                        }
                         fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data():void {
                             const filePlural:string = (countFile === 1)
                                     ? ""
@@ -402,13 +408,17 @@ const library = {
                             fileChunks.push(fileChunk);
                         });
                         fileResponse.on("end", function terminal_server_fileServices_requestFiles_fileRequestCallback_end():void {
-                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
-                                if (errDecompress !== null) {
-                                    library.error([errDecompress.toString()]);
-                                    return;
-                                }
-                                responseEnd(file);
-                            });
+                            if (fileResponse.headers.compression === "true") {
+                                vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
+                                    if (errDecompress !== null) {
+                                        library.error([errDecompress.toString()]);
+                                        return;
+                                    }
+                                    responseEnd(file);
+                                });
+                            } else {
+                                responseEnd(Buffer.concat(fileChunks));
+                            }
                         });
                         fileResponse.on("error", function terminal_server_fileServices_requestFiles_fileRequestCallback_error(fileError:nodeError):void {
                             library.error([fileError.toString()]);
@@ -719,15 +729,26 @@ const library = {
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_server_fileService_fileRequest():void {
                 const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]),
-                    compress:zlib.BrotliCompress = vars.node.zlib.createBrotliCompress({
-                        params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: 4}
-                    });
+                    compress:zlib.BrotliCompress = (serverVars.brotli > 0)
+                        ? vars.node.zlib.createBrotliCompress({
+                            params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: serverVars.brotli}
+                        })
+                        : null;
                 response.setHeader("hash", hash.digest("hex"));
                 response.setHeader("file_name", data.remoteWatch);
                 response.setHeader("file_size", data.depth);
                 response.setHeader("cut_path", data.location[0]);
+                if (serverVars.brotli > 0) {
+                    response.setHeader("compression", "true");
+                } else {
+                    response.setHeader("compression", "false");
+                }
                 response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-                readStream.pipe(compress).pipe(response);
+                if (serverVars.brotli > 0) {
+                    readStream.pipe(compress).pipe(response);
+                } else {
+                    readStream.pipe(response);
+                }
             });
             if (data.id.indexOf("fileListStatus:") === 0) {
                 vars.ws.broadcast(data.id);

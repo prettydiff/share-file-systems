@@ -17,6 +17,10 @@ body.dark{scrollbar-color:#444 #111}
 /* file system details modal content, accessed from context menu */
 .dark #spaces .box .fileDetailOutput h3{color:#009}
 
+/* settings modal */
+.dark #spaces .settings button{background:#333;border-color:#666;color:#ccc}
+.dark #spaces .settings .swatch{border-color:#666}
+
 /* Title bar and main menu */
 .dark #spaces .title{background:#333;border-color:#666;box-shadow:0 0.05em 0.5em #002;color:#ccc}
 .dark #spaces #minimize-all,
@@ -48,7 +52,6 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #users span{background:#000;opacity:0.4}
 .dark #spaces #users #all-shares{background:#123;color:#39f}
 .dark #spaces #users #all-shares:hover{background:#246}
-
 
 /* minimize tray at bottom */
 .dark #spaces #tray{background:#333;border-color:#444}

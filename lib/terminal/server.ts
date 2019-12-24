@@ -258,6 +258,7 @@ const library = {
                                         address:string = (serverVars.addresses[0][1][1].indexOf(":") > -1)
                                             ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
                                             : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
+                                    serverVars.brotli = settings.brotli;
                                     serverVars.name = `${settings.name}@${address}`;
                                     if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                         logOutput();

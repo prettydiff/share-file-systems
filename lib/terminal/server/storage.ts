@@ -72,6 +72,10 @@ const library = {
                     } while (a < length);
                 }
                 rename();
+            } else if (task === "settings") {
+                const settings:ui_data = JSON.parse(dataString);
+                serverVars.brotli = settings.brotli;
+                rename();
             } else {
                 rename();
             }

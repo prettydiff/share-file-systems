@@ -2,6 +2,8 @@
 const browser:browser = {
     content: document.getElementById("content-area"),
     data: {
+        brotli: 7,
+        color: "default",
         modals: {},
         modalTypes: [],
         name: "",

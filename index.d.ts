@@ -1,4 +1,6 @@
 
+type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
+type colorScheme = "dark" | "default";
 type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
 type directoryMode = "hash" | "list" | "read" | "search";
 type dragFlag = "" | "control" | "shift";
@@ -8,7 +10,7 @@ type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
 type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "systems" | "textPad";
+type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
@@ -267,10 +269,16 @@ interface module_modal {
     minimize?: EventHandlerNonNull;
     move?: EventHandlerNonNull;
     resize?: EventHandlerNonNull;
-    systems?: EventHandlerNonNull;
     textPad?: textPad;
     textSave?: EventHandlerNonNull;
     zTop?: modalTop;
+}
+interface module_settings {
+    colorScheme?: EventHandlerNonNull;
+    compression?: (event:KeyboardEvent|FocusEvent) => void;
+    compressionToggle?: EventHandlerNonNull;
+    modal?: EventHandlerNonNull;
+    userColor?: EventHandlerNonNull;
 }
 interface module_share {
     content?: (user:string) => HTMLElement;
@@ -287,6 +295,7 @@ interface module_systems {
     close?: EventHandlerNonNull;
     expand?: EventHandlerNonNull;
     message?: (type:string, content:string, timeStore?:string) => void;
+    modal?: EventHandlerNonNull;
     tabs?: EventHandlerNonNull;
 }
 interface module_util {
@@ -381,6 +390,7 @@ interface serverError {
 }
 interface serverVars {
     addresses: [[string, string, string][], number];
+    brotli: brotli;
     name: string;
     socketReceiver: any;
     socketList: any;
@@ -485,6 +495,8 @@ interface textPad extends EventHandlerNonNull {
     (Event, value?:string, title?:string): void;
 }
 interface ui_data {
+    brotli: brotli;
+    color: colorScheme;
     modals: {
         [key:string]: ui_modal;
     };

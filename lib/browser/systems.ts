@@ -1,4 +1,6 @@
+
 import browser from "./browser.js";
+import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
@@ -12,7 +14,8 @@ systems.close = function local_systems_close(event:MouseEvent):void {
     } while (box !== document.documentElement && box.getAttribute("class") !== "box");
     if (box.getAttribute("class") === "box") {
         box.style.display = "none";
-        browser.data.modals["systems-modal"].status = "hidden";
+        // this must remain separated from modal identity as more than one thing users it
+        browser.data.modals[box.getAttribute("id")].status = "hidden";
     }
     network.storage("settings");
 };
@@ -91,6 +94,22 @@ systems.message = function local_systems_message(type:messageType, content:strin
     list.appendChild(li);
     if (JSON.stringify(browser.messages) !== "{\"status\":[],\"users\":[],\"errors\":[]}") {
         network.storage("messages");
+    }
+};
+
+/* Shows the system log modal in the correct visual status */
+systems.modal = function local_systems_modal(event:MouseEvent):void {
+    const systems:HTMLElement = document.getElementById("systems-modal"),
+        data:ui_modal = browser.data.modals["systems-modal"],
+        minimize:HTMLElement = <HTMLElement>systems.getElementsByClassName("minimize")[0];
+    if (<modalStatus>data.status === "minimized") {
+        minimize.click();
+    } else {
+        modal.zTop(event, systems);
+        if (data.status === "hidden") {
+            systems.style.display = "block";
+        }
+        data.status = "normal";
     }
 };
 

@@ -648,7 +648,9 @@ util.minimizeAll = function local_util_minimizeAll(event:MouseEvent) {
         status = browser.data.modals[keys[a]].status;
         if (status === "normal" || status === "maximized") {
             minimize = <HTMLButtonElement>document.getElementById(keys[a]).getElementsByClassName("minimize")[0];
-            minimize.click();
+            if (minimize !== undefined) {
+                minimize.click();
+            }
         }
         a = a + 1;
     } while (a < length);

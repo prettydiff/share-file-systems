@@ -87,7 +87,9 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         height:number = 1;
     const id:string = (options.type === "systems")
             ? "systems-modal"
-            : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
+            : (options.type === "settings")
+                ? "settings-modal"
+                : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
         box:HTMLElement = document.createElement("div"),
         body:HTMLElement = document.createElement("div"),
         border:HTMLElement = document.createElement("div"),
@@ -123,7 +125,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         options.top = 200 + (modalCount * 10);
     }
     if (options.width === undefined) {
-        options.width = 400;
+        options.width = 565;
     }
     if (options.height === undefined) {
         options.height = 400;
@@ -187,7 +189,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 button.innerHTML = "✖ <span>close</span>";
                 button.setAttribute("class", "close");
                 button.setAttribute("title", "Close");
-                if (options.type === "systems") {
+                if (options.type === "systems" || options.type === "settings") {
                     button.onclick = systems.close;
                     if (options.status === "hidden") {
                         box.style.display = "none";
@@ -902,22 +904,6 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
         document.onmousemove = side[direction];
         document.onmousedown = null;
         document.onmouseup = drop;
-    }
-};
-
-/* Shows the system log modal in the correct visual status */
-modal.systems = function local_modal_systems(event:MouseEvent) {
-    const systems:HTMLElement = document.getElementById("systems-modal"),
-        data:ui_modal = browser.data.modals["systems-modal"],
-        minimize:HTMLElement = <HTMLElement>systems.getElementsByClassName("minimize")[0];
-    if (<modalStatus>data.status === "minimized") {
-        minimize.click();
-    } else {
-        modal.zTop(event, systems);
-        if (data.status === "hidden") {
-            systems.style.display = "block";
-        }
-        data.status = "normal";
     }
 };
 

@@ -22,6 +22,10 @@
 /* file system details modal content, accessed from context menu */
 #spaces .box .fileDetailOutput h3{color:#009}
 
+/* settings modal */
+#spaces .settings button{background:#ddd;border-color:#000}
+#spaces .settings .swatch{border-color:#000}
+
 /* Title bar and main menu */
 #spaces .title{background:#ddd;border-color:#666;box-shadow:0 0.05em 0.5em #66c}
 #spaces #minimize-all,
@@ -34,6 +38,7 @@
 #spaces .icon-export{color:#c0f}
 #spaces .icon-invite{color:#090}
 #spaces .icon-delete{color:#c00}
+#spaces .icon-settings{color:#666}
 #spaces #menu{border-color:#000;box-shadow:0.1em 0.1em 0.25em #999}
 #spaces #menu button{background:#ddd;border-color:#000}
 #spaces #menu button:hover{background:#eee;box-shadow:0.1em 0.1em 0.5em #999}
@@ -53,7 +58,6 @@
 #spaces #users span{background:#000}
 #spaces #users #all-shares{background:#def;color:#00c}
 #spaces #users #all-shares:hover{background:#fff}
-
 
 /* minimize tray at bottom */
 #spaces #tray{background:#ddd;border-color:#666}

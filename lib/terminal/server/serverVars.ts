@@ -59,6 +59,7 @@ const socketList:socketList = {},
             }
             return [store, interfaceLongest];
         }()),
+        brotli: 7,
         name: "",
         socketList: socketList,
         socketReceiver: {},

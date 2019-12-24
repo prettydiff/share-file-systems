@@ -5,6 +5,7 @@ import getNodesByType from "./lib/browser/getNodesByType.js";
 import invite from "./lib/browser/invite.js";
 import modal from "./lib/browser/modal.js";
 import network from "./lib/browser/network.js";
+import settings from "./lib/browser/settings.js";
 import share from "./lib/browser/share.js";
 import systems from "./lib/browser/systems.js";
 import util from "./lib/browser/util.js";
@@ -22,45 +23,167 @@ import webSocket from "./lib/browser/webSocket.js";
 
         // system modal that contains logging data
         const systemsBox:HTMLElement = (function local_systems():HTMLElement {
-            const systemsElement:HTMLElement = document.createElement("div");
-            let ul:HTMLElement = document.createElement("ul"),
-                li:HTMLElement = document.createElement("li"),
-                button:HTMLButtonElement = document.createElement("button");
-            ul.setAttribute("class", "tabs");
-            button.innerHTML = "⎔ System";
-            button.setAttribute("class", "status active");
-            button.onclick = systems.tabs;
-            li.appendChild(button);
-            ul.appendChild(li);
-            li = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "⎋ Users";
-            button.setAttribute("class", "users");
-            button.onclick = systems.tabs;
-            li.appendChild(button);
-            ul.appendChild(li);
-            li = document.createElement("li");
-            button = document.createElement("button");
-            button.innerHTML = "⌁ Errors";
-            button.setAttribute("class", "errors");
-            button.onclick = systems.tabs;
-            li.appendChild(button);
-            ul.appendChild(li);
-            systemsElement.appendChild(ul);
-            ul = document.createElement("ul");
-            ul.setAttribute("id", "system-status");
-            ul.setAttribute("class", "messageList active");
-            systemsElement.appendChild(ul);
-            ul = document.createElement("ul");
-            ul.setAttribute("id", "system-users");
-            ul.setAttribute("class", "messageList");
-            systemsElement.appendChild(ul);
-            ul = document.createElement("ul");
-            ul.setAttribute("id", "system-errors");
-            ul.setAttribute("class", "messageList");
-            systemsElement.appendChild(ul);
-            return systemsElement;
-        }());
+                const systemsElement:HTMLElement = document.createElement("div");
+                let ul:HTMLElement = document.createElement("ul"),
+                    li:HTMLElement = document.createElement("li"),
+                    button:HTMLButtonElement = document.createElement("button");
+                ul.setAttribute("class", "tabs");
+                button.innerHTML = "⎔ System";
+                button.setAttribute("class", "status active");
+                button.onclick = systems.tabs;
+                li.appendChild(button);
+                ul.appendChild(li);
+                li = document.createElement("li");
+                button = document.createElement("button");
+                button.innerHTML = "⎋ Users";
+                button.setAttribute("class", "users");
+                button.onclick = systems.tabs;
+                li.appendChild(button);
+                ul.appendChild(li);
+                li = document.createElement("li");
+                button = document.createElement("button");
+                button.innerHTML = "⌁ Errors";
+                button.setAttribute("class", "errors");
+                button.onclick = systems.tabs;
+                li.appendChild(button);
+                ul.appendChild(li);
+                systemsElement.appendChild(ul);
+                ul = document.createElement("ul");
+                ul.setAttribute("id", "system-status");
+                ul.setAttribute("class", "messageList active");
+                systemsElement.appendChild(ul);
+                ul = document.createElement("ul");
+                ul.setAttribute("id", "system-users");
+                ul.setAttribute("class", "messageList");
+                systemsElement.appendChild(ul);
+                ul = document.createElement("ul");
+                ul.setAttribute("id", "system-errors");
+                ul.setAttribute("class", "messageList");
+                systemsElement.appendChild(ul);
+                return systemsElement;
+            }()),
+            settingsBox = function local_settings():HTMLElement {
+                const settingsBody:HTMLElement = document.createElement("div");
+                let section:HTMLElement = document.createElement("div"),
+                    h3:HTMLElement = document.createElement("h3"),
+                    p:HTMLElement = document.createElement("p"),
+                    label:HTMLElement = document.createElement("label"),
+                    input:HTMLInputElement = document.createElement("input"),
+                    button:HTMLElement = document.createElement("button"),
+                    text:Text = document.createTextNode("Compression level. Accepted values are 0 - 11"),
+                    users:string[] = Object.keys(browser.users),
+                    length:number = users.length;
+                settingsBody.setAttribute("class", "settings");
+            
+                // brotli compression
+                section.setAttribute("class", "section");
+                h3.innerHTML = "🗜 Brotli Compression Level";
+                section.appendChild(h3);
+                input.type = "text";
+                input.value = browser.data.brotli.toString();
+                input.onkeyup = settings.compression;
+                input.onblur = settings.compression;
+                label.appendChild(input);
+                label.appendChild(text);
+                p.appendChild(label);
+                section.appendChild(p);
+                button.onclick = settings.compressionToggle;
+                button.innerHTML = "More information ⇣";
+                section.appendChild(button);
+                p = document.createElement("p");
+                p.innerHTML = "In this application compression is applied to applications traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress.  It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.";
+                p.setAttribute("class", "compression-details");
+                p.style.display = "none";
+                section.appendChild(p);
+                settingsBody.appendChild(section);
+            
+                // color scheme
+                section = document.createElement("div");
+                section.setAttribute("class", "section");
+                h3 = document.createElement("h3");
+                p = document.createElement("p");
+                label = document.createElement("label");
+                input = document.createElement("input");
+                label.setAttribute("class", "scheme");
+                h3.innerHTML = "▣ Color Theme";
+                section.appendChild(h3);
+                input.type = "radio";
+                input.checked = true;
+                input.name = "color-scheme";
+                input.value = "default";
+                input.onclick = settings.colorScheme;
+                label.innerHTML = "Default";
+                label.appendChild(input);
+                p.appendChild(label);
+                label = document.createElement("label");
+                input = document.createElement("input");
+                label.setAttribute("class", "scheme");
+                input.type = "radio";
+                input.name = "color-scheme";
+                input.value = "dark";
+                input.onclick = settings.colorScheme;
+                label.innerHTML ="Dark";
+                label.appendChild(input);
+                p.appendChild(label);
+                section.appendChild(p);
+                settingsBody.appendChild(section);
+
+                // user colors
+                if (length > 1) {
+                    const ul:HTMLElement = document.createElement("ul");
+                    let a:number = 0,
+                        li:HTMLElement,
+                        span:HTMLElement;
+                    ul.setAttribute("class", "user-color-list");
+                    section = document.createElement("div");
+                    section .setAttribute("class", "section");
+                    h3 = document.createElement("h3");
+                    h3.innerHTML = "◩ User Color Definitions";
+                    section.appendChild(h3);
+                    do {
+                        if (users[a] !== "localhost") {
+                            li = document.createElement("li");
+                            p = document.createElement("p");
+                            p.innerHTML = users[a];
+                            li.appendChild(p);
+                            label = document.createElement("label");
+                            input = document.createElement("input");
+                            span = document.createElement("span");
+                            span.setAttribute("class", "swatch");
+                            span.style.background = browser.users[users[a]].color[0];
+                            label.appendChild(span);
+                            input.type = "text";
+                            input.value = browser.users[users[a]].color[0];
+                            input.onblur = settings.userColor;
+                            input.onkeyup = settings.userColor;
+                            label.appendChild(input);
+                            text = document.createTextNode("Foreground Color");
+                            label.appendChild(text);
+                            li.appendChild(label);
+                            label = document.createElement("label");
+                            input = document.createElement("input");
+                            span = document.createElement("span");
+                            span.setAttribute("class", "swatch");
+                            span.style.background = browser.users[users[a]].color[1];
+                            label.appendChild(span);
+                            input.type = "text";
+                            input.value = browser.users[users[a]].color[1];
+                            input.onblur = settings.userColor;
+                            input.onkeyup = settings.userColor;
+                            label.appendChild(input);
+                            text = document.createTextNode("Background Color");
+                            label.appendChild(text);
+                            li.appendChild(label);
+                            ul.appendChild(li);
+                        }
+                        a = a + 1;
+                    } while (a < length);
+                    section.append(ul);
+                    settingsBody.appendChild(section);
+                }
+
+                return settingsBody;
+            };
 
         // getNodesByType
         getNodesByType();
@@ -128,16 +251,17 @@ import webSocket from "./lib/browser/webSocket.js";
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
+                    document.getElementById("menuToggle").onclick = util.menu;
                     document.getElementById("all-shares").onclick = share.modal;
+                    document.getElementById("minimize-all").onclick = util.minimizeAll;
+                    document.getElementById("login-input").onkeyup = util.login;
                     document.getElementById("user-delete").onclick = share.deleteList;
                     document.getElementById("user-invite").onclick = invite.start;
-                    document.getElementById("login-input").onkeyup = util.login;
-                    document.getElementById("menuToggle").onclick = util.menu;
-                    document.getElementById("systemLog").onclick = modal.systems;
+                    document.getElementById("systemLog").onclick = systems.modal;
                     document.getElementById("fileNavigator").onclick = fs.navigate;
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
-                    document.getElementById("minimize-all").onclick = util.minimizeAll;
+                    document.getElementById("settings").onclick = settings.modal;
                     network.heartbeat("active", true);
 
                     // watch for local idleness
@@ -154,6 +278,19 @@ import webSocket from "./lib/browser/webSocket.js";
                             title: "",
                             type: "systems",
                             width: 800
+                        });
+                    }
+            
+                    // building settings modal
+                    if (document.getElementById("settings-modal") === null) {
+                        modal.create({
+                            agent: "localhost",
+                            content: settingsBox(),
+                            inputs: ["close"],
+                            read_only: false,
+                            single: true,
+                            title: "",
+                            type: "settings"
                         });
                     }
 
@@ -244,6 +381,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             if (modalKeys.length < 1) {
                                 loadComplete();
                             }
+
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
                                     const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
@@ -370,6 +508,22 @@ import webSocket from "./lib/browser/webSocket.js";
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "invite-request") {
                                     invite.start(null, "", storage.settings.modals[value]);
+                                    z(value);
+                                } else if (storage.settings.modals[value].type === "settings") {
+                                    storage.settings.modals[value].content = settingsBox();
+                                    modal.create(storage.settings.modals[value]);
+                                    if (storage.settings.color !== "default") {
+                                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                            length:number = inputs.length;
+                                        let a:number = 0;
+                                        do {
+                                            if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
+                                                inputs[a].click();
+                                                break;
+                                            }
+                                            a = a + 1;
+                                        } while (a < length);
+                                    }
                                     z(value);
                                 } else {
                                     z(value);
