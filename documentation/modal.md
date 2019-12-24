@@ -87,3 +87,13 @@ type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-ac
 * **share_delete** - The modal that displays when attempting to terminal a relationship with another user/device.
 * **systems** - A systems utility modal that logs various system information, such as errors.
 * **textPad** - A minimal modal where the body area is filled with a textarea HTML element for free type text.
+
+### type modalStatus, The visual state of a modal
+```typescript
+type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
+```
+
+* **hidden** - Some modals dynamically receive updates irrespective of other data states.  In this case the modal must remain available to continue to receive informational updates.  When a user closes such a modal it is isn't removed from the document, but instead visually hidden as though it were removed.  The status *hidden* reflects this hidden pseudo-closed state.
+* **maximized** - A modal that is maximized to fill the entirety of the content area.
+* **minimized** - A modal that is minimized to the bottom tray.  Only the title of this modal is available and everything else is hidden from both visual users and assistive technologies.
+* **normal** - A modal that occupies space in the content area without being maximized or minimized.

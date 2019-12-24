@@ -302,6 +302,7 @@ interface module_util {
     keys?: (event:KeyboardEvent) => void;
     login?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
+    minimizeAll?: EventHandlerNonNull;
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectNone?:(element:HTMLElement) => void;

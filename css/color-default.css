@@ -24,7 +24,9 @@
 
 /* Title bar and main menu */
 #spaces .title{background:#ddd;border-color:#666;box-shadow:0 0.05em 0.5em #66c}
+#spaces #minimize-all,
 #spaces #menuToggle{background:#eee;border-color:#999}
+#spaces #minimize-all:hover,
 #spaces #menuToggle:hover{background:#fff}
 #spaces .icon-fileNavigator{color:#969}
 #spaces .icon-systemLog{color:#09f}

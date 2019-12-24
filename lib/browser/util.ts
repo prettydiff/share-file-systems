@@ -637,6 +637,23 @@ util.menu = function local_util_menu():void {
     document.onmousemove = move;
 };
 
+/* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
+util.minimizeAll = function local_util_minimizeAll(event:MouseEvent) {
+    const keys:string[] = Object.keys(browser.data.modals),
+        length:number = keys.length;
+    let a:number = 0,
+        status:modalStatus,
+        minimize:HTMLButtonElement;
+    do {
+        status = browser.data.modals[keys[a]].status;
+        if (status === "normal" || status === "maximized") {
+            minimize = <HTMLButtonElement>document.getElementById(keys[a]).getElementsByClassName("minimize")[0];
+            minimize.click();
+        }
+        a = a + 1;
+    } while (a < length);
+};
+
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
 util.selectedAddresses = function local_util_selectedAddresses(element:HTMLElement, type:string):[string, string][] {
     const output:[string, string][] = [],

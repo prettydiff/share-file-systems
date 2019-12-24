@@ -137,6 +137,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("fileNavigator").onclick = fs.navigate;
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
+                    document.getElementById("minimize-all").onclick = util.minimizeAll;
                     network.heartbeat("active", true);
 
                     // watch for local idleness

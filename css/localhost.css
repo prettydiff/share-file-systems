@@ -56,8 +56,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title{border-style:none none solid;border-width:0.1em;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
 #spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
-#spaces #menuToggle{border-style:solid;border-width:0.05em;display:inline-block;font-size:2.4em;height:2.1em;margin:0 1em 0 0;padding:0;width:2.1em}
-#spaces #menuToggle span{position:absolute;top:-200em}
+#spaces #minimize-all,
+#spaces #menuToggle{border-style:solid;border-width:0.04em;display:inline-block;font-size:2.4em;height:2.1em;padding:0;width:2.1em}
+#spaces #menuToggle{margin:0 1em 0 0}
+#spaces #menuToggle span,
+#spaces #minimize-all span{display:block;font-size:0.01em;position:absolute;z-index:-10}
 #spaces button{font-family:inherit}
 #spaces #menu{border-style:solid;border-width:0.1em;display:none;left:0;margin:0;padding:0;position:absolute;top:0;z-index:21400000000}
 #spaces #menu li{display:block;padding:0}
@@ -93,12 +96,14 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 
 
 /* minimize tray at bottom */
-#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
+#spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
 #spaces #tray li{display:inline-block;margin:1em 1.5em 0}
 #spaces #tray li h2 button{border-width:0.05em}
 #spaces #tray .box{box-shadow:none;position:static}
+#spaces #tray .box h2.heading{border-style:solid}
 #spaces #tray .border{border-style:none;padding:0}
-#spaces #tray h2 button{border-style:solid}
+#spaces #tray h2 button{border-style:none}
+#spaces #minimize-all{float:right}
 
 /* modal */
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
