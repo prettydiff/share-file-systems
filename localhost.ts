@@ -275,10 +275,12 @@ import webSocket from "./lib/browser/webSocket.js";
                             inputs: ["close", "maximize", "minimize"],
                             read_only: false,
                             single: true,
-                            title: "",
+                            status: "hidden",
+                            title: document.getElementById("systemsLog").innerHTML,
                             type: "systems",
                             width: 800
                         });
+                        document.getElementById("systems-modal").style.display = "none";
                     }
             
                     // building settings modal
@@ -289,9 +291,11 @@ import webSocket from "./lib/browser/webSocket.js";
                             inputs: ["close"],
                             read_only: false,
                             single: true,
-                            title: "",
+                            status: "hidden",
+                            title: document.getElementById("settings").innerHTML,
                             type: "settings"
                         });
+                        document.getElementById("settings-modal").style.display = "none";
                     }
 
                     // systems log messages
