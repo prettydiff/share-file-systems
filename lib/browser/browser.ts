@@ -2,6 +2,7 @@
 const browser:browser = {
     content: document.getElementById("content-area"),
     data: {
+        audio: true,
         brotli: 7,
         color: "default",
         modals: {},

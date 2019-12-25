@@ -5,6 +5,18 @@ import network from "./network.js";
 
 const settings:module_settings = {};
 
+settings.audio = function local_settings_compression(event:MouseEvent):void {
+    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
+    if (element.value === "on") {
+        browser.data.audio = true;
+    } else {
+        browser.data.audio = false;
+    }
+    if (browser.loadTest === false) {
+        network.storage("settings");
+    }
+};
+
 settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
     if (element.value === "default") {
@@ -13,7 +25,9 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
         browser.pageBody.setAttribute("class", element.value);
     }
     browser.data.color = <colorScheme>element.value;
-    network.storage("settings");
+    if (browser.loadTest === false) {
+        network.storage("settings");
+    }
 };
 
 /* Settings compression level */

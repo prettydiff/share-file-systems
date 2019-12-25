@@ -274,6 +274,7 @@ interface module_modal {
     zTop?: modalTop;
 }
 interface module_settings {
+    audio?: EventHandlerNonNull;
     colorScheme?: EventHandlerNonNull;
     compression?: (event:KeyboardEvent|FocusEvent) => void;
     compressionToggle?: EventHandlerNonNull;
@@ -495,6 +496,7 @@ interface textPad extends EventHandlerNonNull {
     (Event, value?:string, title?:string): void;
 }
 interface ui_data {
+    audio: boolean;
     brotli: brotli;
     color: colorScheme;
     modals: {

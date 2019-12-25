@@ -81,6 +81,7 @@ import webSocket from "./lib/browser/webSocket.js";
                 section.appendChild(h3);
                 input.type = "text";
                 input.value = browser.data.brotli.toString();
+                input.name = "brotli";
                 input.onkeyup = settings.compression;
                 input.onblur = settings.compression;
                 label.appendChild(input);
@@ -111,6 +112,7 @@ import webSocket from "./lib/browser/webSocket.js";
                 input.name = "audio";
                 input.value = "on";
                 input.checked = true;
+                input.onclick = settings.audio;
                 text = document.createTextNode("On");
                 label.appendChild(text);
                 label.appendChild(input);
@@ -121,7 +123,7 @@ import webSocket from "./lib/browser/webSocket.js";
                 input.type = "radio";
                 input.name = "audio";
                 input.value = "off";
-                input.setAttribute("id", "audio-off");
+                input.onclick = settings.audio;
                 text = document.createTextNode("Off");
                 label.appendChild(text);
                 label.appendChild(input);
@@ -555,6 +557,31 @@ import webSocket from "./lib/browser/webSocket.js";
                                         do {
                                             if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
                                                 inputs[a].click();
+                                                break;
+                                            }
+                                            a = a + 1;
+                                        } while (a < length);
+                                    }
+                                    if (storage.settings.audio === false) {
+                                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                            length:number = inputs.length;
+                                        let a:number = 0;
+                                        do {
+                                            if (inputs[a].name === "audio" && inputs[a].value === "off") {
+                                                inputs[a].click();
+                                                break;
+                                            }
+                                            a = a + 1;
+                                        } while (a < length);
+                                    }
+                                    if (storage.settings.brotli !== browser.data.brotli) {
+                                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                            length:number = inputs.length;
+                                        let a:number = 0;
+                                        browser.data.brotli = storage.settings.brotli;
+                                        do {
+                                            if (inputs[a].name === "brotli") {
+                                                inputs[a].value = storage.settings.brotli.toString();
                                                 break;
                                             }
                                             a = a + 1;
