@@ -9,7 +9,7 @@ import util from "./util.js";
 const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
     close = function local_socketClose():void {
-        title.style.background = "#ff6";
+        title.setAttribute("class", "title offline");
         title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
         document.getElementById("localhost").setAttribute("class", "offline");
     },
@@ -173,7 +173,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
     open = function local_socketOpen():void {
         document.getElementById("localhost").setAttribute("class", "active");
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
-        title.removeAttribute("style");
+        title.setAttribute("class", "title");
     },
     webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = (browser.localNetwork.family === "ipv4")

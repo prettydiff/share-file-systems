@@ -23,6 +23,7 @@ body.dark{scrollbar-color:#444 #111}
 
 /* Title bar and main menu */
 .dark #spaces .title{background:#333;border-color:#666;box-shadow:0 0.05em 0.5em #002;color:#ccc}
+#spaces .title.offline{background:#ff6;color:#000}
 .dark #spaces #minimize-all,
 .dark #spaces #menuToggle{background:#222;border-color:#666;color:#ccc}
 .dark #spaces #minimize-all:hover,
