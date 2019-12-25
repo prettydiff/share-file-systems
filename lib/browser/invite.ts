@@ -36,29 +36,28 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
 
 /* Handler for declining an invitation request */
 invite.decline = function local_invite_decline(event:MouseEvent):void {
-    modal.closeDecline(event, function local_invite_decline_action():void {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            boxLocal:HTMLElement = (function local_invite_decline_action_box():HTMLElement {
-                let el:HTMLElement = element;
-                do {
-                    el = <HTMLElement>el.parentNode;
-                } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-                return el;
-            }()),
-            para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
-            dataString:string = para[para.length - 1].innerHTML,
-            invite:invite = JSON.parse(dataString);
-        network.inviteAccept({
-            action: "invite-response",
-            message: `Invite declined: ${util.dateFormat(new Date())}`,
-            name: browser.data.name,
-            ip: invite.ip,
-            modal: invite.modal,
-            port: invite.port,
-            shares: browser.users.localhost.shares,
-            status: "declined"
-        });
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        boxLocal:HTMLElement = (function local_invite_decline_action_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
+        dataString:string = para[para.length - 1].innerHTML,
+        invite:invite = JSON.parse(dataString);
+    network.inviteAccept({
+        action: "invite-response",
+        message: `Invite declined: ${util.dateFormat(new Date())}`,
+        name: browser.data.name,
+        ip: invite.ip,
+        modal: invite.modal,
+        port: invite.port,
+        shares: browser.users.localhost.shares,
+        status: "declined"
     });
+    modal.close(event);  
 };
 
 /*  */

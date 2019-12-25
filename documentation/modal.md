@@ -29,6 +29,7 @@ interface ui_modal {
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;
     text_value?: string;
+    time?: number;
     title: string;
     top?: number;
     type: modalType;
@@ -53,6 +54,7 @@ interface ui_modal {
 * **text_event** - The event to execute on the *keyup* event of input type *text*.
 * **text_placeholder** - The default place holder text that is to appear in input type *text*.
 * **text_value** - A default or stored value that should be populated in input type *text*, if present.
+* **time** - A numeric value representing milliseconds since Unix epoch 1 JAN 1970 as based upon local device clock. This is optionally supplied in case timed events or periodic delays are necessary.
 * **title** - The text will populate the modal's title bar.
 * **top** - The vertical placement of the modal as measured by the modal's top edge offset from the content area's top in pixels.
 * **type** - The types of modals available.  See the section below on *type modalType*.

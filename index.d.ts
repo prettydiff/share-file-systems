@@ -260,7 +260,6 @@ interface module_invite {
 }
 interface module_modal {
     close?: EventHandlerNonNull;
-    closeDecline?: (event:MouseEvent, action:Function) => void;
     confirm?: EventHandlerNonNull;
     create?: (options:ui_modal) => HTMLElement;
     export?: EventHandlerNonNull;
@@ -271,6 +270,7 @@ interface module_modal {
     resize?: EventHandlerNonNull;
     textPad?: textPad;
     textSave?: EventHandlerNonNull;
+    textTimer?: EventHandlerNonNull;
     zTop?: modalTop;
 }
 interface module_settings {
@@ -522,6 +522,7 @@ interface ui_modal {
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;
     text_value?: string;
+    timer?: number;
     title: string;
     top?: number;
     type: modalType;

@@ -44,12 +44,6 @@ modal.close = function local_modal_close(event:MouseEvent):void {
     network.storage("settings");
 };
 
-/* Sends a network signal on modal close */
-modal.closeDecline = function local_modal_closeDecline(event:MouseEvent, action:Function):void {
-    action();
-    modal.close(event);
-};
-
 /* Event handler for the modal's "Confirm" button */
 modal.confirm = function local_modal_confirm(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -917,6 +911,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         agency:[string, boolean] = (element === document.getElementById("textPad"))
             ? ["localhost", false]
             : util.getAgent(element);
+    let box:HTMLElement;
     if (typeof value === "string") {
         textArea.value = value;
     }
@@ -924,7 +919,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
     if (titleText.indexOf("Base64 - ") === 0) {
         textArea.style.whiteSpace = "normal";
     }
-    modal.create({
+    box = modal.create({
         agent: agency[0],
         content: textArea,
         inputs: ["close", "maximize", "minimize"],
@@ -933,21 +928,50 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         type: "textPad",
         width: 800
     });
+    box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
 };
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */
 modal.textSave = function local_modal_textSave(event:MouseEvent):void {
-    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target;
-    let box:HTMLElement = element;
-        do {
-            box = <HTMLElement>box.parentNode;
-        } while (box !== document.documentElement && box.getAttribute("class") !== "box");
-    browser.data.modals[box.getAttribute("id")].text_value = element.value;
+    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
+        box:HTMLElement = (function local_modal_textTimer_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        data:ui_modal = browser.data.modals[box.getAttribute("id")];
+    if (data.timer !== undefined) {
+        window.clearTimeout(data.timer);
+    }
+    data.text_value = element.value;
     network.storage("settings");
 };
 
+/* An idle delay is a good time to save written notes */
+modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
+    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
+        box:HTMLElement = (function local_modal_textTimer_box():HTMLElement {
+            let el:HTMLElement = element;
+            do {
+                el = <HTMLElement>el.parentNode;
+            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+            return el;
+        }()),
+        data:ui_modal = browser.data.modals[box.getAttribute("id")];
+    if (data.timer !== undefined) {
+        window.clearTimeout(data.timer);
+    }
+    data.timer = window.setTimeout(function local_modal_textTimer_delay() {
+        window.clearTimeout(data.timer);
+        data.text_value = element.value;
+        network.storage("settings");
+    }, 15000);
+}
+
 /* Manages z-index of modals and moves a modal to the top on interaction */
-modal.zTop     = function local_modal_zTop(event:MouseEvent, elementInput?:HTMLElement):void {
+modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:HTMLElement):void {
     const element:HTMLElement = (elementInput === undefined)
             ? <HTMLElement>event.srcElement || <HTMLElement>event.target
             : elementInput,
