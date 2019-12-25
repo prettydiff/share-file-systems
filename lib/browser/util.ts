@@ -104,8 +104,12 @@ util.audio = function local_util_audio(name:string):void {
         source:AudioBufferSourceNode  = context.createBufferSource(),
         buff:ArrayBuffer   = new ArrayBuffer(binary.length),
         bytes:Uint8Array   = new Uint8Array(buff),
-        byteLength:number = buff.byteLength;
+        byteLength:number = buff.byteLength,
+        audioOff:HTMLInputElement = <HTMLInputElement>document.getElementById("audio-off");
     let a:number       = 0;
+    if (audioOff.checked === true) {
+        return;
+    }
     do {
         bytes[a] = binary.charCodeAt(a);
         a = a + 1;

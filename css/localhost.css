@@ -183,11 +183,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* settings modal content */
 #spaces .settings {padding:1em}
 #spaces .settings h3{margin:0}
-#spaces .section{border-style:none none solid;border-width:0.1em;margin:0 0 1em}
+#spaces .section{border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 1em}
 #spaces .settings .compression-details,
 #spaces .settings .user-color-list p,
 #spaces .settings label{font-size:1.6em}
-#spaces .scheme{display:inline-block;width:10em}
+#spaces .settings .radio{display:inline-block;width:10em}
 #spaces .settings input[type="text"]{display:inline-block;margin:0 1em 0 0;width:2em}
 #spaces .settings button{border-style:solid;border-width:0.05em;cursor:pointer;margin:0 0 0.5em;width:15em}
 #spaces .settings .user-color-list label{display:block;margin:0 0 0.5em}
