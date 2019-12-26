@@ -2,6 +2,7 @@
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import share from "./share.js";
 import util from "./util.js";
 
 const invite:module_invite = {};
@@ -31,7 +32,7 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
         color: ["", ""],
         shares: invite.shares
     };
-    util.addUser(user);
+    share.addUser(user);
 };
 
 /* Handler for declining an invitation request */
@@ -60,7 +61,23 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
     modal.close(event);  
 };
 
-/*  */
+/* Basic form validation on the port field */
+invite.port = function local_invite_port(event:KeyboardEvent):void {
+    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        value:string = element.value.replace(/\s+/g, ""),
+        numb:number = Number(value);
+    if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
+        if (value !== "" && (isNaN(numb) === true || numb < 1024 || numb > 65535)) {
+            element.style.color = "#f00";
+            element.style.borderColor = "#f00";
+            element.focus();
+        } else {
+            element.removeAttribute("style");
+        }
+    }
+};
+
+/* Send the invite request to the network */
 invite.request = function local_invite_request(options:ui_modal):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         box:HTMLElement = (function local_modal_confirm_box():HTMLElement {
@@ -168,7 +185,7 @@ invite.respond = function local_invite_respond(message:string):void {
                     color:["", ""],
                     shares: invite.shares
                 }
-                util.addUser(user);
+                share.addUser(user);
             }
         } else {
             const error:HTMLElement = <HTMLElement>modal.getElementsByClassName("error")[0],
@@ -189,7 +206,7 @@ invite.respond = function local_invite_respond(message:string):void {
                             shares: invite.shares
                         }
                         util.audio("invite");
-                        util.addUser(user);
+                        share.addUser(user);
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");
@@ -211,7 +228,7 @@ invite.respond = function local_invite_respond(message:string):void {
 
 /* Invite users to your shared space */
 invite.start = function local_invite_start(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
-    const invite:HTMLElement = document.createElement("div"),
+    const inviteElement:HTMLElement = document.createElement("div"),
         separator:string = "|spaces|",
         blur = function local_invite_start_blur(event:FocusEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -225,6 +242,7 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
+            invite.port(event);
             browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
             network.storage("settings");
         };
@@ -250,20 +268,21 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     input.onblur = blur;
     label.appendChild(input);
     p.appendChild(label);
-    invite.appendChild(p);
+    inviteElement.appendChild(p);
     p = document.createElement("p");
     label = document.createElement("label");
     input = document.createElement("input");
     label.innerHTML = "Port";
     input.setAttribute("type", "text");
     input.placeholder = "Number 1024-65535";
+    input.onkeyup = invite.port;
     if (values.length > 0) {
         input.value = values[1];
     }
     input.onblur = blur;
     label.appendChild(input);
     p.appendChild(label);
-    invite.appendChild(p);
+    inviteElement.appendChild(p);
     p = document.createElement("p");
     label = document.createElement("label");
     label.innerHTML = "Invitation Message";
@@ -273,19 +292,19 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     text.onblur = blur;
     label.appendChild(text);
     p.appendChild(label);
-    invite.appendChild(p);
-    invite.setAttribute("class", "inviteUser");
+    inviteElement.appendChild(p);
+    inviteElement.setAttribute("class", "inviteUser");
     if (settings === undefined) {
         modal.create({
             agent: "localhost",
-            content: invite,
+            content: inviteElement,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             read_only: false,
             title: "<span class=\"icon-invite\">❤</span> Invite User",
             type: "invite-request"
         });
     } else {
-        settings.content = invite;
+        settings.content = inviteElement;
         modal.create(settings);
     }
 };

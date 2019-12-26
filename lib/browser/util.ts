@@ -9,103 +9,13 @@ import share from "./share.js";
 const util:module_util = {},
     expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
-/* Adds users to the user bar */
-util.addUser = function local_util_addUser(user:string):void {
-    const li:HTMLLIElement = document.createElement("li"),
-        button:HTMLElement = document.createElement("button"),
-        name:string = (user.lastIndexOf("@localhost") === user.length - "@localhost".length)
-            ? "localhost"
-            : user,
-        addStyle = function local_util_addUser_addStyle() {
-            let body:string,
-                heading:string;
-            const prefix:string = `#spaces .box[data-agent="${user}"] `,
-                generateColor = function local_util_addUser_addStyle_generateColor():void {
-                    const rand:[number, number, number] = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)],
-                        code1:string[] = ["#"],
-                        code2:string[] = ["#"];
-                    rand.forEach(function local_util_addUser_addStyle_generateColor_each(value:number) {
-                        if (value < 4) {
-                            code1.push("d");
-                            code2.push("c");
-                        } else if (value < 7) {
-                            code1.push("e");
-                            code2.push("d");
-                        } else {
-                            code1.push("f");
-                            code2.push("e");
-                        }
-                    });
-                    body = code1.join("");
-                    heading = code2.join("");
-                };
-            if (browser.users[user].color[0] === "") {
-                generateColor();
-                if (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3)) {
-                    do {
-                        generateColor();
-                    } while (body.charAt(1) === body.charAt(2) && body.charAt(2) === body.charAt(3));
-                }
-                browser.users[user].color = [body, heading];
-            } else {
-                body = browser.users[user].color[0];
-                heading = browser.users[user].color[1];
-            }
-            browser.style.innerHTML = browser.style.innerHTML + [
-                `#spaces #users button[data-agent="${user}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
-                `${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${body}}`
-            ].join("");
-        },
-        sharesModal = function local_util_addUser_sharesModal(event:MouseEvent) {
-            let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                name:string;
-            if (element.nodeName.toLowerCase() !== "button") {
-                do {
-                    element = <HTMLElement>element.parentNode;
-                } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
-            }
-            name = element.lastChild.textContent.replace(/^\s+/, "");
-            share.modal(event, name, null);
-        },
-        modals:string[] = Object.keys(browser.data.modals),
-        length: number = modals.length;
-    let a:number = 0,
-        shareUser:HTMLElement;
-    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${user}`;
-    if (name === "localhost") {
-        button.setAttribute("class", "active");
-    } else {
-        button.setAttribute("class", "offline");
-        button.setAttribute("data-agent", user);
-        addStyle();
-    }
-    button.onclick = sharesModal;
-    li.appendChild(button);
-    document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
-    if (name === "localhost") {
-        button.setAttribute("id", "localhost");
-    }
-    if (browser.loadTest === false) {
-        do {
-            if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
-                shareUser = document.createElement("li");
-                shareUser.appendChild(share.content(user));
-                document.getElementById(modals[a]).getElementsByClassName("userList")[0].appendChild(shareUser);
-            }
-            a = a + 1;
-        } while (a < length);
-    }
-    network.storage("users", false);
-};
-
 util.audio = function local_util_audio(name:string):void {
     const context:AudioContext = new AudioContext(),
         binary:BinaryType = <BinaryType>window.atob(audio[name].data),
         source:AudioBufferSourceNode  = context.createBufferSource(),
         buff:ArrayBuffer   = new ArrayBuffer(binary.length),
         bytes:Uint8Array   = new Uint8Array(buff),
-        byteLength:number = buff.byteLength,
-        audioOff:HTMLInputElement = <HTMLInputElement>document.getElementById("audio-off");
+        byteLength:number = buff.byteLength;
     let a:number       = 0;
     if (browser.data.audio === false) {
         return;

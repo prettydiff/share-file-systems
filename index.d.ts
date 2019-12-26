@@ -62,6 +62,9 @@ interface clipboard {
     id   : string;
     type : string;
 }
+interface colorDefaults {
+    [key:string]: [string, string];
+}
 interface commandList {
     [key:string]: {
         description: string;
@@ -254,6 +257,7 @@ interface module_fs {
 interface module_invite {
     accept?: (box:HTMLElement) => void;
     decline?: EventHandlerNonNull;
+    port?: EventHandlerNonNull;
     request?: (options:ui_modal) => void;
     respond?: (message:string) => void;
     start?: modalSettings;
@@ -274,14 +278,19 @@ interface module_modal {
     zTop?: modalTop;
 }
 interface module_settings {
+    addUserColor?: (user:string, settingsBody:HTMLElement) => void;
+    applyUserColors?: (user:string, colors:[string, string]) => void;
     audio?: EventHandlerNonNull;
+    colorDefaults?: colorDefaults;
     colorScheme?: EventHandlerNonNull;
     compression?: (event:KeyboardEvent|FocusEvent) => void;
     compressionToggle?: EventHandlerNonNull;
     modal?: EventHandlerNonNull;
+    modalContent?: () => HTMLElement;
     userColor?: EventHandlerNonNull;
 }
 interface module_share {
+    addUser?: (username:string) => void;
     content?: (user:string) => HTMLElement;
     context?: EventHandlerNonNull;
     deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
@@ -297,10 +306,10 @@ interface module_systems {
     expand?: EventHandlerNonNull;
     message?: (type:string, content:string, timeStore?:string) => void;
     modal?: EventHandlerNonNull;
+    modalContent?: () => HTMLElement;
     tabs?: EventHandlerNonNull;
 }
 interface module_util {
-    addUser?: (username:string) => void;
     audio?: (name:string) => void;
     dateFormat?: (date:Date) => string;
     delay?: () => HTMLElement;

@@ -4,9 +4,77 @@ import context from "./context.js";
 import fs from "./fs.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import settings from "./settings.js";
 import util from "./util.js";
 
 const share:module_share = {};
+
+/* Adds users to the user bar */
+share.addUser = function local_share_addUser(user:string):void {
+    const li:HTMLLIElement = document.createElement("li"),
+        button:HTMLElement = document.createElement("button"),
+        name:string = (user.lastIndexOf("@localhost") === user.length - "@localhost".length)
+            ? "localhost"
+            : user,
+        addStyle = function local_share_addUser_addStyle() {
+            let body:string,
+                heading:string;
+            const prefix:string = `#spaces .box[data-agent="${user}"] `;
+            if (browser.users[user].color[0] === "") {
+                body = browser.users.localhost.color[0];
+                heading = browser.users.localhost.color[1];
+                browser.users[user].color = [body, heading];
+            } else {
+                body = browser.users[user].color[0];
+                heading = browser.users[user].color[1];
+            }
+            browser.style.innerHTML = browser.style.innerHTML + [
+                `#spaces #users button[data-agent="${user}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:${heading}}`,
+                `${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${body}}`
+            ].join("");
+        },
+        sharesModal = function local_share_addUser_sharesModal(event:MouseEvent) {
+            let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                name:string;
+            if (element.nodeName.toLowerCase() !== "button") {
+                do {
+                    element = <HTMLElement>element.parentNode;
+                } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
+            }
+            name = element.lastChild.textContent.replace(/^\s+/, "");
+            share.modal(event, name, null);
+        },
+        modals:string[] = Object.keys(browser.data.modals),
+        length: number = modals.length;
+    let a:number = 0,
+        shareUser:HTMLElement;
+    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${user}`;
+    if (name === "localhost") {
+        button.setAttribute("class", "active");
+    } else {
+        button.setAttribute("class", "offline");
+        button.setAttribute("data-agent", user);
+        addStyle();
+    }
+    button.onclick = sharesModal;
+    li.appendChild(button);
+    document.getElementById("users").getElementsByTagName("ul")[0].appendChild(li);
+    if (name === "localhost") {
+        button.setAttribute("id", "localhost");
+    }
+    if (browser.loadTest === false) {
+        settings.addUserColor(user, <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
+        do {
+            if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
+                shareUser = document.createElement("li");
+                shareUser.appendChild(share.content(user));
+                document.getElementById(modals[a]).getElementsByClassName("userList")[0].appendChild(shareUser);
+            }
+            a = a + 1;
+        } while (a < length);
+        network.storage("users", false);
+    }
+};
 
 /* Generate the content of a share modal */
 share.content = function local_share_content(user:string):HTMLElement {
@@ -285,7 +353,8 @@ share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
         names:string[] = [],
         modals:string[] = Object.keys(browser.data.modals),
-        modalsLength:number = modals.length;
+        modalsLength:number = modals.length,
+        userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0].getElementsByTagName("li");
     let a:number = list.length,
         usersLength:number = users.length,
         b:number = 3,
@@ -293,7 +362,8 @@ share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
         text:string,
         length:number,
         h3:HTMLCollectionOf<HTMLElement>,
-        close:HTMLButtonElement;
+        close:HTMLButtonElement,
+        colorLength:number = userColors.length;
     do {
         a = a - 1;
         if (list[a].getElementsByTagName("input")[0].checked === true) {
@@ -319,6 +389,7 @@ share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
             }
         } while (b > 3);
         usersLength = usersLength - 1;
+
         // loop through shares modals to remove the deleted user
         c = 0;
         do {
@@ -341,6 +412,16 @@ share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
             }
             c = c + 1;
         } while (c < modalsLength);
+        
+        // loop through user colors
+        c = 0;
+        do {
+            if (userColors[c].getElementsByTagName("p")[0].innerHTML === names[a]) {
+                userColors[c].parentNode.removeChild(userColors[c]);
+            }
+            c = c + 1;
+        } while (c < colorLength);
+        colorLength = colorLength - 1;
         a = a + 1;
     } while (a < length);
     network.storage("users");

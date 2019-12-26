@@ -113,6 +113,48 @@ systems.modal = function local_systems_modal(event:MouseEvent):void {
     }
 };
 
+/* Content of the systems log modal */
+systems.modalContent = function local_systems_modalContent():HTMLElement {
+    const systemsElement:HTMLElement = document.createElement("div");
+    let ul:HTMLElement = document.createElement("ul"),
+        li:HTMLElement = document.createElement("li"),
+        button:HTMLButtonElement = document.createElement("button");
+    ul.setAttribute("class", "tabs");
+    button.innerHTML = "⎔ System";
+    button.setAttribute("class", "status active");
+    button.onclick = systems.tabs;
+    li.appendChild(button);
+    ul.appendChild(li);
+    li = document.createElement("li");
+    button = document.createElement("button");
+    button.innerHTML = "⎋ Users";
+    button.setAttribute("class", "users");
+    button.onclick = systems.tabs;
+    li.appendChild(button);
+    ul.appendChild(li);
+    li = document.createElement("li");
+    button = document.createElement("button");
+    button.innerHTML = "⌁ Errors";
+    button.setAttribute("class", "errors");
+    button.onclick = systems.tabs;
+    li.appendChild(button);
+    ul.appendChild(li);
+    systemsElement.appendChild(ul);
+    ul = document.createElement("ul");
+    ul.setAttribute("id", "system-status");
+    ul.setAttribute("class", "messageList active");
+    systemsElement.appendChild(ul);
+    ul = document.createElement("ul");
+    ul.setAttribute("id", "system-users");
+    ul.setAttribute("class", "messageList");
+    systemsElement.appendChild(ul);
+    ul = document.createElement("ul");
+    ul.setAttribute("id", "system-errors");
+    ul.setAttribute("class", "messageList");
+    systemsElement.appendChild(ul);
+    return systemsElement;
+};
+
 /* Toggles tabs in the systems log modal */
 systems.tabs = function local_systems_tabs(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,

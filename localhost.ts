@@ -21,204 +21,6 @@ import webSocket from "./lib/browser/webSocket.js";
     /* Restore state and assign events */
     (function local_load():void {
 
-        // system modal that contains logging data
-        const systemsBox:HTMLElement = (function local_systems():HTMLElement {
-                const systemsElement:HTMLElement = document.createElement("div");
-                let ul:HTMLElement = document.createElement("ul"),
-                    li:HTMLElement = document.createElement("li"),
-                    button:HTMLButtonElement = document.createElement("button");
-                ul.setAttribute("class", "tabs");
-                button.innerHTML = "⎔ System";
-                button.setAttribute("class", "status active");
-                button.onclick = systems.tabs;
-                li.appendChild(button);
-                ul.appendChild(li);
-                li = document.createElement("li");
-                button = document.createElement("button");
-                button.innerHTML = "⎋ Users";
-                button.setAttribute("class", "users");
-                button.onclick = systems.tabs;
-                li.appendChild(button);
-                ul.appendChild(li);
-                li = document.createElement("li");
-                button = document.createElement("button");
-                button.innerHTML = "⌁ Errors";
-                button.setAttribute("class", "errors");
-                button.onclick = systems.tabs;
-                li.appendChild(button);
-                ul.appendChild(li);
-                systemsElement.appendChild(ul);
-                ul = document.createElement("ul");
-                ul.setAttribute("id", "system-status");
-                ul.setAttribute("class", "messageList active");
-                systemsElement.appendChild(ul);
-                ul = document.createElement("ul");
-                ul.setAttribute("id", "system-users");
-                ul.setAttribute("class", "messageList");
-                systemsElement.appendChild(ul);
-                ul = document.createElement("ul");
-                ul.setAttribute("id", "system-errors");
-                ul.setAttribute("class", "messageList");
-                systemsElement.appendChild(ul);
-                return systemsElement;
-            }()),
-            settingsBox = function local_settings():HTMLElement {
-                const settingsBody:HTMLElement = document.createElement("div");
-                let section:HTMLElement = document.createElement("div"),
-                    h3:HTMLElement = document.createElement("h3"),
-                    p:HTMLElement = document.createElement("p"),
-                    label:HTMLElement = document.createElement("label"),
-                    input:HTMLInputElement = document.createElement("input"),
-                    button:HTMLElement = document.createElement("button"),
-                    text:Text = document.createTextNode("Compression level. Accepted values are 0 - 11"),
-                    users:string[] = Object.keys(browser.users),
-                    length:number = users.length;
-                settingsBody.setAttribute("class", "settings");
-            
-                // brotli compression
-                section.setAttribute("class", "section");
-                h3.innerHTML = "🗜 Brotli Compression Level";
-                section.appendChild(h3);
-                input.type = "text";
-                input.value = browser.data.brotli.toString();
-                input.name = "brotli";
-                input.onkeyup = settings.compression;
-                input.onblur = settings.compression;
-                label.appendChild(input);
-                label.appendChild(text);
-                p.appendChild(label);
-                section.appendChild(p);
-                button.onclick = settings.compressionToggle;
-                button.innerHTML = "More information ⇣";
-                section.appendChild(button);
-                p = document.createElement("p");
-                p.innerHTML = "In this application compression is applied to file system artifacts traveling from one device to another across a network. There is substantial CPU overhead in decompressing files. The ideal case for applying compression is extremely large files that take longer to transfer than the decompress. It is advised to disable compression if on a very fast local network or transferring many small files. Compression can be disabled by setting the value to 0.";
-                p.setAttribute("class", "compression-details");
-                p.style.display = "none";
-                section.appendChild(p);
-                settingsBody.appendChild(section);
-
-                // audio
-                section  =  document.createElement("div");
-                section.setAttribute("class", "section");
-                h3 = document.createElement("h3");
-                section.appendChild(h3);
-                p = document.createElement("p");
-                h3.innerHTML = "🔊 Allow Audio";
-                label = document.createElement("label");
-                input = document.createElement("input");
-                label.setAttribute("class", "radio");
-                input.type = "radio";
-                input.name = "audio";
-                input.value = "on";
-                input.checked = true;
-                input.onclick = settings.audio;
-                text = document.createTextNode("On");
-                label.appendChild(text);
-                label.appendChild(input);
-                p.appendChild(label);
-                label = document.createElement("label");
-                input = document.createElement("input");
-                label.setAttribute("class", "radio");
-                input.type = "radio";
-                input.name = "audio";
-                input.value = "off";
-                input.onclick = settings.audio;
-                text = document.createTextNode("Off");
-                label.appendChild(text);
-                label.appendChild(input);
-                p.appendChild(label);
-                section.appendChild(p);
-                settingsBody.appendChild(section);
-            
-                // color scheme
-                section = document.createElement("div");
-                section.setAttribute("class", "section");
-                h3 = document.createElement("h3");
-                p = document.createElement("p");
-                label = document.createElement("label");
-                input = document.createElement("input");
-                label.setAttribute("class", "radio");
-                h3.innerHTML = "▣ Color Theme";
-                section.appendChild(h3);
-                input.type = "radio";
-                input.checked = true;
-                input.name = "color-scheme";
-                input.value = "default";
-                input.onclick = settings.colorScheme;
-                label.innerHTML = "Default";
-                label.appendChild(input);
-                p.appendChild(label);
-                label = document.createElement("label");
-                input = document.createElement("input");
-                label.setAttribute("class", "radio");
-                input.type = "radio";
-                input.name = "color-scheme";
-                input.value = "dark";
-                input.onclick = settings.colorScheme;
-                label.innerHTML ="Dark";
-                label.appendChild(input);
-                p.appendChild(label);
-                section.appendChild(p);
-                settingsBody.appendChild(section);
-
-                // user colors
-                if (length > 1) {
-                    const ul:HTMLElement = document.createElement("ul");
-                    let a:number = 0,
-                        li:HTMLElement,
-                        span:HTMLElement;
-                    ul.setAttribute("class", "user-color-list");
-                    section = document.createElement("div");
-                    section .setAttribute("class", "section");
-                    h3 = document.createElement("h3");
-                    h3.innerHTML = "◩ User Color Definitions";
-                    section.appendChild(h3);
-                    do {
-                        if (users[a] !== "localhost") {
-                            li = document.createElement("li");
-                            p = document.createElement("p");
-                            p.innerHTML = users[a];
-                            li.appendChild(p);
-                            label = document.createElement("label");
-                            input = document.createElement("input");
-                            span = document.createElement("span");
-                            span.setAttribute("class", "swatch");
-                            span.style.background = browser.users[users[a]].color[0];
-                            label.appendChild(span);
-                            input.type = "text";
-                            input.value = browser.users[users[a]].color[0];
-                            input.onblur = settings.userColor;
-                            input.onkeyup = settings.userColor;
-                            label.appendChild(input);
-                            text = document.createTextNode("Foreground Color");
-                            label.appendChild(text);
-                            li.appendChild(label);
-                            label = document.createElement("label");
-                            input = document.createElement("input");
-                            span = document.createElement("span");
-                            span.setAttribute("class", "swatch");
-                            span.style.background = browser.users[users[a]].color[1];
-                            label.appendChild(span);
-                            input.type = "text";
-                            input.value = browser.users[users[a]].color[1];
-                            input.onblur = settings.userColor;
-                            input.onkeyup = settings.userColor;
-                            label.appendChild(input);
-                            text = document.createTextNode("Background Color");
-                            label.appendChild(text);
-                            li.appendChild(label);
-                            ul.appendChild(li);
-                        }
-                        a = a + 1;
-                    } while (a < length);
-                    section.append(ul);
-                    settingsBody.appendChild(section);
-                }
-
-                return settingsBody;
-            };
-
         // getNodesByType
         getNodesByType();
 
@@ -241,7 +43,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                 input.focus();
                             } else {
                                 browser.data.name = input.value;
-                                util.addUser(`${input.value}@localhost`);
+                                share.addUser(`${input.value}@localhost`);
                                 browser.pageBody.removeAttribute("class");
                                 browser.loadTest = false;
                                 network.storage("settings");
@@ -305,7 +107,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     if (document.getElementById("systems-modal") === null) {
                         modal.create({
                             agent: "localhost",
-                            content: systemsBox,
+                            content: systems.modalContent(),
                             inputs: ["close", "maximize", "minimize"],
                             read_only: false,
                             single: true,
@@ -321,7 +123,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     if (document.getElementById("settings-modal") === null) {
                         modal.create({
                             agent: "localhost",
-                            content: settingsBox(),
+                            content: settings.modalContent(),
                             inputs: ["close"],
                             read_only: false,
                             single: true,
@@ -396,7 +198,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             let count:number = 0;
                             browser.data.name = storage.settings.name;
                             browser.users.localhost = storage.users.localhost
-                            util.addUser(`${storage.settings.name}@localhost`);
+                            share.addUser(`${storage.settings.name}@localhost`);
                             localhost = document.getElementById("localhost");
                             
                             // restore shares
@@ -409,7 +211,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     do {
                                         if (users[a] !== "localhost") {
                                             browser.users[users[a]] = storage.users[users[a]];
-                                            util.addUser(users[a]);
+                                            share.addUser(users[a]);
                                         }
                                         a = a + 1;
                                     } while (a < userLength);
@@ -520,7 +322,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     modal.create(storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "systems") {
-                                    storage.settings.modals[value].content = systemsBox;
+                                    storage.settings.modals[value].content = systems.modalContent();
                                     modal.create(storage.settings.modals[value]);
                                     const systemsModal:HTMLElement = document.getElementById("systems-modal");
                                     let button:HTMLButtonElement;
@@ -548,45 +350,22 @@ import webSocket from "./lib/browser/webSocket.js";
                                     invite.start(null, "", storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "settings") {
-                                    storage.settings.modals[value].content = settingsBox();
+                                    storage.settings.modals[value].content = settings.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    if (storage.settings.color !== "default") {
-                                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
-                                            length:number = inputs.length;
-                                        let a:number = 0;
-                                        do {
-                                            if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
-                                                inputs[a].click();
-                                                break;
-                                            }
-                                            a = a + 1;
-                                        } while (a < length);
-                                    }
-                                    if (storage.settings.audio === false) {
-                                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
-                                            length:number = inputs.length;
-                                        let a:number = 0;
-                                        do {
-                                            if (inputs[a].name === "audio" && inputs[a].value === "off") {
-                                                inputs[a].click();
-                                                break;
-                                            }
-                                            a = a + 1;
-                                        } while (a < length);
-                                    }
-                                    if (storage.settings.brotli !== browser.data.brotli) {
-                                        const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
-                                            length:number = inputs.length;
-                                        let a:number = 0;
-                                        browser.data.brotli = storage.settings.brotli;
-                                        do {
-                                            if (inputs[a].name === "brotli") {
-                                                inputs[a].value = storage.settings.brotli.toString();
-                                                break;
-                                            }
-                                            a = a + 1;
-                                        } while (a < length);
-                                    }
+                                    browser.data.brotli = storage.settings.brotli;
+                                    const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                        length:number = inputs.length;
+                                    let a:number = 0;
+                                    do {
+                                        if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
+                                            inputs[a].click();
+                                        } else if (inputs[a].name === "audio" && inputs[a].value === "off" && storage.settings.audio === false) {
+                                            inputs[a].click();
+                                        } else if (inputs[a].name === "brotli") {
+                                            inputs[a].value = storage.settings.brotli.toString();
+                                        }
+                                        a = a + 1;
+                                    } while (a < length);
                                     z(value);
                                 } else {
                                     z(value);
