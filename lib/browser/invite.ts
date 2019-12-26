@@ -64,14 +64,17 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
 /* Basic form validation on the port field */
 invite.port = function local_invite_port(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        parent:HTMLElement = <HTMLElement>element.parentNode,
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
     if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
         if (value !== "" && (isNaN(numb) === true || numb < 1024 || numb > 65535)) {
             element.style.color = "#f00";
             element.style.borderColor = "#f00";
+            parent.firstChild.textContent = "Error: Port must be a number from 1024-65535 or empty.";
             element.focus();
         } else {
+            parent.firstChild.textContent = "Port";
             element.removeAttribute("style");
         }
     }
