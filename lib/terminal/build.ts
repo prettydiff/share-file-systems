@@ -264,8 +264,13 @@ const library = {
                                     library.error([err.toString()]);
                                     return;
                                 }
-                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)+\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
-                                fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
+                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)+\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
+                                    pathString:string = "readonly=\"readonly\" value=\"",
+                                    pathIndex:number = fileData.indexOf(pathString) + pathString.length,
+                                    pathStart:string = fileData.slice(0, pathIndex),
+                                    pathEnd:string = fileData.slice(pathIndex),
+                                    htmlPath:string[] = [pathStart, vars.projectPath, pathEnd.slice(pathEnd.indexOf("\"/>"))];
+                                fileData = htmlPath.join("").replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
                                 vars.node.fs.writeFile(html, fileData, "utf8", function terminal_build_version_stat_read_html_write(erh:Error):void {
                                     if (erh !== null) {
                                         library.error([erh.toString()]);

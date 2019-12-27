@@ -24,8 +24,16 @@
         <div id="spaces">
             <div id="login">
                 <h1>Share File Systems <span class="application-version">version 0.0.13</span></h1>
-                <p><label for="login-input">Provide a Username</label> <input type="text" id="login-input"/></p>
-                <p><button>✓ Confirm</button></p>
+                <p>To access your account complete <strong>only one</strong> of the choices below:</p>
+                <ol>
+                    <li>Please paste your <strong>account.json</strong> into the application directory and refresh this page.
+                        <label>Application directory <input type="text" readonly="readonly" value="C:\Users\austincheney\spaces\"/></label></li>
+                    <li>Build a new <strong>account.json</strong> file from an existing identity.
+                        <label>Please enter your unique identity hash composed of 0-9 and a-f at 128 characters long. <input type="text"/></label>
+                        <button>Rebuild account.json file</button>
+                    </li>
+                    <li class="last">Generate a new <strong>account.json</strong> file as a new identity. <button>Generate New Identity</button></li>
+                </ol>
             </div>
             <div class="title">
                 <button id="menuToggle">&#9776;<span>Application Menu</span></button>
