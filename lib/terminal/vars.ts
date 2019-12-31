@@ -115,6 +115,7 @@ const vars:terminalVariables = {
         version: {
             command: "",
             date: "",
+            device: "",
             identity_domain: "",
             name: "",
             number: "",

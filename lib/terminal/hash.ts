@@ -21,11 +21,12 @@ const library = {
         readFile: readFile
     },
     // input:
-    // * callback - function
-    // * source - file system artifact but treated as a string literal of property 'string' === true
-    // * string - if false the source will be regarded as a file system artifact
-    // * parent - a property passed in from the 'directory' utility, but otherwise not used
-    // * stat - a property passed in from the 'directory' utility, but otherwise not used
+    // * callback    - function - callback function
+    // * directInput - boolean - if false the source will be regarded as a file system artifact
+    // * id          - string - A modal id value optionally passed through
+    // * parent      - number - a property passed in from the 'directory' utility, but otherwise not used
+    // * source      - string - file system artifact but treated as a string literal of property 'string' === true
+    // * stat        - Stats - a property passed in from the 'directory' utility, but otherwise not used
     hash = function terminal_hash(input:hashInput):hashOutput {
         let limit:number = 0,
             shortLimit:number = 0,
@@ -218,7 +219,6 @@ const library = {
         }
         if (input.directInput === true) {
             const hash:Hash = vars.node.crypto.createHash("sha512");
-            process.argv.splice(process.argv.indexOf("string"), 1);
             hash.update(input.source);
             input.callback({
                 filePath: "",

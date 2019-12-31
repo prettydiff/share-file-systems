@@ -1,5 +1,8 @@
 
+import serverVars from "./server/serverVars.js";
+
 import error from "./error.js";
+import hash from "./hash.js";
 import humanTime from "./humanTime.js";
 import lint from "./lint.js";
 import log from "./log.js";
@@ -248,17 +251,31 @@ const library = {
                                 library.error([err.toString()]);
                                 return;
                             }
+                            const writeVersion = function terminal_build_version_stat_read_writeVersion():void {
+                                vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_writeVersion_write(erw:Error) {
+                                    if (erw !== null) {
+                                        library.error([erw.toString()]);
+                                        return;
+                                    }
+                                    flag.json = true;
+                                    if (flag.html === true) {
+                                        next("Version data written");
+                                    }
+                                });
+                            };
                             vars.version.number = JSON.parse(data).version;
-                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_write(erw:Error) {
-                                if (erw !== null) {
-                                    library.error([erw.toString()]);
-                                    return;
-                                }
-                                flag.json = true;
-                                if (flag.html === true) {
-                                    next("Version data written");
-                                }
-                            });
+                            if (vars.version.device === "") {
+                                hash({
+                                    callback: function terminal_build_version_stat_read_hash(hashOut:hashOutput):void {
+                                        vars.version.device = hashOut.hash;
+                                        writeVersion();
+                                    },
+                                    directInput: true,
+                                    source: serverVars.macList.join(":")
+                                });
+                            } else {
+                                writeVersion();
+                            }
                             vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
                                 if (err !== null) {
                                     library.error([err.toString()]);

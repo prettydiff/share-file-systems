@@ -412,6 +412,7 @@ interface serverError {
 interface serverVars {
     addresses: [[string, string, string][], number];
     brotli: brotli;
+    macList:string[];
     name: string;
     socketReceiver: any;
     socketList: any;
@@ -575,6 +576,7 @@ interface userShares extends Array<userShare> {
 interface version {
     command: string;
     date: string;
+    device: string;
     identity_domain: string;
     name: string;
     number: string;
