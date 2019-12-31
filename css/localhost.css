@@ -21,6 +21,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 .login #spaces #login{border-style:solid;border-width:0.1em;display:block;margin:0 auto;padding:2em;width:80em}
 #spaces #login p{border-style:none none solid;border-width:0.05em;font-size:2em;margin:0 0 3em;padding:0 0 1em;text-align:center}
 #spaces #login p strong{font-style:italic}
+#spaces #login p span{display:block}
 #spaces #login ol{counter-reset:login-counter;list-style:none}
 #spaces #login li::before{content:counter(login-counter);font-size:1.5em;font-weight:bold;line-height:1;margin:0 0.4em 0 -1em}
 #spaces #login li{border-style:none none solid;border-width:0.05em;counter-increment:login-counter;font-size:2em;margin:0 0 2em;padding:0}
@@ -30,10 +31,12 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #login h1{font-size:6em;margin:0 0 0.5em;text-align:center}
 #spaces #login input,
 #spaces #login label,
+#spaces #login a,
 #spaces #login button{display:block}
 #spaces #login input{border-style:solid;border-width:0.05em;margin:0.5em 0 0;width:100%}
 #spaces #login label{font-size:0.75em;margin:1em 0 0}
-#spaces #login button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.25em;margin:1em auto 0}
+#spaces #login a,
+#spaces #login button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.25em;margin:1em auto 0;text-align:center;text-decoration:none;width:20em}
 
 /* Context menu, right click */
 #spaces #contextMenu{border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}

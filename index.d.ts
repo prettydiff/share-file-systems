@@ -215,6 +215,12 @@ interface modalSettings extends EventHandlerNonNull {
 interface modalTop extends EventHandlerNonNull {
     (Event, srcElement?:HTMLElement): void;
 }
+interface modifyFile {
+    end: string;
+    source: string;
+    target: string;
+    start: string;
+}
 interface module_network {
     fs?: (localService, callback:Function, id?:string) => void;
     heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
@@ -253,6 +259,11 @@ interface module_fs {
     searchFocus?: EventHandlerNonNull;
     select?: EventHandlerNonNull;
     text?: EventHandlerNonNull;
+}
+interface module_identity {
+    generate?: () => void;
+    recreate?: () => void;
+    reload?: () => void;
 }
 interface module_invite {
     accept?: (box:HTMLElement) => void;
@@ -564,6 +575,7 @@ interface userShares extends Array<userShare> {
 interface version {
     command: string;
     date: string;
+    identity_domain: string;
     name: string;
     number: string;
     port: number;
