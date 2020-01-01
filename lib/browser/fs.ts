@@ -429,7 +429,7 @@ fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
     if (count < 1) {
         p.innerHTML = "";
     } else {
-        p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operation system.`;
+        p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operating system.`;
     }
 };
 
@@ -802,11 +802,11 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
             searchParent.style.width = "12.5%";
             addressLabel.style.width = "87.5%";
         }
-        if (browser.loadTest === true || value !== browser.data.modals[id].search) {
+        if (browser.loadTest === true || browser.data.modals[id].search.join("") !== address + value) {
             body.innerHTML = "";
             body.append(util.delay());
             if (browser.loadTest === false) {
-                browser.data.modals[id].search = value;
+                browser.data.modals[id].search = [address, value];
                 network.storage("settings");
             }
             network.fs({
@@ -823,14 +823,17 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                     body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
                 } else {
                     const dirData = JSON.parse(responseText),
-                        length:number = dirData.dirs.length;
-                    if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
-                        statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>0</strong> matches.`;
-                    } else {
-                        const plural:string = (dirData.dirs.length === 1)
+                        length:number = dirData.dirs.length,
+                        statusString = function local_fs_search_statusString(length:number):void {
+                            const plural:string = (dirData.dirs.length === 1)
                                 ? ""
-                                : "es",
-                            output:HTMLElement = document.createElement("ul");
+                                : "es";
+                            statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural} from <em>${address}</em>.`;
+                        };
+                    if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                        statusString(0);
+                    } else {
+                        const output:HTMLElement = document.createElement("ul");
                         let a:number = 0;
                         output.tabIndex = 0;
                         output.oncontextmenu = context.menu;
@@ -840,7 +843,7 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                             util.dragBox(event, util.dragList);
                         };
                         output.setAttribute("class", "fileList");
-                        statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural}.`;
+                        statusString(length);
                         dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
                             // when types are the same
                             if (a[1] === b[1]) {

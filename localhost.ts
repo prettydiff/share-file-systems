@@ -278,7 +278,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             body.appendChild(files[0]);
 
                                         };
-                                    if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search !== "") {
+                                    if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
                                         let search:HTMLInputElement;
                                         const delay:HTMLElement = util.delay();
                                         storage.settings.modals[value].content = delay;
@@ -286,7 +286,6 @@ import webSocket from "./lib/browser/webSocket.js";
                                         storage.settings.modals[value].text_event = fs.text;
                                         modal.create(storage.settings.modals[value]);
                                         search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                        search.value = storage.settings.modals[value].search;
                                         search.focus();
                                         search.blur();
                                         z(value);

@@ -253,6 +253,9 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 search.onblur = fs.search;
                 search.onfocus = fs.searchFocus;
                 search.onkeyup = fs.search;
+                if (options.search !== undefined && options.search[1] !== "") {
+                    search.value = options.search[1];
+                }
                 searchLabel.innerHTML = "<span>Search for file system artifacts from this location.</span>";
                 searchLabel.setAttribute("class", "fileSearch");
                 searchLabel.appendChild(search);
