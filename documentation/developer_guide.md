@@ -10,7 +10,17 @@ All code for this application is located in 3 places:
    - lib/terminal/server - All supporting libraries for actions via network interface as executed by *lib/terminal/server.ts*.
 
 ## Configuration
-I am not a fan of configuring software.  I consider software configurations a time wasting punishment from lazy developers.  Well written software requires no configuration because flexibility is built into the application's APIs.  The application's configurations are stored in the `version.json` file.
+I am not a fan of configuring software.  I consider preliminary software configurations necessary to execute an application a time wasting punishment from incompetent developers.  Well written software requires no preliminary configuration because flexibility is built into the application at run time.  The application's default configurations are stored in the `version.json` file.
+
+### version.json Definition
+
+* **command** - The command that executes the application.
+* **date** - The first build date following a change of application version number.
+* **device** - A hash value to uniquely identify the device.  The value is SHA512 from the merging of the OS hostname and any non-local active MAC address.
+* **identity_domain** - The web address to contact for user address resolution.
+* **name** - The application's name.
+* **number** - The application version number taken directly from the package.json file.
+* **port** - The application's default TCP port.  If this port is taken the application will instead use any randomly available port.
 
 ## Code Organization
 For simplicity the application is written in a purely functional manner and is broken down into library files using ES6 modules.  The libraries are organized as follows:

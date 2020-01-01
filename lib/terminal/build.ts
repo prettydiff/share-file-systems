@@ -1,3 +1,4 @@
+import { hostname } from "os";
 
 import serverVars from "./server/serverVars.js";
 
@@ -12,6 +13,7 @@ import vars from "./vars.js";
 // build/test system
 const library = {
         error: error,
+        hash: hash,
         humanTime: humanTime,
         lint: lint,
         log: log,
@@ -251,31 +253,44 @@ const library = {
                                 library.error([err.toString()]);
                                 return;
                             }
+                            let a:number = 0,
+                                hash0:string;
                             const writeVersion = function terminal_build_version_stat_read_writeVersion():void {
-                                vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_writeVersion_write(erw:Error) {
-                                    if (erw !== null) {
-                                        library.error([erw.toString()]);
-                                        return;
-                                    }
-                                    flag.json = true;
-                                    if (flag.html === true) {
-                                        next("Version data written");
-                                    }
-                                });
-                            };
+                                    vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_writeVersion_write(erw:Error) {
+                                        if (erw !== null) {
+                                            library.error([erw.toString()]);
+                                            return;
+                                        }
+                                        flag.json = true;
+                                        if (flag.html === true) {
+                                            next("Version data written");
+                                        }
+                                    });
+                                },
+                                length:number = serverVars.macList.length,
+                                identity = function terminal_build_version_version_stat_read_hash():void {
+                                    library.hash({
+                                        callback: function terminal_build_version_stat_read_hashCallback(hashOut:hashOutput):void {
+                                            if (a === 0) {
+                                                hash0 = hashOut.hash;
+                                            }
+                                            if (vars.version.device === "" || vars.version.device === undefined || vars.version.device === hashOut.hash) {
+                                                vars.version.device = hashOut.hash;
+                                                writeVersion();
+                                            } else if (a < length) {
+                                                a = a + 1;
+                                                terminal_build_version_version_stat_read_hash();
+                                            } else {
+                                                vars.version.device = hash0;
+                                                writeVersion();
+                                            }
+                                        },
+                                        directInput: true,
+                                        source: hostname() + serverVars.macList[a]
+                                    });
+                                };
                             vars.version.number = JSON.parse(data).version;
-                            if (vars.version.device === "") {
-                                hash({
-                                    callback: function terminal_build_version_stat_read_hash(hashOut:hashOutput):void {
-                                        vars.version.device = hashOut.hash;
-                                        writeVersion();
-                                    },
-                                    directInput: true,
-                                    source: serverVars.macList.join(":")
-                                });
-                            } else {
-                                writeVersion();
-                            }
+                            identity();
                             vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
                                 if (err !== null) {
                                     library.error([err.toString()]);
