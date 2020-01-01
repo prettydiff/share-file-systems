@@ -112,7 +112,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             read_only: false,
                             single: true,
                             status: "hidden",
-                            title: document.getElementById("systemsLog").innerHTML,
+                            title: document.getElementById("systemLog").innerHTML,
                             type: "systems",
                             width: 800
                         });

@@ -468,20 +468,8 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         };
     let span:HTMLElement,
         plural:string;
-    if (extraClass.replace(/\s+/, "") !== "") {
-        li.setAttribute("class", `${item[1]} ${extraClass}`);
-    } else {
-        li.setAttribute("class", item[1]);
-    }
-    input.type = "checkbox";
-    input.checked = false;
-    label.innerHTML = "Selected";
-    label.appendChild(input);
-    label.setAttribute("class", "selection");
-    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
-    text.oncontextmenu = context.menu;
-    text.onclick = fs.select;
-    li.appendChild(text);
+
+    // preparation of descriptive text and assistive features
     if (item[1] === "file") {
         span = document.createElement("span");
         if (item[5].size === 1) {
@@ -497,7 +485,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             button.innerHTML = "+<span>Expand this folder</span>";
             button.setAttribute("title", "Expand this folder");
             button.onclick = fs.expand;
-            li.insertBefore(button, li.firstChild);
+            li.appendChild(button);
         }
         span = document.createElement("span");
         if (item[3] === 1) {
@@ -515,10 +503,32 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             span.textContent = item[1];
         }
     }
+
+    // prepare the primary item text (address)
+    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
+    text.oncontextmenu = context.menu;
+    text.onclick = fs.select;
+    li.appendChild(text);
+
+    // prepare the descriptive text
     span.onclick = fs.select;
     span.oncontextmenu = context.menu;
     li.appendChild(span);
+
+    // prepare the checkbox that provides accessibility and click functionality
+    input.type = "checkbox";
+    input.checked = false;
+    label.innerHTML = "Selected";
+    label.appendChild(input);
+    label.setAttribute("class", "selection");
     li.appendChild(label);
+
+    // prepare the parent container
+    if (extraClass.replace(/\s+/, "") !== "") {
+        li.setAttribute("class", `${item[1]} ${extraClass}`);
+    } else {
+        li.setAttribute("class", item[1]);
+    }
     li.onclick = fs.select;
     li.oncontextmenu = context.menu;
     li.onkeydown = util.keys; // key combinations
@@ -783,6 +793,7 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
         body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
         addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
         address:string = addressLabel.getElementsByTagName("input")[0].value,
+        statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
         id:string = box.getAttribute("id");
     if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
         body.innerHTML = "";
@@ -803,7 +814,7 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                 const dirData = JSON.parse(responseText),
                     length:number = dirData.dirs.length;
                 if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
-                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>0</strong> matches.</p>`;
+                    statusBar.innerHTML = `Search fragment "<em>${element.value}</em>" returned <strong>0</strong> matches.`;
                 } else {
                     const plural:string = (dirData.dirs.length === 1)
                             ? ""
@@ -818,7 +829,7 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                         util.dragBox(event, util.dragList);
                     };
                     output.setAttribute("class", "fileList");
-                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>${commas(length)}</strong> match${plural}.</p>`;
+                    statusBar.innerHTML = `Search fragment "<em>${element.value}</em>" returned <strong>${commas(length)}</strong> match${plural}.`;
                     dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
                         // when types are the same
                         if (a[1] === b[1]) {
@@ -841,6 +852,7 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                         output.appendChild(fs.listItem(dirData.dirs[a], ""));
                         a = a + 1;
                     } while (a < length);
+                    body.innerHTML = "";
                     body.appendChild(output);
                 }
             }
