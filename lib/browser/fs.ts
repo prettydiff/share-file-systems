@@ -782,91 +782,94 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 
 /* Search for file system artifacts from a modal's current location */
 fs.search = function local_fs_search(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        box:HTMLElement = (function local_fs_search_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
-        body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-        addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
-        address:string = addressLabel.getElementsByTagName("input")[0].value,
-        statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
-        id:string = box.getAttribute("id");
+    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
     if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        body.innerHTML = "";
-        body.append(util.delay());
-        network.fs({
-            action: "fs-search",
-            agent: util.getAgent(box)[0],
-            copyAgent: "",
-            depth: 0,
-            id: id,
-            location: [address],
-            name: element.value,
-            watch: "no"
-        }, function local_fs_search_callback(responseText:string):void {
-            if (responseText === "") {
-                body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
-            } else {
-                const dirData = JSON.parse(responseText),
-                    length:number = dirData.dirs.length;
-                if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
-                    statusBar.innerHTML = `Search fragment "<em>${element.value}</em>" returned <strong>0</strong> matches.`;
+        const box:HTMLElement = (function local_fs_search_box():HTMLElement {
+                let el:HTMLElement = element;
+                do {
+                    el = <HTMLElement>el.parentNode;
+                } while (el !== document.documentElement && el.getAttribute("class") !== "box");
+                return el;
+            }()),
+            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
+            address:string = addressLabel.getElementsByTagName("input")[0].value,
+            statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
+            id:string = box.getAttribute("id"),
+            value:string = element.value;
+        if (event.type === "blur") {
+            const searchParent:HTMLElement = <HTMLElement>element.parentNode;
+            searchParent.style.width = "12.5%";
+            addressLabel.style.width = "87.5%";
+        }
+        if (browser.loadTest === true || value !== browser.data.modals[id].search) {
+            body.innerHTML = "";
+            body.append(util.delay());
+            if (browser.loadTest === false) {
+                browser.data.modals[id].search = value;
+                network.storage("settings");
+            }
+            network.fs({
+                action: "fs-search",
+                agent: util.getAgent(box)[0],
+                copyAgent: "",
+                depth: 0,
+                id: id,
+                location: [address],
+                name: value,
+                watch: "no"
+            }, function local_fs_search_callback(responseText:string):void {
+                if (responseText === "") {
+                    body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
                 } else {
-                    const plural:string = (dirData.dirs.length === 1)
-                            ? ""
-                            : "es",
-                        output:HTMLElement = document.createElement("ul");
-                    let a:number = 0;
-                    output.tabIndex = 0;
-                    output.oncontextmenu = context.menu;
-                    output.onkeydown = util.keys;
-                    output.onclick = fs.listFocus;
-                    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
-                        util.dragBox(event, util.dragList);
-                    };
-                    output.setAttribute("class", "fileList");
-                    statusBar.innerHTML = `Search fragment "<em>${element.value}</em>" returned <strong>${commas(length)}</strong> match${plural}.`;
-                    dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
-                        // when types are the same
-                        if (a[1] === b[1]) {
-                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                    const dirData = JSON.parse(responseText),
+                        length:number = dirData.dirs.length;
+                    if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                        statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>0</strong> matches.`;
+                    } else {
+                        const plural:string = (dirData.dirs.length === 1)
+                                ? ""
+                                : "es",
+                            output:HTMLElement = document.createElement("ul");
+                        let a:number = 0;
+                        output.tabIndex = 0;
+                        output.oncontextmenu = context.menu;
+                        output.onkeydown = util.keys;
+                        output.onclick = fs.listFocus;
+                        output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
+                            util.dragBox(event, util.dragList);
+                        };
+                        output.setAttribute("class", "fileList");
+                        statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural}.`;
+                        dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
+                            // when types are the same
+                            if (a[1] === b[1]) {
+                                if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                                    return -1;
+                                }
+                                return 1;
+                            }
+                    
+                            // when types are different
+                            if (a[1] === "directory") {
+                                return -1;
+                            }
+                            if (a[1] === "link" && b[1] === "file") {
                                 return -1;
                             }
                             return 1;
-                        }
-                
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    do {
-                        output.appendChild(fs.listItem(dirData.dirs[a], ""));
-                        a = a + 1;
-                    } while (a < length);
-                    body.innerHTML = "";
-                    body.appendChild(output);
+                        });
+                        do {
+                            output.appendChild(fs.listItem(dirData.dirs[a], ""));
+                            a = a + 1;
+                        } while (a < length);
+                        body.innerHTML = "";
+                        body.appendChild(output);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
-};
-
-/* Return the search field to its regular size when blurred */
-fs.searchBlur = function local_fs_searchBlur(event:Event):void {
-    const search:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        searchParent:HTMLElement = <HTMLElement>search.parentNode,
-        address:HTMLElement = <HTMLElement>searchParent.previousSibling;
-    searchParent.style.width = "12.5%";
-    address.style.width = "87.5%";
 };
 
 /* Expand the search field to a large size when focused */

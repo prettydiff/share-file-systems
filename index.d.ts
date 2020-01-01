@@ -539,6 +539,7 @@ interface ui_modal {
     move?: boolean;
     read_only: boolean;
     resize?: boolean;
+    search?: string;
     single?: boolean;
     status?: modalStatus;
     status_bar?: boolean;

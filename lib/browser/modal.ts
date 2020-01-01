@@ -250,7 +250,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 extra.appendChild(button);
                 search.type = "text";
                 search.placeholder = "⌕ Search";
-                search.onblur = fs.searchBlur;
+                search.onblur = fs.search;
                 search.onfocus = fs.searchFocus;
                 search.onkeyup = fs.search;
                 searchLabel.innerHTML = "<span>Search for file system artifacts from this location.</span>";

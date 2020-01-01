@@ -278,7 +278,19 @@ import webSocket from "./lib/browser/webSocket.js";
                                             body.appendChild(files[0]);
 
                                         };
-                                    if (agent === "localhost") {
+                                    if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search !== "") {
+                                        let search:HTMLInputElement;
+                                        const delay:HTMLElement = util.delay();
+                                        storage.settings.modals[value].content = delay;
+                                        storage.settings.modals[value].id = value;
+                                        storage.settings.modals[value].text_event = fs.text;
+                                        modal.create(storage.settings.modals[value]);
+                                        search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
+                                        search.value = storage.settings.modals[value].search;
+                                        search.focus();
+                                        search.blur();
+                                        z(value);
+                                    } else if (agent === "localhost") {
                                         network.fs({
                                             action: "fs-directory",
                                             agent: agent,
@@ -354,10 +366,11 @@ import webSocket from "./lib/browser/webSocket.js";
                                     modal.create(storage.settings.modals[value]);
                                     browser.data.brotli = storage.settings.brotli;
                                     const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                        userLength:number = Object.keys(browser.users).length,
                                         length:number = inputs.length;
                                     let a:number = 0;
                                     do {
-                                        if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
+                                        if (userLength > 1 && inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
                                             inputs[a].click();
                                         } else if (inputs[a].name === "audio" && inputs[a].value === "off" && storage.settings.audio === false) {
                                             inputs[a].click();
