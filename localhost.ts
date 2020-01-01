@@ -226,6 +226,32 @@ import webSocket from "./lib/browser/webSocket.js";
                                 if (storage.settings.modals[value].type === "fileNavigate") {
                                     const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
                                         agent:string = agentStrings[agentStrings.length - 1],
+                                        selection = function local_restore_modalKeys_selection(id:string):void {
+                                            const box:HTMLElement = document.getElementById(id),
+                                                modalData:ui_modal = browser.data.modals[id],
+                                                keys:string[] = (modalData.selection === undefined)
+                                                    ? []
+                                                    : Object.keys(modalData.selection),
+                                                fileList:HTMLElement = <HTMLElement>box.getElementsByClassName("fileList")[0],
+                                                list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
+                                                    ? null
+                                                    : fileList.getElementsByTagName("li"),
+                                                length:number = (list === null)
+                                                    ? 0
+                                                    : list.length;
+                                            let b:number = 0,
+                                                address:string;
+                                            if (keys.length > 0 && length > 0) {
+                                                do {
+                                                    address = list[b].getElementsByTagName("label")[0].innerHTML;
+                                                    if (modalData.selection[address] !== undefined) {
+                                                        list[b].setAttribute("class", modalData.selection[address]);
+                                                        list[b].getElementsByTagName("input")[0].checked = true;
+                                                    }
+                                                    b = b + 1;
+                                                } while (b < length);
+                                            }
+                                        },
                                         callback = function local_restore_modalKeys_fsCallback(responseText:string, agent:string):void {
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = (responseText === "")
@@ -268,7 +294,8 @@ import webSocket from "./lib/browser/webSocket.js";
                                             storage.settings.modals[id].text_event = fs.text;
                                             const box:HTMLElement = modal.create(storage.settings.modals[id]);
                                             fs.listFail(files[1], box);
-                                            z(id);
+                                            selection(id);
+                                            z(value);
                                         },
                                         callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number]):void {
                                             const fsModal:HTMLElement = document.getElementById(id),
@@ -276,7 +303,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             fs.listFail(files[1], fsModal);
                                             body.innerHTML = "";
                                             body.appendChild(files[0]);
-
+                                            selection(id);
                                         };
                                     if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
                                         let search:HTMLInputElement;
@@ -286,8 +313,9 @@ import webSocket from "./lib/browser/webSocket.js";
                                         storage.settings.modals[value].text_event = fs.text;
                                         modal.create(storage.settings.modals[value]);
                                         search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                        search.focus();
-                                        search.blur();
+                                        fs.search(null, search, function local_restore_modalKeys_searchCallback():void {
+                                            selection(value);
+                                        });
                                         z(value);
                                     } else if (agent === "localhost") {
                                         network.fs({

@@ -254,7 +254,7 @@ interface module_fs {
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
     saveFile?: EventHandlerNonNull;
-    search?: EventHandlerNonNull;
+    search?: (event?:Event|KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function) => void;
     searchBlur?: EventHandlerNonNull;
     searchFocus?: EventHandlerNonNull;
     select?: EventHandlerNonNull;
@@ -335,6 +335,7 @@ interface module_util {
     minimizeAll?: EventHandlerNonNull;
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
+    selectExpression?: RegExp;
     selectNone?:(element:HTMLElement) => void;
 }
 interface navConfig {
@@ -405,6 +406,9 @@ interface remoteCopyListData {
     list:[string, string, string, number][];
     stream:boolean;
 }
+interface selection {
+    [key:string]: string;
+}
 interface serverError {
     stack: string[];
     error: string;
@@ -424,9 +428,6 @@ interface serverVars {
     };
     webPort: number;
     wsPort: number;
-}
-interface context extends EventHandlerNonNull {
-    (Event, element?:HTMLElement): void;
 }
 interface sharesDeleteList extends EventHandlerNonNull {
     (event:MouseEvent, configuration?:ui_modal): void;
@@ -540,6 +541,7 @@ interface ui_modal {
     read_only: boolean;
     resize?: boolean;
     search?: [string, string];
+    selection?: selection;
     single?: boolean;
     status?: modalStatus;
     status_bar?: boolean;

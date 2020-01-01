@@ -6,8 +6,7 @@ import fs from "./fs.js";
 import network from "./network.js";
 import share from "./share.js";
 
-const util:module_util = {},
-    expression:RegExp = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
+const util:module_util = {};
 
 util.audio = function local_util_audio(name:string):void {
     const context:AudioContext = new AudioContext(),
@@ -578,10 +577,17 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     let a:number = 0,
         length:number = 0,
         itemList:HTMLCollectionOf<HTMLElement>,
+        box:HTMLElement,
+        dataModal:ui_modal,
         addressItem:HTMLElement;
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
+    box = element;
+    do {
+        box = <HTMLElement>box.parentNode;
+    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    dataModal = browser.data.modals[box.getAttribute("id")];
     itemList = (drag === true)
         ? parent.getElementsByTagName("li")
         : (function local_util_selectedAddresses_box():HTMLCollectionOf<HTMLElement> {
@@ -599,12 +605,14 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
             addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
                 ? <HTMLElement>itemList[a].firstChild.nextSibling
                 : <HTMLElement>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(expression, "")]);
+            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(util.selectExpression, "")]);
             if (type === "cut") {
-                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(expression, " cut"));
+                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, " cut"));
+                dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
             }
         } else {
-            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(expression, ""));
+            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, ""));
+            delete dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML];
         }
         a = a + 1;
     } while (a < length);
@@ -613,10 +621,13 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     }
     output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
     if (type === "cut") {
-        element.setAttribute("class", element.getAttribute("class").replace(expression, " cut"));
+        element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
+        dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
     }
     return output;
 };
+
+util.selectExpression = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function local_util_selectNone(element:HTMLElement):void {
@@ -642,7 +653,7 @@ util.selectNone = function local_util_selectNone(element:HTMLElement):void {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(expression, ""));
+                li[a].setAttribute("class", li[a].getAttribute("class").replace(util.selectExpression, ""));
             }
             a = a + 1;
         } while (a < inputLength);

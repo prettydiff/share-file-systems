@@ -10,12 +10,17 @@ const context:module_context = {};
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
-context.copy = function local_context_copy():void {
+context.copy = function local_context_copy(event:MouseEvent):void {
     let selected:[string, string][],
         addresses:string[] = [],
         box:HTMLElement,
         element:HTMLElement = context.element,
-        type:contextType = context.type; 
+        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        type:contextType = (context.type !== "")
+            ? context.type
+            : (contextElement.innerHTML.indexOf("Copy") === 0)
+                ? "copy"
+                : "cut";
     if (element.nodeName !== "li") {
         element = <HTMLElement>element.parentNode;
     }
@@ -50,7 +55,14 @@ context.copy = function local_context_copy():void {
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent):void {
     const element:HTMLElement = context.element,
-        type:contextType = context.type,
+        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        type:contextType = (context.type !== "")
+            ? context.type
+            : (contextElement.innerHTML.indexOf("Base64") === 0)
+                ? "Base64"
+                : (contextElement.innerHTML.indexOf("Edit") === 0)
+                    ? "Edit"
+                    : "Hash",
         addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
         box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
             let el:HTMLElement = element;
@@ -377,13 +389,18 @@ context.details = function local_context_details(event:MouseEvent):void {
 context.element = null;
 
 /* Handler for creating new directories */
-context.fsNew = function local_context_fsNew():void {
+context.fsNew = function local_context_fsNew(event:MouseEvent):void {
     let item:HTMLElement,
         box:HTMLElement,
         path:string,
         slash:"\\" | "/",
         element:HTMLElement = context.element;
-    const type:contextType = context.type,
+    const contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        type:contextType = (context.type !== "")
+            ? context.type
+            : (contextElement.innerHTML.indexOf("New File") === 0)
+                ? "file"
+                : "directory",
         field:HTMLInputElement = document.createElement("input"),
         text:HTMLElement = document.createElement("label"),
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
@@ -520,8 +537,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
-                context.element = element;
-                context.type = "Base64";
                 button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
@@ -530,8 +545,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Copy <em>${command} + C</em>`;
-                context.element = element;
-                context.type = "copy";
                 button.onclick = context.copy;
                 item.appendChild(button);
                 itemList.push(item);
@@ -540,8 +553,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Cut <em>${command} + X</em>`;
-                context.element = element;
-                context.type = "cut";
                 button.onclick = context.copy;
                 item.appendChild(button);
                 itemList.push(item);
@@ -559,7 +570,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    context.element = element;
                     button.onclick = context.destroy;
                 }
                 item.appendChild(button);
@@ -569,7 +579,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Details <em>${command} + ALT + T</em>`;
-                context.element = element;
                 button.onclick = context.details;
                 item.appendChild(button);
                 itemList.push(item);
@@ -582,8 +591,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 } else {
                     button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
                 }
-                context.element = element;
-                context.type = "Edit";
                 button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
@@ -592,8 +599,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
-                context.element = element;
-                context.type = "Hash";
                 button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
@@ -602,8 +607,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
-                context.element = element;
-                context.type = "directory";
                 button.onclick = context.fsNew;
                 item.appendChild(button);
                 itemList.push(item);
@@ -612,8 +615,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New File <em>${command} + ALT + F</em>`;
-                context.element = element;
-                context.type = "file";
                 button.onclick = context.fsNew;
                 item.appendChild(button);
                 itemList.push(item);
@@ -622,7 +623,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Paste <em>${command} + V</em>`;
-                context.element = element;
                 button.onclick = context.paste;
                 if (clipboard === "" || (
                     (element.getAttribute("class") === "fileList" || parent.getAttribute("class") === "fileList") &&
@@ -645,7 +645,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    context.element = element;
                     button.onclick = fs.rename;
                 }
                 item.appendChild(button);
@@ -655,7 +654,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Share <em>${command} + ALT + S</em>`;
-                context.element = element;
                 button.onclick = share.context;
                 item.appendChild(button);
                 itemList.push(item);
@@ -672,6 +670,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         parent = <HTMLElement>parent.parentNode;
         nodeName = element.nodeName.toLowerCase();
     }
+    context.element = element;
     context.menuRemove();
     event.preventDefault();
     event.stopPropagation();
@@ -771,7 +770,5 @@ context.paste = function local_context_paste():void {
     });
     context.element = null;
 };
-
-context.type = "";
 
 export default context;

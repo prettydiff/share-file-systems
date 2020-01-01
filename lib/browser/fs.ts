@@ -358,6 +358,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
         const agent:string = browser.data.modals[dirData.id].agent;
         browser.data.modals[dirData.id].text_value = list[0][0];
+        browser.data.modals[dirData.id].selection = {};
         share.update(agent, browser.users[agent].shares);
     }
     a = 0;
@@ -581,6 +582,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     content: files[0],
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: false,
+                    selection: {},
                     status_bar: true,
                     text_event: fs.text,
                     text_placeholder: "Optionally type a file system address here.",
@@ -597,6 +599,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
             read_only: readOnly,
+            selection: {},
             status_bar: true,
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
@@ -781,9 +784,11 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 };
 
 /* Search for file system artifacts from a modal's current location */
-fs.search = function local_fs_search(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
-    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
+    const element:HTMLInputElement = (searchElement === undefined)
+        ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
+        : searchElement;
+    if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
         const box:HTMLElement = (function local_fs_search_box():HTMLElement {
                 let el:HTMLElement = element;
                 do {
@@ -797,16 +802,17 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
             statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
             value:string = element.value;
-        if (event.type === "blur") {
+        if (event !== null && event.type === "blur") {
             const searchParent:HTMLElement = <HTMLElement>element.parentNode;
             searchParent.style.width = "12.5%";
             addressLabel.style.width = "87.5%";
         }
-        if (browser.loadTest === true || browser.data.modals[id].search.join("") !== address + value) {
+        if (event === null || browser.data.modals[id].search.join("") !== address + value) {
             body.innerHTML = "";
             body.append(util.delay());
             if (browser.loadTest === false) {
                 browser.data.modals[id].search = [address, value];
+                browser.data.modals[id].selection = {};
                 network.storage("settings");
             }
             network.fs({
@@ -868,6 +874,9 @@ fs.search = function local_fs_search(event:KeyboardEvent):void {
                         } while (a < length);
                         body.innerHTML = "";
                         body.appendChild(output);
+                        if (callback !== undefined) {
+                            callback();
+                        }
                     }
                 }
             });
@@ -896,7 +905,8 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         input:HTMLInputElement = li.getElementsByTagName("input")[0];
     let state:boolean = input.checked,
         body:HTMLElement = li,
-        box:HTMLElement;
+        box:HTMLElement,
+        modalData:ui_modal;
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
@@ -906,6 +916,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         body = <HTMLElement>body.parentNode;
     } while (body !== document.documentElement && body.getAttribute("class") !== "body");
     box = <HTMLElement>body.parentNode.parentNode;
+    modalData = browser.data.modals[box.getAttribute("id")];
 
     if (document.getElementById("dragBox") !== null) {
         return;
@@ -914,10 +925,12 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     if (event.ctrlKey === true || fs.dragFlag === "control") {
         if (state === true) {
             input.checked = false;
-            li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+            li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
+            delete modalData.selection[li.getElementsByTagName("label")[0].innerHTML];
         } else {
             input.checked = true;
             li.setAttribute("class", `${li.getAttribute("class")} selected`);
+            modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
     } else if (event.shiftKey === true || fs.dragFlag === "shift") {
         const liList = body.getElementsByTagName("li"),
@@ -925,13 +938,15 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
                 if (state === true) {
                     do {
                         liList[index].getElementsByTagName("input")[0].checked = false;
-                        liList[index].setAttribute("class", liList[index].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+                        liList[index].setAttribute("class", liList[index].getAttribute("class").replace(util.selectExpression, ""));
+                        delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
                         index = index + 1;
                     } while (index < end);
                 } else {
                     do {
                         liList[index].getElementsByTagName("input")[0].checked = true;
                         liList[index].setAttribute("class", `${liList[index].getAttribute("class")} selected`);
+                        modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
                         index = index + 1;
                     } while (index < end);
                 }
@@ -962,10 +977,12 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         if (focusIndex === elementIndex) {
             if (state === true) {
                 input.checked = false;
-                li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+                li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
+                delete modalData.selection[li.getElementsByTagName("label")[0].innerHTML];
             } else {
                 input.checked = true;
                 li.setAttribute("class", `${li.getAttribute("class")} selected`);
+                modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
             }
         } else if (focusIndex > elementIndex) {
             shift(elementIndex, focusIndex);
@@ -982,16 +999,19 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
             if (inputs[a].checked === true) {
                 inputs[a].checked = false;
                 item = <HTMLElement>inputs[a].parentNode.parentNode;
-                item.setAttribute("class", item.getAttribute("class").replace(/(\s+selected)+/, ""));
+                item.setAttribute("class", item.getAttribute("class").replace(util.selectExpression, ""));
             }
             a = a + 1;
         } while (a < inputsLength);
         input.checked = true;
         if (selected === false) {
-            li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
+            li.setAttribute("class", `${li.getAttribute("class").replace(util.selectExpression, "")} selected`);
+            modalData.selection = {};
+            modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
     }
-    browser.data.modals[box.getAttribute("id")].focus = li;
+    modalData.focus = li;
+    network.storage("settings");
 };
 
 /* Requests file system data from a text field, such as manually typing an address */
