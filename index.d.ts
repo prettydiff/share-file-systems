@@ -581,6 +581,10 @@ interface version {
     date: string;
     device: string;
     identity_domain: string;
+    keys: {
+        private: string;
+        public: string;
+    };
     name: string;
     number: string;
     port: number;

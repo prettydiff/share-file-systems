@@ -1,3 +1,5 @@
+
+import { generateKeyPair } from "crypto";
 import { hostname } from "os";
 
 import serverVars from "./server/serverVars.js";
@@ -267,6 +269,35 @@ const library = {
                                         }
                                     });
                                 },
+                                keys = function terminal_build_version_stat_read_keys():void {
+                                    if (vars.version.keys !== undefined && vars.version.keys.private !== undefined && vars.version.keys.private.indexOf("PRIVATE KEY-----") > 0 && vars.version.keys.public !== undefined && vars.version.keys.public.indexOf("PUBLIC KEY-----") > 0) {
+                                        writeVersion();
+                                    } else {
+                                        generateKeyPair("ec", {
+                                            namedCurve: "secp521r1",
+                                            publicKeyEncoding:{
+                                                type: "spki",
+                                                format: "pem"
+                                            },
+                                            privateKeyEncoding:{
+                                                type: "pkcs8",
+                                                format: "pem",
+                                                cipher: "aes-256-cbc",
+                                                passphrase: ""
+                                            }
+                                        }, function terminal_build_version_stat_read_keys_callback(keyError:nodeError, publicKey:string, privateKey:string):void {
+                                            if (keyError !== null) {
+                                                library.error([keyError.toString()]);
+                                                return;
+                                            }
+                                            vars.version.keys = {
+                                                private: privateKey,
+                                                public: publicKey
+                                            }
+                                            writeVersion();
+                                        });
+                                    }
+                                },
                                 length:number = serverVars.macList.length,
                                 identity = function terminal_build_version_version_stat_read_hash():void {
                                     library.hash({
@@ -276,13 +307,13 @@ const library = {
                                             }
                                             if (vars.version.device === "" || vars.version.device === undefined || vars.version.device === hashOut.hash) {
                                                 vars.version.device = hashOut.hash;
-                                                writeVersion();
+                                                keys();
                                             } else if (a < length) {
                                                 a = a + 1;
                                                 terminal_build_version_version_stat_read_hash();
                                             } else {
                                                 vars.version.device = hash0;
-                                                writeVersion();
+                                                keys();
                                             }
                                         },
                                         directInput: true,

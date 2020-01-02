@@ -113,10 +113,14 @@ const vars:terminalVariables = {
         },
         verbose: false,
         version: {
-            command: "",
+            command: "node js/application",
             date: "",
             device: "",
             identity_domain: "",
+            keys: {
+                private: "",
+                public: ""
+            },
             name: "",
             number: "",
             port: 0

@@ -4,7 +4,7 @@
         "url": "https://github.com/prettydiff/freshapp/issues"
     },
     "dependencies": {
-        "@types/node": "^12.7.5"
+        "@types/node": "^12.12.22"
     },
     "description": "A simple application and general utility primer for quickly starting new Node projects.",
     "directories": {
@@ -21,7 +21,7 @@
         "private",
         "privacy"
     ],
-    "license": "AGPLv3",
+    "license": "AGPL-3.0-only",
     "main": "js/application.js",
     "name": "share-file-systems",
     "repository": {

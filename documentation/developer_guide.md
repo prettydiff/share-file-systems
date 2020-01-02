@@ -18,6 +18,7 @@ I am not a fan of configuring software.  I consider preliminary software configu
 * **date** - The first build date following a change of application version number.
 * **device** - A hash value to uniquely identify the device.  The value is SHA512 from the merging of the OS hostname and any non-local active MAC address.
 * **identity_domain** - The web address to contact for user address resolution.
+* **keys** - An object containing properties *public* and *private* each storing a generated key pair as a string value.
 * **name** - The application's name.
 * **number** - The application version number taken directly from the package.json file.
 * **port** - The application's default TCP port.  If this port is taken the application will instead use any randomly available port.

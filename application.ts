@@ -35,20 +35,28 @@ import version from "./lib/terminal/version.js";
         simulation: simulation,
         test: test,
         version: version
-    };
-    vars.node.fs.readFile(`${vars.projectPath}version.json`, "utf8", function node_version(er:Error, versionFile:string):void {
-        if (er !== null) {
-            library.error([er.toString()]);
-            return;
-        }
-        
-        vars.version = JSON.parse(versionFile);
-
+    },
+    execute = function node_execute():void {
         // command documentation
         vars.commands = commands_documentation;
+
         // supported command name
         vars.command = command();
 
         library[vars.command]();
+    };
+    vars.node.fs.stat(`${vars.projectPath}version.json`, function node_version(erStat:Error) {
+        if (erStat === null) {
+            vars.node.fs.readFile(`${vars.projectPath}version.json`, "utf8", function node_version_read(er:Error, versionFile:string):void {
+                if (er !== null) {
+                    library.error([er.toString()]);
+                    return;
+                }
+                vars.version = JSON.parse(versionFile);
+                execute();
+            });
+        } else {
+            execute();
+        }
     });
 }());

@@ -5,3 +5,4 @@ js/localhost.js
 js/tsconfig.*
 node_modules
 storage/*.json
+version.json
