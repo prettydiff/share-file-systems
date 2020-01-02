@@ -82,8 +82,8 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .corner-tr,
 .dark #spaces .box .corner-bl,
 .dark #spaces .box .corner-br{border-color:#666}
+.dark #spaces .box .status-bar,
 .dark #spaces .box .footer{background:#333;border-color:#666;color:#ccc}
-.dark #spaces .box .status-bar{border-color:#666;background:#333}
 .dark #spaces .box .header{background:#111;border-color:#666}
 .dark #spaces .box .header .backDirectory{background:#332;border-color:#cc0;color:#cc0}
 .dark #spaces .box .header .parentDirectory{background:#303;border-color:#939;color:#939}
@@ -129,10 +129,10 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .sharesDeleteList label{background:#333}
 
 /* file navigator modal content */
-.dark #spaces .fileList li{border-color:#666}
+.dark #spaces .fileList li,
+.dark #spaces .fileList li ul{border-color:#333}
 .dark #spaces .fileList li:hover{background:#333}
-.dark #spaces .fileList li ul{border-color:#666}
-.dark #spaces .fileList .lastType{border-color:#000}
+.dark #spaces .fileList .lastType{border-color:#666}
 .dark #spaces .fileList li.selected{background:#234;outline-color:#468}
 .dark #spaces .fileList li.selected:hover{background:#246}
 .dark #spaces .fileList li.selected.cut{background:#363;outline-color:#696;color:#fff}

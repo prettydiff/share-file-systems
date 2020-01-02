@@ -245,7 +245,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 do {
                                                     address = list[b].getElementsByTagName("label")[0].innerHTML;
                                                     if (modalData.selection[address] !== undefined) {
-                                                        list[b].setAttribute("class", modalData.selection[address]);
+                                                        list[b].setAttribute("class", `${list[b].getAttribute("class")} ${modalData.selection[address]}`);
                                                         list[b].getElementsByTagName("input")[0].checked = true;
                                                     }
                                                     b = b + 1;
@@ -397,7 +397,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         length:number = inputs.length;
                                     let a:number = 0;
                                     do {
-                                        if (userLength > 1 && inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
+                                        if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
                                             inputs[a].click();
                                         } else if (inputs[a].name === "audio" && inputs[a].value === "off" && storage.settings.audio === false) {
                                             inputs[a].click();

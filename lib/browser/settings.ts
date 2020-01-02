@@ -112,9 +112,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         oldScheme:string = browser.data.color,
         users:string[] = Object.keys(browser.users),
-        userLength:number = users.length,
-        settingsList:HTMLCollectionOf<HTMLElement> = document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0].getElementsByTagName("li"),
-        listLength:number = settingsList.length;
+        userLength:number = users.length;
     let a:number = 0,
         b:number = 0,
         swatches:HTMLCollectionOf<Element>,
@@ -126,28 +124,37 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
     } else {
         browser.pageBody.setAttribute("class", element.value);
     }
-    do {
-        if (browser.users[users[a]].color[0] === settings.colorDefaults[oldScheme][0] && browser.users[users[a]].color[1] === settings.colorDefaults[oldScheme][1]) {
-            browser.users[users[a]].color[0] = settings.colorDefaults[element.value][0];
-            browser.users[users[a]].color[1] = settings.colorDefaults[element.value][1];
-            settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
-            b = 0;
-            do {
-                if (settingsList[b].getElementsByTagName("p")[0].innerHTML === users[a]) {
-                    swatches = settingsList[b].getElementsByClassName("swatch");
-                    swatch1 = <HTMLElement>swatches[0];
-                    swatch2 = <HTMLElement>swatches[1];
-                    inputs = settingsList[b].getElementsByTagName("input");
-                    swatch1.style.background = browser.users[users[a]].color[0];
-                    swatch2.style.background = browser.users[users[a]].color[1];
-                    inputs[0].value = browser.users[users[a]].color[0];
-                    inputs[1].value = browser.users[users[a]].color[1];
-                }
-                b = b + 1;
-            } while (b < listLength);
-        }
-        a = a + 1;
-    } while (a < userLength);
+    if (userLength > 1) {
+        const userList:HTMLElement = <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0],
+            settingsList:HTMLCollectionOf<HTMLElement> = (userList === undefined)
+                ? null
+                : userList.getElementsByTagName("li"),
+            listLength:number = (settingsList === null)
+                ? 0
+                : settingsList.length;
+        do {
+            if (browser.users[users[a]].color[0] === settings.colorDefaults[oldScheme][0] && browser.users[users[a]].color[1] === settings.colorDefaults[oldScheme][1]) {
+                browser.users[users[a]].color[0] = settings.colorDefaults[element.value][0];
+                browser.users[users[a]].color[1] = settings.colorDefaults[element.value][1];
+                settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
+                b = 0;
+                do {
+                    if (settingsList[b].getElementsByTagName("p")[0].innerHTML === users[a]) {
+                        swatches = settingsList[b].getElementsByClassName("swatch");
+                        swatch1 = <HTMLElement>swatches[0];
+                        swatch2 = <HTMLElement>swatches[1];
+                        inputs = settingsList[b].getElementsByTagName("input");
+                        swatch1.style.background = browser.users[users[a]].color[0];
+                        swatch2.style.background = browser.users[users[a]].color[1];
+                        inputs[0].value = browser.users[users[a]].color[0];
+                        inputs[1].value = browser.users[users[a]].color[1];
+                    }
+                    b = b + 1;
+                } while (b < listLength);
+            }
+            a = a + 1;
+        } while (a < userLength);
+    }
     browser.data.color = <colorScheme>element.value;
     if (browser.loadTest === false) {
         network.storage("settings");

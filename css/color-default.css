@@ -130,8 +130,8 @@
 #spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
-#spaces .fileList li{border-color:#eee}
-#spaces .fileList li ul{border-color:#eee}
+#spaces .fileList li,
+#spaces .fileList li ul{border-color:#ddd}
 #spaces .fileList li.cut:hover{background:#ddb}
 #spaces .fileList li.selected:hover{background:#cde}
 #spaces .fileList li.selected.cut:hover{background:#ada}
