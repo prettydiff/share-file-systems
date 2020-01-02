@@ -270,32 +270,64 @@ const library = {
                                     });
                                 },
                                 keys = function terminal_build_version_stat_read_keys():void {
-                                    if (vars.version.keys !== undefined && vars.version.keys.private !== undefined && vars.version.keys.private.indexOf("PRIVATE KEY-----") > 0 && vars.version.keys.public !== undefined && vars.version.keys.public.indexOf("PUBLIC KEY-----") > 0) {
-                                        writeVersion();
-                                    } else {
-                                        generateKeyPair("ec", {
-                                            namedCurve: "secp521r1",
-                                            publicKeyEncoding:{
-                                                type: "spki",
-                                                format: "pem"
+                                    const keys:versionKeys = vars.version.keys;
+                                    if (
+                                        keys === undefined ||
+                                        keys.device === undefined ||
+                                        keys.user === undefined ||
+                                        keys.device.private === undefined ||
+                                        keys.device.private.indexOf("PRIVATE KEY-----") < 0 ||
+                                        keys.user.private === undefined ||
+                                        keys.user.private.indexOf("PRIVATE KEY-----") < 0 ||
+                                        keys.device.public === undefined ||
+                                        keys.device.public.indexOf("PUBLIC KEY-----") < 0 ||
+                                        keys.user.public === undefined ||
+                                        keys.user.public.indexOf("PUBLIC KEY-----") < 0
+                                    ) {
+                                        const flag = {
+                                                device: false,
+                                                user: false
                                             },
-                                            privateKeyEncoding:{
-                                                type: "pkcs8",
-                                                format: "pem",
-                                                cipher: "aes-256-cbc",
-                                                passphrase: ""
+                                            generate = function terminal_build_version_stat_read_keys_generate(type:"device"|"user"):void {
+                                                generateKeyPair("ec", {
+                                                    namedCurve: "secp521r1",
+                                                    publicKeyEncoding:{
+                                                        type: "spki",
+                                                        format: "pem"
+                                                    },
+                                                    privateKeyEncoding:{
+                                                        type: "pkcs8",
+                                                        format: "pem",
+                                                        cipher: "aes-256-cbc",
+                                                        passphrase: ""
+                                                    }
+                                                }, function terminal_build_version_stat_read_keys_callback(keyError:nodeError, publicKey:string, privateKey:string):void {
+                                                    if (keyError !== null) {
+                                                        library.error([keyError.toString()]);
+                                                        return;
+                                                    }
+                                                    vars.version.keys[type].public = publicKey;
+                                                    vars.version.keys[type].private = privateKey;
+                                                    flag[type] = true;
+                                                    if (flag.device === true && flag.user === true) {
+                                                        writeVersion();
+                                                    }
+                                                });
+                                            };
+                                        vars.version.keys = {
+                                            device: {
+                                                private: "",
+                                                public: ""
+                                            },
+                                            user: {
+                                                private: "",
+                                                public: ""
                                             }
-                                        }, function terminal_build_version_stat_read_keys_callback(keyError:nodeError, publicKey:string, privateKey:string):void {
-                                            if (keyError !== null) {
-                                                library.error([keyError.toString()]);
-                                                return;
-                                            }
-                                            vars.version.keys = {
-                                                private: privateKey,
-                                                public: publicKey
-                                            }
-                                            writeVersion();
-                                        });
+                                        };
+                                        generate("device");
+                                        generate("user");
+                                    } else {
+                                        writeVersion();
                                     }
                                 },
                                 length:number = serverVars.macList.length,

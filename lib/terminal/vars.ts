@@ -118,8 +118,14 @@ const vars:terminalVariables = {
             device: "",
             identity_domain: "",
             keys: {
-                private: "",
-                public: ""
+                device: {
+                    private: "",
+                    public: ""
+                },
+                user: {
+                    private: "",
+                    public: ""
+                }
             },
             name: "",
             number: "",

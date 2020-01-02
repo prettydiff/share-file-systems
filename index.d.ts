@@ -581,13 +581,18 @@ interface version {
     date: string;
     device: string;
     identity_domain: string;
-    keys: {
-        private: string;
-        public: string;
-    };
+    keys: versionKeys;
     name: string;
     number: string;
     port: number;
+}
+interface versionKeys {
+    device: versionKeyPair;
+    user: versionKeyPair;
+}
+interface versionKeyPair {
+    private: string;
+    public: string;
 }
 interface watches {
     [key:string]: any;
