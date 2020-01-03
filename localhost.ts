@@ -397,9 +397,9 @@ import webSocket from "./lib/browser/webSocket.js";
                                         length:number = inputs.length;
                                     let a:number = 0;
                                     do {
-                                        if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
+                                        if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
                                             inputs[a].click();
-                                        } else if (inputs[a].name === "audio" && inputs[a].value === "off" && storage.settings.audio === false) {
+                                        } else if (inputs[a].name.indexOf("audio-") === 0 && inputs[a].value === "off" && storage.settings.audio === false) {
                                             inputs[a].click();
                                         } else if (inputs[a].name === "brotli") {
                                             inputs[a].value = storage.settings.brotli.toString();

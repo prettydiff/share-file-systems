@@ -2,7 +2,7 @@
 body.dark{scrollbar-color:#444 #111}
 
 .dark #spaces{background-color:#333;background-image:url("../media/background-desert_night.jpg")}
-.dark #spaces *:focus{outline-color:#006}
+.dark #spaces *:focus{outline-color:#69f}
 .dark #spaces input::placeholder{color:#c33}
 
 /* Context menu, right click */

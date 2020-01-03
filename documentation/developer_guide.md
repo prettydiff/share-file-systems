@@ -14,10 +14,31 @@ I am not a fan of configuring software.  I consider preliminary software configu
 
 ### version.json Definition
 
+```typescript
+interface version {
+    command: string;
+    date: string;
+    device: string;
+    identity_domain: string;
+    keys: versionKeys;
+    name: string;
+    number: string;
+    port: number;
+}
+interface versionKeys {
+    device: versionKeyPair;
+    user: versionKeyPair;
+}
+interface versionKeyPair {
+    private: string;
+    public: string;
+}
+```
+
 * **command** - The command that executes the application.
 * **date** - The first build date following a change of application version number.
 * **device** - A hash value to uniquely identify the device.  The value is SHA512 from the merging of the OS hostname and any non-local active MAC address.
-* **identity_domain** - The web address to contact for user address resolution.
+* **identity_domain** - The web address to contact for user certificate resolution.
 * **keys** - An object containing properties *device* and *user* each an object containing the properties *private* and *public*. This property stores generated key pairs as string values.
 * **name** - The application's name.
 * **number** - The application version number taken directly from the package.json file.

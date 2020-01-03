@@ -6,6 +6,7 @@ type directoryMode = "hash" | "list" | "read" | "search";
 type dragFlag = "" | "control" | "shift";
 type eventCallback = (event:Event, callback:Function) => void;
 type heartbeatStatus = "" | "active" | "idle" | "offline";
+type inviteType = "device" | "user";
 type messageList = [string, string];
 type messageListError = [string, string, string[]];
 type messageType = "errors" | "status" | "users";
@@ -192,6 +193,12 @@ interface invite {
     port: number;
     shares: userShares;
     status: "accepted" | "declined" | "invited";
+    type: inviteType;
+}
+interface inviteIndexes {
+    ip: number,
+    port: number,
+    type: number
 }
 interface localNetwork {
     family: "ipv4" | "ipv6";
@@ -272,6 +279,7 @@ interface module_invite {
     request?: (options:ui_modal) => void;
     respond?: (message:string) => void;
     start?: modalSettings;
+    typeToggle?: EventHandlerNonNull;
 }
 interface module_modal {
     close?: EventHandlerNonNull;

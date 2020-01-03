@@ -203,7 +203,8 @@ settings.modal = function local_settings_modal(event:MouseEvent):void {
 
 /* The content of the settings modal */
 settings.modalContent = function local_settings_modalContent():HTMLElement {
-    const settingsBody:HTMLElement = document.createElement("div");
+    const settingsBody:HTMLElement = document.createElement("div"),
+        random:string = Math.random().toString();
     let section:HTMLElement = document.createElement("div"),
         h3:HTMLElement = document.createElement("h3"),
         p:HTMLElement = document.createElement("p"),
@@ -249,7 +250,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     input = document.createElement("input");
     label.setAttribute("class", "radio");
     input.type = "radio";
-    input.name = "audio";
+    input.name = `audio-${random}`;
     input.value = "on";
     input.checked = true;
     input.onclick = settings.audio;
@@ -261,7 +262,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     input = document.createElement("input");
     label.setAttribute("class", "radio");
     input.type = "radio";
-    input.name = "audio";
+    input.name = `audio-${random}`;
     input.value = "off";
     input.onclick = settings.audio;
     text = document.createTextNode("Off");
@@ -283,7 +284,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     section.appendChild(h3);
     input.type = "radio";
     input.checked = true;
-    input.name = "color-scheme";
+    input.name = `color-scheme-${random}`;
     input.value = "default";
     input.onclick = settings.colorScheme;
     label.innerHTML = "Default";
@@ -293,7 +294,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     input = document.createElement("input");
     label.setAttribute("class", "radio");
     input.type = "radio";
-    input.name = "color-scheme";
+    input.name = `color-scheme-${random}`;
     input.value = "dark";
     input.onclick = settings.colorScheme;
     label.innerHTML ="Dark";
