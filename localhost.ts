@@ -386,7 +386,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     share.deleteList(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "invite-request") {
-                                    invite.start(null, "", storage.settings.modals[value]);
+                                    invite.start(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "settings") {
                                     storage.settings.modals[value].content = settings.modalContent();

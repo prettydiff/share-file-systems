@@ -64,8 +64,26 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
 };
 
 /* Basic form validation on the port field */
-invite.port = function local_invite_port(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
+    const portElement:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        portParent:HTMLElement = <HTMLElement>portElement.parentNode,
+        element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
+            ? portElement
+            : (function local_invite_port_finder():HTMLInputElement {
+                let body:HTMLElement = portParent,
+                    a:number = 0;
+                do {
+                    body = <HTMLElement>body.parentNode;
+                } while (body !== document.documentElement && body.getAttribute("class") !== "body");
+                const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
+                    length:number = inputs.length;
+                do {
+                    if (inputs[a].getAttribute("placeholder") === "Number 1024-65535") {
+                        return inputs[a];
+                    }
+                    a = a + 1;
+                } while (a < length);
+            }()),
         parent:HTMLElement = <HTMLElement>element.parentNode,
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
@@ -86,7 +104,8 @@ invite.port = function local_invite_port(event:KeyboardEvent):void {
 invite.request = function local_invite_request(options:ui_modal):void {
     let type:inviteType,
         ip:string,
-        port:string;
+        port:string,
+        portNumber:number;
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         box:HTMLElement = (function local_modal_confirm_box():HTMLElement {
             let bx:HTMLElement = element;
@@ -106,7 +125,6 @@ invite.request = function local_invite_request(options:ui_modal):void {
                     port: -1
                 };
             let a:number = 0,
-                portNumber:number,
                 parentNode:HTMLElement;
             do {
                 parentNode = <HTMLElement>inputs[a].parentNode;
@@ -132,11 +150,12 @@ invite.request = function local_invite_request(options:ui_modal):void {
             if (ip === undefined || ip.replace(/\s+/, "") === "" || ((/(\d{1,3}\.){3}\d{1,3}/).test(ip) === false && (/([a-f0-9]{4}:)+/).test(ip) === false)) {
                 return inputs[indexes.ip];
             }
-            if (port === undefined || port === "") {
-                port = "0";
+            if (port === undefined || port.replace(/^\s+$/, "") === "") {
+                port = "";
+                portNumber = 80;
             } else {
                 portNumber = Number(port);
-                if (isNaN(portNumber) === true || portNumber > 65535) {
+                if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {
                     return inputs[indexes.port];
                 }
             }
@@ -145,13 +164,6 @@ invite.request = function local_invite_request(options:ui_modal):void {
         body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
         content:HTMLElement = <HTMLElement>body.getElementsByClassName("inviteUser")[0],
         footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-        portNumber:number = (function local_modal_confirm_port():number {
-            const numb:number = Number(port);
-            if (port.replace(/^\s+$/, "") === "" || isNaN(numb) === true || numb < 0 || numb > 65535) {
-                return 80;
-            }
-            return numb;
-        }()),
         inviteData:invite = {
             action: "invite",
             ip: ip,
@@ -163,6 +175,8 @@ invite.request = function local_invite_request(options:ui_modal):void {
             status: "invited",
             type: type
         };
+    options.text_value = `{"type":"${type}","ip":"${ip}","port":"${port}","message":"${box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\"")}"}`;
+    network.storage("settings");
     if (input !== null) {
         input.focus();
         return;
@@ -173,7 +187,6 @@ invite.request = function local_invite_request(options:ui_modal):void {
         content.removeChild(content.getElementsByClassName("error")[0]);
     }
     body.appendChild(util.delay());
-    options.text_value = `type:${type}|spaces|${ip}|spaces|${port}|spaces|${box.getElementsByTagName("textarea")[0].value}`;
     network.inviteRequest(inviteData);
 };
 
@@ -282,7 +295,7 @@ invite.respond = function local_invite_respond(message:string):void {
 };
 
 /* Invite users to your shared space */
-invite.start = function local_invite_start(event:MouseEvent, textInput?:string, settings?:ui_modal):void {
+invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal):void {
     const inviteElement:HTMLElement = document.createElement("div"),
         separator:string = "|spaces|",
         random:string = Math.random().toString(),
@@ -298,26 +311,19 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
-            invite.port(event);
+            invite.portValidation(event);
             browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
             network.storage("settings");
-        };
+        },
+        saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
+            ? JSON.parse(settings.text_value)
+            : null;
     let p:HTMLElement = document.createElement("p"),
         label:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
         text:HTMLTextAreaElement = document.createElement("textarea"),
-        textStorage:string,
         h3:HTMLElement = document.createElement("h3"),
-        section:HTMLElement = document.createElement("div"),
-        values:string[] = [];
-    if (settings !== undefined && typeof settings.text_value === "string" && settings.text_value !== "") {
-        textStorage = settings.text_value;
-        values.push(textStorage.slice(0, textStorage.indexOf(separator)));
-        textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
-        values.push(textStorage.slice(0, textStorage.indexOf(separator)));
-        textStorage = textStorage.slice(textStorage.indexOf(separator) + separator.length);
-        values.push(textStorage);
-    }
+        section:HTMLElement = document.createElement("div");
 
     // Type
     h3.innerHTML = "Connection Type";
@@ -325,6 +331,9 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     input.name = `invite-type-${random}`;
     input.type = "radio";
     input.value = "device";
+    if (saved !== null && saved.type === "device") {
+        input.checked = true;
+    }
     input.onclick = invite.typeToggle;
     label.setAttribute("class", "radio");
     label.innerHTML = "Personal Device";
@@ -335,6 +344,9 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     input.name = `invite-type-${random}`;
     input.type = "radio";
     input.value = "user";
+    if (saved !== null && saved.type === "user") {
+        input.checked = true;
+    }
     input.onclick = invite.typeToggle;
     label.setAttribute("class", "radio");
     label.innerHTML = "User";
@@ -359,8 +371,8 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     input = document.createElement("input");
     label.innerHTML = "IP Address";
     input.setAttribute("type", "text");
-    if (values.length > 0) {
-        input.value = values[0];
+    if (saved !== null) {
+        input.value = saved.ip;
     }
     input.onblur = blur;
     label.appendChild(input);
@@ -374,9 +386,9 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     label.innerHTML = "Port";
     input.setAttribute("type", "text");
     input.placeholder = "Number 1024-65535";
-    input.onkeyup = invite.port;
-    if (values.length > 0) {
-        input.value = values[1];
+    input.onkeyup = invite.portValidation;
+    if (saved !== null) {
+        input.value = saved.port;
     }
     input.onblur = blur;
     label.appendChild(input);
@@ -387,8 +399,8 @@ invite.start = function local_invite_start(event:MouseEvent, textInput?:string, 
     p = document.createElement("p");
     label = document.createElement("label");
     label.innerHTML = "Invitation Message";
-    if (values.length > 0) {
-        text.value = values[2];
+    if (saved !== null) {
+        text.value = saved.message;
     }
     text.onblur = blur;
     label.appendChild(text);

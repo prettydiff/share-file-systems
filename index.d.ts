@@ -200,6 +200,12 @@ interface inviteIndexes {
     port: number,
     type: number
 }
+interface inviteSaved {
+    ip: string;
+    port: string;
+    message: string;
+    type: inviteType;
+}
 interface localNetwork {
     family: "ipv4" | "ipv6";
     ip: string;
@@ -275,10 +281,10 @@ interface module_identity {
 interface module_invite {
     accept?: (box:HTMLElement) => void;
     decline?: EventHandlerNonNull;
-    port?: EventHandlerNonNull;
+    portValidation?: EventHandlerNonNull;
     request?: (options:ui_modal) => void;
     respond?: (message:string) => void;
-    start?: modalSettings;
+    start?: sharesDeleteList;
     typeToggle?: EventHandlerNonNull;
 }
 interface module_modal {
