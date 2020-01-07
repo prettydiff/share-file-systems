@@ -5,6 +5,7 @@ import context from "./context.js";
 import fs from "./fs.js";
 import network from "./network.js";
 import share from "./share.js";
+import test from "../terminal/test.js";
 
 const util:module_util = {};
 
@@ -114,30 +115,9 @@ util.delay = function local_util_delay():HTMLElement {
 /* Drag a selection box to capture a collection of items into a selection */
 util.dragBox = function local_util_dragBox(event:Event, callback:Function):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        list:HTMLElement = (function local_util_dragBox_list():HTMLElement {
-            if (element.getAttribute("class") === "fileList") {
-                return element;
-            }
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "fileList");
-            return el;
-        }()),
-        body:HTMLElement = (function local_util_dragBox_body():HTMLElement {
-            let el:HTMLElement = list;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "body");
-            return el;
-        }()),
-        box:HTMLElement = (function local_util_dragBox_box():HTMLElement {
-            let el:HTMLElement = body;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        list:HTMLElement = util.getAncestor(element, "fileList", "class"),
+        body:HTMLElement = util.getAncestor(list, "body", "class"),
+        box:HTMLElement = util.getAncestor(body, "box", "class"),
         boxTop:number = box.offsetTop,
         boxLeft:number = box.offsetLeft,
         bodyTop:number = body.offsetTop,
@@ -422,17 +402,41 @@ util.fixHeight = function local_util_fixHeight():void {
     document.getElementById("users").style.height = `${(height - 102) / 10}em`;
 };
 
+/* Gets a node higher in the tree */
+util.getAncestor = function local_util_getAncestor(start:HTMLElement, identifier:string, selector:selector):HTMLElement {
+    if (start === null || start === undefined) {
+        return null;
+    }
+    const test = function local_util_getAncestor_test():boolean {
+        if (selector === "class") {
+            if (start.getAttribute("class") === identifier) {
+                return true;
+            }
+            return false;
+        }
+        if (selector === "id") {
+            if (start.getAttribute("id") === identifier) {
+                return true;
+            }
+            return false;
+        }
+        if (start.nodeName.toLowerCase() === identifier) {
+            return true;
+        }
+        return false;
+    };
+    if (test() === true) {
+        return start;
+    }
+    do {
+        start = <HTMLElement>start.parentNode;
+    } while (start !== document.documentElement && test() === false);
+    return start;
+};
+
 /* Get the agent of a given modal */
 util.getAgent = function local_util_getAgent(element:HTMLElement):[string, boolean] {
-    const box:HTMLElement = (element.getAttribute("class") === "box")
-        ? element
-        : (function local_util_getAgent_box():HTMLElement {
-            let boxEl:HTMLElement = element;
-            do {
-                boxEl = <HTMLElement>boxEl.parentNode;
-            } while (boxEl !== document.documentElement && boxEl.getAttribute("class") !== "box");
-            return boxEl;
-        }()),
+    const box:HTMLElement = util.getAncestor(element, "box", "class"),
     id:string = box.getAttribute("id");
     return [browser.data.modals[id].agent, browser.data.modals[id].read_only];
 };
@@ -445,10 +449,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
-            return el;
+            return util.getAncestor(el, "li", "tag");
         }());
     if (key === 116 || (event.ctrlKey === true && key === 82)) {
         location.reload();
@@ -557,6 +558,7 @@ util.minimizeAll = function local_util_minimizeAll(event:MouseEvent) {
     let a:number = 0,
         status:modalStatus,
         minimize:HTMLButtonElement;
+    util.minimizeAllFlag = true;
     do {
         status = browser.data.modals[keys[a]].status;
         if (status === "normal" || status === "maximized") {
@@ -567,7 +569,11 @@ util.minimizeAll = function local_util_minimizeAll(event:MouseEvent) {
         }
         a = a + 1;
     } while (a < length);
+    util.minimizeAllFlag = false;
+    network.storage("settings");
 };
+
+util.minimizeAllFlag = false;
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
 util.selectedAddresses = function local_util_selectedAddresses(element:HTMLElement, type:string):[string, string][] {
@@ -583,22 +589,11 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
-    box = element;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    box = util.getAncestor(element, "box", "class");
     dataModal = browser.data.modals[box.getAttribute("id")];
     itemList = (drag === true)
         ? parent.getElementsByTagName("li")
-        : (function local_util_selectedAddresses_box():HTMLCollectionOf<HTMLElement> {
-            let box:HTMLElement = element;
-            if (box.getAttribute("class") !== "box") {
-                do {
-                    box = <HTMLElement>box.parentNode;
-                } while (box !== document.documentElement && box.getAttribute("class") !== "box");
-            }
-            return box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
-        }());
+        : box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
     length = itemList.length;
     do {
         if (itemList[a].getElementsByTagName("input")[0].checked === true) {
@@ -631,19 +626,14 @@ util.selectExpression = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function local_util_selectNone(element:HTMLElement):void {
+    const box:HTMLElement = util.getAncestor(element, "box", "class");
     let a:number = 0,
         inputLength:number,
         li:HTMLCollectionOf<HTMLElement>,
         inputs:HTMLCollectionOf<HTMLInputElement>,
-        box:HTMLElement = element,
         fileList:HTMLElement;
     if (document.getElementById("newFileItem") !== null) {
         return;
-    }
-    if (box.getAttribute("class") !== "box") {
-        do {
-            box = <HTMLElement>box.parentNode;
-        } while (box !== document.documentElement && box.getAttribute("class") !== "box");
     }
     fileList = <HTMLElement>box.getElementsByClassName("fileList")[0];
     inputs = fileList.getElementsByTagName("input");

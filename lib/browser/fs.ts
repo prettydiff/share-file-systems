@@ -11,13 +11,7 @@ const fs:module_fs = {};
 /* step back through a modal's address history */
 fs.back = function local_fs_back(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_fs_back_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         id:string = box.getAttribute("id"),
         header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
         address:HTMLInputElement = <HTMLInputElement>header.getElementsByTagName("input")[0],
@@ -35,18 +29,12 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element
             : <HTMLElement>element.parentNode,
+        body:HTMLElement = util.getAncestor(li, "body", "class"),
+        box:HTMLElement = <HTMLElement>body.parentNode.parentNode,
+        input:HTMLInputElement = box.getElementsByTagName("input")[0],
+        watchValue:string = input.value,
         path:string = li.getElementsByTagName("label")[0].innerHTML;
-    let body:HTMLElement = li,
-        box:HTMLElement,
-        input:HTMLInputElement,
-        watchValue:string;
     event.preventDefault();
-    do {
-        body = <HTMLElement>body.parentNode;
-    } while (body !== document.documentElement && body.getAttribute("class") !== "body");
-    box = <HTMLElement>body.parentNode.parentNode;
-    input = box.getElementsByTagName("input")[0];
-    watchValue = input.value;
     input.value = path;
     browser.data.modals[box.getAttribute("id")].history.push(path);
     network.fs({
@@ -79,10 +67,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             if (el.nodeName.toLowerCase() === "li") {
                 return el;
             }
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
-            return el;
+            return util.getAncestor(el, "li", "tag");
         }()),
         fileList:HTMLElement = (function local_fs_drag_fileList():HTMLElement {
             let parent:HTMLElement = <HTMLElement>element.parentNode;
@@ -181,9 +166,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     if (goal === undefined || goal === fileList) {
                         return "";
                     }
-                    do {
-                        goal = <HTMLElement>goal.parentNode;
-                    } while (goal !== document.documentElement && goal.getAttribute("class") !== "box");
+                    goal = util.getAncestor(goal, "box", "class");
                     id = goal.getAttribute("id");
                     agent = browser.data.modals[id].agent;
                     return goal.getElementsByTagName("input")[0].value;
@@ -291,13 +274,7 @@ fs.dragFlag = "";
 /* Shows child elements of a directory */
 fs.expand = function local_fs_expand(event:MouseEvent):void {
     const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = button;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(button, "box", "class"),
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
         button.innerHTML = "-<span>Collapse this folder</span>";
@@ -673,14 +650,9 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
     const element:HTMLElement = (context.element === null)
             ? <HTMLElement>event.srcElement || <HTMLElement>event.target
             : context.element,
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         input:HTMLInputElement = document.createElement("input"),
+        li:HTMLElement = util.getAncestor(element, "li", "tag"),
         action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.keyCode === 13)) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
@@ -711,8 +683,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 input.value = input.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
             }
         };
-    let li:HTMLElement = element,
-        label:HTMLElement,
+    let label:HTMLElement,
         slash:"\\" | "/" = "/",
         last:string,
         text:string,
@@ -720,11 +691,6 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
         dir:string;
     if (document.getElementById("fsRename") !== null) {
         return;
-    }
-    if (li.nodeName.toLowerCase() !== "li") {
-        do {
-            li = <HTMLElement>li.parentNode;
-        } while (li !== document.documentElement && li.nodeName.toLowerCase() !== "li");
     }
     label = li.getElementsByTagName("label")[0];
     text = label.innerHTML;

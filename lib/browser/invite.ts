@@ -15,14 +15,18 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
         invite:invite = JSON.parse(dataString);
     network.inviteAccept({
         action: "invite-response",
+        deviceKey: "",
+        deviceName: "",
+        ip: invite.ip,
         message: `Invite accepted: ${util.dateFormat(new Date())}`,
         name: browser.data.name,
-        ip: invite.ip,
         modal: invite.modal,
         port: invite.port,
         shares: browser.users.localhost.shares,
         status: "accepted",
-        type: invite.type
+        type: invite.type,
+        userHash: "",
+        userName: ""
     });
     if (invite.ip.indexOf(":") < 0) {
         user = `${invite.name}@${invite.ip}:${invite.port}`;
@@ -39,18 +43,14 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
 /* Handler for declining an invitation request */
 invite.decline = function local_invite_decline(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        boxLocal:HTMLElement = (function local_invite_decline_action_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        boxLocal:HTMLElement = util.getAncestor(element, "box", "class"),
         para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
         invite:invite = JSON.parse(dataString);
     network.inviteAccept({
         action: "invite-response",
+        deviceKey: "",
+        deviceName: "",
         message: `Invite declined: ${util.dateFormat(new Date())}`,
         name: browser.data.name,
         ip: invite.ip,
@@ -58,7 +58,9 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
         port: invite.port,
         shares: browser.users.localhost.shares,
         status: "declined",
-        type: invite.type
+        type: invite.type,
+        userHash: "",
+        userName: ""
     });
     modal.close(event);  
 };
@@ -70,11 +72,8 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
         element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
             ? portElement
             : (function local_invite_port_finder():HTMLInputElement {
-                let body:HTMLElement = portParent,
+                let body:HTMLElement = util.getAncestor(portParent, "body", "class"),
                     a:number = 0;
-                do {
-                    body = <HTMLElement>body.parentNode;
-                } while (body !== document.documentElement && body.getAttribute("class") !== "body");
                 const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
                     length:number = inputs.length;
                 do {
@@ -107,13 +106,7 @@ invite.request = function local_invite_request(options:ui_modal):void {
         port:string,
         portNumber:number;
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_modal_confirm_box():HTMLElement {
-            let bx:HTMLElement = element;
-            do {
-                bx = <HTMLElement>bx.parentNode;
-            } while (bx !== document.documentElement && bx.getAttribute("class") !== "box");
-            return bx;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         input:HTMLElement = (function local_invite_request():HTMLElement {
 
             // value attainment and form validation
@@ -166,6 +159,8 @@ invite.request = function local_invite_request(options:ui_modal):void {
         footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
         inviteData:invite = {
             action: "invite",
+            deviceKey: "",
+            deviceName: "",
             ip: ip,
             message: box.getElementsByTagName("textarea")[0].value,
             modal: options.id,
@@ -173,7 +168,9 @@ invite.request = function local_invite_request(options:ui_modal):void {
             port: portNumber,
             shares: browser.users.localhost.shares,
             status: "invited",
-            type: type
+            type: type,
+            userHash: "",
+            userName: ""
         };
     options.text_value = `{"type":"${type}","ip":"${ip}","port":"${port}","message":"${box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\"")}"}`;
     network.storage("settings");
@@ -301,13 +298,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
         random:string = Math.random().toString(),
         blur = function local_invite_start_blur(event:FocusEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                box:HTMLElement = (function local_invite_start_blur_box():HTMLElement {
-                    let item:HTMLElement = element;
-                    do {
-                        item = <HTMLElement>item.parentNode;
-                    } while (item !== document.documentElement && item.getAttribute("class") !== "box");
-                    return item;
-                }()),
+                box:HTMLElement = util.getAncestor(element, "box", "class"),
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];

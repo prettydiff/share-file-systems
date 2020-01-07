@@ -24,10 +24,7 @@ context.copy = function local_context_copy(event:MouseEvent):void {
     if (element.nodeName !== "li") {
         element = <HTMLElement>element.parentNode;
     }
-    box = <HTMLElement>element.parentNode;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    box = util.getAncestor(<HTMLElement>element.parentNode, "box", "class");
     selected = util.selectedAddresses(element, type);
     if (selected.length < 1) {
         addresses.push(element.getElementsByTagName("label")[0].innerHTML);
@@ -64,13 +61,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                     ? "Edit"
                     : "Hash",
         addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         length:number = addresses.length,
         agency:[string, boolean] = util.getAgent(box),
         locations:string[] = [];
@@ -150,13 +141,7 @@ context.destroy = function local_context_destroy():void {
     let element:HTMLElement = context.element,
         selected:[string, string][],
         addresses:string[] = [],
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()); 
+        box:HTMLElement = util.getAncestor(element, "box", "class"); 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
@@ -489,15 +474,8 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
-    if (element.getAttribute("class") !== "fileList") {
-        do {
-            element = <HTMLElement>element.parentNode;
-        } while (element !== document.documentElement && element.getAttribute("class") !== "fileList");
-    }
-    box = <HTMLElement>element.parentNode;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    element = util.getAncestor(element, "fileList", "class");
+    box = util.getAncestor(<HTMLElement>element.parentNode, "box", "class");
     path = box.getElementsByTagName("input")[0].value;
     if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
         slash = "\\";
@@ -524,13 +502,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         parent:HTMLElement = <HTMLElement>element.parentNode,
         item:HTMLElement,
         button:HTMLButtonElement,
-        box:HTMLElement = (function local_context_menu_box():HTMLElement {
-            let el:HTMLElement = parent;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
@@ -558,10 +530,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             destroy: function local_context_menu_destroy():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent;
-                do {
-                    input = <HTMLInputElement>input.parentNode;
-                } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -634,10 +603,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             rename: function local_context_menu_rename():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent;
-                do {
-                    input = <HTMLInputElement>input.parentNode;
-                } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -748,12 +714,9 @@ context.menuRemove = function local_context_menuRemove():void {
 
 /* Prepare the network action to write files */
 context.paste = function local_context_paste():void {
-    let element:HTMLElement = context.element,
+    let element:HTMLElement = util.getAncestor(context.element, "box", "class"),
         destination:string,
         clipData:clipboard = JSON.parse(clipboard);
-    do {
-        element = <HTMLElement>element.parentNode;
-    } while (element !== document.documentElement && element.getAttribute("class") !== "box");
     destination = element.getElementsByTagName("input")[0].value;
     network.fs({
         action   : `fs-${clipData.type}`,

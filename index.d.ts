@@ -14,6 +14,7 @@ type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
 type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
 type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
 type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
+type selector = "class" | "id" | "tag";
 type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type shareType = "directory" | "file" | "link";
@@ -186,6 +187,8 @@ interface httpConfiguration {
 }
 interface invite {
     action: "invite" | "invite-request" | "invite-response" | "invite-complete";
+    deviceKey: string;
+    deviceName: string;
     ip: string;
     message: string;
     modal: string;
@@ -194,6 +197,8 @@ interface invite {
     shares: userShares;
     status: "accepted" | "declined" | "invited";
     type: inviteType;
+    userHash: string;
+    userName: string;
 }
 interface inviteIndexes {
     ip: number,
@@ -342,11 +347,13 @@ interface module_util {
     dragList?: (event:Event, dragBox:HTMLElement) => void;
     fileListStatus?: (text:string) => void;
     fixHeight?: () => void;
+    getAncestor?: (start:HTMLElement, identifier:string, selector:selector) => HTMLElement;
     getAgent?: (element:HTMLElement) => [string, boolean];
     keys?: (event:KeyboardEvent) => void;
     login?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
     minimizeAll?: EventHandlerNonNull;
+    minimizeAllFlag?: boolean;
     prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectExpression?: RegExp;
