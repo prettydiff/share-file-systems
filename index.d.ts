@@ -154,6 +154,7 @@ interface FSWatcher extends Function {
     time: number;
 }
 interface hashInput {
+    algorithm?: string;
     callback: Function;
     directInput: boolean;
     id?: string;
@@ -347,6 +348,7 @@ interface module_util {
     dragList?: (event:Event, dragBox:HTMLElement) => void;
     fileListStatus?: (text:string) => void;
     fixHeight?: () => void;
+    formKeys?: (event:KeyboardEvent, submit:Function) => void;
     getAncestor?: (start:HTMLElement, identifier:string, selector:selector) => HTMLElement;
     getAgent?: (element:HTMLElement) => [string, boolean];
     keys?: (event:KeyboardEvent) => void;

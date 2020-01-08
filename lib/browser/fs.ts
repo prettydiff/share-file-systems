@@ -714,13 +714,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 /* A service to write file changes to the file system */
 fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
         agency:[string, boolean] = util.getAgent(box);
     let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1];
@@ -755,13 +749,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
         ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
         : searchElement;
     if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        const box:HTMLElement = (function local_fs_search_box():HTMLElement {
-                let el:HTMLElement = element;
-                do {
-                    el = <HTMLElement>el.parentNode;
-                } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-                return el;
-            }()),
+        const box:HTMLElement = util.getAncestor(element, "box", "class"),
             body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
             addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
             address:string = addressLabel.getElementsByTagName("input")[0].value,
@@ -878,9 +866,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     }
     input.focus();
     modal.zTop(event);
-    do {
-        body = <HTMLElement>body.parentNode;
-    } while (body !== document.documentElement && body.getAttribute("class") !== "body");
+    body = util.getAncestor(body, "body", "class");
     box = <HTMLElement>body.parentNode.parentNode;
     modalData = browser.data.modals[box.getAttribute("id")];
 

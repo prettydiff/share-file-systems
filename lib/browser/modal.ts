@@ -12,21 +12,18 @@ const modal:module_modal = {};
 modal.close = function local_modal_close(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         keys:string[] = Object.keys(browser.data.modals),
-        keyLength:number = keys.length;
-    let parent:HTMLElement = <HTMLElement>element.parentNode,
-        id:string,
+        keyLength:number = keys.length,
+        box:HTMLElement = util.getAncestor(element, "box", "class");
+    let id:string,
         type:string,
         a:number = 0,
         count:number = 0;
-    do {
-        parent = <HTMLElement>parent.parentNode;
-    } while (parent.getAttribute("class") !== "box");
-    if (parent.parentNode === null) {
+    if (box.parentNode === null) {
         return;
     }
-    parent.onclick = null;
-    parent.parentNode.removeChild(parent);
-    id = parent.getAttribute("id");
+    box.onclick = null;
+    box.parentNode.removeChild(box);
+    id = box.getAttribute("id");
     type = id.split("-")[0];
     do {
         if (browser.data.modals[keys[a]].type === type) {
@@ -494,7 +491,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         border:HTMLElement = util.getAncestor(element, "border", "class"),
         box:HTMLElement = <HTMLElement>border.parentNode,
         id:string = box.getAttribute("id"),
-        title:HTMLElement = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];;
+        title:HTMLElement = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
     let buttons:HTMLElement,
         children:NodeListOf<ChildNode>,
         borders:number,

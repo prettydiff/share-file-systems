@@ -195,7 +195,7 @@ const library = {
                         }
                     });
                 },
-                // write the current version and change date
+                // write the current version, change date, and modify html
                 version: function terminal_build_version():void {
                     const pack:string = `${vars.projectPath}package.json`;
                     heading("Writing version data");
@@ -243,13 +243,19 @@ const library = {
                                     return "DEC";
                                 }
                             }()),
-                            date:string = `${stat.mtime.getDate().toString()} ${month} ${stat.mtime.getFullYear().toString()}`,
+                            dayString:string = stat.mtime.getDate().toString(),
+                            dayPadded:string = (dayString.length < 2)
+                                ? `0${dayString}`
+                                : dayString,
+                            date:string = `${dayPadded} ${month} ${stat.mtime.getFullYear().toString()}`,
                             flag = {
                                 json: false,
                                 html: false
                             },
                             html:string = `${vars.projectPath}index.html`;
                         vars.version.date = date.replace(/-/g, "");
+
+                        // read package.json
                         vars.node.fs.readFile(pack, "utf8", function terminal_build_version_stat_read(err:Error, data:string) {
                             if (err !== null) {
                                 library.error([err.toString()]);
@@ -353,13 +359,17 @@ const library = {
                                     });
                                 };
                             vars.version.number = JSON.parse(data).version;
+
+                            // generate identity hashes and key pair
                             identity();
+
+                            // modify HTML
                             vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
                                 if (err !== null) {
                                     library.error([err.toString()]);
                                     return;
                                 }
-                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)+\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
+                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
                                     stringInsert = function terminal_build_version_stat_read_html_stringInsert(insert:modifyFile):string {
                                         const index:number = insert.source.indexOf(insert.start) + insert.start.length,
                                             startSegment:string = insert.source.slice(0, index),

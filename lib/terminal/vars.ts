@@ -127,9 +127,9 @@ const vars:terminalVariables = {
                     public: ""
                 }
             },
-            name: "",
+            name: "Share File Systems",
             number: "",
-            port: 0
+            port: 80
         },
         ws: ""
     };

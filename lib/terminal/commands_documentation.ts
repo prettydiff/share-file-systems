@@ -158,6 +158,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} hash path/to/directory list`,
                 defined: "Returns a JSON string listing all scanned file system objects and each respective hash."
+            },
+            {
+                code: `${vars.version.command} hash algorithm:sha3-512`,
+                defined: "Allows a choice of hashing algorithm. Algorithms supported by OpenSSL are allowed."
             }
         ]
     },

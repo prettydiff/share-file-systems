@@ -402,6 +402,26 @@ util.fixHeight = function local_util_fixHeight():void {
     document.getElementById("users").style.height = `${(height - 102) / 10}em`;
 };
 
+/* A simple utility to provide form execution to input fields not in a form */
+util.formKeys = function local_util_login(event:KeyboardEvent, submit:Function):void {
+    const key:string = event.key;
+    if (key === "Enter") {
+        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            div:HTMLElement = util.getAncestor(element, "div", "tag"),
+            inputs:HTMLCollectionOf<HTMLInputElement> = div.getElementsByTagName("input"),
+            length:number = inputs.length;
+        let a:number = 0;
+        do {
+            if (inputs[a].value.replace(/\s+/g, "") === "") {
+                inputs[a].focus();
+                return;
+            }
+            a = a + 1;
+        } while (a < length);
+        submit();
+    }
+};
+
 /* Gets a node higher in the tree */
 util.getAncestor = function local_util_getAncestor(start:HTMLElement, identifier:string, selector:selector):HTMLElement {
     if (start === null || start === undefined) {
@@ -443,7 +463,7 @@ util.getAgent = function local_util_getAgent(element:HTMLElement):[string, boole
 
 /* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
-    const key:number = event.keyCode,
+    const key:string = event.key,
         element:HTMLElement = (function local_util_keys_element():HTMLElement {
             let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
@@ -451,7 +471,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             }
             return util.getAncestor(el, "li", "tag");
         }());
-    if (key === 116 || (event.ctrlKey === true && key === 82)) {
+    if (key === "F5" || key === "f5" || (event.ctrlKey === true && (key === "r" || key === "R"))) {
         location.reload();
     }
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
@@ -461,48 +481,48 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();
     }
-    if (key === 46) {
+    if (key === "Delete" || key === "DEL") {
         context.element = element;
         context.destroy(event);
     } else if (event.altKey === true && event.ctrlKey === true) {
-        if (key === 66 && element.nodeName.toLowerCase() === "li") {
+        if ((key === "b" || key === "B") && element.nodeName.toLowerCase() === "li") {
             // key b, base64
             context.element = element;
             context.type = "Base64";
             context.dataString(event);
-        } else if (key === 68) {
+        } else if (key === "d" || key === "D") {
             // key d, new directory
             context.element = element;
             context.type = "directory";
             context.fsNew;
-        } else if (key === 69) {
+        } else if (key === "e" || key === "E") {
             // key e, edit file
             context.element = element;
             context.type = "Edit";
             context.dataString(event);
-        } else if (key === 70) {
+        } else if (key === "f" || key === "F") {
             // key f, new file
             context.element = element;
             context.type = "file";
             context.fsNew;
-        } else if (key === 72 && element.nodeName.toLowerCase() === "li") {
+        } else if ((key === "h" || key === "H") && element.nodeName.toLowerCase() === "li") {
             // key h, hash
             context.element = element;
             context.type = "Hash";
             context.dataString(event);
-        } else if (key === 82 && element.nodeName.toLowerCase() === "li") {
+        } else if ((key === "r" || key === "R") && element.nodeName.toLowerCase() === "li") {
             // key r, rename
             fs.rename(event);
-        } else if (key === 83) {
+        } else if (key === "s" || key === "S") {
             // key s, share
             context.element = element;
             share.context(event);
-        } else if (key === 84) {
+        } else if (key === "t" || key === "T") {
             // key t, details
             context.details(event, element);
         }
     } else if (event.ctrlKey === true) {
-        if (key === 65) {
+        if (key === "a" || key === "A") {
             // key a, select all
             const list:HTMLElement = (element.nodeName.toLowerCase() === "ul")
                     ? element
@@ -515,20 +535,20 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
                 items[a].getElementsByTagName("input")[0].checked = true;
                 a = a + 1;
             } while (a < length);
-        } else if (key === 67) {
+        } else if (key === "c" || key === "C") {
             // key c, copy
             context.element = element;
             context.type = "copy";
             context.copy(event);
-        } else if (key === 68 && element.nodeName.toLowerCase() === "li") {
+        } else if ((key === "d" || key === "D") && element.nodeName.toLowerCase() === "li") {
             // key d, destroy
             context.element = element;
             context.destroy(event);
-        } else if (key === 86) {
+        } else if (key === "v" || key === "V") {
             // key v, paste
             context.element = element;
             context.paste(event);
-        } else if (key === 88) {
+        } else if (key === "x" || key === "X") {
             // key x, cut
             context.element = element;
             context.type = "cut";
@@ -552,7 +572,7 @@ util.menu = function local_util_menu():void {
 };
 
 /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-util.minimizeAll = function local_util_minimizeAll(event:MouseEvent) {
+util.minimizeAll = function local_util_minimizeAll() {
     const keys:string[] = Object.keys(browser.data.modals),
         length:number = keys.length;
     let a:number = 0,
@@ -607,7 +627,11 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
             }
         } else {
             itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, ""));
-            delete dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML];
+            if (dataModal.selection === undefined) {
+                dataModal.selection = {};
+            } else {
+                delete dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML];
+            }
         }
         a = a + 1;
     } while (a < length);

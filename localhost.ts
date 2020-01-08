@@ -81,7 +81,19 @@ import webSocket from "./lib/browser/webSocket.js";
                                 }
                             }
                             active = Date.now();
-                        };
+                        },
+                        login = function local_restore_complete_login(event:KeyboardEvent):void {
+                            util.formKeys(event, util.login);
+                        },
+                        loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
+                        loginInputsLength:number = loginInputs.length;
+                    let a:number = 0;
+
+                    do {
+                        loginInputs[a].onkeyup = login;
+                        a = a + 1;
+                    } while (a < loginInputsLength);
+
                     browser.socket = webSocket();
                     setTimeout(idleness, idleTime);
 
@@ -90,7 +102,6 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("menuToggle").onclick = util.menu;
                     document.getElementById("all-shares").onclick = share.modal;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
-                    document.getElementById("login-input").onkeyup = util.login;
                     document.getElementById("user-delete").onclick = share.deleteList;
                     document.getElementById("user-invite").onclick = invite.start;
                     document.getElementById("systemLog").onclick = systems.modal;
@@ -393,7 +404,6 @@ import webSocket from "./lib/browser/webSocket.js";
                                     modal.create(storage.settings.modals[value]);
                                     browser.data.brotli = storage.settings.brotli;
                                     const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
-                                        userLength:number = Object.keys(browser.users).length,
                                         length:number = inputs.length;
                                     let a:number = 0;
                                     do {

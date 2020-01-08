@@ -37,7 +37,7 @@ const library = {
             output.push(`${vars.text.underline}Example${plural + vars.text.none}`);
             do {
                 wrapIt(output, comm.example[a].defined);
-                output.push(`   ${vars.text.cyan + vars.version.command + comm.example[a].code + vars.text.none}`);
+                output.push(`   ${vars.text.cyan + comm.example[a].code + vars.text.none}`);
                 output.push("");
                 a = a + 1;
             } while (a < len);
