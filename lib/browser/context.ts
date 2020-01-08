@@ -119,7 +119,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                 textArea.style.whiteSpace = "normal";
             }
             if (type === "Hash") {
-                textArea.style.height = "5em";
+                textArea.style.minHeight = "5em";
                 body.style.height = "auto";
             }
             browser.data.modals[data[a].id].text_value = data[a].content;
@@ -733,5 +733,7 @@ context.paste = function local_context_paste():void {
     });
     context.element = null;
 };
+
+context.type = "";
 
 export default context;

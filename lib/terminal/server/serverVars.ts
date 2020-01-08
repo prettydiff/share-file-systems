@@ -65,6 +65,7 @@ const socketList:socketList = {},
             return [store, interfaceLongest];
         }()),
         brotli: 7,
+        hash: "sha3-512",
         macList: mac,
         name: "",
         socketList: socketList,

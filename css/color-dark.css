@@ -4,6 +4,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces{background-color:#333;background-image:url("../media/background-desert_night.jpg")}
 .dark #spaces *:focus{outline-color:#69f}
 .dark #spaces input::placeholder{color:#c33}
+.dark #spaces select{background:#333;border-color:#666;color:#ccc}
 
 /* Context menu, right click */
 .dark #spaces #contextMenu{border-color:#666}

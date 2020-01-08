@@ -881,6 +881,7 @@ const library = {
                     });
                 } else if (data.action === "fs-hash") {
                     library.hash({
+                        algorithm: serverVars.hash,
                         callback: callback,
                         directInput: false,
                         id: id,

@@ -5,6 +5,7 @@ type directoryItem = [string, "error" | "file" | "directory" | "link", string, n
 type directoryMode = "hash" | "list" | "read" | "search";
 type dragFlag = "" | "control" | "shift";
 type eventCallback = (event:Event, callback:Function) => void;
+type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
 type heartbeatStatus = "" | "active" | "idle" | "offline";
 type inviteType = "device" | "user";
 type messageList = [string, string];
@@ -154,7 +155,7 @@ interface FSWatcher extends Function {
     time: number;
 }
 interface hashInput {
-    algorithm?: string;
+    algorithm?: hash;
     callback: Function;
     directInput: boolean;
     id?: string;
@@ -314,10 +315,10 @@ interface module_settings {
     audio?: EventHandlerNonNull;
     colorDefaults?: colorDefaults;
     colorScheme?: EventHandlerNonNull;
-    compression?: (event:KeyboardEvent|FocusEvent) => void;
     compressionToggle?: EventHandlerNonNull;
     modal?: EventHandlerNonNull;
     modalContent?: () => HTMLElement;
+    text?: (event:KeyboardEvent|FocusEvent) => void;
     userColor?: EventHandlerNonNull;
 }
 interface module_share {
@@ -439,6 +440,7 @@ interface serverError {
 interface serverVars {
     addresses: [[string, string, string][], number];
     brotli: brotli;
+    hash: hash;
     macList:string[];
     name: string;
     socketReceiver: any;
@@ -544,6 +546,7 @@ interface ui_data {
     audio: boolean;
     brotli: brotli;
     color: colorScheme;
+    hash: hash;
     modals: {
         [key:string]: ui_modal;
     };

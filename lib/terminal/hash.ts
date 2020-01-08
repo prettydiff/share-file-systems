@@ -30,7 +30,7 @@ const library = {
     hash = function terminal_hash(input:hashInput):hashOutput {
         let limit:number = 0,
             shortLimit:number = 0,
-            algorithm:string = (input === undefined || input.algorithm === undefined)
+            algorithm:hash = (input === undefined || input.algorithm === undefined)
                 ? "sha3-512"
                 : input.algorithm,
             hashList:boolean = false;
@@ -195,7 +195,7 @@ const library = {
             if (length > 0) {
                 do {
                     if (process.argv[a].indexOf("algorithm:") === 0) {
-                        algorithm = process.argv[a].slice(10);
+                        algorithm = <hash>process.argv[a].slice(10);
                     }
                     a = a + 1;
                 } while (a < length);

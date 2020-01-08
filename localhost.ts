@@ -400,10 +400,12 @@ import webSocket from "./lib/browser/webSocket.js";
                                     invite.start(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "settings") {
+                                    browser.data.brotli = storage.settings.brotli;
+                                    browser.data.hash = storage.settings.hash;
                                     storage.settings.modals[value].content = settings.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    browser.data.brotli = storage.settings.brotli;
-                                    const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                    const settingsModal:HTMLElement = document.getElementById("settings-modal"),
+                                        inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
                                         length:number = inputs.length;
                                     let a:number = 0;
                                     do {

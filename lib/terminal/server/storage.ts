@@ -75,6 +75,7 @@ const library = {
             } else if (task === "settings") {
                 const settings:ui_data = JSON.parse(dataString);
                 serverVars.brotli = settings.brotli;
+                serverVars.hash = settings.hash;
                 rename();
             } else {
                 rename();

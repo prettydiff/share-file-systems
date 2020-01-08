@@ -161,20 +161,6 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
     }
 };
 
-/* Settings compression level */
-settings.compression = function local_settings_compression(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
-    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        const numb:number = Number(element.value);
-        if (isNaN(numb) === true || numb < 0 || numb > 11) {
-            element.value = browser.data.brotli.toString();
-        }
-        element.value = Math.floor(numb).toString();
-        browser.data.brotli = <brotli>Math.floor(numb);
-        network.storage("settings");
-    }
-};
-
 /* Shows and hides additional textual information about compression */
 settings.compressionToggle = function local_settings_compressionToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
@@ -204,10 +190,19 @@ settings.modal = function local_settings_modal(event:MouseEvent):void {
 /* The content of the settings modal */
 settings.modalContent = function local_settings_modalContent():HTMLElement {
     const settingsBody:HTMLElement = document.createElement("div"),
-        random:string = Math.random().toString();
-    let section:HTMLElement = document.createElement("div"),
-        h3:HTMLElement = document.createElement("h3"),
+        random:string = Math.random().toString(),
+        createSection = function local_settings_modalContent(title:string):HTMLElement {
+            const container:HTMLElement = document.createElement("div"),
+                h3:HTMLElement = document.createElement("h3");
+            container.setAttribute("class", "section");
+            h3.innerHTML = title;
+            container.appendChild(h3);
+            return container;
+        };
+    let section:HTMLElement,
         p:HTMLElement = document.createElement("p"),
+        select:HTMLElement,
+        option:HTMLOptionElement,
         label:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
         button:HTMLElement = document.createElement("button"),
@@ -217,14 +212,12 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     settingsBody.setAttribute("class", "settings");
 
     // brotli compression
-    section.setAttribute("class", "section");
-    h3.innerHTML = "🗜 Brotli Compression Level";
-    section.appendChild(h3);
+    section = createSection("🗜 Brotli Compression Level");
     input.type = "text";
     input.value = browser.data.brotli.toString();
     input.name = "brotli";
-    input.onkeyup = settings.compression;
-    input.onblur = settings.compression;
+    input.onkeyup = settings.text;
+    input.onblur = settings.text;
     label.appendChild(input);
     label.appendChild(text);
     p.appendChild(label);
@@ -239,13 +232,37 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     section.appendChild(p);
     settingsBody.appendChild(section);
 
-    // audio
-    section  =  document.createElement("div");
-    section.setAttribute("class", "section");
-    h3 = document.createElement("h3");
-    section.appendChild(h3);
+    // hash algorithm
+    section = createSection("⋕ Hash Algorithm");
+    input = document.createElement("input");
+    label = document.createElement("label");
+    text = document.createTextNode("Hash Algorithm");
+    select = document.createElement("select");
     p = document.createElement("p");
-    h3.innerHTML = "🔊 Allow Audio";
+    {
+        const hashes:hash[] = ["blake2d512", "blake2s256", "sha3-224", "sha3-256", "sha3-384", "sha3-512", "sha512-224", "sha512-256", "shake128", "shake256"],
+            length:number = hashes.length;
+        let a:number = 0;
+        do {
+            option = document.createElement("option");
+            option.innerHTML = hashes[a];
+            if (browser.data.hash === hashes[a]) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+            a = a + 1;
+        } while (a < length);
+    }
+    select.onchange = settings.text;
+    label.appendChild(select);
+    label.appendChild(text);
+    p.appendChild(label);
+    section.appendChild(p);
+    settingsBody.appendChild(section);
+
+    // audio
+    section  = createSection("🔊 Allow Audio");
+    p = document.createElement("p");
     label = document.createElement("label");
     input = document.createElement("input");
     label.setAttribute("class", "radio");
@@ -273,15 +290,11 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     settingsBody.appendChild(section);
 
     // color scheme
-    section = document.createElement("div");
-    section.setAttribute("class", "section");
-    h3 = document.createElement("h3");
+    section = createSection("▣ Color Theme");
     p = document.createElement("p");
     label = document.createElement("label");
     input = document.createElement("input");
     label.setAttribute("class", "radio");
-    h3.innerHTML = "▣ Color Theme";
-    section.appendChild(h3);
     input.type = "radio";
     input.checked = true;
     input.name = `color-scheme-${random}`;
@@ -308,11 +321,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
         const ul:HTMLElement = document.createElement("ul");
         let a:number = 0;
         ul.setAttribute("class", "user-color-list");
-        section = document.createElement("div");
-        section .setAttribute("class", "section");
-        h3 = document.createElement("h3");
-        h3.innerHTML = "◩ User Color Definitions";
-        section.appendChild(h3);
+        section = createSection("◩ User Color Definitions");
         section.append(ul);
         settingsBody.appendChild(section);
         do {
@@ -323,6 +332,26 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
         } while (a < length);
     }
     return settingsBody;
+};
+
+/* Settings compression level */
+settings.text = function local_settings_text(event:KeyboardEvent):void {
+    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
+    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.keyCode === 13))) {
+        const numb:number = Number(element.value),
+            parent:HTMLElement = <HTMLElement>element.parentNode,
+            parentText:string = parent.innerHTML.toLowerCase();
+        if (parentText.indexOf("brotli") > 0) {
+            if (isNaN(numb) === true || numb < 0 || numb > 11) {
+                element.value = browser.data.brotli.toString();
+            }
+            element.value = Math.floor(numb).toString();
+            browser.data.brotli = <brotli>Math.floor(numb);
+        } else if (parentText.indexOf("hash") > 0) {
+            browser.data.hash = <hash>element.value;
+        }
+        network.storage("settings");
+    }
 };
 
 /* specify custom user color settings */

@@ -158,7 +158,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
-#spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0.25em;white-space:pre;width:100%}
+#spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .box .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 0 0 -2.5em;padding:0.125em;width:1.25em}
 #spaces .box .delete span{display:block;text-indent:-2000em}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
@@ -199,7 +199,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .inviteUser .radio,
 #spaces .settings .radio{display:inline-block;width:15em}
 #spaces .settings input[type="text"]{display:inline-block;margin:0 1em 0 0;width:2em}
-#spaces .settings button{border-style:solid;border-width:0.05em;cursor:pointer;margin:0 0 0.5em;width:15em}
+#spaces .settings button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.6em;margin:0 0 0.5em;width:15em}
+#spaces .settings select{-moz-appearance:none;appearance:none;border-style:solid;border-width:0.05em;font-size:1em;margin:0 1em 0 0;width:15em}
 #spaces .settings .user-color-list label{display:block;margin:0 0 0.5em}
 #spaces .settings .user-color-list input{width:5em}
 #spaces .settings .user-color-list p{margin:1em 0 0.5em -1.5em}

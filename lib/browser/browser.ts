@@ -5,6 +5,7 @@ const browser:browser = {
         audio: true,
         brotli: 7,
         color: "default",
+        hash: "sha3-512",
         modals: {},
         modalTypes: [],
         name: "",
