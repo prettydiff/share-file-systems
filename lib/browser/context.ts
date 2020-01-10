@@ -5,6 +5,7 @@ import network from "./network.js";
 import share from "./share.js";
 import util from "./util.js";
 import commas from "../common/commas.js";
+import prettyBytes from "../common/prettyBytes.js";
 
 const context:module_context = {};
 let clipboard:string = "";
@@ -177,7 +178,7 @@ context.details = function local_context_details(event:MouseEvent):void {
         modalInstance:HTMLElement = modal.create({
             agent: agency[0],
             content: div,
-            height: 500,
+            height: 600,
             inputs: ["close"],
             left: event.clientX,
             read_only: agency[1],
@@ -198,6 +199,9 @@ context.details = function local_context_details(event:MouseEvent):void {
             } while (a < length);
             return output;
         }());
+    if (browser.loadTest === true) {
+        return;
+    }
     network.fs({
         action: "fs-details",
         agent: agency[0],
@@ -212,6 +216,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
+            fileList:directoryList = [],
             body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
             length:number = list.length,
             details:fsDetails = {
@@ -224,67 +229,35 @@ context.details = function local_context_details(event:MouseEvent):void {
         let a:number = 0,
             tr:HTMLElement,
             td:HTMLElement,
-            childLength:number,
             heading:HTMLElement = document.createElement("h3"),
             table:HTMLElement = document.createElement("table"),
             tbody:HTMLElement = document.createElement("tbody"),
             mTime:Date,
             aTime:Date,
             cTime:Date;
-        list.sort(function local_network_fsDetails_callback_sort(a:directoryItem, b:directoryItem):number {
-            // when types are the same
-            if (a[1] === b[1]) {
-                if (a[0] < b[0]) {
-                    return -1;
-                }
-                return 1;
-            }
-
-            // when types are different
-            if (a[1] === "directory") {
-                return -1;
-            }
-            if (a[1] === "link" && b[1] === "file") {
-                return -1;
-            }
-            return 1;
-        });
         do {
             if (list[a][1] === "directory") {
                 details.directories = details.directories + 1;
             } else if (list[a][1] === "link") {
                 details.links = details.links + 1;
             } else {
+                fileList.push(list[a]);
                 details.files = details.files + 1;
                 details.size = details.size + list[a][5].size;
             }
             a = a + 1;
-        } while (a < childLength);
+        } while (a < length);
 
         output.setAttribute("class", "fileDetailOutput");
-        heading.innerHTML = `File System Details - ${list.length} items`;
+        heading.innerHTML = `File System Details - ${commas(list.length)} items`;
         output.appendChild(heading);
-        a = 0;
-        childLength = addresses.length;
-        do {
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = list[a][1];
-            td.setAttribute("class", list[a][1]);
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = list[a][0];
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            a = a + 1;
-        } while (a < length);
         tr = document.createElement("tr");
         td = document.createElement("th");
         td.innerHTML = "Total Size";
         tr.appendChild(td);
         td = document.createElement("td");
         if (details.size > 1024) {
-            td.innerHTML = `${commas(details.size)} bytes (${util.prettyBytes(details.size)})`;
+            td.innerHTML = `${commas(details.size)} bytes (${prettyBytes(details.size)})`;
         } else {
             td.innerHTML = `${commas(details.size)} bytes`;
         }
@@ -327,48 +300,136 @@ context.details = function local_context_details(event:MouseEvent):void {
         tbody.appendChild(tr);
         table.appendChild(tbody);
         output.appendChild(table);
-        
-        if (list.length === 1) {
-            mTime = new Date(list[0][5].mtimeMs);
-            aTime = new Date(list[0][5].atimeMs);
-            cTime = new Date(list[0][5].ctimeMs);
+
+        mTime = new Date(list[0][5].mtimeMs);
+        aTime = new Date(list[0][5].atimeMs);
+        cTime = new Date(list[0][5].ctimeMs);
+        heading = document.createElement("h3");
+        heading.innerHTML = "MAC";
+        output.appendChild(heading);
+        table = document.createElement("table");
+        tbody = document.createElement("tbody");
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.innerHTML = "Modified";
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.innerHTML = util.dateFormat(mTime);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.innerHTML = "Accessed";
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.innerHTML = util.dateFormat(aTime);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.innerHTML = "Created";
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.innerHTML = util.dateFormat(cTime);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        table.appendChild(tbody);
+        output.appendChild(table);
+
+        if (list[0][1] === "directory" && details.files > 0) {
+            let button:HTMLElement = document.createElement("button");
+            td = document.createElement("p");
             heading = document.createElement("h3");
-            heading.innerHTML = "Modified, Accessed, Created";
+            heading.innerHTML = "Display first 100 files by...";
             output.appendChild(heading);
+            button.innerHTML = "Largest size";
+            fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
+                if (aa[5].size > bb[5].size) {
+                    return -1;
+                }
+                return 1;
+            });
+            button.nonce = JSON.stringify(fileList.slice(0, 100));
+            button.onclick = context.detailsList;
+            td.appendChild(button);
+            output.appendChild(td);
+            td = document.createElement("p"),
+            button = document.createElement("button");
+            button.innerHTML = "Recently changed";
+            fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
+                if (aa[5].mtimeMs > bb[5].mtimeMs) {
+                    return -1;
+                }
+                return 1;
+            });
+            button.nonce = JSON.stringify(fileList.slice(0, 100));
+            button.onclick = context.detailsList;
+            td.appendChild(button);
+            output.appendChild(td);
+            td = document.createElement("p");
+            td.style.display = "none";
+            output.appendChild(td);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Modified";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = util.dateFormat(mTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Accessed";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = util.dateFormat(aTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Created";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = util.dateFormat(cTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
             table.appendChild(tbody);
+            table.style.display = "none";
+            table.setAttribute("class", "detailFileList");
             output.appendChild(table);
         }
+
         body.innerHTML = "";
         body.appendChild(output);
     });
     util.selectNone(element);
     context.element = null;
+};
+
+context.detailsList = function local_context_detailsList(event:MouseEvent) {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        sortType:"size"|"time" = (element.innerHTML === "Largest size")
+            ? "size"
+            : "time",
+        title:string = (sortType === "size")
+            ? "Largest"
+            : "Most Recent",
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        table:HTMLElement = (function local_context_details_refinement_table():HTMLElement {
+            let el:HTMLElement = parent;
+            do {
+                el = <HTMLElement>el.nextSibling;
+            } while (el.nodeName.toLowerCase() !== "table");
+            return el;
+        }()),
+        tbody:HTMLElement = <HTMLElement>table.firstChild,
+        p:HTMLElement = <HTMLElement>table.previousSibling,
+        data:directoryList = JSON.parse(element.nonce),
+        dataLength:number = data.length;
+    let a:number = 0,
+        tr:HTMLElement,
+        td:HTMLElement;
+    p.innerHTML = `Top ${dataLength} ${title} Files`;
+    tbody.innerHTML = "";
+    do {
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.setAttribute("class", "file");
+        td.innerHTML = data[a][0];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        if (sortType === "size") {
+            td.innerHTML = commas(data[a][5].size);
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = prettyBytes(data[a][5].size);
+        } else {
+            td.innerHTML = util.dateFormat(new Date(data[a][5].mtimeMs));
+        }
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        a = a + 1;
+    } while (a < dataLength);
+    table.style.display = "block";
+    p.style.display = "block";
 };
 
 context.element = null;

@@ -1,8 +1,19 @@
 
+/*
+color                - #ccc
+borders              - #666
+primary background   - #222
+secondary background - #333
+error / red          - #c33
+red background       - #300
+blue                 - #6cf
+blue background      - #024
+*/
+
 body.dark{scrollbar-color:#444 #111}
 
 .dark #spaces{background-color:#333;background-image:url("../media/background-desert_night.jpg")}
-.dark #spaces *:focus{outline-color:#69f}
+.dark #spaces *:focus{outline-color:#9ef}
 .dark #spaces input::placeholder{color:#c33}
 .dark #spaces select{background:#333;border-color:#666;color:#ccc}
 
@@ -10,13 +21,14 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #contextMenu{border-color:#666}
 .dark #spaces #contextMenu button{background:#111;border-color:#666;color:#ccc}
 .dark #spaces #contextMenu button:hover{background:#333;color:#ccf}
-.dark #spaces #contextMenu .destroy{background:#211;color:#c66}
+.dark #spaces #contextMenu .destroy{background:#300;color:#c33}
 .dark #spaces #contextMenu .destroy:hover{background:#300;color:#f33}
 .dark #spaces #contextMenu .destroy[disabled],
 .dark #spaces #contextMenu button[disabled]{background:#000;color:#666}
 
 /* file system details modal content, accessed from context menu */
-.dark #spaces .box .fileDetailOutput h3{color:#009}
+.dark #spaces .fileDetailOutput h3{color:#6cf}
+.dark #spaces .fileDetailOutput button{background:#024;border-color:#6cf;color:#6cf}
 
 /* settings modal */
 .dark #spaces .settings button{background:#333;border-color:#666;color:#ccc}
@@ -30,7 +42,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #minimize-all:hover,
 .dark #spaces #menuToggle:hover{background:#666}
 .dark #spaces .icon-fileNavigator{color:#969}
-.dark #spaces .icon-systemLog{color:#09f}
+.dark #spaces .icon-systemLog{color:#6cf}
 .dark #spaces .icon-textPad{color:#963}
 .dark #spaces .icon-export{color:#c0f}
 .dark #spaces .icon-invite{color:#090}
@@ -40,7 +52,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #menu button:hover{background:#444;box-shadow:0.1em 0.1em 0.5em #000}
 
 /* invite user */
-.dark #spaces .box .inviteUser .error{color:#c00;font-weight:bold}
+.dark #spaces .box .inviteUser .error{color:#c33;font-weight:bold}
 .dark #spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
 
 /* users list */
@@ -52,7 +64,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #users .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
 .dark #spaces #users .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
 .dark #spaces #users span{background:#000;opacity:0.4}
-.dark #spaces #users #all-shares{background:#123;color:#39f}
+.dark #spaces #users #all-shares{background:#024;color:#6cf}
 .dark #spaces #users #all-shares:hover{background:#246}
 
 /* minimize tray at bottom */
@@ -62,16 +74,16 @@ body.dark{scrollbar-color:#444 #111}
 
 /* modal */
 .dark #spaces .box{box-shadow:0.1em 0.1em 1em #000}
-.dark #spaces .box p.error{color:#c00}
-.dark #spaces .box p.summary{color:#39f}
+.dark #spaces .box p.error{color:#c33}
+.dark #spaces .box p.summary{color:#6cf}
 .dark #spaces .box .buttons button,
 .dark #spaces .box .header button,
 .dark #spaces .box .expansion,
 .dark #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em #000}
 .dark #spaces .userList .localhost button.make-read-only,
 .dark #spaces .box .buttons button.minimize{background:#421;border-color:#ca0;color:#ca0}
-.dark #spaces .box .buttons button.maximize{background:#006;border-color:#39c;color:#39c}
-.dark #spaces .box .buttons button.close{background:#311;border-color:#900;color:#900}
+.dark #spaces .box .buttons button.maximize{background:#024;border-color:#6cf;color:#6cf}
+.dark #spaces .box .buttons button.close{background:#300;border-color:#c33;color:#c33}
 .dark #spaces .box h2.heading{background:#333;border-color:#666}
 .dark #spaces .box h2.heading button{border-color:#666;color:#ccc}
 .dark #spaces .box h3{color:#999}
@@ -92,7 +104,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .header input{background:inherit;color:#ccc}
 .dark #spaces .box .header .fileSearch input{border-color:#666}
 .dark #spaces .fileList li input.error,
-.dark #spaces .box .header .error{background:#fdd;color:#900}
+.dark #spaces .box .header .error{background:#300;color:#c33}
 .dark #spaces .box button.confirm{background:#020;border-color:#393;color:#393}
 .dark #spaces .box button.save{background:#ffc;border-color:#990;color:#770}
 .dark #spaces .box .delay svg{stroke:#cdf}
@@ -102,14 +114,14 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .userList .localhost button.grant-full-access,
 .dark #spaces .box button.cancel,
 .dark #spaces .sharesDeleteList .checked,
-.dark #spaces .box .delete{background:#300;border-color:#900;box-shadow:0.075em 0.075em 0.25em #000;color:#a11}
+.dark #spaces .box .delete{background:#300;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}
 .dark #spaces #dragBox{background:#9cf;border-color:#69c}
 
 /* systems modal content */
 .dark #spaces .box .tabs{background:#000}
 .dark #spaces .box .tabs button{background:#333;border-color:#666}
 .dark #spaces .box .tabs button.active{background:#222}
-.dark #spaces .box .tabs .status{color:#69f}
+.dark #spaces .box .tabs .status{color:#6cf}
 .dark #spaces .box .tabs .users{color:#696}
 .dark #spaces .box .tabs .errors{color:#c33}
 .dark #spaces .messageList{border-color:#000}
@@ -117,8 +129,8 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #system-errors span{color:#c33}
 
 /* share list */
-.dark #spaces .userList li.full-access{background:#112;border-color:#009}
-.dark #spaces .userList button{color:#39f}
+.dark #spaces .userList li.full-access{background:#112;border-color:#6cf}
+.dark #spaces .userList button{color:#6cf}
 .dark #spaces .userList .read-only-status{color:#999}
 .dark #spaces .userList .full-access .read-only-status{color:#666}
 .dark #spaces ul.userList li{border-color:#000}

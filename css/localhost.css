@@ -56,9 +56,18 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileDetailOutput th{font-weight:bold;min-width:10em;text-align:left;width:10em}
 #spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
+#spaces .fileDetailOutput button{border-style:solid;border-width:0.05em;display:block;font-size:1em;font-weight:bold;margin:1em 0;text-align:left;width:24.5em}
 #spaces .fileDetailOutput .directory::before{content: "📂 "}
 #spaces .fileDetailOutput .file::before{content: "📃 "}
 #spaces .fileDetailOutput .link::before{content: "🔗 "}
+#spaces .detailFileList th{white-space:pre;width:auto}
+#spaces .detailFileList td{padding:0 0 0 1em;text-align:right}
+
+/*
+1. repeated button clicks in details
+2. remove # from settings colors, and specify format xxx-xxxxxx
+3. remove second ws
+*/
 
 /* Title bar and main menu */
 #spaces .title{border-style:none none solid;border-width:0.1em;display:block;height:5em}

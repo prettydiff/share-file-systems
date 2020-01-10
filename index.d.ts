@@ -253,6 +253,7 @@ interface module_context {
     dataString?: EventHandlerNonNull;
     destroy?: EventHandlerNonNull;
     details?: context;
+    detailsList?: EventHandlerNonNull;
     element?: HTMLElement;
     fsNew?: EventHandlerNonNull;
     menu?: EventHandlerNonNull;
@@ -357,7 +358,6 @@ interface module_util {
     menu?: EventHandlerNonNull;
     minimizeAll?: EventHandlerNonNull;
     minimizeAllFlag?: boolean;
-    prettyBytes?: (an_integer:number) => string;
     selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
     selectExpression?: RegExp;
     selectNone?:(element:HTMLElement) => void;

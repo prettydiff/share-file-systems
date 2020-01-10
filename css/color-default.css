@@ -25,7 +25,8 @@
 #spaces #contextMenu button[disabled]{background:#eee;color:#999}
 
 /* file system details modal content, accessed from context menu */
-#spaces .box .fileDetailOutput h3{color:#009}
+#spaces .fileDetailOutput h3{color:#009}
+#spaces .fileDetailOutput button{border-color:#000}
 
 /* settings modal */
 #spaces .settings button{background:#ddd;border-color:#000}
