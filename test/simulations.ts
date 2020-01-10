@@ -28,7 +28,8 @@ const sep:string = vars.sep,
         underline: "\u001b[4m",
         yellow   : "\u001b[33m"
     },
-    hash:string = "49a2803dad67afb25c3adcb7002bac0d56cb2d51683e2a4947e9c8e83a791e263489fd438e374db6f4cd3a7b72904ca6f0ea7471dc7eef776b323f10ae7f7ddb",
+    // the tsconfig.json file hash used in multiple tests
+    hash:string = "a20d01485bcf8a1fcae9c181aff12b2618d66d52dde8b9e596ad696d363c87dc499ba78edfdd8291a84e59b3c3c15d96be40eee2cc8a21ce87b522b5deaf68b6",
     simulations:simulationItem[] = [
         {
             command: "asdf",
@@ -48,7 +49,7 @@ const sep:string = vars.sep,
         {
             command: `base64 ${projectPath}tsconfig.json`,
             qualifier: "is",
-            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
+            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYmFzZVVybCI6ICIuIiwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicGF0aHMiOiB7CiAgICAgICAgICAgICJ3cyI6IFsiLi9qcy93cy1lczYvaW5kZXguanMiXQogICAgICAgIH0sCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInRhcmdldCI6ICJFUzYiLAogICAgICAgICJ0eXBlcyI6IFsibm9kZSJdLAogICAgICAgICJ0eXBlUm9vdHMiOiBbIm5vZGVfbW9kdWxlcy9AdHlwZXMiXQogICAgfSwKICAgICJleGNsdWRlIjogWwogICAgICAgICJqcyIsCiAgICAgICAgIm5vZGVfbW9kdWxlcyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKi50cyIsCiAgICAgICAgIioqLyoudHMiCiAgICBdCn0="
         },
         {
             command: "base64 decode string:\"bXkgYmlnIHN0cmluZyBzYW1wbGU=\"",
@@ -191,7 +192,7 @@ const sep:string = vars.sep,
         {
             command: `hash ${projectPath}tsconfig.json algorithm:md5`,
             qualifier: "is",
-            test: "33acb4030bddcfec4d158f8b9d0c9df5"
+            test: "8d71ff759f9d8925eb7411506a75ffa5"
         },
         {
             command: `hash string tsconfig.json algorithm:md5`,

@@ -1,7 +1,7 @@
 
 import * as http from "http";
 import * as string_decoder from "string_decoder";
-import WebSocket from "../../ws-es6/index.js";
+import WebSocket from "ws";
 
 import copy from "./copy.js";
 import directory from "./directory.js";

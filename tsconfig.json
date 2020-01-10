@@ -1,6 +1,11 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
+        "moduleResolution": "node",
         "outDir": "js",
+        "paths": {
+            "ws": ["./js/ws-es6/index.js"]
+        },
         "pretty": true,
         "target": "ES6",
         "types": ["node"],
