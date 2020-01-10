@@ -64,7 +64,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .detailFileList td{padding:0 0 0 1em;text-align:right}
 
 /*
-1. repeated button clicks in details
 2. remove # from settings colors, and specify format xxx-xxxxxx
 3. remove second ws
 */
@@ -204,6 +203,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .settings .compression-details,
 #spaces .settings .user-color-list p,
 #spaces .inviteUser p,
+#spaces .settings .user-color-list-p,
 #spaces .settings label{font-size:1.6em}
 #spaces .inviteUser .radio,
 #spaces .settings .radio{display:inline-block;width:15em}

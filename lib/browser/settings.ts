@@ -37,7 +37,7 @@ settings.addUserColor = function local_settings_addUserColor(user:string, settin
         span.style.background = browser.users[user].color[0];
         label.appendChild(span);
         input.type = "text";
-        input.value = browser.users[user].color[0];
+        input.value = browser.users[user].color[0].replace("#", "");
         input.onblur = settings.userColor;
         input.onkeyup = settings.userColor;
         label.appendChild(input);
@@ -51,7 +51,7 @@ settings.addUserColor = function local_settings_addUserColor(user:string, settin
         span.style.background = browser.users[user].color[1];
         label.appendChild(span);
         input.type = "text";
-        input.value = browser.users[user].color[1];
+        input.value = browser.users[user].color[1].replace("#", "");
         input.onblur = settings.userColor;
         input.onkeyup = settings.userColor;
         label.appendChild(input);
@@ -136,7 +136,9 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
             if (browser.users[users[a]].color[0] === settings.colorDefaults[oldScheme][0] && browser.users[users[a]].color[1] === settings.colorDefaults[oldScheme][1]) {
                 browser.users[users[a]].color[0] = settings.colorDefaults[element.value][0];
                 browser.users[users[a]].color[1] = settings.colorDefaults[element.value][1];
-                settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
+                if (users[a] !== "localhost") {
+                    settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
+                }
                 b = 0;
                 do {
                     if (settingsList[b].getElementsByTagName("p")[0].innerHTML === users[a]) {
@@ -146,11 +148,13 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
                         inputs = settingsList[b].getElementsByTagName("input");
                         swatch1.style.background = browser.users[users[a]].color[0];
                         swatch2.style.background = browser.users[users[a]].color[1];
-                        inputs[0].value = browser.users[users[a]].color[0];
-                        inputs[1].value = browser.users[users[a]].color[1];
+                        inputs[0].value = browser.users[users[a]].color[0].replace("#", "");
+                        inputs[1].value = browser.users[users[a]].color[1].replace("#", "");
                     }
                     b = b + 1;
                 } while (b < listLength);
+            } else if (users[a] !== "localhost" && browser.users[users[a]].color[0] === settings.colorDefaults[element.value][0] && browser.users[users[a]].color[1] === settings.colorDefaults[element.value][1]) {
+                settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
             }
             a = a + 1;
         } while (a < userLength);
@@ -322,6 +326,10 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
         let a:number = 0;
         ul.setAttribute("class", "user-color-list");
         section = createSection("◩ User Color Definitions");
+        p = document.createElement("p");
+        p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
+        p.setAttribute("class", "user-color-list-p");
+        section.appendChild(p);
         section.append(ul);
         settingsBody.appendChild(section);
         do {
@@ -358,7 +366,7 @@ settings.text = function local_settings_text(event:KeyboardEvent):void {
 settings.userColor = function local_settings_modal(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         colorTest:RegExp = (/^#(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
-        color:string = element.value.replace(/\s+/g, ""),
+        color:string = `#${element.value.replace(/\s+/g, "").replace(/^#/, "")}`,
         parent:HTMLElement = <HTMLElement>element.parentNode;
     if (colorTest.test(color) === true) {
         if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
