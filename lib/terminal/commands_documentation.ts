@@ -223,18 +223,25 @@ const commands_documentation = {
             }
         ]
     },
-    simulation: {
-        description: "Launches a test runner to execute the various commands of the services file.",
-        example: [{
-            code: `${vars.version.command} simulation`,
-            defined: "Runs tests against the commands offered by the services file."
-        }]
-    },
     test: {
         description: "Builds the application and then runs all the test commands",
         example: [{
             code: `${vars.version.command} test`,
             defined: "Runs all the tests in the test suite."
+        }]
+    },
+    test_service: {
+        description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
+        example: [{
+            code: `${vars.version.command} test_service`,
+            defined: "Runs tests server utility."
+        }]
+    },
+    test_simulation: {
+        description: "Launches a test runner to execute the various commands of the services file.",
+        example: [{
+            code: `${vars.version.command} test_simulation`,
+            defined: "Runs tests against the commands offered by the services file."
         }]
     },
     version: {

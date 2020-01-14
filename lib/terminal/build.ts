@@ -9,7 +9,7 @@ import hash from "./hash.js";
 import humanTime from "./humanTime.js";
 import lint from "./lint.js";
 import log from "./log.js";
-import simulation from "./simulation.js";
+import testListRunner from "../../test/testListRunner.js";
 import vars from "./vars.js";
 
 // build/test system
@@ -19,7 +19,7 @@ const library = {
         humanTime: humanTime,
         lint: lint,
         log: log,
-        simulation: simulation
+        testListRunner: testListRunner
     },
     build = function terminal_build(test:boolean, callback:Function):void {
         let firstOrder:boolean = true,
@@ -31,13 +31,17 @@ const library = {
                 ],
                 test: [
                     "lint",
-                    "simulation"
+                    "simulation",
+                    "service"
                 ]
             },
             type:string = (test === true)
                 ? "test"
                 : "build",
             orderLength:number = order[type].length,
+            testsCallback = function terminal_build_testsCallback(message:string):void {
+                next(message);
+            },
             // a short title for each build/test phase
             heading = function terminal_build_heading(message:string):void {
                 if (firstOrder === true) {
@@ -124,21 +128,20 @@ const library = {
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
             phases = {
-                // phase lint is merely a call to apps.lint
+                // phase lint is merely a call to the lint library
                 lint     : function terminal_build_lint():void {
-                    const callback = function terminal_build_lint_callback(message:string):void {
-                        next(message);
-                    };
                     heading("Linting");
-                    library.lint(callback);
+                    library.lint(testsCallback);
                 },
-                // phase simulation is merely a call to apps.simulation
+                // phase services wraps a call to services test library
+                service: function terminal_build_serviceTests():void {
+                    heading(`Tests of calls to the local service`);
+                    library.testListRunner("service", testsCallback);
+                },
+                // phase simulation is merely a call to simulation test library
                 simulation: function terminal_build_simulation():void {
-                    const callback = function terminal_build_simulation_callback(message:string):void {
-                        next(message);
-                    };
                     heading(`Simulations of Node.js commands from ${vars.version.command}`);
-                    library.simulation(callback);
+                    library.testListRunner("simulation", testsCallback);
                 },
                 // phase typescript compiles the working code into JavaScript
                 typescript: function terminal_build_typescript():void {
@@ -296,7 +299,9 @@ const library = {
                                             },
                                             generate = function terminal_build_version_stat_read_keys_generate(type:"device"|"user"):void {
                                                 generateKeyPair("ec", {
+                                                    // cspell:disable
                                                     namedCurve: "secp521r1",
+                                                    // cspell:enable
                                                     publicKeyEncoding:{
                                                         type: "spki",
                                                         format: "pem"
@@ -388,7 +393,9 @@ const library = {
                                     target: vars.projectPath.slice(0, vars.projectPath.length - 1)
                                 });
                                 fileData = stringInsert({
+                                    // cspell:disable
                                     end: "\" rel=\"noopener noreferrer\" target=\"_blank\">Generate New Identity</a>",
+                                    // cspell:enable
                                     source: fileData,
                                     start: "Create</strong> a new identity. <a href=\"",
                                     target: vars.version.identity_domain

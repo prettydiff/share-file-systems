@@ -30,7 +30,7 @@ const sep:string = vars.sep,
     },
     // the tsconfig.json file hash used in multiple tests
     hash:string = "a20d01485bcf8a1fcae9c181aff12b2618d66d52dde8b9e596ad696d363c87dc499ba78edfdd8291a84e59b3c3c15d96be40eee2cc8a21ce87b522b5deaf68b6",
-    simulations:simulationItem[] = [
+    simulations:testItem[] = [
         {
             command: "asdf",
             qualifier: "contains",

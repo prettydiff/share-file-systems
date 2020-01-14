@@ -1,5 +1,6 @@
 
 import * as http from "http";
+import * as net from "net";
 import * as string_decoder from "string_decoder";
 import WebSocket from "ws";
 
@@ -32,7 +33,7 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
-    server = function terminal_server():void {
+    server = function terminal_server(serviceAddress?:serviceAddress):net.Server {
         const browser:boolean = (function terminal_server_browserTest():boolean {
                 const index:number = process.argv.indexOf("browser");
                 if (index > -1) {
@@ -41,9 +42,11 @@ const library = {
                 }
                 return false;
             }()),
-            port:number = (isNaN(Number(process.argv[0])) === true)
-                ? vars.version.port
-                : Number(process.argv[0]),
+            port:number = (serviceAddress === undefined)
+                ? (isNaN(Number(process.argv[0])) === true)
+                    ? vars.version.port
+                    : Number(process.argv[0])
+                : serviceAddress.port,
             keyword:string = (process.platform === "darwin")
                 ? "open"
                 : (process.platform === "win32")
@@ -126,9 +129,20 @@ const library = {
                     }
                 });
             },
-            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
+            httpServer:net.Server = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
                 const postTest = function terminal_server_create_postTest():boolean {
-                    if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers["user-name"]] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
+                    if (
+                        request.method === "POST" && (
+                            request.headers.host === "localhost" || (
+                                request.headers.host !== "localhost" && (
+                                    serverVars.users[<string>request.headers["user-name"]] !== undefined ||
+                                    request.headers.invite === "invite-request" ||
+                                    request.headers.invite === "invite-complete" ||
+                                    (request.headers.host === "127.0.0.1" && request.headers["user-name"] === "localhost")
+                                )
+                            )
+                        )
+                    ) {
                         return true;
                     }
                     return false;
@@ -169,46 +183,52 @@ const library = {
             },
             start = function terminal_server_start() {
                 const logOutput = function terminal_server_start_logger():void {
-                    const output:string[] = [],
-                        webPort:string = (serverVars.webPort === 80)
-                            ? ""
-                            : `:${serverVars.webPort}`;
-                    let a:number = 0;
-                
-                    // discover the web socket port in case its a random port
-                    serverVars.wsPort = vars.ws.address().port;
-                
-                    // log the port information to the terminal
-                    output.push("");
-                    output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
-                    output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
-                    output.push("Local IP addresses are:");
+                        const output:string[] = [],
+                            webPort:string = (serverVars.webPort === 80)
+                                ? ""
+                                : `:${serverVars.webPort}`;
+                        let a:number = 0;
+                        
+                        if (serviceAddress !== undefined && serviceAddress.silent === true) {
+                            return;
+                        }
+                        // discover the web socket port in case its a random port
+                        serverVars.wsPort = vars.ws.address().port;
+                    
+                        // log the port information to the terminal
+                        output.push("");
+                        output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
+                        output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
+                        output.push("Local IP addresses are:");
 
-                    serverVars.addresses[0].forEach(function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
-                        a = value[0].length;
-                        if (a < serverVars.addresses[1]) {
-                            do {
-                                value[0] = value[0] + " ";
-                                a = a + 1;
-                            } while (a < serverVars.addresses[1]);
-                        }
-                        if (value[0].charAt(0) === " ") {
-                            output.push(`     ${value[0]}: ${value[1]}`);
+                        serverVars.addresses[0].forEach(function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
+                            a = value[0].length;
+                            if (a < serverVars.addresses[1]) {
+                                do {
+                                    value[0] = value[0] + " ";
+                                    a = a + 1;
+                                } while (a < serverVars.addresses[1]);
+                            }
+                            if (value[0].charAt(0) === " ") {
+                                output.push(`     ${value[0]}: ${value[1]}`);
+                            } else {
+                                output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
+                            }
+                        });
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
+                        output.push("");
+                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                        if (webPort === "") {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
                         } else {
-                            output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
+                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                         }
-                    });
-                    output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
-                    output.push("");
-                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
-                    if (webPort === "") {
-                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
-                    } else {
-                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
-                    }
-                    output.push("");
-                    library.log(output);
-                };
+                        output.push("");
+                        library.log(output);
+                    },
+                    ipAddress:string = (serviceAddress === undefined)
+                        ? serverVars.addresses[0][0][1]
+                        : serviceAddress.ip;
 
                 if (process.cwd() !== vars.projectPath) {
                     process.chdir(vars.projectPath);
@@ -219,8 +239,13 @@ const library = {
                     recursive: true
                 }, serverWatch);
                 httpServer.on("error", serverError);
-                httpServer.listen(port, serverVars.addresses[0][0], function terminal_server_start_listen():void {
-                    serverVars.webPort = httpServer.address().port;
+                httpServer.listen({
+                    port: port,
+                    host: ipAddress,
+                    ipv6Only: true
+                }, function terminal_server_start_listen():void {
+                    const serverAddress:net.AddressInfo = <net.AddressInfo>httpServer.address();
+                    serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
                         : serverVars.webPort + 1;
@@ -349,6 +374,7 @@ const library = {
                 library.log(["", "Launching default web browser..."]);
             });
         }
+        return httpServer;
     };
 
 export default server;

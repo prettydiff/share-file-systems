@@ -13,8 +13,9 @@ import help from "./lib/terminal/help.js";
 import lint from "./lib/terminal/lint.js";
 import remove from "./lib/terminal/remove.js";
 import server from "./lib/terminal/server.js";
-import simulation from "./lib/terminal/simulation.js";
 import test from "./lib/terminal/test.js";
+import test_service from "./lib/terminal/test_service.js";
+import test_simulation from "./lib/terminal/test_simulation.js";
 import vars from "./lib/terminal/vars.js";
 import version from "./lib/terminal/version.js";
 
@@ -32,8 +33,9 @@ import version from "./lib/terminal/version.js";
         lint: lint,
         remove: remove,
         server: server,
-        simulation: simulation,
         test: test,
+        test_service: test_service,
+        test_simulation: test_simulation,
         version: version
     },
     execute = function node_execute():void {

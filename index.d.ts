@@ -20,11 +20,9 @@ type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-cop
 type serviceType = serviceFS | "invite-status" | "messages" | "settings";
 type shareType = "directory" | "file" | "link";
 type storageType = "messages" | "settings" | "users";
+type testListType = "service" | "simulation";
 type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
-interface applications {
-    [key:string]: Function;
-}
 interface appName {
     command: string,
     name: string
@@ -228,6 +226,9 @@ interface messages {
     status: messageList[];
     users: messageList[];
     errors: messageListError[];
+}
+interface methodList {
+    [key:string]: Function;
 }
 interface modalSettings extends EventHandlerNonNull {
     (Event, user?:string, configuration?:ui_modal): void;
@@ -454,19 +455,17 @@ interface serverVars {
     webPort: number;
     wsPort: number;
 }
+interface serviceAddress {
+    ip: string;
+    port: number;
+    silent: boolean;
+}
 interface sharesDeleteList extends EventHandlerNonNull {
     (event:MouseEvent, configuration?:ui_modal): void;
 }
 interface shareUpdate {
     user: string;
     shares: userShares;
-}
-interface simulationItem {
-    artifact?: string;
-    command: string;
-    file?: string;
-    qualifier: qualifier;
-    test: string;
 }
 interface SocketEvent extends Event {
     data: string;
@@ -538,6 +537,14 @@ interface terminalVariables {
     verbose: boolean;
     version: version;
     ws: any;
+}
+interface testItem {
+    artifact?: string;
+    command: string | object;
+    file?: string;
+    name?: string;
+    qualifier: qualifier;
+    test: string | object;
 }
 interface textPad extends EventHandlerNonNull {
     (Event, value?:string, title?:string): void;
