@@ -416,6 +416,9 @@ const library = {
                     });
                 }
             };
+        if (test === false || test === undefined) {
+            library.log.title("Run All Build Tasks");
+        }
         next("");
     };
 

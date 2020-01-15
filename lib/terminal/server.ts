@@ -196,7 +196,6 @@ const library = {
                         serverVars.wsPort = vars.ws.address().port;
                     
                         // log the port information to the terminal
-                        output.push("");
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
                         output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
                         output.push("Local IP addresses are:");
@@ -224,6 +223,7 @@ const library = {
                             output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                         }
                         output.push("");
+                        library.log.title("Local Service");
                         library.log(output);
                     },
                     ipAddress:string = (serviceAddress === undefined)
