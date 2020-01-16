@@ -20,6 +20,27 @@ const //sep:string = vars.sep,
         {
             command: {
                 "fs": {
+                    "action": "fs-base64",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`some-modal-id:${projectPath}tsconfig.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Base 64",
+            qualifier: "contains",
+            test: [{
+                "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAiYmFzZVVybCI6ICIuIiwKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicGF0aHMiOiB7CiAgICAgICAgICAgICJ3cyI6IFsiLi9qcy93cy1lczYvaW5kZXguanMiXQogICAgICAgIH0sCiAgICAgICAgInByZXR0eSI6IHRydWUsCiAgICAgICAgInRhcmdldCI6ICJFUzYiLAogICAgICAgICJ0eXBlcyI6IFsibm9kZSJdLAogICAgICAgICJ0eXBlUm9vdHMiOiBbIm5vZGVfbW9kdWxlcy9AdHlwZXMiXQogICAgfSwKICAgICJleGNsdWRlIjogWwogICAgICAgICJqcyIsCiAgICAgICAgIm5vZGVfbW9kdWxlcyIKICAgIF0sCiAgICAiaW5jbHVkZSI6IFsKICAgICAgICAiKi50cyIsCiAgICAgICAgIioqLyoudHMiCiAgICBdCn0=",
+                "id": "some-modal-id",
+                "path": `${projectPath}tsconfig.json`
+            }]
+        },
+        {
+            command: {
+                "fs": {
                     "action": "fs-hash",
                     "agent": "localhost",
                     "copyAgent": "",

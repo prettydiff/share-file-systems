@@ -2,7 +2,7 @@
 import * as http from "http";
 import * as net from "net";
 import * as string_decoder from "string_decoder";
-import WebSocket from "ws";
+import WebSocket from "../../ws-es6/index.js";
 
 import copy from "./copy.js";
 import directory from "./directory.js";
@@ -227,7 +227,7 @@ const library = {
                         library.log(output);
                     },
                     ipAddress:string = (serviceAddress === undefined)
-                        ? serverVars.addresses[0][0][1]
+                        ? "localhost"
                         : serviceAddress.ip;
 
                 if (process.cwd() !== vars.projectPath) {
@@ -250,12 +250,26 @@ const library = {
                         ? 0
                         : serverVars.webPort + 1;
     
-                    vars.ws = new WebSocket.Server({port: serverVars.wsPort});
+                    vars.ws = new WebSocket.Server({
+                        backlog: 100,
+                        clientTracking: true,
+                        handleProtocols: null,
+                        host: ipAddress,
+                        maxPayload: 10000,
+                        noServer: false,
+                        path: "localhost",
+                        perMessageDeflate: false,
+                        port: serverVars.wsPort,
+                        server: null,
+                        verifyClient: null
+                    }, function terminal_server_start_listen_socketCallback():void {
+                        return;
+                    });
     
                     // creates a broadcast utility where all listening clients get a web socket message
                     vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
                         vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
-                            if (client.readyState === WebSocket.OPEN) {
+                            if (client.readyState === "OPEN") {
                                 client.send(data);
                             }
                         });
