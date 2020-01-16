@@ -599,13 +599,27 @@ const library = {
                                     mtime: date,
                                     ctime: date,
                                     birthtime: date,
-                                    isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice() {},
-                                    isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice() {},
-                                    isDirectory: function terminal_server_create_windowsRoot_isDirectory() {},
-                                    isFIFO: function terminal_server_create_windowsRoot_isFIFO() {},
-                                    isFile: function terminal_server_create_windowsRoot_isFile() {},
-                                    isSocket: function terminal_server_create_windowsRoot_isSocket() {},
-                                    isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink() {}
+                                    isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice():boolean {
+                                        return false;
+                                    },
+                                    isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice():boolean {
+                                        return false;
+                                    },
+                                    isDirectory: function terminal_server_create_windowsRoot_isDirectory():boolean {
+                                        return false;
+                                    },
+                                    isFIFO: function terminal_server_create_windowsRoot_isFIFO():boolean {
+                                        return false;
+                                    },
+                                    isFile: function terminal_server_create_windowsRoot_isFile():boolean {
+                                        return false;
+                                    },
+                                    isSocket: function terminal_server_create_windowsRoot_isSocket():boolean {
+                                        return false;
+                                    },
+                                    isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink():boolean {
+                                        return false;
+                                    }
                                 }]],
                                 a:number = 0;
                             drives.forEach(function terminal_server_fileService_windowsRoot_each(value:string) {

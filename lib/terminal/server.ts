@@ -1,7 +1,7 @@
 
-import * as http from "http";
-import * as net from "net";
-import * as string_decoder from "string_decoder";
+import { IncomingMessage, ServerResponse } from "http";
+import { AddressInfo, Server } from "net";
+import { StringDecoder } from "string_decoder";
 import WebSocket from "../../ws-es6/index.js";
 
 import copy from "./copy.js";
@@ -33,7 +33,7 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
-    server = function terminal_server(serviceAddress?:serviceAddress):net.Server {
+    server = function terminal_server(serviceAddress?:serviceAddress):Server {
         const browser:boolean = (function terminal_server_browserTest():boolean {
                 const index:number = process.argv.indexOf("browser");
                 if (index > -1) {
@@ -52,9 +52,9 @@ const library = {
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            post = function terminal_server_post(request:http.IncomingMessage, response:http.ServerResponse) {
+            post = function terminal_server_post(request:IncomingMessage, response:ServerResponse) {
                 let body:string = "",
-                        decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
+                        decoder:StringDecoder = new StringDecoder("utf8");
                     request.on('data', function terminal_server_create_data(data:Buffer) {
                         body = body + decoder.write(data);
                         if (body.length > 1e6) {
@@ -129,7 +129,7 @@ const library = {
                     }
                 });
             },
-            httpServer:net.Server = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
+            httpServer:Server = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, response:ServerResponse):void {
                 const postTest = function terminal_server_create_postTest():boolean {
                     if (
                         request.method === "POST" && (
@@ -244,7 +244,7 @@ const library = {
                     host: ipAddress,
                     ipv6Only: true
                 }, function terminal_server_start_listen():void {
-                    const serverAddress:net.AddressInfo = <net.AddressInfo>httpServer.address();
+                    const serverAddress:AddressInfo = <AddressInfo>httpServer.address();
                     serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0

@@ -6,8 +6,8 @@ import error from "../lib/terminal/error.js";
 import humanTime from "../lib/terminal/humanTime.js";
 import log from "../lib/terminal/log.js";
 import remove from "../lib/terminal/remove.js";
-import server from "../lib/terminal/server.js";
 import vars from "../lib/terminal/vars.js";
+
 import service from "./service.js";
 import simulation from "./simulation.js";
 
@@ -16,23 +16,15 @@ const library = {
         error: error,
         humanTime: humanTime,
         log: log,
-        remove: remove,
-        server: server
+        remove: remove
     },
     list = {
         service: service,
         simulation: simulation
     },
     testListRunner = function terminal_testListRunner(testListType:testListType, callback:Function):void {
-        const tests:testItem[] = list[testListType],
+        const tests:testItem[]|serviceTests = list[testListType],
             capital:string = testListType.charAt(0).toUpperCase() + testListType.slice(1),
-            server:net.Server = (testListType === "service")
-                ? library.server({
-                    ip: "::1",
-                    port: 80,
-                    silent: true
-                })
-                : null,
             evaluation = function terminal_testListRunner_evaluation(stdout:string, errs?:nodeError, stdError?:string|Buffer):void {
                 const command:string = (typeof tests[a].command === "string")
                         ? <string>tests[a].command
@@ -177,7 +169,7 @@ const library = {
                                 "user-name": "localhost",
                                 "remote-user": "remoteUser"
                             },
-                            host: "::1",
+                            host: "localhost",
                             method: "POST",
                             path: "/",
                             port: 80,
@@ -223,7 +215,9 @@ const library = {
                             execution[testListType]();
                         } else {
                             if (testListType === "service") {
-                                server.close();
+                                const services:serviceTests = tests;
+                                services.serverLocal.close();
+                                services.serverRemote.close();
                             }
                             library.log([""]);
                             callback(`${vars.text.green}Successfully completed all ${vars.text.cyan + vars.text.bold + len + vars.text.none + vars.text.green} ${testListType} tests.${vars.text.none}`);
@@ -263,6 +257,10 @@ const library = {
             };
 
         let a:number = 0;
+        if (testListType === "service") {
+            const service:serviceTests = tests;
+            service.addServers();
+        }
         if (vars.command === testListType) {
             callback = function terminal_lint_callback(message:string):void {
                 vars.verbose = true;

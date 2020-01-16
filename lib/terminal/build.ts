@@ -1,5 +1,6 @@
 
 import { generateKeyPair } from "crypto";
+import { Stats } from "fs";
 import { hostname } from "os";
 
 import serverVars from "./server/serverVars.js";

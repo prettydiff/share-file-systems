@@ -1,4 +1,5 @@
 
+import { Stats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
 import error from "../error.js";

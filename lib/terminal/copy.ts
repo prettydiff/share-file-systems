@@ -1,5 +1,5 @@
 
-
+import { Stats } from "fs";
 import { Stream, Writable } from "stream";
 
 import commas from "../common/commas.js";

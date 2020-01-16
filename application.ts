@@ -1,7 +1,7 @@
 
 import base64 from "./lib/terminal/base64.js";
 import build from "./lib/terminal/build.js";
-import command from "./lib/terminal/commandName.js";
+import commandName from "./lib/terminal/commandName.js";
 import commands from "./lib/terminal/commands.js";
 import commands_documentation from "./lib/terminal/commands_documentation.js";
 import copy from "./lib/terminal/copy.js";
@@ -43,7 +43,7 @@ import version from "./lib/terminal/version.js";
         vars.commands = commands_documentation;
 
         // supported command name
-        vars.command = command();
+        vars.command = commandName();
 
         library[vars.command]();
     };

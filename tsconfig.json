@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "allowJs": true,
         "moduleResolution": "node",
         "outDir": "js",
         "pretty": true,
