@@ -44,6 +44,27 @@ const //sep:string = vars.sep,
         {
             command: {
                 "fs": {
+                    "action": "fs-base64",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`some-modal-id:${projectPath}tsconfig.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Base 64",
+            qualifier: "contains",
+            test: [{
+                "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
+                "id": "some-modal-id",
+                "path": `${projectPath}tsconfig.json`
+            }]
+        },
+        {
+            command: {
+                "fs": {
                     "action": "fs-hash",
                     "agent": "localhost",
                     "copyAgent": "",
@@ -64,17 +85,25 @@ const //sep:string = vars.sep,
         }
     ];
 
-services.addServers = function test_services_addServers():void {
-    services.serverLocal = server({
-        ip: "localhost",
-        port: 80,
-        silent: true
-    });
-    services.serverRemote = server({
-        ip: serverVars.addresses[0][0][1],
-        port: 80,
-        silent: true
-    });
+services.addServers = function test_services_addServers(callback:Function):void {
+    const flag:serviceFlags = {
+            local: false,
+            remote: false
+        },
+        completionLocal = function test_services_addServers_completion():void {
+            flag.local = true;
+            if (flag.remote === true) {
+                callback();
+            }
+        },
+        completionRemote = function test_services_addServers_completionRemote():void {
+            flag.remote = true;
+            if (flag.local === true) {
+                callback();
+            }
+        };
+    services.serverLocal = server(completionLocal);
+    services.serverRemote = server(completionRemote);
 };
 
 export default services;

@@ -4,7 +4,7 @@
         "url": "https://github.com/prettydiff/freshapp/issues"
     },
     "dependencies": {
-        "@types/node": "^12.12.22"
+        "@types/node": "^12.12.25"
     },
     "description": "A simple application and general utility primer for quickly starting new Node projects.",
     "directories": {

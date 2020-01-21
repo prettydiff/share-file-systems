@@ -10,6 +10,7 @@ import vars from "../lib/terminal/vars.js";
 
 import service from "./service.js";
 import simulation from "./simulation.js";
+import services from "./service.js";
 
 // runs various tests of different types
 const library = {
@@ -22,19 +23,22 @@ const library = {
         service: service,
         simulation: simulation
     },
-    testListRunner = function terminal_testListRunner(testListType:testListType, callback:Function):void {
+    testListRunner = function test_testListRunner(testListType:testListType, callback:Function):void {
         const tests:testItem[]|serviceTests = list[testListType],
             capital:string = testListType.charAt(0).toUpperCase() + testListType.slice(1),
-            evaluation = function terminal_testListRunner_evaluation(stdout:string, errs?:nodeError, stdError?:string|Buffer):void {
-                const command:string = (typeof tests[a].command === "string")
-                        ? <string>tests[a].command
-                        : JSON.stringify(tests[a].command),
-                    test:string = (typeof tests[a].test === "string")
-                        ? <string>tests[a].test
-                        : JSON.stringify(tests[a].test),
-                    name:string = (tests[a].name === undefined)
+            evaluation = function test_testListRunner_evaluation(stdout:string, errs?:nodeError, stdError?:string|Buffer):void {
+                const serviceItem:testItem|serviceTest = (testListType === "service")
+                        ? <serviceTest>tests[a]
+                        : null,
+                    command:string = (testListType === "service")
+                        ? JSON.stringify(serviceItem.command)
+                        : <string>tests[a].command,
+                    test:string = (testListType === "service")
+                        ? JSON.stringify(serviceItem.test)
+                        : <string>tests[a].test,
+                    name:string = (testListType === "service")
                         ? command
-                        : tests[a].name;
+                        : serviceItem.name;
                 if (tests[a].artifact === "" || tests[a].artifact === undefined) {
                     vars.flags.write = "";
                 } else {
@@ -71,7 +75,7 @@ const library = {
                     }
                     if (tests[a].qualifier.indexOf("file ") === 0) {
                         tests[a].file = vars.node.path.resolve(tests[a].file);
-                        vars.node.fs.readFile(tests[a].file, "utf8", function terminal_testListRun_simulation_file(err:Error, dump:string) {
+                        vars.node.fs.readFile(tests[a].file, "utf8", function test_testListRun_evaluation_file(err:Error, dump:string) {
                             if (err !== null) {
                                 library.error([err.toString()]);
                                 return;
@@ -104,7 +108,7 @@ const library = {
                         });
                     } else if (tests[a].qualifier.indexOf("filesystem ") === 0) {
                         tests[a].test = vars.node.path.resolve(test);
-                        vars.node.fs.stat(test, function terminal_testListRunner_simulation_filesystem(ers:Error) {
+                        vars.node.fs.stat(test, function test_testListRunner_evaluation_filesystem(ers:Error) {
                             if (ers !== null) {
                                 if (tests[a].qualifier === "filesystem contains" && ers.toString().indexOf("ENOENT") > -1) {
                                     library.error([
@@ -155,44 +159,65 @@ const library = {
                 }
             },
             execution:methodList = {
-                service: function terminal_testListRunner_service():void {
-                    const command:string = (typeof tests[a].command === "string")
-                            ? <string>tests[a].command
-                            : JSON.stringify(tests[a].command),
-                        name:string = (tests[a].name === undefined)
+                service: function test_testListRunner_service():void {
+                    const testItem:serviceTest = <serviceTest>tests[a],
+                        keyword:string = (function test_testListRunner_service_keyword():string {
+                            const words:string[] = Object.keys(testItem.command);
+                            return words[0];
+                        }()),
+                        agent:string = testItem.command[keyword].agent,
+                        command:string = (function test_testListRunner_service_command():string {
+                            if (agent === "localhost") {
+                                testItem.command[keyword].agent = `localhost`;
+                            } else {
+                                testItem.command[keyword].agent = `remoteUser@[::1]:${services.serverRemote.port}`;
+                            }
+                            return JSON.stringify(testItem.command);
+                        }()),
+                        name:string = (testItem.name === undefined)
                             ? command
-                            : tests[a].name,
-                        request:http.ClientRequest = http.request({
-                            headers: {
+                            : testItem.name,
+                        header = (agent === "localhost")
+                            ? {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
-                                "user-name": "localhost",
+                                "user-name": "localUser",
                                 "remote-user": "remoteUser"
+                            }
+                            : {
+                                "content-type": "application/x-www-form-urlencoded",
+                                "content-length": Buffer.byteLength(command),
+                                "user-name": "remoteUser",
+                                "remote-user": "localUser"
                             },
-                            host: "localhost",
+                        request:http.ClientRequest = http.request({
+                            headers: header,
+                            host: "::1",
                             method: "POST",
                             path: "/",
-                            port: 80,
+                            port: (testItem.command.agent === "localhost")
+                                ? services.serverLocal.port
+                                : services.serverRemote.port,
                             timeout: 1000
-                        }, function terminal_testListRunner_service_callback(response:http.IncomingMessage):void {
+                        }, function test_testListRunner_service_callback(response:http.IncomingMessage):void {
                             const chunks:string[] = [];
-                            response.on("data", function terminal_testListRunner_service_callback_data(chunk:string):void {
+                            response.on("data", function test_testListRunner_service_callback_data(chunk:string):void {
                                 chunks.push(chunk);
                             });
-                            response.on("end", function terminal_testListRunner_service_callback_end():void {
+                            response.on("end", function test_testListRunner_service_callback_end():void {
                                 evaluation(chunks.join(""));
                             });
                         });
-                    request.on("error", function terminal_testListRunner_service_error(reqError:nodeError):void {
+                    request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
                         error(`Failed to execute on service test: ${name}`, reqError.toString());
                     });
                     request.write(command);
-                    setTimeout(function terminal_testListRunner_service_callback_delay():void {
+                    setTimeout(function test_testListRunner_service_callback_delay():void {
                         request.end();
                     }, 100);
                 },
-                simulation: function terminal_testListRunner_simulation():void {
-                    vars.node.child(`${vars.version.command} ${tests[a].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_testListRunner_simulation_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+                simulation: function test_testListRunner_simulation():void {
+                    vars.node.child(`${vars.version.command} ${tests[a].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_testListRunner_simulation_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
                         const test:string = (typeof tests[a].test === "string")
                             ? <string>tests[a].test
                             : JSON.stringify(tests[a].test);
@@ -202,24 +227,27 @@ const library = {
                 }
             },
             len:number = tests.length,
-            increment = function terminal_testListRunner_increment(irr:string):void {
+            increment = function test_testListRunner_increment(irr:string):void {
                 const command:string = (typeof tests[a].command === "string")
                         ? <string>tests[a].command
                         : JSON.stringify(tests[a].command),
-                    name = (tests[a].name === undefined)
-                        ? command
-                        : tests[a].name,
-                    interval = function terminal_testListRunner_increment_interval():void {
+                    serviceItem:serviceTest = (testListType === "service")
+                        ? <serviceTest>tests[a]
+                        : null,
+                    name = (testListType === "service")
+                        ? serviceItem.name
+                        : command,
+                    interval = function test_testListRunner_increment_interval():void {
                         a = a + 1;
                         if (a < len) {
                             execution[testListType]();
                         } else {
                             if (testListType === "service") {
-                                const services:serviceTests = tests;
+                                const services:serviceTests = <serviceTests>tests;
                                 services.serverLocal.close();
                                 services.serverRemote.close();
                             }
-                            library.log([""]);
+                            library.log(["", ""]);
                             callback(`${vars.text.green}Successfully completed all ${vars.text.cyan + vars.text.bold + len + vars.text.none + vars.text.green} ${testListType} tests.${vars.text.none}`);
                         }
                     };
@@ -231,45 +259,55 @@ const library = {
                 if (tests[a].artifact === "" || tests[a].artifact === undefined) {
                     interval();
                 } else {
-                    library.remove(tests[a].artifact, function terminal_testListRunner_increment_remove():void {
+                    library.remove(tests[a].artifact, function test_testListRunner_increment_remove():void {
                         interval();
                     });
                 }
             },
-            error = function terminal_testListRunner_error(message:string, stdout:string) {
+            error = function test_testListRunner_error(message:string, stdout:string) {
                 const command:string = (typeof tests[a].command === "string")
                         ? <string>tests[a].command
                         : JSON.stringify(tests[a].command),
-                    name = (tests[a].name === undefined)
-                        ? command
-                        : tests[a].name,
+                    serviceItem:serviceTest = (testListType === "service")
+                        ? <serviceTest>tests[a]
+                        : null,
+                    name = (testListType === "service")
+                        ? serviceItem.name
+                        : command,
                     test:string = (typeof tests[a].test === "string")
                         ? <string>tests[a].test
                         : JSON.stringify(tests[a].test);
                 library.error([
-                    `${capital} test ${vars.text.angry + name + vars.text.none} ${message}:`,
+                    `${capital} test ${vars.text.angry + name + vars.text.none}, ${message}:`,
                     test,
                     "",
                     "",
                     `${vars.text.green}Actual output:${vars.text.none}`,
                     stdout
                 ]);
+                if (testListType === "service") {
+                    const services:serviceTests = <serviceTests>tests;
+                    services.serverLocal.close();
+                    services.serverRemote.close();
+                }
             };
 
         let a:number = 0;
-        if (testListType === "service") {
-            const service:serviceTests = tests;
-            service.addServers();
-        }
         if (vars.command === testListType) {
-            callback = function terminal_lint_callback(message:string):void {
+            callback = function test_lint_callback(message:string):void {
                 vars.verbose = true;
                 library.log([message, "\u0007"], true); // bell sound
             };
             library.log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
-
-        execution[testListType]();
+        if (testListType === "service") {
+            const service:serviceTests = <serviceTests>tests;
+            service.addServers(function test_testListRunner_serviceCallback():void {
+                execution.service();
+            });
+        } else {
+            execution[testListType]();
+        }
     };
 
 export default testListRunner;

@@ -190,6 +190,9 @@ declare global {
         response?: any;
         responseError?: (error:nodeError) => void;
     }
+    interface httpServer extends Server {
+        port: number;
+    }
     interface invite {
         action: "invite" | "invite-request" | "invite-response" | "invite-complete";
         deviceKey: string;
@@ -460,16 +463,23 @@ declare global {
         webPort: number;
         wsPort: number;
     }
-    interface serviceAddress {
-        ip: string;
-        port: number;
-        silent: boolean;
+    interface serviceFlags {
+        local: boolean;
+        remote: boolean;
     }
-    interface serviceTests extends Array<testItem> {
-        [index:number]: testItem;
+    interface serviceTest {
+        artifact?: string;
+        command: any;
+        file?: string;
+        name: string;
+        qualifier: qualifier;
+        test: object;
+    }
+    interface serviceTests extends Array<serviceTest> {
+        [index:number]: serviceTest;
         addServers?: Function;
-        serverLocal?: Server;
-        serverRemote?: Server;
+        serverLocal?: httpServer;
+        serverRemote?: httpServer;
     }
     interface sharesDeleteList extends EventHandlerNonNull {
         (event:MouseEvent, configuration?:ui_modal): void;
@@ -524,11 +534,10 @@ declare global {
     }
     interface testItem {
         artifact?: string;
-        command: string | object;
+        command: string;
         file?: string;
-        name?: string;
         qualifier: qualifier;
-        test: string | object;
+        test: string;
     }
     interface textPad extends EventHandlerNonNull {
         (Event, value?:string, title?:string): void;
