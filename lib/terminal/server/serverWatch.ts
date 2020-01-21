@@ -7,6 +7,9 @@ import serverVars from "./serverVars.js";
 
 const serverWatch = function terminal_server_watch(type:"rename"|"change", filename:string|null):void {
         const extension:string = (function terminal_server_watch_extension():string {
+                if (filename === null) {
+                    return "";
+                }
                 const list = filename.split(".");
                 return list[list.length - 1];
             }()),

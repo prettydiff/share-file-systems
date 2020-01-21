@@ -37,8 +37,8 @@ const library = {
                         ? JSON.stringify(serviceItem.test)
                         : <string>tests[a].test,
                     name:string = (testListType === "service")
-                        ? command
-                        : serviceItem.name;
+                        ? serviceItem.name
+                        : command;
                 if (tests[a].artifact === "" || tests[a].artifact === undefined) {
                     vars.flags.write = "";
                 } else {

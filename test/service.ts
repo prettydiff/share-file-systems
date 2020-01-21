@@ -1,6 +1,4 @@
 
-import serverVars from "../lib/terminal/server/serverVars.js";
-
 import server from "../lib/terminal/server.js";
 import vars from "../lib/terminal/vars.js";
 
@@ -33,7 +31,7 @@ const //sep:string = vars.sep,
                     "watch": "no"
                 }
             },
-            name: "Base 64",
+            name: "Base 64 Local",
             qualifier: "contains",
             test: [{
                 "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
@@ -54,7 +52,7 @@ const //sep:string = vars.sep,
                     "watch": "no"
                 }
             },
-            name: "Base 64",
+            name: "Base 64 Remote",
             qualifier: "contains",
             test: [{
                 "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
@@ -75,7 +73,7 @@ const //sep:string = vars.sep,
                     "watch": "no"
                 }
             },
-            name: "Hash",
+            name: "Hash Local",
             qualifier: "contains",
             test: [{
                 "content": hash,

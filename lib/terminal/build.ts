@@ -49,9 +49,9 @@ const library = {
                     library.log([""]);
                     firstOrder = false;
                 } else if (order[type].length < orderLength) {
-                    library.log(["________________________________________________________________________", ""]);
+                    library.log(["________________________________________________________________________", "", ""]);
                 }
-                library.log([vars.text.cyan + message + vars.text.none, ""]);
+                library.log([vars.text.cyan + vars.text.bold + message + vars.text.none, ""]);
             },
             // indicates how long each phase took
             sectionTimer = function terminal_build_sectionTime(input:string):void {
@@ -110,8 +110,8 @@ const library = {
                 let phase = order[type][0],
                     time:string = library.humanTime(false);
                 if (message !== "") {
-                    library.log([time + message]);
                     sectionTimer(time);
+                    library.log([time + message]);
                 }
                 if (order[type].length < 1) {
                     if (vars.command === "build") {
