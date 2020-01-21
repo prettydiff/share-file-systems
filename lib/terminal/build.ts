@@ -40,8 +40,14 @@ const library = {
                 ? "test"
                 : "build",
             orderLength:number = order[type].length,
-            testsCallback = function terminal_build_testsCallback(message:string):void {
-                next(message);
+            testsCallback = function terminal_build_testsCallback(message:string, failCount:number):void {
+                if (failCount > 0) {
+                    vars.verbose = true;
+                    library.log([message], true);
+                    process.exit(1);
+                } else {
+                    next(message);
+                }
             },
             // a short title for each build/test phase
             heading = function terminal_build_heading(message:string):void {

@@ -49,11 +49,11 @@ const library = {
                     //cspell:disable
                     if (errs.toString().indexOf("getaddrinfo ENOTFOUND") > -1) {
                     //cspell:enable
-                        increment("no internet connection");
+                        increment("no internet connection", "");
                         return;
                     }
                     if (errs.toString().indexOf("certificate has expired") > -1) {
-                        increment("TLS certificate expired on HTTPS request");
+                        increment("TLS certificate expired on HTTPS request", "");
                         return;
                     }
                     if (stdout === "") {
@@ -62,7 +62,7 @@ const library = {
                     }
                 }
                 if (stdError !== undefined && stdError.toString() !== "" && stdError.toString().indexOf("The ESM module loader is experimental.") < 0) {
-                    library.error([stdError.toString()]);
+                    increment(`fail - ${stdError.toString()}`, "");
                     return;
                 }
                 if (typeof stdout === "string") {
@@ -77,85 +77,79 @@ const library = {
                         tests[a].file = vars.node.path.resolve(tests[a].file);
                         vars.node.fs.readFile(tests[a].file, "utf8", function test_testListRun_evaluation_file(err:Error, dump:string) {
                             if (err !== null) {
-                                library.error([err.toString()]);
+                                increment(`fail - ${err}`, "");
                                 return;
                             }
                             if (tests[a].qualifier === "file begins" && dump.indexOf(test) !== 0) {
-                                error(`is not starting in file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
+                                increment(`fail - is not starting in file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
                                 return;
                             }
                             if (tests[a].qualifier === "file contains" && dump.indexOf(test) < 0) {
-                                error(`is not anywhere in file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
+                                increment(`fail - is not anywhere in file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
                                 return;
                             }
                             if (tests[a].qualifier === "file ends" && dump.indexOf(test) === dump.length - test.length) {
-                                error(`is not at end of file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
+                                increment(`fail - is not at end of file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
                                 return;
                             }
                             if (tests[a].qualifier === "file is" && dump !== test) {
-                                error(`does not match the file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
+                                increment(`fail - does not match the file: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
                                 return;
                             }
                             if (tests[a].qualifier === "file not" && dump === test) {
-                                error(`matches this file, but shouldn't: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
+                                increment(`fail - matches this file, but shouldn't: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
                                 return;
                             }
                             if (tests[a].qualifier === "file not contains" && dump.indexOf(test) > -1) {
-                                error(`is contained in this file, but shouldn't be: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
+                                increment(`fail - is contained in this file, but shouldn't be: ${vars.text.green + tests[a].file + vars.text.none}`, dump);
                                 return;
                             }
-                            increment("");
+                            increment("", "");
                         });
                     } else if (tests[a].qualifier.indexOf("filesystem ") === 0) {
                         tests[a].test = vars.node.path.resolve(test);
                         vars.node.fs.stat(test, function test_testListRunner_evaluation_filesystem(ers:Error) {
                             if (ers !== null) {
                                 if (tests[a].qualifier === "filesystem contains" && ers.toString().indexOf("ENOENT") > -1) {
-                                    library.error([
-                                        `${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system:`,
-                                        vars.text.cyan + tests[a].test + vars.text.none
-                                    ]);
+                                    increment(`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + tests[a].test + vars.text.none}`, "");
                                     return;
                                 }
-                                library.error([ers.toString()]);
+                                increment(`fail - ${ers}`, "");
                                 return;
                             }
                             if (tests[a].qualifier === "filesystem not contains") {
-                                library.error([
-                                    `${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't:`,
-                                    vars.text.cyan + tests[a].test + vars.text.none
-                                ]);
+                                increment(`${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + tests[a].test + vars.text.none}`, "");
                                 return;
                             }
-                            increment("");
+                            increment("", "");
                         });
                     }
                 } else {
                     if (tests[a].qualifier === "begins" && (typeof stdout !== "string" || stdout.indexOf(test) !== 0)) {
-                        error("does not begin with the expected output", stdout);
+                        increment("fail - does not begin with the expected output", stdout);
                         return;
                     }
                     if (tests[a].qualifier === "contains" && (typeof stdout !== "string" || stdout.indexOf(test) < 0)) {
-                        error("does not contain the expected output", stdout);
+                        increment("fail - does not contain the expected output", stdout);
                         return;
                     }
                     if (tests[a].qualifier === "ends" && (typeof stdout !== "string" || stdout.indexOf(test) !== stdout.length - test.length)) {
-                        error("does not end with the expected output", stdout);
+                        increment("fail - does not end with the expected output", stdout);
                         return;
                     }
                     if (tests[a].qualifier === "is" && stdout !== test) {
-                        error("does not match the expected output", stdout);
+                        increment("fail - does not match the expected output", stdout);
                         return;
                     }
                     if (tests[a].qualifier === "not" && stdout === test) {
-                        error("must not be this output", stdout);
+                        increment("fail - must not be this output", stdout);
                         return;
                     }
                     if (tests[a].qualifier === "not contains" && (typeof stdout !== "string" || stdout.indexOf(test) > -1)) {
-                        error("must not contain this output", stdout)
+                        increment("fail - must not contain this output", stdout)
                         return;
                     }
-                    increment("");
+                    increment("", "");
                 }
             },
             execution:methodList = {
@@ -209,7 +203,7 @@ const library = {
                             });
                         });
                     request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
-                        error(`Failed to execute on service test: ${name}`, reqError.toString());
+                        increment(`fail - Failed to execute on service test: ${name}`, reqError.toString());
                     });
                     request.write(command);
                     setTimeout(function test_testListRunner_service_callback_delay():void {
@@ -227,7 +221,7 @@ const library = {
                 }
             },
             len:number = tests.length,
-            increment = function test_testListRunner_increment(irr:string):void {
+            increment = function test_testListRunner_increment(irr:string, failOutput:string):void {
                 const command:string = (typeof tests[a].command === "string")
                         ? <string>tests[a].command
                         : JSON.stringify(tests[a].command),
@@ -248,11 +242,35 @@ const library = {
                                 services.serverRemote.close();
                             }
                             library.log(["", ""]);
-                            callback(`${vars.text.green}Successfully completed all ${vars.text.cyan + vars.text.bold + len + vars.text.none + vars.text.green} ${testListType} tests.${vars.text.none}`);
+                            if (fail > 0) {
+                                const plural:string = (fail === 1)
+                                    ? ""
+                                    : "s";
+                                callback(`${vars.text.angry}Failed ${fail} ${testListType + vars.text.none} test${plural} out of ${len} total tests.`, fail);
+                            } else {
+                                callback(`${vars.text.green}Successfully completed all ${vars.text.cyan + vars.text.bold + len + vars.text.none + vars.text.green} ${testListType} tests.${vars.text.none}`, 0);
+                            }
                         }
                     };
                 if (irr === "") {
                     library.log([`${library.humanTime(false) + vars.text.green}Passed ${testListType} ${a + 1}: ${vars.text.none + name}`]);
+                } else if (irr.indexOf("fail - ") === 0) {
+                    fail = fail + 1;
+                    library.log([`${library.humanTime(false) + vars.text.angry}Fail ${testListType} ${a + 1}: ${vars.text.none + name} ${irr.replace("fail - ", "")}`]);
+                    if (failOutput !== "") {
+                        const test:string = (typeof tests[a].test === "string")
+                            ? <string>tests[a].test
+                            : JSON.stringify(tests[a].test);
+                        library.log([
+                            `${vars.text.green}Expected output:${vars.text.none}`,
+                            test,
+                            "",
+                            `${vars.text.angry}Actual output:${vars.text.none}`,
+                            failOutput,
+                            "",
+                            ""
+                        ]);
+                    }
                 } else {
                     library.log([`${library.humanTime(false) + vars.text.underline}Test ${a + 1} ignored (${vars.text.angry + irr + vars.text.none + vars.text.underline}):${vars.text.none} ${name}`]);
                 }
@@ -263,36 +281,10 @@ const library = {
                         interval();
                     });
                 }
-            },
-            error = function test_testListRunner_error(message:string, stdout:string) {
-                const command:string = (typeof tests[a].command === "string")
-                        ? <string>tests[a].command
-                        : JSON.stringify(tests[a].command),
-                    serviceItem:serviceTest = (testListType === "service")
-                        ? <serviceTest>tests[a]
-                        : null,
-                    name = (testListType === "service")
-                        ? serviceItem.name
-                        : command,
-                    test:string = (typeof tests[a].test === "string")
-                        ? <string>tests[a].test
-                        : JSON.stringify(tests[a].test);
-                library.error([
-                    `${capital} test ${vars.text.angry + name + vars.text.none}, ${message}:`,
-                    test,
-                    "",
-                    "",
-                    `${vars.text.green}Actual output:${vars.text.none}`,
-                    stdout
-                ]);
-                if (testListType === "service") {
-                    const services:serviceTests = <serviceTests>tests;
-                    services.serverLocal.close();
-                    services.serverRemote.close();
-                }
             };
 
-        let a:number = 0;
+        let a:number = 0,
+            fail:number = 0;
         if (vars.command === testListType) {
             callback = function test_lint_callback(message:string):void {
                 vars.verbose = true;
