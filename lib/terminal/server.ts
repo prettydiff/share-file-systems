@@ -296,14 +296,14 @@ const library = {
                                     serverVars.brotli = settings.brotli;
                                     serverVars.hash = settings.hash;
                                     serverVars.name = `${settings.name}@${address}`;
-                                    if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                    
+                                    if (serverCallback !== undefined) {
+                                        serverCallback();
+                                    } else if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                         logOutput();
-                                        if (serverCallback !== undefined) {
-                                            serverCallback();
-                                        }
                                     } else {
                                         const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(responseBody:Buffer|string):void {
-                                            const userData:userExchange = JSON.parse(<string>responseBody);
+                                                const userData:userExchange = JSON.parse(<string>responseBody);
                                                 count = count + 1;
                                                 if (count === length) {
                                                     allUsers();
@@ -339,9 +339,6 @@ const library = {
                                                         if (usersWriteError !== null) {
                                                             vars.ws.broadcast(usersWriteError.toString());
                                                             library.log([usersWriteError.toString()]);
-                                                        }
-                                                        if (serverCallback !== undefined) {
-                                                            serverCallback();
                                                         }
                                                     });
                                                 }
