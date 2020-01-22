@@ -278,8 +278,8 @@ const library = {
                         library.log([``]);
                         cut();
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
-                        response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"target":"remote-${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        vars.ws.broadcast(`{"fileListStatus":{"failures":${JSON.stringify(hashFail)},"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}}`);
+                        response.write(`{"fileListStatus":{"failures":${JSON.stringify(hashFail)},"target":"remote-${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}}`);
                         response.end();
                     },
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
@@ -301,7 +301,7 @@ const library = {
                                 countFile = countFile + 1;
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + fileQueue[index][1];
-                                vars.ws.broadcast(`fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                                vars.ws.broadcast(`{"fileListStatus":{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}}`);
                             }
                             if (index < fileQueue.length - 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
@@ -345,7 +345,7 @@ const library = {
                                     ? ""
                                     : "s",
                                 written:number = writeStream.bytesWritten + writtenSize;
-                            vars.ws.broadcast(`fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                            vars.ws.broadcast(`{"fileListStatus":{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}}`);
                         });
                         fileResponse.on("end", function terminal_server_fileService_requestFiles_writeStream_end():void {
                             const hashStream:fs.ReadStream = vars.node.fs.ReadStream(filePath);
@@ -437,7 +437,7 @@ const library = {
                                 hashFailPlural:string = (hashFailLength === 1)
                                     ? ""
                                     : "s";
-                            data.id = `fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`;
+                            data.id = `{"fileListStatus":{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}}`;
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
@@ -475,7 +475,7 @@ const library = {
                     const filePlural:string = (fileData.fileCount === 1)
                         ? ""
                         : "s";
-                    vars.ws.broadcast(`fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copy started for ${fileData.fileCount} file${filePlural} at ${library.prettyBytes(fileData.fileSize)} (${library.commas(fileData.fileSize)} bytes)."}`);
+                    vars.ws.broadcast(`{"fileListStatus":{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copy started for ${fileData.fileCount} file${filePlural} at ${library.prettyBytes(fileData.fileSize)} (${library.commas(fileData.fileSize)} bytes)."}}`);
                 }
                 if (fileData.list[0][1] === "directory") {
                     makeDir();
@@ -498,7 +498,7 @@ const library = {
                             const filePlural:string = (countFile === 1)
                                 ? ""
                                 : "s";
-                            fileCallback(`fileListStatus:{"failures":[],"target":"remote-${data.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures."}`);
+                            fileCallback(`{"fileListStatus":{"failures":[],"target":"remote-${data.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures."}}`);
                         }
                     };
                     library.copy({
@@ -764,7 +764,7 @@ const library = {
                     readStream.pipe(response);
                 }
             });
-            if (data.id.indexOf("fileListStatus:") === 0) {
+            if (data.id.indexOf("{\"fileListStatus\":") === 0) {
                 vars.ws.broadcast(data.id);
             }
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {

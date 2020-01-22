@@ -151,7 +151,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             deleteUser();
         } else if (event.data.indexOf("error:") === 0) {
             error();
-        } else if (event.data.indexOf("fileListStatus:") === 0) {
+        } else if (event.data.indexOf("{\"fileListStatus\":") === 0) {
             util.fileListStatus(event.data);
         } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
             fsUpdate();

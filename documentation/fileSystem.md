@@ -29,9 +29,13 @@ All file system services begin with *fs-* in their name.  Output format of *dire
 * **3**: number, count of child artifacts in a given directory
 * **4**: Stats, a stats object for the given artifact as derived from Node's *fs* library
 
-** Please note that backslashes, such as Windows file system paths, must be escaped or else it will break JSON.parse execution.**  This can be as simple as `value.replace(/\\/g, "\\\\");`.
+**Please note that backslashes, such as Windows file system paths, must be escaped or else it will break JSON.parse execution.**  This can be as simple as `value.replace(/\\/g, "\\\\");`.
 
 ### File System services
+
+#### Notes on dataString[] data type
+In the following list the fs-base64, fs-hash, and fs-read services describe their location property as *dataString[]* instead of the regular *string[]*.  The dataString[] data type suggests an array where each index is a string of modal id, colon, and file system path.  This is necessary because the output modal is a different new modal than the one containing the file list and that could mean multiple new modals, one for each requested location, if multiple files are selected for action.  As a result an array is needed and thus the already available *id* property is insufficient.
+
 * **fs-base64**
    - description: Returns a base64 string for a given file or symbolic link.
    - output     : string, base64 data
@@ -40,7 +44,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * id      : string
-      * location: string[]
+      * location: dataString[]
       * name    : ""
       * watch   : "no"
 * **fs-close**
@@ -59,12 +63,12 @@ All file system services begin with *fs-* in their name.  Output format of *dire
    - output     : void
    - parameters
       * action   : **"fs-copy"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * copyAgent: string, agent of destination
       * depth    : 1
       * id       : string
       * location : string[]
-      * name     : ""
+      * name     : string, destination directory
       * watch    : "no"
 * **fs-copy-file**
    - description: **An internal service only.  Do not call this from the user interface.**  Generated from the response of *fs-copy-list* to retrieve a single file from a different agent.
@@ -227,7 +231,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * id      : string
-      * location: string[]
+      * location: dataString[]
       * name    : ""
       * watch   : "no"
 * **fs-new**:
@@ -249,7 +253,7 @@ All file system services begin with *fs-* in their name.  Output format of *dire
       * agent   : string
       * depth   : 1
       * id      : string
-      * location: string[]
+      * location: dataString[]
       * name    : ""
       * watch   : "no"
 * **fs-rename**:

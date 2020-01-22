@@ -63,6 +63,29 @@ const //sep:string = vars.sep,
         {
             command: {
                 "fs": {
+                    "action": "fs-copy",
+                    "agent": "localhost",
+                    "copyAgent": "localhost",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": `${projectPath}storage`,
+                    "watch": "no"
+                }
+            },
+            name: "Copy Local to Local",
+            qualifier: "contains",
+            test: {
+                "fileListStatus": {
+                    "failures": [],
+                    "target": "remote-test-ID",
+                    "message": "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX failures."
+                }
+            }
+        },
+        {
+            command: {
+                "fs": {
                     "action": "fs-hash",
                     "agent": "localhost",
                     "copyAgent": "",
@@ -74,6 +97,27 @@ const //sep:string = vars.sep,
                 }
             },
             name: "Hash Local",
+            qualifier: "contains",
+            test: [{
+                "content": hash,
+                "id": "some-modal-id",
+                "path": `${projectPath}tsconfig.json`
+            }]
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-hash",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`some-modal-id:${projectPath}tsconfig.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Hash Remote",
             qualifier: "contains",
             test: [{
                 "content": hash,

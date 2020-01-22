@@ -33,6 +33,10 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
+    // at this time the serverCallback argument is only used by test automation and so its availability
+    // * locks the server to address ::1 (loopback)
+    // * bypasses messaging users on server start up
+    // * bypasses some security checks
     server = function terminal_server(serverCallback?:Function):httpServer {
         const browser:boolean = (function terminal_server_browserTest():boolean {
                 const index:number = process.argv.indexOf("browser");
