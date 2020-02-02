@@ -1,4 +1,6 @@
+
 import { EMPTY_BUFFER } from "./constants.js";
+
 /**
  * Merges an array of buffers into a new buffer.
  *
@@ -8,19 +10,21 @@ import { EMPTY_BUFFER } from "./constants.js";
  * @public
  */
 function concat(list, totalLength) {
-    if (list.length === 0)
-        return EMPTY_BUFFER;
-    if (list.length === 1)
-        return list[0];
-    const target = Buffer.allocUnsafe(totalLength);
-    let offset = 0;
-    for (let i = 0; i < list.length; i++) {
-        const buf = list[i];
-        buf.copy(target, offset);
-        offset += buf.length;
-    }
-    return target;
+  if (list.length === 0) return EMPTY_BUFFER;
+  if (list.length === 1) return list[0];
+
+  const target = Buffer.allocUnsafe(totalLength);
+  let offset = 0;
+
+  for (let i = 0; i < list.length; i++) {
+    const buf = list[i];
+    buf.copy(target, offset);
+    offset += buf.length;
+  }
+
+  return target;
 }
+
 /**
  * Masks a buffer using the given mask.
  *
@@ -32,10 +36,11 @@ function concat(list, totalLength) {
  * @public
  */
 function _mask(source, mask, output, offset, length) {
-    for (let i = 0; i < length; i++) {
-        output[offset + i] = source[i] ^ mask[i & 3];
-    }
+  for (let i = 0; i < length; i++) {
+    output[offset + i] = source[i] ^ mask[i & 3];
+  }
 }
+
 /**
  * Unmasks a buffer using the given mask.
  *
@@ -44,12 +49,13 @@ function _mask(source, mask, output, offset, length) {
  * @public
  */
 function _unmask(buffer, mask) {
-    // Required until https://github.com/nodejs/node/issues/9006 is resolved.
-    const length = buffer.length;
-    for (let i = 0; i < length; i++) {
-        buffer[i] ^= mask[i & 3];
-    }
+  // Required until https://github.com/nodejs/node/issues/9006 is resolved.
+  const length = buffer.length;
+  for (let i = 0; i < length; i++) {
+    buffer[i] ^= mask[i & 3];
+  }
 }
+
 /**
  * Converts a buffer to an `ArrayBuffer`.
  *
@@ -58,11 +64,13 @@ function _unmask(buffer, mask) {
  * @public
  */
 function toArrayBuffer(buf) {
-    if (buf.byteLength === buf.buffer.byteLength) {
-        return buf.buffer;
-    }
-    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  if (buf.byteLength === buf.buffer.byteLength) {
+    return buf.buffer;
+  }
+
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 }
+
 /**
  * Converts `data` to a `Buffer`.
  *
@@ -72,22 +80,24 @@ function toArrayBuffer(buf) {
  * @public
  */
 function toBuffer(data) {
-    toBuffer.readOnly = true;
-    if (Buffer.isBuffer(data))
-        return data;
-    let buf;
-    if (data instanceof ArrayBuffer) {
-        buf = Buffer.from(data);
-    }
-    else if (ArrayBuffer.isView(data)) {
-        buf = viewToBuffer(data);
-    }
-    else {
-        buf = Buffer.from(data);
-        toBuffer.readOnly = false;
-    }
-    return buf;
+  toBuffer.readOnly = true;
+
+  if (Buffer.isBuffer(data)) return data;
+
+  let buf;
+
+  if (data instanceof ArrayBuffer) {
+    buf = Buffer.from(data);
+  } else if (ArrayBuffer.isView(data)) {
+    buf = viewToBuffer(data);
+  } else {
+    buf = Buffer.from(data);
+    toBuffer.readOnly = false;
+  }
+
+  return buf;
 }
+
 /**
  * Converts an `ArrayBuffer` view into a buffer.
  *
@@ -96,10 +106,19 @@ function toBuffer(data) {
  * @private
  */
 function viewToBuffer(view) {
-    const buf = Buffer.from(view.buffer);
-    if (view.byteLength !== view.buffer.byteLength) {
-        return buf.slice(view.byteOffset, view.byteOffset + view.byteLength);
-    }
-    return buf;
+  const buf = Buffer.from(view.buffer);
+
+  if (view.byteLength !== view.buffer.byteLength) {
+    return buf.slice(view.byteOffset, view.byteOffset + view.byteLength);
+  }
+
+  return buf;
 }
-export { concat, _mask, toArrayBuffer, toBuffer, _unmask };
+
+export {
+    concat,
+    _mask,
+    toArrayBuffer,
+    toBuffer,
+    _unmask
+  }

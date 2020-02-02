@@ -1,4 +1,6 @@
-const isValidUTF8 = () => true;
+
+  const isValidUTF8 = () => true;
+
 /**
  * Checks if a status code is allowed in a close frame.
  *
@@ -7,11 +9,14 @@ const isValidUTF8 = () => true;
  * @public
  */
 const isValidStatusCode = (code) => {
-    return ((code >= 1000 &&
-        code <= 1013 &&
-        code !== 1004 &&
-        code !== 1005 &&
-        code !== 1006) ||
-        (code >= 3000 && code <= 4999));
+  return (
+    (code >= 1000 &&
+      code <= 1013 &&
+      code !== 1004 &&
+      code !== 1005 &&
+      code !== 1006) ||
+    (code >= 3000 && code <= 4999)
+  );
 };
-export { isValidStatusCode, isValidUTF8 };
+
+export {isValidStatusCode, isValidUTF8};

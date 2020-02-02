@@ -188,49 +188,49 @@ const library = {
             },
             start = function terminal_server_start() {
                 const logOutput = function terminal_server_start_logger():void {
-                        const output:string[] = [],
-                            webPort:string = (serverVars.webPort === 80)
-                                ? ""
-                                : `:${serverVars.webPort}`;
-                        let a:number = 0;
+                    const output:string[] = [],
+                        webPort:string = (serverVars.webPort === 80)
+                            ? ""
+                            : `:${serverVars.webPort}`;
+                    let a:number = 0;
 
-                        if (serverCallback !== undefined) {
-                            return;
+                    if (serverCallback !== undefined) {
+                        return;
+                    }
+                    // discover the web socket port in case its a random port
+                    serverVars.wsPort = vars.ws.address().port;
+
+                    // log the port information to the terminal
+                    output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
+                    output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
+                    output.push("Local IP addresses are:");
+
+                    serverVars.addresses[0].forEach(function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
+                        a = value[0].length;
+                        if (a < serverVars.addresses[1]) {
+                            do {
+                                value[0] = value[0] + " ";
+                                a = a + 1;
+                            } while (a < serverVars.addresses[1]);
                         }
-                        // discover the web socket port in case its a random port
-                        serverVars.wsPort = vars.ws.address().port;
-
-                        // log the port information to the terminal
-                        output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
-                        output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
-                        output.push("Local IP addresses are:");
-
-                        serverVars.addresses[0].forEach(function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
-                            a = value[0].length;
-                            if (a < serverVars.addresses[1]) {
-                                do {
-                                    value[0] = value[0] + " ";
-                                    a = a + 1;
-                                } while (a < serverVars.addresses[1]);
-                            }
-                            if (value[0].charAt(0) === " ") {
-                                output.push(`     ${value[0]}: ${value[1]}`);
-                            } else {
-                                output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
-                            }
-                        });
-                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
-                        output.push("");
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
-                        if (webPort === "") {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                        if (value[0].charAt(0) === " ") {
+                            output.push(`     ${value[0]}: ${value[1]}`);
                         } else {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                            output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
                         }
-                        output.push("");
-                        library.log.title("Local Service");
-                        library.log(output);
-                    };
+                    });
+                    output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
+                    output.push("");
+                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                    if (webPort === "") {
+                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                    } else {
+                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                    }
+                    output.push("");
+                    library.log.title("Local Service");
+                    library.log(output);
+                };
 
                 if (process.cwd() !== vars.projectPath) {
                     process.chdir(vars.projectPath);
@@ -255,13 +255,14 @@ const library = {
                     httpServer.port = serverAddress.port;
 
                     vars.ws = new WebSocket.Server({
+                        host: "localhost",
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {
 
                         // creates a broadcast utility where all listening clients get a web socket message
                         vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
                             vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
-                                if (client.readyState === "OPEN") {
+                                if (client.readyState === WebSocket.OPEN) {
                                     client.send(data);
                                 }
                             });

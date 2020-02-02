@@ -10,6 +10,7 @@ import {
 import { concat, toArrayBuffer, _unmask } from "./buffer-util.js";
 import { isValidStatusCode, isValidUTF8 } from "./validation.js";
 
+const unmask = _unmask;
 const GET_INFO = 0;
 const GET_PAYLOAD_LENGTH_16 = 1;
 const GET_PAYLOAD_LENGTH_64 = 2;
