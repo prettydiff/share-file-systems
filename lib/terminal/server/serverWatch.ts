@@ -121,7 +121,7 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
         } else if (extension === "css" || extension === "xhtml") {
             vars.ws.broadcast("reload");
         } else {
-            vars.ws.broadcast(`fsUpdate:${vars.projectPath}`);
+            vars.ws.broadcast(`{"fsUpdate":"${vars.projectPath}"}`);
         }
     };
 

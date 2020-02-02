@@ -13,7 +13,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
         document.getElementById("localhost").setAttribute("class", "offline");
     },
-    message = function local_socketMessage(event:SocketEvent):void {
+    message = function local_socketMessage(event:SocketEvent):void {console.log(event.data);
         if (typeof event.data !== "string") {
             return;
         }
@@ -44,7 +44,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             fsUpdate = function local_socketMessage_fsUpdate():void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
                     keyLength:number = modalKeys.length;
-                let value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
+                let value:string = event.data.replace("{\"fsUpdate\":\"", "").replace(/"\}$/, "").replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
                     a:number = 0;
                 if ((/^\w:$/).test(value) === true) {
                     value = value + "\\";
@@ -153,7 +153,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             error();
         } else if (event.data.indexOf("{\"fileListStatus\":") === 0) {
             util.fileListStatus(event.data);
-        } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
+        } else if (event.data.indexOf("{\"fsUpdate\":") === 0 && browser.loadTest === false) {
             fsUpdate();
         } else if (event.data.indexOf("fsUpdateRemote:") === 0) {
             fsUpdateRemote();
@@ -168,6 +168,8 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         } else if (event.data.indexOf("shareUpdate:") === 0) {
             const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length));
             share.update(update.user, update.shares);
+        } else {
+            console.log(event.data);
         }
     },
     open = function local_socketOpen():void {
@@ -176,21 +178,19 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         title.setAttribute("class", "title");
     },
     webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = (browser.localNetwork.family === "ipv4")
-            ? new WebSocket(`ws://${browser.localNetwork.ip}:${browser.localNetwork.wsPort}`)
-            : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`),
-    error = function local_socketError(this:WebSocket):any {
-        setTimeout(function local_socketError_timeout():void {
-            browser.socket = local_webSocket();
-        }, 5000);
+        const socket:WebSocket = new WebSocket(`ws://localhost:${browser.localNetwork.wsPort}/`),
+            error = function local_socketError(this:WebSocket):any {
+                setTimeout(function local_socketError_timeout():void {
+                    browser.socket = local_webSocket();
+                }, 5000);
+            };
+        
+        /* Handle Web Socket responses */
+        socket.onopen = open;
+        socket.onmessage = message;
+        socket.onclose = close;
+        socket.onerror = error;
+        return socket;
     };
-    
-    /* Handle Web Socket responses */
-    socket.onopen = open;
-    socket.onmessage = message;
-    socket.onclose = close;
-    socket.onerror = error;
-    return socket;
-};
 
 export default webSocket;

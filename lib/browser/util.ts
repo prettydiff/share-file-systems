@@ -450,6 +450,9 @@ util.getAncestor = function local_util_getAncestor(start:HTMLElement, identifier
     }
     do {
         start = <HTMLElement>start.parentNode;
+        if (start === null) {
+            return null;
+        }
     } while (start !== document.documentElement && test() === false);
     return start;
 };

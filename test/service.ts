@@ -32,7 +32,7 @@ const //sep:string = vars.sep,
                 }
             },
             name: "Base 64 Local",
-            qualifier: "contains",
+            qualifier: "is",
             test: [{
                 "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
                 "id": "some-modal-id",
@@ -53,7 +53,7 @@ const //sep:string = vars.sep,
                 }
             },
             name: "Base 64 Remote",
-            qualifier: "contains",
+            qualifier: "is",
             test: [{
                 "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
                 "id": "some-modal-id",
@@ -74,14 +74,31 @@ const //sep:string = vars.sep,
                 }
             },
             name: "Copy Local to Local",
-            qualifier: "contains",
+            qualifier: "is",
             test: {
                 "fileListStatus": {
                     "failures": [],
-                    "target": "remote-test-ID",
-                    "message": "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX failures."
+                    "message": "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX failures.",
+                    "target": "remote-test-ID"
                 }
             }
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-copy",
+                    "agent": "localhost",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": `${projectPath}storage`,
+                    "watch": "no"
+                }
+            },
+            name: "Copy Local to Remote",
+            qualifier: "is",
+            test: `{"id":"{"fileListStatus":{"failures":[],"message":"Copying 0.00% complete. XXXX files written at size XXXX (XXXX bytes) and XXXX integrity failures.","target":"local-${projectPath.replace(/\\/g, "\\\\\\\\")}storage"}}","dirs":"missing"}`
         },
         {
             command: {
@@ -97,7 +114,7 @@ const //sep:string = vars.sep,
                 }
             },
             name: "Hash Local",
-            qualifier: "contains",
+            qualifier: "is",
             test: [{
                 "content": hash,
                 "id": "some-modal-id",
@@ -118,7 +135,7 @@ const //sep:string = vars.sep,
                 }
             },
             name: "Hash Remote",
-            qualifier: "contains",
+            qualifier: "is",
             test: [{
                 "content": hash,
                 "id": "some-modal-id",

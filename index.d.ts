@@ -102,8 +102,8 @@ declare global {
     }
     interface copyStatus {
         failures:string[];
-        target:string;
         message:string;
+        target:string;
     }
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;
@@ -224,7 +224,6 @@ declare global {
         ip: string;
         httpPort: number;
         wsPort: number;
-        tcpPort: number;
     }
     interface messageError {
         error:string;
@@ -473,7 +472,7 @@ declare global {
         file?: string;
         name: string;
         qualifier: qualifier;
-        test: object;
+        test: object | string;
     }
     interface serviceTests extends Array<serviceTest> {
         [index:number]: serviceTest;

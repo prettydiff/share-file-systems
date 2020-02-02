@@ -33,9 +33,9 @@ const library = {
                     command:string = (testListType === "service")
                         ? JSON.stringify(serviceItem.command)
                         : <string>tests[a].command,
-                    test:string = (testListType === "service")
-                        ? JSON.stringify(serviceItem.test)
-                        : <string>tests[a].test,
+                    test:string = (typeof tests[a].test === "string")
+                        ? <string>tests[a].test
+                        : JSON.stringify(serviceItem.test),
                     name:string = (testListType === "service")
                         ? serviceItem.name
                         : command;
@@ -164,7 +164,10 @@ const library = {
                             if (agent === "localhost") {
                                 testItem.command[keyword].agent = `localhost`;
                             } else {
-                                testItem.command[keyword].agent = `remoteUser@[::1]:${services.serverRemote.port}`;
+                                testItem.command[keyword].agent = `${testItem.command[keyword].agent}@[::1]:${services.serverRemote.port}`;
+                            }
+                            if (testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost") {
+                                testItem.command[keyword].copyAgent = `${testItem.command[keyword].copyAgent}@[::1]:${services.serverRemote.port}`;
                             }
                             return JSON.stringify(testItem.command);
                         }()),
@@ -176,12 +179,14 @@ const library = {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
                                 "user-name": "localUser",
-                                "remote-user": "remoteUser"
+                                "remote-user": (testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost")
+                                    ? testItem.command[keyword].copyAgent
+                                    : "localUser"
                             }
                             : {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
-                                "user-name": "remoteUser",
+                                "user-name": testItem.command[keyword].agent,
                                 "remote-user": "localUser"
                             },
                         request:http.ClientRequest = http.request({
