@@ -1,4 +1,5 @@
 
+import directory from "../directory.js";
 import error from "../error.js";
 import log from "../log.js";
 import vars from "../vars.js";
@@ -121,7 +122,19 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
         } else if (extension === "css" || extension === "xhtml") {
             vars.ws.broadcast("reload");
         } else {
-            vars.ws.broadcast(`{"fsUpdate":"${vars.projectPath}"}`);
+            const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
+                vars.ws.broadcast(JSON.stringify({
+                    fsUpdateLocal: result
+                }));
+            };
+            directory({
+                callback: fsUpdateCallback,
+                depth: 2,
+                exclusions: [],
+                mode: "read",
+                path: vars.projectPath,
+                symbolic: true
+            });
         }
     };
 

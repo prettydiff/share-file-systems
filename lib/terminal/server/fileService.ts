@@ -101,11 +101,26 @@ const library = {
                     response: response
                 });
             },
+            fsUpdateLocal = function terminal_server_fileService(readLocation:string):void {
+                const fsUpdateCallback = function terminal_server_fileService_watchHandler_fsUpdateCallback(result:directoryList):void {
+                    vars.ws.broadcast(JSON.stringify({
+                        fsUpdateLocal: result
+                    }));
+                };
+                library.directory({
+                    callback: fsUpdateCallback,
+                    depth: 2,
+                    exclusions: [],
+                    mode: "read",
+                    path: readLocation,
+                    symbolic: true
+                });
+            },
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
                     serverVars.watches[value].time = Date.now();
                     if (data.agent === "localhost") {
-                        vars.ws.broadcast(`{"fsUpdate":"${value}"}`);
+                        fsUpdateLocal(value);
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
                                 if (serverVars.watches[value] === undefined) {
@@ -730,7 +745,7 @@ const library = {
                 // remote file server access
                 httpRequest(function terminal_server_fileService_remoteFileAccess(responseBody:string|Buffer):void {
                     response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                    if (responseBody.indexOf("fsUpdateRemote:") === 0) {
+                    if (responseBody.indexOf("{\"fsUpdateRemote\":") === 0) {
                         vars.ws.broadcast(responseBody);
                         response.write("Terminal received file system response from remote.");
                     } else {
@@ -979,13 +994,13 @@ const library = {
             if (data.name === "directory") {
                 library.makeDir(data.location[0], function terminal_server_fileService_newDirectory():void {
                     fileCallback(`${data.location[0]} created.`);
-                    vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
+                    fsUpdateLocal(dirs.join(slash));
                 });
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fileService_newFile(erNewFile:Error):void {
                     if (erNewFile === null) {
                         fileCallback(`${data.location[0]} created.`);
-                        vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
+                        fsUpdateLocal(dirs.join(slash));
                     } else {
                         library.error([erNewFile.toString()]);
                         library.log([erNewFile.toString()]);

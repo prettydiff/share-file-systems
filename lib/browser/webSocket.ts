@@ -41,33 +41,24 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
                 }
             },
-            fsUpdate = function local_socketMessage_fsUpdate():void {
+            fsUpdateLocal = function local_socketMessage_fsUpdateLocal():void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
+                    fsData:directoryList = JSON.parse(event.data).fsUpdateLocal,
                     keyLength:number = modalKeys.length;
-                let value:string = event.data.replace("{\"fsUpdate\":\"", "").replace(/"\}$/, "").replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
+                let root:string = fsData[0][0],
                     a:number = 0;
-                if ((/^\w:$/).test(value) === true) {
-                    value = value + "\\";
+                if ((/^\w:$/).test(root) === true) {
+                    root = root + "\\";
                 }
                 do {
-                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value && browser.data.modals[modalKeys[a]].agent === "localhost") {
+                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === "localhost") {
                         const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
-                        network.fs({
-                            action: "fs-directory",
-                            agent: "localhost",
-                            copyAgent: "",
-                            depth: 2,
-                            id: modalKeys[a],
-                            location: [value],
-                            name: "",
-                            watch: "no"
-                        }, function local_socketMessage_fsCallback(responseText:string):void {
-                            if (responseText !== "") {
-                                body.innerHTML = "";
-                                body.appendChild(fs.list(value, JSON.parse(responseText))[0]);
-                            }
-                        });
-                        break;
+                        body.innerHTML = "";
+                        body.appendChild(fs.list(root, {
+                            dirs: fsData,
+                            fail: fsData.failures,
+                            id: modalKeys[a]
+                        })[0]);
                     }
                     a = a + 1;
                 } while (a < keyLength);
@@ -77,7 +68,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                         agent: "localhost",
                         copyAgent: "",
                         depth: 1,
-                        location: [value],
+                        location: [root],
                         name: "",
                         watch: "no"
                     }, function local_socketMessage_closeCallback():boolean {
@@ -86,7 +77,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
             },
             fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
-                const data:fsUpdateRemote = JSON.parse(event.data.replace("fsUpdateRemote:", "")),
+                const data:fsUpdateRemote = JSON.parse(event.data.replace("{\"fsUpdateRemote\":", "").replace(/\}$/, "")),
                     list:[HTMLElement, number] = fs.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
@@ -153,9 +144,9 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             error();
         } else if (event.data.indexOf("{\"fileListStatus\":") === 0) {
             util.fileListStatus(event.data);
-        } else if (event.data.indexOf("{\"fsUpdate\":") === 0 && browser.loadTest === false) {
-            fsUpdate();
-        } else if (event.data.indexOf("fsUpdateRemote:") === 0) {
+        } else if (event.data.indexOf("{\"fsUpdateLocal\":") === 0 && browser.loadTest === false) {
+            fsUpdateLocal();
+        } else if (event.data.indexOf("{\"fsUpdateRemote\":") === 0) {
             fsUpdateRemote();
         } else if (event.data.indexOf("heartbeat-update:") === 0) {
             heartbeat();
