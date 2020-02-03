@@ -124,7 +124,7 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
         } else {
             const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
                 vars.ws.broadcast(JSON.stringify({
-                    fsUpdateLocal: result
+                    "fs-update-local": result
                 }));
             };
             directory({

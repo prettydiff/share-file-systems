@@ -69,7 +69,9 @@ const library = {
                     request.on("error", function terminal_server_create_errorRequest(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
                             library.log([body, "request", errorMessage.toString()]);
-                            vars.ws.broadcast(errorMessage.toString());
+                            vars.ws.broadcast(JSON.stringify({
+                                error: errorMessage
+                            }));
                         }
                     });
                     response.on("error", function terminal_server_create_errorResponse(errorMessage:nodeError):void {
@@ -78,7 +80,9 @@ const library = {
                             if (errorMessage.toString().indexOf("write after end") > -1) {
                                 library.log([errorMessage.stack]);
                             }
-                            vars.ws.broadcast(errorMessage.toString());
+                            vars.ws.broadcast(JSON.stringify({
+                                error: errorMessage
+                            }));
                         }
                     });
 
@@ -87,17 +91,17 @@ const library = {
                         dataString:string = (body.charAt(0) === "{")
                             ? body.slice(body.indexOf(":") + 1, body.length - 1)
                             : body.slice(body.indexOf(":") + 1);
-                    if (task === "fsUpdateRemote") {
+                    if (task === "fs-update-remote") {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
                         response.end();
-                    } else if (task === "shareUpdate") {
+                    } else if (task === "share-update") {
                         // * remote: Changes to the remote user's shares
                         // * local : Updates local share modals and updates the storage/users.json file
-                        const update:shareUpdate = JSON.parse(dataString);
+                        const update:shareUpdate = JSON.parse(dataString)["share-update"];
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(`Received share update from ${update.user}`);
                         response.end();
@@ -314,15 +318,29 @@ const library = {
                                                     allUsers();
                                                 }
                                                 serverVars.users[userData.user].shares = userData.shares;
-                                                vars.ws.broadcast(`heartbeat-update:{"agent","${userData.agent}"."refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
-                                                vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
+                                                vars.ws.broadcast(JSON.stringify({
+                                                    "heartbeat-update": {
+                                                        agent: userData.agent,
+                                                        refresh: false,
+                                                        status: userData.status,
+                                                        user: userData.user
+                                                    }
+                                                }));
+                                                vars.ws.broadcast(JSON.stringify({
+                                                    "share-update": {
+                                                        user: userData.user,
+                                                        shares: userData.shares
+                                                    }
+                                                }));
                                             },
                                             responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
                                                 count = count + 1;
                                                 if (count === length) {
                                                     allUsers();
                                                 }
-                                                vars.ws.broadcast([errorMessage.toString()]);
+                                                vars.ws.broadcast(JSON.stringify({
+                                                    error: errorMessage
+                                                }));
                                                 library.log([errorMessage.toString()]);
                                             },
                                             requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError, agent:string):void {
@@ -331,9 +349,18 @@ const library = {
                                                     allUsers();
                                                 }
                                                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(`heartbeat-update:{"agent":"${agent}","refresh":false,"status":"offline","user":"${serverVars.name}"}`);
+                                                    vars.ws.broadcast(JSON.stringify({
+                                                        "heartbeat-update": {
+                                                            agent: agent,
+                                                            refresh: false,
+                                                            status: "offline",
+                                                            user: serverVars.name
+                                                        }
+                                                    }));
                                                 } else {
-                                                    vars.ws.broadcast(errorMessage.toString());
+                                                    vars.ws.broadcast(JSON.stringify({
+                                                        error: errorMessage
+                                                    }));
                                                     library.log([errorMessage.toString()]);
                                                 }
                                             },
@@ -342,7 +369,9 @@ const library = {
                                                 if (userString !== settingString) {
                                                     vars.node.fs.writeFile(`${vars.projectPath}storage${vars.sep}users.json`, userString, "utf8", function terminal_server_start_listen_readUsers_readSettings_allUsers_write(usersWriteError:nodeError):void {
                                                         if (usersWriteError !== null) {
-                                                            vars.ws.broadcast(usersWriteError.toString());
+                                                            vars.ws.broadcast(JSON.stringify({
+                                                                error: usersWriteError
+                                                            }));
                                                             library.log([usersWriteError.toString()]);
                                                         }
                                                     });

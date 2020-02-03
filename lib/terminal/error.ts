@@ -31,7 +31,9 @@ const library = {
                     if (vars.ws.broadcast === undefined) {
                         console.log(server);
                     } else {
-                        vars.ws.broadcast(`error:${JSON.stringify(server)}`);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: server
+                        }));
                     }
                 } else {
                     const stack:string = new Error().stack.replace("Error", `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------`);

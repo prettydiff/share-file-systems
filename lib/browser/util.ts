@@ -334,7 +334,7 @@ util.dragList = function local_util_dragList(event:MouseEvent, dragBox:HTMLEleme
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function local_util_fileListStatus(text:string):void {
-    const data:copyStatus = JSON.parse(text.slice("fileListStatus\":".length, text.length - 1)),
+    const data:copyStatus = JSON.parse(text),
         modals:HTMLElement[] = (data.target.indexOf("remote-") === 0)
             ? [document.getElementById(data.target.replace("remote-", ""))]
             : (function local_util_fileListStatus_modals():HTMLElement[] {

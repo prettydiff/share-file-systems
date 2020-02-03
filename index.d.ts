@@ -118,7 +118,7 @@ declare global {
         getElementsByAttribute: Function;
     }
     interface fileService {
-        action      : serviceType | "shareUpdate";
+        action      : serviceType | "share-update";
         agent       : string;
         copyAgent   : string;
         depth       : number;

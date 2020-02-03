@@ -50,7 +50,9 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         log([config.errorMessage, errorMessage.toString()]);
-                        vars.ws.broadcast(errorMessage.toString());
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
                     }
                     config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
                     config.response.write(`{"id":"${config.id}","dirs":"missing"}`);
@@ -61,7 +63,9 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
                 if (errorMessage.code !== "ETIMEDOUT") {
                     log([config.errorMessage, errorMessage.toString()]);
-                    vars.ws.broadcast(errorMessage.toString());
+                    vars.ws.broadcast(JSON.stringify({
+                        error: errorMessage
+                    }));
                 }
             }
             : config.responseError,

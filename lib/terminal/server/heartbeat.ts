@@ -15,7 +15,12 @@ const library = {
     },
     // This logic will push out heartbeat data
     heartbeat = function terminal_server_heartbeat(data:heartbeat):void {
-        const payload:string = `heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"${data.status}","user":"${serverVars.name}"}`;
+        const payload:heartbeat = {
+                agent: data.agent,
+                refresh: data.refresh,
+                status: data.status,
+                user:serverVars.name
+            };
         library.httpClient({
             callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                 vars.ws.broadcast(<string>responseBody);
@@ -23,18 +28,31 @@ const library = {
             callbackType: "body",
             errorMessage: `Error with heartbeat to user ${data.agent}.`,
             id: "",
-            payload: payload,
+            payload: JSON.stringify({
+                "heartbeat-update": payload
+            }),
             remoteName: data.agent,
             requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                    vars.ws.broadcast(`heartbeat-update:{"agent":"${data.agent}","refresh":${data.refresh},"status":"offline","user":"${serverVars.name}"}`);
+                    vars.ws.broadcast(JSON.stringify({
+                        "heartbeat-update": {
+                            agent: data.agent,
+                            refresh: data.refresh,
+                            status: "offline",
+                            user: serverVars.name
+                        }
+                    }));
                 } else {
-                    vars.ws.broadcast(errorMessage.toString());
+                    vars.ws.broadcast(JSON.stringify({
+                        error: errorMessage
+                    }));
                     library.log([errorMessage.toString()]);
                 }
             },
             responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError):void {
-                vars.ws.broadcast([errorMessage.toString()]);
+                vars.ws.broadcast(JSON.stringify({
+                    error: errorMessage
+                }));
                 library.log([errorMessage.toString()]);
             }
         });
