@@ -36,11 +36,7 @@ share.addUser = function local_share_addUser(user:string):void {
         sharesModal = function local_share_addUser_sharesModal(event:MouseEvent) {
             let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
                 name:string;
-            if (element.nodeName.toLowerCase() !== "button") {
-                do {
-                    element = <HTMLElement>element.parentNode;
-                } while (element.nodeName.toLowerCase() !== "button" && element !== document.documentElement);
-            }
+            element = util.getAncestor(element, "button", "tag");
             name = element.lastChild.textContent.replace(/^\s+/, "");
             share.modal(event, name, null);
         },

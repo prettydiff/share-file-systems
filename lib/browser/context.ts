@@ -5,24 +5,27 @@ import network from "./network.js";
 import share from "./share.js";
 import util from "./util.js";
 import commas from "../common/commas.js";
+import prettyBytes from "../common/prettyBytes.js";
 
 const context:module_context = {};
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
-context.copy = function local_context_copy():void {
+context.copy = function local_context_copy(event:MouseEvent):void {
     let selected:[string, string][],
         addresses:string[] = [],
         box:HTMLElement,
         element:HTMLElement = context.element,
-        type:contextType = context.type; 
+        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        type:contextType = (context.type !== "")
+            ? context.type
+            : (contextElement.innerHTML.indexOf("Copy") === 0)
+                ? "copy"
+                : "cut";
     if (element.nodeName !== "li") {
         element = <HTMLElement>element.parentNode;
     }
-    box = <HTMLElement>element.parentNode;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    box = util.getAncestor(<HTMLElement>element.parentNode, "box", "class");
     selected = util.selectedAddresses(element, type);
     if (selected.length < 1) {
         addresses.push(element.getElementsByTagName("label")[0].innerHTML);
@@ -50,15 +53,16 @@ context.copy = function local_context_copy():void {
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent):void {
     const element:HTMLElement = context.element,
-        type:contextType = context.type,
+        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        type:contextType = (context.type !== "")
+            ? context.type
+            : (contextElement.innerHTML.indexOf("Base64") === 0)
+                ? "Base64"
+                : (contextElement.innerHTML.indexOf("Edit") === 0)
+                    ? "Edit"
+                    : "Hash",
         addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         length:number = addresses.length,
         agency:[string, boolean] = util.getAgent(box),
         locations:string[] = [];
@@ -116,7 +120,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                 textArea.style.whiteSpace = "normal";
             }
             if (type === "Hash") {
-                textArea.style.height = "5em";
+                textArea.style.minHeight = "5em";
                 body.style.height = "auto";
             }
             browser.data.modals[data[a].id].text_value = data[a].content;
@@ -138,13 +142,7 @@ context.destroy = function local_context_destroy():void {
     let element:HTMLElement = context.element,
         selected:[string, string][],
         addresses:string[] = [],
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()); 
+        box:HTMLElement = util.getAncestor(element, "box", "class"); 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
@@ -180,7 +178,7 @@ context.details = function local_context_details(event:MouseEvent):void {
         modalInstance:HTMLElement = modal.create({
             agent: agency[0],
             content: div,
-            height: 500,
+            height: 600,
             inputs: ["close"],
             left: event.clientX,
             read_only: agency[1],
@@ -201,6 +199,9 @@ context.details = function local_context_details(event:MouseEvent):void {
             } while (a < length);
             return output;
         }());
+    if (browser.loadTest === true) {
+        return;
+    }
     network.fs({
         action: "fs-details",
         agent: agency[0],
@@ -215,6 +216,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                 ? []
                 : payload.dirs,
+            fileList:directoryList = [],
             body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
             length:number = list.length,
             details:fsDetails = {
@@ -227,67 +229,35 @@ context.details = function local_context_details(event:MouseEvent):void {
         let a:number = 0,
             tr:HTMLElement,
             td:HTMLElement,
-            childLength:number,
             heading:HTMLElement = document.createElement("h3"),
             table:HTMLElement = document.createElement("table"),
             tbody:HTMLElement = document.createElement("tbody"),
             mTime:Date,
             aTime:Date,
             cTime:Date;
-        list.sort(function local_network_fsDetails_callback_sort(a:directoryItem, b:directoryItem):number {
-            // when types are the same
-            if (a[1] === b[1]) {
-                if (a[0] < b[0]) {
-                    return -1;
-                }
-                return 1;
-            }
-
-            // when types are different
-            if (a[1] === "directory") {
-                return -1;
-            }
-            if (a[1] === "link" && b[1] === "file") {
-                return -1;
-            }
-            return 1;
-        });
         do {
             if (list[a][1] === "directory") {
                 details.directories = details.directories + 1;
             } else if (list[a][1] === "link") {
                 details.links = details.links + 1;
             } else {
+                fileList.push(list[a]);
                 details.files = details.files + 1;
                 details.size = details.size + list[a][5].size;
             }
             a = a + 1;
-        } while (a < childLength);
+        } while (a < length);
 
         output.setAttribute("class", "fileDetailOutput");
-        heading.innerHTML = `File System Details - ${list.length} items`;
+        heading.innerHTML = `File System Details - ${commas(list.length)} items`;
         output.appendChild(heading);
-        a = 0;
-        childLength = addresses.length;
-        do {
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = list[a][1];
-            td.setAttribute("class", list[a][1]);
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = list[a][0];
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            a = a + 1;
-        } while (a < length);
         tr = document.createElement("tr");
         td = document.createElement("th");
         td.innerHTML = "Total Size";
         tr.appendChild(td);
         td = document.createElement("td");
         if (details.size > 1024) {
-            td.innerHTML = `${commas(details.size)} bytes (${util.prettyBytes(details.size)})`;
+            td.innerHTML = `${commas(details.size)} bytes (${prettyBytes(details.size)})`;
         } else {
             td.innerHTML = `${commas(details.size)} bytes`;
         }
@@ -330,43 +300,83 @@ context.details = function local_context_details(event:MouseEvent):void {
         tbody.appendChild(tr);
         table.appendChild(tbody);
         output.appendChild(table);
-        
-        if (list.length === 1) {
-            mTime = new Date(list[0][5].mtimeMs);
-            aTime = new Date(list[0][5].atimeMs);
-            cTime = new Date(list[0][5].ctimeMs);
+
+        mTime = new Date(list[0][5].mtimeMs);
+        aTime = new Date(list[0][5].atimeMs);
+        cTime = new Date(list[0][5].ctimeMs);
+        heading = document.createElement("h3");
+        heading.innerHTML = "MAC";
+        output.appendChild(heading);
+        table = document.createElement("table");
+        tbody = document.createElement("tbody");
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.innerHTML = "Modified";
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.innerHTML = util.dateFormat(mTime);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.innerHTML = "Accessed";
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.innerHTML = util.dateFormat(aTime);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.innerHTML = "Created";
+        tr.appendChild(td);
+        td = document.createElement("td");
+        td.innerHTML = util.dateFormat(cTime);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        table.appendChild(tbody);
+        output.appendChild(table);
+
+        if (list[0][1] === "directory" && details.files > 0) {
+            let button:HTMLElement = document.createElement("button");
+            td = document.createElement("p");
             heading = document.createElement("h3");
-            heading.innerHTML = "Modified, Accessed, Created";
+            heading.innerHTML = "Display first 100 files by...";
             output.appendChild(heading);
+            button.innerHTML = "Largest size";
+            fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
+                if (aa[5].size > bb[5].size) {
+                    return -1;
+                }
+                return 1;
+            });
+            button.nonce = JSON.stringify(fileList.slice(0, 100));
+            button.onclick = context.detailsList;
+            td.appendChild(button);
+            output.appendChild(td);
+            td = document.createElement("p"),
+            button = document.createElement("button");
+            button.innerHTML = "Recently changed";
+            fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
+                if (aa[5].mtimeMs > bb[5].mtimeMs) {
+                    return -1;
+                }
+                return 1;
+            });
+            button.nonce = JSON.stringify(fileList.slice(0, 100));
+            button.onclick = context.detailsList;
+            td.appendChild(button);
+            output.appendChild(td);
+            td = document.createElement("p");
+            td.style.display = "none";
+            output.appendChild(td);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Modified";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = util.dateFormat(mTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Accessed";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = util.dateFormat(aTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-            tr = document.createElement("tr");
-            td = document.createElement("th");
-            td.innerHTML = "Created";
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = util.dateFormat(cTime);
-            tr.appendChild(td);
-            tbody.appendChild(tr);
             table.appendChild(tbody);
+            table.style.display = "none";
+            table.setAttribute("class", "detailFileList");
             output.appendChild(table);
         }
+
         body.innerHTML = "";
         body.appendChild(output);
     });
@@ -374,16 +384,69 @@ context.details = function local_context_details(event:MouseEvent):void {
     context.element = null;
 };
 
+context.detailsList = function local_context_detailsList(event:MouseEvent) {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        sortType:"size"|"time" = (element.innerHTML === "Largest size")
+            ? "size"
+            : "time",
+        title:string = (sortType === "size")
+            ? "Largest"
+            : "Most Recent",
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        table:HTMLElement = (function local_context_details_refinement_table():HTMLElement {
+            let el:HTMLElement = parent;
+            do {
+                el = <HTMLElement>el.nextSibling;
+            } while (el.nodeName.toLowerCase() !== "table");
+            return el;
+        }()),
+        tbody:HTMLElement = <HTMLElement>table.firstChild,
+        p:HTMLElement = <HTMLElement>table.previousSibling,
+        data:directoryList = JSON.parse(element.nonce),
+        dataLength:number = data.length;
+    let a:number = 0,
+        tr:HTMLElement,
+        td:HTMLElement;
+    p.innerHTML = `Top ${dataLength} ${title} Files`;
+    tbody.innerHTML = "";
+    do {
+        tr = document.createElement("tr");
+        td = document.createElement("th");
+        td.setAttribute("class", "file");
+        td.innerHTML = data[a][0];
+        tr.appendChild(td);
+        td = document.createElement("td");
+        if (sortType === "size") {
+            td.innerHTML = commas(data[a][5].size);
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = prettyBytes(data[a][5].size);
+        } else {
+            td.innerHTML = util.dateFormat(new Date(data[a][5].mtimeMs));
+        }
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        a = a + 1;
+    } while (a < dataLength);
+    table.style.display = "block";
+    p.style.display = "block";
+};
+
 context.element = null;
 
 /* Handler for creating new directories */
-context.fsNew = function local_context_fsNew():void {
+context.fsNew = function local_context_fsNew(event:MouseEvent):void {
     let item:HTMLElement,
         box:HTMLElement,
         path:string,
         slash:"\\" | "/",
         element:HTMLElement = context.element;
-    const type:contextType = context.type,
+    const contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        type:contextType = (context.type !== "")
+            ? context.type
+            : (contextElement.innerHTML.indexOf("New File") === 0)
+                ? "file"
+                : "directory",
         field:HTMLInputElement = document.createElement("input"),
         text:HTMLElement = document.createElement("label"),
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
@@ -472,15 +535,8 @@ context.fsNew = function local_context_fsNew():void {
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
-    if (element.getAttribute("class") !== "fileList") {
-        do {
-            element = <HTMLElement>element.parentNode;
-        } while (element !== document.documentElement && element.getAttribute("class") !== "fileList");
-    }
-    box = <HTMLElement>element.parentNode;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+    element = util.getAncestor(element, "fileList", "class");
+    box = util.getAncestor(<HTMLElement>element.parentNode, "box", "class");
     path = box.getElementsByTagName("input")[0].value;
     if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
         slash = "\\";
@@ -507,21 +563,13 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         parent:HTMLElement = <HTMLElement>element.parentNode,
         item:HTMLElement,
         button:HTMLButtonElement,
-        box:HTMLElement = (function local_context_menu_box():HTMLElement {
-            let el:HTMLElement = parent;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
-                context.element = element;
-                context.type = "Base64";
                 button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
@@ -530,8 +578,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Copy <em>${command} + C</em>`;
-                context.element = element;
-                context.type = "copy";
                 button.onclick = context.copy;
                 item.appendChild(button);
                 itemList.push(item);
@@ -540,17 +586,12 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Cut <em>${command} + X</em>`;
-                context.element = element;
-                context.type = "cut";
                 button.onclick = context.copy;
                 item.appendChild(button);
                 itemList.push(item);
             },
             destroy: function local_context_menu_destroy():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent;
-                do {
-                    input = <HTMLInputElement>input.parentNode;
-                } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -559,7 +600,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    context.element = element;
                     button.onclick = context.destroy;
                 }
                 item.appendChild(button);
@@ -569,7 +609,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Details <em>${command} + ALT + T</em>`;
-                context.element = element;
                 button.onclick = context.details;
                 item.appendChild(button);
                 itemList.push(item);
@@ -582,8 +621,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 } else {
                     button.innerHTML = `Edit File as Text <em>${command} + ALT + E</em>`;
                 }
-                context.element = element;
-                context.type = "Edit";
                 button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
@@ -592,8 +629,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
-                context.element = element;
-                context.type = "Hash";
                 button.onclick = context.dataString;
                 item.appendChild(button);
                 itemList.push(item);
@@ -602,8 +637,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
-                context.element = element;
-                context.type = "directory";
                 button.onclick = context.fsNew;
                 item.appendChild(button);
                 itemList.push(item);
@@ -612,8 +645,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New File <em>${command} + ALT + F</em>`;
-                context.element = element;
-                context.type = "file";
                 button.onclick = context.fsNew;
                 item.appendChild(button);
                 itemList.push(item);
@@ -622,7 +653,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Paste <em>${command} + V</em>`;
-                context.element = element;
                 button.onclick = context.paste;
                 if (clipboard === "" || (
                     (element.getAttribute("class") === "fileList" || parent.getAttribute("class") === "fileList") &&
@@ -634,10 +664,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             rename: function local_context_menu_rename():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent;
-                do {
-                    input = <HTMLInputElement>input.parentNode;
-                } while (input !== document.documentElement && input.getAttribute("class") !== "border");
+                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -645,7 +672,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    context.element = element;
                     button.onclick = fs.rename;
                 }
                 item.appendChild(button);
@@ -655,7 +681,6 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Share <em>${command} + ALT + S</em>`;
-                context.element = element;
                 button.onclick = share.context;
                 item.appendChild(button);
                 itemList.push(item);
@@ -672,6 +697,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         parent = <HTMLElement>parent.parentNode;
         nodeName = element.nodeName.toLowerCase();
     }
+    context.element = element;
     context.menuRemove();
     event.preventDefault();
     event.stopPropagation();
@@ -749,12 +775,9 @@ context.menuRemove = function local_context_menuRemove():void {
 
 /* Prepare the network action to write files */
 context.paste = function local_context_paste():void {
-    let element:HTMLElement = context.element,
+    let element:HTMLElement = util.getAncestor(context.element, "box", "class"),
         destination:string,
         clipData:clipboard = JSON.parse(clipboard);
-    do {
-        element = <HTMLElement>element.parentNode;
-    } while (element !== document.documentElement && element.getAttribute("class") !== "box");
     destination = element.getElementsByTagName("input")[0].value;
     network.fs({
         action   : `fs-${clipData.type}`,

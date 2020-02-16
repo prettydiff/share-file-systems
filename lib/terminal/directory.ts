@@ -1,4 +1,6 @@
 
+import { Stats } from "fs";
+
 import commas from "../common/commas.js";
 import error from "./error.js";
 import hash from "./hash.js";

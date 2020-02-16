@@ -2,13 +2,18 @@
 #spaces{background-color:#cdf;background-image:url("../media/background-desert.jpg")}
 #spaces *:focus{outline-color:#39f}
 #spaces input::placeholder{color:#933}
+#spaces select{background:#eee;border-color:#999}
 
 /* Login prompt */
-.login #spaces #login{background:#eee;border-color:#000;box-shadow:0.15em 0.15em 1em #99c}
-#spaces #login button{box-shadow:0.025em 0.025em 0.1em #999}
-#spaces #login label{color:#666}
+.login #spaces #login{background:#eee;border-color:#000;box-shadow:0.2em 0.2em 0.5em #999}
+#spaces #login a,
+#spaces #login button{background:#dfd;border-color:#060;box-shadow:0.1em 0.1em 0.25em #ccc;color:#060}
+#spaces #login p{border-color:#000}
+#spaces #login p strong{color:#900}
+#spaces #login li{border-color:#000}
+#spaces #login li::after{background:#eee}
 #spaces #login input{border-color:#000}
-#spaces #login button{background:#dfd;border-color:#060;color:#060}
+#spaces #login input[readonly]{background:#ddd;border-color:#666}
 
 /* Context menu, right click */
 #spaces #contextMenu{border-color:#000}
@@ -20,7 +25,8 @@
 #spaces #contextMenu button[disabled]{background:#eee;color:#999}
 
 /* file system details modal content, accessed from context menu */
-#spaces .box .fileDetailOutput h3{color:#009}
+#spaces .fileDetailOutput h3{color:#009}
+#spaces .fileDetailOutput button{border-color:#000}
 
 /* settings modal */
 #spaces .settings button{background:#ddd;border-color:#000}
@@ -126,8 +132,8 @@
 #spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
-#spaces .fileList li{border-color:#eee}
-#spaces .fileList li ul{border-color:#eee}
+#spaces .fileList li,
+#spaces .fileList li ul{border-color:#ddd}
 #spaces .fileList li.cut:hover{background:#ddb}
 #spaces .fileList li.selected:hover{background:#cde}
 #spaces .fileList li.selected.cut:hover{background:#ada}

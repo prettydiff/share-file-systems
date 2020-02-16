@@ -1,4 +1,6 @@
 
+import { Stats } from "fs";
+
 import error from "./error.js";
 import vars from "./vars.js";
 

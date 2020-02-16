@@ -21,16 +21,20 @@ const library = {
         readFile: readFile
     },
     // input:
-    // * callback - function
-    // * source - file system artifact but treated as a string literal of property 'string' === true
-    // * string - if false the source will be regarded as a file system artifact
-    // * parent - a property passed in from the 'directory' utility, but otherwise not used
-    // * stat - a property passed in from the 'directory' utility, but otherwise not used
+    // * callback    - function - callback function
+    // * directInput - boolean - if false the source will be regarded as a file system artifact
+    // * id          - string - A modal id value optionally passed through
+    // * parent      - number - a property passed in from the 'directory' utility, but otherwise not used
+    // * source      - string - file system artifact but treated as a string literal of property 'string' === true
+    // * stat        - Stats - a property passed in from the 'directory' utility, but otherwise not used
     hash = function terminal_hash(input:hashInput):hashOutput {
         let limit:number = 0,
             shortLimit:number = 0,
+            algorithm:hash = (input === undefined || input.algorithm === undefined)
+                ? "sha3-512"
+                : input.algorithm,
             hashList:boolean = false;
-        const http:RegExp = (/^https?:\/\//),
+        const http:RegExp = (/^https?:\/\//), //sha512, sha3-512, shake256
             dirComplete = function terminal_hash_dirComplete(list:directoryList):void {
                 let a:number = 0,
                     c:number = 0;
@@ -38,7 +42,7 @@ const library = {
                     listObject:any = {},
                     hashes:string[] = [],
                     hashComplete = function terminal_hash_dirComplete_callback():void {
-                        const hash:Hash = vars.node.crypto.createHash("sha512");
+                        const hash:Hash = vars.node.crypto.createHash(algorithm);
                         let hashString:string = "";
                         if (hashList === true) {
                             hashString = JSON.stringify(listObject);
@@ -57,7 +61,7 @@ const library = {
                         });
                     },
                     hashBack = function terminal_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
-                        const hash:Hash = vars.node.crypto.createHash("sha512");
+                        const hash:Hash = vars.node.crypto.createHash(algorithm);
                         hash.on("readable", function terminal_hash_dirComplete_hashBack_hash():void {
                             let hashString:string = "";
                             const hashData:Buffer = <Buffer>hash.read();
@@ -90,7 +94,7 @@ const library = {
                             }
                         };
                         if (list[index][1] === "directory" || list[index][1] === "link") {
-                            const hash:Hash = vars.node.crypto.createHash("sha512");
+                            const hash:Hash = vars.node.crypto.createHash(algorithm);
                             hash.update(list[index][0]);
                             if (hashList === true) {
                                 listObject[list[index][0]] = hash.digest("hex");
@@ -141,7 +145,7 @@ const library = {
                 if (limit < 1 || listLength < limit) {
                     do {
                         if (list[a][1] === "directory" || list[a][1] === "link") {
-                            const hash:Hash = vars.node.crypto.createHash("sha512");
+                            const hash:Hash = vars.node.crypto.createHash(algorithm);
                             hash.update(list[a][0]);
                             if (hashList === true) {
                                 listObject[list[a][0]] = hash.digest("hex");
@@ -185,13 +189,23 @@ const library = {
                 }
             };
         if (vars.command === "hash") {
-            const listIndex:number = process.argv.indexOf("list");
+            const listIndex:number = process.argv.indexOf("list"),
+                length:number = process.argv.length;
+            let a:number = 0;
+            if (length > 0) {
+                do {
+                    if (process.argv[a].indexOf("algorithm:") === 0) {
+                        algorithm = <hash>process.argv[a].slice(10);
+                    }
+                    a = a + 1;
+                } while (a < length);
+            }
             if (process.argv[0] === undefined) {
                 library.error([`Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`]);
                 return;
             }
             if (process.argv.indexOf("string") > -1) {
-                const hash:Hash = vars.node.crypto.createHash("sha512");
+                const hash:Hash = vars.node.crypto.createHash(algorithm);
                 process.argv.splice(process.argv.indexOf("string"), 1);
                 hash.update(process.argv[0]);
                 library.log([hash.digest("hex")], true);
@@ -217,8 +231,7 @@ const library = {
             }
         }
         if (input.directInput === true) {
-            const hash:Hash = vars.node.crypto.createHash("sha512");
-            process.argv.splice(process.argv.indexOf("string"), 1);
+            const hash:Hash = vars.node.crypto.createHash(algorithm);
             hash.update(input.source);
             input.callback({
                 filePath: "",
@@ -231,7 +244,7 @@ const library = {
         }
         if (http.test(<string>input.source) === true) {
             library.get(<string>input.source, function terminal_hash_get(fileData:string) {
-                const hash:Hash = vars.node.crypto.createHash("sha512");
+                const hash:Hash = vars.node.crypto.createHash(algorithm);
                 hash.update(fileData);
                 library.log([hash.digest("hex")], true);
             });

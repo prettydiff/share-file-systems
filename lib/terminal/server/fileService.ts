@@ -48,7 +48,14 @@ const library = {
                                 ? data.name
                                 : data.name.replace(/\\/g, "\\\\");
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(`fsUpdateRemote:{"agent":"${data.agent}", "dirs":${JSON.stringify(directory)},"location":"${location}","status":"${message}"}`);
+                            response.write(JSON.stringify({
+                                "fs-update-remote": {
+                                    agent: data.agent,
+                                    dirs: directory,
+                                    location: location,
+                                    status: message
+                                }
+                            }));
                             response.end();
                         },
                         depth: 2,
@@ -77,10 +84,12 @@ const library = {
                     if (data.action === "fs-directory" && data.agent !== "localhost") {
                         store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                     }
-                    if (data.action === "shareUpdate") {
+                    if (data.action === "share-update") {
                         return data.name;
                     }
-                    return `fs:${JSON.stringify(store)}`;
+                    return JSON.stringify({
+                        fs: store
+                    });;
                 }());
                 library.httpClient({
                     callback: callback,
@@ -92,11 +101,26 @@ const library = {
                     response: response
                 });
             },
+            fsUpdateLocal = function terminal_server_fileService(readLocation:string):void {
+                const fsUpdateCallback = function terminal_server_fileService_watchHandler_fsUpdateCallback(result:directoryList):void {
+                    vars.ws.broadcast(JSON.stringify({
+                        "fs-update-local": result
+                    }));
+                };
+                library.directory({
+                    callback: fsUpdateCallback,
+                    depth: 2,
+                    exclusions: [],
+                    mode: "read",
+                    path: readLocation,
+                    symbolic: true
+                });
+            },
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
                     serverVars.watches[value].time = Date.now();
                     if (data.agent === "localhost") {
-                        vars.ws.broadcast(`fsUpdate:${value}`);
+                        fsUpdateLocal(value);
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
                                 if (serverVars.watches[value] === undefined) {
@@ -112,23 +136,26 @@ const library = {
                         // create directoryList object and send to remote
                         library.directory({
                             callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
-                                const location:string = (value.indexOf("\\") < 0 || value.charAt(value.indexOf("\\") + 1) === "\\")
-                                        ? value
-                                        : value.replace(/\\/g, "\\\\"),
-                                    payload:string = `fsUpdateRemote:{"agent":"${data.agent}","dirs":${JSON.stringify(result)},"location":"${location}"}`;
-                                    library.httpClient({
-                                        callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
-                                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                            response.write(responseBody);
-                                            response.end();
-                                        },
-                                        callbackType: "body",
-                                        errorMessage: `Error related to remote file system watch at ${data.agent}.`,
-                                        id: "",
-                                        payload: payload,
-                                        remoteName: data.agent,
-                                        response: response
-                                    });
+                                const payload:string = JSON.stringify({
+                                    "fs-update-remote": {
+                                        agent: data.agent,
+                                        dirs: result,
+                                        location: value
+                                    }
+                                });
+                                library.httpClient({
+                                    callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
+                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                        response.write(responseBody);
+                                        response.end();
+                                    },
+                                    callbackType: "body",
+                                    errorMessage: `Error related to remote file system watch at ${data.agent}.`,
+                                    id: "",
+                                    payload: payload,
+                                    remoteName: data.agent,
+                                    response: response
+                                });
                             },
                             depth: 2,
                             exclusions: [],
@@ -253,6 +280,11 @@ const library = {
                             hashFailPlural:string = (hashFailLength === 1)
                                 ? ""
                                 : "s",
+                            output:copyStatus = {
+                                failures: hashFail,
+                                message: `Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}.`,
+                                target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                            },
                             cut = function terminal_server_fileService_requestFiles_respond_cut():void {
                                 if (data.action.indexOf("fs-cut") === 0) {
                                     const types:string[] = [];
@@ -278,8 +310,13 @@ const library = {
                         library.log([``]);
                         cut();
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        vars.ws.broadcast(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
-                        response.write(`fileListStatus:{"failures":${JSON.stringify(hashFail)},"target":"remote-${fileData.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}."}`);
+                        vars.ws.broadcast(JSON.stringify({
+                            "file-list-status": output
+                        }));
+                        output.target = `remote-${fileData.id}`;
+                        response.write(JSON.stringify({
+                            "file-list-status": output
+                        }));
                         response.end();
                     },
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
@@ -294,14 +331,23 @@ const library = {
                                     : "s";
                             if (wr !== null) {
                                 library.log([`Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
-                                vars.ws.broadcast(`Error writing file ${fileName} from remote agent ${data.agent}`);
+                                vars.ws.broadcast(JSON.stringify({
+                                    error: `Error writing file ${fileName} from remote agent ${data.agent}`
+                                }));
                                 hashFail.push(fileName);
                             } else {
+                                const output:copyStatus = {
+                                    failures: [],
+                                    message: `Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
+                                    target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                };
                                 cutList.push([fileQueue[index][2], "file"]);
                                 countFile = countFile + 1;
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + fileQueue[index][1];
-                                vars.ws.broadcast(`fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                                vars.ws.broadcast(JSON.stringify({
+                                    "file-list-status": output
+                                }));
                             }
                             if (index < fileQueue.length - 1) {
                                 terminal_server_fileService_requestFiles_writeFile(index + 1);
@@ -344,8 +390,15 @@ const library = {
                                 hashFailPlural:string = (hashFailLength === 1)
                                     ? ""
                                     : "s",
-                                written:number = writeStream.bytesWritten + writtenSize;
-                            vars.ws.broadcast(`fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`);
+                                written:number = writeStream.bytesWritten + writtenSize,
+                                output:copyStatus = {
+                                    failures: [],
+                                    message: `Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
+                                    target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                };
+                            vars.ws.broadcast(JSON.stringify({
+                                "file-list-status": output
+                            }));
                         });
                         fileResponse.on("end", function terminal_server_fileService_requestFiles_writeStream_end():void {
                             const hashStream:fs.ReadStream = vars.node.fs.ReadStream(filePath);
@@ -437,7 +490,13 @@ const library = {
                                 hashFailPlural:string = (hashFailLength === 1)
                                     ? ""
                                     : "s";
-                            data.id = `fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}."}`;
+                            data.id = JSON.stringify({
+                                "file-list-status": {
+                                    failures: [],
+                                    message: `Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
+                                    target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                }
+                            });
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
@@ -473,9 +532,16 @@ const library = {
                     };
                 if (fileData.stream === true) {
                     const filePlural:string = (fileData.fileCount === 1)
-                        ? ""
-                        : "s";
-                    vars.ws.broadcast(`fileListStatus:{"failures":[],"target":"local-${data.name.replace(/\\/g, "\\\\")}","message":"Copy started for ${fileData.fileCount} file${filePlural} at ${library.prettyBytes(fileData.fileSize)} (${library.commas(fileData.fileSize)} bytes)."}`);
+                            ? ""
+                            : "s",
+                        output:copyStatus = {
+                            failures: [],
+                            message: `Copy started for ${fileData.fileCount} file${filePlural} at ${library.prettyBytes(fileData.fileSize)} (${library.commas(fileData.fileSize)} bytes).`,
+                            target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                        };
+                    vars.ws.broadcast(JSON.stringify({
+                        "file-list-status": output
+                    }));
                 }
                 if (fileData.list[0][1] === "directory") {
                     makeDir();
@@ -496,9 +562,16 @@ const library = {
                         writtenSize = writtenSize + fileSize;
                         if (count === length) {
                             const filePlural:string = (countFile === 1)
-                                ? ""
-                                : "s";
-                            fileCallback(`fileListStatus:{"failures":[],"target":"remote-${data.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures."}`);
+                                    ? ""
+                                    : "s",
+                                output:copyStatus = {
+                                    failures: [],
+                                    message: `Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures.`,
+                                    target: `remote-${data.id}`
+                                };
+                            fileCallback(JSON.stringify({
+                                "file-list-status": output
+                            }));
                         }
                     };
                     library.copy({
@@ -524,29 +597,37 @@ const library = {
                             output = output.concat(result);
                         }
                         if (count === pathLength) {
+                            const responseData:fsRemote = {
+                                dirs: "missing",
+                                fail:[],
+                                id: data.id
+                            };
                             response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                             if (output.length < 1) {
-                                response.write(`{"id":"${data.id}","dirs":"missing","fail":[]}`);
+                                response.write(JSON.stringify(responseData));
                             } else {
-                                response.write(`{"id":"${data.id}","dirs":${JSON.stringify(output)},"fail":${JSON.stringify(failures)}}`);
+                                responseData.dirs = output;
+                                responseData.fail = failures;
+                                response.write(JSON.stringify(responseData));
                             }
                             
                             // please note
                             // watch is ignored on all operations other than fs-directory
                             // fs-directory will only read from the first value in data.location
                             if (result.length > 0 && data.watch !== "no" && data.watch !== vars.projectPath) {
+                                const watchPath:string = result[0][0].replace(/\\/g, "\\\\");
                                 if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
                                     serverVars.watches[data.watch].close();
                                     delete serverVars.watches[data.watch];
                                 }
-                                if (serverVars.watches[result[0][0]] === undefined) {
-                                    serverVars.watches[result[0][0]] = vars.node.fs.watch(result[0][0], {
+                                if (serverVars.watches[watchPath] === undefined) {
+                                    serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
                                         recursive: false
                                     }, function terminal_server_fileService_pathEach_putStat_watch():void {
-                                        watchHandler(result[0][0]);
+                                        watchHandler(watchPath);
                                     });
                                 } else {
-                                    serverVars.watches[result[0][0]].time = Date.now();
+                                    serverVars.watches[watchPath].time = Date.now();
                                 }
                             }
                             response.end();
@@ -599,13 +680,27 @@ const library = {
                                     mtime: date,
                                     ctime: date,
                                     birthtime: date,
-                                    isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice() {},
-                                    isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice() {},
-                                    isDirectory: function terminal_server_create_windowsRoot_isDirectory() {},
-                                    isFIFO: function terminal_server_create_windowsRoot_isFIFO() {},
-                                    isFile: function terminal_server_create_windowsRoot_isFile() {},
-                                    isSocket: function terminal_server_create_windowsRoot_isSocket() {},
-                                    isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink() {}
+                                    isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice():boolean {
+                                        return false;
+                                    },
+                                    isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice():boolean {
+                                        return false;
+                                    },
+                                    isDirectory: function terminal_server_create_windowsRoot_isDirectory():boolean {
+                                        return false;
+                                    },
+                                    isFIFO: function terminal_server_create_windowsRoot_isFIFO():boolean {
+                                        return false;
+                                    },
+                                    isFile: function terminal_server_create_windowsRoot_isFile():boolean {
+                                        return false;
+                                    },
+                                    isSocket: function terminal_server_create_windowsRoot_isSocket():boolean {
+                                        return false;
+                                    },
+                                    isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink():boolean {
+                                        return false;
+                                    }
                                 }]],
                                 a:number = 0;
                             drives.forEach(function terminal_server_fileService_windowsRoot_each(value:string) {
@@ -656,7 +751,7 @@ const library = {
                 // remote file server access
                 httpRequest(function terminal_server_fileService_remoteFileAccess(responseBody:string|Buffer):void {
                     response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                    if (responseBody.indexOf("fsUpdateRemote:") === 0) {
+                    if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
                         vars.ws.broadcast(responseBody);
                         response.write("Terminal received file system response from remote.");
                     } else {
@@ -750,7 +845,7 @@ const library = {
                     readStream.pipe(response);
                 }
             });
-            if (data.id.indexOf("fileListStatus:") === 0) {
+            if (data.id.indexOf("{\"file-list-status\":") === 0) {
                 vars.ws.broadcast(data.id);
             }
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
@@ -854,7 +949,9 @@ const library = {
                     vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
                         if (readError !== null) {
                             library.error([readError.toString()]);
-                            vars.ws.broadcast(`error:${readError.toString()}`);
+                            vars.ws.broadcast(JSON.stringify({
+                                error: readError
+                            }));
                             return;
                         }
                         input.callback({
@@ -881,6 +978,7 @@ const library = {
                     });
                 } else if (data.action === "fs-hash") {
                     library.hash({
+                        algorithm: serverVars.hash,
                         callback: callback,
                         directInput: false,
                         id: id,
@@ -904,13 +1002,13 @@ const library = {
             if (data.name === "directory") {
                 library.makeDir(data.location[0], function terminal_server_fileService_newDirectory():void {
                     fileCallback(`${data.location[0]} created.`);
-                    vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
+                    fsUpdateLocal(dirs.join(slash));
                 });
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fileService_newFile(erNewFile:Error):void {
                     if (erNewFile === null) {
                         fileCallback(`${data.location[0]} created.`);
-                        vars.ws.broadcast(`fsUpdate:${dirs.join(slash)}`);
+                        fsUpdateLocal(dirs.join(slash));
                     } else {
                         library.error([erNewFile.toString()]);
                         library.log([erNewFile.toString()]);
@@ -922,9 +1020,14 @@ const library = {
             }
         } else if (data.action === "fs-search") {
             const callback = function terminal_server_fileService_searchCallback(result:directoryList):void {
+                const output:fsRemote = {
+                    dirs: result,
+                    fail: [],
+                    id: data.id
+                };
                 delete result.failures;
                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                response.write(`{"id":"${data.id}","dirs":${JSON.stringify(result)},"fail":[]}`);
+                response.write(JSON.stringify(output));
                 response.end();
             };
             library.directory({
@@ -941,7 +1044,9 @@ const library = {
                 let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;
                 if (erw !== null) {
                     library.error([erw.toString()]);
-                    vars.ws.broadcast(`error:${erw.toString()}`);
+                    vars.ws.broadcast(JSON.stringify({
+                        error: erw
+                    }));
                     message = `Error writing file: ${erw.toString()}`;
                 }
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});

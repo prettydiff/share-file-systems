@@ -63,7 +63,12 @@ const library = {
                                 callbackType: "body",
                                 errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
                                 id: "",
-                                payload:  `shareUpdate:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                                payload: JSON.stringify({
+                                    "share-update": {
+                                        user: serverVars.name,
+                                        shares: serverVars.users.localhost.shares
+                                    }
+                                }),
                                 remoteName: keys[a],
                                 response: response
                             });
@@ -75,6 +80,7 @@ const library = {
             } else if (task === "settings") {
                 const settings:ui_data = JSON.parse(dataString);
                 serverVars.brotli = settings.brotli;
+                serverVars.hash = settings.hash;
                 rename();
             } else {
                 rename();

@@ -1,6 +1,7 @@
 
-import * as http from "http";
-import * as string_decoder from "string_decoder";
+import { IncomingMessage, ServerResponse } from "http";
+import { AddressInfo } from "net";
+import { StringDecoder } from "string_decoder";
 import WebSocket from "../../ws-es6/index.js";
 
 import copy from "./copy.js";
@@ -32,7 +33,11 @@ const library = {
         makeDir: makeDir,
         remove: remove
     },
-    server = function terminal_server():void {
+    // at this time the serverCallback argument is only used by test automation and so its availability
+    // * locks the server to address ::1 (loopback)
+    // * bypasses messaging users on server start up
+    // * bypasses some security checks
+    server = function terminal_server(serverCallback?:Function):httpServer {
         const browser:boolean = (function terminal_server_browserTest():boolean {
                 const index:number = process.argv.indexOf("browser");
                 if (index > -1) {
@@ -41,17 +46,19 @@ const library = {
                 }
                 return false;
             }()),
-            port:number = (isNaN(Number(process.argv[0])) === true)
-                ? vars.version.port
-                : Number(process.argv[0]),
+            port:number = (serverCallback === undefined)
+                ? (isNaN(Number(process.argv[0])) === true)
+                    ? vars.version.port
+                    : Number(process.argv[0])
+                : 0,
             keyword:string = (process.platform === "darwin")
                 ? "open"
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            post = function terminal_server_post(request:http.IncomingMessage, response:http.ServerResponse) {
+            post = function terminal_server_post(request:IncomingMessage, response:ServerResponse) {
                 let body:string = "",
-                        decoder:string_decoder.StringDecoder = new string_decoder.StringDecoder("utf8");
+                        decoder:StringDecoder = new StringDecoder("utf8");
                     request.on('data', function terminal_server_create_data(data:Buffer) {
                         body = body + decoder.write(data);
                         if (body.length > 1e6) {
@@ -62,7 +69,9 @@ const library = {
                     request.on("error", function terminal_server_create_errorRequest(errorMessage:nodeError):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
                             library.log([body, "request", errorMessage.toString()]);
-                            vars.ws.broadcast(errorMessage.toString());
+                            vars.ws.broadcast(JSON.stringify({
+                                error: errorMessage
+                            }));
                         }
                     });
                     response.on("error", function terminal_server_create_errorResponse(errorMessage:nodeError):void {
@@ -71,7 +80,9 @@ const library = {
                             if (errorMessage.toString().indexOf("write after end") > -1) {
                                 library.log([errorMessage.stack]);
                             }
-                            vars.ws.broadcast(errorMessage.toString());
+                            vars.ws.broadcast(JSON.stringify({
+                                error: errorMessage
+                            }));
                         }
                     });
 
@@ -80,17 +91,17 @@ const library = {
                         dataString:string = (body.charAt(0) === "{")
                             ? body.slice(body.indexOf(":") + 1, body.length - 1)
                             : body.slice(body.indexOf(":") + 1);
-                    if (task === "fsUpdateRemote") {
+                    if (task === "fs-update-remote") {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
                         response.end();
-                    } else if (task === "shareUpdate") {
+                    } else if (task === "share-update") {
                         // * remote: Changes to the remote user's shares
                         // * local : Updates local share modals and updates the storage/users.json file
-                        const update:shareUpdate = JSON.parse(dataString);
+                        const update:shareUpdate = JSON.parse(dataString)["share-update"];
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(`Received share update from ${update.user}`);
                         response.end();
@@ -126,9 +137,21 @@ const library = {
                     }
                 });
             },
-            httpServer = vars.node.http.createServer(function terminal_server_create(request:http.IncomingMessage, response:http.ServerResponse):void {
+            httpServer:httpServer = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, response:ServerResponse):void {
                 const postTest = function terminal_server_create_postTest():boolean {
-                    if (request.method === "POST" && (request.headers.host === "localhost" || (request.headers.host !== "localhost" && (serverVars.users[<string>request.headers["user-name"]] !== undefined || request.headers.invite === "invite-request" || request.headers.invite === "invite-complete")))) {
+                    if (
+                        request.method === "POST" && (
+                            request.headers.host === "localhost" ||
+                            request.headers.host.indexOf("[::1]") === 0 || (
+                                request.headers.host !== "localhost" && (
+                                    serverVars.users[<string>request.headers["user-name"]] !== undefined ||
+                                    request.headers.invite === "invite-request" ||
+                                    request.headers.invite === "invite-complete" ||
+                                    (request.headers.host === "127.0.0.1" && request.headers["user-name"] === "localhost")
+                                )
+                            )
+                        )
+                    ) {
                         return true;
                     }
                     return false;
@@ -155,7 +178,7 @@ const library = {
                     }, 100);
                 }
             }),
-            serverError = function terminal_server_serverError(error:nodeError, port:number):void {
+            serverError = function terminal_server_serverError(error:nodeError):void {
                 if (error.code === "EADDRINUSE") {
                     if (error.port === port + 1) {
                         library.error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP server.`]);
@@ -174,12 +197,14 @@ const library = {
                             ? ""
                             : `:${serverVars.webPort}`;
                     let a:number = 0;
-                
+
+                    if (serverCallback !== undefined) {
+                        return;
+                    }
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
-                
+
                     // log the port information to the terminal
-                    output.push("");
                     output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
                     output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
                     output.push("Local IP addresses are:");
@@ -207,6 +232,7 @@ const library = {
                         output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                     }
                     output.push("");
+                    library.log.title("Local Service");
                     library.log(output);
                 };
 
@@ -219,32 +245,50 @@ const library = {
                     recursive: true
                 }, serverWatch);
                 httpServer.on("error", serverError);
-                httpServer.listen(port, serverVars.addresses[0][0], function terminal_server_start_listen():void {
-                    serverVars.webPort = httpServer.address().port;
+                httpServer.listen({
+                    port: port,
+                    host: "::1",
+                    ipv6Only: true
+                }, function terminal_server_start_listen():void {
+                    const serverAddress:AddressInfo = <AddressInfo>httpServer.address();
+                    serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
                         : serverVars.webPort + 1;
-    
-                    vars.ws = new WebSocket.Server({port: serverVars.wsPort});
-    
-                    // creates a broadcast utility where all listening clients get a web socket message
-                    vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
-                        vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
-                            if (client.readyState === WebSocket.OPEN) {
-                                client.send(data);
+
+                    httpServer.port = serverAddress.port;
+
+                    vars.ws = new WebSocket.Server({
+                        host: "localhost",
+                        port: serverVars.wsPort
+                    }, function terminal_server_start_listen_socketCallback():void {
+
+                        // creates a broadcast utility where all listening clients get a web socket message
+                        vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
+                            vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
+                                if (client.readyState === WebSocket.OPEN) {
+                                    client.send(data);
+                                }
+                            });
+                        };
+
+                        // When coming online send a heartbeat to each user
+                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_listen_readUsers(eru:nodeError, userString:string):void {
+                            if (eru !== null) {
+                                if (eru.code !== "ENOENT") {
+                                    library.log([eru.toString()]);
+                                    process.exit(1);
+                                    return;
+                                }
+                                serverVars.users = {
+                                    localhost: {
+                                        color: ["#fff", "#eee"],
+                                        shares: []
+                                    }
+                                };
+                            } else {
+                                serverVars.users = JSON.parse(userString);
                             }
-                        });
-                    };
-    
-                    // When coming online send a heartbeat to each user
-                    vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_listen_readUsers(eru:nodeError, userString:string):void {
-                        if (eru !== null) {
-                            logOutput();
-                            if (eru.code !== "ENOENT") {
-                                library.log([eru.toString()]);
-                            }
-                        } else {
-                            serverVars.users = JSON.parse(userString);
                             vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_listen_readUsers_readSettings(ers:nodeError, settingString:string):void {
                                 if (ers !== null) {
                                     logOutput();
@@ -259,26 +303,44 @@ const library = {
                                             ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
                                             : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
                                     serverVars.brotli = settings.brotli;
+                                    serverVars.hash = settings.hash;
                                     serverVars.name = `${settings.name}@${address}`;
-                                    if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                    
+                                    if (serverCallback !== undefined) {
+                                        serverCallback();
+                                    } else if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                         logOutput();
                                     } else {
                                         const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(responseBody:Buffer|string):void {
-                                            const userData:userExchange = JSON.parse(<string>responseBody);
+                                                const userData:userExchange = JSON.parse(<string>responseBody);
                                                 count = count + 1;
                                                 if (count === length) {
                                                     allUsers();
                                                 }
                                                 serverVars.users[userData.user].shares = userData.shares;
-                                                vars.ws.broadcast(`heartbeat-update:{"agent","${userData.agent}"."refresh":false,"status":"${userData.status}","user":"${userData.user}"}`);
-                                                vars.ws.broadcast(`shareUpdate:{"user":"${userData.user}","shares":"${JSON.stringify(userData.shares)}"}`);
+                                                vars.ws.broadcast(JSON.stringify({
+                                                    "heartbeat-update": {
+                                                        agent: userData.agent,
+                                                        refresh: false,
+                                                        status: userData.status,
+                                                        user: userData.user
+                                                    }
+                                                }));
+                                                vars.ws.broadcast(JSON.stringify({
+                                                    "share-update": {
+                                                        user: userData.user,
+                                                        shares: userData.shares
+                                                    }
+                                                }));
                                             },
                                             responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
                                                 count = count + 1;
                                                 if (count === length) {
                                                     allUsers();
                                                 }
-                                                vars.ws.broadcast([errorMessage.toString()]);
+                                                vars.ws.broadcast(JSON.stringify({
+                                                    error: errorMessage
+                                                }));
                                                 library.log([errorMessage.toString()]);
                                             },
                                             requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError, agent:string):void {
@@ -287,9 +349,18 @@ const library = {
                                                     allUsers();
                                                 }
                                                 if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(`heartbeat-update:{"agent":"${agent}","refresh":false,"status":"offline","user":"${serverVars.name}"}`);
+                                                    vars.ws.broadcast(JSON.stringify({
+                                                        "heartbeat-update": {
+                                                            agent: agent,
+                                                            refresh: false,
+                                                            status: "offline",
+                                                            user: serverVars.name
+                                                        }
+                                                    }));
                                                 } else {
-                                                    vars.ws.broadcast(errorMessage.toString());
+                                                    vars.ws.broadcast(JSON.stringify({
+                                                        error: errorMessage
+                                                    }));
                                                     library.log([errorMessage.toString()]);
                                                 }
                                             },
@@ -298,7 +369,9 @@ const library = {
                                                 if (userString !== settingString) {
                                                     vars.node.fs.writeFile(`${vars.projectPath}storage${vars.sep}users.json`, userString, "utf8", function terminal_server_start_listen_readUsers_readSettings_allUsers_write(usersWriteError:nodeError):void {
                                                         if (usersWriteError !== null) {
-                                                            vars.ws.broadcast(usersWriteError.toString());
+                                                            vars.ws.broadcast(JSON.stringify({
+                                                                error: usersWriteError
+                                                            }));
                                                             library.log([usersWriteError.toString()]);
                                                         }
                                                     });
@@ -323,7 +396,7 @@ const library = {
                                     }
                                 }
                             });
-                        }
+                        });
                     });
                 });
             };
@@ -348,6 +421,7 @@ const library = {
                 library.log(["", "Launching default web browser..."]);
             });
         }
+        return httpServer;
     };
 
 export default server;

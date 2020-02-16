@@ -33,6 +33,7 @@ const library = {
             }
             if (vars.command === "lint") {
                 vars.verbose = true;
+                library.log.title(`Linting ${lintPath}`);
                 callback = function terminal_lint_callback():void {
                     library.log([`Lint complete for ${lintPath}`], true);
                 };

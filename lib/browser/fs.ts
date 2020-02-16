@@ -11,13 +11,7 @@ const fs:module_fs = {};
 /* step back through a modal's address history */
 fs.back = function local_fs_back(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_fs_back_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         id:string = box.getAttribute("id"),
         header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
         address:HTMLInputElement = <HTMLInputElement>header.getElementsByTagName("input")[0],
@@ -35,18 +29,12 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         li:HTMLElement = (element.nodeName.toLowerCase() === "li")
             ? element
             : <HTMLElement>element.parentNode,
+        body:HTMLElement = util.getAncestor(li, "body", "class"),
+        box:HTMLElement = <HTMLElement>body.parentNode.parentNode,
+        input:HTMLInputElement = box.getElementsByTagName("input")[0],
+        watchValue:string = input.value,
         path:string = li.getElementsByTagName("label")[0].innerHTML;
-    let body:HTMLElement = li,
-        box:HTMLElement,
-        input:HTMLInputElement,
-        watchValue:string;
     event.preventDefault();
-    do {
-        body = <HTMLElement>body.parentNode;
-    } while (body !== document.documentElement && body.getAttribute("class") !== "body");
-    box = <HTMLElement>body.parentNode.parentNode;
-    input = box.getElementsByTagName("input")[0];
-    watchValue = input.value;
     input.value = path;
     browser.data.modals[box.getAttribute("id")].history.push(path);
     network.fs({
@@ -79,10 +67,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             if (el.nodeName.toLowerCase() === "li") {
                 return el;
             }
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.nodeName.toLowerCase() !== "li");
-            return el;
+            return util.getAncestor(el, "li", "tag");
         }()),
         fileList:HTMLElement = (function local_fs_drag_fileList():HTMLElement {
             let parent:HTMLElement = <HTMLElement>element.parentNode;
@@ -181,9 +166,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     if (goal === undefined || goal === fileList) {
                         return "";
                     }
-                    do {
-                        goal = <HTMLElement>goal.parentNode;
-                    } while (goal !== document.documentElement && goal.getAttribute("class") !== "box");
+                    goal = util.getAncestor(goal, "box", "class");
                     id = goal.getAttribute("id");
                     agent = browser.data.modals[id].agent;
                     return goal.getElementsByTagName("input")[0].value;
@@ -291,13 +274,7 @@ fs.dragFlag = "";
 /* Shows child elements of a directory */
 fs.expand = function local_fs_expand(event:MouseEvent):void {
     const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = button;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(button, "box", "class"),
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
         button.innerHTML = "-<span>Collapse this folder</span>";
@@ -358,6 +335,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
         const agent:string = browser.data.modals[dirData.id].agent;
         browser.data.modals[dirData.id].text_value = list[0][0];
+        browser.data.modals[dirData.id].selection = {};
         share.update(agent, browser.users[agent].shares);
     }
     a = 0;
@@ -429,7 +407,7 @@ fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
     if (count < 1) {
         p.innerHTML = "";
     } else {
-        p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operation system.`;
+        p.innerHTML = `${count} file${filePlural} in this query are restricted from reading by the operating system.`;
     }
 };
 
@@ -468,20 +446,8 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         };
     let span:HTMLElement,
         plural:string;
-    if (extraClass.replace(/\s+/, "") !== "") {
-        li.setAttribute("class", `${item[1]} ${extraClass}`);
-    } else {
-        li.setAttribute("class", item[1]);
-    }
-    input.type = "checkbox";
-    input.checked = false;
-    label.innerHTML = "Selected";
-    label.appendChild(input);
-    label.setAttribute("class", "selection");
-    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
-    text.oncontextmenu = context.menu;
-    text.onclick = fs.select;
-    li.appendChild(text);
+
+    // preparation of descriptive text and assistive features
     if (item[1] === "file") {
         span = document.createElement("span");
         if (item[5].size === 1) {
@@ -497,7 +463,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             button.innerHTML = "+<span>Expand this folder</span>";
             button.setAttribute("title", "Expand this folder");
             button.onclick = fs.expand;
-            li.insertBefore(button, li.firstChild);
+            li.appendChild(button);
         }
         span = document.createElement("span");
         if (item[3] === 1) {
@@ -515,10 +481,32 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             span.textContent = item[1];
         }
     }
+
+    // prepare the primary item text (address)
+    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
+    text.oncontextmenu = context.menu;
+    text.onclick = fs.select;
+    li.appendChild(text);
+
+    // prepare the descriptive text
     span.onclick = fs.select;
     span.oncontextmenu = context.menu;
     li.appendChild(span);
+
+    // prepare the checkbox that provides accessibility and click functionality
+    input.type = "checkbox";
+    input.checked = false;
+    label.innerHTML = "Selected";
+    label.appendChild(input);
+    label.setAttribute("class", "selection");
     li.appendChild(label);
+
+    // prepare the parent container
+    if (extraClass.replace(/\s+/, "") !== "") {
+        li.setAttribute("class", `${item[1]} ${extraClass}`);
+    } else {
+        li.setAttribute("class", item[1]);
+    }
     li.onclick = fs.select;
     li.oncontextmenu = context.menu;
     li.onkeydown = util.keys; // key combinations
@@ -571,6 +559,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     content: files[0],
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: false,
+                    selection: {},
                     status_bar: true,
                     text_event: fs.text,
                     text_placeholder: "Optionally type a file system address here.",
@@ -587,6 +576,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
             read_only: readOnly,
+            selection: {},
             status_bar: true,
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
@@ -660,14 +650,9 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
     const element:HTMLElement = (context.element === null)
             ? <HTMLElement>event.srcElement || <HTMLElement>event.target
             : context.element,
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         input:HTMLInputElement = document.createElement("input"),
+        li:HTMLElement = util.getAncestor(element, "li", "tag"),
         action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.keyCode === 13)) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
@@ -698,8 +683,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 input.value = input.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
             }
         };
-    let li:HTMLElement = element,
-        label:HTMLElement,
+    let label:HTMLElement,
         slash:"\\" | "/" = "/",
         last:string,
         text:string,
@@ -707,11 +691,6 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
         dir:string;
     if (document.getElementById("fsRename") !== null) {
         return;
-    }
-    if (li.nodeName.toLowerCase() !== "li") {
-        do {
-            li = <HTMLElement>li.parentNode;
-        } while (li !== document.documentElement && li.nodeName.toLowerCase() !== "li");
     }
     label = li.getElementsByTagName("label")[0];
     text = label.innerHTML;
@@ -735,13 +714,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 /* A service to write file changes to the file system */
 fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_fs_saveFile_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
         agency:[string, boolean] = util.getAgent(box);
     let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1];
@@ -771,90 +744,98 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 };
 
 /* Search for file system artifacts from a modal's current location */
-fs.search = function local_fs_search(event:KeyboardEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        box:HTMLElement = (function local_fs_search_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
-        body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-        addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
-        address:string = addressLabel.getElementsByTagName("input")[0].value,
-        id:string = box.getAttribute("id");
-    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        body.innerHTML = "";
-        body.append(util.delay());
-        network.fs({
-            action: "fs-search",
-            agent: util.getAgent(box)[0],
-            copyAgent: "",
-            depth: 0,
-            id: id,
-            location: [address],
-            name: element.value,
-            watch: "no"
-        }, function local_fs_search_callback(responseText:string):void {
-            if (responseText === "") {
-                body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
-            } else {
-                const dirData = JSON.parse(responseText),
-                    length:number = dirData.dirs.length;
-                if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
-                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>0</strong> matches.</p>`;
+fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
+    const element:HTMLInputElement = (searchElement === undefined)
+        ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
+        : searchElement;
+    if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+        const box:HTMLElement = util.getAncestor(element, "box", "class"),
+            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
+            address:string = addressLabel.getElementsByTagName("input")[0].value,
+            statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
+            id:string = box.getAttribute("id"),
+            value:string = element.value;
+        if (event !== null && event.type === "blur") {
+            const searchParent:HTMLElement = <HTMLElement>element.parentNode;
+            searchParent.style.width = "12.5%";
+            addressLabel.style.width = "87.5%";
+        }
+        if (event === null || browser.data.modals[id].search.join("") !== address + value) {
+            body.innerHTML = "";
+            body.append(util.delay());
+            if (browser.loadTest === false) {
+                browser.data.modals[id].search = [address, value];
+                browser.data.modals[id].selection = {};
+                network.storage("settings");
+            }
+            network.fs({
+                action: "fs-search",
+                agent: util.getAgent(box)[0],
+                copyAgent: "",
+                depth: 0,
+                id: id,
+                location: [address],
+                name: value,
+                watch: "no"
+            }, function local_fs_search_callback(responseText:string):void {
+                if (responseText === "") {
+                    body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
                 } else {
-                    const plural:string = (dirData.dirs.length === 1)
-                            ? ""
-                            : "es",
-                        output:HTMLElement = document.createElement("ul");
-                    let a:number = 0;
-                    output.tabIndex = 0;
-                    output.oncontextmenu = context.menu;
-                    output.onkeydown = util.keys;
-                    output.onclick = fs.listFocus;
-                    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
-                        util.dragBox(event, util.dragList);
-                    };
-                    output.setAttribute("class", "fileList");
-                    body.innerHTML = `<p class="summary">Search fragment "<em>${element.value}</em>" returned <strong>${commas(length)}</strong> match${plural}.</p>`;
-                    dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
-                        // when types are the same
-                        if (a[1] === b[1]) {
-                            if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                    const dirData = JSON.parse(responseText),
+                        length:number = dirData.dirs.length,
+                        statusString = function local_fs_search_statusString(length:number):void {
+                            const plural:string = (dirData.dirs.length === 1)
+                                ? ""
+                                : "es";
+                            statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural} from <em>${address}</em>.`;
+                        };
+                    if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                        statusString(0);
+                    } else {
+                        const output:HTMLElement = document.createElement("ul");
+                        let a:number = 0;
+                        output.tabIndex = 0;
+                        output.oncontextmenu = context.menu;
+                        output.onkeydown = util.keys;
+                        output.onclick = fs.listFocus;
+                        output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
+                            util.dragBox(event, util.dragList);
+                        };
+                        output.setAttribute("class", "fileList");
+                        statusString(length);
+                        dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
+                            // when types are the same
+                            if (a[1] === b[1]) {
+                                if (a[0].toLowerCase() < b[0].toLowerCase()) {
+                                    return -1;
+                                }
+                                return 1;
+                            }
+                    
+                            // when types are different
+                            if (a[1] === "directory") {
+                                return -1;
+                            }
+                            if (a[1] === "link" && b[1] === "file") {
                                 return -1;
                             }
                             return 1;
+                        });
+                        do {
+                            output.appendChild(fs.listItem(dirData.dirs[a], ""));
+                            a = a + 1;
+                        } while (a < length);
+                        body.innerHTML = "";
+                        body.appendChild(output);
+                        if (callback !== undefined) {
+                            callback();
                         }
-                
-                        // when types are different
-                        if (a[1] === "directory") {
-                            return -1;
-                        }
-                        if (a[1] === "link" && b[1] === "file") {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    do {
-                        output.appendChild(fs.listItem(dirData.dirs[a], ""));
-                        a = a + 1;
-                    } while (a < length);
-                    body.appendChild(output);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
-};
-
-/* Return the search field to its regular size when blurred */
-fs.searchBlur = function local_fs_searchBlur(event:Event):void {
-    const search:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        searchParent:HTMLElement = <HTMLElement>search.parentNode,
-        address:HTMLElement = <HTMLElement>searchParent.previousSibling;
-    searchParent.style.width = "12.5%";
-    address.style.width = "87.5%";
 };
 
 /* Expand the search field to a large size when focused */
@@ -878,16 +859,16 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         input:HTMLInputElement = li.getElementsByTagName("input")[0];
     let state:boolean = input.checked,
         body:HTMLElement = li,
-        box:HTMLElement;
+        box:HTMLElement,
+        modalData:ui_modal;
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
     input.focus();
     modal.zTop(event);
-    do {
-        body = <HTMLElement>body.parentNode;
-    } while (body !== document.documentElement && body.getAttribute("class") !== "body");
+    body = util.getAncestor(body, "body", "class");
     box = <HTMLElement>body.parentNode.parentNode;
+    modalData = browser.data.modals[box.getAttribute("id")];
 
     if (document.getElementById("dragBox") !== null) {
         return;
@@ -896,10 +877,12 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     if (event.ctrlKey === true || fs.dragFlag === "control") {
         if (state === true) {
             input.checked = false;
-            li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+            li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
+            delete modalData.selection[li.getElementsByTagName("label")[0].innerHTML];
         } else {
             input.checked = true;
             li.setAttribute("class", `${li.getAttribute("class")} selected`);
+            modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
     } else if (event.shiftKey === true || fs.dragFlag === "shift") {
         const liList = body.getElementsByTagName("li"),
@@ -907,13 +890,15 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
                 if (state === true) {
                     do {
                         liList[index].getElementsByTagName("input")[0].checked = false;
-                        liList[index].setAttribute("class", liList[index].getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+                        liList[index].setAttribute("class", liList[index].getAttribute("class").replace(util.selectExpression, ""));
+                        delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
                         index = index + 1;
                     } while (index < end);
                 } else {
                     do {
                         liList[index].getElementsByTagName("input")[0].checked = true;
                         liList[index].setAttribute("class", `${liList[index].getAttribute("class")} selected`);
+                        modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
                         index = index + 1;
                     } while (index < end);
                 }
@@ -944,10 +929,12 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         if (focusIndex === elementIndex) {
             if (state === true) {
                 input.checked = false;
-                li.setAttribute("class", li.getAttribute("class").replace(/(\s+((selected)|(cut)))+/, ""));
+                li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
+                delete modalData.selection[li.getElementsByTagName("label")[0].innerHTML];
             } else {
                 input.checked = true;
                 li.setAttribute("class", `${li.getAttribute("class")} selected`);
+                modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
             }
         } else if (focusIndex > elementIndex) {
             shift(elementIndex, focusIndex);
@@ -964,16 +951,19 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
             if (inputs[a].checked === true) {
                 inputs[a].checked = false;
                 item = <HTMLElement>inputs[a].parentNode.parentNode;
-                item.setAttribute("class", item.getAttribute("class").replace(/(\s+selected)+/, ""));
+                item.setAttribute("class", item.getAttribute("class").replace(util.selectExpression, ""));
             }
             a = a + 1;
         } while (a < inputsLength);
         input.checked = true;
         if (selected === false) {
-            li.setAttribute("class", `${li.getAttribute("class").replace(/(\s+selected)+/, "")} selected`);
+            li.setAttribute("class", `${li.getAttribute("class").replace(util.selectExpression, "")} selected`);
+            modalData.selection = {};
+            modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
     }
-    browser.data.modals[box.getAttribute("id")].focus = li;
+    modalData.focus = li;
+    network.storage("settings");
 };
 
 /* Requests file system data from a text field, such as manually typing an address */

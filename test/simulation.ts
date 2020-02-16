@@ -28,8 +28,9 @@ const sep:string = vars.sep,
         underline: "\u001b[4m",
         yellow   : "\u001b[33m"
     },
-    hash:string = "331093d738ccd12558b6da97f2940f21c2728897b409d5359c07dec5ea9911fd868efba83abb074318f79b293929174e81d2ddc872a6721c9c9eb047a97fe8fd",
-    simulations:simulationItem[] = [
+    // the tsconfig.json file hash used in multiple tests
+    hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
+    simulations:testItem[] = [
         {
             command: "asdf",
             qualifier: "contains",
@@ -48,7 +49,7 @@ const sep:string = vars.sep,
         {
             command: `base64 ${projectPath}tsconfig.json`,
             qualifier: "is",
-            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
+            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
         },
         {
             command: "base64 decode string:\"bXkgYmlnIHN0cmluZyBzYW1wbGU=\"",
@@ -189,6 +190,21 @@ const sep:string = vars.sep,
             test: hash
         },
         {
+            command: `hash ${projectPath}tsconfig.json algorithm:md5`,
+            qualifier: "is",
+            test: "5861d4466dbf7ae3b3b2e378f1c11a45"
+        },
+        {
+            command: `hash string tsconfig.json algorithm:md5`,
+            qualifier: "is",
+            test: "e5e546dd2eb0351f813d63d1b39dbc48"
+        },
+        {
+            command: `hash string tsconfig.json algorithm:shake256`,
+            qualifier: "is",
+            test: "9a3e06cfa3f81d2e3e02957d1f573194987440206ceab8ad5456bfd0316cd2b9"
+        },
+        {
             command: `hash ${projectPath}tsconfig.json --verbose`,
             qualifier: "contains",
             test: `seconds total time`
@@ -211,7 +227,7 @@ const sep:string = vars.sep,
         {
             command: "hash https://duckduckgo.com/assets/logo_homepage.normal.v107.svg",
             qualifier: "is",
-            test: "ca5259a8e10a06cae407fa016f94a7a7f44ff55047a03857ab5f3ceae4ed443f59e684dc3dba99c8fc1a847e992e008b234766327bd28265e16c8a549b40633e"
+            test: "732bdf7b411a2fb6fde6de4f460fe1edef93fe2eeb7de229705b0b20ae7f1fd96dd479e1d5ecd0bd217859f1d7334c53da7d1f8a08c4b9d68980211cd365ed07"
         },
         {
             command: "help",

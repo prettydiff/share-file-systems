@@ -22,4 +22,8 @@ const log = function terminal_log(output:string[], end?:boolean):void {
     }
 };
 
+log.title = function terminal_log_title(message:string) {
+    log(["", `${vars.text.cyan + vars.text.bold + vars.text.underline + message + vars.text.none}`, "", ""]);
+};
+
 export default log;

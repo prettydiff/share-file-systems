@@ -12,21 +12,18 @@ const modal:module_modal = {};
 modal.close = function local_modal_close(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         keys:string[] = Object.keys(browser.data.modals),
-        keyLength:number = keys.length;
-    let parent:HTMLElement = <HTMLElement>element.parentNode,
-        id:string,
+        keyLength:number = keys.length,
+        box:HTMLElement = util.getAncestor(element, "box", "class");
+    let id:string,
         type:string,
         a:number = 0,
         count:number = 0;
-    do {
-        parent = <HTMLElement>parent.parentNode;
-    } while (parent.getAttribute("class") !== "box");
-    if (parent.parentNode === null) {
+    if (box.parentNode === null) {
         return;
     }
-    parent.onclick = null;
-    parent.parentNode.removeChild(parent);
-    id = parent.getAttribute("id");
+    box.onclick = null;
+    box.parentNode.removeChild(box);
+    id = box.getAttribute("id");
     type = id.split("-")[0];
     do {
         if (browser.data.modals[keys[a]].type === type) {
@@ -47,13 +44,7 @@ modal.close = function local_modal_close(event:MouseEvent):void {
 /* Event handler for the modal's "Confirm" button */
 modal.confirm = function local_modal_confirm(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = (function local_modal_confirm_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         id:string = box.getAttribute("id"),
         options = browser.data.modals[id];
 
@@ -250,9 +241,12 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 extra.appendChild(button);
                 search.type = "text";
                 search.placeholder = "⌕ Search";
-                search.onblur = fs.searchBlur;
+                search.onblur = fs.search;
                 search.onfocus = fs.searchFocus;
                 search.onkeyup = fs.search;
+                if (options.search !== undefined && options.search[1] !== "") {
+                    search.value = options.search[1];
+                }
                 searchLabel.innerHTML = "<span>Search for file system artifacts from this location.</span>";
                 searchLabel.setAttribute("class", "fileSearch");
                 searchLabel.appendChild(search);
@@ -406,13 +400,10 @@ modal.export = function local_modal_export(event:MouseEvent):void {
 /* Modifies saved settings from an imported JSON string then reloads the page */
 modal.importSettings = function local_modal_importSettings(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        dataString:string = JSON.stringify(browser.data);
-    let box:HTMLElement = element,
-        textArea:HTMLTextAreaElement,
+        dataString:string = JSON.stringify(browser.data),
+        box:HTMLElement = util.getAncestor(element, "box", "class");
+    let textArea:HTMLTextAreaElement,
         button:HTMLButtonElement;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
     textArea = box.getElementsByTagName("textarea")[0];
     if (textArea.value !== dataString) {
         browser.data = JSON.parse(textArea.value);
@@ -428,44 +419,32 @@ modal.importSettings = function local_modal_importSettings(event:MouseEvent):voi
 /* The given modal consumes the entire view port of the content area */
 modal.maximize = function local_modal_maximize(event:Event):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        contentArea:HTMLElement = document.getElementById("content-area");
-    let box:HTMLElement = element,
-        body:HTMLElement,
-        title:HTMLElement,
-        id:string,
-        status:HTMLElement,
-        statusBar:HTMLElement,
-        footer:HTMLElement,
-        footerButtons:HTMLElement,
-        footerOffset:number,
-        message:HTMLElement;
-    do {
-        box = <HTMLElement>box.parentNode;
-    } while (box !== document.documentElement && box.getAttribute("class") !== "box");
+        contentArea:HTMLElement = document.getElementById("content-area"),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        id:string = box.getAttribute("id"),
+        body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+        title:HTMLElement = <HTMLElement>box.getElementsByTagName("h2")[0],
+        titleButton:HTMLElement = (title === undefined)
+            ? undefined
+            : title.getElementsByTagName("button")[0],
+        status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
+        statusBar:HTMLElement = <HTMLElement>status.getElementsByTagName("p")[0],
+        footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+        footerButtons:HTMLElement = (footer === undefined)
+            ? undefined
+            : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+        footerOffset:number = (footerButtons === undefined)
+            ? 0
+            : footerButtons.clientWidth,
+        message:HTMLElement = (footer === undefined)
+            ? undefined
+            : <HTMLElement>footer.getElementsByClassName("message")[0];
     if (box === document.documentElement) {
         return;
     }
-    id = box.getAttribute("id");
-    body = box.getElementsByTagName("div")[1];
-    title = <HTMLElement>box.getElementsByTagName("h2")[0];
-    status = <HTMLElement>box.getElementsByClassName("status-bar")[0];
-    statusBar = <HTMLElement>status.getElementsByTagName("p")[0];
-    footer = <HTMLElement>box.getElementsByClassName("footer")[0];
-    footerButtons = (footer === undefined)
-        ? undefined
-        : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0];
-    footerOffset = (footerButtons === undefined)
-        ? 0
-        : footerButtons.clientWidth;
-    message = (footer === undefined)
-        ? undefined
-        : <HTMLElement>footer.getElementsByClassName("message")[0];
-    if (title !== undefined) {
-        title = title.getElementsByTagName("button")[0];
-    }
     if (browser.data.modals[id].status === "maximized") {
-        title.style.cursor = "move";
-        title.onmousedown = modal.move;
+        titleButton.style.cursor = "move";
+        titleButton.onmousedown = modal.move;
         browser.data.modals[id].status = "normal";
         box.style.top = `${browser.data.modals[id].top / 10}em`;
         box.style.left = `${browser.data.modals[id].left / 10}em`;
@@ -477,8 +456,8 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         }
     } else {
         browser.data.modals[id].status = "maximized";
-        title.style.cursor = "default";
-        title.onmousedown = null;
+        titleButton.style.cursor = "default";
+        titleButton.onmousedown = null;
         box.style.top = "0em";
         box.style.left = "0em";
         body.style.width = `${(contentArea.clientWidth - 20) / 10}em`;
@@ -508,25 +487,19 @@ modal.maximize = function local_modal_maximize(event:Event):void {
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
 modal.minimize = function local_modal_minimize(event:Event):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-    let border:HTMLElement = element,
-        buttons:HTMLElement,
-        box:HTMLElement,
-        title:HTMLElement,
-        id:string,
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        border:HTMLElement = util.getAncestor(element, "border", "class"),
+        box:HTMLElement = <HTMLElement>border.parentNode,
+        id:string = box.getAttribute("id"),
+        title:HTMLElement = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+    let buttons:HTMLElement,
         children:NodeListOf<ChildNode>,
         borders:number,
         child:HTMLElement,
         a:number = 1;
-    do {
-        border = <HTMLElement>border.parentNode;
-    } while (border !== document.documentElement && border.getAttribute("class") !== "border");
     if (border === document.documentElement) {
         return;
     }
-    box = <HTMLElement>border.parentNode;
-    id = box.getAttribute("id");
-    title = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
     title.onmousedown = modal.move;
     children = border.childNodes;
     if (browser.data.modals[id].status === "minimized") {
@@ -567,7 +540,9 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         document.getElementById("tray").appendChild(li);
         browser.data.modals[id].status = "minimized";
     }
-    network.storage("settings");
+    if (util.minimizeAllFlag === false) {
+        network.storage("settings");
+    }
 };
 
 /* Drag and drop interaction for modals */
@@ -934,13 +909,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
 /* Pushes the text content of a textPad modal into settings so that it is saved */
 modal.textSave = function local_modal_textSave(event:MouseEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
-        box:HTMLElement = (function local_modal_textTimer_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
@@ -952,13 +921,7 @@ modal.textSave = function local_modal_textSave(event:MouseEvent):void {
 /* An idle delay is a good time to save written notes */
 modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
-        box:HTMLElement = (function local_modal_textTimer_box():HTMLElement {
-            let el:HTMLElement = element;
-            do {
-                el = <HTMLElement>el.parentNode;
-            } while (el !== document.documentElement && el.getAttribute("class") !== "box");
-            return el;
-        }()),
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
@@ -977,14 +940,9 @@ modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:HTMLEleme
             : elementInput,
         parent:HTMLElement = <HTMLElement>element.parentNode,
         grandParent:HTMLElement = <HTMLElement>parent.parentNode;
-    let box:HTMLElement = element;
+    let box:HTMLElement = util.getAncestor(element, "box", "class");
     if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
         event.preventDefault();
-    }
-    if (element.getAttribute("class") !== "box") {
-        do {
-            box = <HTMLElement>box.parentNode;
-        } while (box.getAttribute("class") !== "box" && box !== document.documentElement);
     }
     browser.data.zIndex = browser.data.zIndex + 1;
     browser.data.modals[box.getAttribute("id")].zIndex = browser.data.zIndex;

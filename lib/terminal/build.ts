@@ -1,18 +1,26 @@
 
+import { generateKeyPair } from "crypto";
+import { Stats } from "fs";
+import { hostname } from "os";
+
+import serverVars from "./server/serverVars.js";
+
 import error from "./error.js";
+import hash from "./hash.js";
 import humanTime from "./humanTime.js";
 import lint from "./lint.js";
 import log from "./log.js";
-import simulation from "./simulation.js";
+import testListRunner from "../../test/testListRunner.js";
 import vars from "./vars.js";
 
 // build/test system
 const library = {
         error: error,
+        hash: hash,
         humanTime: humanTime,
         lint: lint,
         log: log,
-        simulation: simulation
+        testListRunner: testListRunner
     },
     build = function terminal_build(test:boolean, callback:Function):void {
         let firstOrder:boolean = true,
@@ -24,22 +32,32 @@ const library = {
                 ],
                 test: [
                     "lint",
-                    "simulation"
+                    "simulation",
+                    "service"
                 ]
             },
             type:string = (test === true)
                 ? "test"
                 : "build",
             orderLength:number = order[type].length,
+            testsCallback = function terminal_build_testsCallback(message:string, failCount:number):void {
+                if (failCount > 0) {
+                    vars.verbose = true;
+                    library.log([message], true);
+                    process.exit(1);
+                } else {
+                    next(message);
+                }
+            },
             // a short title for each build/test phase
             heading = function terminal_build_heading(message:string):void {
                 if (firstOrder === true) {
                     library.log([""]);
                     firstOrder = false;
                 } else if (order[type].length < orderLength) {
-                    library.log(["________________________________________________________________________", ""]);
+                    library.log(["________________________________________________________________________", "", ""]);
                 }
-                library.log([vars.text.cyan + message + vars.text.none, ""]);
+                library.log([vars.text.cyan + vars.text.bold + message + vars.text.none, ""]);
             },
             // indicates how long each phase took
             sectionTimer = function terminal_build_sectionTime(input:string):void {
@@ -98,8 +116,8 @@ const library = {
                 let phase = order[type][0],
                     time:string = library.humanTime(false);
                 if (message !== "") {
-                    library.log([time + message]);
                     sectionTimer(time);
+                    library.log([time + message]);
                 }
                 if (order[type].length < 1) {
                     if (vars.command === "build") {
@@ -117,21 +135,20 @@ const library = {
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
             phases = {
-                // phase lint is merely a call to apps.lint
+                // phase lint is merely a call to the lint library
                 lint     : function terminal_build_lint():void {
-                    const callback = function terminal_build_lint_callback(message:string):void {
-                        next(message);
-                    };
                     heading("Linting");
-                    library.lint(callback);
+                    library.lint(testsCallback);
                 },
-                // phase simulation is merely a call to apps.simulation
+                // phase services wraps a call to services test library
+                service: function terminal_build_serviceTests():void {
+                    heading(`Tests of calls to the local service`);
+                    library.testListRunner("service", testsCallback);
+                },
+                // phase simulation is merely a call to simulation test library
                 simulation: function terminal_build_simulation():void {
-                    const callback = function terminal_build_simulation_callback(message:string):void {
-                        next(message);
-                    };
                     heading(`Simulations of Node.js commands from ${vars.version.command}`);
-                    library.simulation(callback);
+                    library.testListRunner("simulation", testsCallback);
                 },
                 // phase typescript compiles the working code into JavaScript
                 typescript: function terminal_build_typescript():void {
@@ -188,7 +205,7 @@ const library = {
                         }
                     });
                 },
-                // write the current version and change date
+                // write the current version, change date, and modify html
                 version: function terminal_build_version():void {
                     const pack:string = `${vars.projectPath}package.json`;
                     heading("Writing version data");
@@ -236,35 +253,160 @@ const library = {
                                     return "DEC";
                                 }
                             }()),
-                            date:string = `${stat.mtime.getDate().toString()} ${month} ${stat.mtime.getFullYear().toString()}`,
+                            dayString:string = stat.mtime.getDate().toString(),
+                            dayPadded:string = (dayString.length < 2)
+                                ? `0${dayString}`
+                                : dayString,
+                            date:string = `${dayPadded} ${month} ${stat.mtime.getFullYear().toString()}`,
                             flag = {
                                 json: false,
                                 html: false
                             },
                             html:string = `${vars.projectPath}index.html`;
                         vars.version.date = date.replace(/-/g, "");
+
+                        // read package.json
                         vars.node.fs.readFile(pack, "utf8", function terminal_build_version_stat_read(err:Error, data:string) {
                             if (err !== null) {
                                 library.error([err.toString()]);
                                 return;
                             }
+                            let a:number = 0,
+                                hash0:string;
+                            const writeVersion = function terminal_build_version_stat_read_writeVersion():void {
+                                    vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_writeVersion_write(erw:Error) {
+                                        if (erw !== null) {
+                                            library.error([erw.toString()]);
+                                            return;
+                                        }
+                                        flag.json = true;
+                                        if (flag.html === true) {
+                                            next("Version data written");
+                                        }
+                                    });
+                                },
+                                keys = function terminal_build_version_stat_read_keys():void {
+                                    const keys:versionKeys = vars.version.keys;
+                                    if (
+                                        keys === undefined ||
+                                        keys.device === undefined ||
+                                        keys.user === undefined ||
+                                        keys.device.private === undefined ||
+                                        keys.device.private.indexOf("PRIVATE KEY-----") < 0 ||
+                                        keys.user.private === undefined ||
+                                        keys.user.private.indexOf("PRIVATE KEY-----") < 0 ||
+                                        keys.device.public === undefined ||
+                                        keys.device.public.indexOf("PUBLIC KEY-----") < 0 ||
+                                        keys.user.public === undefined ||
+                                        keys.user.public.indexOf("PUBLIC KEY-----") < 0
+                                    ) {
+                                        const flag = {
+                                                device: false,
+                                                user: false
+                                            },
+                                            generate = function terminal_build_version_stat_read_keys_generate(type:"device"|"user"):void {
+                                                generateKeyPair("ec", {
+                                                    // cspell:disable
+                                                    namedCurve: "secp521r1",
+                                                    // cspell:enable
+                                                    publicKeyEncoding:{
+                                                        type: "spki",
+                                                        format: "pem"
+                                                    },
+                                                    privateKeyEncoding:{
+                                                        type: "pkcs8",
+                                                        format: "pem",
+                                                        cipher: "aes-256-cbc",
+                                                        passphrase: ""
+                                                    }
+                                                }, function terminal_build_version_stat_read_keys_callback(keyError:nodeError, publicKey:string, privateKey:string):void {
+                                                    if (keyError !== null) {
+                                                        library.error([keyError.toString()]);
+                                                        return;
+                                                    }
+                                                    vars.version.keys[type].public = publicKey;
+                                                    vars.version.keys[type].private = privateKey;
+                                                    flag[type] = true;
+                                                    if (flag.device === true && flag.user === true) {
+                                                        writeVersion();
+                                                    }
+                                                });
+                                            };
+                                        vars.version.keys = {
+                                            device: {
+                                                private: "",
+                                                public: ""
+                                            },
+                                            user: {
+                                                private: "",
+                                                public: ""
+                                            }
+                                        };
+                                        generate("device");
+                                        generate("user");
+                                    } else {
+                                        writeVersion();
+                                    }
+                                },
+                                length:number = serverVars.macList.length,
+                                identity = function terminal_build_version_version_stat_read_hash():void {
+                                    library.hash({
+                                        callback: function terminal_build_version_stat_read_hashCallback(hashOut:hashOutput):void {
+                                            if (a === 0) {
+                                                hash0 = hashOut.hash;
+                                            }
+                                            if (vars.version.device === "" || vars.version.device === undefined || vars.version.device === hashOut.hash) {
+                                                vars.version.device = hashOut.hash;
+                                                keys();
+                                            } else if (a < length) {
+                                                a = a + 1;
+                                                terminal_build_version_version_stat_read_hash();
+                                            } else {
+                                                vars.version.device = hash0;
+                                                keys();
+                                            }
+                                        },
+                                        directInput: true,
+                                        source: hostname() + serverVars.macList[a]
+                                    });
+                                };
                             vars.version.number = JSON.parse(data).version;
-                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_write(erw:Error) {
-                                if (erw !== null) {
-                                    library.error([erw.toString()]);
-                                    return;
-                                }
-                                flag.json = true;
-                                if (flag.html === true) {
-                                    next("Version data written");
-                                }
-                            });
+
+                            // generate identity hashes and key pair
+                            identity();
+
+                            // modify HTML
                             vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
                                 if (err !== null) {
                                     library.error([err.toString()]);
                                     return;
                                 }
-                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)+\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
+                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
+                                    stringInsert = function terminal_build_version_stat_read_html_stringInsert(insert:modifyFile):string {
+                                        const index:number = insert.source.indexOf(insert.start) + insert.start.length,
+                                            startSegment:string = insert.source.slice(0, index),
+                                            ending:string = insert.source.slice(index),
+                                            endIndex:number = ending.indexOf(insert.end),
+                                            endSegment:string = ending.slice(endIndex);
+                                        if (index < 0 || endIndex < 0) {
+                                            return insert.source;
+                                        }
+                                        return startSegment + insert.target + endSegment;
+                                    };
+                                fileData = stringInsert({
+                                    end: "\"/>",
+                                    source: fileData,
+                                    start: "readonly=\"readonly\" value=\"",
+                                    target: vars.projectPath.slice(0, vars.projectPath.length - 1)
+                                });
+                                fileData = stringInsert({
+                                    // cspell:disable
+                                    end: "\" rel=\"noopener noreferrer\" target=\"_blank\">Generate New Identity</a>",
+                                    // cspell:enable
+                                    source: fileData,
+                                    start: "Create</strong> a new identity. <a href=\"",
+                                    target: vars.version.identity_domain
+                                });
                                 fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
                                 vars.node.fs.writeFile(html, fileData, "utf8", function terminal_build_version_stat_read_html_write(erh:Error):void {
                                     if (erh !== null) {
@@ -281,6 +423,9 @@ const library = {
                     });
                 }
             };
+        if (test === false || test === undefined) {
+            library.log.title("Run All Build Tasks");
+        }
         next("");
     };
 

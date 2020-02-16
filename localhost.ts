@@ -81,7 +81,19 @@ import webSocket from "./lib/browser/webSocket.js";
                                 }
                             }
                             active = Date.now();
-                        };
+                        },
+                        login = function local_restore_complete_login(event:KeyboardEvent):void {
+                            util.formKeys(event, util.login);
+                        },
+                        loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
+                        loginInputsLength:number = loginInputs.length;
+                    let a:number = 0;
+
+                    do {
+                        loginInputs[a].onkeyup = login;
+                        a = a + 1;
+                    } while (a < loginInputsLength);
+
                     browser.socket = webSocket();
                     setTimeout(idleness, idleTime);
 
@@ -90,7 +102,6 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("menuToggle").onclick = util.menu;
                     document.getElementById("all-shares").onclick = share.modal;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
-                    document.getElementById("login-input").onkeyup = util.login;
                     document.getElementById("user-delete").onclick = share.deleteList;
                     document.getElementById("user-invite").onclick = invite.start;
                     document.getElementById("systemLog").onclick = systems.modal;
@@ -112,7 +123,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             read_only: false,
                             single: true,
                             status: "hidden",
-                            title: document.getElementById("systemsLog").innerHTML,
+                            title: document.getElementById("systemLog").innerHTML,
                             type: "systems",
                             width: 800
                         });
@@ -226,6 +237,32 @@ import webSocket from "./lib/browser/webSocket.js";
                                 if (storage.settings.modals[value].type === "fileNavigate") {
                                     const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
                                         agent:string = agentStrings[agentStrings.length - 1],
+                                        selection = function local_restore_modalKeys_selection(id:string):void {
+                                            const box:HTMLElement = document.getElementById(id),
+                                                modalData:ui_modal = browser.data.modals[id],
+                                                keys:string[] = (modalData.selection === undefined)
+                                                    ? []
+                                                    : Object.keys(modalData.selection),
+                                                fileList:HTMLElement = <HTMLElement>box.getElementsByClassName("fileList")[0],
+                                                list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
+                                                    ? null
+                                                    : fileList.getElementsByTagName("li"),
+                                                length:number = (list === null)
+                                                    ? 0
+                                                    : list.length;
+                                            let b:number = 0,
+                                                address:string;
+                                            if (keys.length > 0 && length > 0) {
+                                                do {
+                                                    address = list[b].getElementsByTagName("label")[0].innerHTML;
+                                                    if (modalData.selection[address] !== undefined) {
+                                                        list[b].setAttribute("class", `${list[b].getAttribute("class")} ${modalData.selection[address]}`);
+                                                        list[b].getElementsByTagName("input")[0].checked = true;
+                                                    }
+                                                    b = b + 1;
+                                                } while (b < length);
+                                            }
+                                        },
                                         callback = function local_restore_modalKeys_fsCallback(responseText:string, agent:string):void {
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = (responseText === "")
@@ -268,7 +305,8 @@ import webSocket from "./lib/browser/webSocket.js";
                                             storage.settings.modals[id].text_event = fs.text;
                                             const box:HTMLElement = modal.create(storage.settings.modals[id]);
                                             fs.listFail(files[1], box);
-                                            z(id);
+                                            selection(id);
+                                            z(value);
                                         },
                                         callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number]):void {
                                             const fsModal:HTMLElement = document.getElementById(id),
@@ -276,9 +314,21 @@ import webSocket from "./lib/browser/webSocket.js";
                                             fs.listFail(files[1], fsModal);
                                             body.innerHTML = "";
                                             body.appendChild(files[0]);
-
+                                            selection(id);
                                         };
-                                    if (agent === "localhost") {
+                                    if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
+                                        let search:HTMLInputElement;
+                                        const delay:HTMLElement = util.delay();
+                                        storage.settings.modals[value].content = delay;
+                                        storage.settings.modals[value].id = value;
+                                        storage.settings.modals[value].text_event = fs.text;
+                                        modal.create(storage.settings.modals[value]);
+                                        search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
+                                        fs.search(null, search, function local_restore_modalKeys_searchCallback():void {
+                                            selection(value);
+                                        });
+                                        z(value);
+                                    } else if (agent === "localhost") {
                                         network.fs({
                                             action: "fs-directory",
                                             agent: agent,
@@ -347,19 +397,21 @@ import webSocket from "./lib/browser/webSocket.js";
                                     share.deleteList(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "invite-request") {
-                                    invite.start(null, "", storage.settings.modals[value]);
+                                    invite.start(null, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "settings") {
+                                    browser.data.brotli = storage.settings.brotli;
+                                    browser.data.hash = storage.settings.hash;
                                     storage.settings.modals[value].content = settings.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    browser.data.brotli = storage.settings.brotli;
-                                    const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                    const settingsModal:HTMLElement = document.getElementById("settings-modal"),
+                                        inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
                                         length:number = inputs.length;
                                     let a:number = 0;
                                     do {
-                                        if (inputs[a].name === "color-scheme" && inputs[a].value === storage.settings.color) {
+                                        if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
                                             inputs[a].click();
-                                        } else if (inputs[a].name === "audio" && inputs[a].value === "off" && storage.settings.audio === false) {
+                                        } else if (inputs[a].name.indexOf("audio-") === 0 && inputs[a].value === "off" && storage.settings.audio === false) {
                                             inputs[a].click();
                                         } else if (inputs[a].name === "brotli") {
                                             inputs[a].value = storage.settings.brotli.toString();

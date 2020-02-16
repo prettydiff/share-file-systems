@@ -1,4 +1,5 @@
 
+import directory from "../directory.js";
 import error from "../error.js";
 import log from "../log.js";
 import vars from "../vars.js";
@@ -7,6 +8,9 @@ import serverVars from "./serverVars.js";
 
 const serverWatch = function terminal_server_watch(type:"rename"|"change", filename:string|null):void {
         const extension:string = (function terminal_server_watch_extension():string {
+                if (filename === null) {
+                    return "";
+                }
                 const list = filename.split(".");
                 return list[list.length - 1];
             }()),
@@ -118,7 +122,19 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
         } else if (extension === "css" || extension === "xhtml") {
             vars.ws.broadcast("reload");
         } else {
-            vars.ws.broadcast(`fsUpdate:${vars.projectPath}`);
+            const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
+                vars.ws.broadcast(JSON.stringify({
+                    "fs-update-local": result
+                }));
+            };
+            directory({
+                callback: fsUpdateCallback,
+                depth: 2,
+                exclusions: [],
+                mode: "read",
+                path: vars.projectPath,
+                symbolic: true
+            });
         }
     };
 

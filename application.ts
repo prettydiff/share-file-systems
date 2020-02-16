@@ -1,7 +1,7 @@
 
 import base64 from "./lib/terminal/base64.js";
 import build from "./lib/terminal/build.js";
-import command from "./lib/terminal/commandName.js";
+import commandName from "./lib/terminal/commandName.js";
 import commands from "./lib/terminal/commands.js";
 import commands_documentation from "./lib/terminal/commands_documentation.js";
 import copy from "./lib/terminal/copy.js";
@@ -13,8 +13,9 @@ import help from "./lib/terminal/help.js";
 import lint from "./lib/terminal/lint.js";
 import remove from "./lib/terminal/remove.js";
 import server from "./lib/terminal/server.js";
-import simulation from "./lib/terminal/simulation.js";
 import test from "./lib/terminal/test.js";
+import test_service from "./lib/terminal/test_service.js";
+import test_simulation from "./lib/terminal/test_simulation.js";
 import vars from "./lib/terminal/vars.js";
 import version from "./lib/terminal/version.js";
 
@@ -32,23 +33,32 @@ import version from "./lib/terminal/version.js";
         lint: lint,
         remove: remove,
         server: server,
-        simulation: simulation,
         test: test,
+        test_service: test_service,
+        test_simulation: test_simulation,
         version: version
-    };
-    vars.node.fs.readFile(`${vars.projectPath}version.json`, "utf8", function node_version(er:Error, versionFile:string):void {
-        if (er !== null) {
-            library.error([er.toString()]);
-            return;
-        }
-        
-        vars.version = JSON.parse(versionFile);
-
+    },
+    execute = function node_execute():void {
         // command documentation
         vars.commands = commands_documentation;
+
         // supported command name
-        vars.command = command();
+        vars.command = commandName();
 
         library[vars.command]();
+    };
+    vars.node.fs.stat(`${vars.projectPath}version.json`, function node_version(erStat:Error) {
+        if (erStat === null) {
+            vars.node.fs.readFile(`${vars.projectPath}version.json`, "utf8", function node_version_read(er:Error, versionFile:string):void {
+                if (er !== null) {
+                    library.error([er.toString()]);
+                    return;
+                }
+                vars.version = JSON.parse(versionFile);
+                execute();
+            });
+        } else {
+            execute();
+        }
     });
 }());

@@ -15,6 +15,10 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         const ip:string = data.ip,
                             port:number = data.port;
                         let output:string = "";
+                        data.deviceKey = vars.version.keys.device.public;
+                        data.deviceName = "";
+                        //data.userHash = vars.version.
+                        data.userName = serverVars.name;
                         data.ip = serverVars.addresses[0][1][1];
                         data.port = serverVars.webPort;
                         output = `${data.action}:${JSON.stringify(data)}`;
@@ -35,22 +39,31 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     ? `invite@[${data.ip}]:${data.port}`
                     : `invite@${data.ip}:${data.port}`,
                 requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
+                    data.deviceKey = "";
                     if (errorMessage.code === "ETIMEDOUT") {
                         if (data.action === "invite-request") {
                             data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
-                            vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                            vars.ws.broadcast(JSON.stringify({
+                                "invite-error": data
+                            }));
                         } else if (data.action === "invite-complete") {
                             data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
-                            vars.ws.broadcast(`invite-error:${JSON.stringify(data)}`);
+                            vars.ws.broadcast(JSON.stringify({
+                                "invite-error": data
+                            }));
                         }
                     }
                     log([data.action, errorMessage.toString()]);
-                    vars.ws.broadcast(errorMessage.toString());
+                    vars.ws.broadcast(JSON.stringify({
+                        error: errorMessage
+                    }));
                 },
                 response: response,
                 responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
                     log([data.action, errorMessage.toString()]);
-                    vars.ws.broadcast(errorMessage.toString());
+                    vars.ws.broadcast(JSON.stringify({
+                        error: errorMessage
+                    }));
                 }
             });
         };
@@ -61,14 +74,18 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         responseString = `Invitation received at start terminal ${serverVars.addresses[0][1][1]} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
         inviteRequest();
     } else if (data.action === "invite-request") {
-        vars.ws.broadcast(`invite-request:${dataString}`);
+        vars.ws.broadcast(JSON.stringify({
+            "invite-request": dataString
+        }));
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
     } else if (data.action === "invite-response") {
         data.action = "invite-complete";
         responseString = `Invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
         inviteRequest();
     } else if (data.action === "invite-complete") {
-        vars.ws.broadcast(`invite-request:${dataString}`);
+        vars.ws.broadcast(JSON.stringify({
+            "invite-request": dataString
+        }));
         responseString = `Invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
     }
     // log([responseString]);

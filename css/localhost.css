@@ -9,7 +9,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .title h1 .application-version,
 #spaces #login h1 .application-version{font-size:0.5em;font-weight:normal}
 #spaces #login h1 .application-version{display:block}
-#spaces *:focus{outline-style:solid;outline-width:0.1em}
+#spaces *:focus{outline-style:solid;outline-width:0.05em}
 #spaces input[type="text"]{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;letter-spacing:0.05em}
 #spaces input::placeholder{opacity:1}
 #spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
@@ -18,18 +18,36 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* Login prompt */
 .login #spaces .title,
 .login #spaces #content-area{display:none}
-.login #spaces #login{border-style:solid;border-width:0.1em;display:block;margin:0 auto;padding:2em;text-align:center;width:60em}
-#spaces #login h1{font-size:6em;margin:0 0 0.5em}
+.login #spaces #login{border-style:solid;border-width:0.1em;display:block;margin:0 auto;padding:2em;width:80em}
+#spaces #login{display:none}
+#spaces #login p{border-style:none none solid;border-width:0.05em;font-size:2em;margin:0 0 3em;padding:0 0 1em;text-align:center}
+#spaces #login p strong{font-style:italic}
+#spaces #login p span{display:block}
+#spaces #login ol{counter-reset:login-counter;list-style:none}
+#spaces #login li::before{content:counter(login-counter);font-size:1.5em;font-weight:bold;line-height:1;margin:0 0.4em 0 -1em}
+#spaces #login li{border-style:none none solid;border-width:0.05em;counter-increment:login-counter;font-size:2em;margin:0 0 2em;padding:0}
+#spaces #login li.last{border-style:none;padding:0 0 0.5em}
+#spaces #login li::after{content:"or";display:block;margin:1.5em auto -0.7em;text-align:center;width:4em}
+#spaces #login li.last::after{background:transparent;content:"";display:none}
+#spaces #login h1{font-size:6em;margin:0 0 0.5em;text-align:center}
+#spaces #login input,
+#spaces #login label,
+#spaces #login a,
+#spaces #login button{display:block}
+#spaces #login input{border-style:solid;border-width:0.05em;margin:0.5em 0 0;width:100%}
+#spaces #login label{font-size:0.75em;margin:1em 0 0}
+#spaces #login a,
+#spaces #login button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.25em;margin:1em auto 0;text-align:center;text-decoration:none;width:20em}
+
+/* Old login - to be deleted when login html is restored */
 #spaces #login label,
 #spaces #login input,
-#spaces #login button{display:block;font-size:4em}
+#spaces #login button{display:block;font-size:2em}
 #spaces #login label,
 #spaces #login button{width:100%}
 #spaces #login input,
 #spaces #login button{border-style:solid;border-width:0.025em}
-#spaces #login input{padding:0.1em 2%;width:96%}
 #spaces #login button{font-weight:bold;margin:2em 0 0;padding:1em}
-#spaces #login{display:none}
 
 /* Context menu, right click */
 #spaces #contextMenu{border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
@@ -48,16 +66,24 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileDetailOutput th{font-weight:bold;min-width:10em;text-align:left;width:10em}
 #spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
+#spaces .fileDetailOutput button{border-style:solid;border-width:0.05em;display:block;font-size:1em;font-weight:bold;margin:1em 0;text-align:left;width:24.5em}
 #spaces .fileDetailOutput .directory::before{content: "📂 "}
 #spaces .fileDetailOutput .file::before{content: "📃 "}
 #spaces .fileDetailOutput .link::before{content: "🔗 "}
+#spaces .detailFileList th{white-space:pre;width:auto}
+#spaces .detailFileList td{padding:0 0 0 1em;text-align:right}
+
+/*
+2. remove # from settings colors, and specify format xxx-xxxxxx
+3. remove second ws
+*/
 
 /* Title bar and main menu */
 #spaces .title{border-style:none none solid;border-width:0.1em;display:block;height:5em}
 #spaces .title h1{display:inline-block;font-size:2em;margin:0;padding:0.5em}
 #spaces .title p{display:block;height:0.1em;position:absolute;top:-200em}
 #spaces #minimize-all,
-#spaces #menuToggle{border-style:solid;border-width:0.04em;display:inline-block;font-size:2.4em;height:2.1em;padding:0;width:2.1em}
+#spaces #menuToggle{border-style:solid;border-width:0.04em;cursor:pointer;display:inline-block;font-size:2.4em;height:2.1em;padding:0;width:2.1em}
 #spaces #menuToggle{margin:0 1em 0 0}
 #spaces #menuToggle span,
 #spaces #minimize-all span{display:block;font-size:0.01em;position:absolute;z-index:-10}
@@ -66,14 +92,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #menu li{display:block;padding:0}
 #spaces #menu button{border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
-
-/* invite user */
-#spaces .box .inviteUser{padding:1em}
-#spaces .box .inviteUser p{font-size:1.5em}
-#spaces .box .inviteUser input,
-#spaces .box .inviteUser textarea{display:block;font-size:1.2em;width:90%}
-#spaces .box .inviteUser .error{font-weight:bold}
-#spaces .box .inviteUser .accepted{font-weight:bold}
 
 /* users list */
 #spaces #users{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
@@ -158,7 +176,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
-#spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0.25em;white-space:pre;width:100%}
+#spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces .box .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 0 0 -2.5em;padding:0.125em;width:1.25em}
 #spaces .box .delete span{display:block;text-indent:-2000em}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
@@ -180,16 +198,28 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #system-errors{clear:both;float:none}
 #spaces #systems-modal{display:none}
 
+/* invite user */
+#spaces .inviteUser{padding:1em}
+#spaces .inviteUser input[type="text"],
+#spaces .inviteUser textarea{display:block;font-size:1.2em;width:90%}
+#spaces .inviteUser .error{font-weight:bold}
+#spaces .inviteUser .accepted{font-weight:bold}
+#spaces .inviteUser .type-description{display:none}
+
 /* settings modal content */
 #spaces .settings {padding:1em}
 #spaces .settings h3{margin:0}
 #spaces .section{border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 1em}
 #spaces .settings .compression-details,
 #spaces .settings .user-color-list p,
+#spaces .inviteUser p,
+#spaces .settings .user-color-list-p,
 #spaces .settings label{font-size:1.6em}
-#spaces .settings .radio{display:inline-block;width:10em}
+#spaces .inviteUser .radio,
+#spaces .settings .radio{display:inline-block;width:15em}
 #spaces .settings input[type="text"]{display:inline-block;margin:0 1em 0 0;width:2em}
-#spaces .settings button{border-style:solid;border-width:0.05em;cursor:pointer;margin:0 0 0.5em;width:15em}
+#spaces .settings button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.6em;margin:0 0 0.5em;width:15em}
+#spaces .settings select{-moz-appearance:none;appearance:none;border-style:solid;border-width:0.05em;font-size:1em;margin:0 1em 0 0;width:15em}
 #spaces .settings .user-color-list label{display:block;margin:0 0 0.5em}
 #spaces .settings .user-color-list input{width:5em}
 #spaces .settings .user-color-list p{margin:1em 0 0.5em -1.5em}
@@ -235,7 +265,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList li.selected.cut{outline-style:solid;outline-width:0.2em}
 #spaces .fileList li.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
 #spaces .fileList li li{font-size:1em}
-#spaces .fileList li span{display:block;float:right;margin:0 2em 0 0;white-space:normal;width:14em}
+#spaces .fileList li span{display:block;float:right;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
 #spaces .messageList .expansion,
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.75;margin:0.15em 1.2em 0 -2.1em;padding:0;vertical-align:top;width:0.75em}

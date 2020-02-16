@@ -18,7 +18,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             return;
         }
         const deleteUser = function local_socketMessage_deleteUser():void {
-                const user:string = event.data.replace("deleteUser:", ""),
+                const user:string = JSON.parse(event.data)["delete-user"],
                     userList:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
                     length:number = userList.length;
                 let a:number = 1;
@@ -33,7 +33,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 share.update(user, "deleted");
             },
             error = function local_socketMessage_error():void {
-                const errorData:string = event.data.slice(6),
+                const errorData:string = JSON.parse(event.data).error.toString(),
                     modal:HTMLElement = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
                 systems.message("errors", errorData, "websocket");
@@ -41,33 +41,24 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
                 }
             },
-            fsUpdate = function local_socketMessage_fsUpdate():void {
+            fsUpdateLocal = function local_socketMessage_fsUpdateLocal():void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
+                    fsData:directoryList = JSON.parse(event.data)["fs-update-local"],
                     keyLength:number = modalKeys.length;
-                let value:string = event.data.slice(9).replace(/(\\|\/)+$/, "").replace(/\\\\/g, "\\"),
+                let root:string = fsData[0][0],
                     a:number = 0;
-                if ((/^\w:$/).test(value) === true) {
-                    value = value + "\\";
+                if ((/^\w:$/).test(root) === true) {
+                    root = root + "\\";
                 }
                 do {
-                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === value && browser.data.modals[modalKeys[a]].agent === "localhost") {
+                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === "localhost") {
                         const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
-                        network.fs({
-                            action: "fs-directory",
-                            agent: "localhost",
-                            copyAgent: "",
-                            depth: 2,
-                            id: modalKeys[a],
-                            location: [value],
-                            name: "",
-                            watch: "no"
-                        }, function local_socketMessage_fsCallback(responseText:string):void {
-                            if (responseText !== "") {
-                                body.innerHTML = "";
-                                body.appendChild(fs.list(value, JSON.parse(responseText))[0]);
-                            }
-                        });
-                        break;
+                        body.innerHTML = "";
+                        body.appendChild(fs.list(root, {
+                            dirs: fsData,
+                            fail: fsData.failures,
+                            id: modalKeys[a]
+                        })[0]);
                     }
                     a = a + 1;
                 } while (a < keyLength);
@@ -77,7 +68,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                         agent: "localhost",
                         copyAgent: "",
                         depth: 1,
-                        location: [value],
+                        location: [root],
                         name: "",
                         watch: "no"
                     }, function local_socketMessage_closeCallback():boolean {
@@ -86,7 +77,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
             },
             fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
-                const data:fsUpdateRemote = JSON.parse(event.data.replace("fsUpdateRemote:", "")),
+                const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
                     list:[HTMLElement, number] = fs.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
@@ -115,7 +106,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
             },
             heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeats:string[] = event.data.split("heartbeat-update:"),
+                const heartbeats:string[] = JSON.parse(event.data)["heartbeat-update"],
                     heartbeat:heartbeat = JSON.parse(heartbeats[heartbeats.length - 1]),
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                     length:number = buttons.length;
@@ -132,7 +123,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 } while (a < length);
             },
             invitation = function local_socketMessage_invite():void {
-                const inviteData:invite = JSON.parse(event.data.slice(13)),
+                const inviteData:invite = JSON.parse(event.data)["invite-error"],
                     modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
                 if (modal === null) {
                     return;
@@ -147,27 +138,29 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 content.style.display = "block";
                 footer.style.display = "block";
             };
-        if (event.data.indexOf("deleteUser:") === 0) {
+        if (event.data.indexOf("{\"delete-user\":") === 0) {
             deleteUser();
-        } else if (event.data.indexOf("error:") === 0) {
+        } else if (event.data.indexOf("{\"error\":") === 0) {
             error();
-        } else if (event.data.indexOf("fileListStatus:") === 0) {
-            util.fileListStatus(event.data);
-        } else if (event.data.indexOf("fsUpdate:") === 0 && browser.loadTest === false) {
-            fsUpdate();
-        } else if (event.data.indexOf("fsUpdateRemote:") === 0) {
+        } else if (event.data.indexOf("{\"file-list-status\":") === 0) {
+            util.fileListStatus(JSON.parse(event.data)["file-list-status"]);
+        } else if (event.data.indexOf("{\"fs-update-local\":") === 0 && browser.loadTest === false) {
+            fsUpdateLocal();
+        } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
             fsUpdateRemote();
-        } else if (event.data.indexOf("heartbeat-update:") === 0) {
+        } else if (event.data.indexOf("{\"heartbeat-update\":") === 0) {
             heartbeat();
-        } else if (event.data.indexOf("invite-error:") === 0) {
+        } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
-        } else if (event.data.indexOf("invite-request:") === 0) {
-            invite.respond(event.data.slice(15));
+        } else if (event.data.indexOf("{\"invite-request\":") === 0) {
+            invite.respond(JSON.parse(event.data)["invite-request"]);
         } else if (event.data === "reload") {
             location.reload();
-        } else if (event.data.indexOf("shareUpdate:") === 0) {
-            const update:shareUpdate = JSON.parse(event.data.slice("shareUpdate:".length));
+        } else if (event.data.indexOf("{\"share-update\":") === 0) {
+            const update:shareUpdate = JSON.parse(event.data)["share-update"];
             share.update(update.user, update.shares);
+        } else {
+            console.log(event.data);
         }
     },
     open = function local_socketOpen():void {
@@ -176,21 +169,19 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         title.setAttribute("class", "title");
     },
     webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = (browser.localNetwork.family === "ipv4")
-            ? new WebSocket(`ws://${browser.localNetwork.ip}:${browser.localNetwork.wsPort}`)
-            : new WebSocket(`ws://[${browser.localNetwork.ip}]:${browser.localNetwork.wsPort}`),
-    error = function local_socketError(this:WebSocket):any {
-        setTimeout(function local_socketError_timeout():void {
-            browser.socket = local_webSocket();
-        }, 5000);
+        const socket:WebSocket = new WebSocket(`ws://localhost:${browser.localNetwork.wsPort}/`),
+            error = function local_socketError(this:WebSocket):any {
+                setTimeout(function local_socketError_timeout():void {
+                    browser.socket = local_webSocket();
+                }, 5000);
+            };
+        
+        /* Handle Web Socket responses */
+        socket.onopen = open;
+        socket.onmessage = message;
+        socket.onclose = close;
+        socket.onerror = error;
+        return socket;
     };
-    
-    /* Handle Web Socket responses */
-    socket.onopen = open;
-    socket.onmessage = message;
-    socket.onclose = close;
-    socket.onerror = error;
-    return socket;
-};
 
 export default webSocket;

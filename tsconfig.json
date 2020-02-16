@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node",
         "outDir": "js",
         "pretty": true,
         "target": "ES6",
