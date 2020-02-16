@@ -271,8 +271,8 @@ import webSocket from "./lib/browser/webSocket.js";
                                                     }
                                                     : JSON.parse(responseText),
                                                 id:string = payload.id,
-                                                files:[HTMLElement, number] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
-                                                    ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number] {
+                                                files:[HTMLElement, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
+                                                    ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number, string] {
                                                         const p:HTMLElement = document.createElement("p");
                                                         p.setAttribute("class", "error");
                                                         if (payload.dirs === "missing") {
@@ -282,7 +282,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                         } else {
                                                             p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
                                                         }
-                                                        return [p, 0];
+                                                        return [p, 0, ""];
                                                     }())
                                                     : fs.list(storage.settings.modals[value].text_value, payload),
                                                 textValue:string = files[0].getAttribute("title");
@@ -295,7 +295,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 }
                                             }
                                         },
-                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number], textValue:String):void {
+                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number, string], textValue:String):void {
                                             storage.settings.modals[id].content = files[0];
                                             storage.settings.modals[id].id = id;
                                             storage.settings.modals[value].text_event = fs.text;
@@ -307,14 +307,16 @@ import webSocket from "./lib/browser/webSocket.js";
                                             fs.listFail(files[1], box);
                                             selection(id);
                                             z(value);
+                                            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                         },
-                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number]):void {
+                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number, string]):void {
                                             const fsModal:HTMLElement = document.getElementById(id),
                                                 body:HTMLElement = <HTMLElement>fsModal.getElementsByClassName("body")[0];
                                             fs.listFail(files[1], fsModal);
                                             body.innerHTML = "";
                                             body.appendChild(files[0]);
                                             selection(id);
+                                            fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                         };
                                     if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
                                         let search:HTMLInputElement;

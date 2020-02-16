@@ -275,7 +275,7 @@ declare global {
         drag?: EventHandlerNonNull;
         dragFlag?: dragFlag;
         expand?: EventHandlerNonNull;
-        list?: (location:string, dirData:fsRemote) => [HTMLElement, number];
+        list?: (location:string, dirData:fsRemote) => [HTMLElement, number, string];
         listFail?: (count:number, box:HTMLElement) => void;
         listFocus?: EventHandlerNonNull;
         listItem?: (item:directoryItem, extraClass:string) => HTMLElement;
@@ -570,6 +570,7 @@ declare global {
         single?: boolean;
         status?: modalStatus;
         status_bar?: boolean;
+        status_text?: string;
         text_event?: EventHandlerNonNull;
         text_placeholder?: string;
         text_value?: string;

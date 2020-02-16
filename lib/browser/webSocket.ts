@@ -52,13 +52,16 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
                 do {
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === "localhost") {
-                        const body:HTMLElement = <HTMLElement>document.getElementById(modalKeys[a]).getElementsByClassName("body")[0];
+                        const box:HTMLElement = document.getElementById(modalKeys[a]),
+                            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+                            list:[HTMLElement, number, string] = fs.list(root, {
+                                dirs: fsData,
+                                fail: fsData.failures,
+                                id: modalKeys[a]
+                            });
                         body.innerHTML = "";
-                        body.appendChild(fs.list(root, {
-                            dirs: fsData,
-                            fail: fsData.failures,
-                            id: modalKeys[a]
-                        })[0]);
+                        body.appendChild(list[0]);
+                        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
                     }
                     a = a + 1;
                 } while (a < keyLength);
@@ -78,7 +81,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             },
             fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
                 const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
-                    list:[HTMLElement, number] = fs.list(data.location, {
+                    list:[HTMLElement, number, string] = fs.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
                         fail: data.fail
@@ -88,7 +91,8 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 let a:number = 0,
                     modalAgent:string,
                     body:HTMLElement,
-                    box:HTMLElement;
+                    box:HTMLElement,
+                    status:HTMLElement;
                 do {
                     modalAgent = browser.data.modals[modalKeys[a]].agent;
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
@@ -97,6 +101,10 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                             body = <HTMLElement>box.getElementsByClassName("body")[0];
                             body.innerHTML = "";
                             body.appendChild(list[0]);
+                            status = <HTMLElement>box.getElementsByClassName("status-bar")[0];
+                            if (status !== undefined) {
+                                status.getElementsByTagName("p")[0].innerHTML = list[2];
+                            }
                         }
                     }
                     a = a + 1;

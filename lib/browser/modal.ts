@@ -274,6 +274,9 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         section.setAttribute("class", "status-bar");
         section.style.width = `${(options.width / 10) - 2}em`;
         extra = document.createElement("p");
+        if (options.status_text !== undefined && options.status_text !== null && options.status_text !== "") {
+            extra.innerHTML = options.status_text;
+        }
         section.appendChild(extra);
         border.appendChild(section);
     }

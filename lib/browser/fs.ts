@@ -47,11 +47,12 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         name: "",
         watch: watchValue
     }, function local_fs_directory_callback(responseText:string):void {
-        const list:[HTMLElement, number] = fs.list(path, JSON.parse(responseText));
+        const list:[HTMLElement, number, string] = fs.list(path, JSON.parse(responseText));
         body.innerHTML = "";
         body.appendChild(list[0]);
         fs.listFail(list[1], box);
         browser.data.modals[box.getAttribute("id")].text_value = path;
+        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
         network.storage("settings");
     });
 };
@@ -289,7 +290,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
             name : "",
             watch: "no"
         }, function local_fs_expand_callback(responseText:string) {
-            const list:[HTMLElement, number] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
+            const list:[HTMLElement, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
             li.appendChild(list[0]);
         });
     } else {
@@ -304,19 +305,30 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
 };
 
 /* Builds the HTML file list */
-fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement, number] {
+fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement, number, string] {
     const local:directoryList = [],
         list:directoryList = <directoryList>dirData.dirs,
         length:number = list.length,
         output:HTMLElement = document.createElement("ul"),
         failLength:number = (dirData.fail === undefined)
             ? 0
-            : dirData.fail.length;
+            : dirData.fail.length,
+        box:HTMLElement = document.getElementById(dirData.id),
+        count:[number, number, number, number] = [0, 0, 0, 0],
+        plural = function local_fs_list_plural(input:string, quantity:number):string {
+            if (quantity === 1) {
+                return input;
+            }
+            if (input === "directory") {
+                return "directories";
+            }
+            return `${input}s`;
+        };
     let a:number = 0,
-        localLength:number = 0;
+        localLength:number = 0,
+        status:string = "";
     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly") {
-        const box:HTMLElement = document.getElementById(dirData.id),
-            p:HTMLElement = document.createElement("p");
+        const p:HTMLElement = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
             p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
@@ -330,7 +342,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
             body.innerHTML = "";
             body.appendChild(p);
         }
-        return [p, 0];
+        return [p, 0, ""];
     }
     if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
         const agent:string = browser.data.modals[dirData.id].agent;
@@ -342,9 +354,20 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
     do {
         if (list[a][3] === 0) {
             local.push(list[a]);
+            if (list[a][1] === "directory") {
+                count[0] = count[0] + 1;
+            } else if (list[a][1] === "file") {
+                count[1] = count[1] + 1;
+            } else if (list[a][1] === "link") {
+                count[2] = count[2] + 1;
+            } else {
+                count[3] = count[3] + 1;
+            }
         }
         a = a + 1;
     } while (a < length);
+    count[0] = count[0] - 1;
+    status = `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
     local.sort(function local_fs_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {
@@ -390,7 +413,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         util.dragBox(event, util.dragList);
     };
     output.setAttribute("class", "fileList");
-    return [output, failLength];
+    return [output, failLength, status];
 };
 
 /* Display status information when the Operating system locks files from access */
@@ -551,7 +574,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                 if (responseText === "") {
                     return;
                 }
-                const files:[HTMLElement, number] = fs.list(location, JSON.parse(responseText)),
+                const files:[HTMLElement, number, string] = fs.list(location, JSON.parse(responseText)),
                     value:string = files[0].getAttribute("title");
                 files[0].removeAttribute("title");
                 modal.create({
@@ -561,6 +584,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     read_only: false,
                     selection: {},
                     status_bar: true,
+                    status_text: files[2],
                     text_event: fs.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: value,
@@ -636,10 +660,11 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         name: "",
         watch: value
     }, function local_fs_parent_callback(responseText:string):void {
-        const list:[HTMLElement, number] = fs.list(input.value, JSON.parse(responseText));
+        const list:[HTMLElement, number, string] = fs.list(input.value, JSON.parse(responseText));
         body.innerHTML = "";
         body.appendChild(list[0]);
         fs.listFail(list[1], box);
+        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
         browser.data.modals[id].text_value = input.value;
         network.storage("settings");
     });
@@ -1009,10 +1034,11 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
             if (responseText === "") {
                 parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
             } else {
-                const list:[HTMLElement, number] = fs.list(element.value, JSON.parse(responseText));
+                const list:[HTMLElement, number, string] = fs.list(element.value, JSON.parse(responseText));
                 parent.innerHTML = "";
                 parent.appendChild(list[0]);
                 fs.listFail(list[1], box);
+                box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
                 browser.data.modals[id].text_value = element.value;
                 element.removeAttribute("class");
                 network.storage("settings");
