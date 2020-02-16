@@ -39,6 +39,16 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #login a,
 #spaces #login button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.25em;margin:1em auto 0;text-align:center;text-decoration:none;width:20em}
 
+/* Old login - to be deleted when login html is restored */
+#spaces #login label,
+#spaces #login input,
+#spaces #login button{display:block;font-size:2em}
+#spaces #login label,
+#spaces #login button{width:100%}
+#spaces #login input,
+#spaces #login button{border-style:solid;border-width:0.025em}
+#spaces #login button{font-weight:bold;margin:2em 0 0;padding:1em}
+
 /* Context menu, right click */
 #spaces #contextMenu{border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
