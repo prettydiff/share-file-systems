@@ -63,7 +63,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .fileDetailOutput h3{font-size:1em}
 #spaces .fileDetailOutput h3,
 #spaces .fileDetailOutput p{margin:0}
-#spaces .fileDetailOutput th{font-weight:bold;min-width:10em;text-align:left;width:10em}
+#spaces .fileDetailOutput th{font-family:"Lucida Console", monospace;font-weight:normal;min-width:10em;text-align:left;width:10em}
 #spaces .fileDetailOutput table{border-style:none none solid;border-width:0.05em;margin:0 0 3em}
 #spaces .fileDetailOutput td{white-space:pre}
 #spaces .fileDetailOutput button{border-style:solid;border-width:0.05em;display:block;font-size:1em;font-weight:bold;margin:1em 0;text-align:left;width:24.5em}

@@ -134,6 +134,7 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
         maxLeft:number = boxLeft + bodyLeft - bodyScrollLeft,
         maxRight:number = boxLeft + bodyLeft + bodyWidth - 4,
         drag:HTMLElement = document.createElement("div"),
+        oldDrag:HTMLElement = document.getElementById("dragBox"),
         touch:boolean      = (event !== null && event.type === "touchstart"),
         mouseEvent = <MouseEvent>event,
         touchEvent = <TouchEvent>event,
@@ -237,6 +238,9 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
         };
     let viewportY:number = bodyTop + boxTop + bodyHeight + 50 + bodyScrollTop,
         viewportX:number = bodyLeft + boxLeft + 4 + bodyScrollLeft;
+    if (oldDrag !== null) {
+        oldDrag.parentNode.removeChild(oldDrag);
+    }
     event.preventDefault();
     drag.setAttribute("id", "dragBox");
     body.insertBefore(drag, body.firstChild);
