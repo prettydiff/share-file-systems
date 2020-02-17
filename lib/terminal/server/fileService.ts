@@ -117,7 +117,7 @@ const library = {
                 });
             },
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
-                if (value !== vars.projectPath && value + vars.sep !== vars.projectPath) {
+                if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
                     serverVars.watches[value].time = Date.now();
                     if (data.agent === "localhost") {
                         fsUpdateLocal(value);

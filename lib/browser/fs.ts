@@ -889,6 +889,10 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
+    if (fs.dragFlag !== "") {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     input.focus();
     modal.zTop(event);
     body = util.getAncestor(body, "body", "class");
@@ -988,7 +992,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         }
     }
     modalData.focus = li;
-    network.storage("settings");
+    network.storage("settings", false);
 };
 
 /* Requests file system data from a text field, such as manually typing an address */

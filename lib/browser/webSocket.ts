@@ -33,10 +33,13 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 share.update(user, "deleted");
             },
             error = function local_socketMessage_error():void {
-                const errorData:string = JSON.parse(event.data).error.toString(),
+                const errorData:socketError = JSON.parse(event.data).error,
                     modal:HTMLElement = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
-                systems.message("errors", errorData, "websocket");
+                systems.message("errors", JSON.stringify({
+                    error: errorData.error,
+                    stack: errorData.stack
+                }), "websocket");
                 if (modal.clientWidth > 0) {
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
                 }

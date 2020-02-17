@@ -129,7 +129,14 @@ const library = {
                         const heartbeatData:heartbeat = JSON.parse(dataString);
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`heartbeat-update:{"agent":"${heartbeatData.agent}","refresh":false,"status":"${serverVars.status}","user":"${serverVars.name}"}`);
+                        response.write(JSON.stringify({
+                            "heartbeat-update": {
+                                agent: heartbeatData.agent,
+                                refresh: false,
+                                status: serverVars.status,
+                                user: serverVars.name
+                            }
+                        }));
                         response.end();
                     } else if (task.indexOf("invite") === 0) {
                         // * Handle all stages of user invitation

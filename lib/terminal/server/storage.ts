@@ -1,5 +1,5 @@
 
-import { IncomingMessage, ServerResponse } from "http";
+import { ServerResponse } from "http";
 
 import error from "../error.js";
 import log from "../log.js";

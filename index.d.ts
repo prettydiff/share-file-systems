@@ -490,6 +490,10 @@ declare global {
     interface SocketEvent extends Event {
         data: string;
     }
+    interface socketError {
+        error: string;
+        stack: string[];
+    }
     interface stringData {
         content: string;
         id: string;

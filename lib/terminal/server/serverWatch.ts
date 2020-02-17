@@ -55,9 +55,9 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
                 }
                 return false;
             };
-        if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0) {
+        if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0 || filename.indexOf(".git") === 0) {
             return;
-        }
+        }console.log(filename);
         if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
             let start:number,
                 compile:number,

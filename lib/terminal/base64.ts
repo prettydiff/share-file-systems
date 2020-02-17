@@ -54,7 +54,7 @@ const library = {
                 .node
                 .fs
                 .stat(filePath, function terminal_base64_fileWrapper_stat(er:Error, stat:Stats):void {
-                    const angryPath:string = `file path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
+                    const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         file = function terminal_base64_fileWrapper_stat_file():void {
                             vars
                             .node

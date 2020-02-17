@@ -178,6 +178,7 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
                     : mouseEvent.clientY;
             moveEvent.preventDefault();
             // horizontal
+            // * less complexity is required for horizontal movement, because at this time lists do not scroll horizontally in their modal body
             if (x > clientX) {
                 // drag left
                 if (clientX > maxLeft) {
@@ -204,8 +205,13 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
             if (y > clientY) {
                 // drag up
                 if (clientY > maxUp) {
-                    drag.style.height = `${(y - clientY) / 10}em`;
-                    drag.style.top = `${(clientY - offsetTop) / 10}em`;
+                    if (bodyScrollTop > body.scrollTop) {
+                        drag.style.height = `${((y + (bodyScrollTop - body.scrollTop)) - clientY) / 10}em`;
+                        drag.style.top = `${((clientY - (bodyScrollTop - body.scrollTop)) - offsetTop) / 10}em`;
+                    } else {
+                        drag.style.height = `${(y - clientY) / 10}em`;
+                        drag.style.top = `${(clientY - offsetTop) / 10}em`;
+                    }
                     if (clientY < (viewportY - bodyHeight - 50)) {
                         body.scrollTop = body.scrollTop - ((viewportY - bodyHeight - 50) - clientY);
                         viewportY = clientY + bodyHeight + 50;
@@ -214,8 +220,13 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
             } else {
                 // drag down
                 if (clientY < maxDown) {
-                    drag.style.height = `${(clientY - y) / 10}em`;
-                    drag.style.top = `${(y - offsetTop) / 10}em`;
+                    if (bodyScrollTop < body.scrollTop) {
+                        drag.style.height = `${((clientY + (body.scrollTop - bodyScrollTop)) - y) / 10}em`;
+                        drag.style.top = `${(y - offsetTop) / 10}em`;
+                    } else {
+                        drag.style.height = `${(clientY - y) / 10}em`;
+                        drag.style.top = `${(y - offsetTop) / 10}em`;
+                    }
                     if (clientY > viewportY) {
                         body.scrollTop = body.scrollTop + (clientY - viewportY);
                         viewportY = clientY;
