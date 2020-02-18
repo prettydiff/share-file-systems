@@ -12,7 +12,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === "localhost") && data.agent.indexOf("remoteUser") === 0);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.agent !== "localhost" && remoteUserTest === false) {
+    if (data.agent !== "localhost" && data.agent !== serverVars.name && remoteUserTest === false) {
         const shares:userShares = (data.action === "fs-copy-file" && serverVars.users[data.copyAgent] !== undefined)
                 ? serverVars.users[data.copyAgent].shares
                 : ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
@@ -56,7 +56,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             return;
         }
     }
-    if (location.length > 0) {
+    if (location.length > 0 || data.agent === "localhost" || data.agent === serverVars.name) {
         fileService(request, response, data);
     } else {
         response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});

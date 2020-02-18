@@ -261,7 +261,7 @@ const library = {
                     library.log([`${library.humanTime(false) + vars.text.green}Passed ${testListType} ${a + 1}: ${vars.text.none + name}`]);
                 } else if (irr.indexOf("fail - ") === 0) {
                     fail = fail + 1;
-                    library.log([`${library.humanTime(false) + vars.text.angry}Fail ${testListType} ${a + 1}: ${vars.text.none + name} ${irr.replace("fail - ", "")}`]);
+                    library.log([`${library.humanTime(false) + vars.text.angry}Fail ${testListType} ${a + 1}: ${vars.text.none + name} ${vars.text.angry + irr.replace("fail - ", "") + vars.text.none}`]);
                     if (failOutput !== "") {
                         const test:string = (typeof tests[a].test === "string")
                             ? <string>tests[a].test

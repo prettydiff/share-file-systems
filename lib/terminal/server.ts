@@ -113,11 +113,11 @@ const library = {
                         readOnly(request, response, dataString);
                     } else if (task === "settings" || task === "messages" || task === "users") {
                         // * local: Writes changes to storage files
-                        const length:number = dataString.length;
-                        if (dataString.slice(length - 7) === ",noSend") {
-                            storage(dataString.slice(0, length - 7), "noSend", task);
+                        const taskData = JSON.parse(dataString);
+                        if (taskData.send === false) {
+                            storage(JSON.stringify(taskData.data), "noSend", task);
                         } else {
-                            storage(dataString, response, task);
+                            storage(JSON.stringify(taskData.data), response, task);
                         }
                     } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                         // * Send and receive heartbeat signals

@@ -466,12 +466,17 @@ declare global {
         local: boolean;
         remote: boolean;
     }
+    interface serviceShares {
+        local?: userShares;
+        remote?: userShares;
+    }
     interface serviceTest {
         artifact?: string;
         command: any;
         file?: string;
         name: string;
         qualifier: qualifier;
+        shares?: serviceShares;
         test: object | string;
     }
     interface serviceTests extends Array<serviceTest> {

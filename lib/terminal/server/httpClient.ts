@@ -48,7 +48,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             }
             : (config.requestError === undefined)
                 ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
-                    if (errorMessage.code !== "ETIMEDOUT") {
+                    if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                         log([config.errorMessage, errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
                             error: errorMessage
@@ -61,7 +61,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 : config.requestError,
         responseError = (config.responseError === undefined)
             ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
-                if (errorMessage.code !== "ETIMEDOUT") {
+                if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                     log([config.errorMessage, errorMessage.toString()]);
                     vars.ws.broadcast(JSON.stringify({
                         error: errorMessage

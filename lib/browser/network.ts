@@ -22,7 +22,10 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
                         callback(text, configuration.agent);
                     }
                 } else {
-                    systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
                     callback(text, configuration.agent);
                     network.storage("messages");
                 }
@@ -47,7 +50,10 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending heartbeat","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when sending heartbeat`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
                     network.storage("messages");
                 }
             }
@@ -62,7 +68,14 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.send(`heartbeat:{"agent":"${user}","refresh":${refresh},"status":"${status}","user":""}`);
+            xhr.send(JSON.stringify({
+                heartbeat: {
+                    agent: user,
+                    refresh: refresh,
+                    status: status,
+                    user: ""
+                }
+            }));
         }
         a = a + 1;
     } while (a < length);
@@ -77,7 +90,10 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
                 if (xhr.status === 200 || xhr.status === 0) {
                     // todo log invitation acceptance in system log
                 } else {
-                    systems.message("errors", `{"error":"XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
                     network.storage("messages");
                 }
             }
@@ -88,7 +104,9 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send(JSON.stringify({"invite-response": configuration}));
+    xhr.send(JSON.stringify({
+        "invite-response": configuration
+    }));
 };
 
 /* Invite other users */
@@ -98,7 +116,10 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when sending messages related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
                 }
             }
         };
@@ -106,7 +127,9 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send(`invite:${JSON.stringify(inviteData)}`);
+    xhr.send(JSON.stringify({
+        invite: inviteData
+    }));
 };
 
 /* Writes configurations to file storage */
@@ -120,21 +143,28 @@ network.storage = function local_network_storage(type:storageType, send?:boolean
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", `{"error":"XHR responded with ${xhr.status} when sending messages.","stack":["${new Error().stack.replace(/\s+$/, "")}"]}`);
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when sending messages.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
                 }
             }
-        };
+        },
+        payload:string = JSON.stringify({
+            [type]: {
+                data: (type === "settings")
+                    ? browser.data
+                    : browser[type],
+                send: (send === false)
+                    ? false
+                    : true
+            }
+        });
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    if (type === "settings") {
-        xhr.send(`settings:${JSON.stringify(browser.data)}`);
-    } else if (send === false) {
-        xhr.send(`${type}:${JSON.stringify(browser[type])},noSend`);
-    } else {
-        xhr.send(`${type}:${JSON.stringify(browser[type])}`);
-    }
+    xhr.send(payload);
 };
 
 export default network;
