@@ -37,9 +37,18 @@ const library = {
     },
     fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
         const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
+                const payload:string = (message.indexOf("Copy complete.") === 0)
+                    ? JSON.stringify({
+                        "file-list-status": {
+                            failures: [],
+                            message: message,
+                            target: `remote-${data.id}`
+                        }
+                    })
+                    : message;
                 if (data.agent === "localhost") {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(message);
+                    response.write(payload);
                     response.end();
                 } else {
                     library.directory({
@@ -53,7 +62,7 @@ const library = {
                                     agent: data.agent,
                                     dirs: directory,
                                     location: location,
-                                    status: message
+                                    status: payload
                                 }
                             }));
                             response.end();
@@ -89,7 +98,7 @@ const library = {
                     }
                     return JSON.stringify({
                         fs: store
-                    });;
+                    });
                 }());
                 library.httpClient({
                     callback: callback,
@@ -490,13 +499,7 @@ const library = {
                                 hashFailPlural:string = (hashFailLength === 1)
                                     ? ""
                                     : "s";
-                            data.id = JSON.stringify({
-                                "file-list-status": {
-                                    failures: [],
-                                    message: `Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
-                                    target: `local-${data.name.replace(/\\/g, "\\\\")}`
-                                }
-                            });
+                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`;
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
@@ -563,15 +566,8 @@ const library = {
                         if (count === length) {
                             const filePlural:string = (countFile === 1)
                                     ? ""
-                                    : "s",
-                                output:copyStatus = {
-                                    failures: [],
-                                    message: `Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures.`,
-                                    target: `remote-${data.id}`
-                                };
-                            fileCallback(JSON.stringify({
-                                "file-list-status": output
-                            }));
+                                    : "s";
+                            fileCallback(`Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures.`);
                         }
                     };
                     library.copy({

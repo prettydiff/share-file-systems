@@ -66,7 +66,7 @@ const library = {
                     return;
                 }
                 if (typeof stdout === "string") {
-                    stdout = stdout.replace(/\s+$/, "").replace(/^\s+/, "").replace(/\u0020-?\d+(\.\d+)*\s/g, " XXXX ").replace(/\\n-?\d+(\.\d+)*\s/g, "\\nXXXX ").replace(/\(\d+ /, "(XXXX ").replace(/ \d+B/, " XXXX");
+                    stdout = stdout.replace(/\s+$/, "").replace(/^\s+/, "").replace(/\u0020-?\d+(\.\d+)*\s/g, " XXXX ").replace(/\\n-?\d+(\.\d+)*\s/g, "\\nXXXX ").replace(/\(\d+ /, "(XXXX ").replace(/ \d+B/, " XXXX").replace(/\[::1\]:\d+/, "[::1]:XXXX");
                 }
                 if (tests[a].qualifier.indexOf("file") === 0) {
                     if (tests[a].artifact === "" || tests[a].artifact === undefined) {

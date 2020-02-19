@@ -8,10 +8,12 @@ import vars from "../lib/terminal/vars.js";
 // * file - a file system address to open
 // * name - a short label to describe the test
 // * qualifier - how to test, see simulationItem in index.d.ts for appropriate values
+// * share - optional object containing share data to test against
 // * test - the value to compare against
 
 const //sep:string = vars.sep,
     projectPath:string = vars.projectPath,
+    windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
     //superSep:string = (sep === "\\")
     //    ? "\\\\"
     //    : sep,
@@ -98,7 +100,67 @@ const //sep:string = vars.sep,
             },
             name: "Copy Local to Remote",
             qualifier: "is",
-            test: `{"id":"{"file-list-status":{"failures":[],"message":"Copying 0.00% complete. XXXX files written at size XXXX (XXXX bytes) and XXXX integrity failures.","target":"local-${projectPath.replace(/\\/g, "\\\\\\\\")}storage"}}","dirs":"missing"}`
+            test: {
+                id: {
+                    "file-list-status": {
+                        failures: [],
+                        message: "Copying 0.00% complete. XXXX files written at size XXXX (XXXX bytes) and XXXX integrity failures.",
+                        target: `local-${projectPath.replace(/\\/g, "\\\\")}storage`
+                    }
+                },
+                dirs: "missing"
+            }
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-copy",
+                    "agent": "remoteUser",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": `${projectPath}storage`,
+                    "watch": "no"
+                }
+            },
+            name: "Copy Remote to Remote 1",
+            qualifier: "contains",
+            test: "fs-update-remote"
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-copy",
+                    "agent": "remoteUser",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": `${projectPath}storage`,
+                    "watch": "no"
+                }
+            },
+            name: "Copy Remote to Remote 2",
+            qualifier: "contains",
+            test: `["${windowsPath}storage","directory"`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-copy",
+                    "agent": "remoteUser",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": `${projectPath}storage`,
+                    "watch": "no"
+                }
+            },
+            name: "Copy Remote to Remote 3",
+            qualifier: "contains",
+            test: "\"agent\":\"remoteUser@[::1]:XXXX\""
         },
         {
             command: {

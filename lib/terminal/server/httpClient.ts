@@ -55,7 +55,18 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                         }));
                     }
                     config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                    config.response.write(`{"id":"${config.id}","dirs":"missing"}`);
+                    config.response.write(JSON.stringify({
+                        id: (config.id.indexOf("|Copying ") > 0)
+                            ? {
+                                "file-list-status": {
+                                    failures: [],
+                                    message: config.id.slice(config.id.indexOf("|") + 1),
+                                    target: config.id.slice(0, config.id.indexOf("|"))
+                                }
+                            }
+                            : config.id,
+                        dirs: "missing"
+                    }));
                     config.response.end();
                 }
                 : config.requestError,
