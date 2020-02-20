@@ -104,11 +104,34 @@ const //sep:string = vars.sep,
                 id: {
                     "file-list-status": {
                         failures: [],
-                        message: "Copying 0.00% complete. XXXX files written at size XXXX (XXXX bytes) and XXXX integrity failures.",
+                        message: "Copying 100% complete. XXXX files written at size XXXX (XXXX bytes) and XXXX integrity failures.",
                         target: `local-${projectPath.replace(/\\/g, "\\\\")}storage`
                     }
                 },
                 dirs: "missing"
+            }
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-copy",
+                    "agent": "remoteUser",
+                    "copyAgent": "localhost",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": `${projectPath}storage`,
+                    "watch": "no"
+                }
+            },
+            name: "Copy Remote to Local",
+            qualifier: "is",
+            test: {
+                "file-list-status": {
+                    failures: [],
+                    message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX failures.",
+                    target: "remote-test-ID"
+                }
             }
         },
         {
@@ -161,6 +184,29 @@ const //sep:string = vars.sep,
             name: "Copy Remote to Remote 3",
             qualifier: "contains",
             test: "\"agent\":\"remoteUser@[::1]:XXXX\""
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-details",
+                    "agent": "remoteUser",
+                    "copyAgent": "localhost",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Details of Remote tsconfig.json",
+            qualifier: "is",
+            test: {
+                dirs: [
+                    [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
+                ],
+                fail: [],
+                id: "test-ID"
+            }
         },
         {
             command: {

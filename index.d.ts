@@ -6,7 +6,7 @@ declare global {
 
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
     type colorScheme = "dark" | "default";
-    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
+    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
     type directoryMode = "hash" | "list" | "read" | "search";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
@@ -164,14 +164,14 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: Stats;
+        stat?: Stats | "stat";
     }
     interface hashOutput {
         filePath: string;
         hash: string;
         id?: string;
         parent?: number;
-        stat?: Stats;
+        stat?: Stats | "stat";
     }
     interface heartbeat {
         agent: string;

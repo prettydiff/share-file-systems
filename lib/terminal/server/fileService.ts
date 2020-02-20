@@ -192,7 +192,8 @@ const library = {
                         let b:number = 0,
                             size:number,
                             largest:number = 0,
-                            largeFile:number = 0;
+                            largeFile:number = 0,
+                            stat:fs.Stats;
                         // list schema:
                         // 0. full item path
                         // 1. item type: directory, file
@@ -200,7 +201,8 @@ const library = {
                         // 3. size in bytes from Stats object
                         do {
                             if (dir[b][1] === "file") {
-                                size = dir[b][5].size;
+                                stat = <fs.Stats>dir[b][5];
+                                size = stat.size;
                                 fileCount = fileCount + 1;
                                 fileSize = fileSize + size;
                                 if (size > largest) {
@@ -352,8 +354,10 @@ const library = {
                                 };
                                 cutList.push([fileQueue[index][2], "file"]);
                                 countFile = countFile + 1;
-                                writtenFiles = writtenFiles + 1;
-                                writtenSize = writtenSize + fileQueue[index][1];
+                                if (vars.command.indexOf("test") !== 0) {
+                                    writtenFiles = writtenFiles + 1;
+                                    writtenSize = writtenSize + fileQueue[index][1];
+                                }
                                 vars.ws.broadcast(JSON.stringify({
                                     "file-list-status": output
                                 }));
@@ -400,9 +404,12 @@ const library = {
                                     ? ""
                                     : "s",
                                 written:number = writeStream.bytesWritten + writtenSize,
+                                complete:string = (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                                    ? "100"
+                                    : ((written / fileData.fileSize) * 100).toFixed(2),
                                 output:copyStatus = {
                                     failures: [],
-                                    message: `Copying ${((written / fileData.fileSize) * 100).toFixed(2)}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
+                                    message: `Copying ${complete}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
                                     target: `local-${data.name.replace(/\\/g, "\\\\")}`
                                 };
                             vars.ws.broadcast(JSON.stringify({
@@ -498,8 +505,11 @@ const library = {
                                 hashFailLength:number = hashFail.length,
                                 hashFailPlural:string = (hashFailLength === 1)
                                     ? ""
-                                    : "s";
-                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`;
+                                    : "s",
+                                complete:string = (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                                    ? "100"
+                                    : ((writtenSize / fileData.fileSize) * 100).toFixed(2);
+                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|Copying ${complete}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`;
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
@@ -562,12 +572,15 @@ const library = {
                     const callback = function terminal_server_fileService_copySameAgent_each_copy([fileCount, fileSize]):void {
                         count = count + 1;
                         countFile = countFile + fileCount;
-                        writtenSize = writtenSize + fileSize;
+                        writtenSize = (vars.command.indexOf("test") === 0)
+                            ? 0
+                            : writtenSize + fileSize;
                         if (count === length) {
                             const filePlural:string = (countFile === 1)
                                     ? ""
-                                    : "s";
-                            fileCallback(`Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures.`);
+                                    : "s",
+                                message = `Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures.`;
+                            fileCallback(message);
                         }
                     };
                     library.copy({
@@ -841,8 +854,14 @@ const library = {
                     readStream.pipe(response);
                 }
             });
-            if (data.id.indexOf("{\"file-list-status\":") === 0) {
-                vars.ws.broadcast(data.id);
+            if (data.id.indexOf("|Copying ") > 0) {
+                vars.ws.broadcast(JSON.stringify({
+                    "file-list-status": {
+                        failures: [],
+                        message: data.id.slice(data.id.indexOf("|") + 1),
+                        target: data.id.slice(0, data.id.indexOf("|"))
+                    }
+                }));
             }
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             remoteCopyList({

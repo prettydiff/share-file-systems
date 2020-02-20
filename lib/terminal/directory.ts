@@ -190,17 +190,20 @@ const library = {
                                         return;
                                     }
                                 } else {
-                                    const index:number = list.length;
+                                    const index:number = list.length,
+                                        status:"stat"|Stats = (vars.command.indexOf("test") === 0)
+                                            ? "stat"
+                                            : stat;
                                     if (args.mode === "list") {
                                         fileList.push(item);
                                     } else {
                                         if (args.mode === "search") {
                                             const names:string[] = filePath.split(vars.sep);
                                             if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                                list.push([filePath, "directory", "", parent, files.length, stat]);
+                                                list.push([filePath, "directory", "", parent, files.length, status]);
                                             }
                                         } else {
-                                            list.push([item, "directory", "", parent, files.length, stat]);
+                                            list.push([item, "directory", "", parent, files.length, status]);
                                         }
                                     }
                                     if (files.length < 1) {
@@ -230,6 +233,9 @@ const library = {
                                     args.callback(fileList.sort());
                                 }
                             } else {
+                                const status:"stat"|Stats = (vars.command.indexOf("test") === 0)
+                                    ? "stat"
+                                    : stat;
                                 if (vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) > -1) {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -239,7 +245,7 @@ const library = {
                                 } else if (args.mode === "search") {
                                     const names:string[] = filePath.split(vars.sep);
                                     if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                        list.push([filePath, type, "", parent, 0, stat]);
+                                        list.push([filePath, type, "", parent, 0, status]);
                                     }
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -266,10 +272,10 @@ const library = {
                                         directInput: false,
                                         source: filePath,
                                         parent: parent,
-                                        stat: stat
+                                        stat: status
                                     });
                                 } else {
-                                    list.push([filePath, type, "", parent, 0, stat]);
+                                    list.push([filePath, type, "", parent, 0, status]);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {

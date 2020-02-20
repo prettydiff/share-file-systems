@@ -1,4 +1,6 @@
 
+import { Stats } from "fs";
+
 import commas from "../common/commas.js"
 import directory from "./directory.js";
 import error from "./error.js";
@@ -20,7 +22,8 @@ const library = {
                 size: 0
             },
             removeItems = function terminal_remove_removeItems(fileList:directoryList):void {
-                let a:number = 0;
+                let a:number = 0,
+                    stat:Stats;
                 const len:number = fileList.length,
                     destroy = function terminal_remove_removeItems_destroy(item:directoryItem) {
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
@@ -52,8 +55,9 @@ const library = {
                 do {
                     if (vars.command === "remove") {
                         if (fileList[a][1] === "file") {
+                            stat = <Stats>fileList[a][5];
                             numb.file = numb.file + 1;
-                            numb.size = numb.size + fileList[a][5].size;
+                            numb.size = numb.size + stat.size;
                         } else if (fileList[a][1] === "directory") {
                             numb.dirs = numb.dirs + 1;
                         } else if (fileList[a][1] === "link") {

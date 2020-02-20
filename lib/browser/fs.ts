@@ -1,3 +1,5 @@
+import { Stats } from "fs";
+
 import browser from "./browser.js";
 import context from "./context.js";
 import modal from "./modal.js";
@@ -468,17 +470,19 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             }
         };
     let span:HTMLElement,
-        plural:string;
+        plural:string,
+        stat:Stats;
 
     // preparation of descriptive text and assistive features
     if (item[1] === "file") {
         span = document.createElement("span");
-        if (item[5].size === 1) {
+        stat = <Stats>item[5];
+        if (stat.size === 1) {
             plural = "";
         } else {
             plural = "s";
         }
-        span.textContent = `file - ${commas(item[5].size)} byte${plural}`;
+        span.textContent = `file - ${commas(stat.size)} byte${plural}`;
     } else if (item[1] === "directory") {
         if (item[4] > 0) {
             const button = document.createElement("button");
