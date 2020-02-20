@@ -161,7 +161,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} hash algorithm:sha3-512`,
-                defined: "Allows a choice of hashing algorithm. Algorithms supported by OpenSSL are allowed."
+                defined: "Allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
             }
         ]
     },
