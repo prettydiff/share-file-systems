@@ -189,6 +189,29 @@ const //sep:string = vars.sep,
             command: {
                 "fs": {
                     "action": "fs-details",
+                    "agent": "localhost",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}tsconfig.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Details of Local tsconfig.json",
+            qualifier: "is",
+            test: {
+                dirs: [
+                    [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
+                ],
+                fail: [],
+                id: "test-ID"
+            }
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-details",
                     "agent": "remoteUser",
                     "copyAgent": "localhost",
                     "depth":1,
@@ -207,6 +230,142 @@ const //sep:string = vars.sep,
                 fail: [],
                 id: "test-ID"
             }
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-new",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal`],
+                    "name": "directory",
+                    "watch": "no"
+                }
+            },
+            name: "Local New Directory",
+            qualifier: "is",
+            test: `${projectPath}serviceTestLocal created.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-new",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "name": "file",
+                    "watch": "no"
+                }
+            },
+            name: "Local New File",
+            qualifier: "is",
+            test: `${projectPath}serviceTestLocal.json created.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-new",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote`],
+                    "name": "directory",
+                    "watch": "no"
+                }
+            },
+            name: "Remote New Directory",
+            qualifier: "is",
+            test: `${projectPath}serviceTestRemote created.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-new",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "name": "file",
+                    "watch": "no"
+                }
+            },
+            name: "Remote New File",
+            qualifier: "is",
+            test: `${projectPath}serviceTestRemote.json created.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-destroy",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Destroy Local Directory",
+            qualifier: "is",
+            test: `Path(s) ${projectPath}serviceTestLocal destroyed.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-destroy",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Destroy Local File",
+            qualifier: "is",
+            test: `Path(s) ${projectPath}serviceTestLocal.json destroyed.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-destroy",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Destroy Remote Directory",
+            qualifier: "is",
+            test: `Path(s) ${projectPath}serviceTestRemote destroyed.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-destroy",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Destroy Remote File",
+            qualifier: "is",
+            test: `Path(s) ${projectPath}serviceTestRemote.json destroyed.`
         },
         {
             command: {
