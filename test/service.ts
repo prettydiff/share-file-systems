@@ -190,7 +190,7 @@ const //sep:string = vars.sep,
                 "fs": {
                     "action": "fs-details",
                     "agent": "localhost",
-                    "copyAgent": "remoteUser",
+                    "copyAgent": "",
                     "depth":1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
@@ -213,7 +213,7 @@ const //sep:string = vars.sep,
                 "fs": {
                     "action": "fs-details",
                     "agent": "remoteUser",
-                    "copyAgent": "localhost",
+                    "copyAgent": "",
                     "depth":1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
@@ -298,6 +298,116 @@ const //sep:string = vars.sep,
             name: "Remote New File",
             qualifier: "is",
             test: `${projectPath}serviceTestRemote.json created.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-write",
+                    "agent": "localhost",
+                    "copyAgent": "localhost",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "name": "local to local text fragment",
+                    "watch": "no"
+                }
+            },
+            name: "Write Local to Local",
+            qualifier: "is",
+            test: `File ${projectPath}serviceTestLocal.json saved to disk on localhost.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-write",
+                    "agent": "localhost",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "name": "local to remote text fragment",
+                    "watch": "no"
+                }
+            },
+            name: "Write Local to Remote",
+            qualifier: "is",
+            test: `File ${projectPath}serviceTestRemote.json saved to disk on remoteUser@[::1]:XXXX.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-write",
+                    "agent": "remoteUser",
+                    "copyAgent": "localhost",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "name": "remote to local text fragment",
+                    "watch": "no"
+                }
+            },
+            name: "Write Remote to Local",
+            qualifier: "is",
+            test: `File ${projectPath}serviceTestLocal.json saved to disk on localhost.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-write",
+                    "agent": "remoteUser",
+                    "copyAgent": "remoteUser",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "name": "remote to remote text fragment",
+                    "watch": "no"
+                }
+            },
+            name: "Write Remote to Remote",
+            qualifier: "is",
+            test: `File ${projectPath}serviceTestRemote.json saved to disk on remoteUser@[::1]:XXXX.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-read",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Read Local",
+            qualifier: "is",
+            test: [{
+                "content": "remote to local text fragment",
+                "id": "test-ID",
+                "path": `${projectPath}serviceTestLocal.json`
+            }]
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-read",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "Read Remote",
+            qualifier: "is",
+            test: [{
+                "content": "remote to remote text fragment",
+                "id": "test-ID",
+                "path": `${projectPath}serviceTestRemote.json`
+            }]
         },
         {
             command: {

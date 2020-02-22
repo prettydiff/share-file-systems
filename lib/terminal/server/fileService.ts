@@ -982,16 +982,19 @@ const library = {
                 index:number,
                 location:string;
             do {
-                index = data.location[a].indexOf(":");
-                id = data.location[a].slice(0, index);
-                location = data.location[a].slice(index + 1);
                 if (data.action === "fs-base64") {
+                    index = data.location[a].indexOf(":");
+                    id = data.location[a].slice(0, index);
+                    location = data.location[a].slice(index + 1);
                     library[type]({
                         callback: callback,
                         id: id,
                         source: location
                     });
                 } else if (data.action === "fs-hash") {
+                    index = data.location[a].indexOf(":");
+                    id = data.location[a].slice(0, index);
+                    location = data.location[a].slice(index + 1);
                     library.hash({
                         algorithm: serverVars.hash,
                         callback: callback,
@@ -1002,8 +1005,8 @@ const library = {
                 } else if (data.action === "fs-read") {
                     fileReader({
                         callback: callback,
-                        id: id,
-                        source: location
+                        id: data.id,
+                        source: data.location[a]
                     });
                 }
                 a = a + 1;
