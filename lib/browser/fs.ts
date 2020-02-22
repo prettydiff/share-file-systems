@@ -750,7 +750,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     network.fs({
         action: "fs-write",
         agent: agency[0],
-        copyAgent: agency[0],
+        copyAgent: "",
         depth: 1,
         id: box.getAttribute("id"),
         location: [location],

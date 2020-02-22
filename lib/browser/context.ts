@@ -796,7 +796,7 @@ context.paste = function local_context_paste():void {
     network.fs({
         action   : `fs-${clipData.type}`,
         agent    : clipData.agent,
-        copyAgent: util.getAgent(element)[0],
+        copyAgent: "",
         depth    : 1,
         id       : element.getAttribute("id"),
         location : clipData.data,

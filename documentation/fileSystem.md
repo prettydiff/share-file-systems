@@ -40,24 +40,26 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - description: Returns a base64 string for a given file or symbolic link.
    - output     : string, base64 data
    - parameters
-      * action  : **"fs-base64"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: dataString[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-base64"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : dataString[]
+      * name     : ""
+      * watch    : "no"
 * **fs-close**
    - description: Lets the local service know to terminate a file system watcher that isn't needed any more.
    - output     : void
    - parameters
-      * action  : **"fs-close"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : ""
-      * watch   : "no"*
+      * action   : **"fs-close"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"*
 * **fs-copy**
    - description: Replicates existing file system artifacts into a new location in the file system.
    - output     : void
@@ -194,101 +196,110 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - description: Remove file system artifacts from the file system.
    - output     : void
    - parameters
-      * action  : **"fs-destroy"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-destroy"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
 * **fs-details**
    - description: Returns a fully recursive summary of a given file system artifact or directory tree.
    - output     : directoryList
    - parameter
-      * action  : **"fs-details"**
-      * agent   : string
-      * depth   : 0
-      * id      : string
-      * location: string[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-details"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 0
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "no"
 * **fs-directory**:
    - description: Returns a directory listing with a variable amount of recursion. This is similar to fs-details except: it only provides a single location, variable recursion, and it will initiate either a new or change of file system watch.
    - output     : directoryList
    - parameters
-      * action  : **"fs-directory"**
-      * agent   : string
-      * depth   : configuration.depth
-      * id      : string
-      * location: string[]
-      * name    : ""
-      * watch   : "yes" | string (path)
+      * action   : **"fs-directory"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : configuration.depth
+      * id       : string
+      * location : string[]
+      * name     : ""
+      * watch    : "yes" | string (path)
 * **fs-hash**:
    - description: Returns a SHA512 hash string for a given file or symbolic link.
    - output     : string, hash value
    - parameters
-      * action  : **"fs-hash"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: dataString[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-hash"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : dataString[]
+      * name     : ""
+      * watch    : "no"
 * **fs-new**:
    - description: Creates either a new file or new directory in the file system.
    - output     : void
    - parameters
-      * action  : **"fs-new"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : "file" | "directory"
-      * watch   : "no"
+      * action   : **"fs-new"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : "file" | "directory"
+      * watch    : "no"
 * **fs-read**:
    - description: Reads a file and returns the result string encoded to *utf8*.
    - output     : string
    - parameters
-      * action  : **"fs-read"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: dataString[]
-      * name    : ""
-      * watch   : "no"
+      * action   : **"fs-read"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : dataString[]
+      * name     : ""
+      * watch    : "no"
 * **fs-rename**:
    - description: Renames a file system artifact.
    - output     : void
    - parameters
-      * action  : **"fs-rename"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : string - *new artifact name*
-      * watch   : "no"
+      * action   : **"fs-rename"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string - *new artifact name*
+      * watch    : "no"
 * **fs-search**:
    - description: Searches a file system tree for artifacts containing a specified string fragment.
    - output     : void
    - parameters
-      * action  : **"fs-search"**
-      * agent   : string
-      * depth   : 0
-      * id      : string
-      * location: string[]
-      * name    : string - *search string fragment*
-      * watch   : "no"
+      * action   : **"fs-search"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 0
+      * id       : string
+      * location : string[]
+      * name     : string - *search string fragment*
+      * watch    : "no"
 * **fs-write**:
    - description: Writes changes to a file.
    - output     : void
    - parameters
-      * action  : **"fs-write"**
-      * agent   : string
-      * depth   : 1
-      * id      : string
-      * location: string[]
-      * name    : string - *name of file to modify*
-      * watch   : "no"
+      * action   : **"fs-write"**
+      * agent    : string
+      * copyAgent: ""
+      * depth    : 1
+      * id       : string
+      * location : string[]
+      * name     : string - *name of file to modify*
+      * watch    : "no"
 
 ## Data Storage
 

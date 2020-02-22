@@ -87,6 +87,7 @@ const library = {
                     } while (a < length);
                     if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
                         store["agent"] = "localhost";
+                        store["copyAgent"] = data.agent;
                     } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
                         store["agent"] = serverVars.name;
                     }
@@ -924,7 +925,10 @@ const library = {
                 library.remove(value, function terminal_server_fileService_destroy():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on agent ${data.agent}.`);
+                        const agent:string = (data.copyAgent === "")
+                            ? "localhost"
+                            : data.copyAgent;
+                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on agent ${agent}.`);
                     }
                 });
             });
@@ -934,7 +938,10 @@ const library = {
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
                 if (erRename === null) {
-                    fileCallback(`Path ${data.location[0]} on agent ${data.agent} renamed to ${newPath.join(vars.sep)}.`);
+                    const agent:string = (data.copyAgent === "")
+                        ? "localhost"
+                        : data.copyAgent;
+                    fileCallback(`Path ${data.location[0]} on agent ${agent} renamed to ${newPath.join(vars.sep)}.`);
                 } else {
                     library.error([erRename.toString()]);
                     library.log([erRename.toString()]);
@@ -1059,7 +1066,10 @@ const library = {
             });
         } else if (data.action === "fs-write") {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
-                let message:string = `File ${data.location[0]} saved to disk on ${data.copyAgent}.`;
+                const agent:string = (data.copyAgent === "")
+                    ? "localhost"
+                    : data.copyAgent;
+                let message:string = `File ${data.location[0]} saved to disk on ${agent}.`;
                 if (erw !== null) {
                     library.error([erw.toString()]);
                     vars.ws.broadcast(JSON.stringify({
