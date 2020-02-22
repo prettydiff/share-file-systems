@@ -924,7 +924,7 @@ const library = {
                 library.remove(value, function terminal_server_fileService_destroy():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed.`);
+                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on agent ${data.agent}.`);
                     }
                 });
             });
@@ -934,7 +934,7 @@ const library = {
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
                 if (erRename === null) {
-                    fileCallback(`Path ${data.location[0]} renamed to ${newPath.join(vars.sep)}.`);
+                    fileCallback(`Path ${data.location[0]} on agent ${data.agent} renamed to ${newPath.join(vars.sep)}.`);
                 } else {
                     library.error([erRename.toString()]);
                     library.log([erRename.toString()]);

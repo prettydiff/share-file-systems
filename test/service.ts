@@ -412,19 +412,87 @@ const //sep:string = vars.sep,
         {
             command: {
                 "fs": {
-                    "action": "fs-destroy",
+                    "action": "fs-rename",
                     "agent": "localhost",
                     "copyAgent": "",
                     "depth":1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal`],
+                    "name": "serviceLocal",
+                    "watch": "no"
+                }
+            },
+            name: "Rename Local Directory",
+            qualifier: "is",
+            test: `Path ${projectPath}serviceTestLocal on agent localhost renamed to ${projectPath}serviceLocal.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-rename",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "name": "serviceLocal.json",
+                    "watch": "no"
+                }
+            },
+            name: "Rename Local File",
+            qualifier: "is",
+            test: `Path ${projectPath}serviceTestLocal.json on agent localhost renamed to ${projectPath}serviceLocal.json.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-rename",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote`],
+                    "name": "serviceRemote",
+                    "watch": "no"
+                }
+            },
+            name: "Rename Remote Directory",
+            qualifier: "is",
+            test: `Path ${projectPath}serviceTestRemote on agent remoteUser@[::1]:XXXX renamed to ${projectPath}serviceRemote.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-rename",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "name": "serviceRemote.json",
+                    "watch": "no"
+                }
+            },
+            name: "Rename Remote File",
+            qualifier: "is",
+            test: `Path ${projectPath}serviceTestRemote.json on agent remoteUser@[::1]:XXXX renamed to ${projectPath}serviceRemote.json.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-destroy",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth":1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}serviceLocal`],
                     "name": "",
                     "watch": "no"
                 }
             },
             name: "Destroy Local Directory",
             qualifier: "is",
-            test: `Path(s) ${projectPath}serviceTestLocal destroyed.`
+            test: `Path(s) ${projectPath}serviceLocal destroyed on agent localhost.`
         },
         {
             command: {
@@ -434,14 +502,14 @@ const //sep:string = vars.sep,
                     "copyAgent": "",
                     "depth":1,
                     "id": "test-ID",
-                    "location": [`${projectPath}serviceTestLocal.json`],
+                    "location": [`${projectPath}serviceLocal.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
             name: "Destroy Local File",
             qualifier: "is",
-            test: `Path(s) ${projectPath}serviceTestLocal.json destroyed.`
+            test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent localhost.`
         },
         {
             command: {
@@ -451,14 +519,14 @@ const //sep:string = vars.sep,
                     "copyAgent": "",
                     "depth":1,
                     "id": "test-ID",
-                    "location": [`${projectPath}serviceTestRemote`],
+                    "location": [`${projectPath}serviceRemote`],
                     "name": "",
                     "watch": "no"
                 }
             },
             name: "Destroy Remote Directory",
             qualifier: "is",
-            test: `Path(s) ${projectPath}serviceTestRemote destroyed.`
+            test: `Path(s) ${projectPath}serviceRemote destroyed on agent remoteUser@[::1]:XXXX.`
         },
         {
             command: {
@@ -468,14 +536,14 @@ const //sep:string = vars.sep,
                     "copyAgent": "",
                     "depth":1,
                     "id": "test-ID",
-                    "location": [`${projectPath}serviceTestRemote.json`],
+                    "location": [`${projectPath}serviceRemote.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
             name: "Destroy Remote File",
             qualifier: "is",
-            test: `Path(s) ${projectPath}serviceTestRemote.json destroyed.`
+            test: `Path(s) ${projectPath}serviceRemote.json destroyed on agent remoteUser@[::1]:XXXX.`
         },
         {
             command: {
