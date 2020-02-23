@@ -14,6 +14,7 @@ import vars from "../lib/terminal/vars.js";
 const //sep:string = vars.sep,
     projectPath:string = vars.projectPath,
     windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
+    windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
     //superSep:string = (sep === "\\")
     //    ? "\\\\"
     //    : sep,
@@ -26,14 +27,14 @@ const //sep:string = vars.sep,
                     "action": "fs-base64",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`some-modal-id:${projectPath}tsconfig.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Base 64 Local",
+            name: "fs:fs-base64, Base 64 Local",
             qualifier: "is",
             test: [{
                 "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
@@ -47,14 +48,14 @@ const //sep:string = vars.sep,
                     "action": "fs-base64",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`some-modal-id:${projectPath}tsconfig.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Base 64 Remote",
+            name: "fs:fs-base64, Base 64 Remote",
             qualifier: "is",
             test: [{
                 "content": "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
@@ -68,14 +69,14 @@ const //sep:string = vars.sep,
                     "action": "fs-copy",
                     "agent": "localhost",
                     "copyAgent": "localhost",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": `${projectPath}storage`,
                     "watch": "no"
                 }
             },
-            name: "Copy Local to Local",
+            name: "fs:fs-copy, Copy Local to Local",
             qualifier: "is",
             test: {
                 "file-list-status": {
@@ -91,14 +92,14 @@ const //sep:string = vars.sep,
                     "action": "fs-copy",
                     "agent": "localhost",
                     "copyAgent": "remoteUser",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": `${projectPath}storage`,
                     "watch": "no"
                 }
             },
-            name: "Copy Local to Remote",
+            name: "fs:fs-copy, Copy Local to Remote",
             qualifier: "is",
             test: {
                 id: {
@@ -117,14 +118,14 @@ const //sep:string = vars.sep,
                     "action": "fs-copy",
                     "agent": "remoteUser",
                     "copyAgent": "localhost",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": `${projectPath}storage`,
                     "watch": "no"
                 }
             },
-            name: "Copy Remote to Local",
+            name: "fs:fs-copy, Copy Remote to Local",
             qualifier: "is",
             test: {
                 "file-list-status": {
@@ -140,14 +141,14 @@ const //sep:string = vars.sep,
                     "action": "fs-copy",
                     "agent": "remoteUser",
                     "copyAgent": "remoteUser",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": `${projectPath}storage`,
                     "watch": "no"
                 }
             },
-            name: "Copy Remote to Remote 1",
+            name: "fs:fs-copy, Copy Remote to Remote 1",
             qualifier: "contains",
             test: "fs-update-remote"
         },
@@ -157,14 +158,14 @@ const //sep:string = vars.sep,
                     "action": "fs-copy",
                     "agent": "remoteUser",
                     "copyAgent": "remoteUser",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": `${projectPath}storage`,
                     "watch": "no"
                 }
             },
-            name: "Copy Remote to Remote 2",
+            name: "fs:fs-copy, Copy Remote to Remote 2",
             qualifier: "contains",
             test: `["${windowsPath}storage","directory"`
         },
@@ -174,14 +175,14 @@ const //sep:string = vars.sep,
                     "action": "fs-copy",
                     "agent": "remoteUser",
                     "copyAgent": "remoteUser",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": `${projectPath}storage`,
                     "watch": "no"
                 }
             },
-            name: "Copy Remote to Remote 3",
+            name: "fs:fs-copy, Copy Remote to Remote 3",
             qualifier: "contains",
             test: "\"agent\":\"remoteUser@[::1]:XXXX\""
         },
@@ -191,14 +192,14 @@ const //sep:string = vars.sep,
                     "action": "fs-details",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Details of Local tsconfig.json",
+            name: "fs:fs-details, Details of Local tsconfig.json",
             qualifier: "is",
             test: {
                 dirs: [
@@ -214,14 +215,14 @@ const //sep:string = vars.sep,
                     "action": "fs-details",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}tsconfig.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Details of Remote tsconfig.json",
+            name: "fs:fs-details, Details of Remote tsconfig.json",
             qualifier: "is",
             test: {
                 dirs: [
@@ -237,14 +238,14 @@ const //sep:string = vars.sep,
                     "action": "fs-new",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal`],
                     "name": "directory",
                     "watch": "no"
                 }
             },
-            name: "Local New Directory",
+            name: "fs:fs-new, Local New Directory",
             qualifier: "is",
             test: `${projectPath}serviceTestLocal created.`
         },
@@ -254,14 +255,14 @@ const //sep:string = vars.sep,
                     "action": "fs-new",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal.json`],
                     "name": "file",
                     "watch": "no"
                 }
             },
-            name: "Local New File",
+            name: "fs:fs-new, Local New File",
             qualifier: "is",
             test: `${projectPath}serviceTestLocal.json created.`
         },
@@ -271,14 +272,14 @@ const //sep:string = vars.sep,
                     "action": "fs-new",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestRemote`],
                     "name": "directory",
                     "watch": "no"
                 }
             },
-            name: "Remote New Directory",
+            name: "fs:fs-new, Remote New Directory",
             qualifier: "is",
             test: `${projectPath}serviceTestRemote created.`
         },
@@ -288,14 +289,14 @@ const //sep:string = vars.sep,
                     "action": "fs-new",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestRemote.json`],
                     "name": "file",
                     "watch": "no"
                 }
             },
-            name: "Remote New File",
+            name: "fs:fs-new, Remote New File",
             qualifier: "is",
             test: `${projectPath}serviceTestRemote.json created.`
         },
@@ -304,49 +305,15 @@ const //sep:string = vars.sep,
                 "fs": {
                     "action": "fs-write",
                     "agent": "localhost",
-                    "copyAgent": "localhost",
-                    "depth":1,
+                    "copyAgent": "",
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal.json`],
-                    "name": "local to local text fragment",
+                    "name": "local text fragment",
                     "watch": "no"
                 }
             },
-            name: "Write Local to Local",
-            qualifier: "is",
-            test: `File ${projectPath}serviceTestLocal.json saved to disk on localhost.`
-        },
-        {
-            command: {
-                "fs": {
-                    "action": "fs-write",
-                    "agent": "localhost",
-                    "copyAgent": "remoteUser",
-                    "depth":1,
-                    "id": "test-ID",
-                    "location": [`${projectPath}serviceTestRemote.json`],
-                    "name": "local to remote text fragment",
-                    "watch": "no"
-                }
-            },
-            name: "Write Local to Remote",
-            qualifier: "is",
-            test: `File ${projectPath}serviceTestRemote.json saved to disk on remoteUser@[::1]:XXXX.`
-        },
-        {
-            command: {
-                "fs": {
-                    "action": "fs-write",
-                    "agent": "remoteUser",
-                    "copyAgent": "localhost",
-                    "depth":1,
-                    "id": "test-ID",
-                    "location": [`${projectPath}serviceTestLocal.json`],
-                    "name": "remote to local text fragment",
-                    "watch": "no"
-                }
-            },
-            name: "Write Remote to Local",
+            name: "fs:fs-write, Write Local",
             qualifier: "is",
             test: `File ${projectPath}serviceTestLocal.json saved to disk on localhost.`
         },
@@ -355,15 +322,15 @@ const //sep:string = vars.sep,
                 "fs": {
                     "action": "fs-write",
                     "agent": "remoteUser",
-                    "copyAgent": "remoteUser",
-                    "depth":1,
+                    "copyAgent": "",
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestRemote.json`],
-                    "name": "remote to remote text fragment",
+                    "name": "remote text fragment",
                     "watch": "no"
                 }
             },
-            name: "Write Remote to Remote",
+            name: "fs:fs-write, Write Remote to Local",
             qualifier: "is",
             test: `File ${projectPath}serviceTestRemote.json saved to disk on remoteUser@[::1]:XXXX.`
         },
@@ -373,17 +340,17 @@ const //sep:string = vars.sep,
                     "action": "fs-read",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Read Local",
+            name: "fs:fs-read, Read Local",
             qualifier: "is",
             test: [{
-                "content": "remote to local text fragment",
+                "content": "local text fragment",
                 "id": "test-ID",
                 "path": `${projectPath}serviceTestLocal.json`
             }]
@@ -394,17 +361,17 @@ const //sep:string = vars.sep,
                     "action": "fs-read",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestRemote.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Read Remote",
+            name: "fs:fs-read, Read Remote",
             qualifier: "is",
             test: [{
-                "content": "remote to remote text fragment",
+                "content": "remote text fragment",
                 "id": "test-ID",
                 "path": `${projectPath}serviceTestRemote.json`
             }]
@@ -415,14 +382,14 @@ const //sep:string = vars.sep,
                     "action": "fs-rename",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal`],
                     "name": "serviceLocal",
                     "watch": "no"
                 }
             },
-            name: "Rename Local Directory",
+            name: "fs:fs-rename, Rename Local Directory",
             qualifier: "is",
             test: `Path ${projectPath}serviceTestLocal on agent localhost renamed to ${projectPath}serviceLocal.`
         },
@@ -432,14 +399,14 @@ const //sep:string = vars.sep,
                     "action": "fs-rename",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestLocal.json`],
                     "name": "serviceLocal.json",
                     "watch": "no"
                 }
             },
-            name: "Rename Local File",
+            name: "fs:fs-rename, Rename Local File",
             qualifier: "is",
             test: `Path ${projectPath}serviceTestLocal.json on agent localhost renamed to ${projectPath}serviceLocal.json.`
         },
@@ -449,14 +416,14 @@ const //sep:string = vars.sep,
                     "action": "fs-rename",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestRemote`],
                     "name": "serviceRemote",
                     "watch": "no"
                 }
             },
-            name: "Rename Remote Directory",
+            name: "fs:fs-rename, Rename Remote Directory",
             qualifier: "is",
             test: `Path ${projectPath}serviceTestRemote on agent remoteUser@[::1]:XXXX renamed to ${projectPath}serviceRemote.`
         },
@@ -466,14 +433,14 @@ const //sep:string = vars.sep,
                     "action": "fs-rename",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceTestRemote.json`],
                     "name": "serviceRemote.json",
                     "watch": "no"
                 }
             },
-            name: "Rename Remote File",
+            name: "fs:fs-rename, Rename Remote File",
             qualifier: "is",
             test: `Path ${projectPath}serviceTestRemote.json on agent remoteUser@[::1]:XXXX renamed to ${projectPath}serviceRemote.json.`
         },
@@ -483,14 +450,14 @@ const //sep:string = vars.sep,
                     "action": "fs-destroy",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceLocal`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Destroy Local Directory",
+            name: "fs:fs-destroy, Destroy Local Directory",
             qualifier: "is",
             test: `Path(s) ${projectPath}serviceLocal destroyed on agent localhost.`
         },
@@ -500,14 +467,14 @@ const //sep:string = vars.sep,
                     "action": "fs-destroy",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceLocal.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Destroy Local File",
+            name: "fs:fs-destory, Destroy Local File",
             qualifier: "is",
             test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent localhost.`
         },
@@ -517,14 +484,14 @@ const //sep:string = vars.sep,
                     "action": "fs-destroy",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceRemote`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Destroy Remote Directory",
+            name: "fs:fs-destroy, Destroy Remote Directory",
             qualifier: "is",
             test: `Path(s) ${projectPath}serviceRemote destroyed on agent remoteUser@[::1]:XXXX.`
         },
@@ -534,14 +501,14 @@ const //sep:string = vars.sep,
                     "action": "fs-destroy",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`${projectPath}serviceRemote.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Destroy Remote File",
+            name: "fs:fs-destroy, Destroy Remote File",
             qualifier: "is",
             test: `Path(s) ${projectPath}serviceRemote.json destroyed on agent remoteUser@[::1]:XXXX.`
         },
@@ -551,14 +518,14 @@ const //sep:string = vars.sep,
                     "action": "fs-hash",
                     "agent": "localhost",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`some-modal-id:${projectPath}tsconfig.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Hash Local",
+            name: "fs:fs-hash, Hash Local",
             qualifier: "is",
             test: [{
                 "content": hash,
@@ -572,20 +539,156 @@ const //sep:string = vars.sep,
                     "action": "fs-hash",
                     "agent": "remoteUser",
                     "copyAgent": "",
-                    "depth":1,
+                    "depth": 1,
                     "id": "test-ID",
                     "location": [`some-modal-id:${projectPath}tsconfig.json`],
                     "name": "",
                     "watch": "no"
                 }
             },
-            name: "Hash Remote",
+            name: "fs:fs-hash, Hash Remote",
             qualifier: "is",
             test: [{
                 "content": hash,
                 "id": "some-modal-id",
                 "path": `${projectPath}tsconfig.json`
             }]
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-directory",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth": 2,
+                    "id": "test-ID",
+                    "location": [`${projectPath}js${vars.sep}lib`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-directory, Directory Local 1",
+            qualifier: "begins",
+            test: "{\"dirs\":[["
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-directory",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth": 2,
+                    "id": "test-ID",
+                    "location": [`${projectPath}js${vars.sep}lib`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-directory, Directory Local 2",
+            qualifier: "contains",
+            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-directory",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth": 2,
+                    "id": "test-ID",
+                    "location": [`${projectPath}js${vars.sep}lib`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-directory, Directory Remote 1",
+            qualifier: "begins",
+            test: "{\"dirs\":[["
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-search",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth": 2,
+                    "id": "test-ID",
+                    "location": [`${projectPath}js${vars.sep}lib`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-directory, Directory Remote 2",
+            qualifier: "contains",
+            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-search",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth": 0,
+                    "id": "test-ID",
+                    "location": [`${projectPath}`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-search, Search Local 1",
+            qualifier: "begins",
+            test: "{\"dirs\":[["
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-search",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth": 0,
+                    "id": "test-ID",
+                    "location": [`${projectPath}`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-search, Search Local 2",
+            qualifier: "contains",
+            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-search",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth": 0,
+                    "id": "test-ID",
+                    "location": [`${projectPath}`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-search, Search Remote 1",
+            qualifier: "begins",
+            test: "{\"dirs\":[["
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-search",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth": 0,
+                    "id": "test-ID",
+                    "location": [`${projectPath}`],
+                    "name": ".js",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-search, Search Remote 2",
+            qualifier: "contains",
+            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
         }
     ];
 
