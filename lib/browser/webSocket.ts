@@ -170,8 +170,6 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         } else if (event.data.indexOf("{\"share-update\":") === 0) {
             const update:shareUpdate = JSON.parse(event.data)["share-update"];
             share.update(update.user, update.shares);
-        } else {
-            console.log(event.data);
         }
     },
     open = function local_socketOpen():void {

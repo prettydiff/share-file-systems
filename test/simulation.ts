@@ -105,12 +105,12 @@ const sep:string = vars.sep,
             artifact: `${projectPath}temp`,
             command: `copy ${projectPath}js ${projectPath}temp`,
             qualifier: "filesystem contains",
-            test: `temp${sep}js${sep}test${sep}simulations.js`
+            test: `temp${sep}js${sep}test${sep}simulation.js`
         },
         {
             artifact: `${projectPath}temp`,
             command: `copy ${projectPath}js ${projectPath}temp 2`,
-            file: `${projectPath}temp${sep}js${sep}test${sep}simulations.js`,
+            file: `${projectPath}temp${sep}js${sep}test${sep}simulation.js`,
             qualifier: "file begins",
             test: `import vars from "../lib/terminal/vars.js";`
         },
@@ -122,12 +122,12 @@ const sep:string = vars.sep,
         {
             command: `directory ".${superSep}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
             qualifier: "contains",
-            test: ` matching items from address `
+            test: " matching items from address"
         },
         {
             command: `directory ${projectPath}js`,
             qualifier: "contains",
-            test: `js${superSep}test${superSep}simulations.js","file"`
+            test: `js${superSep}test${superSep}simulation.js","file"`
         },
         {
             command: `directory ${projectPath}js 2`,
@@ -137,7 +137,7 @@ const sep:string = vars.sep,
         {
             command: `directory ${projectPath}js ignore ["test"]`,
             qualifier: "not contains",
-            test: `js${superSep}test${superSep}simulations.js"`
+            test: `js${superSep}test${superSep}simulation.js"`
         },
         {
             command: `directory ${projectPath}js list`,
@@ -165,7 +165,7 @@ const sep:string = vars.sep,
             test: "directory"
         },
         {
-            command: `directory typeof ${projectPath}js${sep}test${sep}simulations.js`,
+            command: `directory typeof ${projectPath}js${sep}test${sep}simulation.js`,
             qualifier: "is",
             test: "file"
         },
