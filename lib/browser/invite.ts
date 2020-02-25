@@ -172,7 +172,12 @@ invite.request = function local_invite_request(options:ui_modal):void {
             userHash: "",
             userName: ""
         };
-    options.text_value = `{"type":"${type}","ip":"${ip}","port":"${port}","message":"${box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\"")}"}`;
+    options.text_value = JSON.stringify({
+        ip: ip,
+        message: box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
+        port: port,
+        type: type
+    });
     network.storage("settings");
     if (input !== null) {
         input.focus();

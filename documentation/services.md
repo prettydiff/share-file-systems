@@ -302,10 +302,29 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
       * watch    : "no"
 
 ## Data Storage
-
-State is saved in the local file system.  This allows for immediate advanced testing cross browser and across different computers.  Data storage services require only a string name and no configuration object.  An object storing user generated settings is parsed from object into a JSON string and sent to Node where it is written to a file of the same name in the *storage* directory.
+State is saved in the local file system.  This allows for persistence of state whose availability extends across browsers and is irrespective of the computer's state.  Provided a transfer of the state files it also allows for a persistance of state across different computers.  Data storage services are executed from the file `lib/terminal/server/storage.ts`.  Updates to the localhost shares will send out an update to all users in the user list.  The storage files are written to the directory `storage` and the service names are identical to the file names but without the file extensions.
 
 Currently supported names:
-
 * **messages** - stores data that populates in the logger
 * **settings** - stores user interface state
+* **users** - stores user list and their respective shares
+
+## Heartbeat
+The heartbeat is a beacon send out to other users about whether a user is active, idle, or offline.  The heartbeat executes every 15 seconds.  An *active* status means the user is actively using the application.  An *idle* status the user's application is online but the user is not actively using the application.  The application can still receive and respond to requests for data even when idle.  The *offline* status means the user's application if offline.
+
+The heartbeat makes use of two services:
+* **heartbeat** - The heartbeat is the regular interval status update as an HTTP request.
+* **heartbeat-update** - The heartbeat update is the HTTP response to a heartbeat request.  This allows the application to know if a user has gone offline or if they have changed status from offline to anything else.
+
+## Invitation
+The invitation process is how the application processes a request to add another user and how to respond to requests from other users.  For the process diagram please see the documentation: [invitation.md](invitation.md).
+
+The invitation is made up of 4 services:
+* **invite** - The initial invitation sent from the browser to the terminal application.
+* **invite-request** - The initial *invite* service is converted to an *invite-request* where it is routed to the terminal application of a remote user.  The terminal application receiving the request will send it to the remote user's browser via web socket.
+* **invite-response** - The remote user's browser will display a modal alerting the remote user that an invitation is available.  The remote user can ignore the invitation or accept the invitation.  If the invitation is ignored no further action is taken.  If the invitation is accepted the *invite-response* service is generated at the remote user's browser and sent to the remote user's terminal application.  At this point the remote user adds the originating user to their user list.
+* **invite-complete** - The remote user's terminal application converts the *invite-response* to an *invite-complete* application and routes it back to the originating user's terminal application.  The originating user's terminal application forwards the accepted invitation to the browser where the invitation acceptance is processed.
+
+## Updates
+* **fs-update-remote** - If a watcher is present on a file system location and the file system changes at that location then an updated file system data object, identical to calling the fs-directory service, is sent to all users.  This service exists in case a modal is open in the browser to a remote user's file system and the file system contents should be automatically updated as changes to the remote file system occur.  File system watches are not always reliable even on the local computer, so this service is especially not reliable.
+* **share-update** - When a user changes their share details this service is broadcast to each of their users.  The *users* storage file is automatically updated upon receipt of this service.  For security reasons changes to shares are immediate regardless of when, or if, a remote user receives this service.

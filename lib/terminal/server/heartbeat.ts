@@ -1,6 +1,4 @@
 
-import * as http from "http";
-
 import error from "../error.js";
 import log from "../log.js";
 import vars from "../vars.js";
