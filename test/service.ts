@@ -66,6 +66,40 @@ const //sep:string = vars.sep,
         {
             command: {
                 "fs": {
+                    "action": "fs-close",
+                    "agent": "localhost",
+                    "copyAgent": "",
+                    "depth": 1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}lib`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-close, Close Local",
+            qualifier: "begins",
+            test: `Watcher ${projectPath}lib closed.`
+        },
+        {
+            command: {
+                "fs": {
+                    "action": "fs-close",
+                    "agent": "remoteUser",
+                    "copyAgent": "",
+                    "depth": 1,
+                    "id": "test-ID",
+                    "location": [`${projectPath}lib`],
+                    "name": "",
+                    "watch": "no"
+                }
+            },
+            name: "fs:fs-close, Close Remote",
+            qualifier: "begins",
+            test: "{\"fs-update-remote\":{\"agent\":\"remoteUser@[::1]:XXXX\",\"dirs\":[["
+        },
+        {
+            command: {
+                "fs": {
                     "action": "fs-copy",
                     "agent": "localhost",
                     "copyAgent": "localhost",
