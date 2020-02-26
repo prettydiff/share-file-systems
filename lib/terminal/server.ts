@@ -96,7 +96,11 @@ const library = {
                         // * local : Update local "File Navigator" modals for the respective remote user
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
+                        if (serverVars.addresses.length > 1) {
+                            response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
+                        } else {
+                            response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][0][1]}.`);
+                        }
                         response.end();
                     } else if (task === "share-update") {
                         // * remote: Changes to the remote user's shares
@@ -232,11 +236,19 @@ const library = {
                     });
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
                     output.push("");
-                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
-                    if (webPort === "") {
-                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                    if (serverVars.addresses.length > 1) {
+                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
+                        if (webPort === "") {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                        } else {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                        }
                     } else {
-                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                        if (webPort === "") {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                        } else {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                        }
                     }
                     output.push("");
                     library.log.title("Local Service");
@@ -306,9 +318,13 @@ const library = {
                                     const settings:ui_data = JSON.parse(settingString),
                                         users:string[] = Object.keys(serverVars.users),
                                         length:number = users.length,
-                                        address:string = (serverVars.addresses[0][1][1].indexOf(":") > -1)
-                                            ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
-                                            : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`;
+                                        address:string = (serverVars.addresses.length > 1)
+                                            ? (serverVars.addresses[0][1][1].indexOf(":") > -1)
+                                                ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
+                                                : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`
+                                            : (serverVars.addresses[0][0][1].indexOf(":") > -1)
+                                            ? `[${serverVars.addresses[0][0][1]}]:${serverVars.webPort}`
+                                            : `${serverVars.addresses[0][0][1]}:${serverVars.webPort}`;
                                     serverVars.brotli = settings.brotli;
                                     serverVars.hash = settings.hash;
                                     serverVars.name = `${settings.name}@${address}`;

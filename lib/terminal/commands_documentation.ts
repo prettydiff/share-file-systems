@@ -219,7 +219,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} server browser`,
-                defined: "Launches the default location in the user's default web browser."
+                defined: "The 'browser' argument launches the default location in the user's default web browser."
             }
         ]
     },
