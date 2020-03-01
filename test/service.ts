@@ -723,7 +723,124 @@ const //sep:string = vars.sep,
             name: "fs:fs-search, Search Remote 2",
             qualifier: "contains",
             test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        },
+        {
+            command: {
+                "fs-update-remote": {
+                    agent: "remoteUser",
+                    dirs: [
+                        [`${projectPath}storage${vars.sep}storage.txt`, "file", "", 0, 0, "stat"]
+                    ],
+                    location: `${projectPath}storage`,
+                    status: "test payload"
+                }
+            },
+            name: "fs-update-remote, Local",
+            qualifier: "begins",
+            test: `Received directory watch for {"fs-update-remote":{"agent":"remoteUser@[::1]:XXXX","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"location":"${windowsPath}storage","status":"test payload","copyAgent":`
+        },
+        {
+            command: {
+                "share-update": {
+                    user: "remoteUser@[::1]:XXXX",
+                    shares: []
+                }
+            },
+            name: "fs-update-remote Local",
+            qualifier: "is",
+            test: "Received share update from remoteUser@[::1]:XXXX"
+        },
+        {
+            command: {
+                settings: {
+                    data: "fake data for testing",
+                    send: true
+                }
+            },
+            name: "settings, Local settings storage",
+            qualifier: "is",
+            test: "settings written."
+        },
+        {
+            command: {
+                messages: {
+                    data: "fake data for testing",
+                    send: true
+                }
+            },
+            name: "messages, Local messages storage",
+            qualifier: "is",
+            test: "messages written."
+        },
+        {
+            command: {
+                users: {
+                    data: {
+                        localhost: {
+                            color: ["fff", "000"],
+                            shares: []
+                        },
+                        remoteUser: {
+                            color: ["fff", "ddd"],
+                            shares: []
+                        }
+                    },
+                    send: true
+                }
+            },
+            name: "users, Local users storage",
+            qualifier: "is",
+            test: "users written."
+        },
+        {
+            command: {
+                settings: {
+                    data: "fake data for testing",
+                    send: false
+                }
+            },
+            name: "settings, Local settings storage without HTTP response",
+            qualifier: "is",
+            test: "settings written with false response for testing."
+        },
+        {
+            command: {
+                messages: {
+                    data: "fake data for testing",
+                    send: false
+                }
+            },
+            name: "messages, Local messages storage without HTTP response",
+            qualifier: "is",
+            test: "messages written with false response for testing."
+        },
+        {
+            command: {
+                users: {
+                    data: {
+                        localhost: {
+                            color: ["fff", "000"],
+                            shares: []
+                        },
+                        remoteUser: {
+                            color: ["fff", "ddd"],
+                            shares: []
+                        }
+                    },
+                    send: false
+                }
+            },
+            name: "users, Local users storage without HTTP response",
+            qualifier: "is",
+            test: "users written with false response for testing."
         }
+        // todo
+        // * heartbeat
+        // * heartbeat-update
+        // * invite
+        // * invite-request
+        // * invite-response
+        // * invite-complete
     ];
 
 services.addServers = function test_services_addServers(callback:Function):void {

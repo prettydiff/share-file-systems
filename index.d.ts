@@ -499,6 +499,15 @@ declare global {
         error: string;
         stack: string[];
     }
+    interface storage {
+        agent: string;
+        copyAgent: string;
+        data: users;
+        send: boolean;
+    }
+    interface storageData {
+        [key:string]: storage;
+    }
     interface stringData {
         content: string;
         id: string;

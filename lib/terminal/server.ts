@@ -87,50 +87,15 @@ const library = {
                     });
 
                 request.on('end', function terminal_server_create_end():void {
-                    let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, ""),
-                        dataString:string = (body.charAt(0) === "{")
-                            ? body.slice(body.indexOf(":") + 1, body.length - 1)
-                            : body.slice(body.indexOf(":") + 1);
-                    if (task === "fs-update-remote") {
-                        // * remote: Changes to the remote user's file system
-                        // * local : Update local "File Navigator" modals for the respective remote user
-                        vars.ws.broadcast(body);
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        if (serverVars.addresses.length > 1) {
-                            response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][1][1]}.`);
-                        } else {
-                            response.write(`Received directory watch for ${dataString} at ${serverVars.addresses[0][0][1]}.`);
-                        }
-                        response.end();
-                    } else if (task === "share-update") {
-                        // * remote: Changes to the remote user's shares
-                        // * local : Updates local share modals and updates the storage/users.json file
-                        const update:shareUpdate = JSON.parse(dataString)["share-update"];
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`Received share update from ${update.user}`);
-                        response.end();
-                        vars.ws.broadcast(body);
-                        serverVars.users[update.user].shares = update.shares;
-                        storage(JSON.stringify(serverVars.users), "noSend", "users");
-                    } else if (task === "fs") {
-                        // * file system interaction for both local and remote
-                        readOnly(request, response, dataString);
-                    } else if (task === "settings" || task === "messages" || task === "users") {
-                        // * local: Writes changes to storage files
-                        const taskData = JSON.parse(dataString);
-                        if (taskData.send === false) {
-                            storage(JSON.stringify(taskData.data), "noSend", task);
-                        } else {
-                            storage(JSON.stringify(taskData.data), response, task);
-                        }
-                    } else if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
+                    let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
+                    if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                         // * Send and receive heartbeat signals
-                        const heartbeatData:heartbeat = JSON.parse(dataString);
+                        const heartbeatData:heartbeat = JSON.parse(body);
                         serverVars.status = heartbeatData.status;
                         heartbeat(heartbeatData);
                     } else if (task === "heartbeat-update") {
                         // * Respond to heartbeat changes as a result of a page load
-                        const heartbeatData:heartbeat = JSON.parse(dataString);
+                        const heartbeatData:heartbeat = JSON.parse(body);
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(JSON.stringify({
@@ -142,9 +107,47 @@ const library = {
                             }
                         }));
                         response.end();
+                    } else if (task === "settings" || task === "messages" || task === "users") {
+                        // * local: Writes changes to storage files
+                        const taskData:storage = JSON.parse(body);
+                        if (taskData.send === false) {
+                            if (vars.command.indexOf("test") === 0) {
+                                storage(body, response, task);
+                            } else {
+                                storage(body, "noSend", task);
+                            }
+                        } else {
+                            storage(body, response, task);
+                        }
+                    } else if (task === "fs") {
+                        // * file system interaction for both local and remote
+                        readOnly(request, response, JSON.parse(body).fs);
+                    } else if (task === "fs-update-remote") {
+                        // * remote: Changes to the remote user's file system
+                        // * local : Update local "File Navigator" modals for the respective remote user
+                        vars.ws.broadcast(body);
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        if (serverVars.addresses.length > 1) {
+                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][1][1]}.`);
+                        } else {
+                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][0][1]}.`);
+                        }
+                        response.end();
+                    } else if (task === "share-update") {
+                        // * remote: Changes to the remote user's shares
+                        // * local : Updates local share modals and updates the storage/users.json file
+                        const update:shareUpdate = JSON.parse(body)["share-update"];
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write(`Received share update from ${update.user}`);
+                        response.end();
+                        vars.ws.broadcast(body);
+                        if (vars.command.indexOf("test") !== 0) {
+                            serverVars.users[update.user].shares = update.shares;
+                        }
+                        storage(body, "noSend", "users");
                     } else if (task.indexOf("invite") === 0) {
                         // * Handle all stages of user invitation
-                        invite(dataString, response);
+                        invite(body, response);
                     }
                 });
             },
