@@ -136,7 +136,7 @@ const library = {
                             serverVars.users[update.user].shares = update.shares;
                         }
                         storage(body, response, "users");
-                    } else if (task.indexOf("invite") === 0) {
+                    } else if (task === "invite") {
                         // * Handle all stages of user invitation
                         invite(body, response);
                     }

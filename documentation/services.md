@@ -334,7 +334,7 @@ Stores systems and utility messaging from the browser.  At this time only error 
 {
    "messages": {
       "status": [],
-      "users": [],
+      "users" : [],
       "errors": [
          [
                "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
@@ -480,25 +480,25 @@ The users storage saves user profile data which comprises color scheme in the br
 ```json
 {
    "users": {
-      "localhost": {
-         "color": ["fff", "000"],
+      "localhost" : {
+         "color" : ["fff", "000"],
          "shares": [
             {
-               "execute": false,
-               "name": "C:\\MP3\\_new",
+               "execute" : false,
+               "name"    : "C:\\MP3\\_new",
                "readOnly": true,
-               "type": "directory"
+               "type"    : "directory"
             }
          ]
       },
       "remoteUser": {
-         "color": ["fff", "ddd"],
+         "color" : ["fff", "ddd"],
          "shares": [
             {
-               "execute": false,
-               "name": "D:\\movies",
+               "execute" : false,
+               "name"    : "D:\\movies",
                "readOnly": true,
-               "type": "directory"
+               "type"    : "directory"
             }
          ]
       }
@@ -511,13 +511,13 @@ The users storage saves user profile data which comprises color scheme in the br
 {
    "users": {
       "user name": {
-         "color": ["string, primary color in RGB hex", "string, secondary color in RGB hex"],
+         "color" : ["string, primary color in RGB hex", "string, secondary color in RGB hex"],
          "shares": [
             {
-               "execute": "boolean, is this something that this executed like an application?",
-               "name": "string, address of the shared artifact",
+               "execute" : "boolean, is this something that this executed like an application?",
+               "name"    : "string, address of the shared artifact",
                "readOnly": "boolean, if true this artifact cannot be altered or removed by remote users",
-               "type": "string, what type of artifact is it? (file, directory, symbolic link)"
+               "type"    : "string, what type of artifact is it? (file, directory, symbolic link)"
             }
          ]
       }
@@ -540,11 +540,68 @@ The heartbeat makes use of two services:
 ## Invitation
 The invitation process is how the application processes a request to add another user and how to respond to requests from other users.  For the process diagram please see the documentation: [invitation.md](invitation.md).
 
+### Invitation Example
+```json
+{
+   "invite": {
+      "action"    : "invite",
+      "deviceKey" : "",
+      "deviceName": "",
+      "ip"        : "192.168.0.45",
+      "message"   : "Hello",
+      "modal"     : "invite-request-0.929743434347059471",
+      "name"      : "Austin",
+      "port"      : 80,
+      "shares"    : [
+         {
+            "execute" : false,
+            "name"    : "C:\\MP3\\_new",
+            "readOnly": true,
+            "type"    : "directory"
+         }
+      ],
+      "status"    : "invited",
+      "type"      : "user",
+      "userHash"  : "",
+      "userName"  : ""
+   }
+}
+```
+
+### Invitation Service Types
 The invitation is made up of 4 services:
 * **invite** - The initial invitation sent from the browser to the terminal application.
 * **invite-request** - The initial *invite* service is converted to an *invite-request* where it is routed to the terminal application of a remote user.  The terminal application receiving the request will send it to the remote user's browser via web socket.
 * **invite-response** - The remote user's browser will display a modal alerting the remote user that an invitation is available.  The remote user can ignore the invitation or accept the invitation.  If the invitation is ignored no further action is taken.  If the invitation is accepted the *invite-response* service is generated at the remote user's browser and sent to the remote user's terminal application.  At this point the remote user adds the originating user to their user list.
 * **invite-complete** - The remote user's terminal application converts the *invite-response* to an *invite-complete* application and routes it back to the originating user's terminal application.  The originating user's terminal application forwards the accepted invitation to the browser where the invitation acceptance is processed.
+
+### Invitation Schema
+```json
+{
+   "invite": {
+      "action"    : "invite",
+      "deviceKey" : "string, a hash uniquely identifying the current device",
+      "deviceName": "string, the name of the current device",
+      "ip"        : "string, ip address to send the invitation",
+      "message"   : "string, text message from the invitation request.",
+      "modal"     : "string, id of the invitation request modal",
+      "name"      : "string, user name",
+      "port"      : "number, port number associated with the ip address",
+      "shares"    : ["array of share objects", "see Storage/Users for definitions"],
+      "status"    : "string, status of invitation: accepted, declined, invited",
+      "type"      : "string, the type of invitation whether its for a different device associated with the same user or a different user",
+      "userHash"  : "not yet used",
+      "userName"  : "not yet used"
+   }
+}
+```
+
+### Invitation Status
+The invitation *status* property will feature one of these values:
+
+* **accepted** - The invitation is accepted by the remote user.
+* **declined** - The invitation is declined by the remote user.
+* **invited** - The invitation is not yet answered by the remote user.
 
 
 ---
@@ -553,3 +610,56 @@ The invitation is made up of 4 services:
 ## Updates
 * **fs-update-remote** - If a watcher is present on a file system location and the file system changes at that location then an updated file system data object, identical to calling the fs-directory service, is sent to all users.  This service exists in case a modal is open in the browser to a remote user's file system and the file system contents should be automatically updated as changes to the remote file system occur.  File system watches are not always reliable even on the local computer, so this service is especially not reliable.
 * **share-update** - When a user changes their share details this service is broadcast to each of their users.  The *users* storage file is automatically updated upon receipt of this service.  For security reasons changes to shares are immediate regardless of when, or if, a remote user receives this service.
+
+### fs-update-remote Example
+```json
+{
+   "fs-update-remote": {
+      "agent"   : "remoteUser",
+      "dirs"    : [
+         ["storage.txt", "file", "", 0, 0, "stat"]
+      ],
+      "location": "storage",
+      "status"  : "test payload"
+   }
+}
+```
+
+### fs-update-remote Schema
+```json
+{
+   "fs-update-remote": {
+      "agent"   : "string, who to send the update to",
+      "dirs"    : ["array of directory item data structure starting from the address in the location property"],
+      "location": "string, the file system address that is modified",
+      "status"  : "string, status text for a modal's status bar"
+   }
+}
+```
+
+### share-update Example
+```json
+{
+   "share-update": {
+      "user"  : "remoteUser@[::1]:XXXX",
+      "shares": [
+         {
+            "execute" : false,
+            "name"    : "C:\\MP3\\_new",
+            "readOnly": true,
+            "type"    : "directory"
+         }
+      ]
+   }
+}
+```
+
+### share-update Schema
+```json
+{
+   "share-update": {
+      "user"  : "the remote user whom is reporting an update to their shares",
+      "shares": ["array of share objects"]
+   }
+}
+```

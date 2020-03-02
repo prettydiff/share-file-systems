@@ -21,12 +21,16 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         data.userName = serverVars.name;
                         data.ip = serverVars.addresses[0][1][1];
                         data.port = serverVars.webPort;
-                        output = `${data.action}:${JSON.stringify(data)}`;
+                        output = JSON.stringify({
+                            invite: data
+                        });
                         data.ip = ip;
                         data.port = port;
                         return output;
                     }())
-                    : `${data.action}:${JSON.stringify(data)}`;
+                    : JSON.stringify({
+                        invite: data
+                    });
             httpClient({
                 callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
                     log([<string>responseBody]);
