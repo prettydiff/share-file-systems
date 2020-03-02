@@ -746,16 +746,44 @@ const //sep:string = vars.sep,
                     shares: []
                 }
             },
-            name: "fs-update-remote Local",
+            name: "share-update, Local",
             qualifier: "is",
             test: "Received share update from remoteUser@[::1]:XXXX"
         },
         {
             command: {
                 settings: {
-                    data: "fake data for testing",
-                    send: true
-                }
+                    audio: true,
+                    brotli: 7,
+                    color: "default",
+                    hash: "sha3-512",
+                    modals: {
+                        "systems-modal": {
+                            agent: "localhost",
+                            content:{},
+                            inputs: [
+                                "close", "maximize", "minimize"
+                            ],
+                            read_only: false,
+                            single: true,
+                            status: "hidden",
+                            title: "<span class=\"icon-systemLog\">⌬</span> System Log",
+                            type: "systems",
+                            width: 800,
+                            zIndex: 1,
+                            id: "systems-modal",
+                            left: 200,
+                            top: 200,
+                            height: 400
+                        },
+                    },
+                    modalTypes: [
+                        "systems", "settings", "fileNavigate", "invite-request"
+                    ],
+                    name: "Austin",
+                    zIndex: 6
+                },
+                send: true
             },
             name: "settings, Local settings storage",
             qualifier: "is",
@@ -764,9 +792,20 @@ const //sep:string = vars.sep,
         {
             command: {
                 messages: {
-                    data: "fake data for testing",
-                    send: true
-                }
+                    status: [],
+                    users: [],
+                    errors: [
+                        [
+                            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
+                                "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
+                                "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
+                                "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
+                                "FSReqCallback.oncomplete (fs.js:154:23)"
+                            ]
+                        ]
+                    ]
+                },
+                send: true
             },
             name: "messages, Local messages storage",
             qualifier: "is",
@@ -775,18 +814,16 @@ const //sep:string = vars.sep,
         {
             command: {
                 users: {
-                    data: {
-                        localhost: {
-                            color: ["fff", "000"],
-                            shares: []
-                        },
-                        remoteUser: {
-                            color: ["fff", "ddd"],
-                            shares: []
-                        }
+                    localhost: {
+                        color: ["fff", "000"],
+                        shares: []
                     },
-                    send: true
-                }
+                    remoteUser: {
+                        color: ["fff", "ddd"],
+                        shares: []
+                    }
+                },
+                send: true
             },
             name: "users, Local users storage",
             qualifier: "is",
@@ -795,9 +832,37 @@ const //sep:string = vars.sep,
         {
             command: {
                 settings: {
-                    data: "fake data for testing",
-                    send: false
-                }
+                    audio: true,
+                    brotli: 7,
+                    color: "default",
+                    hash: "sha3-512",
+                    modals: {
+                        "systems-modal": {
+                            agent: "localhost",
+                            content:{},
+                            inputs: [
+                                "close", "maximize", "minimize"
+                            ],
+                            read_only: false,
+                            single: true,
+                            status: "hidden",
+                            title: "<span class=\"icon-systemLog\">⌬</span> System Log",
+                            type: "systems",
+                            width: 800,
+                            zIndex: 1,
+                            id: "systems-modal",
+                            left: 200,
+                            top: 200,
+                            height: 400
+                        },
+                    },
+                    modalTypes: [
+                        "systems", "settings", "fileNavigate", "invite-request"
+                    ],
+                    name: "Austin",
+                    zIndex: 6
+                },
+                send: false
             },
             name: "settings, Local settings storage without HTTP response",
             qualifier: "is",
@@ -806,9 +871,20 @@ const //sep:string = vars.sep,
         {
             command: {
                 messages: {
-                    data: "fake data for testing",
-                    send: false
-                }
+                    status: [],
+                    users: [],
+                    errors: [
+                        [
+                            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
+                                "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
+                                "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
+                                "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
+                                "FSReqCallback.oncomplete (fs.js:154:23)"
+                            ]
+                        ]
+                    ]
+                },
+                send: false
             },
             name: "messages, Local messages storage without HTTP response",
             qualifier: "is",
@@ -817,18 +893,16 @@ const //sep:string = vars.sep,
         {
             command: {
                 users: {
-                    data: {
-                        localhost: {
-                            color: ["fff", "000"],
-                            shares: []
-                        },
-                        remoteUser: {
-                            color: ["fff", "ddd"],
-                            shares: []
-                        }
+                    localhost: {
+                        color: ["fff", "000"],
+                        shares: []
                     },
-                    send: false
-                }
+                    remoteUser: {
+                        color: ["fff", "ddd"],
+                        shares: []
+                    }
+                },
+                send: false
             },
             name: "users, Local users storage without HTTP response",
             qualifier: "is",

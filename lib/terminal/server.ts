@@ -109,16 +109,7 @@ const library = {
                         response.end();
                     } else if (task === "settings" || task === "messages" || task === "users") {
                         // * local: Writes changes to storage files
-                        const taskData:storage = JSON.parse(body);
-                        if (taskData.send === false) {
-                            if (vars.command.indexOf("test") === 0) {
-                                storage(body, response, task);
-                            } else {
-                                storage(body, "noSend", task);
-                            }
-                        } else {
-                            storage(body, response, task);
-                        }
+                        storage(body, response, task);
                     } else if (task === "fs") {
                         // * file system interaction for both local and remote
                         readOnly(request, response, JSON.parse(body).fs);
@@ -144,7 +135,7 @@ const library = {
                         if (vars.command.indexOf("test") !== 0) {
                             serverVars.users[update.user].shares = update.shares;
                         }
-                        storage(body, "noSend", "users");
+                        storage(body, response, "users");
                     } else if (task.indexOf("invite") === 0) {
                         // * Handle all stages of user invitation
                         invite(body, response);
@@ -182,7 +173,7 @@ const library = {
                         } else {
                             vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_usersStat(err:nodeError):void {
                                 if (err === null) {
-                                    forbiddenUser(<string>request.headers["user-name"]);
+                                    forbiddenUser(<string>request.headers["user-name"], response);
                                 }
                             });
                             response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});

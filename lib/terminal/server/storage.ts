@@ -12,11 +12,11 @@ const library = {
         error: error,
         log: log
     },
-    storage = function terminal_server_storage(dataString:string, response:ServerResponse | "noSend", task:storageType):void {
+    storage = function terminal_server_storage(dataString:string, response:ServerResponse, task:storageType):void {
         const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`,
             rename = function terminal_server_storage_rename():void {
                 const respond = function terminal_server_storage_rename_respond(message:string):void {
-                    if (response !== "noSend") {
+                    if (parsed.send === true) {
                         response.writeHead(200, {"Content-Type": "text/plain"});
                         response.write(message);
                         response.end();
@@ -24,9 +24,9 @@ const library = {
                 };
                 if (vars.command.indexOf("test") === 0) {
                     if (testSend === true) {
-                        respond(`${task} written with false response for testing.`);
-                    } else {
                         respond(`${task} written.`);
+                    } else {
+                        respond(`${task} written with false response for testing.`);
                     }
                 } else {
                     vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_renameNode(erName:Error) {
@@ -48,7 +48,7 @@ const library = {
                 if (erSettings !== null) {
                     library.error([erSettings.toString()]);
                     library.log([erSettings.toString()]);
-                    if (response !== "noSend") {
+                    if (parsed.send === true) {
                         response.writeHead(200, {"Content-Type": "text/plain"});
                         response.write(erSettings.toString());
                         response.end();
@@ -56,8 +56,10 @@ const library = {
                     return;
                 }
                 if (task === "users") {
-                    serverVars.users = users;
-                    if (response !== "noSend") {
+                    serverVars.users = (dataString.indexOf("{\"share-update\":") === 0)
+                        ? parsed["share-update"]
+                        : parsed.users;
+                    if (parsed.send === true) {
                         const keys:string[] = Object.keys(serverVars.users),
                             length:number = keys.length;
                         let a:number = 0;
@@ -85,7 +87,7 @@ const library = {
                     }
                     rename();
                 } else if (task === "settings") {
-                    const settings:ui_data = JSON.parse(dataString);
+                    const settings:ui_data = parsed.settings;
                     if (vars.command.indexOf("test") !== 0) {
                         serverVars.brotli = settings.brotli;
                         serverVars.hash = settings.hash;
@@ -95,19 +97,20 @@ const library = {
                     rename();
                 }
             };
-        let testSend:boolean = false,
-            parsed:storageData = JSON.parse(dataString),
-            data:storage = (dataString.indexOf("{\"share-update\":") === 0)
-                ? parsed["share-update"]
-                : parsed[task],
-            users:users = data.data;
+        let testSend:boolean = true,
+            parsed:storage = JSON.parse(dataString);
+        if (task === "share-update") {
+            parsed.send = false;
+            testSend = false;
+        }
         if (vars.command.indexOf("test") === 0) {
-            if (data.send === false) {
-                testSend = true;
+            if (parsed.send === false) {
+                parsed.send = true;
+                testSend = false;
             }
             writeCallback(null);
         } else {
-            vars.node.fs.writeFile(fileName, dataString, "utf8", writeCallback);
+            vars.node.fs.writeFile(fileName, JSON.stringify(parsed[task]), "utf8", writeCallback);
         }
     };
 

@@ -150,16 +150,14 @@ network.storage = function local_network_storage(type:storageType, send?:boolean
                 }
             }
         },
+        sendFlag: boolean = (send === false)
+            ? false
+            : true,
         payload:string = JSON.stringify({
-            [type]: {
-                data: (type === "settings")
-                    ? browser.data
-                    : browser[type],
-                send: (send === false)
-                    ? false
-                    : true
-            }
-        });
+            [type]: (type === "settings")
+                ? browser.data
+                : browser[type]
+        }).replace(/\}$/, `,"send":${sendFlag}}`);
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;

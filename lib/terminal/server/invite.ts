@@ -8,7 +8,7 @@ import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
-    const data:invite = JSON.parse(dataString),
+    const data:invite = JSON.parse(dataString).invite,
         inviteRequest = function local_server_invite_request():void {
             const payload:string = (data.action === "invite-request" || data.action === "invite-complete")
                     ? (function local_server_invite_request_payload():string {

@@ -24,7 +24,7 @@ declare global {
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
-    type storageType = "messages" | "settings" | "users";
+    type storageType = "messages" | "settings" | "share-update" | "users";
     type testListType = "service" | "simulation";
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
@@ -500,13 +500,10 @@ declare global {
         stack: string[];
     }
     interface storage {
-        agent: string;
-        copyAgent: string;
-        data: users;
+        messages?: messages;
+        settings?: ui_data;
         send: boolean;
-    }
-    interface storageData {
-        [key:string]: storage;
+        users?: users;
     }
     interface stringData {
         content: string;
@@ -575,8 +572,8 @@ declare global {
         agent: string;
         content: HTMLElement;
         focus?: HTMLElement;
-        history?: string[];
         height?: number;
+        history?: string[];
         id?: string;
         inputs?: ui_input[];
         left?: number;
