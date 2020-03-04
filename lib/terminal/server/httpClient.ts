@@ -80,9 +80,9 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 }
             }
             : config.responseError,
-        invite:string = (config.payload.indexOf("invite-request") === 0)
+        invite:string = (config.payload.indexOf("{\"invite\":{\"action\":\"invite-request\"") === 0)
             ? "invite-request"
-            : (config.payload.indexOf("invite-complete") === 0)
+            : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
                 : "",
         headers:Object = (invite === "")

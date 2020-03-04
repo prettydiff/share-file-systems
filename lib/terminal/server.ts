@@ -260,8 +260,7 @@ const library = {
                 httpServer.on("error", serverError);
                 httpServer.listen({
                     port: port,
-                    host: "::1",
-                    ipv6Only: true
+                    host: "::"
                 }, function terminal_server_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address();
                     serverVars.webPort = serverAddress.port;
@@ -272,7 +271,7 @@ const library = {
                     httpServer.port = serverAddress.port;
 
                     vars.ws = new WebSocket.Server({
-                        host: "localhost",
+                        host: "[::1]",
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {
 

@@ -35,11 +35,14 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             error = function local_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
                     modal:HTMLElement = document.getElementById("systems-modal"),
-                    tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
-                systems.message("errors", JSON.stringify({
-                    error: errorData.error,
-                    stack: errorData.stack
-                }), "websocket");
+                    tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
+                    payload:string = (errorData.error !== undefined && errorData.stack !== undefined)
+                        ? JSON.stringify({
+                            error: errorData.error,
+                            stack: errorData.stack
+                        })
+                        : JSON.stringify(errorData);
+                systems.message("errors", payload, "websocket");
                 if (modal.clientWidth > 0) {
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
                 }
