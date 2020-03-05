@@ -6,6 +6,7 @@ import vars from "../vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
+import storage from "./storage.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
@@ -78,18 +79,14 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         responseString = `Invitation received at start terminal ${serverVars.addresses[0][1][1]} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
         inviteRequest();
     } else if (data.action === "invite-request") {
-        vars.ws.broadcast(JSON.stringify({
-            "invite-request": dataString
-        }));
+        vars.ws.broadcast(dataString);
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
     } else if (data.action === "invite-response") {
         data.action = "invite-complete";
         responseString = `Invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
         inviteRequest();
     } else if (data.action === "invite-complete") {
-        vars.ws.broadcast(JSON.stringify({
-            "invite-request": dataString
-        }));
+        vars.ws.broadcast(dataString);
         responseString = `Invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
     }
      //log([responseString]);

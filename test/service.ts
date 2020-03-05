@@ -907,11 +907,32 @@ const //sep:string = vars.sep,
             name: "users, Local users storage without HTTP response",
             qualifier: "is",
             test: "users written with false response for testing."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "declined",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite - Local user invite",
+            qualifier: "is",
+            test: "Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ::1."
         }
         // todo
         // * heartbeat
         // * heartbeat-update
-        // * invite
         // * invite-request
         // * invite-response
         // * invite-complete

@@ -596,6 +596,14 @@ The invitation is made up of 4 services:
 }
 ```
 
+### Invitation Action
+The action property determines which set of instructions to execute the current stage in the process.
+
+* **invite** - The invitation is initiated by the browser.
+* **invite-request** - The invitation is received by the local node instance, is renamed from *invite* to *invite-request* and forwarded to the remote device.  The remote device then forwards the invitation to the browser for the user to handle.
+* **invite-response** - The user of the remote device has completed their decision and the invitation is routed back to the remote node instance.
+* **invite-complete** - The *invite-response* is renamed to *invite-complete* and sent to the originating node instance when then forwards it to the browser for the user's notification.
+
 ### Invitation Status
 The invitation *status* property will feature one of these values:
 

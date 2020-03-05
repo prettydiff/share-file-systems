@@ -4,8 +4,9 @@ import * as http from "http";
 import fileService from "./fileService.js";
 import serverVars from "./serverVars.js";
 
-const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
-    const location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
+const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, response:http.ServerResponse, dataString:string):void {
+    const data:fileService = JSON.parse(dataString).fs,
+        location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
             ? [data.name]
             : data.location,
         remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === "localhost") && data.agent.indexOf("remoteUser") === 0);
@@ -56,7 +57,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         }
     }
     if (location.length > 0 || data.agent === "localhost" || data.agent === serverVars.name) {
-        fileService(request, response, data);
+        fileService(response, data);
     } else {
         response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
         response.write(`{"id":"${data.id}","dirs":"noShare"}`);

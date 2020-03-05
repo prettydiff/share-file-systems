@@ -35,7 +35,7 @@ const library = {
         readFile: readFile,
         remove: remove
     },
-    fileService = function terminal_server_fileService(request:http.IncomingMessage, response:http.ServerResponse, data:fileService):void {
+    fileService = function terminal_server_fileService(response:http.ServerResponse, data:fileService):void {
         const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
                 const payload:string = (message.indexOf("Copy complete.") === 0)
                     ? JSON.stringify({

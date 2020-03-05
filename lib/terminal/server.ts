@@ -112,7 +112,7 @@ const library = {
                         storage(body, response, task);
                     } else if (task === "fs") {
                         // * file system interaction for both local and remote
-                        readOnly(request, response, JSON.parse(body).fs);
+                        readOnly(request, response, body);
                     } else if (task === "fs-update-remote") {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
@@ -144,15 +144,38 @@ const library = {
             },
             httpServer:httpServer = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, response:ServerResponse):void {
                 const postTest = function terminal_server_create_postTest():boolean {
+                    const host:string = (function terminal_server_create_postTest_host():string {
+                        const addresses:[string, string, string][] = serverVars.addresses[0],
+                            length:number = addresses.length;
+                        let a:number = 0,
+                            name:string = request.headers.host;
+                        if (name === "localhost" || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
+                            return "localhost";
+                        }
+                        if (name.indexOf(":") > 0) {
+                            name = name.slice(0, name.lastIndexOf(":"));
+                        }
+                        if (name.charAt(0) === "[") {
+                            name = name.slice(1, name.length - 1);
+                        }
+                        if (name === "::1" || name === "127.0.0.1") {
+                            return "localhost";
+                        }
+                        do {
+                            if (addresses[a][1] === name) {
+                                return "localhost";
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        return request.headers.host;
+                    }());
                     if (
                         request.method === "POST" && (
-                            request.headers.host === "localhost" ||
-                            request.headers.host.indexOf("[::1]") === 0 || (
-                                request.headers.host !== "localhost" && (
+                            host === "localhost" || (
+                                host !== "localhost" && (
                                     serverVars.users[<string>request.headers["user-name"]] !== undefined ||
                                     request.headers.invite === "invite-request" ||
-                                    request.headers.invite === "invite-complete" ||
-                                    (request.headers.host === "127.0.0.1" && request.headers["user-name"] === "localhost")
+                                    request.headers.invite === "invite-complete"
                                 )
                             )
                         )
@@ -171,7 +194,7 @@ const library = {
                         if (postTest() === true) {
                             post(request, response);
                         } else {
-                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_usersStat(err:nodeError):void {
+                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_delay_usersStat(err:nodeError):void {
                                 if (err === null) {
                                     forbiddenUser(<string>request.headers["user-name"], response);
                                 }

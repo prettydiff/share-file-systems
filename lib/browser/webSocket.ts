@@ -166,8 +166,8 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             heartbeat();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
-        } else if (event.data.indexOf("{\"invite-request\":") === 0) {
-            invite.respond(JSON.parse(event.data)["invite-request"]);
+        } else if (event.data.indexOf("{\"invite\":") === 0) {
+            invite.respond(event.data);
         } else if (event.data === "reload") {
             location.reload();
         } else if (event.data.indexOf("{\"share-update\":") === 0) {

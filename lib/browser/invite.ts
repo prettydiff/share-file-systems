@@ -12,7 +12,7 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
     let user:string = "";
     const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
-        invite:invite = JSON.parse(dataString);
+        invite:invite = JSON.parse(dataString).invite;
     network.inviteAccept({
         action: "invite-response",
         deviceKey: "",
@@ -38,6 +38,7 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
         shares: invite.shares
     };
     share.addUser(user);
+    network.storage("users", false);
 };
 
 /* Handler for declining an invitation request */
@@ -194,7 +195,7 @@ invite.request = function local_invite_request(options:ui_modal):void {
 
 /* Receive an invitation from another user */
 invite.respond = function local_invite_respond(message:string):void {
-    const invite:invite = JSON.parse(message);
+    const invite:invite = JSON.parse(message).invite;
     if (invite.status === "invited") {
         const div:HTMLElement = document.createElement("div"),
             modals:string[] = Object.keys(browser.data.modals),
@@ -277,6 +278,7 @@ invite.respond = function local_invite_respond(message:string):void {
                         }
                         util.audio("invite");
                         share.addUser(user);
+                        network.storage("users", false);
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");

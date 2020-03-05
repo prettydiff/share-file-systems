@@ -105,7 +105,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.send(JSON.stringify({
-        "invite-response": configuration
+        invite: configuration
     }));
 };
 
