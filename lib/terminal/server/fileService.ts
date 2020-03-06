@@ -344,13 +344,7 @@ const library = {
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
                         const fileName:string = fileQueue[index][0];
                         vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
-                            const filePlural:string = (countFile === 1)
-                                    ? ""
-                                    : "s",
-                                hashFailLength:number = hashFail.length,
-                                hashFailPlural:string = (hashFailLength === 1)
-                                    ? ""
-                                    : "s";
+                            const hashFailLength:number = hashFail.length;
                             if (wr !== null) {
                                 library.log([`Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
                                 vars.ws.broadcast(JSON.stringify({
@@ -362,7 +356,7 @@ const library = {
                                     failures: [],
                                     message: copyMessage({
                                         countFile: countFile,
-                                        failures: hashFail.length,
+                                        failures: hashFailLength,
                                         percent: ((writtenSize / fileData.fileSize) * 100),
                                         writtenSize: writtenSize
                                     }),

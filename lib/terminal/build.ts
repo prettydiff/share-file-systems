@@ -122,7 +122,7 @@ const library = {
                 if (order[type].length < 1) {
                     if (vars.command === "build") {
                         vars.verbose = true;
-                        heading(`${vars.text.none}All ${vars.text.green + vars.text.bold + type + vars.text.none} tasks complete... Exiting clean!\u0007`);
+                        heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
                         library.log([""], true);
                         process.exit(0);
                         return;
