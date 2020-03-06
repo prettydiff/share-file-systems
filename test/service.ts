@@ -917,7 +917,7 @@ const //sep:string = vars.sep,
                     modal: "test-modal",
                     port: 80,
                     shares: [],
-                    status: "declined",
+                    status: "invited",
                     type: "user",
                     userHash: "",
                     userName: ""
@@ -926,13 +926,164 @@ const //sep:string = vars.sep,
             name: "invite, invite - Local user invite",
             qualifier: "is",
             test: "Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ::1."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-request",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "invited",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-request - Local user invite request",
+            qualifier: "is",
+            test: "Invitation received at remote terminal ::1 and sent to remote browser."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-response",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "declined",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-response - Local user invite response, declined",
+            qualifier: "is",
+            test: "Declined invitation response processed at remote terminal ::1 and sent to start terminal."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-response",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "accepted",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-response - Local user invite response, accepted",
+            qualifier: "is",
+            test: "Accepted invitation response processed at remote terminal ::1 and sent to start terminal."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-response",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "invited",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-response - Local user invite response, ignored",
+            qualifier: "is",
+            test: "Ignored invitation response processed at remote terminal ::1 and sent to start terminal."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-complete",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "declined",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-complete - Local user invite complete, declined",
+            qualifier: "is",
+            test: "Declined invitation sent to from start terminal XXXX to start browser."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-complete",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "accepted",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-complete - Local user invite complete, accepted",
+            qualifier: "is",
+            test: "Accepted invitation sent to from start terminal XXXX to start browser."
+        },
+        {
+            command: {
+                invite: {
+                    action: "invite-complete",
+                    deviceKey: "",
+                    deviceName: "",
+                    message: "Hello",
+                    name: "",
+                    ip: "::1",
+                    modal: "test-modal",
+                    port: 80,
+                    shares: [],
+                    status: "invited",
+                    type: "user",
+                    userHash: "",
+                    userName: ""
+                }
+            },
+            name: "invite, invite-complete - Local user invite complete, ignored",
+            qualifier: "is",
+            test: "Ignored invitation sent to from start terminal XXXX to start browser."
         }
         // todo
         // * heartbeat
         // * heartbeat-update
-        // * invite-request
-        // * invite-response
-        // * invite-complete
     ];
 
 services.addServers = function test_services_addServers(callback:Function):void {

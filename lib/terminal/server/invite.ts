@@ -82,12 +82,22 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         vars.ws.broadcast(dataString);
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
     } else if (data.action === "invite-response") {
+        const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`
         data.action = "invite-complete";
-        responseString = `Invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
+        responseString = (data.status === "accepted")
+            ? `Accepted${respond}`
+            : (data.status === "declined")
+                ? `Declined${respond}`
+                : `Ignored${respond}`;
         inviteRequest();
     } else if (data.action === "invite-complete") {
+        const respond:string = ` invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
         vars.ws.broadcast(dataString);
-        responseString = `Invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
+        responseString = (data.status === "accepted")
+            ? `Accepted${respond}`
+            : (data.status === "declined")
+                ? `Declined${respond}`
+                : `Ignored${respond}`;
     }
      //log([responseString]);
     response.write(responseString);
