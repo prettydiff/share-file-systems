@@ -100,6 +100,12 @@ declare global {
     interface contextNew extends EventHandlerNonNull {
         (Event, element?:HTMLElement, type?:string): void;
     }
+    interface completeStatus {
+        countFile: number;
+        failures: number;
+        percent: number;
+        writtenSize: number;
+    }
     interface copyStatus {
         failures:string[];
         message:string;

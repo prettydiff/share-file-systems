@@ -36,7 +36,19 @@ const library = {
         remove: remove
     },
     fileService = function terminal_server_fileService(response:http.ServerResponse, data:fileService):void {
-        const fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
+        const copyMessage = function (numbers:completeStatus):string {
+                const filePlural:string = (numbers.countFile === 1)
+                        ? ""
+                        : "s",
+                    failPlural:string = (numbers.failures === 1)
+                        ? ""
+                        : "s",
+                    verb:string = (numbers.percent === 100)
+                        ? "Copy"
+                        : `Copying ${numbers.percent.toFixed(2)}%`;
+                return `${verb} complete. ${library.commas(numbers.countFile)} file${filePlural} written at size ${library.prettyBytes(numbers.writtenSize)} (${library.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
+            },
+            fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
                 const payload:string = (message.indexOf("Copy complete.") === 0)
                     ? JSON.stringify({
                         "file-list-status": {
@@ -285,16 +297,14 @@ const library = {
                     listLength = fileData.list.length,
                     cutList:[string, string][] = [],
                     respond = function terminal_server_fileService_requestFiles_respond():void {
-                        const filePlural:string = (countFile === 1)
-                                ? ""
-                                : "s",
-                            hashFailLength:number = hashFail.length,
-                            hashFailPlural:string = (hashFailLength === 1)
-                                ? ""
-                                : "s",
-                            output:copyStatus = {
+                        const output:copyStatus = {
                                 failures: hashFail,
-                                message: `Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with ${hashFailLength} failure${hashFailPlural}.`,
+                                message: copyMessage({
+                                    countFile: countFile,
+                                    failures: hashFail.length,
+                                    percent: 100,
+                                    writtenSize: writtenSize
+                                }),
                                 target: `local-${data.name.replace(/\\/g, "\\\\")}`
                             },
                             cut = function terminal_server_fileService_requestFiles_respond_cut():void {
@@ -350,7 +360,12 @@ const library = {
                             } else {
                                 const output:copyStatus = {
                                     failures: [],
-                                    message: `Copying ${((writtenSize / fileData.fileSize) * 100).toFixed(2)}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
+                                    message: copyMessage({
+                                        countFile: countFile,
+                                        failures: hashFail.length,
+                                        percent: ((writtenSize / fileData.fileSize) * 100),
+                                        writtenSize: writtenSize
+                                    }),
                                     target: `local-${data.name.replace(/\\/g, "\\\\")}`
                                 };
                                 cutList.push([fileQueue[index][2], "file"]);
@@ -397,20 +412,17 @@ const library = {
                             fileResponse.pipe(writeStream);
                         }
                         fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data():void {
-                            const filePlural:string = (countFile === 1)
-                                    ? ""
-                                    : "s",
-                                hashFailLength:number = hashFail.length,
-                                hashFailPlural:string = (hashFailLength === 1)
-                                    ? ""
-                                    : "s",
-                                written:number = writeStream.bytesWritten + writtenSize,
-                                complete:string = (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
-                                    ? "100"
-                                    : ((written / fileData.fileSize) * 100).toFixed(2),
+                            const written:number = writeStream.bytesWritten + writtenSize,
                                 output:copyStatus = {
                                     failures: [],
-                                    message: `Copying ${complete}% complete for ${fileData.fileCount} files. ${countFile} file${filePlural} written at size ${library.prettyBytes(written)} (${library.commas(written)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`,
+                                    message: copyMessage({
+                                        countFile: countFile,
+                                        failures: hashFail.length,
+                                        percent: (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                                            ? 100
+                                            : ((written / fileData.fileSize) * 100),
+                                        writtenSize: written
+                                    }),
                                     target: `local-${data.name.replace(/\\/g, "\\\\")}`
                                 };
                             vars.ws.broadcast(JSON.stringify({
@@ -500,17 +512,14 @@ const library = {
                             : fileRequestCallback;
                         data.depth = fileData.list[a][3];
                         if (data.copyAgent !== "localhost") {
-                            const filePlural:string = (countFile === 1)
-                                    ? ""
-                                    : "s",
-                                hashFailLength:number = hashFail.length,
-                                hashFailPlural:string = (hashFailLength === 1)
-                                    ? ""
-                                    : "s",
-                                complete:string = (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
-                                    ? "100"
-                                    : ((writtenSize / fileData.fileSize) * 100).toFixed(2);
-                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|Copying ${complete}% complete. ${countFile} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) and ${library.commas(hashFailLength)} integrity failure${hashFailPlural}.`;
+                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|${copyMessage({
+                                countFile: countFile,
+                                failures: hashFail.length,
+                                percent: (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                                    ? 100
+                                    : ((writtenSize / fileData.fileSize) * 100),
+                                writtenSize: writtenSize
+                            })}`;
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
@@ -577,11 +586,12 @@ const library = {
                             ? 0
                             : writtenSize + fileSize;
                         if (count === length) {
-                            const filePlural:string = (countFile === 1)
-                                    ? ""
-                                    : "s",
-                                message = `Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures.`;
-                            fileCallback(message);
+                            fileCallback(copyMessage({
+                                countFile: countFile,
+                                failures: 0,
+                                percent: 100,
+                                writtenSize: writtenSize
+                            }));
                         }
                     };
                     library.copy({

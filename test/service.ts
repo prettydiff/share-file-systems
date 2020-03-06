@@ -115,7 +115,7 @@ const //sep:string = vars.sep,
             test: {
                 "file-list-status": {
                     "failures": [],
-                    "message": "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX failures.",
+                    "message": "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
                     "target": "remote-test-ID"
                 }
             }
@@ -136,14 +136,11 @@ const //sep:string = vars.sep,
             name: "fs:fs-copy, Copy Local to Remote",
             qualifier: "is",
             test: {
-                id: {
-                    "file-list-status": {
-                        failures: [],
-                        message: "Copying 100% complete. XXXX files written at size XXXX (XXXX bytes) and XXXX integrity failures.",
-                        target: `local-${projectPath.replace(/\\/g, "\\\\")}storage`
-                    }
-                },
-                dirs: "missing"
+                "file-list-status": {
+                    failures: [],
+                    message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
+                    target: `remote-test-ID`
+                }
             }
         },
         {
@@ -164,7 +161,7 @@ const //sep:string = vars.sep,
             test: {
                 "file-list-status": {
                     failures: [],
-                    message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX failures.",
+                    message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
                     target: "remote-test-ID"
                 }
             }
