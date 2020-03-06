@@ -66,7 +66,7 @@ const library = {
                         do {
                             if (keys[a] !== "localhost") {
                                 httpClient({
-                                    callback: function terminal_server_storage_callback():void {
+                                    callback: function terminal_server_storage_writeStorage_callback():void {
                                         return;
                                     },
                                     callbackType: "body",
@@ -79,6 +79,12 @@ const library = {
                                         }
                                     }),
                                     remoteName: keys[a],
+                                    requestError: function terminal_server_storage_writeStorage_requestError(error:nodeError, remoteName:string):void {
+                                        library.error([
+                                            `Error responding to share-update for user: ${remoteName}.`,
+                                            error.toString()
+                                        ]);
+                                    },
                                     response: response
                                 });
                             }

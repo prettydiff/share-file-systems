@@ -4,11 +4,15 @@ import * as http from "http";
 import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
 
+import error from "../error.js";
 import log from "../log.js";
 import vars from "../vars.js";
 
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
     const ip:string = (function terminal_server_httpClient_ip():string {
+            if (vars.command.indexOf("test") === 0) {
+                return "::1";
+            }
             let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
             if (address.charAt(0) === "[") {
                 address = address.slice(1, address.length - 1);
@@ -42,7 +46,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 });
                 fsResponse.on("error", responseError);
             },
-        requestError = (config.payload.indexOf("share-exchange:") === 0)
+        requestError = (config.payload.indexOf("{\"share-update\":") === 0)
             ? function terminal_server_httpClient_shareRequestError(errorMessage:nodeError):void {
                 config.requestError(errorMessage, config.remoteName);
             }
@@ -107,11 +111,16 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             port: port,
             timeout: 1000
         }, callback);
-    fsRequest.on("error", requestError);
-    fsRequest.write(config.payload);
-    setTimeout(function terminal_server_httpClient_delay():void {
+    if (fsRequest.writableEnded === true) {
+        error([
+            "Attempt to write to HTTP request after end:",
+            config.payload.toString()
+        ]);
+    } else {
+        fsRequest.on("error", requestError);
+        fsRequest.write(config.payload);
         fsRequest.end();
-    }, 100);
+    }
 };
 
 export default httpClient;

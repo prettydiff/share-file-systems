@@ -424,7 +424,12 @@ const library = {
                                                 callbackType: "body",
                                                 errorMessage: `User ${users[a]} is offline or unreachable.`,
                                                 id: "",
-                                                payload: `share-exchange:{"user":"${serverVars.name}","shares":${JSON.stringify(serverVars.users.localhost.shares)}}`,
+                                                payload: JSON.stringify({
+                                                    "share-update": {
+                                                        user: serverVars.name,
+                                                        shares: serverVars.users.localhost.shares
+                                                    }
+                                                }),
                                                 remoteName: users[a],
                                                 requestError: requestError,
                                                 responseError: responseError
