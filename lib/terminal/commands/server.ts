@@ -87,26 +87,29 @@ const library = {
                         }
                     });
 
-                request.on('end', function terminal_server_create_end():void {
+                request.on('end', function terminal_server_create_end():void {console.log(body);
                     let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
                     if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                         // * Send and receive heartbeat signals
-                        const heartbeatData:heartbeat = JSON.parse(body);
+                        const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
                         serverVars.status = heartbeatData.status;
-                        heartbeat(heartbeatData);
+                        if (serverVars.users[heartbeatData.agent] !== undefined) {
+                            heartbeat(heartbeatData);
+                        }
                     } else if (task === "heartbeat-update") {
                         // * Respond to heartbeat changes as a result of a page load
-                        const heartbeatData:heartbeat = JSON.parse(body);
+                        const heartbeatData:heartbeat = JSON.parse(body),
+                            payload:string = JSON.stringify({
+                                "heartbeat-update": {
+                                    agent: heartbeatData["heartbeat-update"].agent,
+                                    refresh: false,
+                                    status: serverVars.status,
+                                    user: serverVars.name
+                                }
+                            });
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(JSON.stringify({
-                            "heartbeat-update": {
-                                agent: heartbeatData.agent,
-                                refresh: false,
-                                status: serverVars.status,
-                                user: serverVars.name
-                            }
-                        }));
+                        response.write(payload);
                         response.end();
                     } else if (task === "settings" || task === "messages" || task === "users") {
                         // * local: Writes changes to storage files
@@ -130,7 +133,12 @@ const library = {
                         // * local : Updates local share modals and updates the storage/users.json file
                         const update:shareUpdate = JSON.parse(body)["share-update"];
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`Received share update from ${update.user}`);
+                        response.write(JSON.stringify({
+                            "share-update": {
+                                user: serverVars.name,
+                                shares: serverVars.users.localhost.shares
+                            }
+                        }));
                         response.end();
                         vars.ws.broadcast(body);
                         if (vars.command.indexOf("test") !== 0) {
@@ -138,7 +146,7 @@ const library = {
                         }
                         storage(body, response, "users");
                     } else if (task === "invite") {
-                        // * Handle all stages of user invitation
+                        // * Handle all stages of invitation
                         invite(body, response);
                     }
                 });
@@ -344,7 +352,9 @@ const library = {
                                             : `${serverVars.addresses[0][0][1]}:${serverVars.webPort}`;
                                     serverVars.brotli = settings.brotli;
                                     serverVars.hash = settings.hash;
-                                    serverVars.name = `${settings.name}@${address}`;
+                                    serverVars.name = (vars.command.indexOf("test") === 0)
+                                        ? `localTest@[::1]:${serverVars.webPort}`
+                                        : `${settings.name}@${address}`;
                                     
                                     if (serverCallback !== undefined) {
                                         serverCallback();

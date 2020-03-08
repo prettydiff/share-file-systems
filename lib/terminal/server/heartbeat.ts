@@ -18,7 +18,7 @@ const library = {
                 agent: data.agent,
                 refresh: data.refresh,
                 status: data.status,
-                user:serverVars.name
+                user: serverVars.name
             };
         library.httpClient({
             callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {

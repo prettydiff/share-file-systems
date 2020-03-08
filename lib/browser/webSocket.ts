@@ -122,8 +122,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
             },
             heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeats:string[] = JSON.parse(event.data)["heartbeat-update"],
-                    heartbeat:heartbeat = JSON.parse(heartbeats[heartbeats.length - 1]),
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-update"],
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                     length:number = buttons.length;
                 let a:number = 0;

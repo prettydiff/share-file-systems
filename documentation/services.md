@@ -533,6 +533,30 @@ The heartbeat makes use of two services:
 * **heartbeat** - The heartbeat is the regular interval status update as an HTTP request.
 * **heartbeat-update** - The heartbeat update is the HTTP response to a heartbeat request.  This allows the application to know if a user has gone offline or if they have changed status from offline to anything else.
 
+### Heartbeat Example
+```json
+{
+   "heartbeat": {
+      "agent"  : "remoteUser",
+      "refresh": false,
+      "status" : "active",
+      "user"   : "localhost"
+   }
+}
+```
+
+### Heartbeat Schema
+```json
+{
+   "heartbeat": {
+      "agent"  : "remoteUser",
+      "refresh": false,
+      "status" : "active",
+      "user"   : "localhost"
+   }
+}
+```
+
 
 ---
 
