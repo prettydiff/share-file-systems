@@ -87,7 +87,7 @@ const library = {
                         }
                     });
 
-                request.on('end', function terminal_server_create_end():void {console.log(body);
+                request.on('end', function terminal_server_create_end():void {
                     let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
                     if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
                         // * Send and receive heartbeat signals
@@ -96,7 +96,7 @@ const library = {
                         if (serverVars.users[heartbeatData.agent] !== undefined) {
                             heartbeat(heartbeatData);
                         }
-                    } else if (task === "heartbeat-update") {
+                    } else if (task === "heartbeat-update") {console.log("post - "+serverVars.name);
                         // * Respond to heartbeat changes as a result of a page load
                         const heartbeatData:heartbeat = JSON.parse(body),
                             payload:string = JSON.stringify({
@@ -109,7 +109,9 @@ const library = {
                             });
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(payload);
+                        if (serverVars.users[heartbeatData["heartbeat-update"].agent] !== undefined) {
+                            response.write(payload);
+                        }
                         response.end();
                     } else if (task === "settings" || task === "messages" || task === "users") {
                         // * local: Writes changes to storage files
@@ -132,19 +134,21 @@ const library = {
                         // * remote: Changes to the remote user's shares
                         // * local : Updates local share modals and updates the storage/users.json file
                         const update:shareUpdate = JSON.parse(body)["share-update"];
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(JSON.stringify({
-                            "share-update": {
-                                user: serverVars.name,
-                                shares: serverVars.users.localhost.shares
+                        if (serverVars.users[update.user] !== undefined) {
+                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                            response.write(JSON.stringify({
+                                "share-update": {
+                                    user: serverVars.name,
+                                    shares: serverVars.users.localhost.shares
+                                }
+                            }));
+                            vars.ws.broadcast(body);
+                            if (vars.command.indexOf("test") !== 0) {
+                                serverVars.users[update.user].shares = update.shares;
                             }
-                        }));
-                        response.end();
-                        vars.ws.broadcast(body);
-                        if (vars.command.indexOf("test") !== 0) {
-                            serverVars.users[update.user].shares = update.shares;
+                            storage(body, response, "users");
                         }
-                        storage(body, response, "users");
+                        response.end();
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
                         invite(body, response);
@@ -362,26 +366,30 @@ const library = {
                                         logOutput();
                                     } else {
                                         const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(responseBody:Buffer|string):void {
-                                                const userData:userExchange = JSON.parse(<string>responseBody);
-                                                count = count + 1;
-                                                if (count === length) {
-                                                    allUsers();
+                                                if (responseBody !== "") {
+                                                    const userData:userExchange = JSON.parse(<string>responseBody)["share-update"];
+                                                    count = count + 1;
+                                                    if (count === length) {
+                                                        allUsers();
+                                                    }
+                                                    if (serverVars.users[userData.user] !== undefined) {
+                                                        serverVars.users[userData.user].shares = userData.shares;
+                                                        vars.ws.broadcast(JSON.stringify({
+                                                            "heartbeat-update": {
+                                                                agent: userData.agent,
+                                                                refresh: false,
+                                                                status: userData.status,
+                                                                user: userData.user
+                                                            }
+                                                        }));
+                                                        vars.ws.broadcast(JSON.stringify({
+                                                            "share-update": {
+                                                                user: userData.user,
+                                                                shares: userData.shares
+                                                            }
+                                                        }));
+                                                    }
                                                 }
-                                                serverVars.users[userData.user].shares = userData.shares;
-                                                vars.ws.broadcast(JSON.stringify({
-                                                    "heartbeat-update": {
-                                                        agent: userData.agent,
-                                                        refresh: false,
-                                                        status: userData.status,
-                                                        user: userData.user
-                                                    }
-                                                }));
-                                                vars.ws.broadcast(JSON.stringify({
-                                                    "share-update": {
-                                                        user: userData.user,
-                                                        shares: userData.shares
-                                                    }
-                                                }));
                                             },
                                             responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
                                                 count = count + 1;
