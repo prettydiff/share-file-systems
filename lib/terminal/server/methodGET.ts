@@ -1,11 +1,12 @@
 
+/* lib/terminal/server/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
 import { Stats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
-import error from "../error.js";
-import log from "../log.js";
-import readFile from "../readFile.js";
-import vars from "../vars.js";
+import error from "../utilities/error.js";
+import log from "../utilities/log.js";
+import readFile from "../utilities/readFile.js";
+import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
 

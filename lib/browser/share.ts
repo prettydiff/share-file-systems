@@ -1,4 +1,5 @@
 
+/* lib/browser/share - The utilities that manage and coordinate changes to user share data. */
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";

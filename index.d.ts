@@ -115,6 +115,12 @@ declare global {
         [index:number]: directoryItem;
         failures?: string[];
     }
+    interface docItem {
+        description: string,
+        name: string,
+        namePadded: string;
+        path: string
+    }
     interface Document {
         getNodesByType: Function;
         getElementsByAttribute: Function;

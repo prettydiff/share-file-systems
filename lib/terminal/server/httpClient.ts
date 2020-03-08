@@ -1,12 +1,13 @@
 
+/* lib/terminal/server/httpClient - A library for handling all child HTTP requests. */
 import * as http from "http";
 
 import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
 
-import error from "../error.js";
-import log from "../log.js";
-import vars from "../vars.js";
+import error from "../utilities/error.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
     const ip:string = (function terminal_server_httpClient_ip():string {

@@ -1,8 +1,9 @@
 
+/* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
 import * as http from "http";
 
-import log from "../log.js";
-import vars from "../vars.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";

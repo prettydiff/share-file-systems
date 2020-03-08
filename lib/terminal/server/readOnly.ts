@@ -1,4 +1,5 @@
 
+/* lib/terminal/server/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
 import * as http from "http";
 
 import fileService from "./fileService.js";

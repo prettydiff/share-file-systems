@@ -1,3 +1,5 @@
+
+/* lib/browser/fs - A collection of utilities for handling file system related tasks in the browser. */
 import { Stats } from "fs";
 
 import browser from "./browser.js";

@@ -1,9 +1,9 @@
 
-
+/* lib/terminal/server/serverVars - A library of variables globally available for all server related tasks. */
 import { NetworkInterfaceInfo } from "os";
 import { Socket } from "net";
 
-import vars from "../vars.js";
+import vars from "../utilities/vars.js";
 
 interface socketList {
     [key:string]: Socket;

@@ -1,3 +1,5 @@
+
+/* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
 import browser from "./browser.js";
 import context from "./context.js";
 import systems from "./systems.js";

@@ -1,4 +1,5 @@
 
+/* lib/browser/settings - A collection of utilities and event handlers associated with processing the users application state and system settings. */
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";

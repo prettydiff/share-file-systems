@@ -1,4 +1,5 @@
 
+/* lib/browser/invite - A collection of utilities for processing invitation related tasks. */
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";

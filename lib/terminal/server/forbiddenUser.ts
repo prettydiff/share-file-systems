@@ -1,7 +1,8 @@
 
+/* lib/terminal/server/forbiddenUser - A single function for handling rejected HTTP responses associated with disallowed requests. */
 import { ServerResponse } from "http";
 
-import vars from "../vars.js";
+import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";

@@ -1,3 +1,5 @@
+
+/* lib/browser/getNodesByType - An extension for the DOM to request descendant nodes by node type. */
 const getNodesByType = function local_getNodesByType():void {
     const typeFunction = function local_getNodesByType_typeFunction(typeValue:string|number):Node[] {
             let types:number     = 0;
@@ -120,6 +122,13 @@ const getNodesByType = function local_getNodesByType():void {
     // Ensure dynamically created elements get this method too
     Element.prototype.getNodesByType         = typeFunction;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
+
+    // Disabling addEventListener via reassignment because the preferred pattern is directly assigning handlers to the respective events
+    Element.prototype.addEventListener       = function local_getNodesByType_addEventListener():Element {
+        // eslint-disable-next-line
+        console.log(`addEventListener used on ${this}\naddEventListener is not supported in this application.`);
+        return undefined;
+    }; 
 
 }
 

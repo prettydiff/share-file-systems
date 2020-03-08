@@ -1,9 +1,10 @@
 
+/* lib/terminal/server/storage - A library for writing data to storage. */
 import { ServerResponse } from "http";
 
-import error from "../error.js";
-import log from "../log.js";
-import vars from "../vars.js";
+import error from "../utilities/error.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";

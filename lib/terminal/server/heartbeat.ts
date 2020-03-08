@@ -1,7 +1,8 @@
 
-import error from "../error.js";
-import log from "../log.js";
-import vars from "../vars.js";
+/* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
+import error from "../utilities/error.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";

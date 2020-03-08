@@ -1,8 +1,9 @@
 
-import directory from "../directory.js";
-import error from "../error.js";
-import log from "../log.js";
-import vars from "../vars.js";
+/* lib/terminal/server/serverWatch - A library that establishes a file system watch respective to the application itself. */
+import directory from "../commands/directory.js";
+import error from "../utilities/error.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
 

@@ -1,22 +1,23 @@
 
+/* lib/terminal/server/fileService - This library executes various file system related services and actions. */
 import { Hash } from "crypto";
 import * as fs from "fs";
 import * as http from "http";
 import { Stream, Writable } from "stream";
 import * as zlib from "zlib";
 
-import base64 from "../base64.js";
+import base64 from "../commands/base64.js";
 import commas from "../../common/commas.js";
-import copy from "../copy.js";
-import directory from "../directory.js";
-import error from "../error.js";
-import hash from "../hash.js";
-import log from "../log.js";
-import makeDir from "../makeDir.js";
+import copy from "../commands/copy.js";
+import directory from "../commands/directory.js";
+import error from "../utilities/error.js";
+import hash from "../commands/hash.js";
+import log from "../utilities/log.js";
+import makeDir from "../utilities/makeDir.js";
 import prettyBytes from "../../common/prettyBytes.js";
-import readFile from "../readFile.js";
-import remove from "../remove.js";
-import vars from "../vars.js";
+import readFile from "../utilities/readFile.js";
+import remove from "../commands/remove.js";
+import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";

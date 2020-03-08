@@ -1,4 +1,5 @@
 
+/* lib/browser/systems - The systems messaging utility is managed by these methods. */
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
