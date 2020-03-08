@@ -161,25 +161,34 @@ const library = {
                         }()),
                         agent:string = testItem.command[keyword].agent,
                         command:string = (function test_testListRunner_service_command():string {
-                            if (agent === "localhost") {
-                                testItem.command[keyword].agent = `localhost`;
-                            } else {
-                                testItem.command[keyword].agent = `${testItem.command[keyword].agent}@[::1]:${services.serverRemote.port}`;
+                            if (testItem.command[keyword].agent !== undefined) {
+                                if (agent === "localhost") {
+                                    testItem.command[keyword].agent = `localhost`;
+                                } else {
+                                    testItem.command[keyword].agent = `${testItem.command[keyword].agent}@[::1]:${services.serverRemote.port}`;
+                                }
                             }
-                            if (testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost") {
+                            if ((testItem.command[keyword].copyAgent !== undefined || testItem.command["fs-update-remote"] !== undefined) && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost") {
                                 testItem.command[keyword].copyAgent = `${testItem.command[keyword].copyAgent}@[::1]:${services.serverRemote.port}`;
                             }
-                            return JSON.stringify(testItem.command);
+                            if (keyword === "invite") {
+                                if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
+                                    testItem.command.invite.port = services.serverRemote.port;
+                                } else {
+                                    testItem.command.invite.port = services.serverLocal.port;
+                                }
+                            }
+                            return JSON.stringify(testItem.command).replace(/remoteUser\":/g, `remoteUser@[::1]:${services.serverRemote.port}\":`);
                         }()),
                         name:string = (testItem.name === undefined)
                             ? command
                             : testItem.name,
-                        header = (agent === "localhost")
+                        header = (agent === "localhost" || agent === undefined)
                             ? {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
                                 "user-name": "localUser",
-                                "remote-user": (testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost")
+                                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost")
                                     ? testItem.command[keyword].copyAgent
                                     : "localUser"
                             }

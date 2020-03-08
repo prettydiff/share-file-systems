@@ -57,9 +57,11 @@ const library = {
                     return;
                 }
                 if (task === "users") {
-                    serverVars.users = (dataString.indexOf("{\"share-update\":") === 0)
-                        ? parsed["share-update"]
-                        : parsed.users;
+                    if (dataString.indexOf("{\"share-update\":") === 0) {
+                        serverVars.users[parsed["share-update"].user] === parsed["share-update"].shares;
+                    } else {
+                        serverVars.users = parsed.users;
+                    };
                     if (parsed.send === true) {
                         const keys:string[] = Object.keys(serverVars.users),
                             length:number = keys.length;

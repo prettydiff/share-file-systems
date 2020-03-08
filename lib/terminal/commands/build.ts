@@ -195,6 +195,7 @@ const library = {
                                     }
                                     const index:number = readme.indexOf("Contents dynamically populated.") + "Contents dynamically populated.".length;
                                     readme = readme.slice(0, index) + `\n\n${fileList}`;
+                                    // Sixth, write the documentation to each respective file
                                     vars.node.fs.writeFile(filePath, readme, "utf8", function terminal_build_libReadme_write_readFile_writeFile(erWrite:nodeError):void {
                                         if (erWrite !== null) {
                                             library.error([
@@ -206,6 +207,7 @@ const library = {
                                         library.log([`${library.humanTime(false)}Updated ${filePath}`]);
                                         writeEnd = writeEnd + 1;
                                         if (writeEnd === writeStart) {
+                                            // Finally, once all the readme.md files are written write one file master documentation for all library files
                                             masterList();
                                         }
                                     });
@@ -230,12 +232,14 @@ const library = {
                                     path:string[] = comment.slice(0, dashIndex).split("/"),
                                     name:string = path.pop();
                                 fileEnd = fileEnd + 1;
+                                // Fourth, build the necessary data structure from reach the first comment of each file
                                 files.push({
                                     description: comment.slice(dashIndex + 3),
                                     name: name,
                                     namePadded: `* **[${name}.ts](${name}.ts)**`,
                                     path: path.join("/")
                                 });
+                                // Fifth, once all TypeScript files are read the respective documentation content must be built
                                 if (fileEnd === fileStart) {
                                     files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):number {
                                         if (x.path < y.path) {
@@ -251,17 +255,8 @@ const library = {
                                         c:number = 0,
                                         longest:number = files[a].name.length,
                                         list:string[] = [];
-                                    const fileLength:number = files.length;
-                                    master = files[a].path.length + files[a].name.length
-                                    do {
-                                        if (files[a].path === files[a - 1].path) {
-                                            if (files[a].name.length > longest) {
-                                                longest = files[a].name.length;
-                                            }
-                                            if (files[a].path.length + files[a].name.length > master) {
-                                                master = files[a].path.length + files[a].name.length;
-                                            }
-                                        } else {
+                                    const fileLength:number = files.length,
+                                        buildList = function terminal_build_libReadme_readFile_buildList():void {
                                             do {
                                                 c = files[b].name.length;
                                                 if (c < longest) {
@@ -274,15 +269,28 @@ const library = {
                                                 b = b + 1;
                                             } while (b < a);
                                             write(files[b - 1].path, list.join("\n"));
+                                        };
+                                    master = files[a].path.length + files[a].name.length
+                                    do {
+                                        if (files[a].path === files[a - 1].path) {
+                                            if (files[a].name.length > longest) {
+                                                longest = files[a].name.length;
+                                            }
+                                            if (files[a].path.length + files[a].name.length > master) {
+                                                master = files[a].path.length + files[a].name.length;
+                                            }
+                                        } else {
+                                            buildList();
                                             list = [];
                                             longest = 0;
                                         }
                                         a = a + 1;
                                     } while (a < fileLength);
-                                    write(files[b - 1].path, list.join("\n"));
+                                    buildList();
                                 }
                             },
                             files:docItem[] = [];
+                        // Second, sort the directory data first by file types and then alphabetically
                         dirList.sort(function terminal_build_libReadme_dirs_sort(x:directoryItem, y:directoryItem):number {
                             if (x[1] === "file" && y[1] !== "file") {
                                 return -1;
@@ -292,6 +300,7 @@ const library = {
                             }
                             return 1;
                         });
+                        // Third, read from each of the TypeScript files and direct output to readFile function
                         do {
                             if (dirList[a][1] === "file" && dirList[a][0].slice(dirList[a][0].length - 3) === ".ts") {
                                 fileStart = fileStart + 1;
@@ -300,6 +309,7 @@ const library = {
                             a = a + 1;
                         } while (a < length);
                     };
+                    // First, get the file system data for the lib directory and then direct output to the dirs function
                     library.directory({
                         callback: dirs,
                         depth: 0,

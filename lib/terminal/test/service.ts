@@ -1081,7 +1081,20 @@ const //sep:string = vars.sep,
             name: "invite, invite-complete - Local user invite complete, ignored",
             qualifier: "is",
             test: "Ignored invitation sent to from start terminal XXXX to start browser."
-        }
+        }/*,
+        {
+            command: {
+                heartbeat: {
+                    agent: "remoteUser",
+                    refresh: false,
+                    status: "active",
+                    user: "localhost"
+                }
+            },
+            name: "heartbeat, Local to Remote",
+            qualifier: "is",
+            test: "Ignored invitation sent to from start terminal XXXX to start browser."
+        }*/
         // todo
         // * heartbeat
         // * heartbeat-update
