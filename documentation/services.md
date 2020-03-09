@@ -533,6 +533,19 @@ The heartbeat makes use of two services:
 * **heartbeat** - The heartbeat is the regular interval status update as an HTTP request.
 * **heartbeat-update** - The heartbeat update is the HTTP response to a heartbeat request.  This allows the application to know if a user has gone offline or if they have changed status from offline to anything else.
 
+### Heartbeat Process
+1. Heartbeat is initiated by a timed interval from the browser or if the current user status is *idle* and changes to *active*.
+1. The heartbeat is transmitted to the local terminal instance of the application where it is repackaged to these criteria:
+   * The name of the object is renamed from *heartbeat* to *heartbeat-update*.
+   * The user data property, which is an empty string, becomes the value of the data agent property.
+   * The agent data property value becomes the remote user's name.
+1. This new *heartbeat-update* object is sent to the remote user terminal application and then passed to the remote browser.
+
+### Heartbeat Update Process
+1. In addition to creating the *heartbeat-update* from the *heartbeat* data the heartbeat-update data is also created from:
+   * Launching the terminal application with the *server* command or using *npm restart*.
+   * Responding to an incoming *heartbeat-update* data package.
+
 ### Heartbeat Example
 ```json
 {
@@ -549,10 +562,10 @@ The heartbeat makes use of two services:
 ```json
 {
    "heartbeat": {
-      "agent"  : "remoteUser",
-      "refresh": false,
-      "status" : "active",
-      "user"   : "localhost"
+      "agent"  : "string, name of local user at it appears to the remote users",
+      "refresh": "boolean, whether the local browser has reloaded and as such local user's status should be forced to 'active' to each remote user",
+      "status" : "string: active, idle, offline",
+      "user"   : "empty string"
    }
 }
 ```

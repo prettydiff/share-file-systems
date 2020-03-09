@@ -96,7 +96,7 @@ const library = {
                         if (serverVars.users[heartbeatData.agent] !== undefined) {
                             heartbeat(heartbeatData);
                         }
-                    } else if (task === "heartbeat-update") {console.log("post - "+serverVars.name);
+                    } else if (task === "heartbeat-update") {
                         // * Respond to heartbeat changes as a result of a page load
                         const heartbeatData:heartbeat = JSON.parse(body),
                             payload:string = JSON.stringify({
