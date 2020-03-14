@@ -126,7 +126,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                     length:number = buttons.length;
                 let a:number = 0;
-                if (browser.users[heartbeat.user] !== undefined) {
+                if (browser.users[heartbeat.user] === undefined) {
                     return;
                 }
                 do {

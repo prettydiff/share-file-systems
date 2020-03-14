@@ -159,14 +159,6 @@ const library = {
                     }
                     return false;
                 };
-                let body:string = "",
-                        decoder:StringDecoder = new StringDecoder("utf8");
-                    response.on('data', function terminal_server_create_data(data:Buffer) {
-                        body = body + decoder.write(data);
-                        if (body.length > 1e6) {
-                            response.connection.destroy();
-                        }
-                    });
                 if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
                 } else if (postTest() === true) {
@@ -188,11 +180,6 @@ const library = {
                         }
                     }, 100);
                 }
-                response.on("end", function terminal_server_create_response() {
-                    if (body.indexOf("{\"heartbeat-response\":") === 0) {
-                        vars.ws.broadcast(body);
-                    }
-                });
             }),
             serverError = function terminal_server_serverError(error:nodeError):void {
                 if (error.code === "EADDRINUSE") {
