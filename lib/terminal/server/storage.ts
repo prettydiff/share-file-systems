@@ -66,7 +66,7 @@ const library = {
         if (vars.command.indexOf("test") === 0) {
             writeCallback(null);
         } else {
-            vars.node.fs.writeFile(fileName, dataString, "utf8", writeCallback);
+            vars.node.fs.writeFile(fileName, JSON.stringify(parsed[task]), "utf8", writeCallback);
         }
     };
 

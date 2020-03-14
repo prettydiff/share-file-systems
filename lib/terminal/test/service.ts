@@ -1043,7 +1043,7 @@ const //sep:string = vars.sep,
                 }
             }
         }
-        // fs - readonly
+        // todo: fs - readonly tests
     ];
 
 services.addServers = function test_services_addServers(callback:Function):void {
