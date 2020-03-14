@@ -63,7 +63,9 @@ const library = {
                 }
             };
         let parsed:storage = JSON.parse(dataString);
-        if (vars.command.indexOf("test") === 0) {
+        if (parsed[task] === undefined) {
+            library.log([`Attempted to write undefined to storage for task: ${task}`]);
+        } else if (vars.command.indexOf("test") === 0) {
             writeCallback(null);
         } else {
             vars.node.fs.writeFile(fileName, JSON.stringify(parsed[task]), "utf8", writeCallback);

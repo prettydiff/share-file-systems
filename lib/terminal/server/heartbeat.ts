@@ -41,7 +41,7 @@ const library = {
                 };
             if (data.shares !== "") {
                 serverVars.users.localhost.shares = data.shares;
-                library.storage(JSON.stringify(serverVars.users), "", "users");
+                library.storage(JSON.stringify({users: serverVars.users}), "", "users");
             }
             if (data.agent === "localhost-browser") {
                 serverVars.status = data.status;
@@ -105,7 +105,7 @@ const library = {
             }));
             if (data.shares !== "" && (serverVars.users[data.user].shares.length !== data.shares.length || JSON.stringify(serverVars.users[data.user].shares) !== JSON.stringify(data.shares))) {
                 serverVars.users[data.user].shares = data.shares;
-                library.storage(JSON.stringify(serverVars.users), "", "users");
+                library.storage(JSON.stringify({users: serverVars.users}), "", "users");
             } else {
                 data.shares = "";
             }
