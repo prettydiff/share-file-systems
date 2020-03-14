@@ -24,7 +24,7 @@ declare global {
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
-    type storageType = "messages" | "settings" | "share-update" | "users";
+    type storageType = "messages" | "settings" | "users";
     type testListType = "service" | "simulation";
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
@@ -130,7 +130,7 @@ declare global {
         getElementsByAttribute: Function;
     }
     interface fileService {
-        action      : serviceType | "share-update";
+        action      : serviceType;
         agent       : string;
         copyAgent   : string;
         depth       : number;
@@ -200,7 +200,7 @@ declare global {
         remoteName: string;
         requestError?: (error:nodeError, agent?:string) => void;
         response?: any;
-        responseError?: (error:nodeError) => void;
+        responseError?: (error:nodeError, agent?:string) => void;
     }
     interface httpServer extends Server {
         port: number;

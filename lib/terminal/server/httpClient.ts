@@ -47,8 +47,8 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 });
                 fsResponse.on("error", responseError);
             },
-        requestError = (config.payload.indexOf("{\"share-update\":") === 0)
-            ? function terminal_server_httpClient_shareRequestError(errorMessage:nodeError):void {
+        requestError = (config.id === "heartbeat")
+            ? function  terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
                 config.requestError(errorMessage, config.remoteName);
             }
             : (config.requestError === undefined)
@@ -75,16 +75,20 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                     config.response.end();
                 }
                 : config.requestError,
-        responseError = (config.responseError === undefined)
-            ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
-                if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
-                    log([config.errorMessage, errorMessage.toString()]);
-                    vars.ws.broadcast(JSON.stringify({
-                        error: errorMessage
-                    }));
-                }
+        responseError = (config.id === "heartbeat")
+            ? function  terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
+                config.requestError(errorMessage, config.remoteName);
             }
-            : config.responseError,
+            : (config.responseError === undefined)
+                ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                        log([config.errorMessage, errorMessage.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
+                    }
+                }
+                : config.responseError,
         invite:string = (config.payload.indexOf("{\"invite\":{\"action\":\"invite-request\"") === 0)
             ? "invite-request"
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)

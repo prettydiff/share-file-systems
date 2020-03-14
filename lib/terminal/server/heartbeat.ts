@@ -55,7 +55,7 @@ const library = {
                         agent: serverVars.name,
                         shares: "",
                         status: "offline",
-                        user: users[a]
+                        user: ""
                     };
                     library.httpClient({
                         callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
@@ -69,17 +69,19 @@ const library = {
                             "heartbeat": payload
                         }),
                         remoteName: users[a],
-                        requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
+                        requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string):void {
+                            heartbeatError.user = agent;
                             vars.ws.broadcast(JSON.stringify({
                                 "heartbeat-response": heartbeatError
                             }));
-                            library.log([errorMessage.toString()]);
+                            //library.log([errorMessage.toString()]);
                         },
-                        responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError):void {
+                        responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string):void {
+                            heartbeatError.user = agent;
                             vars.ws.broadcast(JSON.stringify({
                                 "heartbeat-response": heartbeatError
                             }));
-                            library.log([errorMessage.toString()]);
+                            //library.log([errorMessage.toString()]);
                         }
                     });
                 }

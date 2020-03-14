@@ -665,7 +665,6 @@ The invitation *status* property will feature one of these values:
 
 ## Updates
 * **fs-update-remote** - If a watcher is present on a file system location and the file system changes at that location then an updated file system data object, identical to calling the fs-directory service, is sent to all users.  This service exists in case a modal is open in the browser to a remote user's file system and the file system contents should be automatically updated as changes to the remote file system occur.  File system watches are not always reliable even on the local computer, so this service is especially not reliable.
-* **share-update** - When a user changes their share details this service is broadcast to each of their users.  The *users* storage file is automatically updated upon receipt of this service.  For security reasons changes to shares are immediate regardless of when, or if, a remote user receives this service.
 
 ### fs-update-remote Example
 ```json
@@ -689,33 +688,6 @@ The invitation *status* property will feature one of these values:
       "dirs"    : ["array of directory item data structure starting from the address in the location property"],
       "location": "string, the file system address that is modified",
       "status"  : "string, status text for a modal's status bar"
-   }
-}
-```
-
-### share-update Example
-```json
-{
-   "share-update": {
-      "user"  : "remoteUser@[::1]:XXXX",
-      "shares": [
-         {
-            "execute" : false,
-            "name"    : "C:\\MP3\\_new",
-            "readOnly": true,
-            "type"    : "directory"
-         }
-      ]
-   }
-}
-```
-
-### share-update Schema
-```json
-{
-   "share-update": {
-      "user"  : "the remote user whom is reporting an update to their shares",
-      "shares": ["array of share objects"]
    }
 }
 ```
