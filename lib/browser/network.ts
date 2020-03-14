@@ -47,8 +47,6 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
 /* Provides active user status from across the network about every minute */
 network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
-        length:number = users.length,
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
@@ -68,8 +66,6 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
                 status: status,
             user: ""
         };
-    let user:string,
-        a:number = 1;
     
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);

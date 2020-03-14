@@ -1002,10 +1002,10 @@ const //sep:string = vars.sep,
             qualifier: "is",
             test: {
                 "heartbeat-response": {
-                    agent: "remoteUser@[::1]:XXXX",
-                    shares:"",
+                    agent: "localTest@[::1]:XXXX",
+                    shares:[],
                     status:"idle",
-                    user:"localhost"
+                    user:"remoteUser@[::1]:XXXX"
                 }
             }
         },
@@ -1029,7 +1029,7 @@ const //sep:string = vars.sep,
             qualifier: "is",
             test: {
                 "heartbeat-response": {
-                    agent: "remoteUser@[::1]:XXXX",
+                    agent: "localTest@[::1]:XXXX",
                     shares: [
                         {
                             execute: false,
@@ -1039,7 +1039,7 @@ const //sep:string = vars.sep,
                         }
                     ],
                     status: "idle",
-                    user: "localhost"
+                    user: "remoteUser@[::1]:XXXX"
                 }
             }
         }
