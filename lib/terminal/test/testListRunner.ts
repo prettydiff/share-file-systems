@@ -178,7 +178,7 @@ const library = {
                                     testItem.command.invite.port = services.serverLocal.port;
                                 }
                             }
-                            return JSON.stringify(testItem.command).replace(/remoteUser\":/g, `remoteUser@[::1]:${services.serverRemote.port}\":`);
+                            return JSON.stringify(testItem.command).replace(/remoteUser":/g, `remoteUser@[::1]:${services.serverRemote.port}":`);
                         }()),
                         name:string = (testItem.name === undefined)
                             ? command

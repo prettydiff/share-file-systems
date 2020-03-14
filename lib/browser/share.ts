@@ -565,8 +565,11 @@ share.update = function local_share_update(user:string, shares:userShares|"delet
     if (shares !== "deleted") {
         browser.users[user].shares = shares;
     }
+
+    // loop through modals
     do {
         box = document.getElementById(modals[a]);
+        // share modals
         if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === user)) {
             if (shares === "deleted") {
                 if (browser.data.modals[modals[a]].agent === user) {
@@ -589,6 +592,7 @@ share.update = function local_share_update(user:string, shares:userShares|"delet
                 body.innerHTML = "";
                 body.appendChild(share.content(browser.data.modals[modals[a]].agent));
             }
+        // file navigate modals
         } else if (fileShares === true && browser.data.modals[modals[a]].type === "fileNavigate" && browser.data.modals[modals[a]].agent === user) {
             if (shares === "deleted") {
                 close = <HTMLButtonElement>box.getElementsByClassName("close")[0];

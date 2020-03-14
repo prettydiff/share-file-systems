@@ -109,6 +109,9 @@ const library = {
             } else {
                 data.shares = "";
             }
+            data.user = data.agent;
+            data.agent = serverVars.name;
+            data.shares = serverVars.users.localhost.shares;
             data.status = serverVars.status;
             if (response !== "") {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
