@@ -59,31 +59,25 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
                     network.storage("messages");
                 }
             }
+        },
+        heartbeat:heartbeat = {
+            agent: "localhost-browser",
+            shares: (share === true)
+                ? browser.users.localhost.shares
+                : "",
+                status: status,
+            user: ""
         };
     let user:string,
         a:number = 1;
-
-    do {
-        user = users[a].lastChild.textContent.replace(/^\s+/, "");
-        if (user.indexOf("@") > 0 && user.lastIndexOf("@localhost") !== user.length - 10) {
-            const heartbeat:heartbeat = {
-                agent: "localhost-browser",
-                shares: (share === true)
-                    ? browser.users.localhost.shares
-                    : "",
-                status: status,
-                user: ""
-            };
-            xhr.onreadystatechange = readyState;
-            xhr.open("POST", loc, true);
-            xhr.withCredentials = true;
-            xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-            xhr.send(JSON.stringify({
-                heartbeat: heartbeat
-            }));
-        }
-        a = a + 1;
-    } while (a < length);
+    
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.send(JSON.stringify({
+        heartbeat: heartbeat
+    }));
 };
 
 /* Confirmed response to a user invitation */

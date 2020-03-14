@@ -52,10 +52,10 @@ const library = {
                     responder();
                 } else {
                     const heartbeatError:heartbeat = {
-                        agent: data.agent,
+                        agent: serverVars.name,
                         shares: "",
                         status: "offline",
-                        user: serverVars.name
+                        user: data.agent
                     };
                     library.httpClient({
                         callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
@@ -70,16 +70,10 @@ const library = {
                         }),
                         remoteName: users[a],
                         requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
-                            if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                vars.ws.broadcast(JSON.stringify({
-                                    "heartbeat-response": heartbeatError
-                                }));
-                            } else {
-                                vars.ws.broadcast(JSON.stringify({
-                                    error: errorMessage
-                                }));
-                                library.log([errorMessage.toString()]);
-                            }
+                            vars.ws.broadcast(JSON.stringify({
+                                "heartbeat-response": heartbeatError
+                            }));
+                            library.log([errorMessage.toString()]);
                         },
                         responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError):void {
                             vars.ws.broadcast(JSON.stringify({
