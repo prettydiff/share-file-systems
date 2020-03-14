@@ -23,11 +23,7 @@ const library = {
                     }
                 };
                 if (vars.command.indexOf("test") === 0) {
-                    if (testSend === true) {
-                        respond(`${task} written.`);
-                    } else {
-                        respond(`${task} written with false response for testing.`);
-                    }
+                    respond(`${task} written with false response for testing.`);
                 } else {
                     vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_renameNode(erName:Error) {
                         if (erName !== null) {
@@ -66,8 +62,7 @@ const library = {
                     rename();
                 }
             };
-        let testSend:boolean = true,
-            parsed:storage = JSON.parse(dataString);
+        let parsed:storage = JSON.parse(dataString);
         if (vars.command.indexOf("test") === 0) {
             writeCallback(null);
         } else {

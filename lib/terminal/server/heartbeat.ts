@@ -91,12 +91,19 @@ const library = {
                 }
                 a = a + 1;
             } while (a < length);
+        } else if (serverVars.users[data.user] === undefined) {
+            // trapping unexpected user
+            if (response !== "") {
+                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                response.write("Unexpected user.");
+                response.end();
+            }
         } else {
             // heartbeat from remote
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-response": data
             }));
-            if (data.shares !== "" && JSON.stringify(serverVars.users[data.user].shares) !== JSON.stringify(data.shares)) {
+            if (data.shares !== "" && (serverVars.users[data.user].shares.length !== data.shares.length || JSON.stringify(serverVars.users[data.user].shares) !== JSON.stringify(data.shares))) {
                 serverVars.users[data.user].shares = data.shares;
                 library.storage(JSON.stringify(serverVars.users), "", "users");
             } else {

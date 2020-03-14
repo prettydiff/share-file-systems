@@ -126,6 +126,9 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                     length:number = buttons.length;
                 let a:number = 0;
+                if (browser.users[heartbeat.user] !== undefined) {
+                    return;
+                }
                 do {
                     if (buttons[a].innerHTML.indexOf(heartbeat.user) > -1) {
                         buttons[a].setAttribute("class", heartbeat.status);
@@ -133,8 +136,8 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
-                if (heartbeat.shares !== "") {
-                    share.update(heartbeat.agent, heartbeat.shares);
+                if (heartbeat.shares !== "" && (browser.users[heartbeat.user].shares.length !== heartbeat.shares.length || JSON.stringify(browser.users[heartbeat.user].shares) !== JSON.stringify(heartbeat.shares))) {
+                    share.update(heartbeat.user, heartbeat.shares);
                 }
             },
             invitation = function local_socketMessage_invite():void {
