@@ -998,7 +998,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         }
     }
     modalData.focus = li;
-    network.storage("settings", false);
+    network.storage("settings");
 };
 
 /* Requests file system data from a text field, such as manually typing an address */

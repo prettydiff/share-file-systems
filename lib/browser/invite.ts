@@ -39,7 +39,7 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
         shares: invite.shares
     };
     share.addUser(user);
-    network.storage("users", false);
+    network.storage("users");
 };
 
 /* Handler for declining an invitation request */
@@ -279,7 +279,7 @@ invite.respond = function local_invite_respond(message:string):void {
                         }
                         util.audio("invite");
                         share.addUser(user);
-                        network.storage("users", false);
+                        network.storage("users");
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");

@@ -534,24 +534,35 @@ The heartbeat makes use of two services:
 * **heartbeat-update** - The heartbeat update is the HTTP response to a heartbeat request.  This allows the application to know if a user has gone offline or if they have changed status from offline to anything else.
 
 ### Heartbeat Process
-1. Heartbeat is initiated by a timed interval from the browser or if the current user status is *idle* and changes to *active*.
-1. The heartbeat is transmitted to the local terminal instance of the application where it is repackaged to these criteria:
-   * The name of the object is renamed from *heartbeat* to *heartbeat-update*.
-   * The user data property, which is an empty string, becomes the value of the data agent property.
-   * The agent data property value becomes the remote user's name.
-1. This new *heartbeat-update* object is sent to the remote user terminal application and then passed to the remote browser.
-
-### Heartbeat Update Process
-1. In addition to creating the *heartbeat-update* from the *heartbeat* data the heartbeat-update data is also created from:
-   * Launching the terminal application with the *server* command or using *npm restart*.
-   * Responding to an incoming *heartbeat-update* data package.
+1. Heartbeat is initiated by the following factors:
+   * a timed interval from the browser
+   * if the current user status is *idle* and changes to *active*
+   * a change to localhost shares
+   * when the terminal application is running with the *server* command
+1. The *agent* property of the data is `localhost-browser` if it starts from the browser or `localhost-terminal` if it executes from the terminal application coming online
+1. The `serverVars.status` is updated to reflect the user's activity status in the browser.
+1. The *user* property is assigned the value of the username of the localhost as it would appear to remote users.
+1. If the share data reported by the browser does not match the shared data for localhost then the share data is updated in storage.
+1. Current users are looped through so that gets the heartbeat data and during each loop iteration the *agent* data property is provided the remote user name as the data property.
+1. Once each remote has responded an HTTP response will be sent to the browser if the heartbeat originated from the browser.
+1. If the heartbeat has a user name that is not `localhost-browser` or `localhost-terminal` it is converted to a *heartbeat-response* and this data is sent to the browser via web sockets.
+1. The status property of the data is assigned the value of `serverVars.status` and is sent back to the originating terminal application as an HTTP response.
+1. If the shares data is different than the provided shares data for the given user as indicated by the *user* data property then the shares data is updated.
+1. The originating terminal application will forward that data to the originating browser via web sockets once the response is fully received.
 
 ### Heartbeat Example
 ```json
 {
    "heartbeat": {
       "agent"  : "remoteUser",
-      "refresh": false,
+      "shares" : [
+         {
+            "execute" : false,
+            "name"    : "C:\\mp3",
+            "readOnly": true,
+            "type"    : "file"
+         }
+      ],
       "status" : "active",
       "user"   : "localhost"
    }
@@ -562,10 +573,10 @@ The heartbeat makes use of two services:
 ```json
 {
    "heartbeat": {
-      "agent"  : "string, name of local user at it appears to the remote users",
-      "refresh": "boolean, whether the local browser has reloaded and as such local user's status should be forced to 'active' to each remote user",
-      "status" : "string: active, idle, offline",
-      "user"   : "empty string"
+      "agent" : "string, Name of local user at it appears to the remote users.",
+      "shares": "empty string or share object, This property is only populated when shares for the localhost change, and so if this is not an empty string the status property must have an 'active' value.",
+      "status": "string: active, idle, offline",
+      "user"  : "empty string"
    }
 }
 ```

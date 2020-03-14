@@ -69,7 +69,7 @@ share.addUser = function local_share_addUser(user:string):void {
             }
             a = a + 1;
         } while (a < length);
-        network.storage("users", false);
+        network.storage("users");
     }
 };
 
@@ -227,6 +227,7 @@ share.context = function local_share_context():void {
         shareLength:number = browser.users.localhost.shares.length,
         addresses:[string, string][] = util.selectedAddresses(element, "share"),
         addressesLength:number = addresses.length;
+    context.element = null;
     let a:number = 0,
         b:number = 0;
     if (shareLength > 0) {
@@ -261,8 +262,7 @@ share.context = function local_share_context():void {
     }
     util.selectNone(element);
     share.update("localhost", browser.users.localhost.shares);
-    network.storage("users");
-    context.element = null;
+    network.heartbeat("active", true);
 };
 
 /* Creates a confirmation modal listing users for deletion */
@@ -440,7 +440,7 @@ share.itemDelete = function local_share_itemDelete(event:MouseEvent):void {
         }
         a = a + 1;
     } while (a < length);
-    network.storage("users");
+    network.heartbeat("active", true);
 };
 
 /* Displays a list of shared items for each user */
@@ -519,7 +519,7 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
         element.innerHTML = "Grant Full Access";
         span.innerHTML = "(Read Only)";
     }
-    network.storage("users");
+    network.heartbeat("active", true);
 };
 
 /* Updates the contents of share modals */

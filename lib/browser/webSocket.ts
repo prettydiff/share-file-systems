@@ -122,13 +122,10 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
             },
             heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-update"],
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
                     length:number = buttons.length;
                 let a:number = 0;
-                if (heartbeat.refresh === true) {
-                    network.heartbeat(<"active"|"idle">document.getElementById("localhost").getAttribute("class"), false);
-                }
                 do {
                     if (buttons[a].innerHTML.indexOf(heartbeat.user) > -1) {
                         buttons[a].setAttribute("class", heartbeat.status);
@@ -136,6 +133,9 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
+                if (heartbeat.shares !== "") {
+                    share.update(heartbeat.agent, heartbeat.shares);
+                }
             },
             invitation = function local_socketMessage_invite():void {
                 const inviteData:invite = JSON.parse(event.data)["invite-error"],
@@ -163,7 +163,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             fsUpdateLocal();
         } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
             fsUpdateRemote();
-        } else if (event.data.indexOf("{\"heartbeat-update\":") === 0) {
+        } else if (event.data.indexOf("{\"heartbeat-response\":") === 0) {
             heartbeat();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
@@ -171,9 +171,6 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             invite.respond(event.data);
         } else if (event.data === "reload") {
             location.reload();
-        } else if (event.data.indexOf("{\"share-update\":") === 0) {
-            const update:shareUpdate = JSON.parse(event.data)["share-update"];
-            share.update(update.user, update.shares);
         }
     },
     open = function local_socketOpen():void {

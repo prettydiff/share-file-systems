@@ -29,6 +29,7 @@ const library = {
         copy: copy,
         directory: directory,
         error: error,
+        heartbeat: heartbeat,
         httpClient: httpClient,
         log: log,
         makeDir: makeDir,
@@ -87,32 +88,12 @@ const library = {
                         }
                     });
 
-                request.on('end', function terminal_server_create_end():void {
+                request.on("end", function terminal_server_create_end():void {
                     let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
-                    if (task === "heartbeat" && serverVars.addresses[0][0][0] !== "disconnected") {
+                    if (task === "heartbeat") {
                         // * Send and receive heartbeat signals
                         const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
-                        serverVars.status = heartbeatData.status;
-                        if (serverVars.users[heartbeatData.agent] !== undefined) {
-                            heartbeat(heartbeatData);
-                        }
-                    } else if (task === "heartbeat-update") {
-                        // * Respond to heartbeat changes as a result of a page load
-                        const heartbeatData:heartbeat = JSON.parse(body),
-                            payload:string = JSON.stringify({
-                                "heartbeat-update": {
-                                    agent: heartbeatData["heartbeat-update"].agent,
-                                    refresh: false,
-                                    status: serverVars.status,
-                                    user: serverVars.name
-                                }
-                            });
-                        vars.ws.broadcast(body);
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        if (serverVars.users[heartbeatData["heartbeat-update"].agent] !== undefined) {
-                            response.write(payload);
-                        }
-                        response.end();
+                        library.heartbeat(heartbeatData, response);
                     } else if (task === "settings" || task === "messages" || task === "users") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);
@@ -128,25 +109,6 @@ const library = {
                             response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][1][1]}.`);
                         } else {
                             response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][0][1]}.`);
-                        }
-                        response.end();
-                    } else if (task === "share-update") {
-                        // * remote: Changes to the remote user's shares
-                        // * local : Updates local share modals and updates the storage/users.json file
-                        const update:shareUpdate = JSON.parse(body)["share-update"];
-                        if (serverVars.users[update.user] !== undefined) {
-                            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(JSON.stringify({
-                                "share-update": {
-                                    user: serverVars.name,
-                                    shares: serverVars.users.localhost.shares
-                                }
-                            }));
-                            vars.ws.broadcast(body);
-                            if (vars.command.indexOf("test") !== 0) {
-                                serverVars.users[update.user].shares = update.shares;
-                            }
-                            storage(body, response, "users");
                         }
                         response.end();
                     } else if (task === "invite") {
@@ -197,6 +159,14 @@ const library = {
                     }
                     return false;
                 };
+                let body:string = "",
+                        decoder:StringDecoder = new StringDecoder("utf8");
+                    response.on('data', function terminal_server_create_data(data:Buffer) {
+                        body = body + decoder.write(data);
+                        if (body.length > 1e6) {
+                            response.connection.destroy();
+                        }
+                    });
                 if (request.method === "GET" && request.headers.host === "localhost") {
                     methodGET(request, response);
                 } else if (postTest() === true) {
@@ -218,6 +188,11 @@ const library = {
                         }
                     }, 100);
                 }
+                response.on("end", function terminal_server_create_response() {
+                    if (body.indexOf("{\"heartbeat-response\":") === 0) {
+                        vars.ws.broadcast(body);
+                    }
+                });
             }),
             serverError = function terminal_server_serverError(error:nodeError):void {
                 if (error.code === "EADDRINUSE") {
@@ -361,101 +336,18 @@ const library = {
                                         : `${settings.name}@${address}`;
                                     
                                     if (serverCallback !== undefined) {
+                                        // A callback can be passed in, so far only used for running service tests.
                                         serverCallback();
                                     } else if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                         logOutput();
                                     } else {
-                                        const callback = function terminal_server_start_listen_readUsers_readSettings_exchange(responseBody:Buffer|string):void {
-                                                if (responseBody !== "") {
-                                                    const userData:userExchange = JSON.parse(<string>responseBody)["share-update"];
-                                                    count = count + 1;
-                                                    if (count === length) {
-                                                        allUsers();
-                                                    }
-                                                    if (serverVars.users[userData.user] !== undefined) {
-                                                        serverVars.users[userData.user].shares = userData.shares;
-                                                        vars.ws.broadcast(JSON.stringify({
-                                                            "heartbeat-update": {
-                                                                agent: userData.agent,
-                                                                refresh: false,
-                                                                status: userData.status,
-                                                                user: userData.user
-                                                            }
-                                                        }));
-                                                        vars.ws.broadcast(JSON.stringify({
-                                                            "share-update": {
-                                                                user: userData.user,
-                                                                shares: userData.shares
-                                                            }
-                                                        }));
-                                                    }
-                                                }
-                                            },
-                                            responseError = function terminal_server_start_listen_readSettings_responseError(errorMessage:nodeError):void {
-                                                count = count + 1;
-                                                if (count === length) {
-                                                    allUsers();
-                                                }
-                                                vars.ws.broadcast(JSON.stringify({
-                                                    error: errorMessage
-                                                }));
-                                                library.log([errorMessage.toString()]);
-                                            },
-                                            requestError = function terminal_server_start_readUsers_readSettings_requestError(errorMessage:nodeError, agent:string):void {
-                                                count = count + 1;
-                                                if (count === length) {
-                                                    allUsers();
-                                                }
-                                                if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                                    vars.ws.broadcast(JSON.stringify({
-                                                        "heartbeat-update": {
-                                                            agent: agent,
-                                                            refresh: false,
-                                                            status: "offline",
-                                                            user: serverVars.name
-                                                        }
-                                                    }));
-                                                } else {
-                                                    vars.ws.broadcast(JSON.stringify({
-                                                        error: errorMessage
-                                                    }));
-                                                    library.log([errorMessage.toString()]);
-                                                }
-                                            },
-                                            allUsers = function terminal_server_start_listen_readUsers_readSettings_allUsers():void {
-                                                const userString = JSON.stringify(serverVars.users);
-                                                if (userString !== settingString) {
-                                                    vars.node.fs.writeFile(`${vars.projectPath}storage${vars.sep}users.json`, userString, "utf8", function terminal_server_start_listen_readUsers_readSettings_allUsers_write(usersWriteError:nodeError):void {
-                                                        if (usersWriteError !== null) {
-                                                            vars.ws.broadcast(JSON.stringify({
-                                                                error: usersWriteError
-                                                            }));
-                                                            library.log([usersWriteError.toString()]);
-                                                        }
-                                                    });
-                                                }
-                                            };
-                                        let a:number = 1,
-                                            count:number = 0;
-                                        do {
-                                            library.httpClient({
-                                                callback: callback,
-                                                callbackType: "body",
-                                                errorMessage: `User ${users[a]} is offline or unreachable.`,
-                                                id: "",
-                                                payload: JSON.stringify({
-                                                    "share-update": {
-                                                        user: serverVars.name,
-                                                        shares: serverVars.users.localhost.shares
-                                                    }
-                                                }),
-                                                remoteName: users[a],
-                                                requestError: requestError,
-                                                responseError: responseError
-                                            });
-                                            a = a + 1;
-                                        } while (a < length);
                                         logOutput();
+                                        library.heartbeat({
+                                            agent: "localhost-terminal",
+                                            shares: "",
+                                            status: "idle",
+                                            user: ""
+                                        }, "");
                                     }
                                 }
                             });

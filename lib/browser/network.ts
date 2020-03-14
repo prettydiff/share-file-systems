@@ -45,7 +45,7 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
 };
 
 /* Provides active user status from across the network about every minute */
-network.heartbeat = function local_network_heartbeat(status:string, refresh:boolean):void {
+network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         users:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
         length:number = users.length,
@@ -66,17 +66,20 @@ network.heartbeat = function local_network_heartbeat(status:string, refresh:bool
     do {
         user = users[a].lastChild.textContent.replace(/^\s+/, "");
         if (user.indexOf("@") > 0 && user.lastIndexOf("@localhost") !== user.length - 10) {
+            const heartbeat:heartbeat = {
+                agent: "localhost-browser",
+                shares: (share === true)
+                    ? browser.users.localhost.shares
+                    : "",
+                status: status,
+                user: ""
+            };
             xhr.onreadystatechange = readyState;
             xhr.open("POST", loc, true);
             xhr.withCredentials = true;
             xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
             xhr.send(JSON.stringify({
-                heartbeat: {
-                    agent: user,
-                    refresh: refresh,
-                    status: status,
-                    user: ""
-                }
+                heartbeat: heartbeat
             }));
         }
         a = a + 1;
@@ -135,7 +138,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
 };
 
 /* Writes configurations to file storage */
-network.storage = function local_network_storage(type:storageType, send?:boolean):void {
+network.storage = function local_network_storage(type:storageType):void {
     if (browser.loadTest === true && ((messageTransmit === false && type === "messages") || type !== "messages")) {
         return;
     }
@@ -152,14 +155,11 @@ network.storage = function local_network_storage(type:storageType, send?:boolean
                 }
             }
         },
-        sendFlag: boolean = (send === false)
-            ? false
-            : true,
         payload:string = JSON.stringify({
             [type]: (type === "settings")
                 ? browser.data
                 : browser[type]
-        }).replace(/\}$/, `,"send":${sendFlag}}`);
+        });
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;

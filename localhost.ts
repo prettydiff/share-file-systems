@@ -109,7 +109,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
                     document.getElementById("settings").onclick = settings.modal;
-                    network.heartbeat("active", true);
+                    network.heartbeat("active", false);
 
                     // watch for local idleness
                     document.onclick = activate;

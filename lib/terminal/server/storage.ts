@@ -6,18 +6,17 @@ import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
-import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 
 const library = {
         error: error,
         log: log
     },
-    storage = function terminal_server_storage(dataString:string, response:ServerResponse, task:storageType):void {
+    storage = function terminal_server_storage(dataString:string, response:ServerResponse | "", task:storageType):void {
         const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`,
             rename = function terminal_server_storage_rename():void {
                 const respond = function terminal_server_storage_rename_respond(message:string):void {
-                    if (parsed.send === true) {
+                    if (response !== "") {
                         response.writeHead(200, {"Content-Type": "text/plain"});
                         response.write(message);
                         response.end();
@@ -49,53 +48,14 @@ const library = {
                 if (erSettings !== null) {
                     library.error([erSettings.toString()]);
                     library.log([erSettings.toString()]);
-                    if (parsed.send === true) {
+                    if (response !== "") {
                         response.writeHead(200, {"Content-Type": "text/plain"});
                         response.write(erSettings.toString());
                         response.end();
                     }
                     return;
                 }
-                if (task === "users") {
-                    if (dataString.indexOf("{\"share-update\":") === 0) {
-                        serverVars.users[parsed["share-update"].user] === parsed["share-update"].shares;
-                    } else {
-                        serverVars.users = parsed.users;
-                    };
-                    if (parsed.send === true) {
-                        const keys:string[] = Object.keys(serverVars.users),
-                            length:number = keys.length;
-                        let a:number = 0;
-                        do {
-                            if (keys[a] !== "localhost") {
-                                httpClient({
-                                    callback: function terminal_server_storage_writeStorage_callback():void {
-                                        return;
-                                    },
-                                    callbackType: "body",
-                                    errorMessage: `Error on sending shares update from ${serverVars.name} to ${keys[a]}.`,
-                                    id: "",
-                                    payload: JSON.stringify({
-                                        "share-update": {
-                                            user: serverVars.name,
-                                            shares: serverVars.users.localhost.shares
-                                        }
-                                    }),
-                                    remoteName: keys[a],
-                                    requestError: function terminal_server_storage_writeStorage_requestError(error:nodeError, remoteName:string):void {
-                                        library.error([
-                                            `Error responding to share-update for user: ${remoteName}.`,
-                                            error.toString()
-                                        ]);
-                                    },
-                                    response: response
-                                });
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                    }
-                    rename();
-                } else if (task === "settings") {
+                if (task === "settings") {
                     const settings:ui_data = parsed.settings;
                     if (vars.command.indexOf("test") !== 0) {
                         serverVars.brotli = settings.brotli;
@@ -108,18 +68,10 @@ const library = {
             };
         let testSend:boolean = true,
             parsed:storage = JSON.parse(dataString);
-        if (task === "share-update") {
-            parsed.send = false;
-            testSend = false;
-        }
         if (vars.command.indexOf("test") === 0) {
-            if (parsed.send === false) {
-                parsed.send = true;
-                testSend = false;
-            }
             writeCallback(null);
         } else {
-            vars.node.fs.writeFile(fileName, JSON.stringify(parsed[task]), "utf8", writeCallback);
+            vars.node.fs.writeFile(fileName, dataString, "utf8", writeCallback);
         }
     };
 

@@ -187,7 +187,7 @@ declare global {
     }
     interface heartbeat {
         agent: string;
-        refresh: boolean;
+        shares: userShares | "";
         status: heartbeatStatus;
         user: string;
     }
@@ -261,13 +261,6 @@ declare global {
         target: string;
         start: string;
     }
-    interface module_network {
-        fs?: (localService, callback:Function, id?:string) => void;
-        heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
-        inviteAccept?:(configuration:invite) => void;
-        inviteRequest?: (configuration:invite) => void;
-        storage?: (type:storageType, send?:boolean) => void;
-    }
     interface module_context {
         copy?: EventHandlerNonNull;
         dataString?: EventHandlerNonNull;
@@ -329,6 +322,13 @@ declare global {
         textSave?: EventHandlerNonNull;
         textTimer?: EventHandlerNonNull;
         zTop?: modalTop;
+    }
+    interface module_network {
+        fs?: (localService, callback:Function, id?:string) => void;
+        heartbeat?: (status:"active"|"idle", share:boolean) => void;
+        inviteAccept?:(configuration:invite) => void;
+        inviteRequest?: (configuration:invite) => void;
+        storage?: (type:storageType) => void;
     }
     interface module_settings {
         addUserColor?: (user:string, settingsBody:HTMLElement) => void;

@@ -107,9 +107,6 @@ const library = {
                     if (data.action === "fs-directory" && data.agent !== "localhost") {
                         store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                     }
-                    if (data.action === "share-update") {
-                        return data.name;
-                    }
                     return JSON.stringify({
                         fs: store
                     });

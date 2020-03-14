@@ -739,17 +739,6 @@ const //sep:string = vars.sep,
         },
         {
             command: {
-                "share-update": {
-                    user: "remoteUser@[::1]:XXXX",
-                    shares: []
-                }
-            },
-            name: "share-update, Local",
-            qualifier: "is",
-            test: "Received share update from remoteUser@[::1]:XXXX"
-        },
-        {
-            command: {
                 settings: {
                     audio: true,
                     brotli: 7,
