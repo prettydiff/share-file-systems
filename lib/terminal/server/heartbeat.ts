@@ -51,6 +51,12 @@ const library = {
                 if (users[a] === "localhost") {
                     responder();
                 } else {
+                    const heartbeatError:heartbeat = {
+                        agent: data.agent,
+                        shares: "",
+                        status: "offline",
+                        user: serverVars.name
+                    };
                     library.httpClient({
                         callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                             vars.ws.broadcast(<string>responseBody);
@@ -65,14 +71,8 @@ const library = {
                         remoteName: users[a],
                         requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError):void {
                             if (errorMessage.code === "ETIMEDOUT" || errorMessage.code === "ECONNRESET") {
-                                const heartbeat:heartbeat = {
-                                    agent: data.agent,
-                                    shares: "",
-                                    status: "offline",
-                                    user: serverVars.name
-                                };
                                 vars.ws.broadcast(JSON.stringify({
-                                    "heartbeat-response": heartbeat
+                                    "heartbeat-response": heartbeatError
                                 }));
                             } else {
                                 vars.ws.broadcast(JSON.stringify({
@@ -83,7 +83,7 @@ const library = {
                         },
                         responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError):void {
                             vars.ws.broadcast(JSON.stringify({
-                                error: errorMessage
+                                "heartbeat-response": heartbeatError
                             }));
                             library.log([errorMessage.toString()]);
                         }

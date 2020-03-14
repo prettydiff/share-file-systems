@@ -30,6 +30,7 @@ const library = {
             sectionTime:[number, number] = [0, 0];
         const order = {
                 build: [
+                    "clearStorage",
                     "libReadme",
                     "typescript",
                     "version"
@@ -139,6 +140,43 @@ const library = {
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
             phases = {
+                // clearStorage removes temporary storage files that should have been removed, but weren't
+                clearStorage: function terminal_build_clearStorage():void {
+                    heading("Removing unnecessary temporary files");
+                    vars.node.fs.readdir(`${vars.projectPath}storage`, function terminal_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
+                        if (erd !== null) {
+                            library.error([erd.toString()]);
+                            return;
+                        }
+                        const length:number = dirList.length,
+                            tempTest:RegExp = (/^\w+-0\.\d+.json$/);
+                        let a:number = 0,
+                            start:number = 0,
+                            end:number = 0;
+                        do {
+                            if (tempTest.test(dirList[a]) === true) {
+                                start = start + 1;
+                                vars.node.fs.unlink(`${vars.projectPath}storage${vars.sep + dirList[a]}`, function terminal_build_clearStorage_dir_unlink(eru:nodeError):void {
+                                    if (eru !== null) {
+                                        library.error([erd.toString()]);
+                                        return;
+                                    }
+                                    end = end + 1;
+                                    if (end === start) {
+                                        const plural:string = (start === 1)
+                                            ? ""
+                                            : "s";
+                                        next(`${start} temporary storage file${plural} removed.`);
+                                    }
+                                });
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        if (start === 0) {
+                            next("There are no temporary storage files to remove.");
+                        }
+                    });
+                },
                 // libReadme builds out the readme file that indexes code files in the current directory
                 libReadme: function terminal_build_libReadme():void {
                     heading("Writing lib directory readme.md files.");
@@ -326,7 +364,7 @@ const library = {
                 },
                 // phase services wraps a call to services test library
                 service: function terminal_build_serviceTests():void {
-                    heading(`Tests of calls to the local service`);
+                    heading("Tests of calls to the local service");
                     library.testListRunner("service", testsCallback);
                 },
                 // phase simulation is merely a call to simulation test library

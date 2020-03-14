@@ -574,7 +574,7 @@ The heartbeat makes use of two services:
 {
    "heartbeat": {
       "agent" : "string, Name of local user at it appears to the remote users.",
-      "shares": "empty string or share object, This property is only populated when shares for the localhost change, and so if this is not an empty string the status property must have an 'active' value.",
+      "shares": "empty string or share object, This property is only populated for shares of the originating localhost when the heartbeat originates in the browser, and so if this is not an empty string the status property must have an 'active' value.",
       "status": "string: active, idle, offline",
       "user"  : "empty string"
    }
