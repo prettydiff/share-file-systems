@@ -64,7 +64,7 @@ const library = {
                         },
                         callbackType: "body",
                         errorMessage: `Error with heartbeat to user ${users[a]}.`,
-                        id: "",
+                        id: "heartbeat",
                         payload: JSON.stringify({
                             "heartbeat": payload
                         }),

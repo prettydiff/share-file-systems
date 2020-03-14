@@ -48,7 +48,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 fsResponse.on("error", responseError);
             },
         requestError = (config.id === "heartbeat")
-            ? function  terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
+            ? function terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
                 config.requestError(errorMessage, config.remoteName);
             }
             : (config.requestError === undefined)
@@ -76,7 +76,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 }
                 : config.requestError,
         responseError = (config.id === "heartbeat")
-            ? function  terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
+            ? function terminal_server_httpClient_responseErrorHeartbeat(errorMessage:nodeError):void {
                 config.requestError(errorMessage, config.remoteName);
             }
             : (config.responseError === undefined)
