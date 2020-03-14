@@ -55,7 +55,7 @@ const library = {
                         agent: serverVars.name,
                         shares: "",
                         status: "offline",
-                        user: data.agent
+                        user: users[a]
                     };
                     library.httpClient({
                         callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
