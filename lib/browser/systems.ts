@@ -1,4 +1,5 @@
 
+/* lib/browser/systems - The systems messaging utility is managed by these methods. */
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
@@ -57,21 +58,28 @@ systems.message = function local_systems_message(type:messageType, content:strin
         let stackItem:HTMLElement;
         ul = document.createElement("ul");
         ul.setAttribute("class", "stack");
-        button.setAttribute("class", "expansion");
-        button.innerHTML = "+<span>Expand stack trace</span>";
-        button.setAttribute("title", "Expand stack trace");
-        button.onclick = systems.expand;
-        messageContent.stack.forEach(function local_systems_message_stack(value:string) {
-            if (value.replace(/\s+/, "") !== "") {
-                stackItem = document.createElement("li");
-                stackItem.innerHTML = value;
-                ul.appendChild(stackItem);
+        if (messageContent.stack === undefined) {
+            if (browser.loadTest === false) {
+                browser.messages.errors.push([`[${dateString}]`, `Native Node Error: ${content}`, []]);
             }
-        });
-        li.appendChild(button);
-        text.textContent = messageContent.error.replace(/^\s*Error:\s*/, "");
-        if (browser.loadTest === false) {
-            browser.messages.errors.push([`[${dateString}]`, messageContent.error.replace(/^\s*Error:\s*/, ""), messageContent.stack]);
+            text.textContent = `Native Node Error: ${content}`;
+        } else {
+            button.setAttribute("class", "expansion");
+            button.innerHTML = "+<span>Expand stack trace</span>";
+            button.setAttribute("title", "Expand stack trace");
+            button.onclick = systems.expand;
+            messageContent.stack.forEach(function local_systems_message_stack(value:string) {
+                if (value.replace(/\s+/, "") !== "") {
+                    stackItem = document.createElement("li");
+                    stackItem.innerHTML = value;
+                    ul.appendChild(stackItem);
+                }
+            });
+            li.appendChild(button);
+            text.textContent = messageContent.error.replace(/^\s*Error:\s*/, "");
+            if (browser.loadTest === false) {
+                browser.messages.errors.push([`[${dateString}]`, messageContent.error.replace(/^\s*Error:\s*/, ""), messageContent.stack]);
+            }
         }
     } else {
         text.textContent = content;

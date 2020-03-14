@@ -1,16 +1,19 @@
 # lib/browser Code Files
 These library files are imported into *localhost.js* and executed in the browser.
 
-* **[audio.ts](audio.ts)**                   - A data structure containing base64 encoded audio samples and associated licensing information.
-* **[browser.ts](browser.ts)**               - Shared variables need across multiple libraries are defined here.
-* **[context.ts](context.ts)**               - various functions related to the right-click context menu.
-* **[fs.ts](fs.ts)**                         - The fs library contains various functions related to file system requests/population.
-* **[getNodesByType.ts](getNodesByType.ts)** - This is a single utility that extends the DOM to treat node types as a searchable metric no differently than tag name, class name, or id.
-* **[invite.ts](invite.ts)**                 - The various interactions necessary to process the invitation steps.
-* **[modal.ts](modal.ts)**                   - Modal provides various functions related to modals and the respective interaction.
-* **[network.ts](network.ts)**               - This handles various requests for information to and from the terminal.  The browser is used for presentation, content, and user interaction.  Everything is processed from the terminal.
-* **[settings.ts](settings.ts)**             - The interactions associated with the settings modal.
-* **[share.ts](share.ts)**                   - The interactions necessary to share content and dynamically update the *shares* type modals.
-* **[systems.ts](systems.ts)**               - The systems modal, which contains various status and error logs, is populated by functions located here.
-* **[util.ts](util.ts)**                     - The remaining browser functions and utilities that don't really go anywhere else are located here.
-* **[webSocket.ts](webSocket.ts)**           - The browser's webSocket handler is defined here.
+## Files
+Do not edit below this line.  Contents dynamically populated.
+
+* **[audio.ts](audio.ts)**                   - A storage of audio samples encoded in Base64 with respective metadata.
+* **[browser.ts](browser.ts)**               - A list of declared variables globally available to the browser instance of the application.
+* **[context.ts](context.ts)**               - A collection of event handlers associated with the right click context menu.
+* **[fs.ts](fs.ts)**                         - A collection of utilities for handling file system related tasks in the browser.
+* **[getNodesByType.ts](getNodesByType.ts)** - An extension for the DOM to request descendant nodes by node type.
+* **[invite.ts](invite.ts)**                 - A collection of utilities for processing invitation related tasks.
+* **[modal.ts](modal.ts)**                   - A collection of utilities for generating and manipulating modals/windows in the browser.
+* **[network.ts](network.ts)**               - The methods that execute data requests to the local terminal instance of the application.
+* **[settings.ts](settings.ts)**             - A collection of utilities and event handlers associated with processing the users application state and system settings.
+* **[share.ts](share.ts)**                   - The utilities that manage and coordinate changes to user share data.
+* **[systems.ts](systems.ts)**               - The systems messaging utility is managed by these methods.
+* **[util.ts](util.ts)**                     - Miscellaneous tools for the browser environment.
+* **[webSocket.ts](webSocket.ts)**           - Handles web socket events and associated errors. This where most communications from outside the browser are processed.

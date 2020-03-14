@@ -1,14 +1,19 @@
 
+/* lib/terminal/server/httpClient - A library for handling all child HTTP requests. */
 import * as http from "http";
 
 import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
 
-import log from "../log.js";
-import vars from "../vars.js";
+import error from "../utilities/error.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
     const ip:string = (function terminal_server_httpClient_ip():string {
+            if (vars.command.indexOf("test") === 0) {
+                return "::1";
+            }
             let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
             if (address.charAt(0) === "[") {
                 address = address.slice(1, address.length - 1);
@@ -35,15 +40,15 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                         ? Buffer.concat(chunks)
                         : chunks.join("");
                     if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""));
+                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), config.response);
                     } else {
                         config.callback(body);
                     }
                 });
                 fsResponse.on("error", responseError);
             },
-        requestError = (config.payload.indexOf("share-exchange:") === 0)
-            ? function terminal_server_httpClient_shareRequestError(errorMessage:nodeError):void {
+        requestError = (config.id === "heartbeat")
+            ? function terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
                 config.requestError(errorMessage, config.remoteName);
             }
             : (config.requestError === undefined)
@@ -70,19 +75,23 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                     config.response.end();
                 }
                 : config.requestError,
-        responseError = (config.responseError === undefined)
-            ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
-                if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
-                    log([config.errorMessage, errorMessage.toString()]);
-                    vars.ws.broadcast(JSON.stringify({
-                        error: errorMessage
-                    }));
-                }
+        responseError = (config.id === "heartbeat")
+            ? function terminal_server_httpClient_responseErrorHeartbeat(errorMessage:nodeError):void {
+                config.requestError(errorMessage, config.remoteName);
             }
-            : config.responseError,
-        invite:string = (config.payload.indexOf("invite-request") === 0)
+            : (config.responseError === undefined)
+                ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                        log([config.errorMessage, errorMessage.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
+                    }
+                }
+                : config.responseError,
+        invite:string = (config.payload.indexOf("{\"invite\":{\"action\":\"invite-request\"") === 0)
             ? "invite-request"
-            : (config.payload.indexOf("invite-complete") === 0)
+            : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
                 : "",
         headers:Object = (invite === "")
@@ -107,11 +116,16 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             port: port,
             timeout: 1000
         }, callback);
-    fsRequest.on("error", requestError);
-    fsRequest.write(config.payload);
-    setTimeout(function terminal_server_httpClient_delay():void {
+    if (fsRequest.writableEnded === true) {
+        error([
+            "Attempt to write to HTTP request after end:",
+            config.payload.toString()
+        ]);
+    } else {
+        fsRequest.on("error", requestError);
+        fsRequest.write(config.payload);
         fsRequest.end();
-    }, 100);
+    }
 };
 
 export default httpClient;

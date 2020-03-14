@@ -1,4 +1,5 @@
 
+/* lib/browser/context - A collection of event handlers associated with the right click context menu. */
 import { Stats } from "fs";
 
 import browser from "./browser.js";
@@ -796,7 +797,7 @@ context.paste = function local_context_paste():void {
     network.fs({
         action   : `fs-${clipData.type}`,
         agent    : clipData.agent,
-        copyAgent: util.getAgent(element)[0],
+        copyAgent: "",
         depth    : 1,
         id       : element.getAttribute("id"),
         location : clipData.data,

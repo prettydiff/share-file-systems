@@ -1,3 +1,5 @@
+
+/* lib/browser/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 import browser from "./browser.js";
 import fs from "./fs.js";
 import invite from "./invite.js";

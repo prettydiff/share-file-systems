@@ -1,5 +1,5 @@
 
-// converts numbers into a string of comma separated triplets
+/* lib/common/commas - Converts numbers into a string of comma separated triplets. */
 const commas = function terminal_commas(number:number):string {
     const str:string = String(number);
     let arr:string[] = [],

@@ -100,6 +100,12 @@ declare global {
     interface contextNew extends EventHandlerNonNull {
         (Event, element?:HTMLElement, type?:string): void;
     }
+    interface completeStatus {
+        countFile: number;
+        failures: number;
+        percent: number;
+        writtenSize: number;
+    }
     interface copyStatus {
         failures:string[];
         message:string;
@@ -108,6 +114,12 @@ declare global {
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;
         failures?: string[];
+    }
+    interface docItem {
+        description: string,
+        name: string,
+        namePadded: string;
+        path: string
     }
     interface Document {
         getNodesByType: Function;
@@ -118,7 +130,7 @@ declare global {
         getElementsByAttribute: Function;
     }
     interface fileService {
-        action      : serviceType | "share-update";
+        action      : serviceType;
         agent       : string;
         copyAgent   : string;
         depth       : number;
@@ -175,7 +187,7 @@ declare global {
     }
     interface heartbeat {
         agent: string;
-        refresh: boolean;
+        shares: userShares | "";
         status: heartbeatStatus;
         user: string;
     }
@@ -188,7 +200,7 @@ declare global {
         remoteName: string;
         requestError?: (error:nodeError, agent?:string) => void;
         response?: any;
-        responseError?: (error:nodeError) => void;
+        responseError?: (error:nodeError, agent?:string) => void;
     }
     interface httpServer extends Server {
         port: number;
@@ -248,13 +260,6 @@ declare global {
         source: string;
         target: string;
         start: string;
-    }
-    interface module_network {
-        fs?: (localService, callback:Function, id?:string) => void;
-        heartbeat?: (status:"active"|"idle", refresh:boolean) => void;
-        inviteAccept?:(configuration:invite) => void;
-        inviteRequest?: (configuration:invite) => void;
-        storage?: (type:storageType, send?:boolean) => void;
     }
     interface module_context {
         copy?: EventHandlerNonNull;
@@ -317,6 +322,13 @@ declare global {
         textSave?: EventHandlerNonNull;
         textTimer?: EventHandlerNonNull;
         zTop?: modalTop;
+    }
+    interface module_network {
+        fs?: (localService, callback:Function, id?:string) => void;
+        heartbeat?: (status:"active"|"idle", share:boolean) => void;
+        inviteAccept?:(configuration:invite) => void;
+        inviteRequest?: (configuration:invite) => void;
+        storage?: (type:storageType) => void;
     }
     interface module_settings {
         addUserColor?: (user:string, settingsBody:HTMLElement) => void;
@@ -499,6 +511,12 @@ declare global {
         error: string;
         stack: string[];
     }
+    interface storage {
+        messages?: messages;
+        settings?: ui_data;
+        send: boolean;
+        users?: users;
+    }
     interface stringData {
         content: string;
         id: string;
@@ -566,8 +584,8 @@ declare global {
         agent: string;
         content: HTMLElement;
         focus?: HTMLElement;
-        history?: string[];
         height?: number;
+        history?: string[];
         id?: string;
         inputs?: ui_input[];
         left?: number;

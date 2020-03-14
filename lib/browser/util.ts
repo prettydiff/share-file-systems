@@ -1,11 +1,11 @@
 
+/* lib/browser/util - Miscellaneous tools for the browser environment. */
 import audio from "./audio.js";
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";
 import network from "./network.js";
 import share from "./share.js";
-import test from "../terminal/test.js";
 
 const util:module_util = {};
 

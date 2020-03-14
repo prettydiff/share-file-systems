@@ -1,14 +1,16 @@
 
+/* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
 import * as http from "http";
 
-import log from "../log.js";
-import vars from "../vars.js";
+import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
+import storage from "./storage.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
-    const data:invite = JSON.parse(dataString),
+    const data:invite = JSON.parse(dataString).invite,
         inviteRequest = function local_server_invite_request():void {
             const payload:string = (data.action === "invite-request" || data.action === "invite-complete")
                     ? (function local_server_invite_request_payload():string {
@@ -21,15 +23,21 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         data.userName = serverVars.name;
                         data.ip = serverVars.addresses[0][1][1];
                         data.port = serverVars.webPort;
-                        output = `${data.action}:${JSON.stringify(data)}`;
+                        output = JSON.stringify({
+                            invite: data
+                        });
                         data.ip = ip;
                         data.port = port;
                         return output;
                     }())
-                    : `${data.action}:${JSON.stringify(data)}`;
+                    : JSON.stringify({
+                        invite: data
+                    });
             httpClient({
                 callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
-                    log([<string>responseBody]);
+                    if (vars.command.indexOf("test") !== 0) {
+                        log([<string>responseBody]);
+                    }
                 },
                 callbackType: "body",
                 errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
@@ -74,21 +82,27 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         responseString = `Invitation received at start terminal ${serverVars.addresses[0][1][1]} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
         inviteRequest();
     } else if (data.action === "invite-request") {
-        vars.ws.broadcast(JSON.stringify({
-            "invite-request": dataString
-        }));
+        vars.ws.broadcast(dataString);
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
     } else if (data.action === "invite-response") {
+        const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`
         data.action = "invite-complete";
-        responseString = `Invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
+        responseString = (data.status === "accepted")
+            ? `Accepted${respond}`
+            : (data.status === "declined")
+                ? `Declined${respond}`
+                : `Ignored${respond}`;
         inviteRequest();
     } else if (data.action === "invite-complete") {
-        vars.ws.broadcast(JSON.stringify({
-            "invite-request": dataString
-        }));
-        responseString = `Invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
+        const respond:string = ` invitation sent to from start terminal ${serverVars.addresses[0][1][1]} to start browser.`;
+        vars.ws.broadcast(dataString);
+        responseString = (data.status === "accepted")
+            ? `Accepted${respond}`
+            : (data.status === "declined")
+                ? `Declined${respond}`
+                : `Ignored${respond}`;
     }
-    // log([responseString]);
+     //log([responseString]);
     response.write(responseString);
     response.end();
 };

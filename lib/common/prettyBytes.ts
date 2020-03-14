@@ -1,5 +1,5 @@
 
-/* Round data sizes to human readable powers of 1024 */
+/* lib/common/prettyBytes - Rounds data sizes to human readable powers of 1024. */
 const prettyBytes = function local_util_prettyBytes(an_integer:number):string {
     //find the string length of input and divide into triplets
     let output:string = "",

@@ -1,3 +1,5 @@
+
+/* lib/browser/fs - A collection of utilities for handling file system related tasks in the browser. */
 import { Stats } from "fs";
 
 import browser from "./browser.js";
@@ -750,7 +752,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     network.fs({
         action: "fs-write",
         agent: agency[0],
-        copyAgent: agency[0],
+        copyAgent: "",
         depth: 1,
         id: box.getAttribute("id"),
         location: [location],
@@ -996,7 +998,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         }
     }
     modalData.focus = li;
-    network.storage("settings", false);
+    network.storage("settings");
 };
 
 /* Requests file system data from a text field, such as manually typing an address */

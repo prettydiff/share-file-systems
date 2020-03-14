@@ -1,13 +1,16 @@
-# lib/terminal/server
+# lib/terminal/server Code Files
 These files are libraries that comprise */lib/terminal/server.ts* **which in turn comprises *application.ts*.
 
-* **[fileService.ts](fileService.ts)**     - This library executes various file system tasks as requested by user interaction from the browser.
-* **[forbiddenUser.ts](forbiddenUser.ts)** - Provides a single location for deleting users based upon network response whether local or remote.
-* **[heartbeat.ts](heartbeat.ts)**         - This library executes network related tasks for user activity status.
-* **[httpClient.ts](httpClient.ts)**       - A library that spawns an HTTP client to make a request to another computer.
-* **[invite.ts](invite.ts)**               - All network tasks related to inviting a user is handled in this file.
-* **[methodGET.ts](methodGET.ts)**         - The HTTP server's GET request method is handled by this library.
-* **[readOnly.ts](readOnly.ts)**           - A security layer to prevent block outgoing and incoming instructions that violate modification to areas designated as read only.
-* **[serverVars.ts](serverVars.ts)**       - All variables used across the various server libraries are defined here.
-* **[serverWatch.ts](serverWatch.ts)**     - This library contains a handler for a file system watcher of this application.
-* **[storage.ts](storage.ts)**             - This library writes to the various data storage files located in the */storage* **directory.
+## Files
+Do not edit below this line.  Contents dynamically populated.
+
+* **[fileService.ts](fileService.ts)**     - This library executes various file system related services and actions.
+* **[forbiddenUser.ts](forbiddenUser.ts)** - A single function for handling rejected HTTP responses associated with disallowed requests.
+* **[heartbeat.ts](heartbeat.ts)**         - The code that manages sending and receiving user online status updates.
+* **[httpClient.ts](httpClient.ts)**       - A library for handling all child HTTP requests.
+* **[invite.ts](invite.ts)**               - Manages the order of invitation related processes for traffic across the internet.
+* **[methodGET.ts](methodGET.ts)**         - The library for handling all traffic related to HTTP requests with method GET.
+* **[readOnly.ts](readOnly.ts)**           - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
+* **[serverVars.ts](serverVars.ts)**       - A library of variables globally available for all server related tasks.
+* **[serverWatch.ts](serverWatch.ts)**     - A library that establishes a file system watch respective to the application itself.
+* **[storage.ts](storage.ts)**             - A library for writing data to storage.
