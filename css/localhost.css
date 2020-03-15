@@ -14,6 +14,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces input::placeholder{opacity:1}
 #spaces #content-area{height:100%;margin:0;overflow:scroll;padding:0;position:relative}
 #spaces .clear{clear:both;display:block;height:0.001em}
+#spaces .warning{font-weight:bold}
 
 /* Login prompt */
 .login #spaces .title,

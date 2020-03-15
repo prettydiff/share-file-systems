@@ -16,6 +16,8 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces *:focus{outline-color:#9ef}
 .dark #spaces input::placeholder{color:#c33}
 .dark #spaces select{background:#333;border-color:#666;color:#ccc}
+.dark #spaces p strong,
+.dark #spaces .warning{color:#c33}
 
 /* Context menu, right click */
 .dark #spaces #contextMenu{border-color:#666}

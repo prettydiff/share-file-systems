@@ -3,13 +3,14 @@
 #spaces *:focus{outline-color:#39f}
 #spaces input::placeholder{color:#933}
 #spaces select{background:#eee;border-color:#999}
+#spaces p strong,
+#spaces .warning{color:#c00}
 
 /* Login prompt */
 .login #spaces #login{background:#eee;border-color:#000;box-shadow:0.2em 0.2em 0.5em #999}
 #spaces #login a,
 #spaces #login button{background:#dfd;border-color:#060;box-shadow:0.1em 0.1em 0.25em #ccc;color:#060}
 #spaces #login p{border-color:#000}
-#spaces #login p strong{color:#900}
 #spaces #login li{border-color:#000}
 #spaces #login li::after{background:#eee}
 #spaces #login input{border-color:#000}

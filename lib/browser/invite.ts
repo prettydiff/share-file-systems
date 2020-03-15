@@ -67,6 +67,22 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
     modal.close(event);  
 };
 
+/* Removes form validation warnings for an unselected radio button set in the invite messaging. */
+invite.removeWarning = function local_invite_removeWarning(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        para:HTMLElement = <HTMLElement>element.parentNode.parentNode,
+        parent:HTMLElement = <HTMLElement>para.parentNode,
+        warning:HTMLElement = <HTMLElement>parent.getElementsByClassName("inviteWarning")[0],
+        inputs:HTMLCollectionOf<HTMLInputElement> = para.getElementsByTagName("input");
+    let a:number = inputs.length;
+    do {
+        a = a - 1;
+        inputs[a].onclick = null;
+    } while (a > 0);
+    parent.removeChild(warning);
+    para.removeAttribute("class");
+}
+
 /* Basic form validation on the port field */
 invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
     const portElement:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
@@ -102,7 +118,7 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
 };
 
 /* Send the invite request to the network */
-invite.request = function local_invite_request(options:ui_modal):void {
+invite.request = function local_invite_request(event:MouseEvent, options:ui_modal):void {
     let type:inviteType,
         ip:string,
         port:string,
@@ -182,7 +198,19 @@ invite.request = function local_invite_request(options:ui_modal):void {
     });
     network.storage("settings");
     if (input !== null) {
+        const p:HTMLElement = <HTMLElement>input.parentNode.parentNode,
+            inputs:HTMLCollectionOf<HTMLElement> = p.getElementsByTagName("input"),
+            warning:HTMLElement = document.createElement("p");
+        let a:number = inputs.length;
+        p.setAttribute("class", "warning");
+        do {
+            a = a - 1;
+            inputs[a].onclick = invite.removeWarning;
+        } while (a > 0);
         input.focus();
+        warning.innerHTML = "<strong>Please select an invitation type.</strong>";
+        warning.setAttribute("class", "inviteWarning");
+        p.parentNode.appendChild(warning);
         return;
     }
     content.style.display = "none";

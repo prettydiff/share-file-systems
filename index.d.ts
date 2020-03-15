@@ -303,7 +303,8 @@ declare global {
         accept?: (box:HTMLElement) => void;
         decline?: EventHandlerNonNull;
         portValidation?: EventHandlerNonNull;
-        request?: (options:ui_modal) => void;
+        removeWarning?: EventHandlerNonNull;
+        request?: (event:MouseEvent, options:ui_modal) => void;
         respond?: (message:string) => void;
         start?: sharesDeleteList;
         typeToggle?: EventHandlerNonNull;

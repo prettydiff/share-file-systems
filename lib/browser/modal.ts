@@ -51,7 +51,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
         options = browser.data.modals[id];
 
     if (options.type === "invite-request") {
-        invite.request(options);
+        invite.request(event, options);
         return;
     }
     if (options.type === "export") {
