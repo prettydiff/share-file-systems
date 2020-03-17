@@ -48,7 +48,7 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
         boxLocal:HTMLElement = util.getAncestor(element, "box", "class"),
         para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
-        invite:invite = JSON.parse(dataString);
+        invite:invite = JSON.parse(dataString).invite;
     network.inviteAccept({
         action: "invite-response",
         deviceKey: "",
@@ -228,11 +228,30 @@ invite.respond = function local_invite_respond(message:string):void {
     if (invite.status === "invited") {
         const div:HTMLElement = document.createElement("div"),
             modals:string[] = Object.keys(browser.data.modals),
-            length:number = modals.length;
+            length:number = modals.length,
+            users:string[] = Object.keys(browser.users);
         let text:HTMLElement = document.createElement("h3"),
             label:HTMLElement = document.createElement("label"),
             textarea:HTMLTextAreaElement = document.createElement("textarea"),
             a:number = 0;
+        if (users.indexOf(invite.userName) > -1) {
+            network.inviteAccept({
+                action: "invite-response",
+                deviceKey: "",
+                deviceName: "",
+                ip: invite.ip,
+                message: `Invite accepted: ${util.dateFormat(new Date())}`,
+                name: browser.data.name,
+                modal: invite.modal,
+                port: invite.port,
+                shares: browser.users.localhost.shares,
+                status: "accepted",
+                type: invite.type,
+                userHash: "",
+                userName: ""
+            });
+            return;
+        }
         do {
             if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${invite.name}`) {
                 // there should only be one invitation at a time from a given user otherwise there is spam

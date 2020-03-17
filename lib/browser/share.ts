@@ -63,9 +63,12 @@ share.addUser = function local_share_addUser(user:string):void {
         settings.addUserColor(user, <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         do {
             if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
-                shareUser = document.createElement("li");
-                shareUser.appendChild(share.content(user));
-                document.getElementById(modals[a]).getElementsByClassName("userList")[0].appendChild(shareUser);
+                const userList:HTMLElement = <HTMLElement>document.getElementById(modals[a]).getElementsByClassName("userList")[0];
+                if (userList !== undefined) {
+                    shareUser = document.createElement("li");
+                    shareUser.appendChild(share.content(user));
+                    userList.appendChild(shareUser);
+                }
             }
             a = a + 1;
         } while (a < length);
