@@ -14,7 +14,7 @@ settings.addUserColor = function local_settings_addUserColor(user:string, settin
         ul:HTMLElement = (newSection === true)
             ? document.createElement("ul")
             : <HTMLElement>settingsBody.getElementsByClassName("user-color-list")[0];
-    if (length > 1) {
+    if (length > 0) {
         const li:HTMLElement = document.createElement("li"),
             p:HTMLElement = document.createElement("p"),
             section:HTMLElement = document.createElement("div");
@@ -125,7 +125,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
     } else {
         browser.pageBody.setAttribute("class", element.value);
     }
-    if (userLength > 1) {
+    if (userLength > 0) {
         const userList:HTMLElement = <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0],
             settingsList:HTMLCollectionOf<HTMLElement> = (userList === undefined)
                 ? null
@@ -322,7 +322,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     settingsBody.appendChild(section);
 
     // user colors
-    if (length > 1) {
+    if (length > 0) {
         const ul:HTMLElement = document.createElement("ul");
         let a:number = 0;
         ul.setAttribute("class", "user-color-list");

@@ -282,7 +282,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         label:HTMLElement,
         text:Text;
     p.setAttribute("class", "summary");
-    if (length > 1) {
+    if (length > 0) {
         p.innerHTML = "<strong>Please be warned that confirming this change is permanent.</strong> The user will be deleted from your devices and you from theirs.";
         ul.setAttribute("class", "sharesDeleteList");
         do {

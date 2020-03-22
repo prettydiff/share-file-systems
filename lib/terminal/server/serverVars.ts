@@ -8,9 +8,8 @@ import vars from "../utilities/vars.js";
 interface socketList {
     [key:string]: Socket;
 }
-
+let mac:string = "";
 const socketList:socketList = {},
-    mac:string[] = [],
     serverVars:serverVars = {
         addresses: (function terminal_server_addresses():[[string, string, string][], number] {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
@@ -21,22 +20,25 @@ const socketList:socketList = {},
                 b:number = 0,
                 ipv6:number,
                 ipv4:number,
-                interfaceLongest:number = 0;
+                interfaceLongest:number = 0,
+                mac6:string = "",
+                mac4:string = "";
             do {
                 if (interfaces[keys[a]][0].internal === false) { 
                     ipv4 = -1;
                     ipv6 = -1;
                     b = 0;
-                    mac.push(interfaces[keys[a]][0].mac);
                     do {
                         if (interfaces[keys[a]][b].address.indexOf("fe80") !== 0) {
                             if (interfaces[keys[a]][b].family === "IPv6") {
+                                mac6 = interfaces[keys[a]][b].mac;
                                 ipv6 = b;
                                 if (ipv4 > -1) {
                                     break;
                                 }
                             }
                             if (interfaces[keys[a]][b].family === "IPv4") {
+                                mac4 = interfaces[keys[a]][b].mac;
                                 ipv4 = b;
                                 if (ipv6 > -1) {
                                     break;
@@ -59,14 +61,18 @@ const socketList:socketList = {},
                 }
                 a = a + 1;
             } while (a < length);
+            mac = (mac6 !== "")
+                ? mac6
+                : mac4;
             if (store.length < 1) {
                 return [[["disconnected", "::1", "ipv6"], ["disconnected", "127.0.0.1", "ipv4"]], 0];
             }
             return [store, interfaceLongest];
         }()),
         brotli: 7,
+        deviceName: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
+        devices: {},
         hash: "sha3-512",
-        macList: mac,
         name: "",
         socketList: socketList,
         socketReceiver: {},

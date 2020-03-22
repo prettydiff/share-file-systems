@@ -569,33 +569,8 @@ const library = {
                                     } else {
                                         writeVersion();
                                     }
-                                },
-                                length:number = serverVars.macList.length,
-                                identity = function terminal_build_version_version_stat_read_hash():void {
-                                    library.hash({
-                                        callback: function terminal_build_version_stat_read_hashCallback(hashOut:hashOutput):void {
-                                            if (a === 0) {
-                                                hash0 = hashOut.hash;
-                                            }
-                                            if (vars.version.device === "" || vars.version.device === undefined || vars.version.device === hashOut.hash) {
-                                                vars.version.device = hashOut.hash;
-                                                keys();
-                                            } else if (a < length) {
-                                                a = a + 1;
-                                                terminal_build_version_version_stat_read_hash();
-                                            } else {
-                                                vars.version.device = hash0;
-                                                keys();
-                                            }
-                                        },
-                                        directInput: true,
-                                        source: hostname() + serverVars.macList[a]
-                                    });
                                 };
                             vars.version.number = JSON.parse(data).version;
-
-                            // generate identity hashes and key pair
-                            identity();
 
                             // modify HTML
                             vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {

@@ -24,7 +24,7 @@ declare global {
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
-    type storageType = "messages" | "settings" | "users";
+    type storageType = "devices" | "messages" | "settings" | "users";
     type testListType = "service" | "simulation";
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
@@ -461,8 +461,9 @@ declare global {
     interface serverVars {
         addresses: [[string, string, string][], number];
         brotli: brotli;
+        deviceName: string;
+        devices: users;
         hash: hash;
-        macList:string[];
         name: string;
         socketReceiver: any;
         socketList: any;

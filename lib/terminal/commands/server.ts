@@ -94,7 +94,7 @@ const library = {
                         // * Send and receive heartbeat signals
                         const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
                         library.heartbeat(heartbeatData, response);
-                    } else if (task === "settings" || task === "messages" || task === "users") {
+                    } else if (task === "settings" || task === "messages" || task === "devices" || task === "users") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);
                     } else if (task === "fs") {
@@ -290,12 +290,6 @@ const library = {
                                     process.exit(1);
                                     return;
                                 }
-                                serverVars.users = {
-                                    localhost: {
-                                        color: ["#fff", "#eee"],
-                                        shares: []
-                                    }
-                                };
                             } else {
                                 serverVars.users = JSON.parse(userString);
                             }

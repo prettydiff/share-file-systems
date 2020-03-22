@@ -234,6 +234,7 @@ invite.respond = function local_invite_respond(message:string):void {
             label:HTMLElement = document.createElement("label"),
             textarea:HTMLTextAreaElement = document.createElement("textarea"),
             a:number = 0;
+        // if the user is already added then respond automatically.
         if (users.indexOf(invite.userName) > -1) {
             network.inviteAccept({
                 action: "invite-response",
