@@ -44,7 +44,58 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
     }));
 };
 
-/* Provides active user status from across the network about every minute */
+/* generate a share to describe a new share from the local device */
+network.hashDevice = function local_network_hashDevice(callback:Function):void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_hashDevice_callback():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when sending messages.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
+                } else {
+                    callback(JSON.parse(xhr.responseText).deviceHash);
+                }
+            }
+        };
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.send(JSON.stringify({hashDevice:""}));
+};
+
+/* generate a share to describe a new share from the local device */
+network.hashShare = function local_network_hashShare(configuration:shareHashConfiguration):void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_hashShare_callback():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    systems.message("errors", JSON.stringify({
+                        error: `XHR responded with ${xhr.status} when sending messages.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    }));
+                } else {
+                    configuration.callback(xhr.responseText);
+                }
+            }
+        },
+        payload:shareHash = {
+            device: configuration.device,
+            share: configuration.share,
+            type: configuration.type
+        };
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.send(JSON.stringify({hashShare:payload}));
+};
+
+/* Provides active user status from across the network at regular intervals */
 network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_fs_readyState():void {
@@ -61,9 +112,10 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
         heartbeat:heartbeat = {
             agent: "localhost-browser",
             shares: (share === true)
-                ? browser.users.localhost.shares
+                ? browser.device
                 : "",
-                status: status,
+            status: status,
+            type: "user",
             user: ""
         };
     

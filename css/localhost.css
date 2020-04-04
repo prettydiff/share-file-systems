@@ -94,24 +94,42 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #menu button{border-style:solid;border-width:0 0 0.05em;cursor:pointer;display:block;font-size:2em;padding:1em;text-align:left;width:100%}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
-/* users list */
-#spaces #users{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
-#spaces #users h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
-#spaces #users ul{margin:0;padding:0;position:relative;z-index:2}
-#spaces #users li{display:block;list-style:none}
-#spaces #users button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
-#spaces #users button span{background:transparent;display:block;height:0;position:absolute;text-shadow:none;width:0;z-index:-10}
-#spaces #users .active .status-active,
-#spaces #users .idle .status-idle,
-#spaces #users .offline .status-offline{display:inline-block}
-#spaces #users .active .status-idle,
-#spaces #users .active .status-offline,
-#spaces #users .idle .status-active,
-#spaces #users .idle .status-offline,
-#spaces #users .offline .status-active,
-#spaces #users .offline .status-idle{display:none}
-#spaces #users span{display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
-#spaces #users #all-shares::before{content:""}
+/* device/user list */
+#spaces #device,
+#spaces #user{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
+#spaces #device h2,
+#spaces #user h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
+#spaces #device ul,
+#spaces #user ul{margin:0;padding:0;position:relative;z-index:2}
+#spaces #device li,
+#spaces #user li{display:block;list-style:none}
+#spaces #device button,
+#spaces #user button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
+#spaces #device button span,
+#spaces #user button span{background:transparent;display:block;height:0;position:absolute;text-shadow:none;width:0;z-index:-10}
+#spaces #device .active .status-active,
+#spaces #user .active .status-active,
+#spaces #device .idle .status-idle,
+#spaces #user .idle .status-idle,
+#spaces #device .offline .status-offline,
+#spaces #user .offline .status-offline{display:inline-block}
+#spaces #device .active .status-idle,
+#spaces #user .active .status-idle,
+#spaces #device .active .status-offline,
+#spaces #user .active .status-offline,
+#spaces #device .idle .status-active,
+#spaces #user .idle .status-active,
+#spaces #device .idle .status-offline,
+#spaces #user .idle .status-offline,
+#spaces #device .offline .status-active,
+#spaces #user .offline .status-active,
+#spaces #device .offline .status-idle
+#spaces #user .offline .status-idle{display:none}
+#spaces #device span,
+#spaces #user span{display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
+#spaces #all-shares::before,
+#spaces #device #device-all-shares::before,
+#spaces #user #user-all-shares::before{content:""}
 
 /* minimize tray at bottom */
 #spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
@@ -170,7 +188,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .header .fileAddress{width:87.5%}
 #spaces .box .header .fileSearch{width:12.5%}
 #spaces .box .header .fileSearch input{border-style:none none none solid;border-width:0.06em;margin:0;padding:0 0 0.13em 0.1em}
-#spaces .userList .localhost button.grant-full-access,
+#spaces .agentList .device button.grant-full-access,
 #spaces .box button.cancel{cursor:pointer}
 #spaces .box button.confirm{cursor:pointer}
 #spaces .box button.save{cursor:pointer}
@@ -228,19 +246,19 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .settings .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;margin:0 1em 0 0;vertical-align:middle;width:1em}
 
 /* share list */
-#spaces .userList{margin:1em;padding:0}
-#spaces .userList li{border-style:none}
-#spaces .userList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
-#spaces .userList button{background:transparent;border-style:none;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
-#spaces .userList .localhost button{width:75%}
-#spaces .userList .localhost button.delete{width:1.25em}
-#spaces .userList .localhost button.make-read-only,
-#spaces .userList .localhost button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:20%}
-#spaces .userList .read-only-status{float:right;font-weight:normal}
-#spaces .userList .full-access .read-only-status{font-weight:bold}
-#spaces .userList button:hover{text-decoration:underline}
-#spaces .userList .user{margin:0 0 1em}
-#spaces .userList .user::before{content:"👤 "}
+#spaces .agentList{margin:1em;padding:0}
+#spaces .agentList li{border-style:none}
+#spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
+#spaces .agentList button{background:transparent;border-style:none;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
+#spaces .agentList .device button{width:75%}
+#spaces .agentList .device button.delete{width:1.25em}
+#spaces .agentList .device button.make-read-only,
+#spaces .agentList .device button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:20%}
+#spaces .agentList .read-only-status{float:right;font-weight:normal}
+#spaces .agentList .full-access .read-only-status{font-weight:bold}
+#spaces .agentList button:hover{text-decoration:underline}
+#spaces .agentList .agent{margin:0 0 1em}
+#spaces .agentList .agent::before{content:"👤 "}
 
 /* share delete */
 #spaces .sharesDeleteList{padding:0 5em}
@@ -254,11 +272,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList label{cursor:text;display:inline-block}
 #spaces .fileList li{border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
 #spaces .fileList li ul{border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}
-#spaces .userList .directory::before,
+#spaces .agentList .directory::before,
 #spaces .fileList .directory::before{content: "📂 "}
-#spaces .userList .file::before,
+#spaces .agentList .file::before,
 #spaces .fileList .file::before{content: "📃 "}
-#spaces .userList .link::before,
+#spaces .agentList .link::before,
 #spaces .fileList .link::before{content: "🔗 "}
 #spaces .fileList .lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}

@@ -6,12 +6,19 @@ const browser:browser = {
         audio: true,
         brotli: 7,
         color: "default",
+        colors: {
+            device: {},
+            user: {}
+        },
+        deviceHash: "",
         hash: "sha3-512",
         modals: {},
         modalTypes: [],
-        name: "",
+        nameDevice: "",
+        nameUser: "",
         zIndex: 0
     },
+    device: {},
     loadTest: true,
     localNetwork: (function local_network():localNetwork {
         let str:string = document.getElementsByTagName("body")[0].innerHTML,
@@ -27,12 +34,7 @@ const browser:browser = {
     },
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),
-    users: {
-        localhost: {
-            color: ["#fff", "#eee"],
-            shares: []
-        }
-    }
+    user: {}
 };
 
 export default browser;

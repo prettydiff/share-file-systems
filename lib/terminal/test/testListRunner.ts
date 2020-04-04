@@ -12,6 +12,8 @@ import service from "./service.js";
 import simulation from "./simulation.js";
 import services from "./service.js";
 
+import serverVars from "../server/serverVars.js";
+
 // runs various tests of different types
 const library = {
         error: error,
@@ -162,13 +164,13 @@ const library = {
                         agent:string = testItem.command[keyword].agent,
                         command:string = (function test_testListRunner_service_command():string {
                             if (testItem.command[keyword].agent !== undefined) {
-                                if (agent === "localhost") {
-                                    testItem.command[keyword].agent = `localhost`;
+                                if (agent === serverVars.deviceHash) {
+                                    testItem.command[keyword].agent = serverVars.deviceHash;
                                 } else {
                                     testItem.command[keyword].agent = `${testItem.command[keyword].agent}@[::1]:${services.serverRemote.port}`;
                                 }
                             }
-                            if ((testItem.command[keyword].copyAgent !== undefined || testItem.command["fs-update-remote"] !== undefined) && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost") {
+                            if ((testItem.command[keyword].copyAgent !== undefined || testItem.command["fs-update-remote"] !== undefined) && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.deviceHash) {
                                 testItem.command[keyword].copyAgent = `${testItem.command[keyword].copyAgent}@[::1]:${services.serverRemote.port}`;
                             }
                             if (keyword === "invite") {
@@ -183,19 +185,21 @@ const library = {
                         name:string = (testItem.name === undefined)
                             ? command
                             : testItem.name,
-                        header = (agent === "localhost" || agent === undefined)
+                        header = (agent === serverVars.deviceHash || agent === undefined)
                             ? {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
-                                "user-name": "localUser",
-                                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== "localhost")
+                                "agent-name": "localUser",
+                                "agent-type": "device",
+                                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.deviceHash)
                                     ? testItem.command[keyword].copyAgent
                                     : "localUser"
                             }
                             : {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
-                                "user-name": testItem.command[keyword].agent,
+                                "agent-name": testItem.command[keyword].agent,
+                                "agent-type": "user",
                                 "remote-user": "localUser"
                             },
                         request:http.ClientRequest = http.request({
@@ -203,7 +207,7 @@ const library = {
                             host: "::1",
                             method: "POST",
                             path: "/",
-                            port: (testItem.command.agent === "localhost")
+                            port: (testItem.command.agent === serverVars.deviceHash)
                                 ? services.serverLocal.port
                                 : services.serverRemote.port,
                             timeout: 1000
@@ -299,6 +303,7 @@ const library = {
 
         let a:number = 0,
             fail:number = 0;
+
         if (vars.command === testListType) {
             callback = function test_lint_callback(message:string):void {
                 vars.verbose = true;
@@ -306,6 +311,18 @@ const library = {
             };
             library.log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
+
+        if (serverVars.deviceHash === "") {
+            callback([
+                `${vars.text.angry}This device does not yet have an identified device hash.${vars.text.none}`,
+                `${vars.text.underline}To create a device hash execute the application one time with these steps:${vars.text.none}`,
+                "1. On the terminal execute the command: `node js/application server`",
+                "2. Open a web browser to address `localhost`.",
+                "3. Fill out the initial form data for user name and device name."
+            ].join(vars.node.os.EOL));
+            return;
+        }
+
         if (testListType === "service") {
             const service:serviceTests = <serviceTests>tests;
             service.addServers(function test_testListRunner_serviceCallback():void {

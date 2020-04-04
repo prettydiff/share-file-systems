@@ -10,27 +10,25 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
             ? [data.name]
             : data.location,
-        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === "localhost") && data.agent.indexOf("remoteUser") === 0);
+        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.deviceHash) && data.agent.indexOf("remoteUser") === 0);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.agent !== "localhost" && data.agent !== serverVars.name && remoteUserTest === false) {
-        const shares:userShares = (data.action === "fs-copy-file" && serverVars.users[data.copyAgent] !== undefined)
-                ? serverVars.users[data.copyAgent].shares
-                : ((data.action === "fs-copy-request" && data.copyAgent === serverVars.name) || serverVars.users[data.agent] === undefined)
-                    ? serverVars.users.localhost.shares
-                    : serverVars.users[data.agent].shares,
+    if (data.type !== "device" && data.agent !== serverVars.name && remoteUserTest === false) {
+        const shares:deviceShares = (data.action === "fs-copy-file" && serverVars.user[data.copyAgent] !== undefined)
+                ? serverVars.user[data.copyAgent].shares
+                : serverVars.user[data.agent].shares,
             windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
             readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
-            sIndex:number = shares.length,
+            sIndex:number = Object.keys(shares).length,
             bestMatch:number = -1;
-        if (data.copyAgent === "localhost") {
+        if (data.copyAgent === serverVars.deviceHash) {
             readOnly.push("fs-copy-file");
         }
         if (sIndex > 0) {
             do {
                 dIndex = dIndex - 1;
-                sIndex = shares.length;
+                sIndex = Object.keys(shares).length;
                 do {
                     sIndex = sIndex - 1;
                     if (location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
@@ -57,7 +55,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             return;
         }
     }
-    if (location.length > 0 || data.agent === "localhost" || data.agent === serverVars.name) {
+    if (location.length > 0 || data.agent === serverVars.deviceHash || data.agent === serverVars.name) {
         fileService(response, data);
     } else {
         response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});

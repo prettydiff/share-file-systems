@@ -40,7 +40,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                         ? Buffer.concat(chunks)
                         : chunks.join("");
                     if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), config.response);
+                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user", config.response);
                     } else {
                         config.callback(body);
                     }
@@ -98,13 +98,15 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
-                "user-name": serverVars.name,
+                "agent-name": serverVars.name,
+                "agent-type": config.agentType,
                 "remote-user": config.remoteName
             }
             : {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
-                "user-name": serverVars.name,
+                "agent-name": serverVars.name,
+                "agent-type": config.agentType,
                 "remote-user": config.remoteName,
                 "invite": invite
             },

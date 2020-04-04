@@ -3,6 +3,8 @@
 import server from "../commands/server.js";
 import vars from "../utilities/vars.js";
 
+import serverVars from "../server/serverVars.js";
+
 // tests structure
 // * artifact - the address of anything written to disk, so that it can be removed
 // * command - the command to execute minus the `node js/services` part
@@ -26,7 +28,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-base64",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -68,7 +70,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-close",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -102,8 +104,8 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-copy",
-                    agent: "localhost",
-                    copyAgent: "localhost",
+                    agent: serverVars.deviceHash,
+                    copyAgent: serverVars.deviceHash,
                     depth: 1,
                     id: "test-ID",
                     location: [`${projectPath}tsconfig.json`],
@@ -125,7 +127,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-copy",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "remoteUser",
                     depth: 1,
                     id: "test-ID",
@@ -149,7 +151,7 @@ const //sep:string = vars.sep,
                 fs: {
                     action: "fs-copy",
                     agent: "remoteUser",
-                    copyAgent: "localhost",
+                    copyAgent: serverVars.deviceHash,
                     depth: 1,
                     id: "test-ID",
                     location: [`${projectPath}tsconfig.json`],
@@ -222,7 +224,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-details",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -268,7 +270,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-new",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -285,7 +287,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-new",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -336,7 +338,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-write",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -347,7 +349,7 @@ const //sep:string = vars.sep,
             },
             name: "fs:fs-write, Write Local",
             qualifier: "is",
-            test: `File ${projectPath}serviceTestLocal.json saved to disk on localhost.`
+            test: `File ${projectPath}serviceTestLocal.json saved to disk on local device.`
         },
         {
             command: {
@@ -370,7 +372,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-read",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -412,7 +414,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-rename",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -423,13 +425,13 @@ const //sep:string = vars.sep,
             },
             name: "fs:fs-rename, Rename Local Directory",
             qualifier: "is",
-            test: `Path ${projectPath}serviceTestLocal on agent localhost renamed to ${projectPath}serviceLocal.`
+            test: `Path ${projectPath}serviceTestLocal on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.`
         },
         {
             command: {
                 fs: {
                     action: "fs-rename",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -440,7 +442,7 @@ const //sep:string = vars.sep,
             },
             name: "fs:fs-rename, Rename Local File",
             qualifier: "is",
-            test: `Path ${projectPath}serviceTestLocal.json on agent localhost renamed to ${projectPath}serviceLocal.json.`
+            test: `Path ${projectPath}serviceTestLocal.json on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.json.`
         },
         {
             command: {
@@ -480,7 +482,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-destroy",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -491,13 +493,13 @@ const //sep:string = vars.sep,
             },
             name: "fs:fs-destroy, Destroy Local Directory",
             qualifier: "is",
-            test: `Path(s) ${projectPath}serviceLocal destroyed on agent localhost.`
+            test: `Path(s) ${projectPath}serviceLocal destroyed on agent ${serverVars.deviceHash}.`
         },
         {
             command: {
                 fs: {
                     action: "fs-destroy",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -508,7 +510,7 @@ const //sep:string = vars.sep,
             },
             name: "fs:fs-destroy, Destroy Local File",
             qualifier: "is",
-            test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent localhost.`
+            test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent ${serverVars.deviceHash}.`
         },
         {
             command: {
@@ -548,7 +550,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-hash",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 1,
                     id: "test-ID",
@@ -590,7 +592,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-directory",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 2,
                     id: "test-ID",
@@ -607,7 +609,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-directory",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 2,
                     id: "test-ID",
@@ -658,7 +660,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-search",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 0,
                     id: "test-ID",
@@ -675,7 +677,7 @@ const //sep:string = vars.sep,
             command: {
                 fs: {
                     action: "fs-search",
-                    agent: "localhost",
+                    agent: serverVars.deviceHash,
                     copyAgent: "",
                     depth: 0,
                     id: "test-ID",
@@ -746,7 +748,7 @@ const //sep:string = vars.sep,
                     hash: "sha3-512",
                     modals: {
                         "systems-modal": {
-                            agent: "localhost",
+                            agent: serverVars.deviceHash,
                             content:{},
                             inputs: [
                                 "close", "maximize", "minimize"
@@ -799,7 +801,7 @@ const //sep:string = vars.sep,
         {
             command: {
                 users: {
-                    localhost: {
+                    [serverVars.deviceHash]: {
                         color: ["fff", "000"],
                         shares: []
                     },
@@ -995,7 +997,7 @@ const //sep:string = vars.sep,
                     agent: "remoteUser",
                     shares: [],
                     status: "active",
-                    user: "localhost"
+                    user: serverVars.deviceHash
                 }
             },
             name: "heartbeat, Local to Remote",
@@ -1022,7 +1024,7 @@ const //sep:string = vars.sep,
                         }
                     ],
                     status: "active",
-                    user: "localhost"
+                    user: serverVars.deviceHash
                 }
             },
             name: "heartbeat, Local to Remote with share change",

@@ -17,9 +17,6 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         const ip:string = data.ip,
                             port:number = data.port;
                         let output:string = "";
-                        data.deviceKey = vars.version.keys.device.public;
-                        data.deviceName = "";
-                        //data.userHash = vars.version.
                         data.userName = serverVars.name;
                         data.ip = serverVars.addresses[0][1][1];
                         data.port = serverVars.webPort;
@@ -34,6 +31,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         invite: data
                     });
             httpClient({
+                agentType: data.type,
                 callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
                     if (vars.command.indexOf("test") !== 0) {
                         log([<string>responseBody]);
@@ -47,7 +45,6 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     ? `invite@[${data.ip}]:${data.port}`
                     : `invite@${data.ip}:${data.port}`,
                 requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
-                    data.deviceKey = "";
                     if (errorMessage.code === "ETIMEDOUT") {
                         if (data.action === "invite-request") {
                             data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;

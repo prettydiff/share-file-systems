@@ -16,7 +16,7 @@ let clipboard:string = "";
 
 /* Handler for file system artifact copy */
 context.copy = function local_context_copy(event:MouseEvent):void {
-    let selected:[string, string][],
+    let selected:[string, shareType, string][],
         addresses:string[] = [],
         box:HTMLElement,
         element:HTMLElement = context.element,
@@ -34,7 +34,7 @@ context.copy = function local_context_copy(event:MouseEvent):void {
     if (selected.length < 1) {
         addresses.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
-        selected.forEach(function local_context_destroy_each(value:[string, string]):void {
+        selected.forEach(function local_context_destroy_each(value:[string, shareType, string]):void {
             addresses.push(value[0]);
         });
     }
@@ -65,10 +65,10 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                 : (contextElement.innerHTML.indexOf("Edit") === 0)
                     ? "Edit"
                     : "Hash",
-        addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
+        addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
         box:HTMLElement = util.getAncestor(element, "box", "class"),
         length:number = addresses.length,
-        agency:[string, boolean] = util.getAgent(box),
+        agency:agency = util.getAgent(box),
         locations:string[] = [];
     let a:number = 0,
         delay:HTMLElement,
@@ -78,6 +78,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             delay = util.delay();
             modalInstance = modal.create({
                 agent: agency[0],
+                agentType: agency[2],
                 content: delay,
                 height: 500,
                 inputs: (type === "Edit" && agency[1] === false)
@@ -144,7 +145,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function local_context_destroy():void {
     let element:HTMLElement = context.element,
-        selected:[string, string][],
+        selected:[string, shareType, string][],
         addresses:string[] = [],
         box:HTMLElement = util.getAncestor(element, "box", "class"); 
     if (element.nodeName.toLowerCase() !== "li") {
@@ -154,7 +155,7 @@ context.destroy = function local_context_destroy():void {
     if (selected.length < 1) {
         addresses.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
-        selected.forEach(function local_context_destroy_each(value:[string, string]):void {
+        selected.forEach(function local_context_destroy_each(value:[string, shareType, string]):void {
             addresses.push(value[0]);
         });
     }
@@ -177,10 +178,11 @@ context.destroy = function local_context_destroy():void {
 context.details = function local_context_details(event:MouseEvent):void {
     const element:HTMLElement = context.element,
         div:HTMLElement = util.delay(),
-        agency:[string, boolean] = util.getAgent(element),
-        addresses:[string, string][] = util.selectedAddresses(element, "details"),
+        agency:agency = util.getAgent(element),
+        addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
         modalInstance:HTMLElement = modal.create({
             agent: agency[0],
+            agentType: agency[2],
             content: div,
             height: 600,
             inputs: ["close"],
@@ -726,7 +728,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         functions.paste();
     } else if (parent.getAttribute("class") === "fileList") {
         functions.details();
-        if (box.getAttribute("data-agent") === "localhost") {
+        if (box.getAttribute("data-agent") === browser.data.deviceHash) {
             functions.share();
         }
         if (element.getAttribute("class").indexOf("file") === 0) {

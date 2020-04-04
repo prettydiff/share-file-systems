@@ -4,6 +4,8 @@ import { Server } from "net";
 
 declare global {
 
+    type agency = [string, boolean, agentType];
+    type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
     type colorScheme = "dark" | "default";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
@@ -12,7 +14,6 @@ declare global {
     type eventCallback = (event:Event, callback:Function) => void;
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "idle" | "offline";
-    type inviteType = "device" | "user";
     type messageList = [string, string];
     type messageListError = [string, string, string[]];
     type messageType = "errors" | "status" | "users";
@@ -22,9 +23,10 @@ declare global {
     type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
+    type serverTask = storageType | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat" | "invite";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
-    type storageType = "devices" | "messages" | "settings" | "users";
+    type storageType = "device" | "messages" | "settings" | "user";
     type testListType = "service" | "simulation";
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
@@ -54,13 +56,14 @@ declare global {
     interface browser {
         content: HTMLElement;
         data: ui_data;
+        device: devices;
         loadTest: boolean;
         localNetwork:localNetwork;
         messages:messages;
         pageBody:HTMLElement;
         socket?:WebSocket;
         style:HTMLStyleElement;
-        users: users;
+        user: devices;
     }
     interface clipboard {
         agent: string;
@@ -70,6 +73,13 @@ declare global {
     }
     interface colorDefaults {
         [key:string]: [string, string];
+    }
+    interface colorList {
+        [key:string]: [string, string];
+    }
+    interface colors {
+        device: colorList;
+        user: colorList;
     }
     interface commandList {
         [key:string]: {
@@ -111,6 +121,24 @@ declare global {
         message:string;
         target:string;
     }
+    interface device {
+        ip: string;
+        name: string;
+        port: number;
+        shares: deviceShares;
+    }
+    interface devices {
+        [key:string]: device;
+    }
+    interface deviceShare {
+        execute: boolean;
+        name: string;
+        readOnly: boolean;
+        type: shareType;
+    }
+    interface deviceShares {
+        [key:string]: deviceShare;
+    }
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;
         failures?: string[];
@@ -132,12 +160,14 @@ declare global {
     interface fileService {
         action      : serviceType;
         agent       : string;
+        agentType   : agentType;
         copyAgent   : string;
         depth       : number;
         id          : string;
         location    : string[];
         name        : string;
         remoteWatch?: string;
+        type        : agentType;
         watch       : string;
     }
     interface fileStore extends Array<[number, string, string, Buffer]> {
@@ -187,11 +217,13 @@ declare global {
     }
     interface heartbeat {
         agent: string;
-        shares: userShares | "";
+        shares: deviceShares | devices | "";
         status: heartbeatStatus;
+        type: agentType;
         user: string;
     }
     interface httpConfiguration {
+        agentType: agentType,
         callback: Function;
         callbackType: "body" | "object";
         errorMessage: string;
@@ -207,16 +239,16 @@ declare global {
     }
     interface invite {
         action: "invite" | "invite-request" | "invite-response" | "invite-complete";
-        deviceKey: string;
         deviceName: string;
+        deviceHash: string;
         ip: string;
         message: string;
         modal: string;
         name: string;
         port: number;
-        shares: userShares;
+        shares: deviceShares | devices;
         status: "accepted" | "declined" | "invited";
-        type: inviteType;
+        type: agentType;
         userHash: string;
         userName: string;
     }
@@ -229,7 +261,7 @@ declare global {
         ip: string;
         port: string;
         message: string;
-        type: inviteType;
+        type: agentType;
     }
     interface localNetwork {
         family: "ipv4" | "ipv6";
@@ -294,11 +326,6 @@ declare global {
         select?: EventHandlerNonNull;
         text?: EventHandlerNonNull;
     }
-    interface module_identity {
-        generate?: () => void;
-        recreate?: () => void;
-        reload?: () => void;
-    }
     interface module_invite {
         accept?: (box:HTMLElement) => void;
         decline?: EventHandlerNonNull;
@@ -326,13 +353,15 @@ declare global {
     }
     interface module_network {
         fs?: (localService, callback:Function, id?:string) => void;
+        hashDevice?: (callback:Function) => void;
+        hashShare?: (configuration:shareHashConfiguration) => void;
         heartbeat?: (status:"active"|"idle", share:boolean) => void;
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
     }
     interface module_settings {
-        addUserColor?: (user:string, settingsBody:HTMLElement) => void;
+        addUserColor?: (agent:string, type:agentType, settingsBody:HTMLElement) => void;
         applyUserColors?: (user:string, colors:[string, string]) => void;
         audio?: EventHandlerNonNull;
         colorDefaults?: colorDefaults;
@@ -344,16 +373,16 @@ declare global {
         userColor?: EventHandlerNonNull;
     }
     interface module_share {
-        addUser?: (username:string) => void;
-        content?: (user:string) => HTMLElement;
+        addUser?: (agentName:string, id:string, type:agentType) => void;
+        content?: (agent:string, agentType:agentType|"") => HTMLElement;
         context?: EventHandlerNonNull;
         deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
         deleteToggle?: EventHandlerNonNull;
         deleteUser?: (box:HTMLElement) => void;
         itemDelete?: EventHandlerNonNull;
-        modal?: (event:MouseEvent, user?:string, configuration?:ui_modal) => void;
+        modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
-        update?: (user:string, shares:userShares|"deleted", id?:string) => void;
+        update?: (updateShareConfiguration) => void;
     }
     interface module_systems {
         close?: EventHandlerNonNull;
@@ -373,29 +402,31 @@ declare global {
         fixHeight?: () => void;
         formKeys?: (event:KeyboardEvent, submit:Function) => void;
         getAncestor?: (start:HTMLElement, identifier:string, selector:selector) => HTMLElement;
-        getAgent?: (element:HTMLElement) => [string, boolean];
+        getAgent?: (element:HTMLElement) => agency;
         keys?: (event:KeyboardEvent) => void;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         minimizeAll?: EventHandlerNonNull;
         minimizeAllFlag?: boolean;
-        selectedAddresses?: (element:HTMLElement, type:string) => [string, string][];
+        selectedAddresses?: (element:HTMLElement, type:string) => [string, shareType, string][];
         selectExpression?: RegExp;
         selectNone?:(element:HTMLElement) => void;
     }
     interface navConfig {
-        agentName:string;
-        path:string;
-        readOnly:boolean;
+        agentName: string;
+        agentType: agentType;
+        nameDevice: string;
+        path: string;
+        readOnly: boolean;
     }
     interface navigate extends EventHandlerNonNull {
-        (Event, config?:navConfig): void;
+        (Event, config?: navConfig): void;
     }
     interface nodeCopyParams {
-        callback:Function;
-        destination:string;
-        exclusions:string[];
-        target:string;
+        callback: Function;
+        destination: string;
+        exclusions: string[];
+        target: string;
     }
     interface nodeError extends Error {
         code: string;
@@ -437,19 +468,19 @@ declare global {
         stat: Stats;
     }
     interface remoteCopyList {
-        callback:Function;
-        files:[string, string, string, number][];
-        id:string;
-        index:number;
-        length:number;
+        callback: Function;
+        files: [string, string, string, number][];
+        id: string;
+        index: number;
+        length: number;
     }
     interface remoteCopyListData {
         directories: number;
-        fileCount:number;
-        fileSize:number;
-        id:string;
-        list:[string, string, string, number][];
-        stream:boolean;
+        fileCount: number;
+        fileSize: number;
+        id: string;
+        list: [string, string, string, number][];
+        stream: boolean;
     }
     interface selection {
         [key:string]: string;
@@ -461,15 +492,16 @@ declare global {
     interface serverVars {
         addresses: [[string, string, string][], number];
         brotli: brotli;
+        deviceHash: string;
         deviceName: string;
-        devices: users;
+        device: devices;
         hash: hash;
         name: string;
         socketReceiver: any;
         socketList: any;
         status: heartbeatStatus;
         timeStore:number;
-        users: users;
+        user: devices;
         watches: {
             [key:string]: FSWatcher;
         };
@@ -481,8 +513,8 @@ declare global {
         remote: boolean;
     }
     interface serviceShares {
-        local?: userShares;
-        remote?: userShares;
+        local?: deviceShares;
+        remote?: deviceShares;
     }
     interface serviceTest {
         artifact?: string;
@@ -499,12 +531,40 @@ declare global {
         serverLocal?: httpServer;
         serverRemote?: httpServer;
     }
+    interface shareButton {
+        index: number;
+        name: string;
+        type: agentType;
+    }
     interface sharesDeleteList extends EventHandlerNonNull {
         (event:MouseEvent, configuration?:ui_modal): void;
     }
+    interface shareHash {
+        device: string;
+        share: string;
+        type: string;
+    }
+    interface shareHashConfiguration {
+        callback:(string) => void;
+        device: string;
+        share: string;
+        type: shareType;
+    }
+    interface shareHashResponse {
+        device: string;
+        hash: string;
+        share: string;
+        type: string;
+    }
+    interface shareUpdateConfiguration {
+        agent:string;
+        id?: string;
+        shares:deviceShares|"deleted";
+        type: agentType;
+    }
     interface shareUpdate {
         user: string;
-        shares: userShares;
+        shares: deviceShares;
     }
     interface SocketEvent extends Event {
         data: string;
@@ -517,7 +577,7 @@ declare global {
         messages?: messages;
         settings?: ui_data;
         send: boolean;
-        users?: users;
+        users?: devices;
     }
     interface stringData {
         content: string;
@@ -574,16 +634,20 @@ declare global {
         audio: boolean;
         brotli: brotli;
         color: colorScheme;
+        colors: colors;
+        deviceHash: string;
         hash: hash;
         modals: {
             [key:string]: ui_modal;
         };
         modalTypes: string[];
-        name: string;
+        nameDevice: string;
+        nameUser: string;
         zIndex: number;
     }
     interface ui_modal {
         agent: string;
+        agentType: agentType;
         content: HTMLElement;
         focus?: HTMLElement;
         height?: number;
@@ -610,26 +674,11 @@ declare global {
         width?: number;
         zIndex?: number;
     }
-    interface users {
-        [key:string]: {
-            color: [string, string];
-            shares: userShares;
-        }
-    }
     interface userExchange {
         agent: string;
-        shares: userShares;
+        shares: deviceShares;
         status: string;
         user: string;
-    }
-    interface userShare {
-        execute: boolean;
-        name: string;
-        readOnly: boolean;
-        type: shareType;
-    }
-    interface userShares extends Array<userShare> {
-        [index:number]: userShare;
     }
     interface version {
         command: string;

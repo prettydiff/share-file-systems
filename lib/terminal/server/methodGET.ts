@@ -28,7 +28,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             // navigating a file structure in the browser by direct address, like apache HTTP
             page:string = [
                 //cspell:disable
-                `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><title>${vars.version.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="application/xhtml+xml;charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
+                `<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><title>${vars.version.name}</title><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="index, follow" name="robots"/><meta content="#fff" name="theme-color"/><meta content="en" http-equiv="Content-Language"/><meta content="application/xhtml+xml;charset=UTF-8" http-equiv="Content-Type"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/><meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/><meta content="text/css" http-equiv="content-style-type"/><meta content="application/javascript" http-equiv="content-script-type"/><meta content="#bbbbff" name="msapplication-TileColor"/></head><body>`,
                 //cspell:enable
                 `<h1>${vars.version.name}</h1><div class="section">insertMe</div></body></html>`
             ].join("");
@@ -70,24 +70,23 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                     let tool:boolean = false;
                     const pageState = function terminal_server_create_readCallback_pageState():void {
                             const flag:any = {
-                                    settings: false,
+                                    device: false,
                                     messages: false,
-                                    users: false
+                                    settings: false,
+                                    user: false
+                                },
+                                complete = function terminal_server_create_readCallback_pageState_complete(fileName:string):void {
+                                    flag[fileName] = true;
+                                    if (flag.device === true && flag.messages === true && flag.settings === true && flag.user === true) {
+                                        response.write(appliedData());
+                                        response.end();
+                                    }
                                 },
                                 storageFiles = function terminal_server_create_readCallback_storageFiles(fileName:string):void {
                                     vars.node.fs.stat(`${vars.projectPath}storage${vars.sep + fileName}.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
                                         if (erSettings !== null) {
                                             if (erSettings.code === "ENOENT") {
-                                                flag[fileName] = true;
-                                                if (fileName === "users") {
-                                                    list.push("\"users\":{\"localhost\":{\"color\":[\"#fff\",\"#eee\"],\"shares\":[]}}");
-                                                } else {
-                                                    list.push(`"${fileName}":{}`);
-                                                }
-                                                if (flag.messages === true && flag.settings === true && flag.users === true) {
-                                                    response.write(appliedData());
-                                                    response.end();
-                                                }
+                                                complete(fileName);
                                             } else {
                                                 library.error([erSettings.toString()]);
                                                 response.write(data);
@@ -101,17 +100,13 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                                     response.end();
                                                 } else {
                                                     list.push(`"${fileName}":${settings}`);
-                                                    flag[fileName] = true;
-                                                    if (flag.messages === true && flag.settings === true && flag.users === true) {
-                                                        response.write(appliedData());
-                                                        response.end();
-                                                    }
+                                                    complete(fileName);
                                                 }
                                             });
                                         }
                                     });
-                                };
-                            let list:string[] = [],
+                                },
+                                list:string[] = [],
                                 appliedData = function terminal_server_create_readCallback_appliedData():string {
                                     const start:string = "<!--storage:-->",
                                         startLength:number = data.indexOf(start) + start.length - 3,
@@ -121,9 +116,10 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                     return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
                                 };
                             tool = true;
+                            storageFiles("device");
                             storageFiles("messages");
                             storageFiles("settings");
-                            storageFiles("users");
+                            storageFiles("user");
                         },
                         csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
                     if (localPath.indexOf(".js") === localPath.length - 3) {

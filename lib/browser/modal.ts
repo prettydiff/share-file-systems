@@ -136,10 +136,14 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     box.style.zIndex = browser.data.zIndex.toString();
     box.setAttribute("class", "box");
     if (options.agent === undefined) {
-        box.setAttribute("data-agent", "localhost");
+        box.setAttribute("data-agent", browser.data.deviceHash);
     } else {
         box.setAttribute("data-agent", options.agent);
     }
+    if (options.agentType === undefined) {
+        options.agentType = "device";
+    }
+    box.setAttribute("data-agentType", options.agentType);
     border.setAttribute("class", "border");
     body.setAttribute("class", "body");
     body.style.height = `${options.height / 10}em`;
@@ -388,13 +392,14 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
 modal.export = function local_modal_export(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
-        agency:[string, boolean] = (element === document.getElementById("export"))
-            ? ["localhost", false]
+        agency:agency = (element === document.getElementById("export"))
+            ? [browser.data.deviceHash, false, "device"]
             : util.getAgent(element);
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create({
         agent: agency[0],
+        agentType: "device",
         content: textArea,
         inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
         read_only: agency[1],
@@ -890,8 +895,8 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
             ? title
             : element.innerHTML,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
-        agency:[string, boolean] = (element === document.getElementById("textPad"))
-            ? ["localhost", false]
+        agency:agency = (element === document.getElementById("textPad"))
+            ? [browser.data.deviceHash, false, "device"]
             : util.getAgent(element);
     let box:HTMLElement;
     if (typeof value === "string") {
@@ -903,6 +908,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
     }
     box = modal.create({
         agent: agency[0],
+        agentType: "device",
         content: textArea,
         inputs: ["close", "maximize", "minimize"],
         read_only: agency[1],

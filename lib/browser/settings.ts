@@ -3,13 +3,14 @@
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import util from "./util.js";
 
 const settings:module_settings = {};
 
 /* Add user color options to the settings menu */
-settings.addUserColor = function local_settings_addUserColor(user:string, settingsBody:HTMLElement) {
-    const users:string[] = Object.keys(browser.users),
-        length:number = users.length,
+settings.addUserColor = function local_settings_addUserColor(agent:string, type:agentType, settingsBody:HTMLElement) {
+    const list:string[] = Object.keys(browser[type]),
+        length:number = list.length,
         newSection:boolean = (length === 2 && browser.loadTest === false),
         ul:HTMLElement = (newSection === true)
             ? document.createElement("ul")
@@ -29,16 +30,16 @@ settings.addUserColor = function local_settings_addUserColor(user:string, settin
             h3.innerHTML = "◩ User Color Definitions";
             section.appendChild(h3);
         }
-        p.innerHTML = user;
+        p.innerHTML = browser[type][agent].name;
         li.appendChild(p);
         label = document.createElement("label");
         input = document.createElement("input");
         span = document.createElement("span");
         span.setAttribute("class", "swatch");
-        span.style.background = browser.users[user].color[0];
+        span.style.background = browser.data.colors[agent][0];
         label.appendChild(span);
         input.type = "text";
-        input.value = browser.users[user].color[0].replace("#", "");
+        input.value = browser.data.colors[agent][0].replace("#", "");
         input.onblur = settings.userColor;
         input.onkeyup = settings.userColor;
         label.appendChild(input);
@@ -49,10 +50,10 @@ settings.addUserColor = function local_settings_addUserColor(user:string, settin
         input = document.createElement("input");
         span = document.createElement("span");
         span.setAttribute("class", "swatch");
-        span.style.background = browser.users[user].color[1];
+        span.style.background = browser.data.colors[agent][1];
         label.appendChild(span);
         input.type = "text";
-        input.value = browser.users[user].color[1].replace("#", "");
+        input.value = browser.data.colors[agent][1].replace("#", "");
         input.onblur = settings.userColor;
         input.onkeyup = settings.userColor;
         label.appendChild(input);
@@ -76,18 +77,18 @@ settings.applyUserColors = function local_settings_applyUserColors(user:string, 
     }
     if (colors[0] === settings.colorDefaults[scheme][0] && colors[1] === settings.colorDefaults[scheme][1]) {
         // colors are defaults for the current scheme
-        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${browser.users[user].color[0]}}`, "");
-        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix} h2.heading{background-color:${browser.users[user].color[1]}}`, "");
+        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:#${browser.data.colors[user][0]}}`, "");
+        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix} h2.heading{background-color:#${browser.data.colors[user][1]}}`, "");
     } else if (browser.style.innerHTML.indexOf(prefix) > -1) {
         // replace changed colors in the style tag if present
-        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${browser.users[user].color[0]}}`, `${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${colors[0]}}`);
-        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix} h2.heading{background-color:${browser.users[user].color[1]}}`, `${prefix} h2.heading{background-color:${colors[1]}}`);
+        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:#${browser.data.colors[user][0]}}`, `${prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:#${colors[0]}}`);
+        browser.style.innerHTML = browser.style.innerHTML.replace(`${prefix} h2.heading{background-color:#${browser.data.colors[user][1]}}`, `${prefix} h2.heading{background-color:#${colors[1]}}`);
     } else {
         // add new styles if not present
-        browser.style.innerHTML = `${browser.style.innerHTML + prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:${colors[0]}}${prefix} h2.heading{background-color:${colors[1]}}`;
+        browser.style.innerHTML = `${browser.style.innerHTML + prefix}.body,#spaces #users button[data-agent="${user}"]:hover{background-color:#${colors[0]}}${prefix} h2.heading{background-color:#${colors[1]}}`;
     }
-    browser.users[user].color[0] = colors[0];
-    browser.users[user].color[1] = colors[1];
+    browser.data.colors[user][0] = colors[0];
+    browser.data.colors[user][1] = colors[1];
 };
 
 /* Enable or disable audio from the settings menu */
@@ -104,16 +105,18 @@ settings.audio = function local_settings_compression(event:MouseEvent):void {
 };
 
 settings.colorDefaults = {
-    "dark": ["#222", "#333"],
-    "default": ["#fff", "#eee"]
+    "dark": ["222", "333"],
+    "default": ["fff", "eee"]
 };
 
 /* Change the color scheme */
 settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        agent:string = util.getAgent(element)[0],
+        type:agentType = browser.data.modals[agent].agentType,
         oldScheme:string = browser.data.color,
-        users:string[] = Object.keys(browser.users),
-        userLength:number = users.length;
+        keys:string[] = Object.keys(browser.data.colors[type]),
+        keyLength:number = keys.length;
     let a:number = 0,
         b:number = 0,
         swatches:HTMLCollectionOf<Element>,
@@ -125,40 +128,40 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
     } else {
         browser.pageBody.setAttribute("class", element.value);
     }
-    if (userLength > 0) {
-        const userList:HTMLElement = <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0],
-            settingsList:HTMLCollectionOf<HTMLElement> = (userList === undefined)
+    if (keyLength > 0) {
+        const agentList:HTMLElement = <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0],
+            settingsList:HTMLCollectionOf<HTMLElement> = (agentList === undefined)
                 ? null
-                : userList.getElementsByTagName("li"),
-            listLength:number = (settingsList === null)
+                : agentList.getElementsByTagName("li"),
+            settingsLength:number = (settingsList === null)
                 ? 0
                 : settingsList.length;
         do {
-            if (browser.users[users[a]].color[0] === settings.colorDefaults[oldScheme][0] && browser.users[users[a]].color[1] === settings.colorDefaults[oldScheme][1]) {
-                browser.users[users[a]].color[0] = settings.colorDefaults[element.value][0];
-                browser.users[users[a]].color[1] = settings.colorDefaults[element.value][1];
-                if (users[a] !== "localhost") {
-                    settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
+            if (browser.data.colors[keys[a]][0] === settings.colorDefaults[oldScheme][0] && browser.data.colors[keys[a]][1] === settings.colorDefaults[oldScheme][1]) {
+                browser.data.colors[keys[a]][0] = settings.colorDefaults[element.value][0];
+                browser.data.colors[keys[a]][1] = settings.colorDefaults[element.value][1];
+                if (keys[a] !== browser.data.deviceHash) {
+                    settings.applyUserColors(keys[a], [browser.data.colors[keys[a]][0], browser.data.colors[keys[a]][1]]);
                 }
                 b = 0;
                 do {
-                    if (settingsList[b].getElementsByTagName("p")[0].innerHTML === users[a]) {
+                    if (settingsList[b].getElementsByTagName("p")[0].getAttribute("data-agent") === keys[a]) {
                         swatches = settingsList[b].getElementsByClassName("swatch");
                         swatch1 = <HTMLElement>swatches[0];
                         swatch2 = <HTMLElement>swatches[1];
                         inputs = settingsList[b].getElementsByTagName("input");
-                        swatch1.style.background = browser.users[users[a]].color[0];
-                        swatch2.style.background = browser.users[users[a]].color[1];
-                        inputs[0].value = browser.users[users[a]].color[0].replace("#", "");
-                        inputs[1].value = browser.users[users[a]].color[1].replace("#", "");
+                        swatch1.style.background = browser.data.colors[keys[a]][0];
+                        swatch2.style.background = browser.data.colors[keys[a]][1];
+                        inputs[0].value = browser.data.colors[keys[a]][0].replace("#", "");
+                        inputs[1].value = browser.data.colors[keys[a]][1].replace("#", "");
                     }
                     b = b + 1;
-                } while (b < listLength);
-            } else if (users[a] !== "localhost" && browser.users[users[a]].color[0] === settings.colorDefaults[element.value][0] && browser.users[users[a]].color[1] === settings.colorDefaults[element.value][1]) {
-                settings.applyUserColors(users[a], [browser.users[users[a]].color[0], browser.users[users[a]].color[1]]);
+                } while (b < keyLength);
+            } else if (keys[a] !== browser.data.deviceHash && browser.data.colors[keys[a]][0] === settings.colorDefaults[element.value][0] && browser.data.colors[keys[a]][1] === settings.colorDefaults[element.value][1]) {
+                settings.applyUserColors(keys[a], [browser.data.colors[keys[a]][0], browser.data.colors[keys[a]][1]]);
             }
             a = a + 1;
-        } while (a < userLength);
+        } while (a < settingsLength);
     }
     browser.data.color = <colorScheme>element.value;
     if (browser.loadTest === false) {
@@ -212,8 +215,10 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
         input:HTMLInputElement = document.createElement("input"),
         button:HTMLElement = document.createElement("button"),
         text:Text = document.createTextNode("Compression level. Accepted values are 0 - 11"),
-        users:string[] = Object.keys(browser.users),
-        length:number = users.length;
+        devices:string[] = Object.keys(browser.device),
+        deviceLength:number = devices.length,
+        users:string[] = Object.keys(browser.user),
+        userLength:number = users.length;
     settingsBody.setAttribute("class", "settings");
 
     // brotli compression
@@ -321,8 +326,28 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     section.appendChild(p);
     settingsBody.appendChild(section);
 
+    // device colors
+    if (deviceLength > 0) {
+        const ul:HTMLElement = document.createElement("ul");
+        let a:number = 0;
+        ul.setAttribute("class", "user-color-list");
+        section = createSection("◩ Device Color Definitions");
+        p = document.createElement("p");
+        p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
+        p.setAttribute("class", "user-color-list-p");
+        p.setAttribute("data-agent", devices[a]);
+        section.appendChild(p);
+        section.append(ul);
+        settingsBody.appendChild(section);
+        do {
+            if (devices[a] !== browser.data.deviceHash) {
+                settings.addUserColor(devices[a], "device", settingsBody);
+            }
+            a = a + 1;
+        } while (a < deviceLength);
+    }
     // user colors
-    if (length > 0) {
+    if (deviceLength > 0) {
         const ul:HTMLElement = document.createElement("ul");
         let a:number = 0;
         ul.setAttribute("class", "user-color-list");
@@ -330,15 +355,14 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
         p = document.createElement("p");
         p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
         p.setAttribute("class", "user-color-list-p");
+        p.setAttribute("data-agent", users[a]);
         section.appendChild(p);
         section.append(ul);
         settingsBody.appendChild(section);
         do {
-            if (users[a] !== "localhost") {
-                settings.addUserColor(users[a], settingsBody);
-            }
+            settings.addUserColor(users[a], "user", settingsBody);
             a = a + 1;
-        } while (a < length);
+        } while (a < userLength);
     }
     return settingsBody;
 };
@@ -374,11 +398,11 @@ settings.userColor = function local_settings_modal(event:KeyboardEvent):void {
             const item:HTMLElement = <HTMLElement>parent.parentNode,
                 user:string = item.getElementsByTagName("p")[0].innerHTML;
             if (parent.innerHTML.indexOf("Body") > 0) {
-                settings.applyUserColors(user, [color, browser.users[user].color[1]]);
+                settings.applyUserColors(user, [color, browser.data.colors[user][1]]);
             } else {
-                settings.applyUserColors(user, [browser.users[user].color[0], color]);
+                settings.applyUserColors(user, [browser.data.colors[user][0], color]);
             }
-            network.storage("users");
+            network.storage("settings");
         } else if (event.type === "keyup") {
             const span:HTMLElement = parent.getElementsByTagName("span")[0];
             span.style.background = color;

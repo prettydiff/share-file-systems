@@ -29,7 +29,7 @@ import webSocket from "./lib/browser/webSocket.js";
             let storage:any,
                 a:number = 0,
                 cString:string = "",
-                localhost:HTMLElement = null,
+                localDevice:HTMLElement = null,
                 active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
@@ -37,18 +37,31 @@ import webSocket from "./lib/browser/webSocket.js";
                 applyLogin = function local_restore_applyLogin():void {
                     const login:HTMLElement = document.getElementById("login"),
                         button:HTMLButtonElement = login.getElementsByTagName("button")[0],
-                        input:HTMLInputElement = login.getElementsByTagName("input")[0],
+                        nameUser:HTMLInputElement = <HTMLInputElement>document.getElementById("login-user"),
+                        nameDevice:HTMLInputElement = <HTMLInputElement>document.getElementById("login-device"),
                         action = function local_restore_applyLogin_action():void {
-                            if (input.value.replace(/\s+/, "") === "") {
-                                input.focus();
+                            if (nameUser.value.replace(/\s+/, "") === "") {
+                                nameUser.focus();
+                            } else if (nameDevice.value.replace(/\s+/, "") === "") {
+                                nameDevice.focus();
                             } else {
-                                browser.data.name = input.value;
-                                share.addUser(`${input.value}@localhost`);
-                                browser.pageBody.removeAttribute("class");
-                                browser.loadTest = false;
-                                network.storage("settings");
-                                browser.loadTest = true;
-                                loadComplete();
+                                browser.data.nameUser = nameUser.value;
+                                browser.data.nameDevice = nameDevice.value;
+                                network.hashDevice(function local_restore_applyLogin_action_hash(hash:string) {
+                                    browser.data.deviceHash = hash;
+                                    browser.device[hash] = {
+                                        ip: browser.localNetwork.ip,
+                                        name: nameUser.value,
+                                        port: browser.localNetwork.httpPort,
+                                        shares: {}
+                                    };
+                                    browser.pageBody.removeAttribute("class");
+                                    browser.loadTest = false;
+                                    network.storage("device");
+                                    network.storage("settings");
+                                    browser.loadTest = true;
+                                    loadComplete();
+                                });
                             }
                         },
                         handlerKeyboard = function local_restore_applyLogin_button(event:KeyboardEvent):void {
@@ -60,27 +73,39 @@ import webSocket from "./lib/browser/webSocket.js";
                             action();
                         };
                     browser.pageBody.setAttribute("class", "login");
-                    document.getElementById("login-input").onkeyup = handlerKeyboard;
+                    nameUser.onkeyup = handlerKeyboard;
+                    nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {
                             const time:number = Date.now();
-                            if (time - active > idleTime && localhost !== null && browser.socket.readyState === 1) {
-                                localhost.setAttribute("class", "idle");
+                            if (time - active > idleTime && localDevice !== null && browser.socket.readyState === 1) {
+                                localDevice.setAttribute("class", "idle");
                                 network.heartbeat("idle", false);
                             }
                             setTimeout(local_restore_complete_idleness, idleTime);
                         },
-                        activate = function load_restore_complete_activate():void {
-                            if (localhost !== null) {
-                                const status:string = localhost.getAttribute("class");
+                        activate = function local_restore_complete_activate():void {
+                            if (localDevice !== null) {
+                                const status:string = localDevice.getAttribute("class");
                                 if (status !== "active" && browser.socket.readyState === 1) {
-                                    localhost.setAttribute("class", "active");
+                                    localDevice.setAttribute("class", "active");
                                     network.heartbeat("active", false);
                                 }
                             }
                             active = Date.now();
+                        },
+                        shareAll = function local_restore_complete_shareAll(event:MouseEvent):void {
+                            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+                                id:string = element.getAttribute("id");
+                            if (id === "all-shares") {
+                                share.modal("", "", null);
+                            } else if (id === "device-all-shares") {
+                                share.modal("", "device", null);
+                            } else if (id === "user-all-shares") {
+                                share.modal("", "user", null);
+                            }
                         },
                         login = function local_restore_complete_login(event:KeyboardEvent):void {
                             util.formKeys(event, util.login);
@@ -88,6 +113,13 @@ import webSocket from "./lib/browser/webSocket.js";
                         loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
                         loginInputsLength:number = loginInputs.length;
                     let a:number = 0;
+
+                    if (browser.data.deviceHash === "") {
+                        // Terminate load completion dependent upon creation of device hash
+                        return;
+                    }
+
+                    localDevice = document.getElementById(storage.settings.deviceHash);
 
                     do {
                         loginInputs[a].onkeyup = login;
@@ -100,7 +132,9 @@ import webSocket from "./lib/browser/webSocket.js";
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
                     document.getElementById("menuToggle").onclick = util.menu;
-                    document.getElementById("all-shares").onclick = share.modal;
+                    document.getElementById("all-shares").onclick = shareAll;
+                    document.getElementById("device-all-shares").onclick = shareAll;
+                    document.getElementById("user-all-shares").onclick = shareAll;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
                     document.getElementById("user-delete").onclick = share.deleteList;
                     document.getElementById("user-invite").onclick = invite.start;
@@ -113,36 +147,39 @@ import webSocket from "./lib/browser/webSocket.js";
 
                     // watch for local idleness
                     document.onclick = activate;
-            
-                    // building logging utility (systems log)
-                    if (document.getElementById("systems-modal") === null) {
-                        modal.create({
-                            agent: "localhost",
-                            content: systems.modalContent(),
-                            inputs: ["close", "maximize", "minimize"],
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: document.getElementById("systemLog").innerHTML,
-                            type: "systems",
-                            width: 800
-                        });
-                        document.getElementById("systems-modal").style.display = "none";
-                    }
-            
-                    // building settings modal
-                    if (document.getElementById("settings-modal") === null) {
-                        modal.create({
-                            agent: "localhost",
-                            content: settings.modalContent(),
-                            inputs: ["close"],
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: document.getElementById("settings").innerHTML,
-                            type: "settings"
-                        });
-                        document.getElementById("settings-modal").style.display = "none";
+
+                    if (browser.data.deviceHash !== "") {
+                        // building logging utility (systems log)
+                        if (document.getElementById("systems-modal") === null) {
+                            modal.create({
+                                agent: browser.data.deviceHash,
+                                agentType: "device",
+                                content: systems.modalContent(),
+                                inputs: ["close", "maximize", "minimize"],
+                                read_only: false,
+                                single: true,
+                                status: "hidden",
+                                title: document.getElementById("systemLog").innerHTML,
+                                type: "systems",
+                                width: 800
+                            });
+                            document.getElementById("systems-modal").style.display = "none";
+                        }
+                        // building settings modal
+                        if (document.getElementById("settings-modal") === null) {
+                            modal.create({
+                                agent: browser.data.deviceHash,
+                                agentType: "device",
+                                content: settings.modalContent(),
+                                inputs: ["close"],
+                                read_only: false,
+                                single: true,
+                                status: "hidden",
+                                title: document.getElementById("settings").innerHTML,
+                                type: "settings"
+                            });
+                            document.getElementById("settings-modal").style.display = "none";
+                        }
                     }
 
                     // systems log messages
@@ -205,30 +242,31 @@ import webSocket from "./lib/browser/webSocket.js";
                                         } while (cc < modalKeys.length);
                                         loadComplete();
                                     }
+                                },
+                                restoreShares = function local_restore_restoreShares(type:agentType):void {
+                                    if (storage.type === undefined) {
+                                        browser[type] = {};
+                                        return;
+                                    }
+                                    browser[type] = storage[type];
+                                    const list:string[] = Object.keys(storage[type]),
+                                        listLength:number = list.length;
+                                    let a:number = 0;
+                                    if (listLength > 0) {
+                                        do {
+                                            share.addUser(browser[type][list[a]].name, list[a], type);
+                                            a = a + 1;
+                                        } while (a < listLength);
+                                    }
                                 };
                             let count:number = 0;
-                            browser.data.name = storage.settings.name;
-                            browser.users.localhost = storage.users.localhost
-                            share.addUser(`${storage.settings.name}@localhost`);
-                            localhost = document.getElementById("localhost");
-                            
-                            // restore shares
-                            {
-                                browser.users = storage.users;
-                                const users:string[] = Object.keys(storage.users),
-                                    userLength:number = users.length;
-                                let a:number = 0;
-                                if (userLength > 0) {
-                                    do {
-                                        if (users[a] !== "localhost") {
-                                            browser.users[users[a]] = storage.users[users[a]];
-                                            share.addUser(users[a]);
-                                        }
-                                        a = a + 1;
-                                    } while (a < userLength);
-                                }
-                            }
-                            
+                            restoreShares("device");
+                            restoreShares("user");
+                            browser.data.nameUser = storage.settings.nameUser;
+                            browser.data.nameDevice = storage.settings.nameDevice;
+                            browser.data.deviceHash = storage.settings.deviceHash;
+                            share.addUser(storage.settings.nameUser, storage.settings.deviceHash, "device");
+
                             if (modalKeys.length < 1) {
                                 loadComplete();
                             }
@@ -288,7 +326,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 textValue:string = files[0].getAttribute("title");
                                             files[0].removeAttribute("title");
                                             if (responseText !== "") {
-                                                if (agent === "localhost") {
+                                                if (agent === browser.data.deviceHash) {
                                                     callbackLocal(id, files, textValue);
                                                 } else {
                                                     callbackRemote(id, files);
@@ -330,7 +368,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             selection(value);
                                         });
                                         z(value);
-                                    } else if (agent === "localhost") {
+                                    } else if (agent === browser.data.deviceHash) {
                                         network.fs({
                                             action: "fs-directory",
                                             agent: agent,
@@ -393,7 +431,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     }
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {
-                                    share.modal(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
+                                    share.modal(storage.settings.modals[value].agent, storage.settings.modals[value].agentType, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "share_delete") {
                                     share.deleteList(null, storage.settings.modals[value]);

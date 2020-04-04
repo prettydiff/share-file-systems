@@ -414,7 +414,7 @@ util.fixHeight = function local_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
     document.getElementById("spaces").style.height = `${height / 10}em`;
     browser.content.style.height = `${(height - 51) / 10}em`;
-    document.getElementById("users").style.height = `${(height - 102) / 10}em`;
+    document.getElementById("user").style.height = `${(height - 102) / 10}em`;
 };
 
 /* A simple utility to provide form execution to input fields not in a form */
@@ -473,10 +473,10 @@ util.getAncestor = function local_util_getAncestor(start:HTMLElement, identifier
 };
 
 /* Get the agent of a given modal */
-util.getAgent = function local_util_getAgent(element:HTMLElement):[string, boolean] {
+util.getAgent = function local_util_getAgent(element:HTMLElement):agency {
     const box:HTMLElement = util.getAncestor(element, "box", "class"),
     id:string = box.getAttribute("id");
-    return [browser.data.modals[id].agent, browser.data.modals[id].read_only];
+    return [browser.data.modals[id].agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
 };
 
 /* Shortcut key combinations */
@@ -614,9 +614,10 @@ util.minimizeAll = function local_util_minimizeAll() {
 util.minimizeAllFlag = false;
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
-util.selectedAddresses = function local_util_selectedAddresses(element:HTMLElement, type:string):[string, string][] {
-    const output:[string, string][] = [],
+util.selectedAddresses = function local_util_selectedAddresses(element:HTMLElement, type:string):[string, shareType, string][] {
+    const output:[string, shareType, string][] = [],
         parent:HTMLElement = <HTMLElement>element.parentNode,
+        agent:string = util.getAgent(element)[0],
         drag:boolean = (parent.getAttribute("id") === "file-list-drag");
     let a:number = 0,
         length:number = 0,
@@ -638,7 +639,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
             addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
                 ? <HTMLElement>itemList[a].firstChild.nextSibling
                 : <HTMLElement>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, itemList[a].getAttribute("class").replace(util.selectExpression, "")]);
+            output.push([addressItem.innerHTML, <shareType>itemList[a].getAttribute("class").replace(util.selectExpression, ""), agent]);
             if (type === "cut") {
                 itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, " cut"));
                 dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
@@ -656,7 +657,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     if (output.length > 0) {
         return output;
     }
-    output.push([element.getElementsByTagName("label")[0].innerHTML, element.getAttribute("class")]);
+    output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
     if (type === "cut") {
         element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
         dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");

@@ -23,7 +23,8 @@
         <div id="spaces">
             <div id="login">
                 <h1>Share File Systems <span class="application-version">version 0.0.16</span></h1>
-                <p><label for="login-input">Provide a Username</label> <input type="text" id="login-input"/></p>
+                <p><label for="login-user">Provide a Username</label> <input type="text" id="login-user"/></p>
+                <p><label for="login-device">Provide a Name for this Computer/Device</label> <input type="text" id="login-device"/></p>
                 <!--p><label>Provide a Username <input type="text"/></label></p>
                 <p><label>Name This Device <input type="text"/></label></p-->
                 <p><button>✓ Confirm</button></p>
@@ -54,7 +55,9 @@
                     <li><button id="user-delete"><span class="icon-delete">☣</span> Delete Users</button></li>
                     <li><button id="settings"><span class="icon-settings">⚙</span> Settings</button></li>
                 </ul>
-                <div id="users"><h2>User List</h2><ul><li><button id="all-shares">⌘ All Shares</button></li></ul><span></span></div>
+                <p><button id="all-shares">⌘ All Shares</button></p>
+                <div id="device"><h2>Device List</h2><ul><li><button id="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
+                <div id="user"><h2>User List</h2><ul><li><button id="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
                 <ul id="tray"><button id="minimize-all" title="Minimize all modals">⇊ <span>Minimize all modals</span></button></ul>
             </div>
         </div>

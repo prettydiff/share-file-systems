@@ -15,6 +15,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * **[../lib/browser/util.ts](../lib/browser/util.ts)**                                                           - Miscellaneous tools for the browser environment.
 * **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * **[../lib/common/commas.ts](../lib/common/commas.ts)**                                                         - Converts numbers into a string of comma separated triplets.
+* **[../lib/common/deviceShare.ts](../lib/common/deviceShare.ts)**                                               - Converts the local device list into a flattened object of shares for remote users.
 * **[../lib/common/prettyBytes.ts](../lib/common/prettyBytes.ts)**                                               - Rounds data sizes to human readable powers of 1024.
 * **[../lib/terminal/commands/base64.ts](../lib/terminal/commands/base64.ts)**                                   - A command driven utility for performing base64 encoding/decoding.
 * **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                     - The library that executes the build and test tasks.

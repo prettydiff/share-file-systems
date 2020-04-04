@@ -70,15 +70,16 @@ const socketList:socketList = {},
             return [store, interfaceLongest];
         }()),
         brotli: 7,
+        deviceHash: "",
         deviceName: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
-        devices: {},
+        device: {},
         hash: "sha3-512",
         name: "",
         socketList: socketList,
         socketReceiver: {},
         status: "idle",
         timeStore: 0,
-        users: {},
+        user: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser
         wsPort: 0 // wsPort - web socket port for requests from node

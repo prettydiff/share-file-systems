@@ -59,7 +59,7 @@ const library = {
                         }
                     })
                     : message;
-                if (data.agent === "localhost") {
+                if (data.agent === serverVars.deviceHash) {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(payload);
                     response.end();
@@ -99,12 +99,12 @@ const library = {
                         a = a + 1;
                     } while (a < length);
                     if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
-                        store["agent"] = "localhost";
+                        store["agent"] = serverVars.deviceHash;
                         store["copyAgent"] = data.agent;
                     } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
                         store["agent"] = serverVars.name;
                     }
-                    if (data.action === "fs-directory" && data.agent !== "localhost") {
+                    if (data.action === "fs-directory" && data.agent !== serverVars.deviceHash) {
                         store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                     }
                     return JSON.stringify({
@@ -112,6 +112,7 @@ const library = {
                     });
                 }());
                 library.httpClient({
+                    agentType: data.agentType,
                     callback: callback,
                     callbackType: type,
                     errorMessage: errorMessage,
@@ -139,7 +140,7 @@ const library = {
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
                     serverVars.watches[value].time = Date.now();
-                    if (data.agent === "localhost") {
+                    if (data.agent === serverVars.deviceHash) {
                         fsUpdateLocal(value);
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
@@ -164,6 +165,7 @@ const library = {
                                     }
                                 });
                                 library.httpClient({
+                                    agentType: data.agentType,
                                     callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
                                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                                         response.write(responseBody);
@@ -503,7 +505,7 @@ const library = {
                             ? writeStream
                             : fileRequestCallback;
                         data.depth = fileData.list[a][3];
-                        if (data.copyAgent !== "localhost") {
+                        if (data.copyAgent !== serverVars.deviceHash) {
                             data.id = `local-${data.name.replace(/\\/g, "\\\\")}|${copyMessage({
                                 countFile: countFile,
                                 failures: hashFail.length,
@@ -594,14 +596,14 @@ const library = {
                     });
                 });
             };
-        if (data.agent !== "localhost" && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
+        if (data.agent !== serverVars.deviceHash && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
             httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                 response.write(responseBody);
                 response.end();
             }, `Error requesting ${data.action} from remote.`, "body");
         } else if (data.action === "fs-directory" || data.action === "fs-details") {
-            if (data.agent === "localhost" || (data.agent !== "localhost" && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+            if (data.agent === serverVars.deviceHash || (data.agent !== serverVars.deviceHash && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                         count = count + 1;
                         if (result.length > 0) {
@@ -779,15 +781,15 @@ const library = {
             }
             fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
-            if (data.agent === "localhost") {
-                if (data.copyAgent === "localhost") {
-                    // * data.agent === "localhost"
-                    // * data.copyAgent === "localhost"
+            if (data.agent === serverVars.deviceHash) {
+                if (data.copyAgent === serverVars.deviceHash) {
+                    // * data.agent === local
+                    // * data.copyAgent === local
                     copySameAgent();
                 } else {
                     // copy from local to remote
-                    // * data.agent === "localhost"
-                    // * data.copyAgent === remoteAgent
+                    // * data.agent === local
+                    // * data.copyAgent === remote
                     // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                     remoteCopyList({
                         callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
@@ -798,7 +800,7 @@ const library = {
                                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                                 response.write(responseBody);
                                 response.end();
-                            }, "Error sending list of files to remote for copy from localhost.", "body");
+                            }, "Error sending list of files to remote for copy from local device.", "body");
                         },
                         files: [],
                         id: data.id,
@@ -806,13 +808,13 @@ const library = {
                         length: data.location.length
                     });
                 }
-            } else if (data.copyAgent === "localhost") {
-                // data.agent === remoteAgent
-                // data.copyAgent === "localhost"
+            } else if (data.copyAgent === serverVars.deviceHash) {
+                // data.agent === remote
+                // data.copyAgent === local
                 data.action = <serviceType>`${data.action}-list`;
                 httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
                     requestFiles(JSON.parse(<string>responseBody));
-                }, "Error copying from remote to localhost", "body");
+                }, "Error copying from remote to local device", "body");
             } else if (data.agent === data.copyAgent) {
                 // * data.agent === sameRemoteAgent
                 // * data.agent === sameRemoteAgent
@@ -829,8 +831,8 @@ const library = {
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file
             // * generated internally from function requestFiles
-            // * fs-copy-list and fs-cut-list (copy from remote to localhost)
-            // * fs-copy-request and fs-cut-request (copy from localhost to remote)
+            // * fs-copy-list and fs-cut-list (copy from remote to local device)
+            // * fs-copy-request and fs-cut-request (copy from local device to remote)
             const hash:Hash = vars.node.crypto.createHash("sha512"),
                 hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
             hashStream.pipe(hash);
@@ -928,7 +930,7 @@ const library = {
                     count = count + 1;
                     if (count === data.location.length) {
                         const agent:string = (data.copyAgent === "")
-                            ? "localhost"
+                            ? serverVars.deviceHash
                             : data.copyAgent;
                         fileCallback(`Path(s) ${data.location.join(", ")} destroyed on agent ${agent}.`);
                     }
@@ -941,7 +943,7 @@ const library = {
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
                 if (erRename === null) {
                     const agent:string = (data.copyAgent === "")
-                        ? "localhost"
+                        ? serverVars.deviceHash
                         : data.copyAgent;
                     fileCallback(`Path ${data.location[0]} on agent ${agent} renamed to ${newPath.join(vars.sep)}.`);
                 } else {
@@ -1069,7 +1071,7 @@ const library = {
         } else if (data.action === "fs-write") {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
                 const agent:string = (data.copyAgent === "")
-                    ? "localhost"
+                    ? serverVars.deviceHash
                     : data.copyAgent;
                 let message:string = `File ${data.location[0]} saved to disk on ${agent}.`;
                 if (erw !== null) {

@@ -114,9 +114,9 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             let agent:string = "",
                 id:string = "";
             const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
-                    const addressList:[string, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
+                    const addressList:[string, shareType, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
                         output:string[] = [];
-                    addressList.forEach(function local_fs_drag_drop_addresses_each(value:[string, string]) {
+                    addressList.forEach(function local_fs_drag_drop_addresses_each(value:[string, shareType, string]) {
                         output.push(value[0]);
                     });
                     return output;
@@ -348,12 +348,20 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         }
         return [p, 0, ""];
     }
+
+    // fires share.update, which ensures all modals of the respective share are updated
     if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
-        const agent:string = browser.data.modals[dirData.id].agent;
+        const agent:string = browser.data.modals[dirData.id].agent,
+            type:agentType = browser.data.modals[dirData.id].agentType;
         browser.data.modals[dirData.id].text_value = list[0][0];
         browser.data.modals[dirData.id].selection = {};
-        share.update(agent, browser.users[agent].shares);
+        share.update({
+            agent: agent,
+            share: browser[type][agent].shares,
+            type: type
+        });
     }
+
     a = 0;
     do {
         if (list[a][3] === 0) {
@@ -547,17 +555,23 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
 
 /* Create a file navigator modal */
 fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):void {
-    const agentName = (config === undefined || config.agentName === undefined)
-            ? "localhost"
+    const agentName:string = (config === undefined || config.agentName === undefined)
+            ? browser.data.deviceHash
             : config.agentName,
+        agentType:agentType = (agentName === browser.data.deviceHash)
+            ? "device"
+            : config.agentType,
+        deviceName:string = (config === undefined || config.nameDevice === "")
+            ? browser.data.nameDevice
+            : config.nameDevice,
         location:string = (config !== undefined && typeof config.path === "string")
             ? config.path
             : "defaultLocation",
-        readOnly:boolean = (agentName !== "localhost" && config !== undefined && config.readOnly === true),
+        readOnly:boolean = (agentName !== browser.data.deviceHash && config !== undefined && config.readOnly === true),
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = (agentName !== "localhost")
+        callback:Function = (agentName !== browser.data.deviceHash)
             ? function local_fs_navigate_callbackRemote(responseText:string):void {
                 if (responseText === "") {
                     return;
@@ -581,10 +595,14 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     return;
                 }
                 const files:[HTMLElement, number, string] = fs.list(location, JSON.parse(responseText)),
-                    value:string = files[0].getAttribute("title");
+                    value:string = files[0].getAttribute("title"),
+                    shareName:string = (agentName === browser.data.deviceHash)
+                        ? `Device, ${browser.device[agentName].name}`
+                        : browser.user[agentName].name;
                 files[0].removeAttribute("title");
                 modal.create({
                     agent: agentName,
+                    agentType: agentType,
                     content: files[0],
                     inputs: ["close", "maximize", "minimize", "text"],
                     read_only: false,
@@ -594,15 +612,16 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     text_event: fs.text,
                     text_placeholder: "Optionally type a file system address here.",
                     text_value: value,
-                    title: `${document.getElementById("fileNavigator").innerHTML} - localhost`,
+                    title: `${document.getElementById("fileNavigator").innerHTML} - ${shareName}`,
                     type: "fileNavigate",
                     width: 800
                 });
             };
     let id:string = "";
-    if (agentName !== "localhost") {
+    if (agentName !== browser.data.deviceHash) {
         const box:HTMLElement = modal.create({
             agent: agentName,
+            agentType: agentType,
             content: util.delay(),
             inputs: ["close", "maximize", "minimize", "text"],
             read_only: readOnly,
@@ -611,7 +630,9 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
-            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}`,
+            title: (agentType === "device")
+                ? `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}[${deviceName}]`
+                : `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}`,
             type: "fileNavigate",
             width: 800
         });
@@ -747,7 +768,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         box:HTMLElement = util.getAncestor(element, "box", "class"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
-        agency:[string, boolean] = util.getAgent(box);
+        agency:agency = util.getAgent(box);
     let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1];
     network.fs({
         action: "fs-write",

@@ -8,6 +8,7 @@ import WebSocket from "../../../ws-es6/index.js";
 import copy from "./copy.js";
 import directory from "./directory.js";
 import error from "../utilities/error.js";
+import hash from "./hash.js";
 import log from "../utilities/log.js";
 import makeDir from "../utilities/makeDir.js";
 import remove from "./remove.js";
@@ -29,6 +30,7 @@ const library = {
         copy: copy,
         directory: directory,
         error: error,
+        hash: hash,
         heartbeat: heartbeat,
         httpClient: httpClient,
         log: log,
@@ -89,12 +91,12 @@ const library = {
                     });
 
                 request.on("end", function terminal_server_create_end():void {
-                    let task:string = body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
+                    let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
                     if (task === "heartbeat") {
                         // * Send and receive heartbeat signals
                         const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
                         library.heartbeat(heartbeatData, response);
-                    } else if (task === "settings" || task === "messages" || task === "devices" || task === "users") {
+                    } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);
                     } else if (task === "fs") {
@@ -111,6 +113,38 @@ const library = {
                             response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][0][1]}.`);
                         }
                         response.end();
+                    } else if (task === "hashShare") {
+                        // * generate a hash string to name a share
+                        const shareHash:shareHash = JSON.parse(body).shareHash;
+                        library.hash({
+                            callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
+                                const outputBody:shareHash = JSON.parse(hashData.id).shareHash,
+                                    hashResponse:shareHashResponse = {
+                                        device: outputBody.device,
+                                        hash: hashData.hash,
+                                        share: outputBody.share,
+                                        type: outputBody.type
+                                    };
+                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                response.write(JSON.stringify({shareHashResponse:hashResponse}));
+                                response.end();
+                            },
+                            directInput: true,
+                            id: body,
+                            source: shareHash.device + shareHash.share
+                        });
+                    } else if (task === "hashDevice") {
+                        // * produce a hash that describes a new device
+                        library.hash({
+                            callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
+                                serverVars.deviceHash = hashData.hash;
+                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                response.write(JSON.stringify({deviceHash:hashData.hash}));
+                                response.end();
+                            },
+                            directInput: true,
+                            source: serverVars.deviceName + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
+                        });
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
                         invite(body, response);
@@ -148,7 +182,7 @@ const library = {
                         request.method === "POST" && (
                             host === "localhost" || (
                                 host !== "localhost" && (
-                                    serverVars.users[<string>request.headers["user-name"]] !== undefined ||
+                                    serverVars.user[<string>request.headers["agent-name"]] !== undefined ||
                                     request.headers.invite === "invite-request" ||
                                     request.headers.invite === "invite-complete"
                                 )
@@ -169,9 +203,9 @@ const library = {
                         if (postTest() === true) {
                             post(request, response);
                         } else {
-                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}users.json`, function terminal_server_create_delay_usersStat(err:nodeError):void {
+                            vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}user.json`, function terminal_server_create_delay_userStat(err:nodeError):void {
                                 if (err === null) {
-                                    forbiddenUser(<string>request.headers["user-name"], response);
+                                    forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"], response);
                                 }
                             });
                             response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
@@ -273,6 +307,29 @@ const library = {
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {
 
+                        const storageFlag = {
+                                device: false,
+                                settings: false,
+                                user: false
+                            },
+                            readComplete = function terminal_server_start_listen_socketCallback_readComplete() {
+                                if (serverCallback !== undefined) {
+                                    // A callback can be passed in, so far only used for running service tests.
+                                    serverCallback();
+                                } else if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                    logOutput();
+                                } else {
+                                    logOutput();
+                                    library.heartbeat({
+                                        agent: "localhost-terminal",
+                                        shares: "",
+                                        status: "idle",
+                                        type: "user",
+                                        user: ""
+                                    }, "");
+                                }
+                            };
+
                         // creates a broadcast utility where all listening clients get a web socket message
                         vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
                             vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
@@ -282,8 +339,8 @@ const library = {
                             });
                         };
 
-                        // When coming online send a heartbeat to each user
-                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}users.json`, "utf8", function terminal_server_start_listen_readUsers(eru:nodeError, userString:string):void {
+                        // When coming online read from storage
+                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}user.json`, "utf8", function terminal_server_start_listen_readUser(eru:nodeError, userString:string):void {
                             if (eru !== null) {
                                 if (eru.code !== "ENOENT") {
                                     library.log([eru.toString()]);
@@ -291,47 +348,44 @@ const library = {
                                     return;
                                 }
                             } else {
-                                serverVars.users = JSON.parse(userString);
+                                serverVars.user = JSON.parse(userString);
                             }
-                            vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_listen_readUsers_readSettings(ers:nodeError, settingString:string):void {
-                                if (ers !== null) {
-                                    logOutput();
-                                    if (ers.code !== "ENOENT") {
-                                        library.log([ers.toString()]);
-                                    }
-                                } else {
-                                    const settings:ui_data = JSON.parse(settingString),
-                                        users:string[] = Object.keys(serverVars.users),
-                                        length:number = users.length,
-                                        address:string = (serverVars.addresses.length > 1)
-                                            ? (serverVars.addresses[0][1][1].indexOf(":") > -1)
-                                                ? `[${serverVars.addresses[0][1][1]}]:${serverVars.webPort}`
-                                                : `${serverVars.addresses[0][1][1]}:${serverVars.webPort}`
-                                            : (serverVars.addresses[0][0][1].indexOf(":") > -1)
-                                            ? `[${serverVars.addresses[0][0][1]}]:${serverVars.webPort}`
-                                            : `${serverVars.addresses[0][0][1]}:${serverVars.webPort}`;
-                                    serverVars.brotli = settings.brotli;
-                                    serverVars.hash = settings.hash;
-                                    serverVars.name = (vars.command.indexOf("test") === 0)
-                                        ? `localTest@[::1]:${serverVars.webPort}`
-                                        : `${settings.name}@${address}`;
-                                    
-                                    if (serverCallback !== undefined) {
-                                        // A callback can be passed in, so far only used for running service tests.
-                                        serverCallback();
-                                    } else if (length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
-                                        logOutput();
-                                    } else {
-                                        logOutput();
-                                        library.heartbeat({
-                                            agent: "localhost-terminal",
-                                            shares: "",
-                                            status: "idle",
-                                            user: ""
-                                        }, "");
-                                    }
+                            storageFlag.user = true;
+                            if (storageFlag.device === true && storageFlag.settings === true) {
+                                readComplete();
+                            }
+                        });
+                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}device.json`, "utf8", function terminal_server_start_listen_readDevice(erd:nodeError, deviceString:string):void {
+                            if (erd !== null) {
+                                if (erd.code !== "ENOENT") {
+                                    library.log([erd.toString()]);
+                                    process.exit(1);
+                                    return;
                                 }
-                            });
+                            } else {
+                                serverVars.device = JSON.parse(deviceString);
+                            }
+                            storageFlag.device = true;
+                            if (storageFlag.settings === true && storageFlag.user === true) {
+                                readComplete();
+                            }
+                        });
+                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_listen_readUsers_readSettings(ers:nodeError, settingString:string):void {
+                            if (ers !== null) {
+                                if (ers.code !== "ENOENT") {
+                                    library.log([ers.toString()]);
+                                }
+                            } else {
+                                const settings:ui_data = JSON.parse(settingString);
+                                serverVars.brotli = settings.brotli;
+                                serverVars.deviceHash = settings.deviceHash;
+                                serverVars.hash = settings.hash;
+                                serverVars.name = settings.nameUser;
+                            }
+                            storageFlag.settings = true;
+                            if (storageFlag.device === true && storageFlag.user === true) {
+                                readComplete();
+                            }
                         });
                     });
                 });
