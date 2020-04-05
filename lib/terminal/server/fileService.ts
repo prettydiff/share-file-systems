@@ -117,7 +117,9 @@ const library = {
                     callbackType: type,
                     errorMessage: errorMessage,
                     id: data.id,
+                    ip: serverVars[data.agentType][data.agent].ip,
                     payload: payload,
+                    port: serverVars[data.agentType][data.agent].port,
                     remoteName: data.agent,
                     response: response
                 });
@@ -174,7 +176,9 @@ const library = {
                                     callbackType: "body",
                                     errorMessage: `Error related to remote file system watch at ${data.agent}.`,
                                     id: "",
+                                    ip: serverVars[data.agentType][data.agent].ip,
                                     payload: payload,
+                                    port: serverVars[data.agentType][data.agent].port,
                                     remoteName: data.agent,
                                     response: response
                                 });

@@ -222,13 +222,19 @@ declare global {
         type: agentType;
         user: string;
     }
+    interface heartbeatAgents {
+        device: string[];
+        user: string[];
+    }
     interface httpConfiguration {
         agentType: agentType,
         callback: Function;
         callbackType: "body" | "object";
         errorMessage: string;
         id: string;
+        ip: string;
         payload: Buffer|string;
+        port: number;
         remoteName: string;
         requestError?: (error:nodeError, agent?:string) => void;
         response?: any;
@@ -683,9 +689,6 @@ declare global {
     interface version {
         command: string;
         date: string;
-        device: string;
-        identity_domain: string;
-        keys: versionKeys;
         name: string;
         number: string;
         port: number;

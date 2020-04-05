@@ -58,28 +58,20 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
 
 /* device/user list */
-.dark #spaces #device,
-.dark #spaces #user{border-color:#666;color:#ccc}
-.dark #spaces #device h2,
-.dark #spaces #user h2{background:#333;border-color:#666}
-.dark #spaces #device button,
-.dark #spaces #user button{background:#222;border-color:#666;color:#ccc}
-.dark #spaces #device button:hover,
-.dark #spaces #user button:hover{background:#444}
-.dark #spaces #device .status-active,
-.dark #spaces #user .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
-.dark #spaces #device .status-idle,
-.dark #spaces #user .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
-.dark #spaces #device .status-offline,
-.dark #spaces #user .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
-.dark #spaces #device span,
-.dark #spaces #user span{background:#000;opacity:0.4}
-.dark #spaces #all-shares,
-.dark #spaces #device #device-all-shares,
-.dark #spaces #user #user-all-shares{background:#024;color:#6cf}
-.dark #spaces #all-shares:hover,
-.dark #spaces #device #device-all-shares:hover,
-.dark #spaces #user #user-all-shares:hover{background:#246}
+.dark #spaces #agentList{border-color:#666;color:#ccc}
+.dark #spaces #agentList h2{background:#333;border-color:#666;box-shadow:0em 0.25em 0.25em #000}
+.dark #spaces #agentList button{background:#222;border-color:#666;color:#ccc}
+.dark #spaces #agentList button:hover{background:#444}
+.dark #spaces #agentList .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
+.dark #spaces #agentList .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
+.dark #spaces #agentList .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
+.dark #spaces #agentList span{background:#000;opacity:0.4}
+.dark #spaces #agentList .all-shares button,
+.dark #spaces #agentList .device-all-shares,
+.dark #spaces #agentList .user-all-shares{background:#024;color:#6cf}
+.dark #spaces #agentList .all-shares button:hover,
+.dark #spaces #agentList .device-all-shares:hover,
+.dark #spaces #agentList .user-all-shares:hover{background:#246}
 
 /* minimize tray at bottom */
 .dark #spaces #tray{background:#333;border-color:#444}

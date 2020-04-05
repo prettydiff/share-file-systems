@@ -98,12 +98,13 @@ import webSocket from "./lib/browser/webSocket.js";
                         },
                         shareAll = function local_restore_complete_shareAll(event:MouseEvent):void {
                             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                                id:string = element.getAttribute("id");
-                            if (id === "all-shares") {
+                                parent:HTMLElement = <HTMLElement>element.parentNode,
+                                classy:string = element.getAttribute("class");
+                            if (parent.getAttribute("class") === "all-shares") {
                                 share.modal("", "", null);
-                            } else if (id === "device-all-shares") {
+                            } else if (classy === "device-all-shares") {
                                 share.modal("", "device", null);
-                            } else if (id === "user-all-shares") {
+                            } else if (classy === "user-all-shares") {
                                 share.modal("", "user", null);
                             }
                         },
@@ -111,15 +112,18 @@ import webSocket from "./lib/browser/webSocket.js";
                             util.formKeys(event, util.login);
                         },
                         loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
-                        loginInputsLength:number = loginInputs.length;
-                    let a:number = 0;
+                        loginInputsLength:number = loginInputs.length,
+                        agentList:HTMLElement = document.getElementById("agentList"),
+                        allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
+                        allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
+                    let a:number = 0;console.log(browser.data.deviceHash);
 
                     if (browser.data.deviceHash === "") {
                         // Terminate load completion dependent upon creation of device hash
                         return;
                     }
 
-                    localDevice = document.getElementById(storage.settings.deviceHash);
+                    localDevice = document.getElementById(browser.data.deviceHash);
 
                     do {
                         loginInputs[a].onkeyup = login;
@@ -132,9 +136,9 @@ import webSocket from "./lib/browser/webSocket.js";
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
                     document.getElementById("menuToggle").onclick = util.menu;
-                    document.getElementById("all-shares").onclick = shareAll;
-                    document.getElementById("device-all-shares").onclick = shareAll;
-                    document.getElementById("user-all-shares").onclick = shareAll;
+                    agentList.getElementsByTagName("button")[0].onclick = shareAll;
+                    allDevice.onclick = shareAll;
+                    allUser.onclick = shareAll;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
                     document.getElementById("user-delete").onclick = share.deleteList;
                     document.getElementById("user-invite").onclick = invite.start;
@@ -216,7 +220,7 @@ import webSocket from "./lib/browser/webSocket.js";
                         applyLogin();
                     } else {
                         storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
-                        if (Object.keys(storage.settings).length < 1) {
+                        if (storage.settings === undefined || Object.keys(storage.settings).length < 1) {
                             applyLogin();
                         } else {
                             const modalKeys:string[] = Object.keys(storage.settings.modals),

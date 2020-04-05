@@ -480,11 +480,11 @@ const library = {
                                 ? `0${dayString}`
                                 : dayString,
                             date:string = `${dayPadded} ${month} ${stat.mtime.getFullYear().toString()}`,
+                            html:string = `${vars.projectPath}index.html`,
                             flag = {
-                                json: false,
-                                html: false
-                            },
-                            html:string = `${vars.projectPath}index.html`;
+                                html: false,
+                                json: false
+                            };
                         vars.version.date = date.replace(/-/g, "");
 
                         // read package.json
@@ -493,117 +493,15 @@ const library = {
                                 library.error([err.toString()]);
                                 return;
                             }
-                            let a:number = 0,
-                                hash0:string;
-                            const writeVersion = function terminal_build_version_stat_read_writeVersion():void {
-                                    vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_writeVersion_write(erw:Error) {
-                                        if (erw !== null) {
-                                            library.error([erw.toString()]);
-                                            return;
-                                        }
-                                        flag.json = true;
-                                        if (flag.html === true) {
-                                            next("Version data written");
-                                        }
-                                    });
-                                },
-                                keys = function terminal_build_version_stat_read_keys():void {
-                                    const keys:versionKeys = vars.version.keys;
-                                    if (
-                                        keys === undefined ||
-                                        keys.device === undefined ||
-                                        keys.user === undefined ||
-                                        keys.device.private === undefined ||
-                                        keys.device.private.indexOf("PRIVATE KEY-----") < 0 ||
-                                        keys.user.private === undefined ||
-                                        keys.user.private.indexOf("PRIVATE KEY-----") < 0 ||
-                                        keys.device.public === undefined ||
-                                        keys.device.public.indexOf("PUBLIC KEY-----") < 0 ||
-                                        keys.user.public === undefined ||
-                                        keys.user.public.indexOf("PUBLIC KEY-----") < 0
-                                    ) {
-                                        const flag = {
-                                                device: false,
-                                                user: false
-                                            },
-                                            generate = function terminal_build_version_stat_read_keys_generate(type:"device"|"user"):void {
-                                                generateKeyPair("ec", {
-                                                    // cspell:disable
-                                                    namedCurve: "secp521r1",
-                                                    // cspell:enable
-                                                    publicKeyEncoding:{
-                                                        type: "spki",
-                                                        format: "pem"
-                                                    },
-                                                    privateKeyEncoding:{
-                                                        type: "pkcs8",
-                                                        format: "pem",
-                                                        cipher: "aes-256-cbc",
-                                                        passphrase: ""
-                                                    }
-                                                }, function terminal_build_version_stat_read_keys_callback(keyError:nodeError, publicKey:string, privateKey:string):void {
-                                                    if (keyError !== null) {
-                                                        library.error([keyError.toString()]);
-                                                        return;
-                                                    }
-                                                    vars.version.keys[type].public = publicKey;
-                                                    vars.version.keys[type].private = privateKey;
-                                                    flag[type] = true;
-                                                    if (flag.device === true && flag.user === true) {
-                                                        writeVersion();
-                                                    }
-                                                });
-                                            };
-                                        vars.version.keys = {
-                                            device: {
-                                                private: "",
-                                                public: ""
-                                            },
-                                            user: {
-                                                private: "",
-                                                public: ""
-                                            }
-                                        };
-                                        generate("device");
-                                        generate("user");
-                                    } else {
-                                        writeVersion();
-                                    }
-                                };
                             vars.version.number = JSON.parse(data).version;
 
-                            // modify HTML
+                            // modify index.html
                             vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
                                 if (err !== null) {
                                     library.error([err.toString()]);
                                     return;
                                 }
-                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
-                                    stringInsert = function terminal_build_version_stat_read_html_stringInsert(insert:modifyFile):string {
-                                        const index:number = insert.source.indexOf(insert.start) + insert.start.length,
-                                            startSegment:string = insert.source.slice(0, index),
-                                            ending:string = insert.source.slice(index),
-                                            endIndex:number = ending.indexOf(insert.end),
-                                            endSegment:string = ending.slice(endIndex);
-                                        if (index < 0 || endIndex < 0) {
-                                            return insert.source;
-                                        }
-                                        return startSegment + insert.target + endSegment;
-                                    };
-                                fileData = stringInsert({
-                                    end: "\"/>",
-                                    source: fileData,
-                                    start: "readonly=\"readonly\" value=\"",
-                                    target: vars.projectPath.slice(0, vars.projectPath.length - 1)
-                                });
-                                fileData = stringInsert({
-                                    // cspell:disable
-                                    end: "\" rel=\"noopener noreferrer\" target=\"_blank\">Generate New Identity</a>",
-                                    // cspell:enable
-                                    source: fileData,
-                                    start: "Create</strong> a new identity. <a href=\"",
-                                    target: vars.version.identity_domain
-                                });
+                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
                                 fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
                                 vars.node.fs.writeFile(html, fileData, "utf8", function terminal_build_version_stat_read_html_write(erh:Error):void {
                                     if (erh !== null) {
@@ -615,6 +513,18 @@ const library = {
                                         next("Version data written");
                                     }
                                 });
+                            });
+
+                            // modify version.json
+                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_html_write(erj:Error):void {
+                                if (erj !== null) {
+                                    library.error([erj.toString()]);
+                                    return;
+                                }
+                                flag.json = true;
+                                if (flag.html === true) {
+                                    next("Version data written");
+                                }
                             });
                         });
                     });

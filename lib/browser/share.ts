@@ -207,7 +207,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 list:string[] = Object.keys(browser[type]),
                 listLength:number = list.length;
             if (listLength === 0) {
-                title.innerHTML = `There are no <strong>${type.slice(0, type.length - 1)}</strong> connections at this time.`;
+                title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
                 lists.appendChild(title);
             } else {
                 const ul:HTMLElement = document.createElement("ul"),

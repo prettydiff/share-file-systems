@@ -40,7 +40,9 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 callbackType: "body",
                 errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
                 id: "",
+                ip: data.ip,
                 payload: payload,
+                port: data.port,
                 remoteName: (data.ip.indexOf(":") > -1)
                     ? `invite@[${data.ip}]:${data.port}`
                     : `invite@${data.ip}:${data.port}`,

@@ -56,28 +56,20 @@
 #spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
 
 /* device/user list */
-#spaces #device,
-#spaces #user{border-color:#000}
-#spaces #device h2,
-#spaces #user h2{background:#ddd;border-color:#000}
-#spaces #device button,
-#spaces #user button{background:#eee;border-color:#000}
-#spaces #device button:hover,
-#spaces #user button:hover{background:#fff}
-#spaces #device .status-active,
-#spaces #user .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
-#spaces #device .status-idle,
-#spaces #user .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
-#spaces #device .status-offline,
-#spaces #user .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
-#spaces #device span,
-#spaces #user span{background:#000}
-#spaces #all-shares,
-#spaces #device #device-all-shares,
-#spaces #user #user-all-shares{background:#def;color:#00c}
-#spaces #all-shares:hover,
-#spaces #device #device-all-shares:hover,
-#spaces #user #user-all-shares:hover{background:#fff}
+#spaces #agentList{border-color:#000}
+#spaces #agentList h2{background:#ddd;border-color:#000;box-shadow:0em 0.25em 0.25em #999}
+#spaces #agentList button{background:#eee;border-color:#000}
+#spaces #agentList button:hover{background:#fff}
+#spaces #agentList .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
+#spaces #agentList .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
+#spaces #agentList .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
+#spaces #agentList span{background:#000}
+#spaces #agentList .all-shares button,
+#spaces #agentList .device-all-shares,
+#spaces #agentList .user-all-shares{background:#def;color:#00c}
+#spaces #agentLIst .all-shares button:hover,
+#spaces #agentLIst .device-all-shares:hover,
+#spaces #agentList .user-all-shares:hover{background:#fff}
 
 /* minimize tray at bottom */
 #spaces #tray{background:#ddd;border-color:#666}

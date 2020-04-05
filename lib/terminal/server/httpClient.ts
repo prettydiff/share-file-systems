@@ -10,24 +10,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
-    const ip:string = (function terminal_server_httpClient_ip():string {
-            if (vars.command.indexOf("test") === 0) {
-                return "::1";
-            }
-            let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
-            if (address.charAt(0) === "[") {
-                address = address.slice(1, address.length - 1);
-            }
-            return address;
-        }()),
-        port:number = (function terminal_server_httpClient_port():number {
-            let address:string = config.remoteName.slice(config.remoteName.lastIndexOf(":") + 1);
-            if (isNaN(Number(address)) === true) {
-                return 80;
-            }
-            return Number(address);
-        }()),
-        callback: Function = (config.callbackType === "object")
+    const callback: Function = (config.callbackType === "object")
             ? config.callback
             : function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
                 const chunks:Buffer[] = [];
@@ -112,10 +95,10 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             },
         fsRequest:http.ClientRequest = vars.node.http.request({
             headers: headers,
-            host: ip,
+            host: config.ip,
             method: "POST",
             path: "/",
-            port: port,
+            port: config.port,
             timeout: 1000
         }, callback);
     if (fsRequest.writableEnded === true) {

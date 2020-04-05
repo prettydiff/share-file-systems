@@ -116,18 +116,6 @@ const vars:terminalVariables = {
         version: {
             command: "node js/application",
             date: "",
-            device: "",
-            identity_domain: "",
-            keys: {
-                device: {
-                    private: "",
-                    public: ""
-                },
-                user: {
-                    private: "",
-                    public: ""
-                }
-            },
             name: "Share File Systems",
             number: "",
             port: 80

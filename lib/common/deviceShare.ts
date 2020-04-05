@@ -3,18 +3,20 @@
 const deviceShare = function local_invite_deviceShare(devices:devices):deviceShares {
     const deviceList:string[] = Object.keys(devices),
         shareList:deviceShares = {};
-        let deviceLength = deviceList.length;
+    let deviceLength = deviceList.length;
     if (deviceLength > 0) {
         let shares:string[] = [],
             shareLength:number;
         do {
             deviceLength = deviceLength - 1;
-            shares = Object.keys(devices[deviceList[deviceLength]]);
+            shares = Object.keys(devices[deviceList[deviceLength]].shares);
             shareLength = shares.length;
             if (shareLength > 0) {
-                shareLength = shareLength - 1;
-                shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-            } while (shareLength > 0);
+                do {
+                    shareLength = shareLength - 1;
+                    shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                } while (shareLength > 0);
+            }
         } while (deviceLength > 0);
     }
     return shareList;

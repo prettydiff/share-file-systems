@@ -95,41 +95,27 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces #menu button::before{font-size:1.5em;margin:0 0.5em 0 0}
 
 /* device/user list */
-#spaces #device,
-#spaces #user{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
-#spaces #device h2,
-#spaces #user h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:2em;margin:0;padding:0.5em;position:relative;z-index:2}
-#spaces #device ul,
-#spaces #user ul{margin:0;padding:0;position:relative;z-index:2}
-#spaces #device li,
-#spaces #user li{display:block;list-style:none}
-#spaces #device button,
-#spaces #user button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
-#spaces #device button span,
-#spaces #user button span{background:transparent;display:block;height:0;position:absolute;text-shadow:none;width:0;z-index:-10}
-#spaces #device .active .status-active,
-#spaces #user .active .status-active,
-#spaces #device .idle .status-idle,
-#spaces #user .idle .status-idle,
-#spaces #device .offline .status-offline,
-#spaces #user .offline .status-offline{display:inline-block}
-#spaces #device .active .status-idle,
-#spaces #user .active .status-idle,
-#spaces #device .active .status-offline,
-#spaces #user .active .status-offline,
-#spaces #device .idle .status-active,
-#spaces #user .idle .status-active,
-#spaces #device .idle .status-offline,
-#spaces #user .idle .status-offline,
-#spaces #device .offline .status-active,
-#spaces #user .offline .status-active,
-#spaces #device .offline .status-idle
-#spaces #user .offline .status-idle{display:none}
-#spaces #device span,
-#spaces #user span{display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
-#spaces #all-shares::before,
-#spaces #device #device-all-shares::before,
-#spaces #user #user-all-shares::before{content:""}
+#spaces #agentList{border-style:solid;border-width:0 0 0 0.1em;padding:0;position:absolute;right:0;width:23em;z-index:1}
+#spaces #agentList h2{border-color:#000;border-style:solid;border-width:0 0 0.05em;font-size:1.4em;margin:0;padding:0.5em;position:relative;z-index:3}
+#spaces #agentList ul{margin:0;padding:0;position:relative;z-index:2}
+#spaces #agentList li{display:block;list-style:none}
+#spaces #agentList button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:1.5em;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
+#spaces #agentList button span{background:transparent;display:block;height:0;position:absolute;text-shadow:none;width:0;z-index:-10}
+#spaces #agentList .active .status-active,
+#spaces #agentList .idle .status-idle,
+#spaces #agentList .offline .status-offline{display:inline-block}
+#spaces #agentList .active .status-idle,
+#spaces #agentList .active .status-offline,
+#spaces #agentList .idle .status-active,
+#spaces #agentList .idle .status-offline,
+#spaces #agentList .offline .status-active,
+#spaces #agentList .offline .status-idle{display:none}
+#spaces #agentList span{display:block;height:100%;left:0;opacity:0.1;position:absolute;top:0;width:100%;z-index:1}
+#spaces #agentList .all-shares::before,
+#spaces #device .device-all-shares::before,
+#spaces #user .user-all-shares::before{content:""}
+#spaces #agentList .all-shares{margin:0 0 3em;position:relative;z-index:2}
+#spaces #device{margin:0 0 3em}
 
 /* minimize tray at bottom */
 #spaces #tray{border-style:solid none none;border-width:0.1em;bottom:0;display:block;min-height:5em;margin:0;padding:0;position:absolute;width:100%;z-index:1}
