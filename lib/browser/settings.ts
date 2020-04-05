@@ -112,8 +112,8 @@ settings.colorDefaults = {
 /* Change the color scheme */
 settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        agent:string = util.getAgent(element)[0],
-        type:agentType = browser.data.modals[agent].agentType,
+        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        type:agentType = browser.data.modals[box.getAttribute("id")].agentType,
         oldScheme:string = browser.data.color,
         keys:string[] = Object.keys(browser.data.colors[type]),
         keyLength:number = keys.length;
@@ -137,11 +137,11 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
                 ? 0
                 : settingsList.length;
         do {
-            if (browser.data.colors[keys[a]][0] === settings.colorDefaults[oldScheme][0] && browser.data.colors[keys[a]][1] === settings.colorDefaults[oldScheme][1]) {
-                browser.data.colors[keys[a]][0] = settings.colorDefaults[element.value][0];
-                browser.data.colors[keys[a]][1] = settings.colorDefaults[element.value][1];
+            if (browser.data.colors[type][keys[a]][0] === settings.colorDefaults[oldScheme][0] && browser.data.colors[type][keys[a]][1] === settings.colorDefaults[oldScheme][1]) {
+                browser.data.colors[type][keys[a]][0] = settings.colorDefaults[element.value][0];
+                browser.data.colors[type][keys[a]][1] = settings.colorDefaults[element.value][1];
                 if (keys[a] !== browser.data.deviceHash) {
-                    settings.applyUserColors(keys[a], [browser.data.colors[keys[a]][0], browser.data.colors[keys[a]][1]]);
+                    settings.applyUserColors(keys[a], [browser.data.colors[type][keys[a]][0], browser.data.colors[type][keys[a]][1]]);
                 }
                 b = 0;
                 do {
@@ -150,15 +150,15 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
                         swatch1 = <HTMLElement>swatches[0];
                         swatch2 = <HTMLElement>swatches[1];
                         inputs = settingsList[b].getElementsByTagName("input");
-                        swatch1.style.background = browser.data.colors[keys[a]][0];
-                        swatch2.style.background = browser.data.colors[keys[a]][1];
-                        inputs[0].value = browser.data.colors[keys[a]][0].replace("#", "");
-                        inputs[1].value = browser.data.colors[keys[a]][1].replace("#", "");
+                        swatch1.style.background = browser.data.colors[type][keys[a]][0];
+                        swatch2.style.background = browser.data.colors[type][keys[a]][1];
+                        inputs[0].value = browser.data.colors[type][keys[a]][0].replace("#", "");
+                        inputs[1].value = browser.data.colors[type][keys[a]][1].replace("#", "");
                     }
                     b = b + 1;
                 } while (b < keyLength);
-            } else if (keys[a] !== browser.data.deviceHash && browser.data.colors[keys[a]][0] === settings.colorDefaults[element.value][0] && browser.data.colors[keys[a]][1] === settings.colorDefaults[element.value][1]) {
-                settings.applyUserColors(keys[a], [browser.data.colors[keys[a]][0], browser.data.colors[keys[a]][1]]);
+            } else if (keys[a] !== browser.data.deviceHash && browser.data.colors[type][keys[a]][0] === settings.colorDefaults[element.value][0] && browser.data.colors[type][keys[a]][1] === settings.colorDefaults[element.value][1]) {
+                settings.applyUserColors(keys[a], [browser.data.colors[type][keys[a]][0], browser.data.colors[type][keys[a]][1]]);
             }
             a = a + 1;
         } while (a < settingsLength);

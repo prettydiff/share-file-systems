@@ -37,28 +37,32 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         box:HTMLElement = <HTMLElement>body.parentNode.parentNode,
         input:HTMLInputElement = box.getElementsByTagName("input")[0],
         watchValue:string = input.value,
-        path:string = li.getElementsByTagName("label")[0].innerHTML;
+        path:string = li.getElementsByTagName("label")[0].innerHTML,
+        agency:agency = util.getAgent(box),
+        callback = function local_fs_directory_callback(responseText:string):void {
+            const list:[HTMLElement, number, string] = fs.list(path, JSON.parse(responseText));
+            body.innerHTML = "";
+            body.appendChild(list[0]);
+            fs.listFail(list[1], box);
+            browser.data.modals[box.getAttribute("id")].text_value = path;
+            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+            network.storage("settings");
+        },
+        payload:fileService = {
+            action: "fs-directory",
+            agent: agency[0],
+            agentType: agency[2],
+            copyAgent: "",
+            depth: 2,
+            id: box.getAttribute("id"),
+            location: [path],
+            name: "",
+            watch: watchValue
+        };
     event.preventDefault();
     input.value = path;
     browser.data.modals[box.getAttribute("id")].history.push(path);
-    network.fs({
-        action: "fs-directory",
-        agent: util.getAgent(box)[0],
-        copyAgent: "",
-        depth: 2,
-        id: box.getAttribute("id"),
-        location: [path],
-        name: "",
-        watch: watchValue
-    }, function local_fs_directory_callback(responseText:string):void {
-        const list:[HTMLElement, number, string] = fs.list(path, JSON.parse(responseText));
-        body.innerHTML = "";
-        body.appendChild(list[0]);
-        fs.listFail(list[1], box);
-        browser.data.modals[box.getAttribute("id")].text_value = path;
-        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
-        network.storage("settings");
-    });
+    network.fs(payload, callback);
 };
 
 /* drag and drop of selected list items */
@@ -111,8 +115,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             if (init === false) {
                 return;
             }
-            let agent:string = "",
-                id:string = "";
+            let id:string = "";
             const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
                     const addressList:[string, shareType, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
                         output:string[] = [];
@@ -173,24 +176,28 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     }
                     goal = util.getAncestor(goal, "box", "class");
                     id = goal.getAttribute("id");
-                    agent = browser.data.modals[id].agent;
                     return goal.getElementsByTagName("input")[0].value;
-                }());
+                }()),
+                payload:fileService = {
+                    action   : (copy === true)
+                        ? "fs-copy"
+                        : "fs-cut",
+                    agent    : browser.data.modals[id].agent,
+                    agentType: browser.data.modals[id].agentType,
+                    copyAgent: util.getAgent(element)[0],
+                    depth    : 1,
+                    id       : id,
+                    location : addresses,
+                    name     : target,
+                    watch    : "no"
+                },
+                callback = function local_fs_drag_drop_callback():void {
+                    return;
+                };
             if (target === "") {
                 return;
             }
-            network.fs({
-                action   : (copy === true)
-                    ? "fs-copy"
-                    : "fs-cut",
-                agent    : agent,
-                copyAgent: util.getAgent(element)[0],
-                depth    : 1,
-                id       : id,
-                location : addresses,
-                name     : target,
-                watch    : "no"
-            }, function local_fs_drag_drop_callback():void {});
+            network.fs(payload, callback);
         },
         move = function local_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
@@ -282,21 +289,25 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
         box:HTMLElement = util.getAncestor(button, "box", "class"),
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
+        const agency:agency = util.getAgent(button),
+            payload:fileService = {
+                action: "fs-directory",
+                agent: agency[0],
+                agentType: agency[2],
+                copyAgent: "",
+                depth: 2,
+                id: box.getAttribute("id"),
+                location: [li.firstChild.nextSibling.textContent],
+                name : "",
+                watch: "no"
+            },
+            callback = function local_fs_expand_callback(responseText:string) {
+                const list:[HTMLElement, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
+                li.appendChild(list[0]);
+            };
         button.innerHTML = "-<span>Collapse this folder</span>";
         button.setAttribute("title", "Collapse this folder");
-        network.fs({
-            action: "fs-directory",
-            agent: util.getAgent(button)[0],
-            copyAgent: "",
-            depth: 2,
-            id: box.getAttribute("id"),
-            location: [li.firstChild.nextSibling.textContent],
-            name : "",
-            watch: "no"
-        }, function local_fs_expand_callback(responseText:string) {
-            const list:[HTMLElement, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
-            li.appendChild(list[0]);
-        });
+        network.fs(payload, callback);
     } else {
         const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
         button.innerHTML = "+<span>Expand this folder</span>";
@@ -347,19 +358,6 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
             body.appendChild(p);
         }
         return [p, 0, ""];
-    }
-
-    // fires share.update, which ensures all modals of the respective share are updated
-    if (dirData.id !== undefined && browser.data.modals[dirData.id] !== undefined) {
-        const agent:string = browser.data.modals[dirData.id].agent,
-            type:agentType = browser.data.modals[dirData.id].agentType;
-        browser.data.modals[dirData.id].text_value = list[0][0];
-        browser.data.modals[dirData.id].selection = {};
-        share.update({
-            agent: agent,
-            share: browser[type][agent].shares,
-            type: type
-        });
     }
 
     a = 0;
@@ -571,34 +569,16 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = (agentName !== browser.data.deviceHash)
-            ? function local_fs_navigate_callbackRemote(responseText:string):void {
-                if (responseText === "") {
-                    return;
-                }
-                const payload:fsRemote = JSON.parse(responseText),
-                    box:HTMLElement = document.getElementById(payload.id),
-                    body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                    files:HTMLElement = (payload.dirs === "missing")
-                        ? (function local_fs_navigate_callbackRemote_missing():HTMLElement {
-                            const p:HTMLElement = document.createElement("p");
-                            p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
-                            p.setAttribute("class", "error");
-                            return p;
-                        }())
-                        : fs.list(location, payload)[0];
-                body.innerHTML = "";
-                body.appendChild(files);
-            }
-            : function local_fs_navigate_callbackSelf(responseText:string):void {
+        callback:Function = (agentName === browser.data.deviceHash)
+            ? function local_fs_navigate_callbackSelf(responseText:string):void {
                 if (responseText === "") {
                     return;
                 }
                 const files:[HTMLElement, number, string] = fs.list(location, JSON.parse(responseText)),
                     value:string = files[0].getAttribute("title"),
-                    shareName:string = (agentName === browser.data.deviceHash)
+                    shareName:string = (agentType === "device")
                         ? `Device, ${browser.device[agentName].name}`
-                        : browser.user[agentName].name;
+                        : `User, ${browser.user[agentName].name}`;
                 files[0].removeAttribute("title");
                 modal.create({
                     agent: agentName,
@@ -616,8 +596,36 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     type: "fileNavigate",
                     width: 800
                 });
-            };
-    let id:string = "";
+            }
+            : function local_fs_navigate_callbackRemote(responseText:string):void {
+                if (responseText === "") {
+                    return;
+                }
+                const payload:fsRemote = JSON.parse(responseText),
+                    box:HTMLElement = document.getElementById(payload.id),
+                    body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+                    files:HTMLElement = (payload.dirs === "missing")
+                        ? (function local_fs_navigate_callbackRemote_missing():HTMLElement {
+                            const p:HTMLElement = document.createElement("p");
+                            p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
+                            p.setAttribute("class", "error");
+                            return p;
+                        }())
+                        : fs.list(location, payload)[0];
+                body.innerHTML = "";
+                body.appendChild(files);
+            },
+        payload:fileService = {
+            action: "fs-directory",
+            agent: agentName,
+            agentType: agentType,
+            copyAgent: "",
+            depth: 2,
+            id: browser.data.deviceHash,
+            location: [location],
+            name: "",
+            watch: "yes"
+        };
     if (agentName !== browser.data.deviceHash) {
         const box:HTMLElement = modal.create({
             agent: agentName,
@@ -636,18 +644,9 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             type: "fileNavigate",
             width: 800
         });
-        id = box.getAttribute("id");
+        payload.id = box.getAttribute("id");
     }
-    network.fs({
-        action: "fs-directory",
-        agent: agentName,
-        copyAgent: "",
-        depth: 2,
-        id: id,
-        location: [location],
-        name: "",
-        watch: "yes"
-    }, callback);
+    network.fs(payload, callback);
 };
 
 /* Request file system information of the parent directory */
@@ -658,17 +657,35 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
             ? "/"
             : "\\",
-        value:string = input.value;
-    let body:HTMLElement = <HTMLElement>element.parentNode,
-        box:HTMLElement,
-        id:string = "";
+        value:string = input.value,
+        bodyParent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
+        body:HTMLElement = <HTMLElement>bodyParent.getElementsByTagName("div")[0],
+        box:HTMLElement = <HTMLElement>bodyParent.parentNode,
+        agency:agency = util.getAgent(box),
+        id:string = box.getAttribute("id"),
+        payload:fileService = {
+            action: "fs-directory",
+            agent: agency[0],
+            agentType: agency[2],
+            copyAgent: "",
+            depth: 2,
+            id: id,
+            location: [input.value],
+            name: "",
+            watch: value
+        },
+        callback = function local_fs_parent_callback(responseText:string):void {
+            const list:[HTMLElement, number, string] = fs.list(input.value, JSON.parse(responseText));
+            body.innerHTML = "";
+            body.appendChild(list[0]);
+            fs.listFail(list[1], box);
+            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+            browser.data.modals[id].text_value = input.value;
+            network.storage("settings");
+        };
     if (input.value === "\\" || input.value === "/") {
         return false;
     }
-    body = <HTMLElement>body.parentNode;
-    box = <HTMLElement>body.parentNode;
-    id = box.getAttribute("id");
-    body = body.getElementsByTagName("div")[0];
     if ((/^\w:\\$/).test(value) === true) {
         input.value = "\\";
     } else if (value.indexOf(slash) === value.lastIndexOf(slash)) {
@@ -677,24 +694,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         input.value = value.slice(0, value.lastIndexOf(slash));
     }
     browser.data.modals[id].history.push(input.value);
-    network.fs({
-        action: "fs-directory",
-        agent: util.getAgent(box)[0],
-        copyAgent: "",
-        depth: 2,
-        id: id,
-        location: [input.value],
-        name: "",
-        watch: value
-    }, function local_fs_parent_callback(responseText:string):void {
-        const list:[HTMLElement, number, string] = fs.list(input.value, JSON.parse(responseText));
-        body.innerHTML = "";
-        body.appendChild(list[0]);
-        fs.listFail(list[1], box);
-        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
-        browser.data.modals[id].text_value = input.value;
-        network.storage("settings");
-    });
+    network.fs(payload, callback);
 };
 
 /* The front-side of renaming a file system object */
@@ -711,19 +711,23 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 if (dir + input.value === text) {
                     label.innerHTML = text;
                 } else {
-                    network.fs({
-                        action: "fs-rename",
-                        agent: util.getAgent(element)[0],
-                        copyAgent: "",
-                        depth: 1,
-                        id: box.getAttribute("id"),
-                        location: [text.replace(/\\/g, "\\\\")],
-                        name: input.value,
-                        watch: "no"
-                    }, function local_fs_rename_callback():void {
-                        label.removeChild(input);
-                        label.innerHTML = label.innerHTML + input.value;
-                    });
+                    const agency:agency = util.getAgent(element),
+                        payload:fileService = {
+                            action: "fs-rename",
+                            agent: agency[0],
+                            agentType: agency[2],
+                            copyAgent: "",
+                            depth: 1,
+                            id: box.getAttribute("id"),
+                            location: [text.replace(/\\/g, "\\\\")],
+                            name: input.value,
+                            watch: "no"
+                        },
+                        callback = function local_fs_rename_callback():void {
+                            label.removeChild(input);
+                            label.innerHTML = label.innerHTML + input.value;
+                        };
+                    network.fs(payload, callback);
                 }
             } else if (action.type === "keyup") {
                 if (action.keyCode === 27) {
@@ -768,31 +772,33 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         box:HTMLElement = util.getAncestor(element, "box", "class"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
-        agency:agency = util.getAgent(box);
-    let location:string = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1];
-    network.fs({
-        action: "fs-write",
-        agent: agency[0],
-        copyAgent: "",
-        depth: 1,
-        id: box.getAttribute("id"),
-        location: [location],
-        name: content,
-        watch: "no"
-    }, function local_fs_saveFile_callback(message:string):void {
-        const footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-            buttons:HTMLElement = <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
-            pList:HTMLCollectionOf<HTMLElement> = footer.getElementsByTagName("p"),
-            p:HTMLElement = document.createElement("p");
-        p.innerHTML = message;
-        p.setAttribute("class", "message");
-        if (pList[0] !== buttons) {
-            footer.removeChild(pList[0]);
-        }
-        p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
-        footer.insertBefore(p, pList[0]);
-    });
+        agency:agency = util.getAgent(box),
+        payload:fileService = {
+            action: "fs-write",
+            agent: agency[0],
+            agentType: agency[2],
+            copyAgent: "",
+            depth: 1,
+            id: box.getAttribute("id"),
+            location: [box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1]],
+            name: content,
+            watch: "no"
+        },
+        callback = function local_fs_saveFile_callback(message:string):void {
+            const footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+                body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+                buttons:HTMLElement = <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+                pList:HTMLCollectionOf<HTMLElement> = footer.getElementsByTagName("p"),
+                p:HTMLElement = document.createElement("p");
+            p.innerHTML = message;
+            p.setAttribute("class", "message");
+            if (pList[0] !== buttons) {
+                footer.removeChild(pList[0]);
+            }
+            p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
+            footer.insertBefore(p, pList[0]);
+        };
+    network.fs(payload, callback);
 };
 
 /* Search for file system artifacts from a modal's current location */
@@ -807,30 +813,20 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
             address:string = addressLabel.getElementsByTagName("input")[0].value,
             statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
-            value:string = element.value;
-        if (event !== null && event.type === "blur") {
-            const searchParent:HTMLElement = <HTMLElement>element.parentNode;
-            searchParent.style.width = "12.5%";
-            addressLabel.style.width = "87.5%";
-        }
-        if (event === null || browser.data.modals[id].search.join("") !== address + value) {
-            body.innerHTML = "";
-            body.append(util.delay());
-            if (browser.loadTest === false) {
-                browser.data.modals[id].search = [address, value];
-                browser.data.modals[id].selection = {};
-                network.storage("settings");
-            }
-            network.fs({
+            value:string = element.value,
+            agency:agency = util.getAgent(box),
+            payload:fileService = {
                 action: "fs-search",
-                agent: util.getAgent(box)[0],
+                agent: agency[0],
+                agentType: agency[2],
                 copyAgent: "",
                 depth: 0,
                 id: id,
                 location: [address],
                 name: value,
                 watch: "no"
-            }, function local_fs_search_callback(responseText:string):void {
+            },
+            netCallback = function local_fs_search_callback(responseText:string):void {
                 if (responseText === "") {
                     body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
                 } else {
@@ -885,7 +881,21 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                         }
                     }
                 }
-            });
+            };
+        if (event !== null && event.type === "blur") {
+            const searchParent:HTMLElement = <HTMLElement>element.parentNode;
+            searchParent.style.width = "12.5%";
+            addressLabel.style.width = "87.5%";
+        }
+        if (event === null || browser.data.modals[id].search.join("") !== address + value) {
+            body.innerHTML = "";
+            body.append(util.delay());
+            if (browser.loadTest === false) {
+                browser.data.modals[id].search = [address, value];
+                browser.data.modals[id].selection = {};
+                network.storage("settings");
+            }
+            network.fs(payload, netCallback);
         }
     }
 };
@@ -1045,6 +1055,32 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
     if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+        const agency:agency = util.getAgent(box),
+            payload:fileService = {
+                action: "fs-directory",
+                agent: agency[0],
+                agentType: agency[2],
+                copyAgent: "",
+                depth: 2,
+                id: id,
+                location: [element.value],
+                name: "",
+                watch: watchValue
+            },
+            callback = function local_fs_text_callback(responseText:string):void {
+                if (responseText === "") {
+                    parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
+                } else {
+                    const list:[HTMLElement, number, string] = fs.list(element.value, JSON.parse(responseText));
+                    parent.innerHTML = "";
+                    parent.appendChild(list[0]);
+                    fs.listFail(list[1], box);
+                    box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+                    browser.data.modals[id].text_value = element.value;
+                    element.removeAttribute("class");
+                    network.storage("settings");
+                }
+            };
         if ((/^\w:/).test(element.value.replace(/\s+/, "")) === true) {
             windows = true;
         }
@@ -1052,29 +1088,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
         if (button === false && ((windows === false && element.value !== browser.data.modals[id].history[historyLength]) || (windows === true && element.value.toLowerCase() !== browser.data.modals[id].history[historyLength].toLowerCase()))) {
             browser.data.modals[id].history.push(element.value);
         }
-        network.fs({
-            action: "fs-directory",
-            agent: util.getAgent(box)[0],
-            copyAgent: "",
-            depth: 2,
-            id: id,
-            location: [element.value],
-            name: "",
-            watch: watchValue
-        }, function local_fs_text_callback(responseText:string):void {
-            if (responseText === "") {
-                parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
-            } else {
-                const list:[HTMLElement, number, string] = fs.list(element.value, JSON.parse(responseText));
-                parent.innerHTML = "";
-                parent.appendChild(list[0]);
-                fs.listFail(list[1], box);
-                box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
-                browser.data.modals[id].text_value = element.value;
-                element.removeAttribute("class");
-                network.storage("settings");
-            }
-        });
+        network.fs(payload, callback);
     }
 };
 

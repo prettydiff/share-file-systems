@@ -55,6 +55,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         port: browser.localNetwork.httpPort,
                                         shares: {}
                                     };
+                                    browser.data.colors.device[hash] = ["fff", "eee"];
                                     browser.pageBody.removeAttribute("class");
                                     browser.loadTest = false;
                                     network.storage("device");
@@ -116,7 +117,7 @@ import webSocket from "./lib/browser/webSocket.js";
                         agentList:HTMLElement = document.getElementById("agentList"),
                         allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
                         allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
-                    let a:number = 0;console.log(browser.data.deviceHash);
+                    let a:number = 0;
 
                     if (browser.data.deviceHash === "") {
                         // Terminate load completion dependent upon creation of device hash
@@ -248,7 +249,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     }
                                 },
                                 restoreShares = function local_restore_restoreShares(type:agentType):void {
-                                    if (storage.type === undefined) {
+                                    if (storage[type] === undefined) {
                                         browser[type] = {};
                                         return;
                                     }
@@ -269,7 +270,6 @@ import webSocket from "./lib/browser/webSocket.js";
                             browser.data.nameUser = storage.settings.nameUser;
                             browser.data.nameDevice = storage.settings.nameDevice;
                             browser.data.deviceHash = storage.settings.deviceHash;
-                            share.addUser(storage.settings.nameUser, storage.settings.deviceHash, "device");
 
                             if (modalKeys.length < 1) {
                                 loadComplete();
@@ -277,8 +277,18 @@ import webSocket from "./lib/browser/webSocket.js";
 
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
-                                    const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
-                                        agent:string = agentStrings[agentStrings.length - 1],
+                                    const agent:string = storage.settings.modals[value].agent,
+                                        payload:fileService = {
+                                            action: "fs-directory",
+                                            agent: agent,
+                                            agentType: storage.settings.modals[value].agentType,
+                                            copyAgent: "",
+                                            depth: 2,
+                                            id: value,
+                                            location: [storage.settings.modals[value].text_value],
+                                            name: "",
+                                            watch: "yes"
+                                        },
                                         selection = function local_restore_modalKeys_selection(id:string):void {
                                             const box:HTMLElement = document.getElementById(id),
                                                 modalData:ui_modal = browser.data.modals[id],
@@ -373,16 +383,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         });
                                         z(value);
                                     } else if (agent === browser.data.deviceHash) {
-                                        network.fs({
-                                            action: "fs-directory",
-                                            agent: agent,
-                                            copyAgent: "",
-                                            depth: 2,
-                                            id: value,
-                                            location: [storage.settings.modals[value].text_value],
-                                            name: "",
-                                            watch: "yes"
-                                        }, callback, value);
+                                        network.fs(payload, callback);
                                     } else {
                                         const delay:HTMLElement = util.delay();
                                         storage.settings.modals[value].content = delay;
@@ -390,16 +391,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         storage.settings.modals[value].text_event = fs.text;
                                         modal.create(storage.settings.modals[value]);
                                         z(value);
-                                        network.fs({
-                                            action: "fs-directory",
-                                            agent: agent,
-                                            copyAgent: "",
-                                            depth: 2,
-                                            id: value,
-                                            location: [storage.settings.modals[value].text_value],
-                                            name: "",
-                                            watch: "yes"
-                                        }, callback);
+                                        network.fs(payload, callback);
                                     }
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");

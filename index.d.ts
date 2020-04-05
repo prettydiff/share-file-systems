@@ -67,9 +67,10 @@ declare global {
     }
     interface clipboard {
         agent: string;
-        data : string[];
-        id   : string;
-        type : string;
+        agentType: agentType;
+        data: string[];
+        id: string;
+        type: string;
     }
     interface colorDefaults {
         [key:string]: [string, string];
@@ -167,7 +168,6 @@ declare global {
         location    : string[];
         name        : string;
         remoteWatch?: string;
-        type        : agentType;
         watch       : string;
     }
     interface fileStore extends Array<[number, string, string, Buffer]> {

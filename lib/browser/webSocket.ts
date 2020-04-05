@@ -81,17 +81,21 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     a = a + 1;
                 } while (a < keyLength);
                 if (a === keyLength) {
-                    network.fs({
+                    const payload:fileService = {
                         action: "fs-close",
                         agent: browser.data.deviceHash,
+                        agentType: "device",
                         copyAgent: "",
                         depth: 1,
+                        id: "",
                         location: [root],
                         name: "",
                         watch: "no"
-                    }, function local_socketMessage_closeCallback():boolean {
+                    },
+                    callback = function local_socketMessage_closeCallback():boolean {
                         return true;
-                    });
+                    };
+                    network.fs(payload, callback);
                 }
             },
             fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
