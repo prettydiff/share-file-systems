@@ -25,7 +25,12 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         const deleteAgent = function local_socketMessage_deleteUser(type:agentType):void {
                 const agent:string = JSON.parse(event.data)["delete-user"],
                     agentList:HTMLCollectionOf<HTMLElement> = document.getElementById(type).getElementsByTagName("li"),
-                    length:number = agentList.length;
+                    length:number = agentList.length,
+                    config:shareUpdateConfiguration = {
+                        agent: agent,
+                        shares: "deleted",
+                        type: type
+                    };
                 let a:number = 1;
                 delete browser[type][agent];
                 do {
@@ -35,22 +40,13 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
-                share.update({
-                    agent: agent,
-                    agentType: type,
-                    shares: "deleted"
-                });
+                share.update(config);
             },
             error = function local_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
                     modal:HTMLElement = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
-                    payload:string = (errorData.error !== undefined && errorData.stack !== undefined)
-                        ? JSON.stringify({
-                            error: errorData.error,
-                            stack: errorData.stack
-                        })
-                        : JSON.stringify(errorData);
+                    payload:string = JSON.stringify(errorData);
                 systems.message("errors", payload, "websocket");
                 if (modal.clientWidth > 0) {
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
@@ -158,11 +154,12 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 } while (a < length);
                 if (heartbeat.shares !== "") {
                     if (heartbeat.type === type && JSON.stringify(browser[type][heartbeat.user].shares) !== JSON.stringify(heartbeat.shares)) {
-                        share.update({
+                        const update:shareUpdateConfiguration = {
                             agent: heartbeat.user,
-                            agentType: type,
-                            shares: heartbeat.shares
-                        });
+                            shares: <deviceShares>heartbeat.shares,
+                            type: type
+                        };
+                        share.update(update);
                     }
                 }
             },

@@ -578,24 +578,25 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     value:string = files[0].getAttribute("title"),
                     shareName:string = (agentType === "device")
                         ? `Device, ${browser.device[agentName].name}`
-                        : `User, ${browser.user[agentName].name}`;
+                        : `User, ${browser.user[agentName].name}`,
+                    payload:ui_modal = {
+                        agent: agentName,
+                        agentType: agentType,
+                        content: files[0],
+                        inputs: ["close", "maximize", "minimize", "text"],
+                        read_only: false,
+                        selection: {},
+                        status_bar: true,
+                        status_text: files[2],
+                        text_event: fs.text,
+                        text_placeholder: "Optionally type a file system address here.",
+                        text_value: value,
+                        title: `${document.getElementById("fileNavigator").innerHTML} - ${shareName}`,
+                        type: "fileNavigate",
+                        width: 800
+                    };
                 files[0].removeAttribute("title");
-                modal.create({
-                    agent: agentName,
-                    agentType: agentType,
-                    content: files[0],
-                    inputs: ["close", "maximize", "minimize", "text"],
-                    read_only: false,
-                    selection: {},
-                    status_bar: true,
-                    status_text: files[2],
-                    text_event: fs.text,
-                    text_placeholder: "Optionally type a file system address here.",
-                    text_value: value,
-                    title: `${document.getElementById("fileNavigator").innerHTML} - ${shareName}`,
-                    type: "fileNavigate",
-                    width: 800
-                });
+                modal.create(payload);
             }
             : function local_fs_navigate_callbackRemote(responseText:string):void {
                 if (responseText === "") {
@@ -615,7 +616,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                 body.innerHTML = "";
                 body.appendChild(files);
             },
-        payload:fileService = {
+        payloadNetwork:fileService = {
             action: "fs-directory",
             agent: agentName,
             agentType: agentType,
@@ -627,7 +628,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             watch: "yes"
         };
     if (agentName !== browser.data.deviceHash) {
-        const box:HTMLElement = modal.create({
+        const payloadModal:ui_modal = {
             agent: agentName,
             agentType: agentType,
             content: util.delay(),
@@ -643,10 +644,11 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                 : `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}`,
             type: "fileNavigate",
             width: 800
-        });
-        payload.id = box.getAttribute("id");
+        },
+        box:HTMLElement = modal.create(payloadModal);
+        payloadNetwork.id = box.getAttribute("id");
     }
-    network.fs(payload, callback);
+    network.fs(payloadNetwork, callback);
 };
 
 /* Request file system information of the parent directory */

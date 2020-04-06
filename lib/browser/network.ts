@@ -16,6 +16,10 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 let text:string = xhr.responseText;
+                const error:messageError = {
+                    error: `XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
+                    stack: [new Error().stack.replace(/\s+$/, "")]
+                };
                 text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
                 if (xhr.status === 200 || xhr.status === 0) {
                     if (text.indexOf("{\"fileListStatus\":") === 0) {
@@ -24,10 +28,7 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
                         callback(text, configuration.agent);
                     }
                 } else {
-                    systems.message("errors", JSON.stringify({
-                        error: `XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    systems.message("errors", JSON.stringify(error));
                     callback(text, configuration.agent);
                     network.storage("messages");
                 }
@@ -51,10 +52,11 @@ network.hashDevice = function local_network_hashDevice(callback:Function):void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                 } else {
                     callback(JSON.parse(xhr.responseText).deviceHash);
                 }
@@ -74,10 +76,11 @@ network.hashShare = function local_network_hashShare(configuration:shareHashConf
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                 } else {
                     configuration.callback(xhr.responseText);
                 }
@@ -101,10 +104,11 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending heartbeat`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                     network.storage("messages");
                 }
             }
@@ -137,10 +141,11 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
                 if (xhr.status === 200 || xhr.status === 0) {
                     // todo log invitation acceptance in system log
                 } else {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                     network.storage("messages");
                 }
             }
@@ -163,10 +168,11 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                 }
             }
         };
@@ -190,10 +196,11 @@ network.storage = function local_network_storage(type:storageType):void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                 }
             }
         },

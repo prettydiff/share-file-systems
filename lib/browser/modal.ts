@@ -394,19 +394,20 @@ modal.export = function local_modal_export(event:MouseEvent):void {
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("export"))
             ? [browser.data.deviceHash, false, "device"]
-            : util.getAgent(element);
+            : util.getAgent(element),
+        payload:ui_modal = {
+            agent: agency[0],
+            agentType: "device",
+            content: textArea,
+            inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+            read_only: agency[1],
+            single: true,
+            title: element.innerHTML,
+            type: "export"
+        };
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
-    modal.create({
-        agent: agency[0],
-        agentType: "device",
-        content: textArea,
-        inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-        read_only: agency[1],
-        single: true,
-        title: element.innerHTML,
-        type: "export"
-    });
+    modal.create(payload);
 };
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
@@ -897,7 +898,17 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("textPad"))
             ? [browser.data.deviceHash, false, "device"]
-            : util.getAgent(element);
+            : util.getAgent(element),
+        payload:ui_modal = {
+            agent: agency[0],
+            agentType: "device",
+            content: textArea,
+            inputs: ["close", "maximize", "minimize"],
+            read_only: agency[1],
+            title: titleText,
+            type: "textPad",
+            width: 800
+        };
     let box:HTMLElement;
     if (typeof value === "string") {
         textArea.value = value;
@@ -906,16 +917,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
     if (titleText.indexOf("Base64 - ") === 0) {
         textArea.style.whiteSpace = "normal";
     }
-    box = modal.create({
-        agent: agency[0],
-        agentType: "device",
-        content: textArea,
-        inputs: ["close", "maximize", "minimize"],
-        read_only: agency[1],
-        title: titleText,
-        type: "textPad",
-        width: 800
-    });
+    box = modal.create(payload);
     box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
 };
 

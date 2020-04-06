@@ -16,13 +16,14 @@ const library = {
         vars.verbose = true;
         if (vars.commands[process.argv[0]] === undefined) {
             // all commands in a list
-            library.lists({
+            const listConfig:nodeLists = {
                 empty_line: false,
                 heading: "Commands",
                 obj: vars.commands,
                 property: "description",
                 total: true
-            });
+            };
+            library.lists(listConfig);
         } else {
             // specifically mentioned option
             const comm:any = vars.commands[process.argv[0]],

@@ -185,7 +185,7 @@ const library = {
                         name:string = (testItem.name === undefined)
                             ? command
                             : testItem.name,
-                        header = (agent === serverVars.deviceHash || agent === undefined)
+                        header:http.OutgoingHttpHeaders = (agent === serverVars.deviceHash || agent === undefined)
                             ? {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
@@ -202,7 +202,7 @@ const library = {
                                 "agent-type": "user",
                                 "remote-user": "localUser"
                             },
-                        request:http.ClientRequest = http.request({
+                        payload:http.RequestOptions = {
                             headers: header,
                             host: "::1",
                             method: "POST",
@@ -211,7 +211,8 @@ const library = {
                                 ? services.serverLocal.port
                                 : services.serverRemote.port,
                             timeout: 1000
-                        }, function test_testListRunner_service_callback(response:http.IncomingMessage):void {
+                        },
+                        callback = function test_testListRunner_service_callback(response:http.IncomingMessage):void {
                             const chunks:string[] = [];
                             response.on("data", function test_testListRunner_service_callback_data(chunk:string):void {
                                 chunks.push(chunk);
@@ -219,7 +220,8 @@ const library = {
                             response.on("end", function test_testListRunner_service_callback_end():void {
                                 evaluation(chunks.join(""));
                             });
-                        });
+                        },
+                        request:http.ClientRequest = http.request(payload, callback);
                     request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
                         increment(`fail - Failed to execute on service test: ${name}`, reqError.toString());
                     });

@@ -44,7 +44,14 @@ const library = {
                     listObject:any = {},
                     hashes:string[] = [],
                     hashComplete = function terminal_hash_dirComplete_callback():void {
-                        const hash:Hash = vars.node.crypto.createHash(algorithm);
+                        const hash:Hash = vars.node.crypto.createHash(algorithm),
+                            hashOutput:hashOutput = {
+                                filePath: <string>input.source,
+                                hash: "",
+                                id: input.id,
+                                parent: input.parent,
+                                stat: input.stat
+                            };
                         let hashString:string = "";
                         if (hashList === true) {
                             hashString = JSON.stringify(listObject);
@@ -54,13 +61,8 @@ const library = {
                         } else {
                             hashString = hashes[0];
                         }
-                        input.callback({
-                            filePath: input.source,
-                            hash: hashString,
-                            id: input.id,
-                            parent: input.parent,
-                            stat: input.stat
-                        });
+                        hashOutput.hash = hashString;
+                        input.callback(hashOutput);
                     },
                     hashBack = function terminal_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                         const hash:Hash = vars.node.crypto.createHash(algorithm);
@@ -105,7 +107,7 @@ const library = {
                             }
                             terminate();
                         } else {
-                            library.readFile({
+                            const readConfig:readFile = {
                                 path: list[index][0],
                                 stat: <Stats>list[index][5],
                                 index: index,
@@ -120,7 +122,8 @@ const library = {
                                         terminate();
                                     });
                                 }
-                            });
+                            };
+                            library.readFile(readConfig);
                         }
                     },
                     recursive = function terminal_hash_dirComplete_recursive():void {
@@ -159,7 +162,7 @@ const library = {
                                 hashComplete();
                             }
                         } else {
-                            library.readFile({
+                            const readConfig:readFile = {
                                 path: list[a][0],
                                 stat: <Stats>list[a][5],
                                 index: a,
@@ -176,7 +179,8 @@ const library = {
                                         }
                                     });
                                 }
-                            });
+                            }; 
+                            library.readFile(readConfig);
                         }
                         a = a + 1;
                     } while (a < listLength);
@@ -233,15 +237,17 @@ const library = {
             }
         }
         if (input.directInput === true) {
-            const hash:Hash = vars.node.crypto.createHash(algorithm);
+            const hash:Hash = vars.node.crypto.createHash(algorithm),
+                hashOutput:hashOutput = {
+                    filePath: "",
+                    hash: "",
+                    id: input.id,
+                    parent: input.parent,
+                    stat: input.stat
+                };
             hash.update(input.source);
-            input.callback({
-                filePath: "",
-                hash: hash.digest("hex"),
-                id: input.id,
-                parent: input.parent,
-                stat: input.stat
-            });
+            hashOutput.hash = hash.digest("hex");
+            input.callback();
             return;
         }
         if (http.test(<string>input.source) === true) {
@@ -258,7 +264,7 @@ const library = {
                 }
                 if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                     // the library is not called from the directory library, which will always passing a parent property and not an id property
-                    directory({
+                    const dirConfig:readDirectory = {
                         callback: function terminal_hash_localCallback(list:directoryList) {
                             dirComplete(list);
                         },
@@ -267,7 +273,8 @@ const library = {
                         mode: "read",
                         path: <string>input.source,
                         symbolic: true
-                    });
+                    };
+                    directory(dirConfig);
                 } else {
                     // coming from the directory library
                     dirComplete([[<string>input.source, "file", "", input.parent, 0, input.stat]]);

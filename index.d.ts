@@ -265,8 +265,8 @@ declare global {
     }
     interface inviteSaved {
         ip: string;
-        port: string;
         message: string;
+        port: string;
         type: agentType;
     }
     interface localNetwork {

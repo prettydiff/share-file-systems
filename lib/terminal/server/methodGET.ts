@@ -67,99 +67,100 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             }
             if (stat.isFile() === true) {
                 const readCallback = function terminal_server_create_readCallback(args:readFile, data:string|Buffer):void {
-                    let tool:boolean = false;
-                    const pageState = function terminal_server_create_readCallback_pageState():void {
-                            const flag:any = {
-                                    device: false,
-                                    messages: false,
-                                    settings: false,
-                                    user: false
-                                },
-                                complete = function terminal_server_create_readCallback_pageState_complete(fileName:string):void {
-                                    flag[fileName] = true;
-                                    if (flag.device === true && flag.messages === true && flag.settings === true && flag.user === true) {
-                                        response.write(appliedData());
-                                        response.end();
-                                    }
-                                },
-                                storageFiles = function terminal_server_create_readCallback_storageFiles(fileName:string):void {
-                                    vars.node.fs.stat(`${vars.projectPath}storage${vars.sep + fileName}.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
-                                        if (erSettings !== null) {
-                                            if (erSettings.code === "ENOENT") {
-                                                complete(fileName);
-                                            } else {
-                                                library.error([erSettings.toString()]);
-                                                response.write(data);
-                                                response.end();
-                                            }
-                                        } else {
-                                            vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep + fileName}.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
-                                                if (errSettings !== null) {
-                                                    library.error([errSettings.toString()]);
+                        let tool:boolean = false;
+                        const pageState = function terminal_server_create_readCallback_pageState():void {
+                                const flag:any = {
+                                        device: false,
+                                        messages: false,
+                                        settings: false,
+                                        user: false
+                                    },
+                                    complete = function terminal_server_create_readCallback_pageState_complete(fileName:string):void {
+                                        flag[fileName] = true;
+                                        if (flag.device === true && flag.messages === true && flag.settings === true && flag.user === true) {
+                                            response.write(appliedData());
+                                            response.end();
+                                        }
+                                    },
+                                    storageFiles = function terminal_server_create_readCallback_storageFiles(fileName:string):void {
+                                        vars.node.fs.stat(`${vars.projectPath}storage${vars.sep + fileName}.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
+                                            if (erSettings !== null) {
+                                                if (erSettings.code === "ENOENT") {
+                                                    complete(fileName);
+                                                } else {
+                                                    library.error([erSettings.toString()]);
                                                     response.write(data);
                                                     response.end();
-                                                } else {
-                                                    list.push(`"${fileName}":${settings}`);
-                                                    complete(fileName);
                                                 }
-                                            });
-                                        }
-                                    });
-                                },
-                                list:string[] = [],
-                                appliedData = function terminal_server_create_readCallback_appliedData():string {
-                                    const start:string = "<!--storage:-->",
-                                        startLength:number = data.indexOf(start) + start.length - 3,
-                                        dataString:string = (typeof data === "string")
-                                            ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}-->`)
-                                            : "";
-                                    return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
-                                };
-                            tool = true;
-                            storageFiles("device");
-                            storageFiles("messages");
-                            storageFiles("settings");
-                            storageFiles("user");
-                        },
-                        csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
-                    if (localPath.indexOf(".js") === localPath.length - 3) {
-                        response.writeHead(200, {"Content-Type": "application/javascript"});
-                    } else if (localPath.indexOf(".css") === localPath.length - 4) {
-                        response.writeHead(200, {"Content-Type": "text/css"});
-                    } else if (localPath.indexOf(".jpg") === localPath.length - 4) {
-                        response.writeHead(200, {"Content-Type": "image/jpeg"});
-                    } else if (localPath.indexOf(".png") === localPath.length - 4) {
-                        response.writeHead(200, {"Content-Type": "image/png"});
-                    } else if (localPath.indexOf(".svg") === localPath.length - 4) {
-                        response.writeHead(200, {"Content-Type": "image/svg+xml"});
-                    } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
-                        response.setHeader("content-security-policy", csp);
-                        response.setHeader("connection", "keep-alive");
-                        response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
-                        if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
-                            pageState();
+                                            } else {
+                                                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep + fileName}.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
+                                                    if (errSettings !== null) {
+                                                        library.error([errSettings.toString()]);
+                                                        response.write(data);
+                                                        response.end();
+                                                    } else {
+                                                        list.push(`"${fileName}":${settings}`);
+                                                        complete(fileName);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    },
+                                    list:string[] = [],
+                                    appliedData = function terminal_server_create_readCallback_appliedData():string {
+                                        const start:string = "<!--storage:-->",
+                                            startLength:number = data.indexOf(start) + start.length - 3,
+                                            dataString:string = (typeof data === "string")
+                                                ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}-->`)
+                                                : "";
+                                        return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
+                                    };
+                                tool = true;
+                                storageFiles("device");
+                                storageFiles("messages");
+                                storageFiles("settings");
+                                storageFiles("user");
+                            },
+                            csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
+                        if (localPath.indexOf(".js") === localPath.length - 3) {
+                            response.writeHead(200, {"Content-Type": "application/javascript"});
+                        } else if (localPath.indexOf(".css") === localPath.length - 4) {
+                            response.writeHead(200, {"Content-Type": "text/css"});
+                        } else if (localPath.indexOf(".jpg") === localPath.length - 4) {
+                            response.writeHead(200, {"Content-Type": "image/jpeg"});
+                        } else if (localPath.indexOf(".png") === localPath.length - 4) {
+                            response.writeHead(200, {"Content-Type": "image/png"});
+                        } else if (localPath.indexOf(".svg") === localPath.length - 4) {
+                            response.writeHead(200, {"Content-Type": "image/svg+xml"});
+                        } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
+                            response.setHeader("content-security-policy", csp);
+                            response.setHeader("connection", "keep-alive");
+                            response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
+                            if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
+                                pageState();
+                            }
+                        } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
+                            response.setHeader("content-security-policy", csp);
+                            response.setHeader("connection", "keep-alive");
+                            response.writeHead(200, {"Content-Type": "text/html"});
+                            if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {
+                                pageState();
+                            }
+                        } else {
+                            response.writeHead(200, {"Content-Type": "text/plain"});
                         }
-                    } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                        response.setHeader("content-security-policy", csp);
-                        response.setHeader("connection", "keep-alive");
-                        response.writeHead(200, {"Content-Type": "text/html"});
-                        if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {
-                            pageState();
+                        if (tool === false) {
+                            response.write(data);
+                            response.end();
                         }
-                    } else {
-                        response.writeHead(200, {"Content-Type": "text/plain"});
-                    }
-                    if (tool === false) {
-                        response.write(data);
-                        response.end();
-                    }
-                };
-                library.readFile({
-                    callback: readCallback,
-                    index: 0,
-                    path: localPath,
-                    stat: stat
-                });
+                    },
+                    readConfig:readFile = {
+                        callback: readCallback,
+                        index: 0,
+                        path: localPath,
+                        stat: stat
+                    };
+                library.readFile(readConfig);
             } else {
                 response.end();
             }

@@ -36,6 +36,20 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             }
             : (config.requestError === undefined)
                 ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
+                    const copyStatus:copyStatus = {
+                            failures: [],
+                            message: config.id.slice(config.id.indexOf("|") + 1),
+                            target: config.id.slice(0, config.id.indexOf("|"))
+                        },
+                        fsRemote:fsRemote = {
+                            dirs: "missing",
+                            fail: [],
+                            id: (config.id.indexOf("|Copying ") > 0)
+                                ? JSON.stringify({
+                                    "file-list-status": copyStatus
+                                })
+                                : config.id
+                        };
                     if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                         log([config.errorMessage, errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
@@ -43,18 +57,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                         }));
                     }
                     config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                    config.response.write(JSON.stringify({
-                        id: (config.id.indexOf("|Copying ") > 0)
-                            ? {
-                                "file-list-status": {
-                                    failures: [],
-                                    message: config.id.slice(config.id.indexOf("|") + 1),
-                                    target: config.id.slice(0, config.id.indexOf("|"))
-                                }
-                            }
-                            : config.id,
-                        dirs: "missing"
-                    }));
+                    config.response.write(JSON.stringify(fsRemote));
                     config.response.end();
                 }
                 : config.requestError,
@@ -77,7 +80,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
                 : "",
-        headers:Object = (invite === "")
+        headers:http.OutgoingHttpHeaders = (invite === "")
             ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
@@ -93,14 +96,15 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 "remote-user": config.remoteName,
                 "invite": invite
             },
-        fsRequest:http.ClientRequest = vars.node.http.request({
+        payload:http.RequestOptions = {
             headers: headers,
             host: config.ip,
             method: "POST",
             path: "/",
             port: config.port,
             timeout: 1000
-        }, callback);
+        },
+        fsRequest:http.ClientRequest = vars.node.http.request(payload, callback);
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

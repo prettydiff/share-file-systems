@@ -7,7 +7,6 @@ import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
-import storage from "./storage.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
@@ -29,50 +28,51 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     }())
                     : JSON.stringify({
                         invite: data
-                    });
-            httpClient({
-                agentType: data.type,
-                callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
-                    if (vars.command.indexOf("test") !== 0) {
-                        log([<string>responseBody]);
-                    }
-                },
-                callbackType: "body",
-                errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
-                id: "",
-                ip: data.ip,
-                payload: payload,
-                port: data.port,
-                remoteName: (data.ip.indexOf(":") > -1)
-                    ? `invite@[${data.ip}]:${data.port}`
-                    : `invite@${data.ip}:${data.port}`,
-                requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
-                    if (errorMessage.code === "ETIMEDOUT") {
-                        if (data.action === "invite-request") {
-                            data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
-                            vars.ws.broadcast(JSON.stringify({
-                                "invite-error": data
-                            }));
-                        } else if (data.action === "invite-complete") {
-                            data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
-                            vars.ws.broadcast(JSON.stringify({
-                                "invite-error": data
-                            }));
+                    }),
+                httpConfig:httpConfiguration = {
+                    agentType: data.type,
+                    callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
+                        if (vars.command.indexOf("test") !== 0) {
+                            log([<string>responseBody]);
                         }
+                    },
+                    callbackType: "body",
+                    errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
+                    id: "",
+                    ip: data.ip,
+                    payload: payload,
+                    port: data.port,
+                    remoteName: (data.ip.indexOf(":") > -1)
+                        ? `invite@[${data.ip}]:${data.port}`
+                        : `invite@${data.ip}:${data.port}`,
+                    requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
+                        if (errorMessage.code === "ETIMEDOUT") {
+                            if (data.action === "invite-request") {
+                                data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
+                                vars.ws.broadcast(JSON.stringify({
+                                    "invite-error": data
+                                }));
+                            } else if (data.action === "invite-complete") {
+                                data.message = `Originator, ip - ${serverVars.addresses[0][1][1]} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
+                                vars.ws.broadcast(JSON.stringify({
+                                    "invite-error": data
+                                }));
+                            }
+                        }
+                        log([data.action, errorMessage.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
+                    },
+                    response: response,
+                    responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
+                        log([data.action, errorMessage.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
                     }
-                    log([data.action, errorMessage.toString()]);
-                    vars.ws.broadcast(JSON.stringify({
-                        error: errorMessage
-                    }));
-                },
-                response: response,
-                responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
-                    log([data.action, errorMessage.toString()]);
-                    vars.ws.broadcast(JSON.stringify({
-                        error: errorMessage
-                    }));
-                }
-            });
+                };
+            httpClient(httpConfig);
         };
     let responseString:string;
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});

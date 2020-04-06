@@ -112,6 +112,16 @@ import webSocket from "./lib/browser/webSocket.js";
                         login = function local_restore_complete_login(event:KeyboardEvent):void {
                             util.formKeys(event, util.login);
                         },
+                        payloadModal:ui_modal = {
+                            agent: browser.data.deviceHash,
+                            agentType: "device",
+                            content: null,
+                            read_only: false,
+                            single: true,
+                            status: "hidden",
+                            title: "",
+                            type: "systems"
+                        },
                         loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
                         loginInputsLength:number = loginInputs.length,
                         agentList:HTMLElement = document.getElementById("agentList"),
@@ -156,33 +166,21 @@ import webSocket from "./lib/browser/webSocket.js";
                     if (browser.data.deviceHash !== "") {
                         // building logging utility (systems log)
                         if (document.getElementById("systems-modal") === null) {
-                            modal.create({
-                                agent: browser.data.deviceHash,
-                                agentType: "device",
-                                content: systems.modalContent(),
-                                inputs: ["close", "maximize", "minimize"],
-                                read_only: false,
-                                single: true,
-                                status: "hidden",
-                                title: document.getElementById("systemLog").innerHTML,
-                                type: "systems",
-                                width: 800
-                            });
+                            payloadModal.content = systems.modalContent();
+                            payloadModal.title = document.getElementById("systemLog").innerHTML;
+                            payloadModal.type = "systems";
+                            payloadModal.width = 800;
+                            modal.create(payloadModal);
                             document.getElementById("systems-modal").style.display = "none";
                         }
                         // building settings modal
                         if (document.getElementById("settings-modal") === null) {
-                            modal.create({
-                                agent: browser.data.deviceHash,
-                                agentType: "device",
-                                content: settings.modalContent(),
-                                inputs: ["close"],
-                                read_only: false,
-                                single: true,
-                                status: "hidden",
-                                title: document.getElementById("settings").innerHTML,
-                                type: "settings"
-                            });
+                            payloadModal.content = settings.modalContent();
+                            payloadModal.inputs = ["close"];
+                            payloadModal.title = document.getElementById("settings").innerHTML;
+                            payloadModal.type = "settings";
+                            delete payloadModal.width;
+                            modal.create(payloadModal);
                             document.getElementById("settings-modal").style.display = "none";
                         }
                     }
@@ -203,10 +201,11 @@ import webSocket from "./lib/browser/webSocket.js";
                         }
                         if (storage.messages.errors !== undefined && storage.messages.errors.length > 0) {
                             storage.messages.errors.forEach(function local_restore_errorsEach(value:messageListError):void {
-                                systems.message("errors", JSON.stringify({
+                                const error:messageError = {
                                     error:value[1],
                                     stack:value[2]
-                                }), value[0]);
+                                };
+                                systems.message("errors", JSON.stringify(error), value[0]);
                                 browser.messages.errors.push([value[0], value[1], value[2]]);
                             });
                         }

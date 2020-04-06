@@ -70,6 +70,14 @@ const library = {
                     }
                     a = a + 1;
                 } while (a < len);
+            },
+            dirConfig:readDirectory = {
+                callback: removeItems,
+                depth: 0,
+                exclusions: [],
+                mode: "read",
+                path: filePath,
+                symbolic: true
             };
         if (vars.command === "remove") {
             if (process.argv.length < 1) {
@@ -115,14 +123,7 @@ const library = {
                 library.log(["", out.join(""), `Removed ${vars.text.cyan + filePath + vars.text.none}`], true);
             };
         }
-        library.directory({
-            callback: removeItems,
-            depth: 0,
-            exclusions: [],
-            mode: "read",
-            path: filePath,
-            symbolic: true
-        });
+        library.directory(dirConfig);
     };
 
 export default remove;

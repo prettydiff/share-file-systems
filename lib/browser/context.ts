@@ -71,7 +71,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
         box:HTMLElement = util.getAncestor(element, "box", "class"),
         length:number = addresses.length,
         agency:agency = util.getAgent(box),
-        payload:fileService = {
+        payloadNetwork:fileService = {
             action: (type === "Edit")
                 ? "fs-read"
                 : <serviceType>`fs-${type.toLowerCase()}`,
@@ -83,6 +83,22 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             location: [],
             name: "",
             watch: "no"
+        },
+        payloadModal:ui_modal = {
+            agent: agency[0],
+            agentType: agency[2],
+            content: null,
+            height: 500,
+            inputs: (type === "Edit" && agency[1] === false)
+                ? ["close", "save"]
+                : ["close"],
+            left: 0,
+            read_only: agency[1],
+            single: false,
+            title: "",
+            top: 0,
+            type: "textPad",
+            width: 500
         },
         callback = function local_context_dataString_callback(resultString:string):void {
             const data:stringDataList = JSON.parse(resultString),
@@ -121,27 +137,16 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
     do {
         if (addresses[a][1] === "file") {
             delay = util.delay();
-            modalInstance = modal.create({
-                agent: agency[0],
-                agentType: agency[2],
-                content: delay,
-                height: 500,
-                inputs: (type === "Edit" && agency[1] === false)
-                    ? ["close", "save"]
-                    : ["close"],
-                left: event.clientX + (a * 10),
-                read_only: agency[1],
-                single: false,
-                title: `${type} - ${agency[0]} - ${addresses[a][0]}`,
-                top: (event.clientY - 60) + (a * 10),
-                type: "textPad",
-                width: 500
-            });
-            payload.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
+            payloadModal.content = delay;
+            payloadModal.left = event.clientX + (a * 10);
+            payloadModal.title = `${type} - ${agency[0]} - ${addresses[a][0]}`;
+            payloadModal.top = (event.clientY - 60) + (a * 10);
+            modalInstance = modal.create(payloadModal);
+            payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
         }
         a = a + 1;
     } while (a < length);
-    network.fs(payload, callback);
+    network.fs(payloadNetwork, callback);
     context.element = null;
     context.type = "";
 };
@@ -187,7 +192,7 @@ context.details = function local_context_details(event:MouseEvent):void {
         div:HTMLElement = util.delay(),
         agency:agency = util.getAgent(element),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
-        modalInstance:HTMLElement = modal.create({
+        payloadModal:ui_modal = {
             agent: agency[0],
             agentType: agency[2],
             content: div,
@@ -200,9 +205,10 @@ context.details = function local_context_details(event:MouseEvent):void {
             top: event.clientY - 60,
             type: "details",
             width: 500
-        }),
+        },
+        modalInstance:HTMLElement = modal.create(payloadModal),
         id:string = modalInstance.getAttribute("id"),
-        payload:fileService = {
+        payloadNetwork:fileService = {
             action: "fs-details",
             agent: agency[0],
             agentType: agency[2],
@@ -403,7 +409,7 @@ context.details = function local_context_details(event:MouseEvent):void {
     if (browser.loadTest === true) {
         return;
     }
-    network.fs(payload, callback);
+    network.fs(payloadNetwork, callback);
     util.selectNone(element);
     context.element = null;
 };

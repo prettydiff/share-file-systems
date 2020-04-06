@@ -261,7 +261,7 @@ const library = {
                                         args.callback(fileList.sort());
                                     }
                                 } else if (args.mode === "hash") {
-                                    library.hash({
+                                    const hashInput:hashInput = {
                                         callback: function terminal_directory_wrapper_stat_populate_hashCallback(output:hashOutput):void {
                                             list.push([output.filePath, "file", output.hash, output.parent, 0, output.stat]);
                                             if (dirs > 0) {
@@ -274,7 +274,8 @@ const library = {
                                         source: filePath,
                                         parent: parent,
                                         stat: status
-                                    });
+                                    };
+                                    library.hash(hashInput);
                                 } else {
                                     list.push([filePath, type, "", parent, 0, status]);
                                     if (dirs > 0) {

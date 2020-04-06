@@ -22,6 +22,11 @@ const library = {
     heartbeat = function terminal_server_heartbeat(data:heartbeat, response:ServerResponse | ""):void {
         if (data.agent === "localhost-browser" || data.agent === "localhost-terminal") {
             // heartbeat from local, forward to each remote terminal
+            let a:number = 0,
+                b:number = 0,
+                counter:number = 0,
+                agentType:agentType =  "device",
+                agentLength:number = 0;
             const agents:heartbeatAgents = {
                     device: Object.keys(serverVars.device),
                     user: Object.keys(serverVars.user)
@@ -50,12 +55,39 @@ const library = {
                         response.write("Heartbeat response received for each remote terminal.");
                         response.end();
                     }
+                },
+                httpConfig:httpConfiguration = {
+                    agentType: "device",
+                    callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
+                        vars.ws.broadcast(<string>responseBody);
+                        responder();
+                    },
+                    callbackType: "body",
+                    errorMessage: `Error with heartbeat to ${agentType} ${agents[agentType][b]}.`,
+                    id: "heartbeat",
+                    ip: serverVars[agentType][agents[agentType][b]].ip,
+                    payload: JSON.stringify({
+                        "heartbeat": payload
+                    }),
+                    port: serverVars[agentType][agents[agentType][b]].port,
+                    remoteName: agents[agentType][b],
+                    requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string):void {
+                        heartbeatError.user = agent;
+                        heartbeatError.type = agentType;
+                        vars.ws.broadcast(JSON.stringify({
+                            "heartbeat-response": heartbeatError
+                        }));
+                        //library.log([errorMessage.toString()]);
+                    },
+                    responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string):void {
+                        heartbeatError.user = agent;
+                        heartbeatError.type = agentType;
+                        vars.ws.broadcast(JSON.stringify({
+                            "heartbeat-response": heartbeatError
+                        }));
+                        //library.log([errorMessage.toString()]);
+                    }
                 };
-            let a:number = 0,
-                b:number = 0,
-                counter:number = 0,
-                agentType:agentType =  "device",
-                agentLength:number = 0;
             if (data.shares !== "") {
                 if (data.type === "user") {
                     serverVars.user[data.agent].shares = <deviceShares>data.shares;
@@ -74,43 +106,13 @@ const library = {
                 do {
                     agentType = <agentType>agentsKeys[a];
                     agentLength = agents[agentsKeys[a]].length;
+                    httpConfig.agentType = agentType;
                     if (agentLength > 0) {
                         b = 0;
                         // loop through each agent of the given agent type
                         do {
                             payload.agent = agents[agentType][b];
-                            library.httpClient({
-                                agentType: agentType,
-                                callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
-                                    vars.ws.broadcast(<string>responseBody);
-                                    responder();
-                                },
-                                callbackType: "body",
-                                errorMessage: `Error with heartbeat to ${agentType} ${agents[agentType][b]}.`,
-                                id: "heartbeat",
-                                ip: serverVars[agentType][agents[agentType][b]].ip,
-                                payload: JSON.stringify({
-                                    "heartbeat": payload
-                                }),
-                                port: serverVars[agentType][agents[agentType][b]].port,
-                                remoteName: agents[agentType][b],
-                                requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string):void {
-                                    heartbeatError.user = agent;
-                                    heartbeatError.type = agentType;
-                                    vars.ws.broadcast(JSON.stringify({
-                                        "heartbeat-response": heartbeatError
-                                    }));
-                                    //library.log([errorMessage.toString()]);
-                                },
-                                responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string):void {
-                                    heartbeatError.user = agent;
-                                    heartbeatError.type = agentType;
-                                    vars.ws.broadcast(JSON.stringify({
-                                        "heartbeat-response": heartbeatError
-                                    }));
-                                    //library.log([errorMessage.toString()]);
-                                }
-                            });
+                            library.httpClient(httpConfig);
                             b = b + 1;
                         } while (b < agentLength);
                     }

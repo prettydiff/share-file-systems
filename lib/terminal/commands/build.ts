@@ -268,15 +268,16 @@ const library = {
                                 const comment:string = file.slice(file.indexOf("/* ") + 3, file.indexOf(" */")),
                                     dashIndex:number = comment.indexOf(" - "),
                                     path:string[] = comment.slice(0, dashIndex).split("/"),
-                                    name:string = path.pop();
+                                    name:string = path.pop(),
+                                    doc:docItem = {
+                                        description: comment.slice(dashIndex + 3),
+                                        name: name,
+                                        namePadded: `* **[${name}.ts](${name}.ts)**`,
+                                        path: path.join("/")
+                                    };
                                 fileEnd = fileEnd + 1;
                                 // Fourth, build the necessary data structure from reach the first comment of each file
-                                files.push({
-                                    description: comment.slice(dashIndex + 3),
-                                    name: name,
-                                    namePadded: `* **[${name}.ts](${name}.ts)**`,
-                                    path: path.join("/")
-                                });
+                                files.push(doc);
                                 // Fifth, once all TypeScript files are read the respective documentation content must be built
                                 if (fileEnd === fileStart) {
                                     files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):number {
@@ -346,16 +347,17 @@ const library = {
                             }
                             a = a + 1;
                         } while (a < length);
-                    };
-                    // First, get the file system data for the lib directory and then direct output to the dirs function
-                    library.directory({
+                    },
+                    dirConfig:readDirectory = {
                         callback: dirs,
                         depth: 0,
                         exclusions: [],
                         mode: "read",
                         path: `${vars.projectPath}lib`,
                         symbolic: false
-                    });
+                    };
+                    // First, get the file system data for the lib directory and then direct output to the dirs function
+                    library.directory(dirConfig);
                 },
                 // phase lint is merely a call to the lint library
                 lint     : function terminal_build_lint():void {

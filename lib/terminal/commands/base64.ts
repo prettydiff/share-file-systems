@@ -107,11 +107,12 @@ const library = {
                                                         input.callback([output]);
                                                     }
                                             } else {
-                                                input.callback({
+                                                const outputConfiguration:base64Output = {
                                                     base64: output,
                                                     filePath: input.source,
                                                     id: input.id
-                                                });
+                                                };
+                                                input.callback(outputConfiguration);
                                             }
                                         }
                                     );

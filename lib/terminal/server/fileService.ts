@@ -50,33 +50,36 @@ const library = {
                 return `${verb} complete. ${library.commas(numbers.countFile)} file${filePlural} written at size ${library.prettyBytes(numbers.writtenSize)} (${library.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
             },
             fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
-                const payload:string = (message.indexOf("Copy complete.") === 0)
-                    ? JSON.stringify({
-                        "file-list-status": {
-                            failures: [],
-                            message: message,
-                            target: `remote-${data.id}`
-                        }
-                    })
+                const copyStatus:copyStatus = {
+                        failures: [],
+                        message: message,
+                        target: `remote-${data.id}`
+                    },
+                    payload:string = (message.indexOf("Copy complete.") === 0)
+                        ? JSON.stringify({
+                            "file-list-status": copyStatus
+                        })
                     : message;
                 if (data.agent === serverVars.deviceHash) {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(payload);
                     response.end();
                 } else {
-                    library.directory({
+                    const dirConfig:readDirectory = {
                         callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
                             const location:string = (data.name.indexOf("\\") < 0 || data.name.charAt(data.name.indexOf("\\") + 1) === "\\")
-                                ? data.name
-                                : data.name.replace(/\\/g, "\\\\");
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(JSON.stringify({
-                                "fs-update-remote": {
+                                    ? data.name
+                                    : data.name.replace(/\\/g, "\\\\"),
+                                update:fsUpdateRemote = {
                                     agent: data.agent,
                                     dirs: directory,
+                                    fail: [],
                                     location: location,
                                     status: payload
-                                }
+                                };
+                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                            response.write(JSON.stringify({
+                                "fs-update-remote": update
                             }));
                             response.end();
                         },
@@ -85,59 +88,62 @@ const library = {
                         mode: "read",
                         path: data.name,
                         symbolic: true
-                    });
+                    };
+                    library.directory(dirConfig);
                 }
             },
             httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
                 const payload:string = (function terminal_server_fileService_httpRequest_payload():string {
-                    const keys:string[] = Object.keys(data),
-                        length:number = keys.length,
-                        store:Object = {};
-                    let a:number = 0;
-                    do {
-                        store[keys[a]] = data[keys[a]];
-                        a = a + 1;
-                    } while (a < length);
-                    if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
-                        store["agent"] = serverVars.deviceHash;
-                        store["copyAgent"] = data.agent;
-                    } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
-                        store["agent"] = serverVars.name;
-                    }
-                    if (data.action === "fs-directory" && data.agent !== serverVars.deviceHash) {
-                        store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
-                    }
-                    return JSON.stringify({
-                        fs: store
-                    });
-                }());
-                library.httpClient({
-                    agentType: data.agentType,
-                    callback: callback,
-                    callbackType: type,
-                    errorMessage: errorMessage,
-                    id: data.id,
-                    ip: serverVars[data.agentType][data.agent].ip,
-                    payload: payload,
-                    port: serverVars[data.agentType][data.agent].port,
-                    remoteName: data.agent,
-                    response: response
-                });
+                        const keys:string[] = Object.keys(data),
+                            length:number = keys.length,
+                            store:Object = {};
+                        let a:number = 0;
+                        do {
+                            store[keys[a]] = data[keys[a]];
+                            a = a + 1;
+                        } while (a < length);
+                        if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
+                            store["agent"] = serverVars.deviceHash;
+                            store["copyAgent"] = data.agent;
+                        } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
+                            store["agent"] = serverVars.name;
+                        }
+                        if (data.action === "fs-directory" && data.agent !== serverVars.deviceHash) {
+                            store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
+                        }
+                        return JSON.stringify({
+                            fs: store
+                        });
+                    }()),
+                    httpConfig:httpConfiguration = {
+                        agentType: data.agentType,
+                        callback: callback,
+                        callbackType: type,
+                        errorMessage: errorMessage,
+                        id: data.id,
+                        ip: serverVars[data.agentType][data.agent].ip,
+                        payload: payload,
+                        port: serverVars[data.agentType][data.agent].port,
+                        remoteName: data.agent,
+                        response: response
+                    };
+                library.httpClient(httpConfig);
             },
             fsUpdateLocal = function terminal_server_fileService(readLocation:string):void {
                 const fsUpdateCallback = function terminal_server_fileService_watchHandler_fsUpdateCallback(result:directoryList):void {
-                    vars.ws.broadcast(JSON.stringify({
-                        "fs-update-local": result
-                    }));
-                };
-                library.directory({
-                    callback: fsUpdateCallback,
-                    depth: 2,
-                    exclusions: [],
-                    mode: "read",
-                    path: readLocation,
-                    symbolic: true
-                });
+                        vars.ws.broadcast(JSON.stringify({
+                            "fs-update-local": result
+                        }));
+                    },
+                    dirConfig:readDirectory = {
+                        callback: fsUpdateCallback,
+                        depth: 2,
+                        exclusions: [],
+                        mode: "read",
+                        path: readLocation,
+                        symbolic: true
+                    };
+                library.directory(dirConfig);
             },
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
@@ -155,40 +161,44 @@ const library = {
                                     clearInterval(interval);
                                 }
                             },
+                            dirConfig:readDirectory = {
+                                callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
+                                    const update:fsUpdateRemote = {
+                                            agent: data.agent,
+                                            dirs: result,
+                                            fail: [],
+                                            location: value
+                                        },
+                                        payload:string = JSON.stringify({
+                                            "fs-update-remote": update
+                                        }),
+                                        httpConfig:httpConfiguration = {
+                                            agentType: data.agentType,
+                                            callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
+                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                                response.write(responseBody);
+                                                response.end();
+                                            },
+                                            callbackType: "body",
+                                            errorMessage: `Error related to remote file system watch at ${data.agent}.`,
+                                            id: "",
+                                            ip: serverVars[data.agentType][data.agent].ip,
+                                            payload: payload,
+                                            port: serverVars[data.agentType][data.agent].port,
+                                            remoteName: data.agent,
+                                            response: response
+                                        };
+                                    library.httpClient(httpConfig);
+                                },
+                                depth: 2,
+                                exclusions: [],
+                                mode: "read",
+                                path: value,
+                                symbolic: true
+                            },
                             interval = setInterval(intervalHandler, 60000);
                         // create directoryList object and send to remote
-                        library.directory({
-                            callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
-                                const payload:string = JSON.stringify({
-                                    "fs-update-remote": {
-                                        agent: data.agent,
-                                        dirs: result,
-                                        location: value
-                                    }
-                                });
-                                library.httpClient({
-                                    agentType: data.agentType,
-                                    callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
-                                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                        response.write(responseBody);
-                                        response.end();
-                                    },
-                                    callbackType: "body",
-                                    errorMessage: `Error related to remote file system watch at ${data.agent}.`,
-                                    id: "",
-                                    ip: serverVars[data.agentType][data.agent].ip,
-                                    payload: payload,
-                                    port: serverVars[data.agentType][data.agent].port,
-                                    remoteName: data.agent,
-                                    response: response
-                                });
-                            },
-                            depth: 2,
-                            exclusions: [],
-                            mode: "read",
-                            path: value,
-                            symbolic: true
-                        });
+                        library.directory(dirConfig);
                     }
                 }
             },
@@ -237,17 +247,26 @@ const library = {
                         } while (b < dirLength);
                         config.index = config.index + 1;
                         if (config.index < config.length) {
-                            library.directory({
+                            const recursiveConfig:readDirectory = {
                                 callback: terminal_server_fileService_remoteCopyList_callback,
                                 depth: 0,
                                 exclusions: [],
                                 mode: "read",
                                 path: data.location[config.index],
                                 symbolic: false
-                            });
+                            };
+                            library.directory(recursiveConfig);
                         } else {
                             // sort directories ahead of files and then sort shorter directories before longer directories
                             // * This is necessary to ensure directories are written before the files and child directories that go in them.
+                            const details:remoteCopyListData = {
+                                directories: directories,
+                                fileCount: fileCount,
+                                fileSize: fileSize,
+                                id: config.id,
+                                list: list,
+                                stream: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
+                            };
                             list.sort(function terminal_server_fileService_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
                                 if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                     return -1;
@@ -266,27 +285,21 @@ const library = {
                                 }
                                 return 1;
                             });
-                            config.callback({
-                                directories: directories,
-                                fileCount: fileCount,
-                                fileSize: fileSize,
-                                id: config.id,
-                                list: list,
-                                stream: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
-                            });
+                            config.callback(details);
                         }
+                    },
+                    dirConfig:readDirectory = {
+                        callback: callback,
+                        depth: 0,
+                        exclusions: [],
+                        mode: "read",
+                        path: data.location[config.index],
+                        symbolic: false
                     };
                 let directories:number =0,
                     fileCount:number = 0,
                     fileSize:number = 0;
-                library.directory({
-                    callback: callback,
-                    depth: 0,
-                    exclusions: [],
-                    mode: "read",
-                    path: data.location[config.index],
-                    symbolic: false
-                });
+                library.directory(dirConfig);
             },
             requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
                 let writeActive:boolean = false,
@@ -301,14 +314,15 @@ const library = {
                     listLength = fileData.list.length,
                     cutList:[string, string][] = [],
                     respond = function terminal_server_fileService_requestFiles_respond():void {
-                        const output:copyStatus = {
+                        const status:completeStatus = {
+                                countFile: countFile,
+                                failures: hashFail.length,
+                                percent: 100,
+                                writtenSize: writtenSize
+                            },
+                            output:copyStatus = {
                                 failures: hashFail,
-                                message: copyMessage({
-                                    countFile: countFile,
-                                    failures: hashFail.length,
-                                    percent: 100,
-                                    writtenSize: writtenSize
-                                }),
+                                message: copyMessage(status),
                                 target: `local-${data.name.replace(/\\/g, "\\\\")}`
                             },
                             cut = function terminal_server_fileService_requestFiles_respond_cut():void {
@@ -356,16 +370,17 @@ const library = {
                                 }));
                                 hashFail.push(fileName);
                             } else {
-                                const output:copyStatus = {
-                                    failures: [],
-                                    message: copyMessage({
+                                const status:completeStatus = {
                                         countFile: countFile,
                                         failures: hashFailLength,
                                         percent: ((writtenSize / fileData.fileSize) * 100),
                                         writtenSize: writtenSize
-                                    }),
-                                    target: `local-${data.name.replace(/\\/g, "\\\\")}`
-                                };
+                                    },
+                                    output:copyStatus = {
+                                        failures: [],
+                                        message: copyMessage(status),
+                                        target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                    };
                                 cutList.push([fileQueue[index][2], "file"]);
                                 countFile = countFile + 1;
                                 if (vars.command.indexOf("test") !== 0) {
@@ -411,16 +426,17 @@ const library = {
                         }
                         fileResponse.on("data", function terminal_server_fileService_requestFiles_writeStream_data():void {
                             const written:number = writeStream.bytesWritten + writtenSize,
+                                status:completeStatus = {
+                                    countFile: countFile,
+                                    failures: hashFail.length,
+                                    percent: (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                                        ? 100
+                                        : ((written / fileData.fileSize) * 100),
+                                    writtenSize: written
+                                },
                                 output:copyStatus = {
                                     failures: [],
-                                    message: copyMessage({
-                                        countFile: countFile,
-                                        failures: hashFail.length,
-                                        percent: (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
-                                            ? 100
-                                            : ((written / fileData.fileSize) * 100),
-                                        writtenSize: written
-                                    }),
+                                    message: copyMessage(status),
                                     target: `local-${data.name.replace(/\\/g, "\\\\")}`
                                 };
                             vars.ws.broadcast(JSON.stringify({
@@ -510,14 +526,15 @@ const library = {
                             : fileRequestCallback;
                         data.depth = fileData.list[a][3];
                         if (data.copyAgent !== serverVars.deviceHash) {
-                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|${copyMessage({
+                            const status:completeStatus = {
                                 countFile: countFile,
                                 failures: hashFail.length,
                                 percent: (fileData.fileSize === 0 || fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
                                     ? 100
                                     : ((writtenSize / fileData.fileSize) * 100),
                                 writtenSize: writtenSize
-                            })}`;
+                            };
+                            data.id = `local-${data.name.replace(/\\/g, "\\\\")}|${copyMessage(status)}`;
                         }
                         data.location = [fileData.list[a][0]];
                         data.remoteWatch = fileData.list[a][2];
@@ -578,26 +595,28 @@ const library = {
                 const length:number = data.location.length;
                 data.location.forEach(function terminal_server_fileService_copySameAgent_each(value:string):void {
                     const callback = function terminal_server_fileService_copySameAgent_each_copy([fileCount, fileSize]):void {
-                        count = count + 1;
-                        countFile = countFile + fileCount;
-                        writtenSize = (vars.command.indexOf("test") === 0)
-                            ? 0
-                            : writtenSize + fileSize;
-                        if (count === length) {
-                            fileCallback(copyMessage({
-                                countFile: countFile,
-                                failures: 0,
-                                percent: 100,
-                                writtenSize: writtenSize
-                            }));
-                        }
-                    };
-                    library.copy({
-                        callback: callback,
-                        destination:data.name,
-                        exclusions:[""],
-                        target:value
-                    });
+                            count = count + 1;
+                            countFile = countFile + fileCount;
+                            writtenSize = (vars.command.indexOf("test") === 0)
+                                ? 0
+                                : writtenSize + fileSize;
+                            if (count === length) {
+                                const status:completeStatus = {
+                                    countFile: countFile,
+                                    failures: 0,
+                                    percent: 100,
+                                    writtenSize: writtenSize
+                                };
+                                fileCallback(copyMessage(status));
+                            }
+                        },
+                        copyConfig:nodeCopyParams = {
+                            callback: callback,
+                            destination:data.name,
+                            exclusions:[""],
+                            target:value
+                        };
+                    library.copy(copyConfig);
                 });
             };
         if (data.agent !== serverVars.deviceHash && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
@@ -722,14 +741,15 @@ const library = {
                                 }]],
                                 a:number = 0;
                             drives.forEach(function terminal_server_fileService_windowsRoot_each(value:string) {
-                                library.directory({
+                                const dirConfig:readDirectory = {
                                     callback: driveList,
                                     depth: 1,
                                     exclusions: [],
                                     mode: "read",
                                     path: `${value}\\`,
                                     symbolic: true
-                                });
+                                };
+                                library.directory(dirConfig);
                             });
                         });
                     },
@@ -746,6 +766,14 @@ const library = {
                         windowsRoot();
                     } else {
                         vars.node.fs.stat(value, function terminal_server_fileService_pathEach_putStat(erp:nodeError):void {
+                            const dirConfig:readDirectory = {
+                                callback: callback,
+                                depth: data.depth,
+                                exclusions: [],
+                                mode: "read",
+                                path: value,
+                                symbolic: true
+                            };
                             if (erp !== null) {
                                 library.error([erp.toString()]);
                                 callback([]);
@@ -754,14 +782,7 @@ const library = {
                             if ((/^\w:$/).test(value) === true) {
                                 value = value + "\\";
                             }
-                            library.directory({
-                                callback: callback,
-                                depth: data.depth,
-                                exclusions: [],
-                                mode: "read",
-                                path: value,
-                                symbolic: true
-                            });
+                            library.directory(dirConfig);
                         });
                     }
                 });
@@ -795,7 +816,7 @@ const library = {
                     // * data.agent === local
                     // * data.copyAgent === remote
                     // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
-                    remoteCopyList({
+                    const listData:remoteCopyList = {
                         callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
                             data.action = <serviceType>`${data.action}-request`;
                             data.agent = data.copyAgent;
@@ -810,7 +831,8 @@ const library = {
                         id: data.id,
                         index: 0,
                         length: data.location.length
-                    });
+                    };
+                    remoteCopyList(listData);
                 }
             } else if (data.copyAgent === serverVars.deviceHash) {
                 // data.agent === remote
@@ -873,7 +895,7 @@ const library = {
                 }));
             }
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
-            remoteCopyList({
+            const listData:remoteCopyList = {
                 callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
                     response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
                     response.write(JSON.stringify(listData));
@@ -883,7 +905,8 @@ const library = {
                 id: data.id,
                 index: 0,
                 length: data.location.length
-            });
+            };
+            remoteCopyList(listData);
         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
             requestFiles(JSON.parse(data.remoteWatch));
         } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
@@ -963,12 +986,13 @@ const library = {
                 storage:stringDataList = [],
                 type:string = data.action.replace("fs-", ""),
                 callback = function terminal_server_fileService_callback(output:base64Output):void {
-                    b = b + 1;
-                    storage.push({
+                    const stringData:stringData = {
                         content: output[type],
                         id: output.id,
                         path: output.filePath
-                    });
+                    };
+                    b = b + 1;
+                    storage.push(stringData);
                     if (b === length) {
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         response.write(JSON.stringify(storage));
@@ -977,6 +1001,11 @@ const library = {
                 },
                 fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
                     vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
+                        const inputConfig:stringData = {
+                            content: fileData,
+                            id: input.id,
+                            path: input.source
+                        };
                         if (readError !== null) {
                             library.error([readError.toString()]);
                             vars.ws.broadcast(JSON.stringify({
@@ -984,45 +1013,39 @@ const library = {
                             }));
                             return;
                         }
-                        input.callback({
-                            id: input.id,
-                            filePath: input.source,
-                            read: fileData
-                        });
+                        input.callback(inputConfig);
                     });
+                },
+                input:base64Input = {
+                    callback: callback,
+                    id: "",
+                    source: ""
+                },
+                hashInput:hashInput = {
+                    algorithm: serverVars.hash,
+                    callback: callback,
+                    directInput: false,
+                    id: "",
+                    source: ""
                 };
             let a:number = 0,
                 b:number = 0,
-                id:string,
-                index:number,
-                location:string;
+                index:number;
             do {
                 if (data.action === "fs-base64") {
                     index = data.location[a].indexOf(":");
-                    id = data.location[a].slice(0, index);
-                    location = data.location[a].slice(index + 1);
-                    library[type]({
-                        callback: callback,
-                        id: id,
-                        source: location
-                    });
+                    input.id = data.location[a].slice(0, index);
+                    input.source = data.location[a].slice(index + 1);
+                    library[type](input);
                 } else if (data.action === "fs-hash") {
                     index = data.location[a].indexOf(":");
-                    id = data.location[a].slice(0, index);
-                    location = data.location[a].slice(index + 1);
-                    library.hash({
-                        algorithm: serverVars.hash,
-                        callback: callback,
-                        directInput: false,
-                        id: id,
-                        source: location
-                    });
+                    hashInput.id = data.location[a].slice(0, index);
+                    hashInput.source = data.location[a].slice(index + 1);
+                    library.hash(hashInput);
                 } else if (data.action === "fs-read") {
-                    fileReader({
-                        callback: callback,
-                        id: data.id,
-                        source: data.location[a]
-                    });
+                    input.id = data.id;
+                    input.source = data.location[a];
+                    fileReader(input);
                 }
                 a = a + 1;
             } while (a < length);
@@ -1053,25 +1076,26 @@ const library = {
             }
         } else if (data.action === "fs-search") {
             const callback = function terminal_server_fileService_searchCallback(result:directoryList):void {
-                const output:fsRemote = {
-                    dirs: result,
-                    fail: [],
-                    id: data.id
+                    const output:fsRemote = {
+                        dirs: result,
+                        fail: [],
+                        id: data.id
+                    };
+                    delete result.failures;
+                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                    response.write(JSON.stringify(output));
+                    response.end();
+                },
+                dirConfig:readDirectory = {
+                    callback: callback,
+                    depth: data.depth,
+                    exclusions: [],
+                    mode: "search",
+                    path: data.location[0],
+                    search: data.name,
+                    symbolic: true
                 };
-                delete result.failures;
-                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                response.write(JSON.stringify(output));
-                response.end();
-            };
-            library.directory({
-                callback: callback,
-                depth: data.depth,
-                exclusions: [],
-                mode: "search",
-                path: data.location[0],
-                search: data.name,
-                symbolic: true
-            });
+            library.directory(dirConfig);
         } else if (data.action === "fs-write") {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
                 const agent:string = (data.copyAgent === "")

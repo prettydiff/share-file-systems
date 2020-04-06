@@ -125,11 +125,12 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         },
         shareDevice = function local_share_content_shareDevice(itemName:string, index:number):HTMLElement {
             const item:HTMLElement = document.createElement("li"),
-                button:HTMLElement = shareButton({
+                shareData:shareButton = {
                     index: index,
                     name: itemName,
                     type: "device"
-                }),
+                },
+                button:HTMLElement = shareButton(shareData),
                 del:HTMLElement = document.createElement("button"),
                 readOnly:HTMLElement = document.createElement("button"),
                 span:HTMLElement = document.createElement("span");
@@ -157,11 +158,12 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         },
         shareUser = function local_share_content_shareUser(itemName:string, index:number):HTMLElement {
             const item:HTMLElement = document.createElement("li"),
-                button:HTMLElement = shareButton({
+                shareData:shareButton = {
                     index: index,
                     name: itemName,
                     type: "user"
-                });
+                },
+                button:HTMLElement = shareButton(shareData);
             if (browser.user[itemName].shares[index].readOnly === true) {
                 item.removeAttribute("class");
             } else {
@@ -246,7 +248,27 @@ share.context = function local_share_context():void {
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
         box:HTMLElement = util.getAncestor(element, "box", "class"),
-        agent:agency = util.getAgent(box);
+        agent:agency = util.getAgent(box),
+        payload: shareHashConfiguration = {
+            callback: function local_share_context_shareHash1(responseBody:string):void {
+                const shareResponse:shareHashResponse = JSON.parse(responseBody).shareHashResponse;
+                browser.device[shareResponse.device].shares[shareResponse.hash] = {
+                    execute: false,
+                    name: shareResponse.share,
+                    readOnly: true,
+                    type: <shareType>shareResponse.type
+                };
+            },
+            device: "",
+            share: "",
+            type: "file"
+        },
+        update:shareUpdateConfiguration = {
+            agent: agent[0],
+            id: box.getAttribute("id"),
+            shares: browser[agent[2]][agent[0]].shares,
+            type: agent[2]
+        };
     context.element = null;
     let a:number = 0,
         b:number = 0;
@@ -260,49 +282,24 @@ share.context = function local_share_context():void {
                 b = b + 1;
             } while (b < shareLength);
             if (b === shareLength) {
-                network.hashShare({
-                    callback: function local_share_context_shareHash1(responseBody:string):void {
-                        const shareResponse:shareHashResponse = JSON.parse(responseBody).shareHashResponse;
-                        browser.device[shareResponse.device].shares[shareResponse.hash] = {
-                            execute: false,
-                            name: shareResponse.share,
-                            readOnly: true,
-                            type: <shareType>shareResponse.type
-                        };
-                    },
-                    device: addresses[a][2],
-                    share: addresses[a][0],
-                    type: addresses[a][1]
-                });
+                payload.device = addresses[a][2];
+                payload.share = addresses[a][0];
+                payload.type = addresses[a][1];
+                network.hashShare(payload);
             }
             a = a + 1;
         } while (a < addressesLength);
     } else {
         do {
-            network.hashShare({
-                callback: function local_share_context_shareHash1(responseBody:string):void {
-                    const shareResponse:shareHashResponse = JSON.parse(responseBody).shareHashResponse;
-                    browser.device[shareResponse.device].shares[shareResponse.hash] = {
-                        execute: false,
-                        name: shareResponse.share,
-                        readOnly: true,
-                        type: <shareType>shareResponse.type
-                    };
-                },
-                device: addresses[a][2],
-                share: addresses[a][0],
-                type: addresses[a][1]
-            });
+            payload.device = addresses[a][2];
+            payload.share = addresses[a][0];
+            payload.type = addresses[a][1];
+            network.hashShare(payload);
             a = a + 1;
         } while (a < addressesLength);
     }
     util.selectNone(element);
-    share.update({
-        agent: agent[0],
-        id: box.getAttribute("id"),
-        shares: browser[agent[2]][agent[0]].shares,
-        type: agent[2]
-    });
+    share.update(update);
     network.heartbeat("active", true);
 };
 
@@ -313,7 +310,20 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         ul:HTMLElement = document.createElement("ul"),
         users:devices = browser.user,
         names:string[] = Object.keys(users),
-        length:number = names.length;
+        length:number = names.length,
+        payloadModal:ui_modal = {
+            agent: browser.data.deviceHash,
+            agentType: "device",
+            content: content,
+            inputs: (length > 1)
+                ? ["confirm", "cancel", "close"]
+                : ["close"],
+            read_only: false,
+            single: true,
+            title: "<span class=\"icon-delete\">☣</span> Delete Shares",
+            type: "share_delete",
+            width: 750
+        };
     let li:HTMLElement,
         a:number = 0,
         input:HTMLInputElement,
@@ -345,19 +355,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         content.appendChild(p);
     }
     if (configuration === undefined) {
-        modal.create({
-            agent: browser.data.deviceHash,
-            agentType: "device",
-            content: content,
-            inputs: (length > 1)
-                ? ["confirm", "cancel", "close"]
-                : ["close"],
-            read_only: false,
-            single: true,
-            title: "<span class=\"icon-delete\">☣</span> Delete Shares",
-            type: "share_delete",
-            width: 750
-        });
+        modal.create(payloadModal);
         network.storage("settings");
     } else {
         configuration.agent = browser.data.deviceHash;

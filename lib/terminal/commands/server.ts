@@ -115,27 +115,28 @@ const library = {
                         response.end();
                     } else if (task === "hashShare") {
                         // * generate a hash string to name a share
-                        const shareHash:shareHash = JSON.parse(body).shareHash;
-                        library.hash({
-                            callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
-                                const outputBody:shareHash = JSON.parse(hashData.id).shareHash,
-                                    hashResponse:shareHashResponse = {
-                                        device: outputBody.device,
-                                        hash: hashData.hash,
-                                        share: outputBody.share,
-                                        type: outputBody.type
-                                    };
-                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                response.write(JSON.stringify({shareHashResponse:hashResponse}));
-                                response.end();
-                            },
-                            directInput: true,
-                            id: body,
-                            source: shareHash.device + shareHash.share
-                        });
+                        const shareHash:shareHash = JSON.parse(body).shareHash,
+                            input:hashInput = {
+                                callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
+                                    const outputBody:shareHash = JSON.parse(hashData.id).shareHash,
+                                        hashResponse:shareHashResponse = {
+                                            device: outputBody.device,
+                                            hash: hashData.hash,
+                                            share: outputBody.share,
+                                            type: outputBody.type
+                                        };
+                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                    response.write(JSON.stringify({shareHashResponse:hashResponse}));
+                                    response.end();
+                                },
+                                directInput: true,
+                                id: body,
+                                source: shareHash.device + shareHash.share
+                            };
+                        library.hash(input);
                     } else if (task === "hashDevice") {
                         // * produce a hash that describes a new device
-                        library.hash({
+                        const input:hashInput = {
                             callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
                                 serverVars.deviceHash = hashData.hash;
                                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
@@ -144,7 +145,8 @@ const library = {
                             },
                             directInput: true,
                             source: serverVars.deviceName + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
-                        });
+                        };
+                        library.hash(input);
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
                         invite(body, response);
@@ -319,14 +321,15 @@ const library = {
                                 } else if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                     logOutput();
                                 } else {
-                                    logOutput();
-                                    library.heartbeat({
+                                    const hbConfig:heartbeat = {
                                         agent: "localhost-terminal",
                                         shares: "",
                                         status: "idle",
                                         type: "user",
                                         user: ""
-                                    }, "");
+                                    };
+                                    logOutput();
+                                    library.heartbeat(hbConfig, "");
                                 }
                             };
 

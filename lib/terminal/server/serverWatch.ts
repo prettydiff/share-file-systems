@@ -124,18 +124,19 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
             vars.ws.broadcast("reload");
         } else {
             const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
-                vars.ws.broadcast(JSON.stringify({
-                    "fs-update-local": result
-                }));
-            };
-            directory({
-                callback: fsUpdateCallback,
-                depth: 2,
-                exclusions: [],
-                mode: "read",
-                path: vars.projectPath,
-                symbolic: true
-            });
+                    vars.ws.broadcast(JSON.stringify({
+                        "fs-update-local": result
+                    }));
+                },
+                dirConfig:readDirectory = {
+                    callback: fsUpdateCallback,
+                    depth: 2,
+                    exclusions: [],
+                    mode: "read",
+                    path: vars.projectPath,
+                    symbolic: true
+                };
+            directory(dirConfig);
         }
     };
 

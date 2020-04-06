@@ -14,24 +14,25 @@ const invite:module_invite = {};
 invite.accept = function local_invite_accept(box:HTMLElement):void {
     const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
-        invitation:invite = JSON.parse(dataString).invite;
-    network.inviteAccept({
-        action: "invite-response",
-        deviceHash: browser.data.deviceHash,
-        deviceName: browser.data.nameDevice,
-        ip: invitation.ip,
-        message: `Invite accepted: ${util.dateFormat(new Date())}`,
-        name: browser.data.nameUser,
-        modal: invitation.modal,
-        port: invitation.port,
-        shares: (invitation.type === "user")
-            ? <deviceShares>deviceShare(browser.device)
-            : <devices>browser.device,
-        status: "accepted",
-        type: invitation.type,
-        userHash: "",
-        userName: ""
-    });
+        invitation:invite = JSON.parse(dataString).invite,
+        payload:invite = {
+            action: "invite-response",
+            deviceHash: browser.data.deviceHash,
+            deviceName: browser.data.nameDevice,
+            ip: invitation.ip,
+            message: `Invite accepted: ${util.dateFormat(new Date())}`,
+            name: browser.data.nameUser,
+            modal: invitation.modal,
+            port: invitation.port,
+            shares: (invitation.type === "user")
+                ? <deviceShares>deviceShare(browser.device)
+                : <devices>browser.device,
+            status: "accepted",
+            type: invitation.type,
+            userHash: "",
+            userName: ""
+        };
+    network.inviteAccept(payload);
     browser[invitation.type][invitation.deviceHash].shares = <deviceShares>invitation.shares;
     browser.data.colors[invitation.type][invitation.deviceHash] = ["fff", "eee"];
     share.addUser(invitation.name, invitation.deviceHash, invitation.type);
@@ -44,24 +45,25 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
         boxLocal:HTMLElement = util.getAncestor(element, "box", "class"),
         para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
-        invitation:invite = JSON.parse(dataString).invite;
-    network.inviteAccept({
-        action: "invite-response",
-        deviceHash: browser.data.deviceHash,
-        deviceName: browser.data.nameDevice,
-        message: `Invite declined: ${util.dateFormat(new Date())}`,
-        name: browser.data.nameUser,
-        ip: invitation.ip,
-        modal: invitation.modal,
-        port: invitation.port,
-        shares: (invitation.type === "user")
-            ? <deviceShares>deviceShare(browser.device)
-            : <devices>browser.device,
-        status: "declined",
-        type: invitation.type,
-        userHash: "",
-        userName: ""
-    });
+        invitation:invite = JSON.parse(dataString).invite,
+        payload:invite = {
+            action: "invite-response",
+            deviceHash: browser.data.deviceHash,
+            deviceName: browser.data.nameDevice,
+            message: `Invite declined: ${util.dateFormat(new Date())}`,
+            name: browser.data.nameUser,
+            ip: invitation.ip,
+            modal: invitation.modal,
+            port: invitation.port,
+            shares: (invitation.type === "user")
+                ? <deviceShares>deviceShare(browser.device)
+                : <devices>browser.device,
+            status: "declined",
+            type: invitation.type,
+            userHash: "",
+            userName: ""
+        };
+    network.inviteAccept(payload);
     modal.close(event);  
 };
 
@@ -189,13 +191,14 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
             type: type,
             userHash: "",
             userName: ""
+        },
+        saved:inviteSaved = {
+            ip: ip,
+            message: box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
+            port: port,
+            type: type
         };
-    options.text_value = JSON.stringify({
-        ip: ip,
-        message: box.getElementsByTagName("textarea")[0].value.replace(/"/g, "\\\""),
-        port: port,
-        type: type
-    });
+    options.text_value = JSON.stringify(saved);
     network.storage("settings");
     if (input !== null) {
         const p:HTMLElement = <HTMLElement>input.parentNode.parentNode,
@@ -230,14 +233,8 @@ invite.respond = function local_invite_respond(message:string):void {
             modals:string[] = Object.keys(browser.data.modals),
             length:number = modals.length,
             users:string[] = Object.keys(browser.user),
-            devices:string[] = Object.keys(browser.device);
-        let text:HTMLElement = document.createElement("h3"),
-            label:HTMLElement = document.createElement("label"),
-            textarea:HTMLTextAreaElement = document.createElement("textarea"),
-            a:number = 0;
-        // if the user or device is already added then respond automatically.
-        if (users.indexOf(invitation.deviceHash) > -1 || devices.indexOf(invitation.deviceHash) > -1 ) {
-            network.inviteAccept({
+            devices:string[] = Object.keys(browser.device),
+            payloadInvite:invite = {
                 action: "invite-response",
                 deviceHash: browser.data.deviceHash,
                 deviceName: browser.data.nameDevice,
@@ -253,7 +250,25 @@ invite.respond = function local_invite_respond(message:string):void {
                 type: invitation.type,
                 userHash: "",
                 userName: ""
-            });
+            },
+            payloadModal:ui_modal = {
+                agent: browser.data.deviceHash,
+                agentType: "device",
+                content: div,
+                height: 300,
+                inputs: ["cancel", "confirm", "close"],
+                read_only: false,
+                title: `Invitation from ${invitation.name}`,
+                type: "invite-accept",
+                width: 500
+            };
+        let text:HTMLElement = document.createElement("h3"),
+            label:HTMLElement = document.createElement("label"),
+            textarea:HTMLTextAreaElement = document.createElement("textarea"),
+            a:number = 0;
+        // if the user or device is already added then respond automatically.
+        if (users.indexOf(invitation.deviceHash) > -1 || devices.indexOf(invitation.deviceHash) > -1 ) {
+            network.inviteAccept(payloadInvite);
             return;
         }
         do {
@@ -283,17 +298,7 @@ invite.respond = function local_invite_respond(message:string):void {
         text.innerHTML = message;
         text.style.display = "none";
         div.appendChild(text);
-        modal.create({
-            agent: browser.data.deviceHash,
-            agentType: "device",
-            content: div,
-            height: 300,
-            inputs: ["cancel", "confirm", "close"],
-            read_only: false,
-            title: `Invitation from ${invitation.name}`,
-            type: "invite-accept",
-            width: 500
-        });
+        modal.create(payloadModal);
         util.audio("invite");
     } else {
         const modal:HTMLElement = document.getElementById(invitation.modal);
@@ -455,7 +460,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
     inviteElement.appendChild(section);
     inviteElement.setAttribute("class", "inviteUser");
     if (settings === undefined) {
-        modal.create({
+        const payload:ui_modal = {
             agent: browser.data.deviceHash,
             agentType: "device",
             content: inviteElement,
@@ -464,7 +469,8 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
             read_only: false,
             title: document.getElementById("user-invite").innerHTML,
             type: "invite-request"
-        });
+        };
+        modal.create(payload);
     } else {
         settings.content = inviteElement;
         modal.create(settings);
