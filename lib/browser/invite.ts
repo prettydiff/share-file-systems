@@ -35,7 +35,7 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
     network.inviteAccept(payload);
     browser[invitation.type][invitation.deviceHash].shares = <deviceShares>invitation.shares;
     browser.data.colors[invitation.type][invitation.deviceHash] = ["fff", "eee"];
-    share.addUser(invitation.name, invitation.deviceHash, invitation.type);
+    share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
     network.storage(invitation.type);
 };
 
@@ -311,7 +311,7 @@ invite.respond = function local_invite_respond(message:string):void {
                     shares: <deviceShares>invitation.shares
                 };
                 browser.data.colors[invitation.type][invitation.deviceHash] = ["", ""];
-                share.addUser(invitation.name, invitation.deviceHash, invitation.type);
+                share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
             }
         } else {
             const error:HTMLElement = <HTMLElement>modal.getElementsByClassName("error")[0],
@@ -329,7 +329,7 @@ invite.respond = function local_invite_respond(message:string):void {
                             shares: <deviceShares>invitation.shares
                         };
                         browser.data.colors[invitation.type][invitation.deviceHash] = ["", ""];
-                        share.addUser(invitation.name, invitation.deviceHash, invitation.type);
+                        share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
                         util.audio("invite");
                         network.storage(invitation.type);
                     } else {

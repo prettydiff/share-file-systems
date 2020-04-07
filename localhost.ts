@@ -258,12 +258,13 @@ import webSocket from "./lib/browser/webSocket.js";
                                     let a:number = 0;
                                     if (listLength > 0) {
                                         do {
-                                            share.addUser(browser[type][list[a]].name, list[a], type);
+                                            share.addAgent(browser[type][list[a]].name, list[a], type);
                                             a = a + 1;
                                         } while (a < listLength);
                                     }
                                 };
                             let count:number = 0;
+                            browser.data.colors = storage.settings.colors;
                             restoreShares("device");
                             restoreShares("user");
                             browser.data.nameUser = storage.settings.nameUser;

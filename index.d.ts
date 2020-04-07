@@ -30,6 +30,10 @@ declare global {
     type testListType = "service" | "simulation";
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
+    interface agents {
+        device: string[];
+        user: string[];
+    }
     interface appName {
         command: string,
         name: string
@@ -222,10 +226,6 @@ declare global {
         type: agentType;
         user: string;
     }
-    interface heartbeatAgents {
-        device: string[];
-        user: string[];
-    }
     interface httpConfiguration {
         agentType: agentType,
         callback: Function;
@@ -368,18 +368,19 @@ declare global {
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:HTMLElement) => void;
-        applyUserColors?: (user:string, colors:[string, string]) => void;
+        agentColor?: EventHandlerNonNull;
+        applyAgentColors?: (agent:string, type:agentType, colors:[string, string]) => void;
         audio?: EventHandlerNonNull;
         colorDefaults?: colorDefaults;
         colorScheme?: EventHandlerNonNull;
         compressionToggle?: EventHandlerNonNull;
         modal?: EventHandlerNonNull;
         modalContent?: () => HTMLElement;
+        styleText?: (input:styleText) => void;
         text?: (event:KeyboardEvent|FocusEvent) => void;
-        userColor?: EventHandlerNonNull;
     }
     interface module_share {
-        addUser?: (agentName:string, id:string, type:agentType) => void;
+        addAgent?: (agentName:string, id:string, type:agentType) => void;
         content?: (agent:string, agentType:agentType|"") => HTMLElement;
         context?: EventHandlerNonNull;
         deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
@@ -592,6 +593,12 @@ declare global {
     }
     interface stringDataList extends Array<stringData> {
         [index:number]: stringData;
+    }
+    interface styleText{
+        agent: string;
+        colors: [string, string];
+        replace: boolean;
+        type: agentType;
     }
     interface terminalVariables {
         binary_check: RegExp;

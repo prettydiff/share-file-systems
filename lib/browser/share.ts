@@ -11,33 +11,32 @@ import util from "./util.js";
 const share:module_share = {};
 
 /* Adds users to the user bar */
-share.addUser = function local_share_addUser(agentName:string, id:string, type:agentType):void {
+share.addAgent = function local_share_addAgent(agentName:string, id:string, type:agentType):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
         addStyle = function local_share_addUser_addStyle() {
             let body:string,
                 heading:string;
-            const prefix:string = `#spaces .box[data-agent="${id}"] `;
             if (browser.data.colors[type][id] === undefined) {
                 body = settings.colorDefaults[browser.data.color][0];
-                heading = settings.colorDefaults[browser.data.color][0];
+                heading = settings.colorDefaults[browser.data.color][1];
                 browser.data.colors[type][id] = [body, heading];
             } else {
                 body = browser.data.colors[type][id][0];
-                heading = browser.data.colors[type][id][0];
+                heading = browser.data.colors[type][id][1];
             }
-            browser.style.innerHTML = browser.style.innerHTML + [
-                `#spaces #users button[data-agent="${id}"],${prefix}.status-bar,${prefix}.footer,${prefix} h2.heading{background-color:#${heading}}`,
-                `${id}.body,#spaces #users button[data-agent="${id}"]:hover{background-color:#${body}}`
-            ].join("");
+            settings.styleText({
+                agent: id,
+                colors: [body, heading],
+                replace: false,
+                type: type
+            });
         },
         sharesModal = function local_share_addUser_sharesModal(event:MouseEvent) {
             let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
                 agent:string = element.getAttribute("id"),
-                agentType:agentType = <agentType>element.getAttribute("data-agent-type"),
-                name:string;
+                agentType:agentType = <agentType>element.getAttribute("data-agent-type");
             element = util.getAncestor(element, "button", "tag");
-            name = element.lastChild.textContent.replace(/^\s+/, "");
             share.modal(agent, agentType, null);
         },
         modals:string[] = Object.keys(browser.data.modals),

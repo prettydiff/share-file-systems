@@ -27,7 +27,7 @@ const library = {
                 counter:number = 0,
                 agentType:agentType =  "device",
                 agentLength:number = 0;
-            const agents:heartbeatAgents = {
+            const agents:agents = {
                     device: Object.keys(serverVars.device),
                     user: Object.keys(serverVars.user)
                 },
@@ -88,15 +88,6 @@ const library = {
                         //library.log([errorMessage.toString()]);
                     }
                 };
-            if (data.shares !== "") {
-                if (data.type === "user") {
-                    serverVars.user[data.agent].shares = <deviceShares>data.shares;
-                    library.storage(JSON.stringify(serverVars.user), "", "user");
-                } else if (data.type === "device") {
-                    serverVars.device = <devices>data.shares;
-                    library.storage(JSON.stringify(serverVars.device), "", "device");
-                }
-            }
             if (data.agent === "localhost-browser") {
                 serverVars.status = data.status;
             }
@@ -139,12 +130,10 @@ const library = {
                 "heartbeat-response": data
             }));
             if (data.shares !== "") {
-                if (data.type === "user" && JSON.stringify(serverVars.user[data.user].shares) !== JSON.stringify(data.shares)) {
-                    serverVars.user[data.user].shares = <deviceShares>data.shares;
-                    library.storage(JSON.stringify(serverVars.user), "", "user");
-                } else if (data.type === "device" && JSON.stringify(serverVars.device[data.agent].shares) !== JSON.stringify(data.shares)) {
-                    serverVars.device[data.user].shares = <deviceShares>data.shares;
-                    library.storage(JSON.stringify(serverVars.device), "", "user");
+                const shareString:string = JSON.stringify(serverVars[data.type][data.agent].shares);
+                if (shareString !== JSON.stringify(data.shares)) {
+                    serverVars[data.type][data.agent].shares = <deviceShares>data.shares;
+                    library.storage(JSON.stringify(serverVars[data.type]), "", data.type);
                 }
             } else {
                 data.shares = "";
