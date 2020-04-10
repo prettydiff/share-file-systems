@@ -26,11 +26,11 @@ const library = {
         simulation: simulation
     },
     testListRunner = function test_testListRunner(testListType:testListType, callback:Function):void {
-        const tests:testItem[]|serviceTests = list[testListType],
+        const tests:testItem[]|testServiceArray = list[testListType],
             capital:string = testListType.charAt(0).toUpperCase() + testListType.slice(1),
             evaluation = function test_testListRunner_evaluation(stdout:string, errs?:nodeError, stdError?:string|Buffer):void {
-                const serviceItem:testItem|serviceTest = (testListType === "service")
-                        ? <serviceTest>tests[a]
+                const serviceItem:testItem|testServiceInstance = (testListType === "service")
+                        ? <testServiceInstance>tests[a]
                         : null,
                     command:string = (testListType === "service")
                         ? JSON.stringify(serviceItem.command)
@@ -156,7 +156,7 @@ const library = {
             },
             execution:methodList = {
                 service: function test_testListRunner_service():void {
-                    const testItem:serviceTest = <serviceTest>tests[a],
+                    const testItem:testServiceInstance = <testServiceInstance>tests[a],
                         keyword:string = (function test_testListRunner_service_keyword():string {
                             const words:string[] = Object.keys(testItem.command);
                             return words[0];
@@ -245,8 +245,8 @@ const library = {
                 const command:string = (typeof tests[a].command === "string")
                         ? <string>tests[a].command
                         : JSON.stringify(tests[a].command),
-                    serviceItem:serviceTest = (testListType === "service")
-                        ? <serviceTest>tests[a]
+                    serviceItem:testServiceInstance = (testListType === "service")
+                        ? <testServiceInstance>tests[a]
                         : null,
                     name = (testListType === "service")
                         ? serviceItem.name
@@ -257,7 +257,7 @@ const library = {
                             execution[testListType]();
                         } else {
                             if (testListType === "service") {
-                                const services:serviceTests = <serviceTests>tests;
+                                const services:testServiceArray = <testServiceArray>tests;
                                 services.serverLocal.close();
                                 services.serverRemote.close();
                             }
@@ -314,25 +314,39 @@ const library = {
             library.log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
 
-        if (serverVars.deviceHash === "") {
-            callback([
-                `${vars.text.angry}This device does not yet have an identified device hash.${vars.text.none}`,
-                `${vars.text.underline}To create a device hash execute the application one time with these steps:${vars.text.none}`,
-                "1. On the terminal execute the command: `node js/application server`",
-                "2. Open a web browser to address `localhost`.",
-                "3. Fill out the initial form data for user name and device name."
-            ].join(vars.node.os.EOL));
-            return;
-        }
-
-        if (testListType === "service") {
-            const service:serviceTests = <serviceTests>tests;
-            service.addServers(function test_testListRunner_serviceCallback():void {
-                execution.service();
-            });
-        } else {
-            execution[testListType]();
-        }
+        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_listen_readUsers_readSettings(ers:nodeError, settingString:string):void {
+            if (ers !== null) {
+                if (ers.code !== "ENOENT") {
+                    library.log([ers.toString()]);
+                }
+            } else {
+                const settings:ui_data = JSON.parse(settingString);
+                serverVars.brotli = settings.brotli;
+                serverVars.deviceHash = settings.deviceHash;
+                serverVars.hash = settings.hash;
+                serverVars.name = settings.nameUser;
+            }
+            if (serverVars.deviceHash === "") {
+                vars.node.fs.readFile();
+                callback([
+                    `${vars.text.angry}This device does not yet have an identified device hash.${vars.text.none}`,
+                    `${vars.text.underline}To create a device hash execute the application one time with these steps:${vars.text.none}`,
+                    "1. On the terminal execute the command: `node js/application server`",
+                    "2. Open a web browser to address `localhost`.",
+                    "3. Fill out the initial form data for user name and device name."
+                ].join(vars.node.os.EOL));
+                return;
+            }
+    
+            if (testListType === "service") {
+                const service:testServiceArray = <testServiceArray>tests;
+                service.addServers(function test_testListRunner_serviceCallback():void {
+                    execution.service();
+                });
+            } else {
+                execution[testListType]();
+            }
+        });
     };
 
 export default testListRunner;

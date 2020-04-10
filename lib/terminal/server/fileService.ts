@@ -104,7 +104,9 @@ const library = {
                         } while (a < length);
                         if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
                             store["agent"] = serverVars.deviceHash;
+                            store["agentType"] = "device";
                             store["copyAgent"] = data.agent;
+                            store["copyType"] = data.agentType;
                         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
                             store["agent"] = serverVars.name;
                         }
@@ -807,7 +809,7 @@ const library = {
             fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
             if (data.agent === serverVars.deviceHash) {
-                if (data.copyAgent === serverVars.deviceHash) {
+                if (data.copyAgent === serverVars.deviceHash && data.copyType === "device") {
                     // * data.agent === local
                     // * data.copyAgent === local
                     copySameAgent();
@@ -820,6 +822,7 @@ const library = {
                         callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
                             data.action = <serviceType>`${data.action}-request`;
                             data.agent = data.copyAgent;
+                            data.agentType = data.copyType;
                             data.remoteWatch = JSON.stringify(listData);
                             httpRequest(function terminal_server_fileService_remoteListCallback_http(responseBody:string|Buffer):void {
                                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -834,14 +837,14 @@ const library = {
                     };
                     remoteCopyList(listData);
                 }
-            } else if (data.copyAgent === serverVars.deviceHash) {
+            } else if (data.copyAgent === serverVars.deviceHash && data.copyType === "device") {
                 // data.agent === remote
                 // data.copyAgent === local
                 data.action = <serviceType>`${data.action}-list`;
                 httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
                     requestFiles(JSON.parse(<string>responseBody));
                 }, "Error copying from remote to local device", "body");
-            } else if (data.agent === data.copyAgent) {
+            } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
                 // * data.agent === sameRemoteAgent
                 // * data.agent === sameRemoteAgent
                 data.action = <serviceType>`${data.action}-self`;
@@ -957,9 +960,12 @@ const library = {
                     count = count + 1;
                     if (count === data.location.length) {
                         const agent:string = (data.copyAgent === "")
-                            ? serverVars.deviceHash
-                            : data.copyAgent;
-                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on agent ${agent}.`);
+                                ? serverVars.deviceHash
+                                : data.copyAgent,
+                            type:agentType = (data.copyAgent === "")
+                                ? "device"
+                                : data.copyType;
+                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);
                     }
                 });
             });
@@ -970,9 +976,12 @@ const library = {
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
                 if (erRename === null) {
                     const agent:string = (data.copyAgent === "")
-                        ? serverVars.deviceHash
-                        : data.copyAgent;
-                    fileCallback(`Path ${data.location[0]} on agent ${agent} renamed to ${newPath.join(vars.sep)}.`);
+                            ? serverVars.deviceHash
+                            : data.copyAgent,
+                        type:agentType = (data.copyAgent === "")
+                            ? "device"
+                            : data.copyType;
+                    fileCallback(`Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);
                 } else {
                     library.error([erRename.toString()]);
                     library.log([erRename.toString()]);
@@ -1099,9 +1108,12 @@ const library = {
         } else if (data.action === "fs-write") {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
                 const agent:string = (data.copyAgent === "")
-                    ? serverVars.deviceHash
-                    : data.copyAgent;
-                let message:string = `File ${data.location[0]} saved to disk on ${agent}.`;
+                        ? serverVars.deviceHash
+                        : data.copyAgent,
+                    type:agentType = (data.copyAgent === "")
+                        ? "device"
+                        : data.copyType;
+                let message:string = `File ${data.location[0]} saved to disk on ${type} ${agent}.`;
                 if (erw !== null) {
                     library.error([erw.toString()]);
                     vars.ws.broadcast(JSON.stringify({

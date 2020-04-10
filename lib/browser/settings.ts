@@ -70,7 +70,7 @@ settings.agentColor = function local_settings_modal(event:KeyboardEvent):void {
             element.value = color;
             if (parent.innerHTML.indexOf("Body") > 0) {
                 settings.applyAgentColors(agent, type, [color, browser.data.colors[type][agent][1]]);
-            } else {console.log([browser.data.colors[type][agent][0], color]);
+            } else {
                 settings.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
             }
             swatch.style.background = `#${color}`;
@@ -241,8 +241,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
             user: Object.keys(browser.user)
         },
         agentKeys:string[] = Object.keys(agents),
-        agentKeysLength:number = agentKeys.length,
-        total:number = agents.device.length + agents.user.length;
+        agentKeysLength:number = agentKeys.length;
     let section:HTMLElement,
         p:HTMLElement = document.createElement("p"),
         select:HTMLElement,

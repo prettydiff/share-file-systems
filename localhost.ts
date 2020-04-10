@@ -283,6 +283,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             agent: agent,
                                             agentType: storage.settings.modals[value].agentType,
                                             copyAgent: "",
+                                            copyType: "device",
                                             depth: 2,
                                             id: value,
                                             location: [storage.settings.modals[value].text_value],

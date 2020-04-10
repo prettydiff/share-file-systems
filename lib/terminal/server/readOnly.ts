@@ -13,16 +13,16 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.deviceHash) && data.agent.indexOf("remoteUser") === 0);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.agentType !== "device" && data.agent !== serverVars.name && remoteUserTest === false) {
-        const shares:deviceShares = (data.action === "fs-copy-file" && serverVars[data.agentType][data.copyAgent] !== undefined)
-                ? serverVars[data.agentType][data.copyAgent].shares
+    if (data.agentType !== "device" && data.agent !== serverVars.name && remoteUserTest === false) {console.log(data);
+        const shares:deviceShares = (data.action === "fs-copy-file" && serverVars[data.copyType][data.copyAgent] !== undefined)
+                ? serverVars[data.copyType][data.copyAgent].shares
                 : serverVars[data.agentType][data.agent].shares,
             windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
             readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
             sIndex:number = Object.keys(shares).length,
             bestMatch:number = -1;
-        if (data.copyAgent === serverVars.deviceHash) {
+        if (data.copyAgent === serverVars.deviceHash && data.copyType === "device") {
             readOnly.push("fs-copy-file");
         }
         if (sIndex > 0) {

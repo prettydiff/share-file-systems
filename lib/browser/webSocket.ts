@@ -82,6 +82,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                         agent: browser.data.deviceHash,
                         agentType: "device",
                         copyAgent: "",
+                        copyType: "device",
                         depth: 1,
                         id: "",
                         location: [root],

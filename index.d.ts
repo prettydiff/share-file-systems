@@ -28,6 +28,7 @@ declare global {
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
     type testListType = "service" | "simulation";
+    type testServiceFileTarget = string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
     interface agents {
@@ -167,6 +168,7 @@ declare global {
         agent       : string;
         agentType   : agentType;
         copyAgent   : string;
+        copyType    : agentType;
         depth       : number;
         id          : string;
         location    : string[];
@@ -519,25 +521,6 @@ declare global {
         local: boolean;
         remote: boolean;
     }
-    interface serviceShares {
-        local?: deviceShares;
-        remote?: deviceShares;
-    }
-    interface serviceTest {
-        artifact?: string;
-        command: any;
-        file?: string;
-        name: string;
-        qualifier: qualifier;
-        shares?: serviceShares;
-        test: object | string;
-    }
-    interface serviceTests extends Array<serviceTest> {
-        [index:number]: serviceTest;
-        addServers?: Function;
-        serverLocal?: httpServer;
-        serverRemote?: httpServer;
-    }
     interface shareButton {
         index: number;
         name: string;
@@ -639,6 +622,36 @@ declare global {
         file?: string;
         qualifier: qualifier;
         test: string;
+    }
+    interface testServiceArray extends Array<testServiceInstance> {
+        [index:number]: testServiceInstance;
+        addServers?: Function;
+        serverLocal?: httpServer;
+        serverRemote?: httpServer;
+    }
+    interface testServiceInstance {
+        artifact?: string;
+        command: any;
+        file?: string;
+        name: string;
+        qualifier: qualifier;
+        shares?: testServiceShares;
+        test: object | string;
+    }
+    interface testServiceShares {
+        local?: deviceShares;
+        remote?: deviceShares;
+    }
+    interface testTemplateCopyStatus {
+        "file-list-status": copyStatus;
+    }
+    interface testTemplateFileService {
+        command: {
+            [key: string]: fileService;
+        };
+        name: string;
+        qualifier: qualifier;
+        test: testServiceFileTarget;
     }
     interface textPad extends EventHandlerNonNull {
         (Event, value?:string, title?:string): void;
