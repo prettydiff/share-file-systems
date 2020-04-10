@@ -28,7 +28,7 @@ declare global {
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
     type testListType = "service" | "simulation";
-    type testServiceFileTarget = string | stringData[] | testTemplateCopyStatus;
+    type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
     interface agents {
@@ -645,13 +645,51 @@ declare global {
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;
     }
+    interface testTemplate {
+        command: {
+            [key: string]: any;
+        };
+        name: string;
+        qualifier: qualifier;
+        test: string;
+    }
+    interface testTemplateDevice extends testTemplate {
+        command: {
+            "device": devices;
+        };
+    }
     interface testTemplateFileService {
         command: {
-            [key: string]: fileService;
+            "fs": fileService;
         };
         name: string;
         qualifier: qualifier;
         test: testServiceFileTarget;
+    }
+    interface testTemplateInvite extends testTemplate {
+        command: {
+            "invite": invite;
+        };
+    }
+    interface testTemplateMessages extends testTemplate {
+        command: {
+            "messages": messages;
+        };
+    }
+    interface testTemplateSettings extends testTemplate {
+        command: {
+            "settings": ui_data;
+        };
+    }
+    interface testTemplateUpdateRemote extends testTemplate{
+        command: {
+            "fs-update-remote": fsUpdateRemote;
+        };
+    }
+    interface testTemplateUser extends testTemplate {
+        command: {
+            "user": devices;
+        };
     }
     interface textPad extends EventHandlerNonNull {
         (Event, value?:string, title?:string): void;

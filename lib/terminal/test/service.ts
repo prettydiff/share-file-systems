@@ -120,7 +120,7 @@ const //sep:string = vars.sep,
             };
             return template;
         }()),
-        (function test_service_fsCopy_Local():testTemplateFileService {
+        (function test_service_fsCopy_LocalToLocal():testTemplateFileService {
             const template:testTemplateFileService = {
                 command: {
                     fs: {
@@ -138,785 +138,1003 @@ const //sep:string = vars.sep,
                 },
                 name: "fs:fs-copy, Copy Local to Local",
                 qualifier: "is",
-                test: <testTemplateCopyStatus>{
-                    ["file-list-status"]: {
+                test: {
+                    "file-list-status": {
                         failures: [],
                         message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
                         target: "remote-test-ID"
                     }
                 }
-            }
+            };
             return template;
         }()),
-        {
-            command: {
-                fs: {
-                    action: "fs-copy",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "remoteUser",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: `${projectPath}storage`,
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-copy, Copy Local to Remote",
-            qualifier: "is",
-            test: {
-                "file-list-status": {
-                    failures: [],
-                    message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                    target: `remote-test-ID`
-                }
-            }
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-copy",
-                    agent: "remoteUser",
-                    copyAgent: serverVars.deviceHash,
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: `${projectPath}storage`,
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-copy, Copy Remote to Local",
-            qualifier: "is",
-            test: {
-                "file-list-status": {
-                    failures: [],
-                    message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                    target: "remote-test-ID"
-                }
-            }
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-copy",
-                    agent: "remoteUser",
-                    copyAgent: "remoteUser",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: `${projectPath}storage`,
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-copy, Copy Remote to Remote 1",
-            qualifier: "contains",
-            test: "fs-update-remote"
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-copy",
-                    agent: "remoteUser",
-                    copyAgent: "remoteUser",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: `${projectPath}storage`,
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-copy, Copy Remote to Remote 2",
-            qualifier: "contains",
-            test: `["${windowsPath}storage","directory"`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-copy",
-                    agent: "remoteUser",
-                    copyAgent: "remoteUser",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: `${projectPath}storage`,
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-copy, Copy Remote to Remote 3",
-            qualifier: "contains",
-            test: "\"agent\":\"remoteUser@[::1]:XXXX\""
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-details",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-details, Details of Local tsconfig.json",
-            qualifier: "is",
-            test: {
-                dirs: [
-                    [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
-                ],
-                fail: [],
-                id: "test-ID"
-            }
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-details",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}tsconfig.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-details, Details of Remote tsconfig.json",
-            qualifier: "is",
-            test: {
-                dirs: [
-                    [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
-                ],
-                fail: [],
-                id: "test-ID"
-            }
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-new",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestLocal`],
-                    name: "directory",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-new, Local New Directory",
-            qualifier: "is",
-            test: `${projectPath}serviceTestLocal created.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-new",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestLocal.json`],
-                    name: "file",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-new, Local New File",
-            qualifier: "is",
-            test: `${projectPath}serviceTestLocal.json created.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-new",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestRemote`],
-                    name: "directory",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-new, Remote New Directory",
-            qualifier: "is",
-            test: `${projectPath}serviceTestRemote created.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-new",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestRemote.json`],
-                    name: "file",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-new, Remote New File",
-            qualifier: "is",
-            test: `${projectPath}serviceTestRemote.json created.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-write",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestLocal.json`],
-                    name: "local text fragment",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-write, Write Local",
-            qualifier: "is",
-            test: `File ${projectPath}serviceTestLocal.json saved to disk on local device.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-write",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestRemote.json`],
-                    name: "remote text fragment",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-write, Write Remote to Local",
-            qualifier: "is",
-            test: `File ${projectPath}serviceTestRemote.json saved to disk on remoteUser@[::1]:XXXX.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-read",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestLocal.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-read, Read Local",
-            qualifier: "is",
-            test: [{
-                content: "local text fragment",
-                id: "test-ID",
-                path: `${projectPath}serviceTestLocal.json`
-            }]
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-read",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestRemote.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-read, Read Remote",
-            qualifier: "is",
-            test: [{
-                content: "remote text fragment",
-                id: "test-ID",
-                path: `${projectPath}serviceTestRemote.json`
-            }]
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-rename",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestLocal`],
-                    name: "serviceLocal",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-rename, Rename Local Directory",
-            qualifier: "is",
-            test: `Path ${projectPath}serviceTestLocal on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-rename",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestLocal.json`],
-                    name: "serviceLocal.json",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-rename, Rename Local File",
-            qualifier: "is",
-            test: `Path ${projectPath}serviceTestLocal.json on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.json.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-rename",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestRemote`],
-                    name: "serviceRemote",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-rename, Rename Remote Directory",
-            qualifier: "is",
-            test: `Path ${projectPath}serviceTestRemote on agent remoteUser@[::1]:XXXX renamed to ${projectPath}serviceRemote.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-rename",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceTestRemote.json`],
-                    name: "serviceRemote.json",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-rename, Rename Remote File",
-            qualifier: "is",
-            test: `Path ${projectPath}serviceTestRemote.json on agent remoteUser@[::1]:XXXX renamed to ${projectPath}serviceRemote.json.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-destroy",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceLocal`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-destroy, Destroy Local Directory",
-            qualifier: "is",
-            test: `Path(s) ${projectPath}serviceLocal destroyed on agent ${serverVars.deviceHash}.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-destroy",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceLocal.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-destroy, Destroy Local File",
-            qualifier: "is",
-            test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent ${serverVars.deviceHash}.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-destroy",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceRemote`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-destroy, Destroy Remote Directory",
-            qualifier: "is",
-            test: `Path(s) ${projectPath}serviceRemote destroyed on agent remoteUser@[::1]:XXXX.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-destroy",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`${projectPath}serviceRemote.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-destroy, Destroy Remote File",
-            qualifier: "is",
-            test: `Path(s) ${projectPath}serviceRemote.json destroyed on agent remoteUser@[::1]:XXXX.`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-hash",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`some-modal-id:${projectPath}tsconfig.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-hash, Hash Local",
-            qualifier: "is",
-            test: [{
-                content: hash,
-                id: "some-modal-id",
-                path: `${projectPath}tsconfig.json`
-            }]
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-hash",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 1,
-                    id: "test-ID",
-                    location: [`some-modal-id:${projectPath}tsconfig.json`],
-                    name: "",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-hash, Hash Remote",
-            qualifier: "is",
-            test: [{
-                content: hash,
-                id: "some-modal-id",
-                path: `${projectPath}tsconfig.json`
-            }]
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-directory",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 2,
-                    id: "test-ID",
-                    location: [`${projectPath}js${vars.sep}lib`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-directory, Directory Local 1",
-            qualifier: "begins",
-            test: "{\"dirs\":[["
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-directory",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 2,
-                    id: "test-ID",
-                    location: [`${projectPath}js${vars.sep}lib`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-directory, Directory Local 2",
-            qualifier: "contains",
-            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-directory",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 2,
-                    id: "test-ID",
-                    location: [`${projectPath}js${vars.sep}lib`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-directory, Directory Remote 1",
-            qualifier: "begins",
-            test: "{\"dirs\":[["
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-search",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 2,
-                    id: "test-ID",
-                    location: [`${projectPath}js${vars.sep}lib`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-directory, Directory Remote 2",
-            qualifier: "contains",
-            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-search",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 0,
-                    id: "test-ID",
-                    location: [`${projectPath}`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-search, Search Local 1",
-            qualifier: "begins",
-            test: "{\"dirs\":[["
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-search",
-                    agent: serverVars.deviceHash,
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 0,
-                    id: "test-ID",
-                    location: [`${projectPath}`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-search, Search Local 2",
-            qualifier: "contains",
-            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-search",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 0,
-                    id: "test-ID",
-                    location: [`${projectPath}`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-search, Search Remote 1",
-            qualifier: "begins",
-            test: "{\"dirs\":[["
-        },
-        {
-            command: {
-                fs: {
-                    action: "fs-search",
-                    agent: "remoteUser",
-                    copyAgent: "",
-                    copyType: "device",
-                    depth: 0,
-                    id: "test-ID",
-                    location: [`${projectPath}`],
-                    name: ".js",
-                    watch: "no"
-                }
-            },
-            name: "fs:fs-search, Search Remote 2",
-            qualifier: "contains",
-            test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
-        },
-        {
-            command: {
-                "fs-update-remote": {
-                    agent: "remoteUser",
-                    dirs: [
-                        [`${projectPath}storage${vars.sep}storage.txt`, "file", "", 0, 0, "stat"]
-                    ],
-                    location: `${projectPath}storage`,
-                    status: "test payload"
-                }
-            },
-            name: "fs-update-remote, Local",
-            qualifier: "begins",
-            test: `Received directory watch for {"fs-update-remote":{"agent":"remoteUser@[::1]:XXXX","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"location":"${windowsPath}storage","status":"test payload","copyAgent":`
-        },
-        {
-            command: {
-                settings: {
-                    audio: true,
-                    brotli: 7,
-                    color: "default",
-                    hash: "sha3-512",
-                    modals: {
-                        "systems-modal": {
-                            agent: serverVars.deviceHash,
-                            content:{},
-                            inputs: [
-                                "close", "maximize", "minimize"
-                            ],
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: "<span class=\"icon-systemLog\">⌬</span> System Log",
-                            type: "systems",
-                            width: 800,
-                            zIndex: 1,
-                            id: "systems-modal",
-                            left: 200,
-                            top: 200,
-                            height: 400
-                        },
-                    },
-                    modalTypes: [
-                        "systems", "settings", "fileNavigate", "invite-request"
-                    ],
-                    name: "Austin",
-                    zIndex: 6
-                }
-            },
-            name: "settings, Local settings storage without HTTP response",
-            qualifier: "is",
-            test: "settings written with false response for testing."
-        },
-        {
-            command: {
-                messages: {
-                    status: [],
-                    users: [],
-                    errors: [
-                        [
-                            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
-                                "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
-                                "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
-                                "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
-                                "FSReqCallback.oncomplete (fs.js:154:23)"
-                            ]
-                        ]
-                    ]
-                }
-            },
-            name: "messages, Local messages storage without HTTP response",
-            qualifier: "is",
-            test: "messages written with false response for testing."
-        },
-        {
-            command: {
-                users: {
-                    [serverVars.deviceHash]: {
-                        color: ["fff", "000"],
-                        shares: []
-                    },
-                    remoteUser: {
-                        color: ["fff", "ddd"],
-                        shares: []
+        (function test_service_fsCopy_LocalToRemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-copy",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "remoteDevice",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: `${projectPath}storage`,
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-copy, Copy Local to Remote",
+                qualifier: "is",
+                test: {
+                    "file-list-status": {
+                        failures: [],
+                        message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
+                        target: "remote-test-ID"
                     }
                 }
-            },
-            name: "users, Local users storage without HTTP response",
-            qualifier: "is",
-            test: "users written with false response for testing."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "invited",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
+            };
+            return template;
+        }()),
+        (function test_service_fsCopy_RemoteDeviceToLocal():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-copy",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: serverVars.deviceHash,
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: `${projectPath}storage`,
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-copy, Copy Remote to Local",
+                qualifier: "is",
+                test: {
+                    "file-list-status": {
+                        failures: [],
+                        message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
+                        target: "remote-test-ID"
+                    }
                 }
-            },
-            name: "invite, invite - Local user invite",
-            qualifier: "is",
-            test: "Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ::1."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite-request",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "invited",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
+            };
+            return template;
+        }()),
+        (function test_service_fsCopy_RemoteDeviceToRemoteDevice1():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-copy",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "remoteDevice",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: `${projectPath}storage`,
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-copy, Copy Remote to Remote 1",
+                qualifier: "contains",
+                test: "fs-update-remote"
+            };
+            return template;
+        }()),
+        (function test_service_fsCopy_RemoteDeviceToRemoteDevice2():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-copy",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "remoteDevice",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: `${projectPath}storage`,
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-copy, Copy Remote to Remote 2",
+                qualifier: "contains",
+                test: `["${windowsPath}storage","directory"`
+            };
+            return template;
+        }()),
+        (function test_service_fsCopy_RemoteDeviceToRemoteDevice3():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-copy",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "remoteDevice",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: `${projectPath}storage`,
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-copy, Copy Remote to Remote 3",
+                qualifier: "contains",
+                test: "\"agent\":\"remoteDevice\""
+            };
+            return template;
+        }()),
+        (function test_service_fsDetails_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-details",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-details, Details of Local tsconfig.json",
+                qualifier: "is",
+                test: {
+                    dirs: [
+                        [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
+                    ],
+                    fail: [],
+                    id: "test-ID"
                 }
-            },
-            name: "invite, invite-request - Local user invite request",
-            qualifier: "is",
-            test: "Invitation received at remote terminal ::1 and sent to remote browser."
-        },
+            };
+            return template;
+        }()),
+        (function test_service_fsDetails_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-details",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-details, Details of Remote tsconfig.json",
+                qualifier: "is",
+                test: {
+                    dirs: [
+                        [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
+                    ],
+                    fail: [],
+                    id: "test-ID"
+                }
+            };
+            return template;
+        }()),
+        (function test_service_fsNewDirectory_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-new",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: "directory",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-new, Local New Directory",
+                qualifier: "is",
+                test: `${projectPath}serviceTestLocal created.`
+            };
+            return template;
+        }()),
+        (function test_service_fsNewFile_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-new",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}tsconfig.json`],
+                        name: "file",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-new, Local New File",
+                qualifier: "is",
+                test: `${projectPath}serviceTestLocal.json created.`
+            };
+            return template;
+        }()),
+        (function test_service_fsNewDirectory_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-new",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestRemote`],
+                        name: "directory",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-new, Remote New Directory",
+                qualifier: "is",
+                test: `${projectPath}serviceTestLocal.json created.`
+            };
+            return template;
+        }()),
+        (function test_service_fsNewFile_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-new",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestRemote.json`],
+                        name: "file",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-new, Remote New File",
+                qualifier: "is",
+                test: `${projectPath}serviceTestLocal.json created.`
+            };
+            return template;
+        }()),
+        (function test_service_fsWrite_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-write",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestLocal.json`],
+                        name: "local text fragment",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-write, Write Local",
+                qualifier: "is",
+                test: `File ${projectPath}serviceTestLocal.json saved to disk on local device.`
+            };
+            return template;
+        }()),
+        (function test_service_fsWrite_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-write",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestRemote.json`],
+                        name: "remote text fragment",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-write, Write Remote to Local",
+                qualifier: "is",
+                test: `File ${projectPath}serviceTestRemote.json saved to disk on remoteDevice.`
+            };
+            return template;
+        }()),
+        (function test_service_fsRead_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-read",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestLocal.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-read, Read Local",
+                qualifier: "is",
+                test: [{
+                    content: "local text fragment",
+                    id: "test-ID",
+                    path: `${projectPath}serviceTestLocal.json`
+                }]
+            };
+            return template;
+        }()),
+        (function test_service_fsRead_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-read",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestRemote.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-read, Read Remote",
+                qualifier: "is",
+                test: [{
+                    content: "remote text fragment",
+                    id: "test-ID",
+                    path: `${projectPath}serviceTestRemote.json`
+                }]
+            };
+            return template;
+        }()),
+        (function test_service_fsRenameDirectory_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-rename",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestLocal`],
+                        name: "serviceLocal",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-rename, Rename Local Directory",
+                qualifier: "is",
+                test: `Path ${projectPath}serviceTestLocal on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.`
+            };
+            return template;
+        }()),
+        (function test_service_fsRenameFile_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-rename",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestLocal.json`],
+                        name: "serviceLocal.json",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-rename, Rename Local File",
+                qualifier: "is",
+                test: `Path ${projectPath}serviceTestLocal.json on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.json.`
+            };
+            return template;
+        }()),
+        (function test_service_fsRenameDirectory_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-rename",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestRemote`],
+                        name: "serviceRemote",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-rename, Rename Remote Directory",
+                qualifier: "is",
+                test: `Path ${projectPath}serviceTestRemote on device remoteDevice renamed to ${projectPath}serviceRemote.`
+            };
+            return template;
+        }()),
+        (function test_service_fsRenameFile_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-rename",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceTestRemote.json`],
+                        name: "serviceRemote.json",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-rename, Rename Remote File",
+                qualifier: "is",
+                test: `Path ${projectPath}serviceTestRemote.json on agent remoteDevice renamed to ${projectPath}serviceRemote.json.`
+            };
+            return template;
+        }()),
+        (function test_service_fsDestroyDirectory_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-destroy",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceLocal`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-destroy, Destroy Local Directory",
+                qualifier: "is",
+                test: `Path(s) ${projectPath}serviceLocal destroyed on agent ${serverVars.deviceHash}.`
+            };
+            return template;
+        }()),
+        (function test_service_fsDestroyFile_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-destroy",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceLocal.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-destroy, Destroy Local File",
+                qualifier: "is",
+                test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent ${serverVars.deviceHash}.`
+            };
+            return template;
+        }()),
+        (function test_service_fsDestroyDirectory_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-destroy",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceRemote`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-destroy, Destroy Remote Directory",
+                qualifier: "is",
+                test: `Path(s) ${projectPath}serviceRemote destroyed on agent remoteDevice.`
+            };
+            return template;
+        }()),
+        (function test_service_fsDestroyFile_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-destroy",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`${projectPath}serviceRemote.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-destroy, Destroy Remote File",
+                qualifier: "is",
+                test: `Path(s) ${projectPath}serviceRemote.json destroyed on agent remoteDevice.`
+            };
+            return template;
+        }()),
+        (function test_service_fsHash_Local():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-hash",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`some-modal-id:${projectPath}tsconfig.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-hash, Hash Local",
+                qualifier: "is",
+                test: [{
+                    content: hash,
+                    id: "some-modal-id",
+                    path: `${projectPath}tsconfig.json`
+                }]
+            };
+            return template;
+        }()),
+        (function test_service_fsHash_RemoteDevice():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-hash",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 1,
+                        id: "test-ID",
+                        location: [`some-modal-id:${projectPath}tsconfig.json`],
+                        name: "",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-hash, Hash Remote",
+                qualifier: "is",
+                test: [{
+                    content: hash,
+                    id: "some-modal-id",
+                    path: `${projectPath}tsconfig.json`
+                }]
+            };
+            return template;
+        }()),
+        (function test_service_fsDirectory_Local1():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-directory",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 2,
+                        id: "test-ID",
+                        location: [`${projectPath}js${vars.sep}lib`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-directory, Directory Local 1",
+                qualifier: "begins",
+                test: "{\"dirs\":[["
+            };
+            return template;
+        }()),
+        (function test_service_fsDirectory_Local2():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-directory",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 2,
+                        id: "test-ID",
+                        location: [`${projectPath}js${vars.sep}lib`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-directory, Directory Local 2",
+                qualifier: "contains",
+                test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+            };
+            return template;
+        }()),
+        (function test_service_fsDirectory_RemoteDevice1():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-directory",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 2,
+                        id: "test-ID",
+                        location: [`${projectPath}js${vars.sep}lib`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-directory, Directory Remote 1",
+                qualifier: "begins",
+                test: "{\"dirs\":[["
+            };
+            return template;
+        }()),
+        (function test_service_fsDirectory_RemoteDevice2():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-directory",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 2,
+                        id: "test-ID",
+                        location: [`${projectPath}js${vars.sep}lib`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-directory, Directory Remote 2",
+                qualifier: "begins",
+                test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+            };
+            return template;
+        }()),
+        (function test_service_fsSearch_Local1():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-search",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 0,
+                        id: "test-ID",
+                        location: [`${projectPath}`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-search, Search Local 1",
+                qualifier: "begins",
+                test: "{\"dirs\":[["
+            };
+            return template;
+        }()),
+        (function test_service_fsSearch_Local2():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-search",
+                        agent: serverVars.deviceHash,
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 0,
+                        id: "test-ID",
+                        location: [`${projectPath}`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-search, Search Local 2",
+                qualifier: "contains",
+                test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+            };
+            return template;
+        }()),
+        (function test_service_fsSearch_RemoteDevice1():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-search",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 0,
+                        id: "test-ID",
+                        location: [`${projectPath}`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-search, Search Remote 1",
+                qualifier: "begins",
+                test: "{\"dirs\":[["
+            };
+            return template;
+        }()),
+        (function test_service_fsSearch_RemoteDevice2():testTemplateFileService {
+            const template:testTemplateFileService = {
+                command: {
+                    fs: {
+                        action: "fs-search",
+                        agent: "remoteDevice",
+                        agentType: "device",
+                        copyAgent: "",
+                        copyType: "device",
+                        depth: 0,
+                        id: "test-ID",
+                        location: [`${projectPath}`],
+                        name: ".js",
+                        watch: "no"
+                    }
+                },
+                name: "fs:fs-search, Search Remote 2",
+                qualifier: "contains",
+                test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+            };
+            return template;
+        }()),
+        (function test_service_fsUpdate_RemoteDevice():testTemplateUpdateRemote {
+            const template:testTemplateUpdateRemote = {
+                command: {
+                    "fs-update-remote": {
+                        agent: "remoteDevice",
+                        dirs: [
+                            [`${projectPath}storage${vars.sep}storage.txt`, "file", "", 0, 0, "stat"]
+                        ],
+                        fail: [],
+                        location: `${projectPath}storage`,
+                        status: "test payload"
+                    }
+                },
+                name: "fs-update-remote, Local",
+                qualifier: "begins",
+                test: `Received directory watch for {"fs-update-remote":{"agent":"remoteDevice,"dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"location":"${windowsPath}storage","status":"test payload","copyAgent":`
+            };
+            return template;
+        }()),
+        (function test_service_settings():testTemplateSettings {
+            const template:testTemplateSettings = {
+                command: {
+                    settings: {
+                        audio: true,
+                        brotli: 7,
+                        color: "default",
+                        colors: {
+                            device: {
+                                [serverVars.deviceHash]: ["fff", "eee"]
+                            },
+                            user: {}
+                        },
+                        deviceHash: serverVars.deviceHash,
+                        hash: "sha3-512",
+                        modals: {
+                            "systems-modal": {
+                                agent: serverVars.deviceHash,
+                                agentType: "device",
+                                content: null,
+                                inputs: [
+                                    "close", "maximize", "minimize"
+                                ],
+                                read_only: false,
+                                single: true,
+                                status: "hidden",
+                                title: "<span class=\"icon-systemLog\">⌬</span> System Log",
+                                type: "systems",
+                                width: 800,
+                                zIndex: 1,
+                                id: "systems-modal",
+                                left: 200,
+                                top: 200,
+                                height: 400
+                            },
+                        },
+                        modalTypes: [
+                            "systems", "settings", "fileNavigate", "invite-request"
+                        ],
+                        nameDevice: "this device name",
+                        nameUser: "local user name",
+                        zIndex: 6
+                    }
+                },
+                name: "settings, Local settings storage without HTTP response",
+                qualifier: "is",
+                test: "settings written with false response for testing."
+            };
+            return template;
+        }()),
+        (function test_service_settings():testTemplateMessages {
+            const template:testTemplateMessages = {
+                command: {
+                    messages: {
+                        status: [],
+                        users: [],
+                        errors: [
+                            [
+                                "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
+                                    "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
+                                    "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
+                                    "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
+                                    "FSReqCallback.oncomplete (fs.js:154:23)"
+                                ]
+                            ]
+                        ]
+                    }
+                },
+                name: "messages, Local messages storage without HTTP response",
+                qualifier: "is",
+                test: "messages written with false response for testing."
+            };
+            return template;
+        }()),
+        (function test_service_device():testTemplateDevice {
+            const template:testTemplateDevice = {
+                command: {
+                    device: {
+                        [serverVars.deviceHash]: {
+                            ip: "::1",
+                            name: "local device name",
+                            port: 80,
+                            shares: {
+                                [serverVars.deviceHash]: {
+                                    execute: false,
+                                    name: "C:\\mp3",
+                                    readOnly: false,
+                                    type: "directory"
+                                }
+                            }
+                        }
+                    }
+                },
+                name: "users, Local users storage without HTTP response",
+                qualifier: "is",
+                test: "users written with false response for testing."
+            };
+            return template;
+        }()),
+        (function test_service_user():testTemplateUser {
+            const template:testTemplateUser = {
+                command: {
+                    user: {
+                        [serverVars.deviceHash]: {
+                            ip: "::1",
+                            name: "remote user name",
+                            port: 80,
+                            shares: {
+                                [serverVars.deviceHash]: {
+                                    execute: false,
+                                    name: "C:\\movies",
+                                    readOnly: false,
+                                    type: "directory"
+                                }
+                            }
+                        }
+                    }
+                },
+                name: "users, Local users storage without HTTP response",
+                qualifier: "is",
+                test: "users written with false response for testing."
+            };
+            return template;
+        }()),
+        (function test_service_inviteStartDevice():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "invited",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite - Local device invite",
+                qualifier: "is",
+                test: "Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ::1."
+            };
+            return template;
+        }()),
+        (function test_service_inviteRequestDevice():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-request",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "invited",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-request - Local device invite",
+                qualifier: "is",
+                test: "Invitation received at remote terminal ::1 and sent to remote browser."
+            };
+            return template;
+        }()),
         {
             command: {
                 invite: {
