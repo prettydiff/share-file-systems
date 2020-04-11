@@ -12,5 +12,6 @@ Do not edit below this line.  Contents dynamically populated.
 * **[log.ts](log.ts)**                                       - A log utility for displaying multiple lines of text to the terminal.
 * **[makeDir.ts](makeDir.ts)**                               - A utility for creating directories in the file system.
 * **[readFile.ts](readFile.ts)**                             - A utility to read files as text, if text, or as binary, if binary.
+* **[readStorage.ts](readStorage.ts)**                       - Reads all the storage files and returns a data structure to a callback
 * **[vars.ts](vars.ts)**                                     - Globally available variables for the terminal utility.
 * **[wrapIt.ts](wrapIt.ts)**                                 - A tool to perform word wrap when printing text to the shell.

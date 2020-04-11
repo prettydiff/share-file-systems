@@ -569,6 +569,15 @@ declare global {
         send: boolean;
         users?: devices;
     }
+    interface storageFlag {
+        [key:string]: boolean;
+    }
+    interface storageItems {
+        device: devices;
+        messages: messages;
+        settings: ui_data;
+        user: devices;
+    }
     interface stringData {
         content: string;
         id: string;
@@ -665,6 +674,16 @@ declare global {
         name: string;
         qualifier: qualifier;
         test: testServiceFileTarget;
+    }
+    interface testTemplateHeartbeat {
+        command: {
+            "heartbeat": heartbeat;
+        };
+        name: string;
+        qualifier: qualifier;
+        test: {
+            "heartbeat-response": heartbeat;
+        };
     }
     interface testTemplateInvite extends testTemplate {
         command: {

@@ -1057,7 +1057,7 @@ const //sep:string = vars.sep,
             };
             return template;
         }()),
-        (function test_service_inviteStartDevice():testTemplateInvite {
+        (function test_service_inviteStart_Device():testTemplateInvite {
             const template:testTemplateInvite = {
                 command: {
                     invite: {
@@ -1096,7 +1096,7 @@ const //sep:string = vars.sep,
             };
             return template;
         }()),
-        (function test_service_inviteRequestDevice():testTemplateInvite {
+        (function test_service_inviteRequest_Device():testTemplateInvite {
             const template:testTemplateInvite = {
                 command: {
                     invite: {
@@ -1135,193 +1135,281 @@ const //sep:string = vars.sep,
             };
             return template;
         }()),
-        {
-            command: {
-                invite: {
-                    action: "invite-response",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "declined",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
+        (function test_service_inviteResponse_Device():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-response",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "invited",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-response - Local device invite",
+                qualifier: "is",
+                test: "Invitation received at remote terminal ::1 and sent to remote browser."
+            };
+            return template;
+        }()),
+        (function test_service_inviteResponseAccepted_Device():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-response",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "accepted",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-response - Local device invite response, accepted",
+                qualifier: "is",
+                test: "Accepted invitation response processed at remote terminal ::1 and sent to start terminal."
+            };
+            return template;
+        }()),
+        (function test_service_inviteResponseIgnored_Device():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-response",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "invited",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-response - Local device invite response, ignored",
+                qualifier: "is",
+                test: "Accepted invitation response processed at remote terminal ::1 and sent to start terminal."
+            };
+            return template;
+        }()),
+        (function test_service_inviteResponseDeclined_Device():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-response",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "invited",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-response - Local device invite response, declined",
+                qualifier: "is",
+                test: "Declined invitation sent to from start terminal XXXX to start browser."
+            };
+            return template;
+        }()),
+        (function test_service_inviteCompleteAccepted_Device():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-complete",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "accepted",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-complete - Local user invite complete, accepted",
+                qualifier: "is",
+                test: "Accepted invitation sent to from start terminal XXXX to start browser."
+            };
+            return template;
+        }()),
+        (function test_service_inviteCompleteIgnored_Device():testTemplateInvite {
+            const template:testTemplateInvite = {
+                command: {
+                    invite: {
+                        action: "invite-complete",
+                        deviceHash: serverVars.deviceHash,
+                        deviceName: "old desktop computer",
+                        message: "Hello",
+                        name: "",
+                        ip: "::1",
+                        modal: "test-modal",
+                        port: 80,
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "invited",
+                        type: "device",
+                        userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
+                        userName: "local user name"
+                    }
+                },
+                name: "invite, invite-complete - Local user invite complete, ignored",
+                qualifier: "is",
+                test: "Ignored invitation sent to from start terminal XXXX to start browser."
+            };
+            return template;
+        }()),
+        (function test_service_heartbeat_Device():testTemplateHeartbeat {
+            const template:testTemplateHeartbeat = {
+                command: {
+                    heartbeat: {
+                        agent: "remoteUser",
+                        shares: {
+                            [serverVars.deviceHash]: {
+                                ip: "::1",
+                                name: "old desktop computer",
+                                port: 80,
+                                shares: {
+                                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                        execute: false,
+                                        name: "C:\\music",
+                                        readOnly: true,
+                                        type: "directory"
+                                    }
+                                }
+                            }
+                        },
+                        status: "active",
+                        type: "device",
+                        user: serverVars.deviceHash
+                    }
+                },
+                name: "heartbeat, Local to Remote",
+                qualifier: "is",
+                test: {
+                    "heartbeat-response": {
+                        agent: "remoteDevice",
+                        shares: {},
+                        status: "idle",
+                        type: "device",
+                        user: serverVars.name
+                    }
                 }
-            },
-            name: "invite, invite-response - Local user invite response, declined",
-            qualifier: "is",
-            test: "Declined invitation response processed at remote terminal ::1 and sent to start terminal."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite-response",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "accepted",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
-                }
-            },
-            name: "invite, invite-response - Local user invite response, accepted",
-            qualifier: "is",
-            test: "Accepted invitation response processed at remote terminal ::1 and sent to start terminal."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite-response",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "invited",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
-                }
-            },
-            name: "invite, invite-response - Local user invite response, ignored",
-            qualifier: "is",
-            test: "Ignored invitation response processed at remote terminal ::1 and sent to start terminal."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite-complete",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "declined",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
-                }
-            },
-            name: "invite, invite-complete - Local user invite complete, declined",
-            qualifier: "is",
-            test: "Declined invitation sent to from start terminal XXXX to start browser."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite-complete",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "accepted",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
-                }
-            },
-            name: "invite, invite-complete - Local user invite complete, accepted",
-            qualifier: "is",
-            test: "Accepted invitation sent to from start terminal XXXX to start browser."
-        },
-        {
-            command: {
-                invite: {
-                    action: "invite-complete",
-                    deviceKey: "",
-                    deviceName: "",
-                    message: "Hello",
-                    name: "",
-                    ip: "::1",
-                    modal: "test-modal",
-                    port: 80,
-                    shares: [],
-                    status: "invited",
-                    type: "user",
-                    userHash: "",
-                    userName: ""
-                }
-            },
-            name: "invite, invite-complete - Local user invite complete, ignored",
-            qualifier: "is",
-            test: "Ignored invitation sent to from start terminal XXXX to start browser."
-        },
-        {
-            command: {
-                heartbeat: {
-                    agent: "remoteUser",
-                    shares: [],
-                    status: "active",
-                    user: serverVars.deviceHash
-                }
-            },
-            name: "heartbeat, Local to Remote",
-            qualifier: "is",
-            test: {
-                "heartbeat-response": {
-                    agent: "localTest@[::1]:XXXX",
-                    shares:[],
-                    status:"idle",
-                    user:"remoteUser@[::1]:XXXX"
-                }
-            }
-        },
-        {
-            command: {
-                heartbeat: {
-                    agent: "remoteUser",
-                    shares: [
-                        {
-                            execute: false,
-                            name: "C:\\mp3",
-                            readOnly: true,
-                            type: "file"
-                        }
-                    ],
-                    status: "active",
-                    user: serverVars.deviceHash
-                }
-            },
-            name: "heartbeat, Local to Remote with share change",
-            qualifier: "is",
-            test: {
-                "heartbeat-response": {
-                    agent: "localTest@[::1]:XXXX",
-                    shares: [
-                        {
-                            execute: false,
-                            name: "C:\\mp3",
-                            readOnly: true,
-                            type: "file"
-                        }
-                    ],
-                    status: "idle",
-                    user: "remoteUser@[::1]:XXXX"
-                }
-            }
-        }
+            };
+            return template;
+        }())
         // todo: fs - readonly tests
+        // todo: user tests
     ];
 
 services.addServers = function test_services_addServers(callback:Function):void {

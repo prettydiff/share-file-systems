@@ -1,6 +1,6 @@
 /* lib/common/deviceShare - Converts the local device list into a flattened object of shares for remote users. */
 
-const deviceShare = function local_invite_deviceShare(devices:devices):deviceShares {
+const deviceShare = function terminal_common_deviceShare(devices:devices):deviceShares {
     const deviceList:string[] = Object.keys(devices),
         shareList:deviceShares = {};
     let deviceLength = deviceList.length;

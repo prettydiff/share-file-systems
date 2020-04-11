@@ -12,7 +12,9 @@ import hash from "./hash.js";
 import log from "../utilities/log.js";
 import makeDir from "../utilities/makeDir.js";
 import remove from "./remove.js";
+
 import vars from "../utilities/vars.js";
+import readStorage from "../utilities/readStorage.js";
 
 import forbiddenUser from "../server/forbiddenUser.js";
 import heartbeat from "../server/heartbeat.js";
@@ -35,6 +37,7 @@ const library = {
         httpClient: httpClient,
         log: log,
         makeDir: makeDir,
+        readStorage: readStorage,
         remove: remove
     },
     // at this time the serverCallback argument is only used by test automation and so its availability
@@ -309,12 +312,19 @@ const library = {
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {
 
-                        const storageFlag = {
+                        const storageFlag:storageFlag = {
                                 device: false,
+                                messages: true,
                                 settings: false,
                                 user: false
                             },
-                            readComplete = function terminal_server_start_listen_socketCallback_readComplete() {
+                            readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {
+                                serverVars.brotli = storageData.settings.brotli;
+                                serverVars.device = storageData.device;
+                                serverVars.deviceHash = storageData.settings.deviceHash;
+                                serverVars.hash = storageData.settings.hash;
+                                serverVars.name = storageData.settings.nameUser;
+                                serverVars.user = storageData.user;
                                 if (serverCallback !== undefined) {
                                     // A callback can be passed in, so far only used for running service tests.
                                     serverCallback();
@@ -341,55 +351,7 @@ const library = {
                                 }
                             });
                         };
-
-                        // When coming online read from storage
-                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}user.json`, "utf8", function terminal_server_start_listen_readUser(eru:nodeError, userString:string):void {
-                            if (eru !== null) {
-                                if (eru.code !== "ENOENT") {
-                                    library.log([eru.toString()]);
-                                    process.exit(1);
-                                    return;
-                                }
-                            } else {
-                                serverVars.user = JSON.parse(userString);
-                            }
-                            storageFlag.user = true;
-                            if (storageFlag.device === true && storageFlag.settings === true) {
-                                readComplete();
-                            }
-                        });
-                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}device.json`, "utf8", function terminal_server_start_listen_readDevice(erd:nodeError, deviceString:string):void {
-                            if (erd !== null) {
-                                if (erd.code !== "ENOENT") {
-                                    library.log([erd.toString()]);
-                                    process.exit(1);
-                                    return;
-                                }
-                            } else {
-                                serverVars.device = JSON.parse(deviceString);
-                            }
-                            storageFlag.device = true;
-                            if (storageFlag.settings === true && storageFlag.user === true) {
-                                readComplete();
-                            }
-                        });
-                        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_listen_readUsers_readSettings(ers:nodeError, settingString:string):void {
-                            if (ers !== null) {
-                                if (ers.code !== "ENOENT") {
-                                    library.log([ers.toString()]);
-                                }
-                            } else {
-                                const settings:ui_data = JSON.parse(settingString);
-                                serverVars.brotli = settings.brotli;
-                                serverVars.deviceHash = settings.deviceHash;
-                                serverVars.hash = settings.hash;
-                                serverVars.name = settings.nameUser;
-                            }
-                            storageFlag.settings = true;
-                            if (storageFlag.device === true && storageFlag.user === true) {
-                                readComplete();
-                            }
-                        });
+                        library.readStorage(readComplete);
                     });
                 });
             };

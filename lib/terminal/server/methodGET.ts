@@ -6,6 +6,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import readFile from "../utilities/readFile.js";
+import readStorage from "../utilities/readStorage.js";
 import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
@@ -18,7 +19,8 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
     const library = {
             error: error,
             log: log,
-            readFile: readFile
+            readFile: readFile,
+            readStorage: readStorage
         },
         localPath:string = (uri === "/")
             ? `${vars.projectPath}index.html`
@@ -69,57 +71,16 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                 const readCallback = function terminal_server_create_readCallback(args:readFile, data:string|Buffer):void {
                         let tool:boolean = false;
                         const pageState = function terminal_server_create_readCallback_pageState():void {
-                                const flag:any = {
-                                        device: false,
-                                        messages: false,
-                                        settings: false,
-                                        user: false
-                                    },
-                                    complete = function terminal_server_create_readCallback_pageState_complete(fileName:string):void {
-                                        flag[fileName] = true;
-                                        if (flag.device === true && flag.messages === true && flag.settings === true && flag.user === true) {
-                                            response.write(appliedData());
-                                            response.end();
-                                        }
-                                    },
-                                    storageFiles = function terminal_server_create_readCallback_storageFiles(fileName:string):void {
-                                        vars.node.fs.stat(`${vars.projectPath}storage${vars.sep + fileName}.json`, function terminal_server_create_readFile_statSettings(erSettings:nodeError):void {
-                                            if (erSettings !== null) {
-                                                if (erSettings.code === "ENOENT") {
-                                                    complete(fileName);
-                                                } else {
-                                                    library.error([erSettings.toString()]);
-                                                    response.write(data);
-                                                    response.end();
-                                                }
-                                            } else {
-                                                vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep + fileName}.json`, "utf8", function terminal_server_create_readFile_statSettings(errSettings:Error, settings:string):void {
-                                                    if (errSettings !== null) {
-                                                        library.error([errSettings.toString()]);
-                                                        response.write(data);
-                                                        response.end();
-                                                    } else {
-                                                        list.push(`"${fileName}":${settings}`);
-                                                        complete(fileName);
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    },
-                                    list:string[] = [],
-                                    appliedData = function terminal_server_create_readCallback_appliedData():string {
-                                        const start:string = "<!--storage:-->",
-                                            startLength:number = data.indexOf(start) + start.length - 3,
-                                            dataString:string = (typeof data === "string")
-                                                ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}-->`)
+                                const appliedData = function terminal_server_create_readCallback_appliedData(storageData:storageItems):void {
+                                        const dataString:string = (typeof data === "string")
+                                                ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                                 : "";
-                                        return `${dataString.slice(0, startLength)}{${list.join(",").replace(/--/g, "&#x2d;&#x2d;")}}${dataString.slice(startLength)}`;
+                                        response.write(dataString);
+                                        response.end();
                                     };
+                                
                                 tool = true;
-                                storageFiles("device");
-                                storageFiles("messages");
-                                storageFiles("settings");
-                                storageFiles("user");
+                                library.readStorage(appliedData);
                             },
                             csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
                         if (localPath.indexOf(".js") === localPath.length - 3) {

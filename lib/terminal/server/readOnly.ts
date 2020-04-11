@@ -13,7 +13,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.deviceHash) && data.agent.indexOf("remoteUser") === 0);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.agentType !== "device" && data.agent !== serverVars.name && remoteUserTest === false) {console.log(data);
+    if (data.agentType !== "device" && data.agent !== serverVars.name && remoteUserTest === false) {
         const shares:deviceShares = (data.action === "fs-copy-file" && serverVars[data.copyType][data.copyAgent] !== undefined)
                 ? serverVars[data.copyType][data.copyAgent].shares
                 : serverVars[data.agentType][data.agent].shares,

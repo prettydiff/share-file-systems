@@ -216,7 +216,7 @@ import webSocket from "./lib/browser/webSocket.js";
             do {
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("storage:") === 0) {
-                    if (cString === "storage:{\"settings\":{},\"messages\":{},\"users\":{}}") {
+                    if (cString.indexOf("\"device\":{}") > 0) {
                         applyLogin();
                     } else {
                         storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));

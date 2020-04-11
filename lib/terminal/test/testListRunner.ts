@@ -163,16 +163,6 @@ const library = {
                         }()),
                         agent:string = testItem.command[keyword].agent,
                         command:string = (function test_testListRunner_service_command():string {
-                            if (testItem.command[keyword].agent !== undefined) {
-                                if (agent === serverVars.deviceHash) {
-                                    testItem.command[keyword].agent = serverVars.deviceHash;
-                                } else {
-                                    testItem.command[keyword].agent = `${testItem.command[keyword].agent}@[::1]:${services.serverRemote.port}`;
-                                }
-                            }
-                            if ((testItem.command[keyword].copyAgent !== undefined || testItem.command["fs-update-remote"] !== undefined) && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.deviceHash) {
-                                testItem.command[keyword].copyAgent = `${testItem.command[keyword].copyAgent}@[::1]:${services.serverRemote.port}`;
-                            }
                             if (keyword === "invite") {
                                 if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
                                     testItem.command.invite.port = services.serverRemote.port;
@@ -180,7 +170,7 @@ const library = {
                                     testItem.command.invite.port = services.serverLocal.port;
                                 }
                             }
-                            return JSON.stringify(testItem.command).replace(/remoteUser":/g, `remoteUser@[::1]:${services.serverRemote.port}":`);
+                            return JSON.stringify(testItem.command);
                         }()),
                         name:string = (testItem.name === undefined)
                             ? command

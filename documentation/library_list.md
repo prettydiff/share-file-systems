@@ -53,5 +53,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * **[../lib/terminal/utilities/log.ts](../lib/terminal/utilities/log.ts)**                                       - A log utility for displaying multiple lines of text to the terminal.
 * **[../lib/terminal/utilities/makeDir.ts](../lib/terminal/utilities/makeDir.ts)**                               - A utility for creating directories in the file system.
 * **[../lib/terminal/utilities/readFile.ts](../lib/terminal/utilities/readFile.ts)**                             - A utility to read files as text, if text, or as binary, if binary.
+* **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                       - Reads all the storage files and returns a data structure to a callback
 * **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                     - Globally available variables for the terminal utility.
 * **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                 - A tool to perform word wrap when printing text to the shell.
