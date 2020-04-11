@@ -75,7 +75,7 @@ network.hashDevice = function local_network_hashDevice(callback:Function):void {
 };
 
 /* generate a share to describe a new share from the local device */
-network.hashShare = function local_network_hashShare(configuration:shareHashConfiguration):void {
+network.hashShare = function local_network_hashShare(configuration:hashShareConfiguration):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_hashShare_callback():void {
             if (xhr.readyState === 4) {
@@ -91,7 +91,7 @@ network.hashShare = function local_network_hashShare(configuration:shareHashConf
                 }
             }
         },
-        payload:shareHash = {
+        payload:hashShare = {
             device: configuration.device,
             share: configuration.share,
             type: configuration.type

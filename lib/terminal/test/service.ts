@@ -1430,14 +1430,68 @@ services.addServers = function test_services_addServers(callback:Function):void 
             }
         };
     serverVars.brotli = 7;
-    serverVars.device = {};
+    serverVars.device = {
+        "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da": {
+            ip: "::1",
+            name: "test local device",
+            port: 80,
+            shares: {
+                "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
+                    execute: false,
+                    name: "C:\\mp3\\deviceLocal",
+                    readOnly: true,
+                    type: "directory"
+                },
+                "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b": {
+                    execute: false,
+                    name: "E:\\deviceLocal",
+                    readOnly: false,
+                    type: "directory"
+                },
+                "2772fe10a1f1efe6a34c01408dc6bf51fa43ba657c72cff9f77c02a96eb61490b995325330a1b954e1e8e6e55d87003840e65c223e1e465d1a30486dfdef1211": {
+                    execute: false,
+                    name: "C:\\deviceLocal\\notes.pdf",
+                    readOnly: true,
+                    type: "file"
+                }
+            }
+        },
+        "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
+            ip: "::1",
+            name: "test device laptop",
+            port: 80,
+            shares: {
+                "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
+                    execute: false,
+                    name: "C:\\mp3\\deviceLaptop",
+                    readOnly: true,
+                    type: "directory"
+                },
+                "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
+                    execute: false,
+                    name: "E:\\deviceLaptop",
+                    readOnly: false,
+                    type: "directory"
+                },
+                "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
+                    execute: false,
+                    name: "C:\\deviceLaptop\\notes.pdf",
+                    readOnly: true,
+                    type: "file"
+                }
+            }
+        }
+    };
     serverVars.hashDevice = "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da";
     serverVars.hashUser = "8aacedad1ca13c7e41a6cdc41b935d23484b58e35ef5b1ad9afaffe7ca338558a4fd5670e3270412a53608f56c854617191490d394dfeade683d220148d04013";
     serverVars.nameDevice = "test local device";
     serverVars.nameUser = "test local user";
     serverVars.user = {};
     services.serverLocal = server(completionLocal);
-    services.serverRemote = server(completionRemote);
+    services.serverRemote = {
+        device: {},
+        user: {}
+    };
 };
 
 export default services;

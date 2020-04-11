@@ -221,6 +221,27 @@ declare global {
         parent?: number;
         stat?: Stats | "stat";
     }
+    interface hashShare {
+        device: string;
+        share: string;
+        type: string;
+    }
+    interface hashShareConfiguration {
+        callback:(string) => void;
+        device: string;
+        share: string;
+        type: shareType;
+    }
+    interface hashShareResponse {
+        device: string;
+        hash: string;
+        share: string;
+        type: string;
+    }
+    interface hashUser {
+        device: string;
+        user: string;
+    }
     interface heartbeat {
         agent: string;
         shares: deviceShares | devices | "";
@@ -362,7 +383,7 @@ declare global {
     interface module_network {
         fs?: (localService, callback:Function, id?:string) => void;
         hashDevice?: (callback:Function) => void;
-        hashShare?: (configuration:shareHashConfiguration) => void;
+        hashShare?: (configuration:hashShareConfiguration) => void;
         heartbeat?: (status:"active"|"idle", share:boolean) => void;
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
@@ -528,23 +549,6 @@ declare global {
     interface sharesDeleteList extends EventHandlerNonNull {
         (event:MouseEvent, configuration?:ui_modal): void;
     }
-    interface shareHash {
-        device: string;
-        share: string;
-        type: string;
-    }
-    interface shareHashConfiguration {
-        callback:(string) => void;
-        device: string;
-        share: string;
-        type: shareType;
-    }
-    interface shareHashResponse {
-        device: string;
-        hash: string;
-        share: string;
-        type: string;
-    }
     interface shareUpdateConfiguration {
         agent:string;
         id?: string;
@@ -635,7 +639,14 @@ declare global {
         [index:number]: testServiceInstance;
         addServers?: (callback:Function) => void;
         serverLocal?: httpServer;
-        serverRemote?: httpServer;
+        serverRemote?: {
+            device: {
+                [key:string]: httpServer;
+            };
+            user: {
+                [key:string]: httpServer;
+            };
+        };
     }
     interface testServiceInstance {
         artifact?: string;
@@ -769,14 +780,6 @@ declare global {
         name: string;
         number: string;
         port: number;
-    }
-    interface versionKeys {
-        device: versionKeyPair;
-        user: versionKeyPair;
-    }
-    interface versionKeyPair {
-        private: string;
-        public: string;
     }
     interface watches {
         [key:string]: any;

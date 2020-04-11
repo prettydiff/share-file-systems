@@ -118,11 +118,11 @@ const library = {
                         response.end();
                     } else if (task === "hashShare") {
                         // * generate a hash string to name a share
-                        const shareHash:shareHash = JSON.parse(body).shareHash,
+                        const hashShare:hashShare = JSON.parse(body).hashShare,
                             input:hashInput = {
                                 callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
-                                    const outputBody:shareHash = JSON.parse(hashData.id).shareHash,
-                                        hashResponse:shareHashResponse = {
+                                    const outputBody:hashShare = JSON.parse(hashData.id).hashShare,
+                                        hashResponse:hashShareResponse = {
                                             device: outputBody.device,
                                             hash: hashData.hash,
                                             share: outputBody.share,
@@ -134,7 +134,7 @@ const library = {
                                 },
                                 directInput: true,
                                 id: body,
-                                source: shareHash.device + shareHash.share
+                                source: serverVars.hashUser + serverVars.hashDevice + hashShare.type + hashShare.share
                             };
                         library.hash(input);
                     } else if (task === "hashDevice") {
@@ -144,31 +144,27 @@ const library = {
                                 device: "",
                                 user: ""
                             },
-                            callback = function terminal_server_create_end_shareHash(hashData:hashOutput) {
-                                if (hashData.id === "device") {
+                            callbackUser = function terminal_server_create_end_hashUser(hashData:hashOutput) {
+                                const callbackDevice = function terminal_server_create_end_hashUser_hashDevice(hashData:hashOutput) {
                                     serverVars.hashDevice = hashData.hash;
                                     serverVars.nameDevice = nameData.device;
                                     hashes.device = hashData.hash;
-                                } else {
-                                    serverVars.hashUser = hashData.hash;
-                                    serverVars.nameUser = nameData.user;
-                                    hashes.user = hashData.hash;
-                                }
-                                if (hashes.device !== "" && hashes.user !== "") {
                                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                                     response.write(JSON.stringify(hashes));
                                     response.end();
-                                }
+                                };
+                                serverVars.hashUser = hashData.hash;
+                                serverVars.nameUser = nameData.user;
+                                hashes.user = hashData.hash;
+                                input.callback = callbackDevice;
+                                input.source = hashData.hash + nameData.device;
+                                library.hash(input);
                             },
                             input:hashInput = {
-                                callback: callback,
+                                callback: callbackUser,
                                 directInput: true,
-                                id: "device",
-                                source: nameData.device + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
+                                source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
                             };
-                        library.hash(input);
-                        input.id = "user";
-                        input.source = nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("");
                         library.hash(input);
                     } else if (task === "invite") {
                         // * Handle all stages of invitation

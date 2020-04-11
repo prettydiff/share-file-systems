@@ -248,9 +248,9 @@ share.context = function local_share_context():void {
         addressesLength:number = addresses.length,
         box:HTMLElement = util.getAncestor(element, "box", "class"),
         agent:agency = util.getAgent(box),
-        payload: shareHashConfiguration = {
+        payload: hashShareConfiguration = {
             callback: function local_share_context_shareHash1(responseBody:string):void {
-                const shareResponse:shareHashResponse = JSON.parse(responseBody).shareHashResponse;
+                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse;
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
