@@ -558,9 +558,9 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
 /* Create a file navigator modal */
 fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):void {
     const agentName:string = (config === undefined || config.agentName === undefined)
-            ? browser.data.deviceHash
+            ? browser.data.hashDevice
             : config.agentName,
-        agentType:agentType = (agentName === browser.data.deviceHash)
+        agentType:agentType = (agentName === browser.data.hashDevice)
             ? "device"
             : config.agentType,
         deviceName:string = (config === undefined || config.nameDevice === "")
@@ -569,11 +569,11 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         location:string = (config !== undefined && typeof config.path === "string")
             ? config.path
             : "defaultLocation",
-        readOnly:boolean = (agentName !== browser.data.deviceHash && config !== undefined && config.readOnly === true),
+        readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.readOnly === true),
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = (agentName === browser.data.deviceHash)
+        callback:Function = (agentName === browser.data.hashDevice)
             ? function local_fs_navigate_callbackSelf(responseText:string):void {
                 if (responseText === "") {
                     return;
@@ -627,12 +627,12 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             copyAgent: "",
             copyType: "device",
             depth: 2,
-            id: browser.data.deviceHash,
+            id: browser.data.hashDevice,
             location: [location],
             name: "",
             watch: "yes"
         };
-    if (agentName !== browser.data.deviceHash) {
+    if (agentName !== browser.data.hashDevice) {
         const payloadModal:ui_modal = {
             agent: agentName,
             agentType: agentType,

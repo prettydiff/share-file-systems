@@ -55,7 +55,13 @@ const library = {
                     const settings:ui_data = parsed.settings;
                     if (vars.command.indexOf("test") !== 0) {
                         serverVars.brotli = settings.brotli;
-                        serverVars.hash = settings.hash;
+                        serverVars.hashType = settings.hashType;
+                        if (serverVars.hashDevice === "") {
+                            serverVars.hashDevice = settings.hashDevice;
+                            serverVars.hashUser = settings.hashUser;
+                            serverVars.nameDevice = settings.nameDevice;
+                            serverVars.nameUser = settings.nameUser;
+                        }
                     }
                     rename();
                 } else {

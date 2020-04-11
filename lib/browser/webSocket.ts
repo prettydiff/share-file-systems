@@ -11,7 +11,7 @@ import util from "./util.js";
 const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
     close = function local_socketClose():void {
-        const device:HTMLElement = document.getElementById(browser.data.deviceHash);
+        const device:HTMLElement = document.getElementById(browser.data.hashDevice);
         title.setAttribute("class", "title offline");
         title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
         if (device !== null) {
@@ -62,7 +62,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     root = root + "\\";
                 }
                 do {
-                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.deviceHash) {
+                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.hashDevice) {
                         const box:HTMLElement = document.getElementById(modalKeys[a]),
                             body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
                             list:[HTMLElement, number, string] = fs.list(root, {
@@ -79,7 +79,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 if (a === keyLength) {
                     const payload:fileService = {
                         action: "fs-close",
-                        agent: browser.data.deviceHash,
+                        agent: browser.data.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -203,7 +203,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         }
     },
     open = function local_socketOpen():void {
-        const device:HTMLElement = document.getElementById(browser.data.deviceHash);
+        const device:HTMLElement = document.getElementById(browser.data.hashDevice);
         if (device !== null) {
             device.setAttribute("class", "active");
         }

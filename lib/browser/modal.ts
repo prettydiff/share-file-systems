@@ -136,7 +136,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     box.style.zIndex = browser.data.zIndex.toString();
     box.setAttribute("class", "box");
     if (options.agent === undefined) {
-        box.setAttribute("data-agent", browser.data.deviceHash);
+        box.setAttribute("data-agent", browser.data.hashDevice);
     } else {
         box.setAttribute("data-agent", options.agent);
     }
@@ -393,7 +393,7 @@ modal.export = function local_modal_export(event:MouseEvent):void {
     const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("export"))
-            ? [browser.data.deviceHash, false, "device"]
+            ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
         payload:ui_modal = {
             agent: agency[0],
@@ -897,7 +897,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
             : element.innerHTML,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("textPad"))
-            ? [browser.data.deviceHash, false, "device"]
+            ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
         payload:ui_modal = {
             agent: agency[0],

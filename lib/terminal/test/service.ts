@@ -29,7 +29,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-base64",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -81,7 +81,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-close",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -125,9 +125,9 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-copy",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
-                        copyAgent: serverVars.deviceHash,
+                        copyAgent: serverVars.hashDevice,
                         copyType: "device",
                         depth: 1,
                         id: "test-ID",
@@ -153,7 +153,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-copy",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "remoteDevice",
                         copyType: "device",
@@ -183,7 +183,7 @@ const //sep:string = vars.sep,
                         action: "fs-copy",
                         agent: "remoteDevice",
                         agentType: "device",
-                        copyAgent: serverVars.deviceHash,
+                        copyAgent: serverVars.hashDevice,
                         copyType: "device",
                         depth: 1,
                         id: "test-ID",
@@ -275,7 +275,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-details",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -331,7 +331,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-new",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -353,7 +353,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-new",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -419,7 +419,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-write",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -463,7 +463,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-read",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -515,7 +515,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-rename",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -528,7 +528,7 @@ const //sep:string = vars.sep,
                 },
                 name: "fs:fs-rename, Rename Local Directory",
                 qualifier: "is",
-                test: `Path ${projectPath}serviceTestLocal on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.`
+                test: `Path ${projectPath}serviceTestLocal on agent ${serverVars.hashDevice} renamed to ${projectPath}serviceLocal.`
             };
             return template;
         }()),
@@ -537,7 +537,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-rename",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -550,7 +550,7 @@ const //sep:string = vars.sep,
                 },
                 name: "fs:fs-rename, Rename Local File",
                 qualifier: "is",
-                test: `Path ${projectPath}serviceTestLocal.json on agent ${serverVars.deviceHash} renamed to ${projectPath}serviceLocal.json.`
+                test: `Path ${projectPath}serviceTestLocal.json on agent ${serverVars.hashDevice} renamed to ${projectPath}serviceLocal.json.`
             };
             return template;
         }()),
@@ -603,7 +603,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-destroy",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -616,7 +616,7 @@ const //sep:string = vars.sep,
                 },
                 name: "fs:fs-destroy, Destroy Local Directory",
                 qualifier: "is",
-                test: `Path(s) ${projectPath}serviceLocal destroyed on agent ${serverVars.deviceHash}.`
+                test: `Path(s) ${projectPath}serviceLocal destroyed on agent ${serverVars.hashDevice}.`
             };
             return template;
         }()),
@@ -625,7 +625,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-destroy",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -638,7 +638,7 @@ const //sep:string = vars.sep,
                 },
                 name: "fs:fs-destroy, Destroy Local File",
                 qualifier: "is",
-                test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent ${serverVars.deviceHash}.`
+                test: `Path(s) ${projectPath}serviceLocal.json destroyed on agent ${serverVars.hashDevice}.`
             };
             return template;
         }()),
@@ -691,7 +691,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-hash",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -743,7 +743,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-directory",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -765,7 +765,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-directory",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -831,7 +831,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-search",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -853,7 +853,7 @@ const //sep:string = vars.sep,
                 command: {
                     fs: {
                         action: "fs-search",
-                        agent: serverVars.deviceHash,
+                        agent: serverVars.hashDevice,
                         agentType: "device",
                         copyAgent: "",
                         copyType: "device",
@@ -942,15 +942,16 @@ const //sep:string = vars.sep,
                         color: "default",
                         colors: {
                             device: {
-                                [serverVars.deviceHash]: ["fff", "eee"]
+                                [serverVars.hashDevice]: ["fff", "eee"]
                             },
                             user: {}
                         },
-                        deviceHash: serverVars.deviceHash,
-                        hash: "sha3-512",
+                        hashDevice: serverVars.hashDevice,
+                        hashType: "sha3-512",
+                        hashUser: serverVars.hashUser,
                         modals: {
                             "systems-modal": {
-                                agent: serverVars.deviceHash,
+                                agent: serverVars.hashDevice,
                                 agentType: "device",
                                 content: null,
                                 inputs: [
@@ -1011,12 +1012,12 @@ const //sep:string = vars.sep,
             const template:testTemplateDevice = {
                 command: {
                     device: {
-                        [serverVars.deviceHash]: {
+                        [serverVars.hashDevice]: {
                             ip: "::1",
                             name: "local device name",
                             port: 80,
                             shares: {
-                                [serverVars.deviceHash]: {
+                                [serverVars.hashDevice]: {
                                     execute: false,
                                     name: "C:\\mp3",
                                     readOnly: false,
@@ -1036,12 +1037,12 @@ const //sep:string = vars.sep,
             const template:testTemplateUser = {
                 command: {
                     user: {
-                        [serverVars.deviceHash]: {
+                        [serverVars.hashDevice]: {
                             ip: "::1",
                             name: "remote user name",
                             port: 80,
                             shares: {
-                                [serverVars.deviceHash]: {
+                                [serverVars.hashDevice]: {
                                     execute: false,
                                     name: "C:\\movies",
                                     readOnly: false,
@@ -1062,7 +1063,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1070,7 +1071,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1101,7 +1102,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-request",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1109,7 +1110,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1140,7 +1141,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-response",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1148,7 +1149,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1179,7 +1180,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-response",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1187,7 +1188,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1218,7 +1219,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-response",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1226,7 +1227,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1257,7 +1258,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-response",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1265,7 +1266,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1296,7 +1297,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-complete",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1304,7 +1305,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1335,7 +1336,7 @@ const //sep:string = vars.sep,
                 command: {
                     invite: {
                         action: "invite-complete",
-                        deviceHash: serverVars.deviceHash,
+                        deviceHash: serverVars.hashDevice,
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
@@ -1343,7 +1344,7 @@ const //sep:string = vars.sep,
                         modal: "test-modal",
                         port: 80,
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1375,7 +1376,7 @@ const //sep:string = vars.sep,
                     heartbeat: {
                         agent: "remoteUser",
                         shares: {
-                            [serverVars.deviceHash]: {
+                            [serverVars.hashDevice]: {
                                 ip: "::1",
                                 name: "old desktop computer",
                                 port: 80,
@@ -1391,7 +1392,7 @@ const //sep:string = vars.sep,
                         },
                         status: "active",
                         type: "device",
-                        user: serverVars.deviceHash
+                        user: serverVars.hashDevice
                     }
                 },
                 name: "heartbeat, Local to Remote",
@@ -1402,7 +1403,7 @@ const //sep:string = vars.sep,
                         shares: {},
                         status: "idle",
                         type: "device",
-                        user: serverVars.name
+                        user: serverVars.nameUser
                     }
                 }
             };
@@ -1411,7 +1412,6 @@ const //sep:string = vars.sep,
         // todo: fs - readonly tests
         // todo: user tests
     ];
-
 services.addServers = function test_services_addServers(callback:Function):void {
     const flag:serviceFlags = {
             local: false,
@@ -1429,6 +1429,13 @@ services.addServers = function test_services_addServers(callback:Function):void 
                 callback();
             }
         };
+    serverVars.brotli = 7;
+    serverVars.device = {};
+    serverVars.hashDevice = "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da";
+    serverVars.hashUser = "8aacedad1ca13c7e41a6cdc41b935d23484b58e35ef5b1ad9afaffe7ca338558a4fd5670e3270412a53608f56c854617191490d394dfeade683d220148d04013";
+    serverVars.nameDevice = "test local device";
+    serverVars.nameUser = "test local user";
+    serverVars.user = {};
     services.serverLocal = server(completionLocal);
     services.serverRemote = server(completionRemote);
 };

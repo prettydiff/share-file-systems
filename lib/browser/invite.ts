@@ -17,7 +17,7 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
         invitation:invite = JSON.parse(dataString).invite,
         payload:invite = {
             action: "invite-response",
-            deviceHash: browser.data.deviceHash,
+            deviceHash: browser.data.hashDevice,
             deviceName: browser.data.nameDevice,
             ip: invitation.ip,
             message: `Invite accepted: ${util.dateFormat(new Date())}`,
@@ -48,7 +48,7 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
         invitation:invite = JSON.parse(dataString).invite,
         payload:invite = {
             action: "invite-response",
-            deviceHash: browser.data.deviceHash,
+            deviceHash: browser.data.hashDevice,
             deviceName: browser.data.nameDevice,
             message: `Invite declined: ${util.dateFormat(new Date())}`,
             name: browser.data.nameUser,
@@ -177,7 +177,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
         footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
         inviteData:invite = {
             action: "invite",
-            deviceHash: browser.data.deviceHash,
+            deviceHash: browser.data.hashDevice,
             deviceName: browser.data.nameDevice,
             ip: ip,
             message: box.getElementsByTagName("textarea")[0].value,
@@ -236,7 +236,7 @@ invite.respond = function local_invite_respond(message:string):void {
             devices:string[] = Object.keys(browser.device),
             payloadInvite:invite = {
                 action: "invite-response",
-                deviceHash: browser.data.deviceHash,
+                deviceHash: browser.data.hashDevice,
                 deviceName: browser.data.nameDevice,
                 ip: invitation.ip,
                 message: `Invite accepted: ${util.dateFormat(new Date())}`,
@@ -252,7 +252,7 @@ invite.respond = function local_invite_respond(message:string):void {
                 userName: ""
             },
             payloadModal:ui_modal = {
-                agent: browser.data.deviceHash,
+                agent: browser.data.hashDevice,
                 agentType: "device",
                 content: div,
                 height: 300,
@@ -461,7 +461,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
     inviteElement.setAttribute("class", "inviteUser");
     if (settings === undefined) {
         const payload:ui_modal = {
-            agent: browser.data.deviceHash,
+            agent: browser.data.hashDevice,
             agentType: "device",
             content: inviteElement,
             height: 550,

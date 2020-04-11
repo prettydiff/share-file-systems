@@ -10,10 +10,10 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
             ? [data.name]
             : data.location,
-        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.deviceHash) && data.agent.indexOf("remoteUser") === 0);
+        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.agentType !== "device" && data.agent !== serverVars.name && remoteUserTest === false) {
+    if (data.agentType !== "device" && data.agent !== serverVars.hashUser && remoteUserTest === false) {
         const shares:deviceShares = (data.action === "fs-copy-file" && serverVars[data.copyType][data.copyAgent] !== undefined)
                 ? serverVars[data.copyType][data.copyAgent].shares
                 : serverVars[data.agentType][data.agent].shares,
@@ -22,7 +22,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         let dIndex:number = location.length,
             sIndex:number = Object.keys(shares).length,
             bestMatch:number = -1;
-        if (data.copyAgent === serverVars.deviceHash && data.copyType === "device") {
+        if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
             readOnly.push("fs-copy-file");
         }
         if (sIndex > 0) {
@@ -55,7 +55,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             return;
         }
     }
-    if (location.length > 0 || data.agent === serverVars.deviceHash || data.agent === serverVars.name) {
+    if (location.length > 0 || data.agent === serverVars.hashDevice || data.agent === serverVars.hashUser) {
         fileService(response, data);
     } else {
         response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});

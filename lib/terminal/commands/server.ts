@@ -139,16 +139,36 @@ const library = {
                         library.hash(input);
                     } else if (task === "hashDevice") {
                         // * produce a hash that describes a new device
-                        const input:hashInput = {
-                            callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
-                                serverVars.deviceHash = hashData.hash;
-                                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                response.write(JSON.stringify({deviceHash:hashData.hash}));
-                                response.end();
+                        const nameData:hashUser = JSON.parse(body).hashDevice,
+                            hashes:hashUser = {
+                                device: "",
+                                user: ""
                             },
-                            directInput: true,
-                            source: serverVars.deviceName + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
-                        };
+                            callback = function terminal_server_create_end_shareHash(hashData:hashOutput) {
+                                if (hashData.id === "device") {
+                                    serverVars.hashDevice = hashData.hash;
+                                    serverVars.nameDevice = nameData.device;
+                                    hashes.device = hashData.hash;
+                                } else {
+                                    serverVars.hashUser = hashData.hash;
+                                    serverVars.nameUser = nameData.user;
+                                    hashes.user = hashData.hash;
+                                }
+                                if (hashes.device !== "" && hashes.user !== "") {
+                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                    response.write(JSON.stringify(hashes));
+                                    response.end();
+                                }
+                            },
+                            input:hashInput = {
+                                callback: callback,
+                                directInput: true,
+                                id: "device",
+                                source: nameData.device + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
+                            };
+                        library.hash(input);
+                        input.id = "user";
+                        input.source = nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("");
                         library.hash(input);
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
@@ -321,9 +341,9 @@ const library = {
                             readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {
                                 serverVars.brotli = storageData.settings.brotli;
                                 serverVars.device = storageData.device;
-                                serverVars.deviceHash = storageData.settings.deviceHash;
-                                serverVars.hash = storageData.settings.hash;
-                                serverVars.name = storageData.settings.nameUser;
+                                serverVars.hashDevice = storageData.settings.hashDevice;
+                                serverVars.hashType = storageData.settings.hashType;
+                                serverVars.nameUser = storageData.settings.nameUser;
                                 serverVars.user = storageData.user;
                                 if (serverCallback !== undefined) {
                                     // A callback can be passed in, so far only used for running service tests.

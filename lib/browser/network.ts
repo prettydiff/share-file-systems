@@ -58,15 +58,20 @@ network.hashDevice = function local_network_hashDevice(callback:Function):void {
                     };
                     systems.message("errors", JSON.stringify(error));
                 } else {
-                    callback(JSON.parse(xhr.responseText).deviceHash);
+                    const hashes:hashUser = JSON.parse(xhr.responseText);
+                    callback(hashes);
                 }
             }
+        },
+        hashes:hashUser = {
+            device: browser.data.nameDevice,
+            user: browser.data.nameUser
         };
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send(JSON.stringify({hashDevice:""}));
+    xhr.send(JSON.stringify({hashDevice:hashes}));
 };
 
 /* generate a share to describe a new share from the local device */

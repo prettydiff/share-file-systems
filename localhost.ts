@@ -47,15 +47,16 @@ import webSocket from "./lib/browser/webSocket.js";
                             } else {
                                 browser.data.nameUser = nameUser.value;
                                 browser.data.nameDevice = nameDevice.value;
-                                network.hashDevice(function local_restore_applyLogin_action_hash(hash:string) {
-                                    browser.data.deviceHash = hash;
-                                    browser.device[hash] = {
+                                network.hashDevice(function local_restore_applyLogin_action_hash(hashes:hashUser) {
+                                    browser.data.hashDevice = hashes.device;
+                                    browser.data.hashUser = hashes.user;
+                                    browser.device[hashes.device] = {
                                         ip: browser.localNetwork.ip,
                                         name: nameUser.value,
                                         port: browser.localNetwork.httpPort,
                                         shares: {}
                                     };
-                                    browser.data.colors.device[hash] = ["fff", "eee"];
+                                    browser.data.colors.device[hashes.device] = settings.colorScheme[browser.data.color];
                                     browser.pageBody.removeAttribute("class");
                                     browser.loadTest = false;
                                     network.storage("device");
@@ -113,7 +114,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             util.formKeys(event, util.login);
                         },
                         payloadModal:ui_modal = {
-                            agent: browser.data.deviceHash,
+                            agent: browser.data.hashDevice,
                             agentType: "device",
                             content: null,
                             read_only: false,
@@ -129,12 +130,12 @@ import webSocket from "./lib/browser/webSocket.js";
                         allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
                     let a:number = 0;
 
-                    if (browser.data.deviceHash === "") {
+                    if (browser.data.hashDevice === "") {
                         // Terminate load completion dependent upon creation of device hash
                         return;
                     }
 
-                    localDevice = document.getElementById(browser.data.deviceHash);
+                    localDevice = document.getElementById(browser.data.hashDevice);
 
                     do {
                         loginInputs[a].onkeyup = login;
@@ -163,7 +164,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     // watch for local idleness
                     document.onclick = activate;
 
-                    if (browser.data.deviceHash !== "") {
+                    if (browser.data.hashDevice !== "") {
                         // building logging utility (systems log)
                         if (document.getElementById("systems-modal") === null) {
                             payloadModal.content = systems.modalContent();
@@ -269,7 +270,8 @@ import webSocket from "./lib/browser/webSocket.js";
                             restoreShares("user");
                             browser.data.nameUser = storage.settings.nameUser;
                             browser.data.nameDevice = storage.settings.nameDevice;
-                            browser.data.deviceHash = storage.settings.deviceHash;
+                            browser.data.hashDevice = storage.settings.hashDevice;
+                            browser.data.hashUser = storage.settings.hashUser;
 
                             if (modalKeys.length < 1) {
                                 loadComplete();
@@ -341,7 +343,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 textValue:string = files[0].getAttribute("title");
                                             files[0].removeAttribute("title");
                                             if (responseText !== "") {
-                                                if (agent === browser.data.deviceHash) {
+                                                if (agent === browser.data.hashDevice) {
                                                     callbackLocal(id, files, textValue);
                                                 } else {
                                                     callbackRemote(id, files);
@@ -383,7 +385,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                             selection(value);
                                         });
                                         z(value);
-                                    } else if (agent === browser.data.deviceHash) {
+                                    } else if (agent === browser.data.hashDevice) {
                                         network.fs(payload, callback);
                                     } else {
                                         const delay:HTMLElement = util.delay();
@@ -438,7 +440,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "settings") {
                                     browser.data.brotli = storage.settings.brotli;
-                                    browser.data.hash = storage.settings.hash;
+                                    browser.data.hashType = storage.settings.hashType;
                                     storage.settings.modals[value].content = settings.modalContent();
                                     modal.create(storage.settings.modals[value]);
                                     const settingsModal:HTMLElement = document.getElementById("settings-modal"),

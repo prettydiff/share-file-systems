@@ -84,14 +84,16 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
-                "agent-name": serverVars.name,
+                "agent-hash": serverVars.hashUser,
+                "agent-name": serverVars.nameUser,
                 "agent-type": config.agentType,
                 "remote-user": config.remoteName
             }
             : {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
-                "agent-name": serverVars.name,
+                "agent-hash": serverVars.hashUser,
+                "agent-name": serverVars.nameUser,
                 "agent-type": config.agentType,
                 "remote-user": config.remoteName,
                 "invite": invite

@@ -44,7 +44,7 @@ share.addAgent = function local_share_addAgent(agentName:string, id:string, type
     let a:number = 0,
         shareUser:HTMLElement;
     button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${agentName}`;
-    if (id === browser.data.deviceHash) {
+    if (id === browser.data.hashDevice) {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
@@ -103,7 +103,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                     ? browser.device[agent].name
                     : "",
                 path: address,
-                readOnly: (agent !== browser.data.deviceHash && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
+                readOnly: (agent !== browser.data.hashDevice && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
             });
         },
         shareButton = function local_share_content_shareButton(shareButton:shareButton):HTMLElement {
@@ -311,7 +311,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         names:string[] = Object.keys(users),
         length:number = names.length,
         payloadModal:ui_modal = {
-            agent: browser.data.deviceHash,
+            agent: browser.data.hashDevice,
             agentType: "device",
             content: content,
             inputs: (length > 1)
@@ -333,7 +333,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         p.innerHTML = "<strong>Please be warned that confirming this change is permanent.</strong> The user will be deleted from your devices and you from theirs.";
         ul.setAttribute("class", "sharesDeleteList");
         do {
-            if (names[a] !== browser.data.deviceHash) {
+            if (names[a] !== browser.data.hashDevice) {
                 li = document.createElement("li");
                 label = document.createElement("label");
                 input = document.createElement("input");
@@ -357,7 +357,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         modal.create(payloadModal);
         network.storage("settings");
     } else {
-        configuration.agent = browser.data.deviceHash;
+        configuration.agent = browser.data.hashDevice;
         configuration.content = content;
         if (length > 1) {
             configuration.inputs = ["confirm", "cancel", "close"];
@@ -656,7 +656,7 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
                     b = b + 1;
                 } while (b < shareLength);
                 if (shareBest > -1) {
-                    if (browser.data.modals[box.getAttribute("id")].agent !== browser.data.deviceHash) {
+                    if (browser.data.modals[box.getAttribute("id")].agent !== browser.data.hashDevice) {
                         if (configuration.shares[shareBest].readOnly === true) {
                             titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
                             title.innerHTML = titleText;

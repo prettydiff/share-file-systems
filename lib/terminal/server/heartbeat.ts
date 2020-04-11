@@ -39,10 +39,10 @@ const library = {
                     shares: library.deviceShare(serverVars.device),
                     status: data.status,
                     type: "user",
-                    user: serverVars.name
+                    user: serverVars.hashUser
                 },
                 heartbeatError:heartbeat = {
-                    agent: serverVars.name,
+                    agent: serverVars.hashUser,
                     shares: "",
                     status: "offline",
                     type: "user",
@@ -139,7 +139,7 @@ const library = {
                 data.shares = "";
             }
             data.user = data.agent;
-            data.agent = serverVars.name;
+            data.agent = serverVars.hashUser;
             data.shares = (data.type === "user")
                 ? library.deviceShare(serverVars.device)
                 : serverVars.device;

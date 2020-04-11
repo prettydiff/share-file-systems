@@ -60,7 +60,7 @@ const library = {
                             "file-list-status": copyStatus
                         })
                     : message;
-                if (data.agent === serverVars.deviceHash) {
+                if (data.agent === serverVars.hashDevice) {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(payload);
                     response.end();
@@ -103,14 +103,14 @@ const library = {
                             a = a + 1;
                         } while (a < length);
                         if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
-                            store["agent"] = serverVars.deviceHash;
+                            store["agent"] = serverVars.hashDevice;
                             store["agentType"] = "device";
                             store["copyAgent"] = data.agent;
                             store["copyType"] = data.agentType;
                         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
-                            store["agent"] = serverVars.name;
+                            store["agent"] = serverVars.hashUser;
                         }
-                        if (data.action === "fs-directory" && data.agent !== serverVars.deviceHash) {
+                        if (data.action === "fs-directory" && data.agent !== serverVars.hashDevice) {
                             store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                         }
                         return JSON.stringify({
@@ -150,7 +150,7 @@ const library = {
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
                     serverVars.watches[value].time = Date.now();
-                    if (data.agent === serverVars.deviceHash) {
+                    if (data.agent === serverVars.hashDevice) {
                         fsUpdateLocal(value);
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
@@ -527,7 +527,7 @@ const library = {
                             ? writeStream
                             : fileRequestCallback;
                         data.depth = fileData.list[a][3];
-                        if (data.copyAgent !== serverVars.deviceHash) {
+                        if (data.copyAgent !== serverVars.hashDevice) {
                             const status:completeStatus = {
                                 countFile: countFile,
                                 failures: hashFail.length,
@@ -621,14 +621,14 @@ const library = {
                     library.copy(copyConfig);
                 });
             };
-        if (data.agent !== serverVars.deviceHash && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
+        if (data.agent !== serverVars.hashDevice && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
             httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                 response.write(responseBody);
                 response.end();
             }, `Error requesting ${data.action} from remote.`, "body");
         } else if (data.action === "fs-directory" || data.action === "fs-details") {
-            if (data.agent === serverVars.deviceHash || (data.agent !== serverVars.deviceHash && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+            if (data.agent === serverVars.hashDevice || (data.agent !== serverVars.hashDevice && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                 const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                         count = count + 1;
                         if (result.length > 0) {
@@ -808,8 +808,8 @@ const library = {
             }
             fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
-            if (data.agent === serverVars.deviceHash) {
-                if (data.copyAgent === serverVars.deviceHash && data.copyType === "device") {
+            if (data.agent === serverVars.hashDevice) {
+                if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                     // * data.agent === local
                     // * data.copyAgent === local
                     copySameAgent();
@@ -837,7 +837,7 @@ const library = {
                     };
                     remoteCopyList(listData);
                 }
-            } else if (data.copyAgent === serverVars.deviceHash && data.copyType === "device") {
+            } else if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                 // data.agent === remote
                 // data.copyAgent === local
                 data.action = <serviceType>`${data.action}-list`;
@@ -960,7 +960,7 @@ const library = {
                     count = count + 1;
                     if (count === data.location.length) {
                         const agent:string = (data.copyAgent === "")
-                                ? serverVars.deviceHash
+                                ? serverVars.hashDevice
                                 : data.copyAgent,
                             type:agentType = (data.copyAgent === "")
                                 ? "device"
@@ -976,7 +976,7 @@ const library = {
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
                 if (erRename === null) {
                     const agent:string = (data.copyAgent === "")
-                            ? serverVars.deviceHash
+                            ? serverVars.hashDevice
                             : data.copyAgent,
                         type:agentType = (data.copyAgent === "")
                             ? "device"
@@ -1031,7 +1031,7 @@ const library = {
                     source: ""
                 },
                 hashInput:hashInput = {
-                    algorithm: serverVars.hash,
+                    algorithm: serverVars.hashType,
                     callback: callback,
                     directInput: false,
                     id: "",
@@ -1108,7 +1108,7 @@ const library = {
         } else if (data.action === "fs-write") {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
                 const agent:string = (data.copyAgent === "")
-                        ? serverVars.deviceHash
+                        ? serverVars.hashDevice
                         : data.copyAgent,
                     type:agentType = (data.copyAgent === "")
                         ? "device"

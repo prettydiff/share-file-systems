@@ -501,15 +501,14 @@ declare global {
     interface serverVars {
         addresses: [[string, string, string][], number];
         brotli: brotli;
-        deviceHash: string;
-        deviceName: string;
         device: devices;
-        hash: hash;
-        name: string;
-        socketReceiver: any;
-        socketList: any;
+        hashDevice: string;
+        hashType: hash;
+        hashUser: string;
+        nameDevice: string;
+        nameUser: string;
         status: heartbeatStatus;
-        timeStore:number;
+        timeStore: number;
         user: devices;
         watches: {
             [key:string]: FSWatcher;
@@ -634,7 +633,7 @@ declare global {
     }
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
-        addServers?: Function;
+        addServers?: (callback:Function) => void;
         serverLocal?: httpServer;
         serverRemote?: httpServer;
     }
@@ -718,8 +717,9 @@ declare global {
         brotli: brotli;
         color: colorScheme;
         colors: colors;
-        deviceHash: string;
-        hash: hash;
+        hashDevice: string;
+        hashType: hash;
+        hashUser: string;
         modals: {
             [key:string]: ui_modal;
         };

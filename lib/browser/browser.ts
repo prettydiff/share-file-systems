@@ -10,8 +10,9 @@ const browser:browser = {
             device: {},
             user: {}
         },
-        deviceHash: "",
-        hash: "sha3-512",
+        hashDevice: "",
+        hashType: "sha3-512",
+        hashUser: "",
         modals: {},
         modalTypes: [],
         nameDevice: "",

@@ -26,8 +26,9 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
                         device: {},
                         user: {}
                     },
-                    deviceHash: "",
-                    hash: "sha3-512",
+                    hashDevice: "",
+                    hashType: "sha3-512",
+                    hashUser: "",
                     modals: {},
                     modalTypes: [],
                     nameDevice: "",

@@ -287,7 +287,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
         do {
             option = document.createElement("option");
             option.innerHTML = hashes[a];
-            if (browser.data.hash === hashes[a]) {
+            if (browser.data.hashType === hashes[a]) {
                 option.selected = true;
             }
             select.appendChild(option);
@@ -442,7 +442,7 @@ settings.text = function local_settings_text(event:KeyboardEvent):void {
             element.value = Math.floor(numb).toString();
             browser.data.brotli = <brotli>Math.floor(numb);
         } else if (parentText.indexOf("hash") > 0) {
-            browser.data.hash = <hash>element.value;
+            browser.data.hashType = <hash>element.value;
         }
         network.storage("settings");
     }

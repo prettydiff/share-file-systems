@@ -12,6 +12,7 @@ import service from "./service.js";
 import simulation from "./simulation.js";
 import services from "./service.js";
 
+
 import serverVars from "../server/serverVars.js";
 
 // runs various tests of different types
@@ -175,13 +176,13 @@ const library = {
                         name:string = (testItem.name === undefined)
                             ? command
                             : testItem.name,
-                        header:http.OutgoingHttpHeaders = (agent === serverVars.deviceHash || agent === undefined)
+                        header:http.OutgoingHttpHeaders = (agent === serverVars.hashDevice || agent === undefined)
                             ? {
                                 "content-type": "application/x-www-form-urlencoded",
                                 "content-length": Buffer.byteLength(command),
                                 "agent-name": "localUser",
                                 "agent-type": "device",
-                                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.deviceHash)
+                                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.hashDevice)
                                     ? testItem.command[keyword].copyAgent
                                     : "localUser"
                             }
@@ -197,7 +198,7 @@ const library = {
                             host: "::1",
                             method: "POST",
                             path: "/",
-                            port: (testItem.command.agent === serverVars.deviceHash)
+                            port: (testItem.command.agent === serverVars.hashDevice)
                                 ? services.serverLocal.port
                                 : services.serverRemote.port,
                             timeout: 1000
@@ -304,39 +305,14 @@ const library = {
             library.log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
 
-        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}settings.json`, "utf8", function terminal_server_start_listen_readUsers_readSettings(ers:nodeError, settingString:string):void {
-            if (ers !== null) {
-                if (ers.code !== "ENOENT") {
-                    library.log([ers.toString()]);
-                }
-            } else {
-                const settings:ui_data = JSON.parse(settingString);
-                serverVars.brotli = settings.brotli;
-                serverVars.deviceHash = settings.deviceHash;
-                serverVars.hash = settings.hash;
-                serverVars.name = settings.nameUser;
-            }
-            if (serverVars.deviceHash === "") {
-                vars.node.fs.readFile();
-                callback([
-                    `${vars.text.angry}This device does not yet have an identified device hash.${vars.text.none}`,
-                    `${vars.text.underline}To create a device hash execute the application one time with these steps:${vars.text.none}`,
-                    "1. On the terminal execute the command: `node js/application server`",
-                    "2. Open a web browser to address `localhost`.",
-                    "3. Fill out the initial form data for user name and device name."
-                ].join(vars.node.os.EOL));
-                return;
-            }
-    
-            if (testListType === "service") {
-                const service:testServiceArray = <testServiceArray>tests;
-                service.addServers(function test_testListRunner_serviceCallback():void {
-                    execution.service();
-                });
-            } else {
-                execution[testListType]();
-            }
-        });
+        if (testListType === "service") {
+            const service:testServiceArray = <testServiceArray>tests;
+            service.addServers(function test_testListRunner_serviceCallback():void {
+                execution.service();
+            });
+        } else {
+            execution[testListType]();
+        }
     };
 
 export default testListRunner;
