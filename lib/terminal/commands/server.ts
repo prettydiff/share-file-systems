@@ -144,20 +144,20 @@ const library = {
                                 device: "",
                                 user: ""
                             },
-                            callbackUser = function terminal_server_create_end_hashUser(hashData:hashOutput) {
-                                const callbackDevice = function terminal_server_create_end_hashUser_hashDevice(hashData:hashOutput) {
-                                    serverVars.hashDevice = hashData.hash;
+                            callbackUser = function terminal_server_create_end_hashUser(hashUser:hashOutput) {
+                                const callbackDevice = function terminal_server_create_end_hashUser_hashDevice(hashDevice:hashOutput) {
+                                    serverVars.hashDevice = hashDevice.hash;
                                     serverVars.nameDevice = nameData.device;
-                                    hashes.device = hashData.hash;
+                                    hashes.device = hashDevice.hash;
                                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                                     response.write(JSON.stringify(hashes));
                                     response.end();
                                 };
-                                serverVars.hashUser = hashData.hash;
+                                serverVars.hashUser = hashUser.hash;
                                 serverVars.nameUser = nameData.user;
-                                hashes.user = hashData.hash;
+                                hashes.user = hashUser.hash;
                                 input.callback = callbackDevice;
-                                input.source = hashData.hash + nameData.device;
+                                input.source = hashUser.hash + nameData.device;
                                 library.hash(input);
                             },
                             input:hashInput = {

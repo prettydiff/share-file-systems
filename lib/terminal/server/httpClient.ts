@@ -32,7 +32,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             },
         requestError = (config.id === "heartbeat")
             ? function terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
-                config.requestError(errorMessage, config.remoteName);
+                config.requestError(errorMessage, config.remoteName, config.agentType);
             }
             : (config.requestError === undefined)
                 ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
@@ -63,7 +63,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 : config.requestError,
         responseError = (config.id === "heartbeat")
             ? function terminal_server_httpClient_responseErrorHeartbeat(errorMessage:nodeError):void {
-                config.requestError(errorMessage, config.remoteName);
+                config.requestError(errorMessage, config.remoteName, config.agentType);
             }
             : (config.responseError === undefined)
                 ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {

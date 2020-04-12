@@ -247,7 +247,7 @@ const library = {
                 };
             hash.update(input.source);
             hashOutput.hash = hash.digest("hex");
-            input.callback();
+            input.callback(hashOutput);
             return;
         }
         if (http.test(<string>input.source) === true) {

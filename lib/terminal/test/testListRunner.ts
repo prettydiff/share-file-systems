@@ -2,6 +2,8 @@
 /* lib/terminal/test/testListRunner - A test runner. */
 import * as http from "http";
 
+import agents from "../../common/agents.js";
+
 import error from "../utilities/error.js";
 import humanTime from "../utilities/humanTime.js";
 import log from "../utilities/log.js";
@@ -17,6 +19,7 @@ import serverVars from "../server/serverVars.js";
 
 // runs various tests of different types
 const library = {
+        agents: agents,
         error: error,
         humanTime: humanTime,
         log: log,
@@ -157,7 +160,7 @@ const library = {
             },
             execution:methodList = {
                 service: function test_testListRunner_service():void {
-                    const testItem:testServiceInstance = <testServiceInstance>tests[a],
+                    /*const testItem:testServiceInstance = <testServiceInstance>tests[a],
                         keyword:string = (function test_testListRunner_service_keyword():string {
                             const words:string[] = Object.keys(testItem.command);
                             return words[0];
@@ -219,7 +222,7 @@ const library = {
                     request.write(command);
                     setTimeout(function test_testListRunner_service_callback_delay():void {
                         request.end();
-                    }, 100);
+                    }, 100);*/
                 },
                 simulation: function test_testListRunner_simulation():void {
                     vars.node.child(`${vars.version.command} ${tests[a].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_testListRunner_simulation_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
@@ -249,8 +252,8 @@ const library = {
                         } else {
                             if (testListType === "service") {
                                 const services:testServiceArray = <testServiceArray>tests;
-                                services.serverLocal.close();
-                                services.serverRemote.close();
+                                //services.serverLocal.close();
+                                //services.serverRemote.close();
                             }
                             library.log(["", ""]);
                             if (fail > 0) {

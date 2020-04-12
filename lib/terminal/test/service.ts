@@ -1487,11 +1487,13 @@ services.addServers = function test_services_addServers(callback:Function):void 
     serverVars.nameDevice = "test local device";
     serverVars.nameUser = "test local user";
     serverVars.user = {};
-    services.serverLocal = server(completionLocal);
     services.serverRemote = {
         device: {},
         user: {}
     };
+    {
+        
+    }
 };
 
 export default services;

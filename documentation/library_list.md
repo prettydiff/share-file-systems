@@ -14,6 +14,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * **[../lib/browser/systems.ts](../lib/browser/systems.ts)**                                                     - The systems messaging utility is managed by these methods.
 * **[../lib/browser/util.ts](../lib/browser/util.ts)**                                                           - Miscellaneous tools for the browser environment.
 * **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
+* **[../lib/common/agents.ts](../lib/common/agents.ts)**                                                         - Traverses the list of agents, devices and users, and performs an action on each as dictated by a callback
 * **[../lib/common/commas.ts](../lib/common/commas.ts)**                                                         - Converts numbers into a string of comma separated triplets.
 * **[../lib/common/deviceShare.ts](../lib/common/deviceShare.ts)**                                               - Converts the local device list into a flattened object of shares for remote users.
 * **[../lib/common/prettyBytes.ts](../lib/common/prettyBytes.ts)**                                               - Rounds data sizes to human readable powers of 1024.

@@ -56,7 +56,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         port: browser.localNetwork.httpPort,
                                         shares: {}
                                     };
-                                    browser.data.colors.device[hashes.device] = settings.colorScheme[browser.data.color];
+                                    share.addAgent(nameUser.value, hashes.device, "device");
                                     browser.pageBody.removeAttribute("class");
                                     browser.loadTest = false;
                                     network.storage("device");

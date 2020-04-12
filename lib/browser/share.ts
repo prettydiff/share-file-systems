@@ -21,6 +21,7 @@ share.addAgent = function local_share_addAgent(agentName:string, id:string, type
                 body = settings.colorDefaults[browser.data.color][0];
                 heading = settings.colorDefaults[browser.data.color][1];
                 browser.data.colors[type][id] = [body, heading];
+                network.storage("settings");
             } else {
                 body = browser.data.colors[type][id][0];
                 heading = browser.data.colors[type][id][1];
@@ -48,8 +49,8 @@ share.addAgent = function local_share_addAgent(agentName:string, id:string, type
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
-        addStyle();
     }
+    addStyle();
     button.setAttribute("id", id);
     button.setAttribute("data-agent-type", type);
     button.onclick = sharesModal;

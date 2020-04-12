@@ -7,6 +7,7 @@ declare global {
     type agency = [string, boolean, agentType];
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
+    type color = [string, string];
     type colorScheme = "dark" | "default";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
     type directoryMode = "hash" | "list" | "read" | "search";
@@ -31,6 +32,23 @@ declare global {
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
+    interface agentCounts {
+        count: number;
+        total: number;
+    }
+    interface agentsConfiguration {
+        complete?: (counts:agentCounts) => void;
+        countBy: "agent" | "agentType" | "share";
+        perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
+        perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
+        perShare?: (agentNames:agentNames, counts:agentCounts) => void;
+        source: browser | serverVars;
+    }
+    interface agentNames {
+        agent?: string;
+        agentType: agentType;
+        share?: string;
+    }
     interface agents {
         device: string[];
         user: string[];
@@ -77,11 +95,8 @@ declare global {
         id: string;
         type: string;
     }
-    interface colorDefaults {
-        [key:string]: [string, string];
-    }
     interface colorList {
-        [key:string]: [string, string];
+        [key:string]: color;
     }
     interface colors {
         device: colorList;
@@ -259,9 +274,9 @@ declare global {
         payload: Buffer|string;
         port: number;
         remoteName: string;
-        requestError?: (error:nodeError, agent?:string) => void;
+        requestError?: (error:nodeError, agent?:string, type?:agentType) => void;
         response?: any;
-        responseError?: (error:nodeError, agent?:string) => void;
+        responseError?: (error:nodeError, agent?:string, type?:agentType) => void;
     }
     interface httpServer extends Server {
         port: number;
@@ -394,7 +409,7 @@ declare global {
         agentColor?: EventHandlerNonNull;
         applyAgentColors?: (agent:string, type:agentType, colors:[string, string]) => void;
         audio?: EventHandlerNonNull;
-        colorDefaults?: colorDefaults;
+        colorDefaults?: colorList;
         colorScheme?: EventHandlerNonNull;
         compressionToggle?: EventHandlerNonNull;
         modal?: EventHandlerNonNull;
@@ -638,7 +653,6 @@ declare global {
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
         addServers?: (callback:Function) => void;
-        serverLocal?: httpServer;
         serverRemote?: {
             device: {
                 [key:string]: httpServer;

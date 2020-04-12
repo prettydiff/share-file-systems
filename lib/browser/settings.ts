@@ -5,6 +5,8 @@ import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
 
+import agents from "../common/agents.js";
+
 const settings:module_settings = {};
 
 /* Add agent color options to the settings menu */
@@ -134,69 +136,71 @@ settings.colorDefaults = {
 settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         oldScheme:string = browser.data.color,
-        agents:agents = {
-            device: Object.keys(browser.device),
-            user: Object.keys(browser.user)
-        },
-        agentKeys:string[] = Object.keys(agents),
-        agentKeysLength:number = agentKeys.length;
+        complete = function local_settings_colorScheme_complete(counts:agentCounts):void {
+            counts.count = counts.count + 1;
+            if (counts.count === counts.total) {
+                browser.data.color = <colorScheme>element.value;
+                if (browser.loadTest === false) {
+                    network.storage("settings");
+                }
+            }
+        };
+    let agentColors:HTMLCollectionOf<HTMLElement>;
     if (element.value === "default") {
         browser.pageBody.removeAttribute("class");
     } else {
         browser.pageBody.setAttribute("class", element.value);
     }
 
-    if (agentKeysLength > 0) {
-        let a:number = 0,
-            b:number = 0,
-            c:number = 0,
-            agentType:agentType,
-            agentLength:number,
-            agentHash:string,
-            agentColors:HTMLCollectionOf<HTMLElement>,
-            swatches:HTMLCollectionOf<Element>,
-            swatch1:HTMLElement,
-            swatch2:HTMLElement,
-            inputs:HTMLCollectionOf<HTMLInputElement>;
-        do {
-            agentType = <agentType>agentKeys[a];
-            agentLength = agents[agentType].length;
-            if (agentLength > 0) {
-                agentColors = document.getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li");
-                b = 0;
-                do {
-                    agentHash = agents[agentType][b];
-                    if (browser.data.colors[agentType][agentHash][0] === settings.colorDefaults[oldScheme][0] && browser.data.colors[agentType][agentHash][1] === settings.colorDefaults[oldScheme][1]) {
-                        browser.data.colors[agentType][agentHash][0] = settings.colorDefaults[element.value][0];
-                        browser.data.colors[agentType][agentHash][1] = settings.colorDefaults[element.value][1];
-                        settings.applyAgentColors(agentHash, agentType, [browser.data.colors[agentType][agentHash][0], browser.data.colors[agentType][agentHash][1]]);
-                        c = 0;
-                        do {
-                            if (agentColors[c].getElementsByTagName("p")[0].getAttribute("data-agent") === agentHash) {
-                                swatches = agentColors[c].getElementsByClassName("swatch");
-                                swatch1 = <HTMLElement>swatches[0];
-                                swatch2 = <HTMLElement>swatches[1];
-                                inputs = agentColors[c].getElementsByTagName("input");
-                                swatch1.style.background = browser.data.colors[agentType][agentHash][0];
-                                swatch2.style.background = browser.data.colors[agentType][agentHash][1];
-                                inputs[0].value = browser.data.colors[agentType][agentHash][0];
-                                inputs[1].value = browser.data.colors[agentType][agentHash][1];
-                            }
-                            c = c + 1;
-                        } while (c < agentLength);
-                    } else if (browser.data.colors[agentType][agentHash][0] === settings.colorDefaults[element.value][0] && browser.data.colors[agentType][agentHash][1] === settings.colorDefaults[element.value][1]) {
-                        settings.applyAgentColors(agentHash, agentType, [browser.data.colors[agentType][agentHash][0], browser.data.colors[agentType][agentHash][1]]);
-                    }
-                    b = b + 1;
-                } while (b < agentLength);
+    agents({
+        complete: complete,
+        countBy: "agent",
+        perAgent: function local_settings_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
+            const agent:string = agentNames.agent,
+                agentType:agentType = agentNames.agentType,
+                color:color = browser.data.colors[agentType][agent];
+            if (agentColors === null) {
+                return;
             }
-            a = a + 1;
-        } while (a < agentKeysLength);
-    }
-    browser.data.color = <colorScheme>element.value;
-    if (browser.loadTest === false) {
-        network.storage("settings");
-    }
+            if (color[0] === settings.colorDefaults[oldScheme][0] && color[1] === settings.colorDefaults[oldScheme][1]) {
+                const agentLength:number = agentColors.length;
+                let c:number = 0,
+                    swatches:HTMLCollectionOf<Element>,
+                    swatch1:HTMLElement,
+                    swatch2:HTMLElement,
+                    inputs:HTMLCollectionOf<HTMLInputElement>;
+                color[0] = settings.colorDefaults[element.value][0];
+                color[1] = settings.colorDefaults[element.value][1];
+                settings.applyAgentColors(agent, agentType, [color[0], color[1]]);
+                do {
+                    if (agentColors[c].getElementsByTagName("p")[0].getAttribute("data-agent") === agent) {
+                        swatches = agentColors[c].getElementsByClassName("swatch");
+                        swatch1 = <HTMLElement>swatches[0];
+                        swatch2 = <HTMLElement>swatches[1];
+                        inputs = agentColors[c].getElementsByTagName("input");
+                        swatch1.style.background = color[0];
+                        swatch2.style.background = color[1];
+                        inputs[0].value = color[0];
+                        inputs[1].value = color[1];
+                        complete(counts);
+                        break;
+                    }
+                    c = c + 1;
+                } while (c < agentLength);
+            } else if (color[0] === settings.colorDefaults[element.value][0] && color[1] === settings.colorDefaults[element.value][1]) {
+                settings.applyAgentColors(agent, agentType, [color[0], color[1]]);
+            }
+        },
+        perAgentType: function local_settings_colorScheme_perAgent(agentNames) {
+            const list:HTMLElement = <HTMLElement>document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
+            if (list === undefined) {
+                agentColors = null;
+            } else {
+                agentColors =  document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0].getElementsByTagName("li");
+            }
+        },
+        source: browser
+    });
 };
 
 /* Shows and hides additional textual information about compression */
@@ -236,12 +240,17 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
             container.appendChild(h3);
             return container;
         },
-        agents:agents = {
-            device: Object.keys(browser.device),
-            user: Object.keys(browser.user)
+        perAgentType = function local_settings_modalContent_perAgentType(agentNames:agentNames):void {
+            const ul:HTMLElement = document.createElement("ul");
+            section = createSection(`◩ ${agentNames.agentType.charAt(0).toUpperCase() + agentNames.agentType.slice(1)} Color Definitions`);
+            p = document.createElement("p");
+            p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
+            section.appendChild(p);
+            ul.setAttribute("class", `${agentNames.agentType}-color-list`);
+            section.appendChild(ul);
+            settingsBody.appendChild(section);
         },
-        agentKeys:string[] = Object.keys(agents),
-        agentKeysLength:number = agentKeys.length;
+        userKeys = Object.keys(browser.user);
     let section:HTMLElement,
         p:HTMLElement = document.createElement("p"),
         select:HTMLElement,
@@ -357,34 +366,14 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
     section.appendChild(p);
     settingsBody.appendChild(section);
 
-    // agent colors
-    if (agentKeysLength > 0) {
-        let a:number = 0,
-            b:number = 0,
-            agentLength:number,
-            agentType:agentType,
-            ul:HTMLElement;
-        do {
-            b = 0;
-            agentType = <agentType>agentKeys[a];
-            agentLength = agents[agentType].length;
-            section = createSection(`◩ ${agentType.charAt(0).toUpperCase() + agentKeys[a].slice(1)} Color Definitions`);
-            p = document.createElement("p");
-            p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
-            section.appendChild(p);
-            if (agentLength > 0) {
-                ul = document.createElement("ul");
-                ul.setAttribute("class", `${agentType}-color-list`);
-                section.appendChild(ul);
-                do {
-                    settings.addUserColor(agents[agentType][b], agentType, section);
-                    b = b + 1;
-                } while (b < agentLength);
-            }
-            settingsBody.appendChild(section);
-            a = a + 1;
-        } while (a < agentKeysLength);
-    }
+    agents({
+        countBy: "agent",
+        perAgent: function local_settings_modalContent_perAgent(agentNames:agentNames, counts:agentCounts):void {
+            settings.addUserColor(agentNames.agent, agentNames.agentType, section);
+        },
+        perAgentType: perAgentType,
+        source: browser
+    });
     return settingsBody;
 };
 
