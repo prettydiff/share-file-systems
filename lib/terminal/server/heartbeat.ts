@@ -52,7 +52,7 @@ const library = {
                 },
                 httpConfig:httpConfiguration = {
                     agentType: "device",
-                    callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {console.log("heartbeat callback");
+                    callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                         vars.ws.broadcast(<string>responseBody);
                         responder();
                     },

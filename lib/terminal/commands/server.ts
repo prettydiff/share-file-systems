@@ -44,7 +44,7 @@ const library = {
     // * locks the server to address ::1 (loopback)
     // * bypasses messaging users on server start up
     // * bypasses some security checks
-    server = function terminal_server(serverCallback?:Function):httpServer {
+    server = function terminal_server(serverCallback:serverCallback):httpServer {
         const browser:boolean = (function terminal_server_browserTest():boolean {
                 const index:number = process.argv.indexOf("browser");
                 if (index > -1) {
@@ -327,24 +327,22 @@ const library = {
                         host: "[::1]",
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {
-
-                        const storageFlag:storageFlag = {
-                                device: false,
-                                messages: true,
-                                settings: false,
-                                user: false
-                            },
-                            readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {
+                        const readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {
                                 serverVars.brotli = storageData.settings.brotli;
-                                serverVars.device = storageData.device;
                                 serverVars.hashDevice = storageData.settings.hashDevice;
                                 serverVars.hashType = storageData.settings.hashType;
                                 serverVars.nameUser = storageData.settings.nameUser;
-                                serverVars.user = storageData.user;
                                 if (serverCallback !== undefined) {
                                     // A callback can be passed in, so far only used for running service tests.
-                                    serverCallback();
+                                    serverCallback.callback({
+                                        agent: serverCallback.agent,
+                                        agentType: serverCallback.agentType,
+                                        webPort: serverVars.webPort,
+                                        wsPort: serverVars.wsPort
+                                    });
                                 } else if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                    serverVars.device = storageData.device;
+                                    serverVars.user = storageData.user;
                                     logOutput();
                                 } else {
                                     const hbConfig:heartbeat = {
@@ -354,6 +352,8 @@ const library = {
                                         type: "user",
                                         user: ""
                                     };
+                                    serverVars.device = storageData.device;
+                                    serverVars.user = storageData.user;
                                     logOutput();
                                     library.heartbeat(hbConfig, "");
                                 }

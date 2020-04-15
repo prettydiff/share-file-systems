@@ -249,8 +249,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
             ul.setAttribute("class", `${agentNames.agentType}-color-list`);
             section.appendChild(ul);
             settingsBody.appendChild(section);
-        },
-        userKeys = Object.keys(browser.user);
+        };
     let section:HTMLElement,
         p:HTMLElement = document.createElement("p"),
         select:HTMLElement,
@@ -368,7 +367,7 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
 
     agents({
         countBy: "agent",
-        perAgent: function local_settings_modalContent_perAgent(agentNames:agentNames, counts:agentCounts):void {
+        perAgent: function local_settings_modalContent_perAgent(agentNames:agentNames):void {
             settings.addUserColor(agentNames.agent, agentNames.agentType, section);
         },
         perAgentType: perAgentType,

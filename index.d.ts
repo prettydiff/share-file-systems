@@ -530,9 +530,20 @@ declare global {
     interface selection {
         [key:string]: string;
     }
+    interface serverCallback {
+        callback:(output:serverOutput) => void;
+        agent: string;
+        agentType: agentType;
+    }
     interface serverError {
         stack: string[];
         error: string;
+    }
+    interface serverOutput {
+        agent: string;
+        agentType: agentType;
+        webPort: number;
+        wsPort: number;
     }
     interface serverVars {
         addresses: [[string, string, string][], number];

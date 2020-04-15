@@ -8,14 +8,11 @@ import error from "../utilities/error.js";
 import humanTime from "../utilities/humanTime.js";
 import log from "../utilities/log.js";
 import remove from "../commands/remove.js";
+import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 import service from "./service.js";
 import simulation from "./simulation.js";
-import services from "./service.js";
-
-
-import serverVars from "../server/serverVars.js";
 
 // runs various tests of different types
 const library = {
@@ -26,8 +23,8 @@ const library = {
         remove: remove
     },
     list = {
-        service: service,
-        simulation: simulation
+        service: service(),
+        simulation: simulation()
     },
     testListRunner = function test_testListRunner(testListType:testListType, callback:Function):void {
         const tests:testItem[]|testServiceArray = list[testListType],
@@ -160,7 +157,8 @@ const library = {
             },
             execution:methodList = {
                 service: function test_testListRunner_service():void {
-                    /*const testItem:testServiceInstance = <testServiceInstance>tests[a],
+                    const serviceTest:testServiceArray = <testServiceArray>tests,
+                        testItem:testServiceInstance = serviceTest[a],
                         keyword:string = (function test_testListRunner_service_keyword():string {
                             const words:string[] = Object.keys(testItem.command);
                             return words[0];
@@ -169,9 +167,14 @@ const library = {
                         command:string = (function test_testListRunner_service_command():string {
                             if (keyword === "invite") {
                                 if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
-                                    testItem.command.invite.port = services.serverRemote.port;
+                                    if (testItem.command.invite.agentType === "device") {
+                                        testItem.command.invite.port = serviceTest.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
+                                    } else {
+                                        // add user hash once here once created
+                                        testItem.command.invite.port = serviceTest.serverRemote.user[""].port;
+                                    }
                                 } else {
-                                    testItem.command.invite.port = services.serverLocal.port;
+                                    testItem.command.invite.port = serverVars.device[serverVars.hashDevice].port;
                                 }
                             }
                             return JSON.stringify(testItem.command);
@@ -201,9 +204,11 @@ const library = {
                             host: "::1",
                             method: "POST",
                             path: "/",
-                            port: (testItem.command.agent === serverVars.hashDevice)
-                                ? services.serverLocal.port
-                                : services.serverRemote.port,
+                            port: (keyword === "invite")
+                                ? testItem.command.invite.port
+                                : (testItem.command[keyword].agent === undefined)
+                                    ? serverVars.device[serverVars.hashDevice].port
+                                    : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
                             timeout: 1000
                         },
                         callback = function test_testListRunner_service_callback(response:http.IncomingMessage):void {
@@ -222,7 +227,7 @@ const library = {
                     request.write(command);
                     setTimeout(function test_testListRunner_service_callback_delay():void {
                         request.end();
-                    }, 100);*/
+                    }, 100);
                 },
                 simulation: function test_testListRunner_simulation():void {
                     vars.node.child(`${vars.version.command} ${tests[a].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_testListRunner_simulation_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
@@ -251,9 +256,10 @@ const library = {
                             execution[testListType]();
                         } else {
                             if (testListType === "service") {
-                                const services:testServiceArray = <testServiceArray>tests;
-                                //services.serverLocal.close();
-                                //services.serverRemote.close();
+                                agents({
+                                    countBy: "agent",
+                                    source: serverVars
+                                });
                             }
                             library.log(["", ""]);
                             if (fail > 0) {
@@ -309,8 +315,7 @@ const library = {
         }
 
         if (testListType === "service") {
-            const service:testServiceArray = <testServiceArray>tests;
-            service.addServers(function test_testListRunner_serviceCallback():void {
+            list.service.addServers(function test_testListRunner_serviceCallback():void {
                 execution.service();
             });
         } else {

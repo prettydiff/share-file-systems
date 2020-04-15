@@ -9,8 +9,7 @@ interface socketList {
     [key:string]: Socket;
 }
 let mac:string = "";
-const socketList:socketList = {},
-    serverVars:serverVars = {
+const serverVars:serverVars = {
         addresses: (function terminal_server_addresses():[[string, string, string][], number] {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
                 store:[string, string, string][] = [],
