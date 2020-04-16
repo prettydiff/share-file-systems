@@ -77,6 +77,8 @@ const services = function test_services():testServiceArray {
         windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
         windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
         hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
+
+        // start test list
         service:testServiceArray = [
             (function test_service_fsBase64_Local():testTemplateFileService {
                 const template:testTemplateFileService = {
@@ -147,8 +149,8 @@ const services = function test_services():testServiceArray {
                         }
                     },
                     name: "fs:fs-close, Close Local",
-                    qualifier: "ends",
-                    test: `"status":"Watcher ${windowsPath}lib closed."}}`
+                    qualifier: "begins",
+                    test: `Watcher ${projectPath}lib closed.`
                 };
                 return template;
             }()),
@@ -170,7 +172,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "fs:fs-close, Close Remote Device",
                     qualifier: "begins",
-                    test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"dirs\":[["
+                    test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"agentType\":\"device\",\"dirs\":[["
                 };
                 return template;
             }()),
@@ -193,19 +195,10 @@ const services = function test_services():testServiceArray {
                     name: "fs:fs-copy, Copy Local to Local",
                     qualifier: "is",
                     test: {
-                        "fs-update-remote": {
-                            agent: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
-                            dirs: [
-                                ["C:\\Users\\austincheney\\share-file-systems\\storage","directory","",0,5,"stat"],
-                                ["C:\\Users\\austincheney\\share-file-systems\\storage\\device.json","file","",0,0,"stat"],
-                                ["C:\\Users\\austincheney\\share-file-systems\\storage\\settings.json","file","",0,0,"stat"],
-                                ["C:\\Users\\austincheney\\share-file-systems\\storage\\storage.txt","file","",0,0,"stat"],
-                                ["C:\\Users\\austincheney\\share-file-systems\\storage\\messages.json","file","",0,0,"stat"],
-                                ["C:\\Users\\austincheney\\share-file-systems\\storage\\tsconfig.json","file","",0,0,"stat"]
-                            ],
-                            fail: [],
-                            location: "C:\\\\Users\\\\austincheney\\\\share-file-systems\\\\storage",
-                            status: "{\"file-list-status\":{\"failures\":[],\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\",\"target\":\"remote-test-ID\"}}"
+                        "file-list-status": {
+                            failures: [],
+                            message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
+                            target: "remote-test-ID"
                         }
                     }
                 };
@@ -227,7 +220,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-copy, Copy Local to Remote",
+                    name: "fs:fs-copy, Copy Local to Remote Device",
                     qualifier: "is",
                     test: {
                         "file-list-status": {
@@ -255,7 +248,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-copy, Copy Remote to Local",
+                    name: "fs:fs-copy, Copy Remote Device to Local",
                     qualifier: "is",
                     test: {
                         "file-list-status": {
@@ -267,7 +260,7 @@ const services = function test_services():testServiceArray {
                 };
                 return template;
             }()),
-            (function test_service_fsCopy_RemoteDeviceToRemoteDevice1():testTemplateFileService {
+            (function test_service_fsCopy_RemoteDeviceToSameRemoteDevice1():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
                         fs: {
@@ -283,13 +276,13 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-copy, Copy Remote to Remote 1",
+                    name: "fs:fs-copy, Copy Remote Device to Same Remote Device 1",
                     qualifier: "contains",
                     test: "fs-update-remote"
                 };
                 return template;
             }()),
-            (function test_service_fsCopy_RemoteDeviceToRemoteDevice2():testTemplateFileService {
+            (function test_service_fsCopy_RemoteDeviceToSameRemoteDevice2():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
                         fs: {
@@ -305,13 +298,13 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-copy, Copy Remote to Remote 2",
+                    name: "fs:fs-copy, Copy Remote Device to Same Remote Device 2",
                     qualifier: "contains",
                     test: `["${windowsPath}storage","directory"`
                 };
                 return template;
             }()),
-            (function test_service_fsCopy_RemoteDeviceToRemoteDevice3():testTemplateFileService {
+            (function test_service_fsCopy_RemoteDeviceToSameRemoteDevice3():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
                         fs: {
@@ -327,7 +320,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-copy, Copy Remote to Remote 3",
+                    name: "fs:fs-copy, Copy Remote Device to Same Remote Device 3",
                     qualifier: "contains",
                     test: "\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\""
                 };
@@ -377,7 +370,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-details, Details of Remote tsconfig.json",
+                    name: "fs:fs-details, Details of Remote Device tsconfig.json",
                     qualifier: "is",
                     test: {
                         dirs: [
@@ -400,7 +393,7 @@ const services = function test_services():testServiceArray {
                             copyType: "device",
                             depth: 1,
                             id: "test-ID",
-                            location: [`${projectPath}tsconfig.json`],
+                            location: [`${projectPath}serviceTestLocal`],
                             name: "directory",
                             watch: "no"
                         }
@@ -422,7 +415,7 @@ const services = function test_services():testServiceArray {
                             copyType: "device",
                             depth: 1,
                             id: "test-ID",
-                            location: [`${projectPath}tsconfig.json`],
+                            location: [`${projectPath}serviceTestLocal.json`],
                             name: "file",
                             watch: "no"
                         }
@@ -449,9 +442,9 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-new, Remote New Directory",
+                    name: "fs:fs-new, Remote Device New Directory",
                     qualifier: "is",
-                    test: `${projectPath}serviceTestLocal.json created.`
+                    test: `${projectPath}serviceTestRemote created.`
                 };
                 return template;
             }()),
@@ -471,9 +464,9 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-new, Remote New File",
+                    name: "fs:fs-new, Remote Device New File",
                     qualifier: "is",
-                    test: `${projectPath}serviceTestLocal.json created.`
+                    test: `${projectPath}serviceTestRemote.json created.`
                 };
                 return template;
             }()),
@@ -511,11 +504,11 @@ const services = function test_services():testServiceArray {
                             depth: 1,
                             id: "test-ID",
                             location: [`${projectPath}serviceTestRemote.json`],
-                            name: "remote text fragment",
+                            name: "remote device text fragment",
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-write, Write Remote to Local",
+                    name: "fs:fs-write, Write Remote Device to Local",
                     qualifier: "is",
                     test: `File ${projectPath}serviceTestRemote.json saved to disk on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
                 };
@@ -563,10 +556,10 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-read, Read Remote",
+                    name: "fs:fs-read, Read Remote Device",
                     qualifier: "is",
                     test: [{
-                        content: "remote text fragment",
+                        content: "remote device text fragment",
                         id: "test-ID",
                         path: `${projectPath}serviceTestRemote.json`
                     }]
@@ -633,7 +626,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-rename, Rename Remote Directory",
+                    name: "fs:fs-rename, Rename Remote Device Directory",
                     qualifier: "is",
                     test: `Path ${projectPath}serviceTestRemote on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${projectPath}serviceRemote.`
                 };
@@ -655,7 +648,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-rename, Rename Remote File",
+                    name: "fs:fs-rename, Rename Remote Device File",
                     qualifier: "is",
                     test: `Path ${projectPath}serviceTestRemote.json on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${projectPath}serviceRemote.json.`
                 };
@@ -721,7 +714,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-destroy, Destroy Remote Directory",
+                    name: "fs:fs-destroy, Destroy Remote Device Directory",
                     qualifier: "is",
                     test: `Path(s) ${projectPath}serviceRemote destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
                 };
@@ -743,7 +736,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-destroy, Destroy Remote File",
+                    name: "fs:fs-destroy, Destroy Remote Device File",
                     qualifier: "is",
                     test: `Path(s) ${projectPath}serviceRemote.json destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
                 };
@@ -791,7 +784,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-hash, Hash Remote",
+                    name: "fs:fs-hash, Hash Remote Device",
                     qualifier: "is",
                     test: [{
                         content: hash,
@@ -861,7 +854,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-directory, Directory Remote 1",
+                    name: "fs:fs-directory, Directory Remote Device 1",
                     qualifier: "begins",
                     test: "{\"dirs\":[["
                 };
@@ -883,8 +876,8 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-directory, Directory Remote 2",
-                    qualifier: "begins",
+                    name: "fs:fs-directory, Directory Remote Device 2",
+                    qualifier: "contains",
                     test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
                 };
                 return template;
@@ -949,7 +942,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-search, Search Remote 1",
+                    name: "fs:fs-search, Search Remote Device 1",
                     qualifier: "begins",
                     test: "{\"dirs\":[["
                 };
@@ -971,7 +964,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-search, Search Remote 2",
+                    name: "fs:fs-search, Search Remote Device 2",
                     qualifier: "contains",
                     test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
                 };
@@ -982,6 +975,7 @@ const services = function test_services():testServiceArray {
                     command: {
                         "fs-update-remote": {
                             agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                            agentType: "device",
                             dirs: [
                                 [`${projectPath}storage${vars.sep}storage.txt`, "file", "", 0, 0, "stat"]
                             ],
@@ -991,8 +985,8 @@ const services = function test_services():testServiceArray {
                         }
                     },
                     name: "fs-update-remote, Local",
-                    qualifier: "begins",
-                    test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e,"dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"location":"${windowsPath}storage","status":"test payload","copyAgent":`
+                    qualifier: "is",
+                    test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}storage","status":"test payload"}} at ${serverVars.addresses[0][1][1]}.`
                 };
                 return template;
             }()),
@@ -1043,7 +1037,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "settings, Local settings storage without HTTP response",
                     qualifier: "is",
-                    test: "settings written with false response for testing."
+                    test: "settings storage written with false response for testing."
                 };
                 return template;
             }()),
@@ -1067,7 +1061,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "messages, Local messages storage without HTTP response",
                     qualifier: "is",
-                    test: "messages written with false response for testing."
+                    test: "messages storage written with false response for testing."
                 };
                 return template;
             }()),
@@ -1090,9 +1084,9 @@ const services = function test_services():testServiceArray {
                             }
                         }
                     },
-                    name: "users, Local users storage without HTTP response",
+                    name: "device storage, Local device storage without HTTP response",
                     qualifier: "is",
-                    test: "users written with false response for testing."
+                    test: "device storage written with false response for testing."
                 };
                 return template;
             }()),
@@ -1115,9 +1109,9 @@ const services = function test_services():testServiceArray {
                             }
                         }
                     },
-                    name: "users, Local users storage without HTTP response",
+                    name: "user storage, Local user storage without HTTP response",
                     qualifier: "is",
-                    test: "users written with false response for testing."
+                    test: "user storage written with false response for testing."
                 };
                 return template;
             }()),
@@ -1234,7 +1228,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "invite, invite-response - Local device invite",
                     qualifier: "is",
-                    test: "Invitation received at remote terminal ::1 and sent to remote browser."
+                    test: "Ignored invitation response processed at remote terminal ::1 and sent to start terminal."
                 };
                 return template;
             }()),
@@ -1312,7 +1306,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "invite, invite-response - Local device invite response, ignored",
                     qualifier: "is",
-                    test: "Accepted invitation response processed at remote terminal ::1 and sent to start terminal."
+                    test: "Ignored invitation response processed at remote terminal ::1 and sent to start terminal."
                 };
                 return template;
             }()),
@@ -1343,7 +1337,7 @@ const services = function test_services():testServiceArray {
                                     }
                                 }
                             },
-                            status: "invited",
+                            status: "declined",
                             type: "device",
                             userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
                             userName: "local user name"
@@ -1351,7 +1345,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "invite, invite-response - Local device invite response, declined",
                     qualifier: "is",
-                    test: "Declined invitation sent to from start terminal XXXX to start browser."
+                    test: "Declined invitation response processed at remote terminal ::1 and sent to start terminal."
                 };
                 return template;
             }()),
@@ -1433,11 +1427,12 @@ const services = function test_services():testServiceArray {
                 };
                 return template;
             }()),
-            (function test_service_heartbeat_Device():testTemplateHeartbeat {
+            (function test_service_heartbeatBrowser_Device():testTemplateHeartbeat {
                 const template:testTemplateHeartbeat = {
                     command: {
                         heartbeat: {
-                            agent: "remoteUser",
+                            agent: "localhost-browser",
+                            agentType: "device",
                             shares: {
                                 [serverVars.hashDevice]: {
                                     ip: "::1",
@@ -1454,21 +1449,90 @@ const services = function test_services():testServiceArray {
                                 }
                             },
                             status: "active",
-                            type: "device",
                             user: serverVars.hashDevice
                         }
                     },
-                    name: "heartbeat, Local to Remote",
+                    name: "heartbeat, from Browser",
                     qualifier: "is",
                     test: {
                         "heartbeat-response": {
                             agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                            agentType: "device",
                             shares: {},
                             status: "idle",
-                            type: "device",
                             user: serverVars.nameUser
                         }
                     }
+                };
+                return template;
+            }()),
+            (function test_service_heartbeatTerminal_Device():testTemplateHeartbeat {
+                const template:testTemplateHeartbeat = {
+                    command: {
+                        heartbeat: {
+                            agent: "localhost-terminal",
+                            agentType: "device",
+                            shares: {
+                                [serverVars.hashDevice]: {
+                                    ip: "::1",
+                                    name: "old desktop computer",
+                                    port: 80,
+                                    shares: {
+                                        "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                            execute: false,
+                                            name: "C:\\music",
+                                            readOnly: true,
+                                            type: "directory"
+                                        }
+                                    }
+                                }
+                            },
+                            status: "active",
+                            user: serverVars.hashDevice
+                        }
+                    },
+                    name: "heartbeat, from Terminal",
+                    qualifier: "is",
+                    test: {
+                        "heartbeat-response": {
+                            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                            agentType: "device",
+                            shares: {},
+                            status: "idle",
+                            user: serverVars.nameUser
+                        }
+                    }
+                };
+                return template;
+            }()),
+            (function test_service_heartbeatUnexpectedUser_Device():testTemplateHeartbeat {
+                const template:testTemplateHeartbeat = {
+                    command: {
+                        heartbeat: {
+                            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                            agentType: "device",
+                            shares: {
+                                [serverVars.hashDevice]: {
+                                    ip: "::1",
+                                    name: "old desktop computer",
+                                    port: 80,
+                                    shares: {
+                                        "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                            execute: false,
+                                            name: "C:\\music",
+                                            readOnly: true,
+                                            type: "directory"
+                                        }
+                                    }
+                                }
+                            },
+                            status: "active",
+                            user: serverVars.hashDevice
+                        }
+                    },
+                    name: "heartbeat, Unexpected User",
+                    qualifier: "is",
+                    test: "Unexpected user."
                 };
                 return template;
             }())

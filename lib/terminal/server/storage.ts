@@ -23,7 +23,7 @@ const library = {
                     }
                 };
                 if (vars.command.indexOf("test") === 0) {
-                    respond(`${task} written with false response for testing.`);
+                    respond(`${task} storage written with false response for testing.`);
                 } else {
                     vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_renameNode(erName:Error) {
                         if (erName !== null) {

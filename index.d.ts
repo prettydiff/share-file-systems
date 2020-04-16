@@ -211,6 +211,7 @@ declare global {
     }
     interface fsUpdateRemote {
         agent: string;
+        agentType: agentType;
         dirs: directoryList;
         fail: string[];
         location:string;
@@ -259,9 +260,9 @@ declare global {
     }
     interface heartbeat {
         agent: string;
+        agentType: agentType;
         shares: deviceShares | devices | "";
         status: heartbeatStatus;
-        type: agentType;
         user: string;
     }
     interface httpConfiguration {
@@ -592,6 +593,14 @@ declare global {
         error: string;
         stack: string[];
     }
+    interface stringData {
+        content: string;
+        id: string;
+        path: string;
+    }
+    interface stringDataList extends Array<stringData> {
+        [index:number]: stringData;
+    }
     interface storage {
         messages?: messages;
         settings?: ui_data;
@@ -606,14 +615,6 @@ declare global {
         messages: messages;
         settings: ui_data;
         user: devices;
-    }
-    interface stringData {
-        content: string;
-        id: string;
-        path: string;
-    }
-    interface stringDataList extends Array<stringData> {
-        [index:number]: stringData;
     }
     interface styleText{
         agent: string;
@@ -718,7 +719,7 @@ declare global {
         qualifier: qualifier;
         test: {
             "heartbeat-response": heartbeat;
-        };
+        } | string;
     }
     interface testTemplateInvite extends testTemplate {
         command: {

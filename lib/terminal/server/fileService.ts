@@ -72,6 +72,7 @@ const library = {
                                     : data.name.replace(/\\/g, "\\\\"),
                                 update:fsUpdateRemote = {
                                     agent: data.agent,
+                                    agentType: data.agentType,
                                     dirs: directory,
                                     fail: [],
                                     location: location,
@@ -94,24 +95,35 @@ const library = {
             },
             httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
                 const payload:string = (function terminal_server_fileService_httpRequest_payload():string {
-                        const keys:string[] = Object.keys(data),
-                            length:number = keys.length,
-                            store:Object = {};
-                        let a:number = 0;
-                        do {
-                            store[keys[a]] = data[keys[a]];
-                            a = a + 1;
-                        } while (a < length);
+                        const store:fileService = {
+                                action: data.action,
+                                agent: data.agent,
+                                agentType: data.agentType,
+                                copyAgent: data.copyAgent,
+                                copyType: data.copyType,
+                                depth: data.depth,
+                                id: data.id,
+                                location: data.location,
+                                name: data.name,
+                                remoteWatch: (data.remoteWatch === undefined)
+                                    ? null
+                                    : data.remoteWatch,
+                                watch: data.watch
+                            };
                         if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
-                            store["agent"] = serverVars.hashDevice;
-                            store["agentType"] = "device";
-                            store["copyAgent"] = data.agent;
-                            store["copyType"] = data.agentType;
+                            store.agent= serverVars.hashDevice;
+                            store.agentType = "device";
+                            store.copyAgent = data.agent;
+                            store.copyType = data.agentType;
                         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
-                            store["agent"] = serverVars.hashUser;
+                            if (store.agentType === "device") {
+                                store.agent = serverVars.hashDevice;
+                            } else {
+                                store.agent = serverVars.hashUser;
+                            }
                         }
                         if (data.action === "fs-directory" && data.agent !== serverVars.hashDevice) {
-                            store["remoteWatch"] = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
+                            store.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
                         }
                         return JSON.stringify({
                             fs: store
@@ -167,6 +179,7 @@ const library = {
                                 callback: function terminal_server_fileService_watchHandler_remote(result:directoryList):void {
                                     const update:fsUpdateRemote = {
                                             agent: data.agent,
+                                            agentType: data.agentType,
                                             dirs: result,
                                             fail: [],
                                             location: value
@@ -993,7 +1006,9 @@ const library = {
         } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
             const length:number = data.location.length,
                 storage:stringDataList = [],
-                type:string = data.action.replace("fs-", ""),
+                type:string = (data.action === "fs-read")
+                    ? "base64"
+                    : data.action.replace("fs-", ""),
                 callback = function terminal_server_fileService_callback(output:base64Output):void {
                     const stringData:stringData = {
                         content: output[type],
@@ -1001,7 +1016,7 @@ const library = {
                         path: output.filePath
                     };
                     b = b + 1;
-                    storage.push(stringData);
+                    storage.push(stringData)
                     if (b === length) {
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         response.write(JSON.stringify(storage));
@@ -1010,10 +1025,10 @@ const library = {
                 },
                 fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
                     vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
-                        const inputConfig:stringData = {
-                            content: fileData,
+                        const inputConfig:base64Output = {
+                            base64: fileData,
                             id: input.id,
-                            path: input.source
+                            filePath: input.source
                         };
                         if (readError !== null) {
                             library.error([readError.toString()]);
@@ -1045,7 +1060,7 @@ const library = {
                     index = data.location[a].indexOf(":");
                     input.id = data.location[a].slice(0, index);
                     input.source = data.location[a].slice(index + 1);
-                    library[type](input);
+                    library.base64(input);
                 } else if (data.action === "fs-hash") {
                     index = data.location[a].indexOf(":");
                     hashInput.id = data.location[a].slice(0, index);
@@ -1113,7 +1128,9 @@ const library = {
                     type:agentType = (data.copyAgent === "")
                         ? "device"
                         : data.copyType;
-                let message:string = `File ${data.location[0]} saved to disk on ${type} ${agent}.`;
+                let message:string = (type === "device" && agent === serverVars.hashDevice)
+                    ? `File ${data.location[0]} saved to disk on local device.`
+                    : `File ${data.location[0]} saved to disk on ${type} ${agent}.`;
                 if (erw !== null) {
                     library.error([erw.toString()]);
                     vars.ws.broadcast(JSON.stringify({

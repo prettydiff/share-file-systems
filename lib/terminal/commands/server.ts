@@ -249,16 +249,17 @@ const library = {
                 return
             },
             start = function terminal_server_start() {
-                const logOutput = function terminal_server_start_logger():void {
+                const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
                     const output:string[] = [],
                         webPort:string = (serverVars.webPort === 80)
                             ? ""
                             : `:${serverVars.webPort}`;
                     let a:number = 0;
 
-                    if (serverCallback !== undefined) {
-                        return;
-                    }
+                    serverVars.device = storageData.device;
+                    serverVars.hashDevice = storageData.settings.hashDevice;
+                    serverVars.user = storageData.user;
+
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
 
@@ -329,7 +330,6 @@ const library = {
                     }, function terminal_server_start_listen_socketCallback():void {
                         const readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {
                                 serverVars.brotli = storageData.settings.brotli;
-                                serverVars.hashDevice = storageData.settings.hashDevice;
                                 serverVars.hashType = storageData.settings.hashType;
                                 serverVars.nameUser = storageData.settings.nameUser;
                                 if (serverCallback !== undefined) {
@@ -341,20 +341,16 @@ const library = {
                                         wsPort: serverVars.wsPort
                                     });
                                 } else if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
-                                    serverVars.device = storageData.device;
-                                    serverVars.user = storageData.user;
-                                    logOutput();
+                                    logOutput(storageData);
                                 } else {
                                     const hbConfig:heartbeat = {
                                         agent: "localhost-terminal",
+                                        agentType: "user",
                                         shares: "",
                                         status: "idle",
-                                        type: "user",
                                         user: ""
                                     };
-                                    serverVars.device = storageData.device;
-                                    serverVars.user = storageData.user;
-                                    logOutput();
+                                    logOutput(storageData);
                                     library.heartbeat(hbConfig, "");
                                 }
                             };

@@ -167,7 +167,7 @@ const library = {
                         command:string = (function test_testListRunner_service_command():string {
                             if (keyword === "invite") {
                                 if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
-                                    if (testItem.command.invite.agentType === "device") {
+                                    if (testItem.command.invite.type === "device") {
                                         testItem.command.invite.port = serviceTest.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
                                     } else {
                                         // add user hash once here once created
@@ -206,9 +206,11 @@ const library = {
                             path: "/",
                             port: (keyword === "invite")
                                 ? testItem.command.invite.port
-                                : (testItem.command[keyword].agent === undefined)
-                                    ? serverVars.device[serverVars.hashDevice].port
-                                    : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
+                                : (keyword === "heartbeat")
+                                    ? 80
+                                    : (testItem.command[keyword].agent === undefined)
+                                        ? serverVars.device[serverVars.hashDevice].port
+                                        : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
                             timeout: 1000
                         },
                         callback = function test_testListRunner_service_callback(response:http.IncomingMessage):void {

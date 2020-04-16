@@ -120,11 +120,11 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
         },
         heartbeat:heartbeat = {
             agent: "localhost-browser",
+            agentType: "user",
             shares: (share === true)
                 ? browser.device
                 : "",
             status: status,
-            type: "user",
             user: ""
         };
     

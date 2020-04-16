@@ -26,17 +26,17 @@ const library = {
         if (data.agent === "localhost-browser" || data.agent === "localhost-terminal") {
             // heartbeat from local, forward to each remote terminal
             const payload:heartbeat = {
-                    agent: data.agent,
+                    agent: "user",
+                    agentType: data.agentType,
                     shares: library.deviceShare(serverVars.device),
                     status: data.status,
-                    type: "device",
                     user: serverVars.hashUser
                 },
                 heartbeatError:heartbeat = {
                     agent: serverVars.hashUser,
+                    agentType: "user",
                     shares: "",
                     status: "offline",
-                    type: "user",
                     user: ""
                 },
                 counts:agentCounts = {
@@ -51,7 +51,7 @@ const library = {
                     }
                 },
                 httpConfig:httpConfiguration = {
-                    agentType: "device",
+                    agentType: "user",
                     callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                         vars.ws.broadcast(<string>responseBody);
                         responder();
@@ -67,7 +67,7 @@ const library = {
                     remoteName: "",
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.user = agent;
-                        heartbeatError.type = type;
+                        heartbeatError.agentType = type;
                         vars.ws.broadcast(JSON.stringify({
                             "heartbeat-response": heartbeatError
                         }));
@@ -75,7 +75,7 @@ const library = {
                     },
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.user = agent;
-                        heartbeatError.type = type;
+                        heartbeatError.agentType = type;
                         vars.ws.broadcast(JSON.stringify({
                             "heartbeat-response": heartbeatError
                         }));
@@ -90,7 +90,7 @@ const library = {
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
                     payload.agent = agentNames.agent;
-                    payload.type = agentNames.agentType;
+                    payload.agentType = agentNames.agentType;
                     httpConfig.agentType = agentNames.agentType;
                     httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                     httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
@@ -115,17 +115,17 @@ const library = {
                 "heartbeat-response": data
             }));
             if (data.shares !== "") {
-                const shareString:string = JSON.stringify(serverVars[data.type][data.agent].shares);
+                const shareString:string = JSON.stringify(serverVars[data.agentType][data.agent].shares);
                 if (shareString !== JSON.stringify(data.shares)) {
-                    serverVars[data.type][data.agent].shares = <deviceShares>data.shares;
-                    library.storage(JSON.stringify(serverVars[data.type]), "", data.type);
+                    serverVars[data.agentType][data.agent].shares = <deviceShares>data.shares;
+                    library.storage(JSON.stringify(serverVars[data.agentType]), "", data.agentType);
                 }
             } else {
                 data.shares = "";
             }
             data.user = data.agent;
             data.agent = serverVars.hashUser;
-            data.shares = (data.type === "user")
+            data.shares = (data.agentType === "user")
                 ? library.deviceShare(serverVars.device)
                 : serverVars.device;
             data.status = serverVars.status;

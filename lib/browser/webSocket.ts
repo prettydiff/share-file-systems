@@ -154,7 +154,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     a = a + 1;
                 } while (a < length);
                 if (heartbeat.shares !== "") {
-                    if (heartbeat.type === type && JSON.stringify(browser[type][heartbeat.user].shares) !== JSON.stringify(heartbeat.shares)) {
+                    if (heartbeat.agentType === type && JSON.stringify(browser[type][heartbeat.user].shares) !== JSON.stringify(heartbeat.shares)) {
                         const update:shareUpdateConfiguration = {
                             agent: heartbeat.user,
                             shares: <deviceShares>heartbeat.shares,
