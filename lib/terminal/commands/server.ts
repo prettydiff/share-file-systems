@@ -351,7 +351,7 @@ const library = {
                                         user: ""
                                     };
                                     logOutput(storageData);
-                                    library.heartbeat(hbConfig, "");
+                                    library.heartbeat(hbConfig, null);
                                 }
                             };
 

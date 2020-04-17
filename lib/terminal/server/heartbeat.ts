@@ -22,7 +22,7 @@ const library = {
         storage: storage
     },
     // This logic will push out heartbeat data
-    heartbeat = function terminal_server_heartbeat(data:heartbeat, response:ServerResponse | ""):void {
+    heartbeat = function terminal_server_heartbeat(data:heartbeat, response:ServerResponse):void {
         if (data.agent === "localhost-browser" || data.agent === "localhost-terminal") {
             // heartbeat from local, forward to each remote terminal
             const payload:heartbeat = {
@@ -44,7 +44,8 @@ const library = {
                     total: 0
                 },
                 responder = function terminal_server_heartbeat_responder():void {
-                    if (counts.count === counts.total && response !== "") {
+                    counts.count = counts.count + 1;
+                    if (counts.count === counts.total && response !== null) {
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write("Heartbeat response received for each remote terminal.");
                         response.end();
@@ -96,7 +97,6 @@ const library = {
                     httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                     httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                     httpConfig.remoteName = agentNames.agent;
-                    counts.count = counts.count + 1;
                     counts.total = agentCounts.total;
                     library.httpClient(httpConfig);
                 },
@@ -104,7 +104,7 @@ const library = {
             });
         } else if (serverVars.user[data.user] === undefined) {
             // trapping unexpected user
-            if (response !== "") {
+            if (response !== null) {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                 response.write("Unexpected user.");
                 response.end();
@@ -129,7 +129,7 @@ const library = {
                 ? library.deviceShare(serverVars.device)
                 : serverVars.device;
             data.status = serverVars.status;
-            if (response !== "") {
+            if (response !== null) {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                 response.write(JSON.stringify({
                     "heartbeat-response": data

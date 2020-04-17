@@ -206,11 +206,9 @@ const library = {
                             path: "/",
                             port: (keyword === "invite")
                                 ? testItem.command.invite.port
-                                : (keyword === "heartbeat")
-                                    ? 80
-                                    : (testItem.command[keyword].agent === undefined)
-                                        ? serverVars.device[serverVars.hashDevice].port
-                                        : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
+                                : (keyword === "heartbeat" || testItem.command[keyword].agent === undefined)
+                                    ? serverVars.device[serverVars.hashDevice].port
+                                    : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
                             timeout: 1000
                         },
                         callback = function test_testListRunner_service_callback(response:http.IncomingMessage):void {

@@ -1454,15 +1454,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "heartbeat, from Browser",
                     qualifier: "is",
-                    test: {
-                        "heartbeat-response": {
-                            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                            agentType: "device",
-                            shares: {},
-                            status: "idle",
-                            user: serverVars.nameUser
-                        }
-                    }
+                    test: "Heartbeat response received for each remote terminal."
                 };
                 return template;
             }()),
@@ -1493,15 +1485,7 @@ const services = function test_services():testServiceArray {
                     },
                     name: "heartbeat, from Terminal",
                     qualifier: "is",
-                    test: {
-                        "heartbeat-response": {
-                            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                            agentType: "device",
-                            shares: {},
-                            status: "idle",
-                            user: serverVars.nameUser
-                        }
-                    }
+                    test: "Heartbeat response received for each remote terminal."
                 };
                 return template;
             }()),
