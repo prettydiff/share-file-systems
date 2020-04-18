@@ -33,20 +33,7 @@ const library = {
                     list.service.execute(index, increment);
                 },
                 simulation: function test_testListRunner_simulation(index:number):void {
-                    vars.node.child(`${vars.version.command} ${tests[index].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_testListRunner_simulation_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
-                        const test:string = (typeof tests[index].test === "string")
-                                ? <string>tests[index].test
-                                : JSON.stringify(tests[index].test),
-                            error:string = (errs === null)
-                                ? ""
-                                : errs.toString();
-                        tests[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
-                        testEvaluation({
-                            test: <testItem>tests[a],
-                            testType: testListType,
-                            values: [stdout, error, stdError.toString()]
-                        }, increment);
-                    });
+                    list.simulation.execute(index, increment);
                 }
             },
             len:number = tests.length,

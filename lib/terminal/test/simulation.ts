@@ -1,5 +1,7 @@
 
 /* lib/terminal/test/simulation - A list of command related tests for run shell simulations against the supported commands. */
+
+import testEvaluation from "./test_evaluation.js";
 import vars from "../utilities/vars.js";
 
 // tests structure
@@ -9,7 +11,7 @@ import vars from "../utilities/vars.js";
 // * qualifier - how to test, see simulationItem in index.d.ts for appropriate values
 // * test - the value to compare against
 
-const simulations = function test_simulations():testItem[] {
+const simulations = function test_simulations():testSimulationArray {
     const sep:string = vars.sep,
         projectPath:string = vars.projectPath,
         superSep:string = (sep === "\\")
@@ -32,7 +34,7 @@ const simulations = function test_simulations():testItem[] {
         },
         // the tsconfig.json file hash used in multiple tests
         hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
-        simulation:testItem[] = [
+        simulation:testSimulationArray = [
             {
                 command: "asdf",
                 qualifier: "contains",
@@ -252,6 +254,22 @@ const simulations = function test_simulations():testItem[] {
                 test: `version[name] version ${text.angry}`
             }
         ];
+    simulation.execute = function test_simulations_execute(index:number, increment:Function):void {
+        vars.node.child(`${vars.version.command} ${simulation[index].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+            const test:string = (typeof simulation[index].test === "string")
+                    ? <string>simulation[index].test
+                    : JSON.stringify(simulation[index].test),
+                error:string = (errs === null)
+                    ? ""
+                    : errs.toString();
+            simulation[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
+            testEvaluation({
+                test: simulation[index],
+                testType: "simulation",
+                values: [stdout, error, stdError.toString()]
+            }, increment);
+        });
+    };
     return simulation;
 };
 

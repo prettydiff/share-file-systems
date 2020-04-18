@@ -684,7 +684,7 @@ declare global {
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
         addServers?: (callback:Function) => void;
-        execute?: (index:number, incrementor:Function) => void;
+        execute?: (index:number, increment:Function) => void;
         killServers?: (complete:testComplete) => void;
         serverRemote?: {
             device: {
@@ -707,6 +707,10 @@ declare global {
     interface testServiceShares {
         local?: deviceShares;
         remote?: deviceShares;
+    }
+    interface testSimulationArray extends Array<testItem> {
+        [index:number]: testItem;
+        execute?: (index:number, increment:Function) => void;
     }
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;

@@ -226,10 +226,16 @@ const commands_documentation = {
     },
     test: {
         description: "Builds the application and then runs all the test commands",
-        example: [{
-            code: `${vars.version.command} test`,
-            defined: "Runs all the tests in the test suite."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test`,
+                defined: "Runs all the tests in the test suite."
+            },
+            {
+                code: `${vars.version.command} test_simulation help`,
+                defined: "Filter the tests to run by supplying a text fragment to filter against test commands.  For example if there are 2 tests whose commands contain that string then only those 2 tests will be evaluated."
+            }
+        ]
     },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
@@ -240,7 +246,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} test_service fs:fs-copy`,
-                defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names begin with that string then only those 6 tests will be evaluated."
+                defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             }
         ]
     },
