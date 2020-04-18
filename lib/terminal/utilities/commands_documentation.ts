@@ -233,10 +233,16 @@ const commands_documentation = {
     },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
-        example: [{
-            code: `${vars.version.command} test_service`,
-            defined: "Runs tests server utility."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test_service`,
+                defined: "Runs tests server utility."
+            },
+            {
+                code: `${vars.version.command} test_service fs:fs-copy`,
+                defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names begin with that string then only those 6 tests will be evaluated."
+            }
+        ]
     },
     test_simulation: {
         description: "Launches a test runner to execute the various commands of the services file.",

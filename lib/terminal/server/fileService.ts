@@ -869,6 +869,11 @@ const library = {
             } else {
                 // * data.agent === remoteAgent
                 // * data.copyAgent === differentRemoteAgent
+                /*data.action = <serviceType>`${data.action}-list-remote`;
+                console.log(data);
+                httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                    //requestFiles(JSON.parse(<string>responseBody));
+                }, "Error copying from remote to local device", "body");*/
             }
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file

@@ -12,7 +12,7 @@ import hash from "./hash.js";
 import humanTime from "../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../utilities/log.js";
-import testListRunner from "../test/testListRunner.js";
+import testListRunner from "../test/test_runner.js";
 import vars from "../utilities/vars.js";
 
 // build/test system

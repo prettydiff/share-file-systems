@@ -45,7 +45,10 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * **[../lib/terminal/server/storage.ts](../lib/terminal/server/storage.ts)**                                     - A library for writing data to storage.
 * **[../lib/terminal/test/service.ts](../lib/terminal/test/service.ts)**                                         - A list of service related tests.
 * **[../lib/terminal/test/simulation.ts](../lib/terminal/test/simulation.ts)**                                   - A list of command related tests for run shell simulations against the supported commands.
-* **[../lib/terminal/test/testListRunner.ts](../lib/terminal/test/testListRunner.ts)**                           - A test runner.
+* **[../lib/terminal/test/test_complete.ts](../lib/terminal/test/test_complete.ts)**                             - Final messaging and clean up.
+* **[../lib/terminal/test/test_evaluation.ts](../lib/terminal/test/test_evaluation.ts)**                         - Evaluate tests.
+* **[../lib/terminal/test/test_message.ts](../lib/terminal/test/test_message.ts)**                               - Test messaging.
+* **[../lib/terminal/test/test_runner.ts](../lib/terminal/test/test_runner.ts)**                                 - A test runner.
 * **[../lib/terminal/utilities/commandName.ts](../lib/terminal/utilities/commandName.ts)**                       - A library for visually presenting command documentation to the terminal.
 * **[../lib/terminal/utilities/commands_documentation.ts](../lib/terminal/utilities/commands_documentation.ts)** - A data structure defining command documentation with usage examples.
 * **[../lib/terminal/utilities/error.ts](../lib/terminal/utilities/error.ts)**                                   - A utility for processing and logging errors from the terminal application.

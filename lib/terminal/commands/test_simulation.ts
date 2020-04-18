@@ -1,7 +1,7 @@
 
 /* lib/terminal/commands/test_simulation - A command driven wrapper for running simulation tests of supported terminal commands. */
 import log from "../utilities/log.js";
-import testListRunner from "../test/testListRunner.js";
+import testListRunner from "../test/test_runner.js";
 import vars from "../utilities/vars.js";
 
 // run the test suite using the build application

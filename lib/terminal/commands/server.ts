@@ -367,7 +367,7 @@ const library = {
                     });
                 });
             };
-        if (process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
+        if (vars.command.indexOf("test_") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
             library.error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);
             return;
         }
