@@ -23,7 +23,8 @@ const test_service = function terminal_testService():void {
             filter:number[] = [],
             length:number = serve.length;
         let a:number = 0,
-            filterLength:number = 0;
+            filterLength:number = 0,
+            fail:number = 0;
         do {
             if (serve[a].name.indexOf(process.argv[0]) > -1) {
                 filter.push(a);
@@ -35,10 +36,9 @@ const test_service = function terminal_testService():void {
             log([`Service test names containing ${vars.text.angry + process.argv[0] + vars.text.none} are not found.`]);
         } else {
             const addCallback = function terminal_testService_addCallback():void {
-                let b:number = 0,
-                    fail:number = 0;
+                let b:number = 0;
                 const logger = function terminal_testServices_addCallback_logger(messages:[string, string]) {
-                    testMessage({
+                    fail = testMessage({
                         fail: fail,
                         index: b,
                         messages: messages,

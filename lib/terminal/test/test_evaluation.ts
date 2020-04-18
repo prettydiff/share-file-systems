@@ -125,7 +125,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation, incre
             return;
         }
         if (output.test.qualifier === "not contains" && (typeof output.values[0] !== "string" || output.values[0].indexOf(test) > -1)) {
-            increment(["fail - must not contain this output", output.values[0]])
+            increment(["fail - must not contain this output", output.values[0]]);
             return;
         }
         increment(["", ""]);

@@ -65,7 +65,7 @@ const library = {
                             }
                         }
                     };
-                testMessage({
+                fail = testMessage({
                     fail: fail,
                     index: a,
                     messages: messages,

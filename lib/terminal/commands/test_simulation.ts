@@ -24,7 +24,8 @@ const test_simulation = function terminal_testSimulation():void {
             filter:number[] = [],
             length:number = sim.length;
         let a:number = 0,
-            filterLength:number = 0;
+            filterLength:number = 0,
+            fail:number = 0;
         do {
             if (sim[a].command.indexOf(process.argv[0]) > -1) {
                 filter.push(a);
@@ -35,16 +36,14 @@ const test_simulation = function terminal_testSimulation():void {
         if (filterLength < 1) {
             log([`Simulation test names containing ${vars.text.angry + process.argv[0] + vars.text.none} are not found.`]);
         } else {
-            let b:number = 0,
-                fail:number = 0;
+            let b:number = 0;
             const logger = function terminal_testServices_addCallback_logger(messages:[string, string]) {
-                const item:testItem = sim[b];
-                testMessage({
+                fail = testMessage({
                     fail: fail,
                     index: b,
                     messages: messages,
-                    name: item.command,
-                    test: item,
+                    name: sim[b].command,
+                    test: sim[b],
                     testType: "selected"
                 });
                 b = b + 1;
