@@ -22,7 +22,9 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
             deviceName: browser.data.nameDevice,
             ip: invitation.ip,
             message: `Invite accepted: ${util.dateFormat(new Date())}`,
-            name: browser.data.nameUser,
+            name: (invitation.type === "device")
+                ? browser.data.nameDevice
+                : browser.data.nameUser,
             modal: invitation.modal,
             port: invitation.port,
             shares: (invitation.type === "user")
@@ -34,6 +36,9 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
             userName: ""
         };
     network.inviteAccept(payload);
+    if (invitation.type === "device") {
+        browser.data.nameUser = invitation.userName;
+    }
     browser[invitation.type][invitation.deviceHash] = {
         ip: invitation.ip,
         name: invitation.name,
@@ -57,7 +62,9 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
             deviceHash: browser.data.hashDevice,
             deviceName: browser.data.nameDevice,
             message: `Invite declined: ${util.dateFormat(new Date())}`,
-            name: browser.data.nameUser,
+            name: (invitation.type === "device")
+                ? browser.data.nameDevice
+                : browser.data.nameUser,
             ip: invitation.ip,
             modal: invitation.modal,
             port: invitation.port,
@@ -188,7 +195,9 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
             ip: ip,
             message: box.getElementsByTagName("textarea")[0].value,
             modal: options.id,
-            name: browser.data.nameUser,
+            name: (type === "device")
+                ? browser.data.nameDevice
+                : browser.data.nameUser,
             port: portNumber,
             shares: (type === "user")
                 ? <deviceShares>deviceShare(browser.device)
@@ -246,7 +255,9 @@ invite.respond = function local_invite_respond(message:string):void {
                 deviceName: browser.data.nameDevice,
                 ip: invitation.ip,
                 message: `Invite accepted: ${util.dateFormat(new Date())}`,
-                name: browser.data.nameUser,
+                name: (invitation.type === "device")
+                    ? browser.data.nameDevice
+                    : browser.data.nameUser,
                 modal: invitation.modal,
                 port: invitation.port,
                 shares: (invitation.type === "user")

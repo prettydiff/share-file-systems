@@ -934,9 +934,12 @@ const library = {
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             const listData:remoteCopyList = {
                 callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
-                    response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
-                    response.write(JSON.stringify(listData));
-                    response.end();
+                    if (data.watch === "third party action") {
+                    } else {
+                        response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
+                        response.write(JSON.stringify(listData));
+                        response.end();
+                    }
                 },
                 files: [],
                 id: data.id,
