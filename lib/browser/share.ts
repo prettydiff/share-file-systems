@@ -552,9 +552,7 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
         close:HTMLButtonElement,
         address:string,
         fileShares:boolean = false;
-    const modals:string[] = (configuration.id === undefined)
-            ? Object.keys(browser.data.modals)
-            : [configuration.id],
+    const modals:string[] = Object.keys(browser.data.modals),
         modalLength:number = modals.length,
         shareKeys:string[] = (configuration.shares === "deleted")
             ? []
