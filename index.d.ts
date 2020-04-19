@@ -259,11 +259,11 @@ declare global {
         user: string;
     }
     interface heartbeat {
-        agent: string;
+        agentTo: string;
+        agentFrom: string;
         agentType: agentType;
         shares: deviceShares | devices | "";
         status: heartbeatStatus;
-        user: string;
     }
     interface httpConfiguration {
         agentType: agentType,

@@ -357,11 +357,11 @@ const library = {
                                     logOutput(storageData);
                                 } else {
                                     const hbConfig:heartbeat = {
-                                        agent: "localhost-terminal",
+                                        agentFrom: "localhost-terminal",
+                                        agentTo: "",
                                         agentType: "user",
                                         shares: "",
-                                        status: "idle",
-                                        user: ""
+                                        status: "idle"
                                     };
                                     logOutput(storageData);
                                     library.heartbeat(hbConfig, null);

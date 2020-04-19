@@ -23,21 +23,21 @@ const library = {
     },
     // This logic will push out heartbeat data
     heartbeat = function terminal_server_heartbeat(data:heartbeat, response:ServerResponse):void {
-        if (data.agent === "localhost-browser" || data.agent === "localhost-terminal") {
+        if (data.agentFrom === "localhost-browser" || data.agentFrom === "localhost-terminal") {
             // heartbeat from local, forward to each remote terminal
             const payload:heartbeat = {
-                    agent: "user",
+                    agentFrom: serverVars.hashUser,
+                    agentTo: "user",
                     agentType: data.agentType,
                     shares: library.deviceShare(serverVars.device),
-                    status: data.status,
-                    user: serverVars.hashUser
+                    status: data.status
                 },
                 heartbeatError:heartbeat = {
-                    agent: serverVars.hashUser,
+                    agentFrom: serverVars.hashUser,
+                    agentTo: "",
                     agentType: "user",
                     shares: "",
-                    status: "offline",
-                    user: ""
+                    status: "offline"
                 },
                 counts:agentCounts = {
                     count: 0,
@@ -67,7 +67,7 @@ const library = {
                     port: 80,
                     remoteName: "",
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        heartbeatError.user = agent;
+                        heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
                         vars.ws.broadcast(JSON.stringify({
                             "heartbeat-response": heartbeatError
@@ -75,7 +75,7 @@ const library = {
                         library.log([errorMessage.toString()]);
                     },
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        heartbeatError.user = agent;
+                        heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
                         vars.ws.broadcast(JSON.stringify({
                             "heartbeat-response": heartbeatError
@@ -83,7 +83,7 @@ const library = {
                         library.log([errorMessage.toString()]);
                     }
                 };
-            if (data.agent === "localhost-browser") {
+            if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }
             library.agents({
@@ -91,7 +91,7 @@ const library = {
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== serverVars.hashDevice)) {
-                        payload.agent = agentNames.agent;
+                        payload.agentTo = agentNames.agent;
                         payload.agentType = agentNames.agentType;
                         httpConfig.agentType = agentNames.agentType;
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
@@ -107,7 +107,7 @@ const library = {
                 },
                 source: serverVars
             });
-        } else if (serverVars[data.agentType][data.agent] === undefined || (data.agentType === "device" && data.user !== serverVars.hashUser)) {
+        } else if (serverVars[data.agentType][data.agentFrom] === undefined) {
             // trapping unexpected user
             if (response !== null) {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
@@ -120,16 +120,18 @@ const library = {
                 "heartbeat-response": data
             }));
             if (data.shares !== "") {
-                const shareString:string = JSON.stringify(serverVars[data.agentType][data.agent].shares);
+                const shareString:string = JSON.stringify(serverVars[data.agentType][data.agentTo].shares);
                 if (shareString !== JSON.stringify(data.shares)) {
-                    serverVars[data.agentType][data.agent].shares = <deviceShares>data.shares;
+                    serverVars[data.agentType][data.agentTo].shares = <deviceShares>data.shares;
                     library.storage(JSON.stringify(serverVars[data.agentType]), "", data.agentType);
                 }
             } else {
                 data.shares = "";
             }
-            data.user = data.agent;
-            data.agent = serverVars.hashUser;
+            data.agentTo = data.agentFrom;
+            data.agentFrom = (data.agentType === "device")
+                ? serverVars.hashDevice
+                : serverVars.hashUser;
             data.shares = (data.agentType === "user")
                 ? library.deviceShare(serverVars.device)
                 : serverVars.device;

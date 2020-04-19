@@ -119,13 +119,13 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
             }
         },
         heartbeat:heartbeat = {
-            agent: "localhost-browser",
+            agentFrom: "localhost-browser",
+            agentTo: "",
             agentType: "user",
             shares: (share === true)
                 ? browser.device
                 : "",
-            status: status,
-            user: ""
+            status: status
         };
     
     xhr.onreadystatechange = readyState;

@@ -291,7 +291,7 @@ const services = function test_services():testServiceArray {
                 };
                 return template;
             }()),
-            /*(function test_service_fsCopy_RemoteDeviceToDifferentRemoteDevice():testTemplateFileService {
+            (function test_service_fsCopy_RemoteDeviceToDifferentRemoteDevice():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
                         fs: {
@@ -307,7 +307,7 @@ const services = function test_services():testServiceArray {
                             watch: "no"
                         }
                     },
-                    name: "fs:fs-copy, Copy Remote Device to Local",
+                    name: "fs:fs-copy, Copy Remote Device to different Remote Device",
                     qualifier: "is",
                     test: {
                         "file-list-status": {
@@ -318,7 +318,7 @@ const services = function test_services():testServiceArray {
                     }
                 };
                 return template;
-            }()),*/
+            }()),
             (function test_service_fsCopy_RemoteDeviceToSameRemoteDevice1():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
@@ -1490,7 +1490,8 @@ const services = function test_services():testServiceArray {
                 const template:testTemplateHeartbeat = {
                     command: {
                         heartbeat: {
-                            agent: "localhost-browser",
+                            agentFrom: serverVars.hashDevice,
+                            agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shares: {
                                 [serverVars.hashDevice]: {
@@ -1507,8 +1508,7 @@ const services = function test_services():testServiceArray {
                                     }
                                 }
                             },
-                            status: "active",
-                            user: serverVars.hashDevice
+                            status: "active"
                         }
                     },
                     name: "heartbeat, from Browser",
@@ -1521,7 +1521,8 @@ const services = function test_services():testServiceArray {
                 const template:testTemplateHeartbeat = {
                     command: {
                         heartbeat: {
-                            agent: "localhost-terminal",
+                            agentFrom: serverVars.hashDevice,
+                            agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shares: {
                                 [serverVars.hashDevice]: {
@@ -1538,8 +1539,7 @@ const services = function test_services():testServiceArray {
                                     }
                                 }
                             },
-                            status: "active",
-                            user: serverVars.hashDevice
+                            status: "active"
                         }
                     },
                     name: "heartbeat, from Terminal",
@@ -1552,7 +1552,8 @@ const services = function test_services():testServiceArray {
                 const template:testTemplateHeartbeat = {
                     command: {
                         heartbeat: {
-                            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
+                            agentFrom: serverVars.hashDevice,
+                            agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shares: {
                                 [serverVars.hashDevice]: {
@@ -1569,8 +1570,7 @@ const services = function test_services():testServiceArray {
                                     }
                                 }
                             },
-                            status: "active",
-                            user: serverVars.hashDevice
+                            status: "active"
                         }
                     },
                     name: "heartbeat, Unexpected User",

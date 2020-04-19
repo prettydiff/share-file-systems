@@ -131,34 +131,27 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             },
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
-                    type:agentType = (browser.user[heartbeat.user] === undefined)
-                        ? (browser.device[heartbeat.user] === undefined)
-                            ? null
-                            : "device"
-                        : "user",
-                    buttons:HTMLCollectionOf<HTMLElement> = (type === null)
-                        ? null
-                        : document.getElementById(type).getElementsByTagName("button"),
+                    buttons:HTMLCollectionOf<HTMLElement> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
                     length:number = (buttons === null)
                         ? 0
-                        : buttons.length;
+                        : buttons.length;console.log(heartbeat)
                 let a:number = 0;
                 if (buttons === null) {
                     return;
                 }
                 do {
-                    if (buttons[a].innerHTML.indexOf(heartbeat.user) > -1) {
+                    if (buttons[a].innerHTML.indexOf(heartbeat.agentTo) > -1) {
                         buttons[a].setAttribute("class", heartbeat.status);
                         break;
                     }
                     a = a + 1;
                 } while (a < length);
                 if (heartbeat.shares !== "") {
-                    if (heartbeat.agentType === type && JSON.stringify(browser[type][heartbeat.user].shares) !== JSON.stringify(heartbeat.shares)) {
+                    if (JSON.stringify(browser[heartbeat.agentType][heartbeat.agentTo].shares) !== JSON.stringify(heartbeat.shares)) {
                         const update:shareUpdateConfiguration = {
-                            agent: heartbeat.user,
+                            agent: heartbeat.agentTo,
                             shares: <deviceShares>heartbeat.shares,
-                            type: type
+                            type: heartbeat.agentType
                         };
                         share.update(update);
                     }
