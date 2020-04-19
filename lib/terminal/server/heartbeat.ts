@@ -72,7 +72,7 @@ const library = {
                         vars.ws.broadcast(JSON.stringify({
                             "heartbeat-response": heartbeatError
                         }));
-                        //library.log([errorMessage.toString()]);
+                        library.log([errorMessage.toString()]);
                     },
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.user = agent;
@@ -80,7 +80,7 @@ const library = {
                         vars.ws.broadcast(JSON.stringify({
                             "heartbeat-response": heartbeatError
                         }));
-                        //library.log([errorMessage.toString()]);
+                        library.log([errorMessage.toString()]);
                     }
                 };
             if (data.agent === "localhost-browser") {
@@ -96,7 +96,9 @@ const library = {
                         httpConfig.agentType = agentNames.agentType;
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
-                        httpConfig.payload = JSON.stringify(payload),
+                        httpConfig.payload = JSON.stringify({
+                            "hearbeat-response": payload
+                        });
                         httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                         httpConfig.remoteName = agentNames.agent;
                         counts.total = agentCounts.total;
