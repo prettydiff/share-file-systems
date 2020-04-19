@@ -118,7 +118,7 @@ const library = {
             // heartbeat from remote
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-response": data
-            }));console.log(data);
+            }));
             if (data.shares !== "") {
                 const shareString:string = JSON.stringify(serverVars[data.agentType][data.agent].shares);
                 if (shareString !== JSON.stringify(data.shares)) {
