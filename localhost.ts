@@ -56,7 +56,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                         port: browser.localNetwork.httpPort,
                                         shares: {}
                                     };
-                                    share.addAgent(nameUser.value, hashes.device, "device");
+                                    share.addAgent(nameDevice.value, hashes.device, "device");
                                     browser.pageBody.removeAttribute("class");
                                     browser.loadTest = false;
                                     network.storage("device");
