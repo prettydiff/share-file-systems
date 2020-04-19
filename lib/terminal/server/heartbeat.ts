@@ -26,14 +26,18 @@ const library = {
         if (data.agentFrom === "localhost-browser" || data.agentFrom === "localhost-terminal") {
             // heartbeat from local, forward to each remote terminal
             const payload:heartbeat = {
-                    agentFrom: serverVars.hashUser,
+                agentFrom: (data.agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser,
                     agentTo: "user",
                     agentType: data.agentType,
                     shares: library.deviceShare(serverVars.device),
                     status: data.status
                 },
                 heartbeatError:heartbeat = {
-                    agentFrom: serverVars.hashUser,
+                    agentFrom: (data.agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser,
                     agentTo: "",
                     agentType: "user",
                     shares: "",
