@@ -34,8 +34,13 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
             userName: ""
         };
     network.inviteAccept(payload);
+    browser[invitation.type][invitation.deviceHash] = {
+        ip: invitation.ip,
+        name: invitation.name,
+        port: invitation.port,
+        shares: <deviceShares>invitation.shares
+    };
     share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
-    browser[invitation.type][invitation.deviceHash].shares = <deviceShares>invitation.shares;
     browser.data.colors[invitation.type][invitation.deviceHash] = settings.colorScheme[browser.data.color];
     network.storage(invitation.type);
 };
