@@ -11,23 +11,23 @@ import util from "./util.js";
 const share:module_share = {};
 
 /* Adds users to the user bar */
-share.addAgent = function local_share_addAgent(agentName:string, id:string, type:agentType):void {
+share.addAgent = function local_share_addAgent(userName:string, userHash:string, type:agentType):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
         addStyle = function local_share_addUser_addStyle() {
             let body:string,
                 heading:string;
-            if (browser.data.colors[type][id] === undefined) {
+            if (browser.data.colors[type][userHash] === undefined) {
                 body = settings.colorDefaults[browser.data.color][0];
                 heading = settings.colorDefaults[browser.data.color][1];
-                browser.data.colors[type][id] = [body, heading];
+                browser.data.colors[type][userHash] = [body, heading];
                 network.storage("settings");
             } else {
-                body = browser.data.colors[type][id][0];
-                heading = browser.data.colors[type][id][1];
+                body = browser.data.colors[type][userHash][0];
+                heading = browser.data.colors[type][userHash][1];
             }
             settings.styleText({
-                agent: id,
+                agent: userHash,
                 colors: [body, heading],
                 replace: false,
                 type: type
@@ -44,26 +44,26 @@ share.addAgent = function local_share_addAgent(agentName:string, id:string, type
         length: number = modals.length;
     let a:number = 0,
         shareUser:HTMLElement;
-    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${agentName}`;
-    if (id === browser.data.hashDevice) {
+    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
+    if (userHash === browser.data.hashDevice) {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
     }
     addStyle();
-    button.setAttribute("id", id);
+    button.setAttribute("id", userHash);
     button.setAttribute("data-agent-type", type);
     button.onclick = sharesModal;
     li.appendChild(button);
     document.getElementById(type).getElementsByTagName("ul")[0].appendChild(li);
     if (browser.loadTest === false) {
-        settings.addUserColor(agentName, type, <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
+        settings.addUserColor(userHash, type, <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         do {
             if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
                 const agentList:HTMLElement = <HTMLElement>document.getElementById(modals[a]).getElementsByClassName("agentList")[0];
                 if (agentList !== undefined) {
                     shareUser = document.createElement("li");
-                    shareUser.appendChild(share.content(id, type));
+                    shareUser.appendChild(share.content(userHash, type));
                     agentList.appendChild(shareUser);
                 }
             }

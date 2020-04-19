@@ -867,14 +867,30 @@ const library = {
                     response.end();
                 }, `Error copying files to and from agent ${data.agent}.`, "body");
             } else {
+                const agent:string = data.agent;
                 // * data.agent === remoteAgent
                 // * data.copyAgent === differentRemoteAgent
-                /*data.action = <serviceType>`${data.action}-list-remote`;
+                data.action = <serviceType>`${data.action}-list-remote`;
+                data.agent = data.copyAgent;
+                data.copyAgent = agent;
+                data.remoteWatch = serverVars.hashDevice;
+                data.watch = "third party action";
                 console.log(data);
                 httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                    console.log("");
+                    console.log("responseBody");
+                    console.log(responseBody);
                     //requestFiles(JSON.parse(<string>responseBody));
-                }, "Error copying from remote to local device", "body");*/
+                }, "Error copying from remote to local device", "body");
             }
+        } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
+            const agent:string = data.agent;
+            data.agent = data.copyAgent;
+            data.copyAgent =agent;
+            data.action = <serviceType>`${data.action.replace("-remote", "")}`;
+            httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                requestFiles(JSON.parse(<string>responseBody));
+            }, "Error copying from remote to local device", "body");
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
             // request a single file
             // * generated internally from function requestFiles

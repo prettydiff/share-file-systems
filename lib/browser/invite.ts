@@ -3,6 +3,7 @@
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import settings from "./settings.js";
 import share from "./share.js";
 import util from "./util.js";
 
@@ -33,9 +34,9 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
             userName: ""
         };
     network.inviteAccept(payload);
-    browser[invitation.type][invitation.deviceHash].shares = <deviceShares>invitation.shares;
-    browser.data.colors[invitation.type][invitation.deviceHash] = ["fff", "eee"];
     share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
+    browser[invitation.type][invitation.deviceHash].shares = <deviceShares>invitation.shares;
+    browser.data.colors[invitation.type][invitation.deviceHash] = settings.colorScheme[browser.data.color];
     network.storage(invitation.type);
 };
 
@@ -481,7 +482,7 @@ invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         description:HTMLElement = <HTMLElement>element.parentNode.parentNode.parentNode.lastChild;
     if (element.value === "device") {
-        description.innerHTML = "Including a personal device will provide unrestricted access to that device and impose the user keys and user name of this user account upon that device.";
+        description.innerHTML = "Including a personal device will provide unrestricted access to and from that device. This username will be imposed upon that device";
     } else {
         description.innerHTML = "Including a user allows sharing with a different person and the devices they make available.";
     }
