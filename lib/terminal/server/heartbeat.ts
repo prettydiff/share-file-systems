@@ -26,18 +26,14 @@ const library = {
         if (data.agentFrom === "localhost-browser" || data.agentFrom === "localhost-terminal") {
             // heartbeat from local, forward to each remote terminal
             const payload:heartbeat = {
-                agentFrom: (data.agentType === "device")
-                        ? serverVars.hashDevice
-                        : serverVars.hashUser,
+                    agentFrom: "",
                     agentTo: "user",
                     agentType: data.agentType,
                     shares: library.deviceShare(serverVars.device),
                     status: data.status
                 },
                 heartbeatError:heartbeat = {
-                    agentFrom: (data.agentType === "device")
-                        ? serverVars.hashDevice
-                        : serverVars.hashUser,
+                    agentFrom: "",
                     agentTo: "",
                     agentType: "user",
                     shares: "",
@@ -95,6 +91,9 @@ const library = {
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== serverVars.hashDevice)) {
+                        payload.agentFrom = (agentNames.agentType === "device")
+                            ? serverVars.hashDevice
+                            : serverVars.hashUser;
                         payload.agentTo = agentNames.agent;
                         payload.agentType = agentNames.agentType;
                         httpConfig.agentType = agentNames.agentType;
@@ -111,7 +110,7 @@ const library = {
                 },
                 source: serverVars
             });
-        } else if (serverVars[data.agentType][data.agentFrom] === undefined) {
+        } else if (serverVars[data.agentType][data.agentFrom] === undefined) {console.log(data);console.log(serverVars[data.agentType]);
             // trapping unexpected user
             if (response !== null) {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});

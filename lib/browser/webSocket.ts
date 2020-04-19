@@ -135,7 +135,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     length:number = (buttons === null)
                         ? 0
                         : buttons.length;console.log(heartbeat)
-                let a:number = 0;
+                let a:number = 0;console.log(heartbeat);
                 if (buttons === null) {
                     return;
                 }
