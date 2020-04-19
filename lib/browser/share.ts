@@ -1,5 +1,8 @@
 
 /* lib/browser/share - The utilities that manage and coordinate changes to user share data. */
+
+import agents from "../common/agents.js";
+
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";
@@ -78,6 +81,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
     if (agentName === undefined) {
         return document.getElementById("systems-modal");
     }
+
     const lists:HTMLElement = document.createElement("div"),
         fileNavigate = function local_share_content_fileNavigate(event:MouseEvent):void {
             const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
@@ -106,136 +110,100 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 path: address,
                 readOnly: (agent !== browser.data.hashDevice && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
             });
+        };
+    let agentTypeUL:HTMLElement,
+        shareListUL:HTMLElement;
+
+    agents({
+        countBy: "share",
+        perAgent: function local_share_content_perAgent(agentNames:agentNames):void {
+            const li:HTMLElement = document.createElement("li"),
+                title:HTMLElement = document.createElement("h4");
+            shareListUL = document.createElement("ul");
+            title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
+            li.appendChild(title);
+            li.setAttribute("data-hash", agentNames.agent);
+            li.setAttribute("class", "agent");
+            if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
+                li.appendChild(shareListUL);
+            } else {
+                const p:HTMLElement = document.createElement("p");
+                p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
+                li.appendChild(p);
+            }
+            agentTypeUL.appendChild(li);
         },
-        shareButton = function local_share_content_shareButton(shareButton:shareButton):HTMLElement {
-            const button:HTMLElement = document.createElement("button"),
+        perAgentType: function local_share_content_perAgentType(agentNames:agentNames):void {
+            const type:agentType = agentNames.agentType;
+            if (agentName === "" && (agentType === "" || agentType === type)) {
+                const title:HTMLElement = document.createElement("h3"),
+                    list:string[] = Object.keys(browser[type]),
+                    listLength:number = list.length;
+                if (listLength > 0) {
+                    const plural:string = (listLength === 1)
+                        ? ""
+                        : "s";
+                    agentTypeUL = document.createElement("ul");
+                    agentTypeUL.setAttribute("class", "agentList")
+                    title.innerHTML = `There are ${listLength} <strong>${type + plural}</strong> shared.`;
+                    lists.appendChild(title);
+                    lists.appendChild(agentTypeUL);
+                } else {
+                    title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
+                    lists.appendChild(title);
+                }
+            }
+        },
+        perShare: function local_share_content_perShare(agentNames:agentNames):void {
+            const li:HTMLElement = document.createElement("li"),
+                button:HTMLElement = document.createElement("button"),
                 status:HTMLElement = document.createElement("strong"),
-                itemType:string = browser[shareButton.type][shareButton.name].shares[shareButton.index].type;
-            button.setAttribute("class", shareButton.type);
-            button.innerHTML = browser[shareButton.type][shareButton.name].shares[shareButton.index].name;
+                shareItem:deviceShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
+                shareType:string = shareItem.type;
+            button.setAttribute("class", agentNames.agentType);
+            button.innerHTML = shareItem.name;
             status.setAttribute("class", "read-only-status");
-            status.innerHTML = (browser[shareButton.type][shareButton.name].shares[shareButton.index].readOnly === true)
+            status.innerHTML = (shareItem.readOnly === true)
                 ? "(Read Only)"
                 : "(Full Access)"
             button.appendChild(status);
-            if (itemType === "directory" || itemType === "file" || itemType === "link") {
+            if (shareType === "directory" || shareType === "file" || shareType === "link") {
                 button.onclick = fileNavigate;
             }
-            return button;
-        },
-        shareDevice = function local_share_content_shareDevice(itemName:string, index:number):HTMLElement {
-            const item:HTMLElement = document.createElement("li"),
-                shareData:shareButton = {
-                    index: index,
-                    name: itemName,
-                    type: "device"
-                },
-                button:HTMLElement = shareButton(shareData),
-                del:HTMLElement = document.createElement("button"),
-                readOnly:HTMLElement = document.createElement("button"),
-                span:HTMLElement = document.createElement("span");
-            if (browser.device[itemName].shares[index].readOnly === true) {
-                item.setAttribute("class", "device");
-                readOnly.setAttribute("class", "grant-full-access");
-                readOnly.innerHTML = ("Grant Full Access");
+            li.setAttribute("data-hash", agentNames.share);
+            if (agentNames.agentType === "device") {
+                const del:HTMLElement = document.createElement("button"),
+                    readOnly:HTMLButtonElement = document.createElement("button"),
+                    span:HTMLElement = document.createElement("span");
+                if (shareItem.readOnly === true) {
+                    li.setAttribute("class", "share");
+                    readOnly.setAttribute("class", "grant-full-access");
+                    readOnly.innerHTML = ("Grant Full Access");
+                } else {
+                    li.setAttribute("class", "device full-access");
+                    readOnly.setAttribute("class", "make-read-only");
+                    readOnly.innerHTML = ("Make Read Only");
+                }
+                readOnly.onclick = share.readOnly;
+                del.setAttribute("class", "delete");
+                del.setAttribute("title", "Delete this share");
+                del.innerHTML = "\u2718<span>Delete this share</span>";
+                del.onclick = share.deleteItem;
+                span.setAttribute("class", "clear");
+                li.appendChild(del);
+                li.appendChild(button);
+                li.appendChild(readOnly);
+                li.appendChild(span);
             } else {
-                item.setAttribute("class", "device full-access");
-                readOnly.setAttribute("class", "make-read-only");
-                readOnly.innerHTML = ("Make Read Only");
+                if (shareItem.readOnly === true) {
+                    li.setAttribute("class", "full-access");
+                    li.appendChild(button);
+                }
             }
-            readOnly.onclick = share.readOnly;
-            del.setAttribute("class", "delete");
-            del.setAttribute("title", "Delete this share");
-            del.innerHTML = "\u2718<span>Delete this share</span>";
-            del.onclick = share.itemDelete;
-            span.setAttribute("class", "clear");
-            item.appendChild(del);
-            item.appendChild(button);
-            item.appendChild(readOnly);
-            item.appendChild(button);
-            item.appendChild(span);
-            return item;
+            shareListUL.appendChild(li);
         },
-        shareUser = function local_share_content_shareUser(itemName:string, index:number):HTMLElement {
-            const item:HTMLElement = document.createElement("li"),
-                shareData:shareButton = {
-                    index: index,
-                    name: itemName,
-                    type: "user"
-                },
-                button:HTMLElement = shareButton(shareData);
-            if (browser.user[itemName].shares[index].readOnly === true) {
-                item.removeAttribute("class");
-            } else {
-                item.setAttribute("class", "full-access");
-            }
-            item.appendChild(button);
-            return item;
-        },
-        shareAgent = function local_share_content_shareAgent(agent:string, type:agentType, single:boolean):HTMLElement {
-            const container:HTMLElement = (single === true)
-                    ? lists
-                    : document.createElement("li"),
-                agentName:HTMLElement = (single === true)
-                    ? document.createElement("h3")
-                    : document.createElement("h4"),
-                shareList = document.createElement("ul"),
-                keys:string[] = Object.keys(browser[type][agent].shares),
-                keyLength:number = keys.length;
-            let a:number = 0;
-            container.setAttribute("class", "agentList");
-            agentName.setAttribute("class", "agent");
-            agentName.innerHTML = browser[type][agent].name;
-            container.appendChild(agentName);
-            if (keyLength > 0) {
-                do {
-                    if (type === "device") {
-                        shareList.appendChild(shareDevice(browser.device[agent].shares[keys[a]].name, a));
-                    } else if (type === "user") {
-                        shareList.appendChild(shareUser(browser.user[agent].shares[keys[a]].name, a));
-                    }
-                    a = a + 1;
-                } while (a < keyLength);
-                container.appendChild(shareList);
-            } else {
-                const p:HTMLElement = document.createElement("p");
-                p.innerHTML = `${type.slice(0, 1).toUpperCase() + type.slice(1)} ${browser[type][agent].name} has no shares.`;
-                container.appendChild(p);
-            }
-            return container;
-        },
-        buildList = function local_share_content_buildList(type:agentType):void {
-            const title:HTMLElement = document.createElement("h3"),
-                list:string[] = Object.keys(browser[type]),
-                listLength:number = list.length;
-            if (listLength === 0) {
-                title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
-                lists.appendChild(title);
-            } else {
-                const ul:HTMLElement = document.createElement("ul"),
-                    plural:string = (listLength === 1)
-                        ? ""
-                        : "s";
-                let a:number = 0;
-                title.innerHTML = `There are ${length} <strong>${type + plural}</strong> shared.`;
-                lists.appendChild(title);
-                do {
-                    ul.appendChild(shareAgent(list[a], type, false));
-                    a = a + 1;
-                } while (a < listLength);
-                lists.appendChild(ul);
-            }
-        };
-    if (agentName === "") {
-        if (agentType === "") {
-            buildList("device");
-            buildList("user");
-        } else {
-            buildList(agentType);
-        }
-    } else {
-        shareAgent(agentName, <agentType>agentType, true);
-    }
+        source: browser
+    });
     return lists;
 };
 
@@ -251,23 +219,25 @@ share.context = function local_share_context():void {
         agent:agency = util.getAgent(box),
         payload: hashShareConfiguration = {
             callback: function local_share_context_shareHash1(responseBody:string):void {
-                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse;
+                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse,
+                    update:shareUpdateConfiguration = {
+                        agent: agent[0],
+                        id: box.getAttribute("id"),
+                        shares: browser[agent[2]][agent[0]].shares,
+                        type: agent[2]
+                    };
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
                     readOnly: true,
                     type: <shareType>shareResponse.type
                 };
+                network.storage("device");
+                share.update(update);
             },
             device: "",
             share: "",
             type: "file"
-        },
-        update:shareUpdateConfiguration = {
-            agent: agent[0],
-            id: box.getAttribute("id"),
-            shares: browser[agent[2]][agent[0]].shares,
-            type: agent[2]
         };
     context.element = null;
     let a:number = 0,
@@ -299,7 +269,36 @@ share.context = function local_share_context():void {
         } while (a < addressesLength);
     }
     util.selectNone(element);
-    share.update(update);
+    network.heartbeat("active", true);
+};
+
+/* Delete a share from a device */
+share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
+    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        agent:agency = util.getAgent(element),
+        parent:HTMLElement = <HTMLElement>element.parentNode,
+        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent;
+    const shares:deviceShares = browser.device[agent[0]].shares,
+        keys:string[] = Object.keys(shares),
+        length:number = keys.length;
+    let a:number = 0;
+    do {
+        if (shares[keys[a]].name === address) {
+            delete shares[keys[a]];
+            break;
+        }
+        a = a + 1;
+    } while (a < length);
+    if (length === 1) {
+        const p:HTMLElement = document.createElement("p"),
+            granny:HTMLElement = <HTMLElement>parent.parentNode;
+        p.innerHTML = `Device <em>${browser.device[agent[0]].name}</em> has no shares.`;
+        granny.parentNode.appendChild(p);
+        granny.parentNode.removeChild(granny);
+    } else {
+        parent.parentNode.removeChild(parent);
+    }
+    network.storage("device");
     network.heartbeat("active", true);
 };
 
@@ -465,27 +464,6 @@ share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
     network.storage("user");
 };
 
-/* Delete a share from a device */
-share.itemDelete = function local_share_itemDelete(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        agent:agency = util.getAgent(element),
-        parent:HTMLElement = <HTMLElement>element.parentNode,
-        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-        shares:deviceShares = browser[agent[2]][agent[0]].shares,
-        keys:string[] = Object.keys(shares),
-        length:number = keys.length;
-    let a:number = 0;
-    parent.parentNode.removeChild(parent);
-    do {
-        if (shares[keys[a]].name === address) {
-            delete shares[keys[a]];
-            break;
-        }
-        a = a + 1;
-    } while (a < length);
-    network.heartbeat("active", true);
-};
-
 /* Displays a list of shared items for each user */
 share.modal = function local_shares_modal(agent:string, agentType:agentType|"", configuration:ui_modal|null):void {
     const content:HTMLElement = share.content(agent, agentType),
@@ -578,17 +556,20 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
             ? Object.keys(browser.data.modals)
             : [configuration.id],
         modalLength:number = modals.length,
+        shareKeys:string[] = (configuration.shares === "deleted")
+            ? []
+            : Object.keys(configuration.shares),
         shareLength:number = (configuration.shares === "deleted")
             ? 0
-            : Object.keys(configuration.shares).length,
-        windows:boolean = (function local_util_shareUpdate_windows():boolean {
+            : shareKeys.length,
+        windows:boolean = (function local_share_update_windows():boolean {
             if (configuration.shares === "deleted" || shareLength < 1) {
                 return false;
             }
             do {
-                if (configuration.shares[b].type === "directory" || configuration.shares[b].type === "file" || configuration.shares[b].type === "link") {
+                if (configuration.shares[shareKeys[b]].type === "directory" || configuration.shares[shareKeys[b]].type === "file" || configuration.shares[shareKeys[b]].type === "link") {
                     fileShares = true;
-                    if (configuration.shares[0].name.charAt(0) === "\\" || (/^\w:\\/).test(configuration.shares[0].name) === true) {
+                    if (configuration.shares[shareKeys[0]].name.charAt(0) === "\\" || (/^\w:\\/).test(configuration.shares[shareKeys[0]].name) === true) {
                         return true;
                     }
                     return false;
@@ -643,14 +624,14 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
                 header = <HTMLElement>parentDirectory.parentNode;
                 address = browser.data.modals[modals[a]].text_value;
                 do {
-                    if (address.indexOf(configuration.shares[b].name) === 0 || (windows === true && address.toLowerCase().indexOf(configuration.shares[b].name.toLowerCase()) === 0)) {
+                    if (address.indexOf(configuration.shares[shareKeys[b]].name) === 0 || (windows === true && address.toLowerCase().indexOf(configuration.shares[shareKeys[b]].name.toLowerCase()) === 0)) {
                         if (shareBest < 0) {
                             shareBest = b;
                             shareTop = b;
                         }
-                        if (configuration.shares[b].name.length > configuration.shares[shareBest].name.length) {
+                        if (configuration.shares[shareKeys[b]].name.length > configuration.shares[shareBest].name.length) {
                             shareBest = b;
-                        } else if (configuration.shares[b].name.length < configuration.shares[shareTop].name.length) {
+                        } else if (configuration.shares[shareKeys[b]].name.length < configuration.shares[shareTop].name.length) {
                             shareTop = b;
                         }
                     }

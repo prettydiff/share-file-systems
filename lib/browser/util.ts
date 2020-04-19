@@ -475,8 +475,13 @@ util.getAncestor = function local_util_getAncestor(start:HTMLElement, identifier
 /* Get the agent of a given modal */
 util.getAgent = function local_util_getAgent(element:HTMLElement):agency {
     const box:HTMLElement = util.getAncestor(element, "box", "class"),
-    id:string = box.getAttribute("id");
-    return [browser.data.modals[id].agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
+        id:string = box.getAttribute("id");
+    let agent:string = browser.data.modals[id].agent;
+    if (agent === "" && browser.data.modals[id].type === "shares") {
+        const ancestor = util.getAncestor(element, "agent", "class");
+        agent = ancestor.getAttribute("data-hash");
+    }
+    return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
 };
 
 /* Shortcut key combinations */

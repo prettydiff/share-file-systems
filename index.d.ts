@@ -422,10 +422,10 @@ declare global {
         addAgent?: (agentName:string, id:string, type:agentType) => void;
         content?: (agent:string, agentType:agentType|"") => HTMLElement;
         context?: EventHandlerNonNull;
+        deleteItem?: EventHandlerNonNull;
         deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
         deleteToggle?: EventHandlerNonNull;
         deleteUser?: (box:HTMLElement) => void;
-        itemDelete?: EventHandlerNonNull;
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
         update?: (updateShareConfiguration) => void;

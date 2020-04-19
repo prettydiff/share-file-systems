@@ -86,7 +86,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .header button,
 .dark #spaces .box .expansion,
 .dark #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em #000}
-.dark #spaces .agentList .device button.make-read-only,
+.dark #spaces .agentList .agent button.make-read-only,
 .dark #spaces .box .buttons button.minimize{background:#421;border-color:#ca0;color:#ca0}
 .dark #spaces .box .buttons button.maximize{background:#024;border-color:#6cf;color:#6cf}
 .dark #spaces .box .buttons button.close{background:#300;border-color:#c33;color:#c33}
@@ -117,7 +117,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box input,
 .dark #spaces .box textarea{background:#111;border-color:#666;color:#ccc}
 .dark #spaces .box .body > textarea{background:#222;color:#ccc}
-.dark #spaces .agentList .device button.grant-full-access,
+.dark #spaces .agentList .agent button.grant-full-access,
 .dark #spaces .box button.cancel,
 .dark #spaces .sharesDeleteList .checked,
 .dark #spaces .box .delete{background:#300;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}

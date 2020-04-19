@@ -64,81 +64,9 @@ const library = {
                     ? "start"
                     : "xdg-open",
             post = function terminal_server_post(request:IncomingMessage, response:ServerResponse) {
-                let body:string = "",
-                        decoder:StringDecoder = new StringDecoder("utf8");
-                    request.on('data', function terminal_server_create_data(data:Buffer) {
-                        body = body + decoder.write(data);
-                        if (body.length > 1e6) {
-                            request.connection.destroy();
-                        }
-                    });
-                    
-                    request.on("error", function terminal_server_create_errorRequest(errorMessage:nodeError):void {
-                        if (errorMessage.code !== "ETIMEDOUT") {
-                            library.log([body, "request", errorMessage.toString()]);
-                            vars.ws.broadcast(JSON.stringify({
-                                error: errorMessage
-                            }));
-                        }
-                    });
-                    response.on("error", function terminal_server_create_errorResponse(errorMessage:nodeError):void {
-                        if (errorMessage.code !== "ETIMEDOUT") {
-                            library.log([body, "response"]);
-                            if (errorMessage.toString().indexOf("write after end") > -1) {
-                                library.log([errorMessage.stack]);
-                            }
-                            vars.ws.broadcast(JSON.stringify({
-                                error: errorMessage
-                            }));
-                        }
-                    });
-
-                request.on("end", function terminal_server_create_end():void {
-                    let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
-                    if (task === "heartbeat") {
-                        // * Send and receive heartbeat signals
-                        const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
-                        library.heartbeat(heartbeatData, response);
-                    } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
-                        // * local: Writes changes to storage files
-                        storage(body, response, task);
-                    } else if (task === "fs") {
-                        // * file system interaction for both local and remote
-                        readOnly(request, response, body);
-                    } else if (task === "fs-update-remote") {
-                        // * remote: Changes to the remote user's file system
-                        // * local : Update local "File Navigator" modals for the respective remote user
-                        vars.ws.broadcast(body);
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        if (serverVars.addresses.length > 1) {
-                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][1][1]}.`);
-                        } else {
-                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][0][1]}.`);
-                        }
-                        response.end();
-                    } else if (task === "hashShare") {
-                        // * generate a hash string to name a share
-                        const hashShare:hashShare = JSON.parse(body).hashShare,
-                            input:hashInput = {
-                                callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
-                                    const outputBody:hashShare = JSON.parse(hashData.id).hashShare,
-                                        hashResponse:hashShareResponse = {
-                                            device: outputBody.device,
-                                            hash: hashData.hash,
-                                            share: outputBody.share,
-                                            type: outputBody.type
-                                        };
-                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                    response.write(JSON.stringify({shareHashResponse:hashResponse}));
-                                    response.end();
-                                },
-                                directInput: true,
-                                id: body,
-                                source: serverVars.hashUser + serverVars.hashDevice + hashShare.type + hashShare.share
-                            };
-                        library.hash(input);
-                    } else if (task === "hashDevice") {
-                        // * produce a hash that describes a new device
+                let body:string = "";
+                const decoder:StringDecoder = new StringDecoder("utf8"),
+                    hashDevice = function terminal_server_post_hashDevice():void {
                         const nameData:hashUser = JSON.parse(body).hashDevice,
                             hashes:hashUser = {
                                 device: "",
@@ -166,6 +94,89 @@ const library = {
                                 source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
                             };
                         library.hash(input);
+                    },
+                    hashShare = function terminal_server_post_hashShare():void {
+                        const hashShare:hashShare = JSON.parse(body).hashShare,
+                            input:hashInput = {
+                                callback: function terminal_server_create_end_shareHash(hashData:hashOutput) {
+                                    const outputBody:hashShare = JSON.parse(hashData.id).hashShare,
+                                        hashResponse:hashShareResponse = {
+                                            device: outputBody.device,
+                                            hash: hashData.hash,
+                                            share: outputBody.share,
+                                            type: outputBody.type
+                                        };
+                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                                    response.write(JSON.stringify({shareHashResponse:hashResponse}));
+                                    response.end();
+                                },
+                                directInput: true,
+                                id: body,
+                                source: serverVars.hashUser + serverVars.hashDevice + hashShare.type + hashShare.share
+                            };
+                        library.hash(input);
+                    },
+                    updateRemote = function terminal_server_post_updateRemote():void {
+                        vars.ws.broadcast(body);
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        if (serverVars.addresses.length > 1) {
+                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][1][1]}.`);
+                        } else {
+                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][0][1]}.`);
+                        }
+                        response.end();
+                    };
+
+                // request handling
+                request.on('data', function terminal_server_create_data(data:Buffer) {
+                    body = body + decoder.write(data);
+                    if (body.length > 1e6) {
+                        request.connection.destroy();
+                    }
+                });
+                request.on("error", function terminal_server_create_errorRequest(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT") {
+                        library.log([body, "request", errorMessage.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
+                    }
+                });
+                response.on("error", function terminal_server_create_errorResponse(errorMessage:nodeError):void {
+                    if (errorMessage.code !== "ETIMEDOUT") {
+                        library.log([body, "response"]);
+                        if (errorMessage.toString().indexOf("write after end") > -1) {
+                            library.log([errorMessage.stack]);
+                        }
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
+                    }
+                });
+
+                // request callbacks
+                request.on("end", function terminal_server_create_end():void {
+                    let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
+                    if (task === "heartbeat") {
+                        // * Send and receive heartbeat signals
+                        const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
+                        library.heartbeat(heartbeatData, response);
+                    } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
+                        // * local: Writes changes to storage files
+                        storage(body, response, task);
+                    } else if (task === "fs") {
+                        // * file system interaction for both local and remote
+                        readOnly(request, response, body);
+                    } else if (task === "fs-update-remote") {
+                        // * remote: Changes to the remote user's file system
+                        // * local : Update local "File Navigator" modals for the respective remote user
+                        updateRemote();
+                    } else if (task === "hashShare") {
+                        // * generate a hash string to name a share
+                        hashShare();
+                    } else if (task === "hashDevice") {
+                        // * produce a hash that describes a new device
+                        hashDevice();
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
                         invite(body, response);

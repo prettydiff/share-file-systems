@@ -102,7 +102,7 @@
 #spaces .box .header .fileSearch input{border-color:#000}
 #spaces .fileList li input.error,
 #spaces .box .header .error{background:#fdd;color:#900}
-#spaces .agentList .device button.grant-full-access,
+#spaces .agentList .agent button.grant-full-access,
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
 #spaces .box button.save{background:#ffc;border-color:#990;color:#770}
@@ -125,7 +125,7 @@
 /* share list */
 #spaces .agentList li.full-access{background:#eef;border-color:#99c}
 #spaces .agentList button{color:#00f}
-#spaces .agentList .device button.make-read-only{background:#ffc;border-color:#870;color:#870}
+#spaces .agentList .agent button.make-read-only{background:#ffc;border-color:#870;color:#870}
 #spaces .agentList .read-only-status{color:#666}
 #spaces .agentList .full-access .read-only-status{color:#556}
 #spaces ul.agentList li{border-color:#000}

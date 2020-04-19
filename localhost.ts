@@ -52,7 +52,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                     browser.data.hashUser = hashes.user;
                                     browser.device[hashes.device] = {
                                         ip: browser.localNetwork.ip,
-                                        name: nameUser.value,
+                                        name: nameDevice.value,
                                         port: browser.localNetwork.httpPort,
                                         shares: {}
                                     };
