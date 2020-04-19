@@ -90,15 +90,18 @@ const library = {
                 complete: responder,
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
-                    payload.agent = agentNames.agent;
-                    payload.agentType = agentNames.agentType;
-                    httpConfig.agentType = agentNames.agentType;
-                    httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
-                    httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
-                    httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
-                    httpConfig.remoteName = agentNames.agent;
-                    counts.total = agentCounts.total;
-                    library.httpClient(httpConfig);
+                    if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== serverVars.hashDevice)) {
+                        payload.agent = agentNames.agent;
+                        payload.agentType = agentNames.agentType;
+                        httpConfig.agentType = agentNames.agentType;
+                        httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
+                        httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
+                        httpConfig.payload = JSON.stringify(payload),
+                        httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
+                        httpConfig.remoteName = agentNames.agent;
+                        counts.total = agentCounts.total;
+                        library.httpClient(httpConfig);
+                    }
                 },
                 source: serverVars
             });
