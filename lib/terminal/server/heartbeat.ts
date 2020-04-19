@@ -97,7 +97,7 @@ const library = {
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                         httpConfig.payload = JSON.stringify({
-                            "hearbeat-response": payload
+                            "heartbeat": payload
                         });
                         httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                         httpConfig.remoteName = agentNames.agent;
@@ -107,7 +107,7 @@ const library = {
                 },
                 source: serverVars
             });
-        } else if (serverVars.user[data.user] === undefined) {
+        } else if (serverVars[data.agentType][data.agent] === undefined || (data.agentType === "device" && data.user !== serverVars.hashUser)) {
             // trapping unexpected user
             if (response !== null) {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
@@ -118,7 +118,7 @@ const library = {
             // heartbeat from remote
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-response": data
-            }));
+            }));console.log(data);
             if (data.shares !== "") {
                 const shareString:string = JSON.stringify(serverVars[data.agentType][data.agent].shares);
                 if (shareString !== JSON.stringify(data.shares)) {

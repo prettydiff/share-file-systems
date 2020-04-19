@@ -161,6 +161,8 @@ const library = {
                         // * Send and receive heartbeat signals
                         const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
                         library.heartbeat(heartbeatData, response);
+                    } else if (task === "heartbeat-response") {
+                        vars.ws.broadcast(body);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);
