@@ -135,14 +135,11 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     length:number = (buttons === null)
                         ? 0
                         : buttons.length,
-                    shares:deviceShares = (heartbeat.agentType === "device")
-                        ? heartbeat.shares[heartbeat.agentFrom].shares
-                        : heartbeat.shares,
-                update:shareUpdateConfiguration = {
-                    agent: heartbeat.agentFrom,
-                    shares: <deviceShares>heartbeat.shares,
-                    type: heartbeat.agentType
-                };
+                    update:shareUpdateConfiguration = {
+                        agent: heartbeat.agentFrom,
+                        shares: <deviceShares>heartbeat.shares,
+                        type: heartbeat.agentType
+                    };
                 let a:number = 0;
                 if (buttons === null) {
                     return;
@@ -154,8 +151,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
-                if (heartbeat.shares !== "" && JSON.stringify(shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.agentFrom].shares)) {
-                    update.shares = shares;
+                if (heartbeat.shares !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.agentFrom].shares)) {
                     share.update(update);
                 }
             },

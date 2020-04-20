@@ -90,9 +90,14 @@ const library = {
                 complete: responder,
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
+                    const shares:deviceShares = (agentNames.agentType === "device")
+                        ? serverVars.device[agentNames.agent].shares
+                        : library.deviceShare(serverVars.device);
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== serverVars.hashDevice)) {
                         payload.agentTo = agentNames.agent;
+                        payload.shares = shares;
                         heartbeatError.agentTo = agentNames.agent;
+                        heartbeatError.shares = shares;
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                         httpConfig.payload = JSON.stringify({
@@ -105,20 +110,15 @@ const library = {
                     }
                 },
                 perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
-                    const shares:devices | deviceShares = (agentNames.agentType === "device")
-                        ? serverVars.device
-                        : library.deviceShare(serverVars.device);
                     heartbeatError.agentFrom = (agentNames.agentType === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
                     heartbeatError.agentType = agentNames.agentType;
-                    heartbeatError.shares = shares;
                     httpConfig.agentType = agentNames.agentType;
                     payload.agentFrom = (agentNames.agentType === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
                     payload.agentType = agentNames.agentType;
-                    payload.shares = shares;
                 },
                 source: serverVars
             });
