@@ -135,7 +135,9 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     length:number = (buttons === null)
                         ? 0
                         : buttons.length,
-                    deviceShare:deviceShares = heartbeat.shares[heartbeat.agentFrom].shares,
+                    shares:deviceShares = (heartbeat.agentType === "device")
+                        ? heartbeat.shares[heartbeat.agentFrom].shares
+                        : heartbeat.shares,
                 update:shareUpdateConfiguration = {
                     agent: heartbeat.agentFrom,
                     shares: <deviceShares>heartbeat.shares,
@@ -147,24 +149,14 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
                 do {
                     if (buttons[a].getAttribute("id") === heartbeat.agentFrom) {
-                        if (heartbeat.agentType === "device" && heartbeat.shares !== "" && JSON.stringify(deviceShare) !== JSON.stringify(browser.device[heartbeat.agentFrom].shares)) {
-                            update.shares = deviceShare;
-                            share.update(update);
-                        }
                         buttons[a].setAttribute("class", heartbeat.status);
                         break;
                     }
                     a = a + 1;
                 } while (a < length);
-                if (heartbeat.shares !== "" && heartbeat.agentType === "user") {
-                    if (JSON.stringify(browser.user[heartbeat.agentFrom].shares) !== JSON.stringify(heartbeat.shares)) {
-                        const update:shareUpdateConfiguration = {
-                            agent: heartbeat.agentFrom,
-                            shares: <deviceShares>heartbeat.shares,
-                            type: heartbeat.agentType
-                        };
-                        share.update(update);
-                    }
+                if (heartbeat.shares !== "" && JSON.stringify(shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.agentFrom].shares)) {
+                    update.shares = shares;
+                    share.update(update);
                 }
             },
             invitation = function local_socketMessage_invite():void {
