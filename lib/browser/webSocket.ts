@@ -134,22 +134,32 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
                     length:number = (buttons === null)
                         ? 0
-                        : buttons.length;console.log(heartbeat)
-                let a:number = 0;console.log(heartbeat);
+                        : buttons.length,
+                    deviceShare:deviceShares = heartbeat.shares[heartbeat.agentFrom].shares,
+                update:shareUpdateConfiguration = {
+                    agent: heartbeat.agentFrom,
+                    shares: <deviceShares>heartbeat.shares,
+                    type: heartbeat.agentType
+                };
+                let a:number = 0;
                 if (buttons === null) {
                     return;
                 }
                 do {
-                    if (buttons[a].innerHTML.indexOf(heartbeat.agentTo) > -1) {
+                    if (buttons[a].getAttribute("id") === heartbeat.agentFrom) {
+                        if (heartbeat.agentType === "device" && heartbeat.shares !== "" && JSON.stringify(deviceShare) !== JSON.stringify(browser.device[heartbeat.agentFrom].shares)) {
+                            update.shares = deviceShare;
+                            share.update(update);
+                        }
                         buttons[a].setAttribute("class", heartbeat.status);
                         break;
                     }
                     a = a + 1;
                 } while (a < length);
-                if (heartbeat.shares !== "") {
-                    if (JSON.stringify(browser[heartbeat.agentType][heartbeat.agentTo].shares) !== JSON.stringify(heartbeat.shares)) {
+                if (heartbeat.shares !== "" && heartbeat.agentType === "user") {
+                    if (JSON.stringify(browser.user[heartbeat.agentFrom].shares) !== JSON.stringify(heartbeat.shares)) {
                         const update:shareUpdateConfiguration = {
-                            agent: heartbeat.agentTo,
+                            agent: heartbeat.agentFrom,
                             shares: <deviceShares>heartbeat.shares,
                             type: heartbeat.agentType
                         };

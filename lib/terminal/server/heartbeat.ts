@@ -27,9 +27,9 @@ const library = {
             // heartbeat from local, forward to each remote terminal
             const payload:heartbeat = {
                     agentFrom: "",
-                    agentTo: "user",
-                    agentType: data.agentType,
-                    shares: library.deviceShare(serverVars.device),
+                    agentTo: "",
+                    agentType: "user",
+                    shares: "",
                     status: data.status
                 },
                 heartbeatError:heartbeat = {
@@ -91,12 +91,8 @@ const library = {
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== serverVars.hashDevice)) {
-                        payload.agentFrom = (agentNames.agentType === "device")
-                            ? serverVars.hashDevice
-                            : serverVars.hashUser;
                         payload.agentTo = agentNames.agent;
-                        payload.agentType = agentNames.agentType;
-                        httpConfig.agentType = agentNames.agentType;
+                        heartbeatError.agentTo = agentNames.agent;
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                         httpConfig.payload = JSON.stringify({
@@ -107,6 +103,22 @@ const library = {
                         counts.total = agentCounts.total;
                         library.httpClient(httpConfig);
                     }
+                },
+                perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
+                    const shares:devices | deviceShares = (agentNames.agentType === "device")
+                        ? serverVars.device
+                        : library.deviceShare(serverVars.device);
+                    heartbeatError.agentFrom = (agentNames.agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser;
+                    heartbeatError.agentType = agentNames.agentType;
+                    heartbeatError.shares = shares;
+                    httpConfig.agentType = agentNames.agentType;
+                    payload.agentFrom = (agentNames.agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser;
+                    payload.agentType = agentNames.agentType;
+                    payload.shares = shares;
                 },
                 source: serverVars
             });
@@ -135,9 +147,9 @@ const library = {
             data.agentFrom = (data.agentType === "device")
                 ? serverVars.hashDevice
                 : serverVars.hashUser;
-            data.shares = (data.agentType === "user")
-                ? library.deviceShare(serverVars.device)
-                : serverVars.device;
+            data.shares = (data.agentType === "device")
+                ? serverVars.device
+                : library.deviceShare(serverVars.device);
             data.status = serverVars.status;
             if (response !== null) {
                 response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
