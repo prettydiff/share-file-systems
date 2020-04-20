@@ -148,7 +148,7 @@ const library = {
                 ? serverVars.hashDevice
                 : serverVars.hashUser;
             data.shares = (data.agentType === "device")
-                ? serverVars.device
+                ? serverVars.device[serverVars.hashDevice].shares
                 : library.deviceShare(serverVars.device);
             data.status = serverVars.status;
             if (response !== null) {
