@@ -84,7 +84,7 @@ import webSocket from "./lib/browser/webSocket.js";
                             const time:number = Date.now();
                             if (time - active > idleTime && localDevice !== null && browser.socket.readyState === 1) {
                                 localDevice.setAttribute("class", "idle");
-                                network.heartbeat("idle", false);
+                                network.heartbeat("idle", "");
                             }
                             setTimeout(local_restore_complete_idleness, idleTime);
                         },
@@ -93,7 +93,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                 const status:string = localDevice.getAttribute("class");
                                 if (status !== "active" && browser.socket.readyState === 1) {
                                     localDevice.setAttribute("class", "active");
-                                    network.heartbeat("active", false);
+                                    network.heartbeat("active", "");
                                 }
                             }
                             active = Date.now();
@@ -159,7 +159,7 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
                     document.getElementById("settings").onclick = settings.modal;
-                    network.heartbeat("active", false);
+                    network.heartbeat("active", "");
 
                     // watch for local idleness
                     document.onclick = activate;

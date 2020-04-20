@@ -158,9 +158,11 @@ const library = {
                 request.on("end", function terminal_server_create_end():void {
                     let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
                     if (task === "heartbeat") {
-                        // * Send and receive heartbeat signals
-                        const heartbeatData:heartbeat = JSON.parse(body).heartbeat;
-                        library.heartbeat(heartbeatData, response);
+                        // * process received heartbeat data from other agents
+                        library.heartbeat.response(JSON.parse(body).heartbeat, response)
+                    } else if (task === "heartbeat-broadcast") {
+                        // * prepare heartbeat data for connected agents
+                        library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
                     } else if (task === "heartbeat-response") {
                         vars.ws.broadcast(body);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
@@ -259,7 +261,7 @@ const library = {
                 } else if (error.code !== "ETIMEDOUT") {
                     library.error([`${error}`]);
                 }
-                return
+                return;
             },
             start = function terminal_server_start() {
                 const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
@@ -356,15 +358,13 @@ const library = {
                                 } else if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                     logOutput(storageData);
                                 } else {
-                                    const hbConfig:heartbeat = {
+                                    const hbConfig:heartbeatBroadcast = {
                                         agentFrom: "localhost-terminal",
-                                        agentTo: "",
-                                        agentType: "user",
                                         shares: "",
                                         status: "idle"
                                     };
                                     logOutput(storageData);
-                                    library.heartbeat(hbConfig, null);
+                                    library.heartbeat.broadcast(hbConfig, null);
                                 }
                             };
 

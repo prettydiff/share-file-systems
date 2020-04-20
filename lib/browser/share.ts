@@ -233,6 +233,7 @@ share.context = function local_share_context():void {
                     type: <shareType>shareResponse.type
                 };
                 network.storage("device");
+                network.heartbeat("active", shareResponse.device);
                 share.update(update);
             },
             device: "",
@@ -269,7 +270,6 @@ share.context = function local_share_context():void {
         } while (a < addressesLength);
     }
     util.selectNone(element);
-    network.heartbeat("active", true);
 };
 
 /* Delete a share from a device */
@@ -299,7 +299,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
         parent.parentNode.removeChild(parent);
     }
     network.storage("device");
-    network.heartbeat("active", true);
+    network.heartbeat("active", agent[2]);
 };
 
 /* Creates a confirmation modal listing users for deletion */
@@ -532,7 +532,7 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
         element.innerHTML = "Grant Full Access";
         span.innerHTML = "(Read Only)";
     }
-    network.heartbeat("active", true);
+    network.heartbeat("active", agency[2]);
 };
 
 /* Updates the contents of share modals */

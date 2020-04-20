@@ -1460,18 +1460,11 @@ const services = function test_services():testServiceArray {
                             modal: "test-modal",
                             port: 80,
                             shares: {
-                                [serverVars.hashDevice]: {
-                                    ip: "::1",
-                                    name: "old desktop computer",
-                                    port: 80,
-                                    shares: {
-                                        "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                            execute: false,
-                                            name: "C:\\music",
-                                            readOnly: true,
-                                            type: "directory"
-                                        }
-                                    }
+                                "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                    execute: false,
+                                    name: "C:\\music",
+                                    readOnly: true,
+                                    type: "directory"
                                 }
                             },
                             status: "invited",
@@ -1494,18 +1487,11 @@ const services = function test_services():testServiceArray {
                             agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shares: {
-                                [serverVars.hashDevice]: {
-                                    ip: "::1",
-                                    name: "old desktop computer",
-                                    port: 80,
-                                    shares: {
-                                        "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                            execute: false,
-                                            name: "C:\\music",
-                                            readOnly: true,
-                                            type: "directory"
-                                        }
-                                    }
+                                "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                    execute: false,
+                                    name: "C:\\music",
+                                    readOnly: true,
+                                    type: "directory"
                                 }
                             },
                             status: "active"
@@ -1525,18 +1511,11 @@ const services = function test_services():testServiceArray {
                             agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shares: {
-                                [serverVars.hashDevice]: {
-                                    ip: "::1",
-                                    name: "old desktop computer",
-                                    port: 80,
-                                    shares: {
-                                        "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                            execute: false,
-                                            name: "C:\\music",
-                                            readOnly: true,
-                                            type: "directory"
-                                        }
-                                    }
+                                "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                    execute: false,
+                                    name: "C:\\music",
+                                    readOnly: true,
+                                    type: "directory"
                                 }
                             },
                             status: "active"
@@ -1556,18 +1535,11 @@ const services = function test_services():testServiceArray {
                             agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shares: {
-                                [serverVars.hashDevice]: {
-                                    ip: "::1",
-                                    name: "old desktop computer",
-                                    port: 80,
-                                    shares: {
-                                        "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                            execute: false,
-                                            name: "C:\\music",
-                                            readOnly: true,
-                                            type: "directory"
-                                        }
-                                    }
+                                "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                    execute: false,
+                                    name: "C:\\music",
+                                    readOnly: true,
+                                    type: "directory"
                                 }
                             },
                             status: "active"
