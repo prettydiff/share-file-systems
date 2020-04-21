@@ -29,6 +29,7 @@ const library = {
                     agentFrom: "",
                     agentTo: "",
                     agentType: "user",
+                    shareFrom: "",
                     shares: {},
                     status: data.status
                 },
@@ -36,6 +37,7 @@ const library = {
                     agentFrom: "",
                     agentTo: "",
                     agentType: "user",
+                    shareFrom: "",
                     shares: {},
                     status: "offline"
                 },
@@ -105,25 +107,34 @@ const library = {
                     }
                 },
                 perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
-                    const shares:heartbeatShares = (data.shares === "")
-                        ? {}
-                        : (agentNames.agentType === "device")
-                            ? {
-                                [data.shares]: serverVars.device[serverVars.hashDevice].shares
-                            }
-                            : {
-                                [serverVars.hashUser]: library.deviceShare(serverVars.device)
-                            };
-                    heartbeatError.agentFrom = (agentNames.agentType === "device")
+                    const type:agentType = agentNames.agentType,
+                        shares:deviceShares = (data.shareFrom === "")
+                            ? {}
+                            : (type === "device")
+                                ? data.shares
+                                : library.deviceShare(serverVars.device);
+
+                    // heartbeatError
+                    heartbeatError.agentFrom = (type === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
-                    heartbeatError.agentType = agentNames.agentType;
+                    heartbeatError.agentType = type;
+                    heartbeatError.shareFrom = (type === "device")
+                        ? data.shareFrom
+                        : serverVars.hashUser;
                     heartbeatError.shares = shares;
-                    httpConfig.agentType = agentNames.agentType;
-                    payload.agentFrom = (agentNames.agentType === "device")
+
+                    // httpConfig
+                    httpConfig.agentType = type;
+
+                    // payload
+                    payload.agentFrom = (type === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
-                    payload.agentType = agentNames.agentType;
+                    payload.agentType = type;
+                    payload.shareFrom = (type === "device")
+                        ? data.shareFrom
+                        : serverVars.hashUser;
                     payload.shares = shares;
                 },
                 source: serverVars
@@ -138,28 +149,29 @@ const library = {
                     response.end();
                 }
             } else {
-                const shareKeys:string[] = Object.keys(data.shares),
-                    shareLength:number = shareKeys.length;
                 // heartbeat from remote
                 vars.ws.broadcast(JSON.stringify({
                     "heartbeat-response": data
                 }));
-                if (shareLength > 0) {
-                    const shareString:string = JSON.stringify(serverVars[data.agentType][data.agentTo].shares);
-                    if (shareString !== JSON.stringify(data.shares[shareKeys[0]])) {
-                        serverVars[data.agentType][data.agentTo].shares = <deviceShares>data.shares;
-                        library.storage(JSON.stringify(serverVars[data.agentType]), "", data.agentType);
+                if (data.shareFrom !== "") {
+                    const sameAgent:boolean = (data.agentFrom === data.shareFrom),
+                        shareString:string = (sameAgent === true)
+                        ? JSON.stringify(serverVars[data.agentType][data.shareFrom].shares)
+                        : JSON.stringify(serverVars.device[data.shareFrom].shares);
+                    if (shareString !== JSON.stringify(data.shares)) {
+                        if (sameAgent === true) {
+                            serverVars[data.agentType][data.shareFrom].shares = data.shares;
+                            library.storage(JSON.stringify(serverVars[data.agentType]), "", data.agentType);
+                        } else {
+                            serverVars.device[data.shareFrom].shares = data.shares;
+                            library.storage(JSON.stringify(serverVars.device), "", "device");
+                        }
                     }
-                } else {
-                    data.shares = {};
                 }
                 data.agentTo = data.agentFrom;
                 data.agentFrom = (data.agentType === "device")
                     ? serverVars.hashDevice
                     : serverVars.hashUser;
-                data.shares = (data.agentType === "device")
-                    ? serverVars.device[serverVars.hashDevice].shares
-                    : library.deviceShare(serverVars.device);
                 data.status = serverVars.status;
                 if (response !== null) {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});

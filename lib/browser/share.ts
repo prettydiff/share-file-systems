@@ -218,7 +218,7 @@ share.context = function local_share_context():void {
         box:HTMLElement = util.getAncestor(element, "box", "class"),
         agent:agency = util.getAgent(box),
         payload: hashShareConfiguration = {
-            callback: function local_share_context_shareHash1(responseBody:string):void {
+            callback: function local_share_context_shareHash(responseBody:string):void {
                 const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse,
                     update:shareUpdateConfiguration = {
                         agent: agent[0],
@@ -233,7 +233,7 @@ share.context = function local_share_context():void {
                     type: <shareType>shareResponse.type
                 };
                 network.storage("device");
-                network.heartbeat("active", shareResponse.device);
+                network.heartbeat("active", shareResponse.device, browser.device[shareResponse.device].shares);
                 share.update(update);
             },
             device: "",
@@ -299,7 +299,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
         parent.parentNode.removeChild(parent);
     }
     network.storage("device");
-    network.heartbeat("active", agent[2]);
+    network.heartbeat("active", agent[0], browser.device[agent[0]].shares);
 };
 
 /* Creates a confirmation modal listing users for deletion */
@@ -532,7 +532,7 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
         element.innerHTML = "Grant Full Access";
         span.innerHTML = "(Read Only)";
     }
-    network.heartbeat("active", agency[2]);
+    network.heartbeat("active", agency[0], browser.device[agency[0]].shares);
 };
 
 /* Updates the contents of share modals */

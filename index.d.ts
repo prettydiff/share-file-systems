@@ -262,16 +262,15 @@ declare global {
         agentTo: string;
         agentFrom: string;
         agentType: agentType;
-        shares: {} | heartbeatShares;
+        shareFrom: string;
+        shares: deviceShares;
         status: heartbeatStatus;
     }
     interface heartbeatBroadcast {
         agentFrom: "localhost-browser" | "localhost-terminal";
-        shares: string;
+        shareFrom: string;
+        shares: deviceShares;
         status: heartbeatStatus;
-    }
-    interface heartbeatShares {
-        [key:string]: deviceShares;
     }
     interface httpConfiguration {
         agentType: agentType,
@@ -408,7 +407,7 @@ declare global {
         fs?: (localService, callback:Function, id?:string) => void;
         hashDevice?: (callback:Function) => void;
         hashShare?: (configuration:hashShareConfiguration) => void;
-        heartbeat?: (status:"active"|"idle", share:string) => void;
+        heartbeat?: (status:"active"|"idle", share:string, shares:deviceShares) => void;
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;

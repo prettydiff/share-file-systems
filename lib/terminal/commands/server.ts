@@ -360,7 +360,8 @@ const library = {
                                 } else {
                                     const hbConfig:heartbeatBroadcast = {
                                         agentFrom: "localhost-terminal",
-                                        shares: "",
+                                        shareFrom: "",
+                                        shares: {},
                                         status: "idle"
                                     };
                                     logOutput(storageData);

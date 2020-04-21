@@ -129,20 +129,15 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     util.fileListStatus(data.status);
                 }
             },
-            heartbeat = function local_socketMessage_heartbeat():void {
+            heartbeat = function local_socketMessage_heartbeat():void {console.log(JSON.parse(event.data)["heartbeat-response"]);
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
                     length:number = (buttons === null)
                         ? 0
                         : buttons.length,
-                    shareKeys:string[] = Object.keys(heartbeat.shares),
-                    shareLength:number = shareKeys.length,
-                    shares:deviceShares = (shareLength > 0)
-                        ? <deviceShares>heartbeat.shares[shareKeys[0]]
-                        : {},
                     update:shareUpdateConfiguration = {
-                        agent: shareKeys[0],
-                        shares: shares,
+                        agent: heartbeat.shareFrom,
+                        shares: heartbeat.shares,
                         type: heartbeat.agentType
                     };
                 let a:number = 0;
@@ -156,7 +151,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     }
                     a = a + 1;
                 } while (a < length);
-                if (JSON.stringify(shares) !== JSON.stringify(browser[heartbeat.agentType][shareKeys[0]].shares)) {
+                if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
                     share.update(update);
                 }
             },

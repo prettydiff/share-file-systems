@@ -104,7 +104,7 @@ network.hashShare = function local_network_hashShare(configuration:hashShareConf
 };
 
 /* Provides active user status from across the network at regular intervals */
-network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:string):void {
+network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:string, shares:deviceShares):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
@@ -120,7 +120,8 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
         },
         heartbeat:heartbeatBroadcast = {
             agentFrom: "localhost-browser",
-            shares: share,
+            shareFrom: share,
+            shares: shares,
             status: status
         };
     
