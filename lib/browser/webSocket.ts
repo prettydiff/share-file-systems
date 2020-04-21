@@ -129,7 +129,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     util.fileListStatus(data.status);
                 }
             },
-            heartbeat = function local_socketMessage_heartbeat():void {console.log(JSON.parse(event.data)["heartbeat-response"]);
+            heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     buttons:HTMLCollectionOf<HTMLElement> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
                     length:number = (buttons === null)

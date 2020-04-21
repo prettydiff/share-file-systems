@@ -875,13 +875,13 @@ const library = {
                 data.copyAgent = agent;
                 data.remoteWatch = serverVars.hashDevice;
                 data.watch = "third party action";
-                console.log(data);
-                httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
-                    console.log("");
-                    console.log("responseBody");
-                    console.log(responseBody);
+                //console.log(data);
+                //httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                    //console.log("");
+                    //console.log("responseBody");
+                    //console.log(responseBody);
                     //requestFiles(JSON.parse(<string>responseBody));
-                }, "Error copying from remote to local device", "body");
+                //}, "Error copying from remote to local device", "body");
             }
         } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
             const agent:string = data.agent;
@@ -934,12 +934,12 @@ const library = {
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             const listData:remoteCopyList = {
                 callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
-                    if (data.watch === "third party action") {
-                    } else {
+                    //if (data.watch === "third party action") {
+                    //} else {
                         response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
                         response.write(JSON.stringify(listData));
                         response.end();
-                    }
+                    //}
                 },
                 files: [],
                 id: data.id,
