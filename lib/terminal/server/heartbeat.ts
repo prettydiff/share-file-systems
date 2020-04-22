@@ -104,6 +104,8 @@ const library = {
                         httpConfig.remoteName = agentNames.agent;
                         counts.total = agentCounts.total;
                         library.httpClient(httpConfig);
+                    } else {
+                        responder();
                     }
                 },
                 perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
@@ -161,10 +163,14 @@ const library = {
                     if (shareString !== JSON.stringify(data.shares)) {
                         if (sameAgent === true) {
                             serverVars[data.agentType][data.shareFrom].shares = data.shares;
-                            library.storage(JSON.stringify(serverVars[data.agentType]), "", data.agentType);
+                            library.storage(JSON.stringify({
+                                [data.agentType]: serverVars[data.agentType]
+                            }), "", data.agentType);
                         } else {
                             serverVars.device[data.shareFrom].shares = data.shares;
-                            library.storage(JSON.stringify(serverVars.device), "", "device");
+                            library.storage(JSON.stringify({
+                                device: serverVars.device
+                            }), "", "device");
                         }
                     }
                 }

@@ -753,6 +753,14 @@ declare global {
             "heartbeat-response": heartbeat;
         } | string;
     }
+    interface testTemplateHeartbeatBroadcast {
+        command: {
+            "heartbeat-broadcast": heartbeatBroadcast;
+        };
+        name: string;
+        qualifier: qualifier;
+        test: string;
+    }
     interface testTemplateInvite extends testTemplate {
         command: {
             "invite": invite;

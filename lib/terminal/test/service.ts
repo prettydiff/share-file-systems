@@ -4,7 +4,6 @@
 import * as http from "http";
 
 import agents from "../../common/agents.js";
-import log from "../utilities/log.js";
 import server from "../commands/server.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
@@ -291,7 +290,7 @@ const services = function test_services():testServiceArray {
                 };
                 return template;
             }()),
-            (function test_service_fsCopy_RemoteDeviceToDifferentRemoteDevice():testTemplateFileService {
+            /*(function test_service_fsCopy_RemoteDeviceToDifferentRemoteDevice():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
                         fs: {
@@ -318,7 +317,7 @@ const services = function test_services():testServiceArray {
                     }
                 };
                 return template;
-            }()),
+            }()),*/
             (function test_service_fsCopy_RemoteDeviceToSameRemoteDevice1():testTemplateFileService {
                 const template:testTemplateFileService = {
                     command: {
@@ -1479,13 +1478,11 @@ const services = function test_services():testServiceArray {
                 };
                 return template;
             }()),
-            (function test_service_heartbeatBrowser_Device():testTemplateHeartbeat {
-                const template:testTemplateHeartbeat = {
+            (function test_service_heartbeatBroadcastBrowser_Device():testTemplateHeartbeatBroadcast {
+                const template:testTemplateHeartbeatBroadcast = {
                     command: {
-                        heartbeat: {
-                            agentFrom: serverVars.hashDevice,
-                            agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-                            agentType: "device",
+                        "heartbeat-broadcast": {
+                            agentFrom: "localhost-browser",
                             shareFrom: serverVars.hashDevice,
                             shares: {
                                 "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
@@ -1498,13 +1495,36 @@ const services = function test_services():testServiceArray {
                             status: "active"
                         }
                     },
-                    name: "heartbeat, from Browser",
+                    name: "heartbeat-broadcast, from Browser",
                     qualifier: "is",
                     test: "Heartbeat response received for each remote terminal."
                 };
                 return template;
             }()),
-            (function test_service_heartbeatTerminal_Device():testTemplateHeartbeat {
+            (function test_service_heartbeatBroadcastTerminal_Device():testTemplateHeartbeatBroadcast {
+                const template:testTemplateHeartbeatBroadcast = {
+                    command: {
+                        "heartbeat-broadcast": {
+                            agentFrom: "localhost-terminal",
+                            shareFrom: serverVars.hashDevice,
+                            shares: {
+                                "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                    execute: false,
+                                    name: "C:\\music",
+                                    readOnly: true,
+                                    type: "directory"
+                                }
+                            },
+                            status: "active"
+                        }
+                    },
+                    name: "heartbeat-broadcast, from Terminal",
+                    qualifier: "is",
+                    test: "Heartbeat response received for each remote terminal."
+                };
+                return template;
+            }()),
+            (function test_service_heartbeat_Device():testTemplateHeartbeat {
                 const template:testTemplateHeartbeat = {
                     command: {
                         heartbeat: {
@@ -1523,9 +1543,25 @@ const services = function test_services():testServiceArray {
                             status: "active"
                         }
                     },
-                    name: "heartbeat, from Terminal",
+                    name: "heartbeat, regular heartbeat",
                     qualifier: "is",
-                    test: "Heartbeat response received for each remote terminal."
+                    test: {
+                        "heartbeat-response": {
+                            agentFrom: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
+                            agentTo: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
+                            agentType: "device",
+                            shareFrom: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
+                            shares: {
+                                "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                                    execute: false,
+                                    name: "C:\\music",
+                                    readOnly: true,
+                                    type: "directory"
+                                }
+                            },
+                            status: "active"
+                        }
+                    }
                 };
                 return template;
             }()),
@@ -1533,7 +1569,7 @@ const services = function test_services():testServiceArray {
                 const template:testTemplateHeartbeat = {
                     command: {
                         heartbeat: {
-                            agentFrom: serverVars.hashDevice,
+                            agentFrom: serverVars.hashUser,
                             agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                             agentType: "device",
                             shareFrom: serverVars.hashDevice,
