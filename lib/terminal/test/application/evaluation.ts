@@ -1,8 +1,8 @@
 
-/* lib/terminal/test/test_evaluation - Evaluate tests. */
+/* lib/terminal/test/application/evaluation - Evaluate a given test item and report appropriate failure messaging. */
 
-import error from "../utilities/error.js";
-import vars from "../utilities/vars.js";
+import error from "../../utilities/error.js";
+import vars from "../../utilities/vars.js";
 
 const testEvaluation = function test_testEvaluation(output:testEvaluation, increment:Function):void {
     const serviceItem:testItem|testServiceInstance = (output.testType === "service")

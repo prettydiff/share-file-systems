@@ -1,7 +1,7 @@
-/* lib/terminal/test/test_complete - Final messaging and clean up. */
+/* lib/terminal/test/application/complete - Final messaging for a completed test type. */
 
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import log from "../../utilities/log.js";
+import vars from "../../utilities/vars.js";
 
 const testComplete = function test_testComplete(complete:testComplete):void {
     log(["", ""]);

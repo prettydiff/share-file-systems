@@ -1,15 +1,15 @@
 
-/* lib/terminal/test/service - A list of service related tests. */
+/* lib/terminal/test/samples/service - A list of service related tests. */
 
 import * as http from "http";
 
-import agents from "../../common/agents.js";
-import server from "../commands/server.js";
-import serverVars from "../server/serverVars.js";
-import vars from "../utilities/vars.js";
+import agents from "../../../common/agents.js";
+import server from "../../commands/server.js";
+import serverVars from "../../server/serverVars.js";
+import vars from "../../utilities/vars.js";
 
-import testComplete from "./test_complete.js";
-import testEvaluation from "./test_evaluation.js";
+import testComplete from "../application/complete.js";
+import testEvaluation from "../application/evaluation.js";
 
 // tests structure
 // * artifact - the address of anything written to disk, so that it can be removed

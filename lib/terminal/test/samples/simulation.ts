@@ -1,8 +1,8 @@
 
-/* lib/terminal/test/simulation - A list of command related tests for run shell simulations against the supported commands. */
+/* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
-import testEvaluation from "./test_evaluation.js";
-import vars from "../utilities/vars.js";
+import testEvaluation from "../application/evaluation.js";
+import vars from "../../utilities/vars.js";
 
 // tests structure
 // * artifact - the address of anything written to disk, so that it can be removed

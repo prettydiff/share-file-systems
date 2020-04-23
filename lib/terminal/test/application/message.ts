@@ -1,8 +1,8 @@
-/* lib/terminal/test/test_message - Test messaging. */
+/* lib/terminal/test/application/message - Formatting and presentation of pass and fail messaging as determined by the evaluation library. */
 
-import humanTime from "../utilities/humanTime.js";
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import humanTime from "../../utilities/humanTime.js";
+import log from "../../utilities/log.js";
+import vars from "../../utilities/vars.js";
 
 const testMessage = function test_testMessage(input:testMessage):number {
     if (input.messages[0] === "") {

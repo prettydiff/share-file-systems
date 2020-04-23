@@ -2,9 +2,9 @@
 /* lib/terminal/commands/test_service - A command driven wrapper for the service tests, which test the various services used by the application. */
 
 import log from "../utilities/log.js";
-import service from "../test/service.js";
-import testListRunner from "../test/test_runner.js";
-import testMessage from "../test/test_message.js";
+import service from "../test/samples/service.js";
+import testListRunner from "../test/application/runner.js";
+import testMessage from "../test/application/message.js";
 import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
@@ -38,12 +38,13 @@ const test_service = function terminal_testService():void {
             const addCallback = function terminal_testService_addCallback():void {
                 let b:number = 0;
                 const logger = function terminal_testServices_addCallback_logger(messages:[string, string]) {
+                    const index:number = filter[b];
                     fail = testMessage({
                         fail: fail,
-                        index: b,
+                        index: index,
                         messages: messages,
-                        name: serve[b].name,
-                        test: <testItem>serve[b],
+                        name: serve[index].name,
+                        test: <testItem>serve[index],
                         testType: "selected"
                     });
                     b = b + 1;
@@ -55,7 +56,7 @@ const test_service = function terminal_testService():void {
                             total: filterLength
                         });
                     } else {
-                        serve.execute(filter[b], logger);
+                        serve.execute(index, logger);
                     }
                 };
                 serve.execute(filter[0], logger);

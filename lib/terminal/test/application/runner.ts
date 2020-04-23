@@ -1,18 +1,18 @@
 
-/* lib/terminal/test/test_runner - A test runner. */
-import agents from "../../common/agents.js";
+/* lib/terminal/test/application/runner - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library. */
 
-import error from "../utilities/error.js";
-import humanTime from "../utilities/humanTime.js";
-import log from "../utilities/log.js";
-import remove from "../commands/remove.js";
-import vars from "../utilities/vars.js";
+import agents from "../../../common/agents.js";
 
-import service from "./service.js";
-import simulation from "./simulation.js";
-import testComplete from "./test_complete.js";
-import testEvaluation from "./test_evaluation.js";
-import testMessage from "./test_message.js";
+import error from "../../utilities/error.js";
+import humanTime from "../../utilities/humanTime.js";
+import log from "../../utilities/log.js";
+import remove from "../../commands/remove.js";
+import vars from "../../utilities/vars.js";
+
+import service from "../samples/service.js";
+import simulation from "../samples/simulation.js";
+import testComplete from "./complete.js";
+import testMessage from "./message.js";
 
 // runs various tests of different types
 const library = {

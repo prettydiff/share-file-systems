@@ -12,7 +12,7 @@ import hash from "./hash.js";
 import humanTime from "../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../utilities/log.js";
-import testListRunner from "../test/test_runner.js";
+import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
 // build/test system
@@ -200,7 +200,11 @@ const library = {
                                 fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
                                 fileContents.push("");
                                 do {
-                                    path = `* **[../${files[a].path}/${files[a].name}.ts](../${files[a].path}/${files[a].name}.ts)**`;
+                                    if (a < 1 || files[a].path !== files[a - 1].path) {
+                                        path = `* Directory *[../${files[a].path}](../${files[a].path})*`;
+                                        fileContents.push(path);
+                                    }
+                                    path = `   - **[../${files[a].path}/${files[a].name}.ts](../${files[a].path}/${files[a].name}.ts)**`;
                                     b = files[a].path.length + files[a].name.length;
                                     if (b < master) {
                                         do {

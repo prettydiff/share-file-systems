@@ -2,10 +2,10 @@
 /* lib/terminal/commands/test_simulation - A command driven wrapper for running simulation tests of supported terminal commands. */
 
 import log from "../utilities/log.js";
-import simulation from "../test/simulation.js";
-import test_complete from "../test/test_complete.js";
-import testListRunner from "../test/test_runner.js";
-import testMessage from "../test/test_message.js";
+import simulation from "../test/samples/simulation.js";
+import test_complete from "../test/application/complete.js";
+import testListRunner from "../test/application/runner.js";
+import testMessage from "../test/application/message.js";
 import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
@@ -38,12 +38,13 @@ const test_simulation = function terminal_testSimulation():void {
         } else {
             let b:number = 0;
             const logger = function terminal_testServices_addCallback_logger(messages:[string, string]) {
+                const index:number = filter[b];
                 fail = testMessage({
                     fail: fail,
-                    index: b,
+                    index: index,
                     messages: messages,
-                    name: sim[b].command,
-                    test: sim[b],
+                    name: sim[index].command,
+                    test: sim[index],
                     testType: "selected"
                 });
                 b = b + 1;
@@ -55,7 +56,7 @@ const test_simulation = function terminal_testSimulation():void {
                         total: filterLength
                     });
                 } else {
-                    sim.execute(filter[b], logger);
+                    sim.execute(index, logger);
                 }
             };
             log.title("Run Selected Tests");
