@@ -1,0 +1,106 @@
+{
+    "audio"     : true,
+    "brotli"    : 7,
+    "color"     : "default",
+    "colors"    : {
+        "device": {
+            "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": ["fff", "eee"],
+            "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": ["fff", "eee"],
+            "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": ["fff", "eee"]
+        },
+        "user"  : {}
+    },
+    "hashDevice": "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+    "hashType"  : "sha3-512",
+    "hashUser"  : "8aacedad1ca13c7e41a6cdc41b935d23484b58e35ef5b1ad9afaffe7ca338558a4fd5670e3270412a53608f56c854617191490d394dfeade683d220148d04013",
+    "modals"    : {
+        "fileNavigate-0.452458889995393331": {
+            "agent"           : "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+            "agentType"       : "device",
+            "content"         : {},
+            "focus"           : {},
+            "height"          : 400,
+            "history"         : [
+                "C:\\share-file-systems", "e:\\", "e:\\MP3"
+            ],
+            "id"              : "fileNavigate-0.452458889995393331",
+            "inputs"          : [
+                "close", "maximize", "minimize", "text"
+            ],
+            "left"            : 1752,
+            "read_only"       : false,
+            "search"          : [
+                "e:\\MP3", ".mpa"
+            ],
+            "selection"       : {},
+            "status"          : "normal",
+            "status_bar"      : true,
+            "status_text"     : "11 directories, 14 files, 0 symbolic links, 0 errors",
+            "text_placeholder": "Optionally type a file system address here.",
+            "text_value"      : "e:\\MP3",
+            "title"           : "<span class=\"icon-fileNavigator\">⌹</span> File Navigator - Device, old desktop",
+            "top"             : 621,
+            "type"            : "fileNavigate",
+            "width"           : 800,
+            "zIndex"          : 5
+        },
+        "settings-modal"                   : {
+            "agent"    : "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+            "agentType": "device",
+            "content"  : {},
+            "height"   : 400,
+            "id"       : "settings-modal",
+            "inputs"   : ["close"],
+            "left"     : 200,
+            "read_only": false,
+            "single"   : true,
+            "status"   : "hidden",
+            "title"    : "<span class=\"icon-settings\">⚙</span> Settings",
+            "top"      : 200,
+            "type"     : "settings",
+            "width"    : 565,
+            "zIndex"   : 1
+        },
+        "shares-0.303376676194406261"      : {
+            "agent"     : "",
+            "agentType" : "device",
+            "content"   : {},
+            "height"    : 400,
+            "id"        : "shares-0.303376676194406261",
+            "inputs"    : [
+                "close", "maximize", "minimize"
+            ],
+            "left"      : 230,
+            "read_only" : false,
+            "status"    : "normal",
+            "text_value": "🖳 All Device Shares",
+            "title"     : "🖳 All Device Shares",
+            "top"       : 230,
+            "type"      : "shares",
+            "width"     : 800,
+            "zIndex"    : 3
+        },
+        "systems-modal"                    : {
+            "agent"    : "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+            "agentType": "device",
+            "content"  : {},
+            "height"   : 400,
+            "id"       : "systems-modal",
+            "left"     : 220,
+            "read_only": false,
+            "single"   : true,
+            "status"   : "hidden",
+            "title"    : "<span class=\"icon-systemLog\">⌬</span> System Log",
+            "top"      : 220,
+            "type"     : "systems",
+            "width"    : 800,
+            "zIndex"   : 2
+        }
+    },
+    "modalTypes": [
+        "settings", "systems", "shares", "fileNavigate"
+    ],
+    "nameDevice": "test local device",
+    "nameUser"  : "test local user",
+    "zIndex"    : 5
+}

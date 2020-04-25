@@ -1,24 +1,25 @@
 
 /* lib/terminal/utilities/log - A log utility for displaying multiple lines of text to the terminal. */
-/*eslint no-console: 0*/
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
 
 // verbose metadata printed to the shell about the application
 const log = function terminal_log(output:string[], end?:boolean):void {
+    // eslint-disable-next-line
+    const logger:(input:string) => void = console.log;
     if (vars.verbose === true && (output.length > 1 || output[0] !== "")) {
-        console.log("");
+        logger("");
     }
     if (output[output.length - 1] === "") {
         output.pop();
     }
     output.forEach(function terminal_log_each(value:string) {
-        console.log(value);
+        logger(value);
     });
     if (vars.verbose === true && end === true) {
-        console.log("");
-        console.log(`${vars.version.name} version ${vars.text.angry + vars.version.number + vars.text.none}`);
-        console.log(`Dated ${vars.text.cyan + vars.version.date + vars.text.none}`);
+        logger("");
+        logger(`${vars.version.name} version ${vars.text.angry + vars.version.number + vars.text.none}`);
+        logger(`Dated ${vars.text.cyan + vars.version.date + vars.text.none}`);
         humanTime(true);
     }
 };

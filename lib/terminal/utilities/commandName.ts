@@ -1,6 +1,5 @@
 
 /* lib/terminal/utilities/commandName - A library for visually presenting command documentation to the terminal. */
-/*eslint no-console: 0*/
 import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
@@ -9,17 +8,6 @@ const commandName = function terminal_command():string {
         filtered:string[] = [],
         a:number = 0,
         b:number = 0;
-    if (process.argv[2] === undefined) {
-        console.log("");
-        console.log(`${vars.version.name} requires a command. Try:`);
-        console.log(`${vars.text.cyan + vars.version.command} help${vars.text.none}`);
-        console.log("");
-        console.log("To see a list of commands try:");
-        console.log(`${vars.text.cyan + vars.version.command} commands${vars.text.none}`);
-        console.log("");
-        process.exit(1);
-        return;
-    }
     const arg:string = process.argv[2],
         boldArg:string = vars.text.angry + arg + vars.text.none,
         len:number = arg.length + 1,
@@ -28,9 +16,22 @@ const commandName = function terminal_command():string {
                 return true;
             }
             return false;
-        };
+        },
+        // eslint-disable-next-line
+        logger:(input:string) => void = console.log;
+    if (arg === undefined) {
+        logger("");
+        logger(`${vars.version.name} requires a command. Try:`);
+        logger(`${vars.text.cyan + vars.version.command} help${vars.text.none}`);
+        logger("");
+        logger("To see a list of commands try:");
+        logger(`${vars.text.cyan + vars.version.command} commands${vars.text.none}`);
+        logger("");
+        process.exit(1);
+        return;
+    }
     
-    if (process.argv[2] === "debug") {
+    if (arg === "debug") {
         process.argv = process.argv.slice(3);
         return "debug";
     }
@@ -63,23 +64,23 @@ const commandName = function terminal_command():string {
     } while (filtered.length > 1 && a < len);
 
     if (filtered.length < 1 || (filtered[0] === "debug" && filtered.length < 2)) {
-        console.log(`Command ${boldArg} is not a supported command.`);
-        console.log("");
-        console.log("Please try:");
-        console.log(`${vars.text.cyan + vars.version.command} commands${vars.text.none}`);
-        console.log("");
+        logger(`Command ${boldArg} is not a supported command.`);
+        logger("");
+        logger("Please try:");
+        logger(`${vars.text.cyan + vars.version.command} commands${vars.text.none}`);
+        logger("");
         process.exit(1);
         return "";
     }
     if (filtered.length > 1 && comKeys.indexOf(arg) < 0) {
-        console.log(`Command '${boldArg}' is ambiguous as it could refer to any of: [${vars.text.cyan + filtered.join(", ") + vars.text.none}]`);
+        logger(`Command '${boldArg}' is ambiguous as it could refer to any of: [${vars.text.cyan + filtered.join(", ") + vars.text.none}]`);
         process.exit(1);
         return "";
     }
     if (arg !== filtered[0]) {
-        console.log("");
-        console.log(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
-        console.log("");
+        logger("");
+        logger(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
+        logger("");
     }
     return filtered[0];
 };

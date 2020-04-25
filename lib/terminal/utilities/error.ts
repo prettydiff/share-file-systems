@@ -1,6 +1,5 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
-/*eslint no-console: 0*/
 import commas from "../../common/commas.js";
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
@@ -11,12 +10,14 @@ const library = {
         humanTime: humanTime
     },
     error = function terminal_error(errText:string[]):void {
-        const bell = function terminal_error_bell():void {
+        // eslint-disable-next-line
+        const logger:(input:string|object) => void = console.log,
+            bell = function terminal_error_bell():void {
                 library.humanTime(true);
                 if (vars.command === "build" || vars.command === "simulation" || vars.command === "validation") {
-                    console.log("\u0007"); // bell sound
+                    logger("\u0007"); // bell sound
                 } else {
-                    console.log("");
+                    logger("");
                 }
                 if (vars.command !== "debug") {
                     process.exit(1);
@@ -30,7 +31,7 @@ const library = {
                             error: errText.join(" ")
                         };
                     if (vars.ws.broadcast === undefined) {
-                        console.log(server);
+                        logger(server);
                     } else {
                         vars.ws.broadcast(JSON.stringify({
                             error: server
@@ -39,19 +40,19 @@ const library = {
                 } else {
                     const stack:string = new Error().stack.replace("Error", `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------`);
                     vars.flags.error = true;
-                    console.log("");
-                    console.log(stack);
-                    console.log("");
-                    console.log(`${vars.text.angry}Error Message${vars.text.none}`);
-                    console.log("------------");
+                    logger("");
+                    logger(stack);
+                    logger("");
+                    logger(`${vars.text.angry}Error Message${vars.text.none}`);
+                    logger("------------");
                     if (errText[0] === "" && errText.length < 2) {
-                        console.log(`${vars.text.yellow}No error message supplied${vars.text.none}`);
+                        logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
                     } else {
                         errText.forEach(function terminal_error_errorOut_each(value:string):void {
-                            console.log(value);
+                            logger(value);
                         });
                     }
-                    console.log("");
+                    logger("");
                     bell();
                 }
             },
@@ -60,44 +61,44 @@ const library = {
                     totalmem:number = vars.node.os.totalmem(),
                     freemem:number = vars.node.os.freemem();
                 vars.flags.error = true;
-                console.log("");
-                console.log("---");
-                console.log("");
-                console.log("");
-                console.log(`# ${vars.version.name} - Debug Report`);
-                console.log("");
-                console.log(`${vars.text.green}## Error Message${vars.text.none}`);
+                logger("");
+                logger("---");
+                logger("");
+                logger("");
+                logger(`# ${vars.version.name} - Debug Report`);
+                logger("");
+                logger(`${vars.text.green}## Error Message${vars.text.none}`);
                 if (errText[0] === "" && errText.length < 2) {
-                    console.log(`${vars.text.yellow}No error message supplied${vars.text.none}`);
+                    logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
                 } else {
-                    console.log("```");
+                    logger("```");
                     errText.forEach(function terminal_error_each(value:string):void {
                         // eslint-disable-next-line
-                        console.log(value.replace(/\u001b/g, "\\u001b"));
+                        logger(value.replace(/\u001b/g, "\\u001b"));
                     });
-                    console.log("```");
+                    logger("```");
                 }
-                console.log("");
-                console.log(`${vars.text.green}## Stack Trace${vars.text.none}`);
-                console.log("```");
-                console.log(stack.replace(/\s*Error\s+/, "    "));
-                console.log("```");
-                console.log("");
-                console.log(`${vars.text.green}## Environment${vars.text.none}`);
-                console.log(`* OS - **${vars.node.os.platform()} ${vars.node.os.release()}**`);
-                console.log(`* Mem - ${library.commas(totalmem)} - ${library.commas(freemem)} = **${library.commas(totalmem - freemem)}**`);
-                console.log(`* CPU - ${vars.node.os.arch()} ${vars.node.os.cpus().length} cores`);
-                console.log("");
-                console.log(`${vars.text.green}## Command Line Instruction${vars.text.none}`);
-                console.log("```");
-                console.log(vars.cli);
-                console.log("```");
-                console.log("");
-                console.log(`${vars.text.green}## Time${vars.text.none}`);
-                console.log("```");
-                console.log(library.humanTime(false));
-                console.log("```");
-                console.log("");
+                logger("");
+                logger(`${vars.text.green}## Stack Trace${vars.text.none}`);
+                logger("```");
+                logger(stack.replace(/\s*Error\s+/, "    "));
+                logger("```");
+                logger("");
+                logger(`${vars.text.green}## Environment${vars.text.none}`);
+                logger(`* OS - **${vars.node.os.platform()} ${vars.node.os.release()}**`);
+                logger(`* Mem - ${library.commas(totalmem)} - ${library.commas(freemem)} = **${library.commas(totalmem - freemem)}**`);
+                logger(`* CPU - ${vars.node.os.arch()} ${vars.node.os.cpus().length} cores`);
+                logger("");
+                logger(`${vars.text.green}## Command Line Instruction${vars.text.none}`);
+                logger("```");
+                logger(vars.cli);
+                logger("```");
+                logger("");
+                logger(`${vars.text.green}## Time${vars.text.none}`);
+                logger("```");
+                logger(library.humanTime(false));
+                logger("```");
+                logger("");
                 bell();
             };
         if (process.argv.indexOf("spaces_debug") > -1) {

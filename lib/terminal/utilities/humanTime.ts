@@ -81,11 +81,13 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
             : secondString;
     }
     if (finished === true) {
+        // eslint-disable-next-line
+        const logger:(input:string) => void = console.log;
         finalTime = hourString + minuteString + secondString;
-        console.log("");
-        console.log(`${finalMem} of memory consumed`);
-        console.log(`${finalTime}total time`);
-        console.log("");
+        logger("");
+        logger(`${finalMem} of memory consumed`);
+        logger(`${finalTime}total time`);
+        logger("");
     } else {
         if (hourString === "") {
             hourString = "00";

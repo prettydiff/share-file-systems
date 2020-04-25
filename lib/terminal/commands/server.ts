@@ -53,11 +53,20 @@ const library = {
                 }
                 return false;
             }()),
-            port:number = (serverCallback === undefined)
-                ? (isNaN(Number(process.argv[0])) === true)
-                    ? vars.version.port
-                    : Number(process.argv[0])
-                : 0,
+            port:number = (function terminal_server_port():number {
+                const test:number = process.argv.indexOf("test");
+                if (test > -1) {
+                    serverVars.test = true;
+                    process.argv.splice(test, 1);
+                } else if (vars.command.indexOf("test") === 0) {
+                    serverVars.test = true;
+                }
+                return (serverCallback === undefined)
+                    ? (isNaN(Number(process.argv[0])) === true)
+                        ? vars.version.port
+                        : Number(process.argv[0])
+                    : 0
+            }()),
             keyword:string = (process.platform === "darwin")
                 ? "open"
                 : (process.platform === "win32")

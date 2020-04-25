@@ -16,8 +16,9 @@ const library = {
     lint = function terminal_lint(callback:Function):void {
         vars.node.child(`eslint`, function terminal_lint_eslintCheck(lint_err:Error) {
             const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
-                ? vars.node.path.resolve(process.argv[0])
-                : vars.js;
+                    ? vars.node.path.resolve(process.argv[0])
+                    : vars.js,
+                complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
             if (lint_err !== null) {
                 library.log([
                     "ESLint is not globally installed or is corrupt.",
@@ -36,7 +37,7 @@ const library = {
                 vars.verbose = true;
                 library.log.title(`Linting ${lintPath}`);
                 callback = function terminal_lint_callback():void {
-                    library.log([`Lint complete for ${lintPath}`], true);
+                    library.log([complete], true);
                 };
             }
             vars.node.child(`eslint ${lintPath}`, {
@@ -53,9 +54,9 @@ const library = {
                     }
                     library.log([""]);
                     if (callback === undefined) {
-                        library.log([`${vars.text.green}Lint complete for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`]);
+                        library.log([complete]);
                     } else {
-                        callback(`${vars.text.green}Lint complete for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`);
+                        callback(complete);
                     }
                 } else {
                     library.error([stdout, "Lint failure."]);

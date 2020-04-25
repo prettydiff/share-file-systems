@@ -71,17 +71,13 @@ const library = {
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
-                        vars.ws.broadcast(JSON.stringify({
-                            "heartbeat-response": heartbeatError
-                        }));
+                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                         library.log([errorMessage.toString()]);
                     },
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
-                        vars.ws.broadcast(JSON.stringify({
-                            "heartbeat-response": heartbeatError
-                        }));
+                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                         library.log([errorMessage.toString()]);
                     }
                 };

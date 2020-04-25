@@ -1,10 +1,6 @@
 
 /* lib/terminal/test/application/runner - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library. */
 
-import agents from "../../../common/agents.js";
-
-import error from "../../utilities/error.js";
-import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
@@ -16,9 +12,6 @@ import testMessage from "./message.js";
 
 // runs various tests of different types
 const library = {
-        agents: agents,
-        error: error,
-        humanTime: humanTime,
         log: log,
         remove: remove
     },
