@@ -17,5 +17,5 @@ node js/application command server
    * Simply conform to the data structure already provided and document each and every option and alternative execution in the list of examples.
    * Describe the difference and uniqueness of each listed example.
 1. Import the new utility into the `application.ts` file.  Also include the new utility in that files *library* object.
-1. Include tests in the `test/simulations.ts` file using the data structure provided.  If the current data structure is insufficient to test the new module then open a Github issue.
+1. Include tests in the `test/samples/simulation.ts` and `test/samples/service.ts` files using the data structure provided.  If the current data structure is insufficient to test the new module then open a Github issue.
    * Tests should cover each optional feature, collisions of competing features, various permutations of similar features, and any previously resolved defects or regressions.

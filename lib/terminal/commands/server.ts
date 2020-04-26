@@ -46,27 +46,26 @@ const library = {
     // * bypasses some security checks
     server = function terminal_server(serverCallback:serverCallback):httpServer {
         const browser:boolean = (function terminal_server_browserTest():boolean {
-                const index:number = process.argv.indexOf("browser");
+                let index:number;
+                const test:number = process.argv.indexOf("test");
+                if (test > -1) {
+                    serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
+                    process.argv.splice(test, 1);
+                } else if (vars.command.indexOf("test") === 0) {
+                    serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
+                }
+                index = process.argv.indexOf("browser");
                 if (index > -1) {
                     process.argv.splice(index, 1);
                     return true;
                 }
                 return false;
             }()),
-            port:number = (function terminal_server_port():number {
-                const test:number = process.argv.indexOf("test");
-                if (test > -1) {
-                    serverVars.test = true;
-                    process.argv.splice(test, 1);
-                } else if (vars.command.indexOf("test") === 0) {
-                    serverVars.test = true;
-                }
-                return (serverCallback === undefined)
-                    ? (isNaN(Number(process.argv[0])) === true)
-                        ? vars.version.port
-                        : Number(process.argv[0])
-                    : 0
-            }()),
+            port:number = (serverCallback === undefined)
+                ? (isNaN(Number(process.argv[0])) === true)
+                    ? vars.version.port
+                    : Number(process.argv[0])
+                : 0,
             keyword:string = (process.platform === "darwin")
                 ? "open"
                 : (process.platform === "win32")
@@ -356,15 +355,7 @@ const library = {
                                 serverVars.brotli = storageData.settings.brotli;
                                 serverVars.hashType = storageData.settings.hashType;
                                 serverVars.nameUser = storageData.settings.nameUser;
-                                if (serverCallback !== undefined) {
-                                    // A callback can be passed in, so far only used for running service tests.
-                                    serverCallback.callback({
-                                        agent: serverCallback.agent,
-                                        agentType: serverCallback.agentType,
-                                        webPort: serverVars.webPort,
-                                        wsPort: serverVars.wsPort
-                                    });
-                                } else if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                                if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                     logOutput(storageData);
                                 } else {
                                     const hbConfig:heartbeatBroadcast = {
@@ -386,7 +377,16 @@ const library = {
                                 }
                             });
                         };
-                        library.readStorage(readComplete);
+                        if (serverCallback === undefined) {
+                            library.readStorage(readComplete);
+                        } else {
+                            serverCallback.callback({
+                                agent: serverCallback.agent,
+                                agentType: serverCallback.agentType,
+                                webPort: serverVars.webPort,
+                                wsPort: serverVars.wsPort
+                            });
+                        }
                     });
                 });
             };

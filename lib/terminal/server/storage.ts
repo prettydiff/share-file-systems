@@ -13,7 +13,8 @@ const library = {
         log: log
     },
     storage = function terminal_server_storage(dataString:string, response:ServerResponse | "", task:storageType):void {
-        const fileName:string = `${vars.projectPath}storage${vars.sep + task}-${Math.random()}.json`,
+        const location:string = serverVars.storage + vars.sep + task,
+            fileName:string = `${location}-${Math.random()}.json`,
             rename = function terminal_server_storage_rename():void {
                 const respond = function terminal_server_storage_rename_respond(message:string):void {
                     if (response !== "") {
@@ -25,7 +26,7 @@ const library = {
                 if (vars.command.indexOf("test") === 0) {
                     respond(`${task} storage written with false response for testing.`);
                 } else {
-                    vars.node.fs.rename(fileName, `${vars.projectPath}storage${vars.sep + task}.json`, function terminal_server_storage_renameNode(erName:Error) {
+                    vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_renameNode(erName:Error) {
                         if (erName !== null) {
                             library.error([erName.toString()]);
                             vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {

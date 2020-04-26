@@ -221,6 +221,14 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} server browser`,
                 defined: "The 'browser' argument launches the default location in the user's default web browser."
+            },
+            {
+                code: `${vars.version.command} server test`,
+                defined: "The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data."
+            },
+            {
+                code: `${vars.version.command} server test browser 9000`,
+                defined: "An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             }
         ]
     },

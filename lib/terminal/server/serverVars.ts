@@ -76,7 +76,7 @@ const serverVars:serverVars = {
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
         status: "idle",
-        test: false,
+        storage: `${vars.projectPath}storage`,
         timeStore: 0,
         user: {},
         watches: {},

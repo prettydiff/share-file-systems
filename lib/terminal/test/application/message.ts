@@ -11,9 +11,9 @@ const testMessage = function test_testMessage(input:testMessage):number {
         input.fail = input.fail + 1;
         log([`${humanTime(false) + vars.text.angry}Fail ${input.testType} ${input.index + 1}: ${vars.text.none + input.name} ${vars.text.angry + input.messages[0].replace("fail - ", "") + vars.text.none}`]);
         if (input.messages[1] !== "") {
-            const test:string = (typeof input.test === "string")
-                ? <string>input.test
-                : JSON.stringify(input.test);
+            const test:string = (typeof input.test.test === "string")
+                ? <string>input.test.test
+                : JSON.stringify(input.test.test);
             log([
                 `${vars.text.green}Expected output:${vars.text.none}`,
                 test,

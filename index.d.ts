@@ -563,7 +563,7 @@ declare global {
         nameDevice: string;
         nameUser: string;
         status: heartbeatStatus;
-        test: boolean;
+        storage: string;
         timeStore: number;
         user: devices;
         watches: {

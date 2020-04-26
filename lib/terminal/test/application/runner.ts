@@ -29,7 +29,6 @@ const library = {
                     list.simulation.execute(index, increment);
                 }
             },
-            len:number = tests.length,
             increment = function test_testListRunner_increment(messages:[string, string]):void {
                 const command:string = (typeof tests[a].command === "string")
                         ? <string>tests[a].command
@@ -76,7 +75,8 @@ const library = {
             };
 
         let a:number = 0,
-            fail:number = 0;
+            fail:number = 0,
+            len:number;
 
         if (vars.command === testListType) {
             callback = function test_lint_callback(message:string):void {
@@ -86,10 +86,15 @@ const library = {
         }
 
         if (testListType === "service") {
-            list.service.addServers(function test_testListRunner_serviceCallback():void {
-                execution.service(0);
-            });
+            const addServers = function test_testListRunner_addServers():void {
+                list.service.addServers(function test_testListRunner_serviceCallback():void {
+                    len = list.service.length;
+                    execution.service(0);
+                });
+            };
+            addServers();
         } else {
+            len = list[testListType].length;
             execution[testListType](0);
         }
     };
