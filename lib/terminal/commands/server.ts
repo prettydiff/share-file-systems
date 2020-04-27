@@ -332,7 +332,7 @@ const library = {
 
                 // start the server
                 serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
-                    recursive: true
+                    recursive: (process.platform === "win32" || process.platform === "darwin")
                 }, serverWatch);
                 httpServer.on("error", serverError);
                 httpServer.listen({

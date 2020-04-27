@@ -674,7 +674,7 @@ const library = {
                                 }
                                 if (serverVars.watches[watchPath] === undefined) {
                                     serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
-                                        recursive: false
+                                        recursive: (process.platform === "win32" || process.platform === "darwin")
                                     }, function terminal_server_fileService_pathEach_putStat_watch():void {
                                         watchHandler(watchPath);
                                     });
@@ -959,7 +959,7 @@ const library = {
                 remove = function terminal_server_fileService_cutRemove():void {
                     if (a === length - 1 && watchTest === true) {
                         serverVars.watches[data.watch] = vars.node.fs.watch(data.watch, {
-                            recursive: false
+                            recursive: (process.platform === "win32" || process.platform === "darwin")
                         }, function terminal_server_fileService_cutRemote_watch():void {
                             watchHandler(data.watch);
                         });
