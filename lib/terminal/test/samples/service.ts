@@ -1324,10 +1324,10 @@ const services = function test_services():testServiceArray {
                 qualifier: "is",
                 test: {
                     "heartbeat-response": {
-                        agentFrom: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
-                        agentTo: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
+                        agentFrom: serverVars.hashDevice,
+                        agentTo: serverVars.hashDevice,
                         agentType: "device",
-                        shareFrom: "89dd9677902964305274242975a060cdb3251ea8d74a53e1bf5d3d9f8e5508e9b1412bfe624f6251b0d826004a62ea2bafef680c0c43a4b348900173f352b0da",
+                        shareFrom: serverVars.hashDevice,
                         shares: {
                             "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
                                 execute: false,
