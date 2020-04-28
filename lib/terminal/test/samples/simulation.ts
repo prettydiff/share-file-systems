@@ -109,12 +109,12 @@ const simulations = function test_simulations():testSimulationArray {
                 artifact: `${projectPath}temp`,
                 command: `copy ${projectPath}js ${projectPath}temp`,
                 qualifier: "filesystem contains",
-                test: `temp${sep}js${sep}lib${sep}terminal${sep}test${sep}simulation.js`
+                test: `temp${sep}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`
             },
             {
                 artifact: `${projectPath}temp`,
                 command: `copy ${projectPath}js ${projectPath}temp 2`,
-                file: `${projectPath}temp${sep}js${sep}lib${sep}terminal${sep}test${sep}simulation.js`,
+                file: `${projectPath}temp${sep}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`,
                 qualifier: "file contains",
                 test: `import vars from "../utilities/vars.js";`
             },
@@ -131,7 +131,7 @@ const simulations = function test_simulations():testSimulationArray {
             {
                 command: `directory ${projectPath}js`,
                 qualifier: "contains",
-                test: `js${superSep}lib${superSep}terminal${superSep}test${superSep}simulation.js","file"`
+                test: `js${superSep}lib${superSep}terminal${superSep}test${superSep}samples${superSep}simulation.js","file"`
             },
             {
                 command: `directory ${projectPath}js 2`,
@@ -141,7 +141,7 @@ const simulations = function test_simulations():testSimulationArray {
             {
                 command: `directory ${projectPath}js ignore ["test"]`,
                 qualifier: "not contains",
-                test: `js${superSep}test${superSep}simulation.js"`
+                test: `js${superSep}test${superSep}samples${superSep}simulation.js"`
             },
             {
                 command: `directory ${projectPath}js list`,
@@ -169,7 +169,7 @@ const simulations = function test_simulations():testSimulationArray {
                 test: "directory"
             },
             {
-                command: `directory typeof ${projectPath}js${sep}lib${sep}terminal${sep}test${sep}simulation.js`,
+                command: `directory typeof ${projectPath}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`,
                 qualifier: "is",
                 test: "file"
             },
