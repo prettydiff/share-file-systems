@@ -28,9 +28,6 @@ const services = function test_services():testServiceArray {
         loopback:string = (serverVars.addresses[0].length > 1)
             ? "[::1]"
             : "127.0.0.1",
-        loopbackTest:string = (loopback === "127.0.0.1")
-            ? "XXXX"
-            : loopback,
         hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
 
         // start test list
@@ -872,7 +869,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "fs-update-remote, Local",
                 qualifier: "is",
-                test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}storage","status":"test payload"}} at ${serverVars.ipAddress}.`
+                test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}storage","status":"test payload"}} at XXXX `
             });
             service.push(<testTemplateSettings>{
                 command: {
@@ -1021,7 +1018,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite - Local device invite",
                 qualifier: "is",
-                test: `Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ${loopbackTest} `
+                test: `Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: XXXX `
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1057,7 +1054,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-request - Local device invite",
                 qualifier: "is",
-                test: `Invitation received at remote terminal ${loopbackTest} and sent to remote browser.`
+                test: `Invitation received at remote terminal XXXX and sent to remote browser.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1093,7 +1090,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite",
                 qualifier: "is",
-                test: `Ignored invitation response processed at remote terminal ${loopbackTest} and sent to start terminal.`
+                test: `Ignored invitation response processed at remote terminal XXXX and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1129,7 +1126,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite response, accepted",
                 qualifier: "is",
-                test: `Accepted invitation response processed at remote terminal ${loopbackTest} and sent to start terminal.`
+                test: `Accepted invitation response processed at remote terminal XXXX and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1165,7 +1162,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite response, ignored",
                 qualifier: "is",
-                test: `Ignored invitation response processed at remote terminal ${loopbackTest} and sent to start terminal.`
+                test: `Ignored invitation response processed at remote terminal XXXX and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1201,7 +1198,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite response, declined",
                 qualifier: "is",
-                test: `Declined invitation response processed at remote terminal ${loopbackTest} and sent to start terminal.`
+                test: `Declined invitation response processed at remote terminal XXXX and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {

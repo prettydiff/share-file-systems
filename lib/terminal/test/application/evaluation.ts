@@ -45,7 +45,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation, incre
         return;
     }
     if (typeof output.values[0] === "string") {
-        output.values[0] = output.values[0].replace(/\s+$/, "").replace(/^\s+/, "").replace(/\u0020-?\d+(\.\d+)*(\s|\.)/g, " XXXX ").replace(/\\n-?\d+(\.\d+)*\s/g, "\\nXXXX ").replace(/\(\d+ /g, "(XXXX ").replace(/ \d+B/g, " XXXX").replace(/\[::1\]:\d+/g, "[::1]:XXXX");
+        output.values[0] = output.values[0].replace(/\s+$/, "").replace(/^\s+/, "").replace(/\u0020-?\d+(\.\d+)*(\s|\.)/g, " XXXX ").replace(/\\n-?\d+(\.\d+)*\s/g, "\\nXXXX ").replace(/\(\d+ /g, "(XXXX ").replace(/ \d+B/g, " XXXX").replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
     }
     if (output.test.qualifier.indexOf("file") === 0) {
         if (output.test.artifact === "" || output.test.artifact === undefined) {
