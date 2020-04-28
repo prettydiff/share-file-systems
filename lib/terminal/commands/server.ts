@@ -325,7 +325,9 @@ const library = {
                 httpServer.on("error", serverError);
                 httpServer.listen({
                     port: port,
-                    host: "::"
+                    host: (serverVars.addresses[0].length > 1)
+                        ? "::"
+                        : "127.0.0.1"
                 }, function terminal_server_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address();
                     serverVars.webPort = serverAddress.port;
@@ -336,7 +338,9 @@ const library = {
                     httpServer.port = serverAddress.port;
 
                     vars.ws = new WebSocket.Server({
-                        host: "[::1]",
+                        host: (serverVars.addresses[0].length > 1)
+                            ? "[::1]"
+                            : "127.0.0.1",
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {
                         const readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {

@@ -25,6 +25,9 @@ const services = function test_services():testServiceArray {
     const projectPath:string = vars.projectPath,
         windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
         windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
+        loopback:string = (serverVars.addresses[0].length > 1)
+            ? "[::1]"
+            : "127.0.0.1",
         hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
 
         // start test list
@@ -941,7 +944,7 @@ const services = function test_services():testServiceArray {
                 command: {
                     device: {
                         [serverVars.hashDevice]: {
-                            ip: "::1",
+                            ip: loopback,
                             name: "local device name",
                             port: 80,
                             shares: {
@@ -963,7 +966,7 @@ const services = function test_services():testServiceArray {
                 command: {
                     user: {
                         [serverVars.hashDevice]: {
-                            ip: "::1",
+                            ip: loopback,
                             name: "remote user name",
                             port: 80,
                             shares: {
@@ -989,12 +992,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1015,7 +1018,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite - Local device invite",
                 qualifier: "is",
-                test: "Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ::1."
+                test: `Invitation received at start terminal XXXX from start browser. Sending invitation to remote terminal: ${loopback}.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1025,12 +1028,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1051,7 +1054,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-request - Local device invite",
                 qualifier: "is",
-                test: "Invitation received at remote terminal ::1 and sent to remote browser."
+                test: `Invitation received at remote terminal ${loopback} and sent to remote browser.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1061,12 +1064,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1087,7 +1090,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite",
                 qualifier: "is",
-                test: "Ignored invitation response processed at remote terminal ::1 and sent to start terminal."
+                test: `Ignored invitation response processed at remote terminal ${loopback} and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1097,12 +1100,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1123,7 +1126,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite response, accepted",
                 qualifier: "is",
-                test: "Accepted invitation response processed at remote terminal ::1 and sent to start terminal."
+                test: `Accepted invitation response processed at remote terminal ${loopback} and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1133,12 +1136,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1159,7 +1162,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite response, ignored",
                 qualifier: "is",
-                test: "Ignored invitation response processed at remote terminal ::1 and sent to start terminal."
+                test: `Ignored invitation response processed at remote terminal ${loopback} and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1169,12 +1172,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1195,7 +1198,7 @@ const services = function test_services():testServiceArray {
                 },
                 name: "invite, invite-response - Local device invite response, declined",
                 qualifier: "is",
-                test: "Declined invitation response processed at remote terminal ::1 and sent to start terminal."
+                test: `Declined invitation response processed at remote terminal ${loopback} and sent to start terminal.`
             });
             service.push(<testTemplateInvite>{
                 command: {
@@ -1205,12 +1208,12 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
                             [serverVars.hashDevice]: {
-                                ip: "::1",
+                                ip: loopback,
                                 name: "old desktop computer",
                                 port: 80,
                                 shares: {
@@ -1241,7 +1244,7 @@ const services = function test_services():testServiceArray {
                         deviceName: "old desktop computer",
                         message: "Hello",
                         name: "",
-                        ip: "::1",
+                        ip: loopback,
                         modal: "test-modal",
                         port: 80,
                         shares: {
@@ -1374,7 +1377,7 @@ const services = function test_services():testServiceArray {
                 perAgent: function test_services_addServers_perAgent(agentNames:agentNames, counts:agentCounts):void {
                     const serverCallback = function test_services_addServers_perAgent_serverCallback(output:serverOutput):void {
                         serverVars[output.agentType][output.agent].port = output.webPort;
-                        serverVars[output.agentType][output.agent].ip = "::1";
+                        serverVars[output.agentType][output.agent].ip = loopback;
                         if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
                             serverVars.wsPort = output.wsPort;
                         }
@@ -1436,7 +1439,7 @@ const services = function test_services():testServiceArray {
                 },
             payload:http.RequestOptions = {
                 headers: header,
-                host: "::1",
+                host: loopback,
                 method: "POST",
                 path: "/",
                 port: (keyword === "invite")
