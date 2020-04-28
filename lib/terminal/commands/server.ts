@@ -45,10 +45,7 @@ const library = {
     // * bypasses messaging users on server start up
     // * bypasses some security checks
     server = function terminal_server(serverCallback:serverCallback):httpServer {
-        const ipAddress:string = (serverVars.addresses[0].length > 1)
-                ? serverVars.addresses[0][1][1]
-                : serverVars.addresses[0][0][1],
-            browser:boolean = (function terminal_server_browserTest():boolean {
+        const browser:boolean = (function terminal_server_browserTest():boolean {
                 let index:number;
                 const test:number = process.argv.indexOf("test");
                 if (test > -1) {
@@ -130,7 +127,7 @@ const library = {
                     updateRemote = function terminal_server_post_updateRemote():void {
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`Received directory watch for ${body} at ${ipAddress}.`);
+                        response.write(`Received directory watch for ${body} at ${serverVars.ipAddress}.`);
                         response.end();
                     };
 
@@ -306,7 +303,7 @@ const library = {
                     });
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
                     output.push("");
-                    output.push(`Address for service: ${vars.text.bold + vars.text.green + ipAddress + webPort + vars.text.none}`);
+                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.ipAddress + webPort + vars.text.none}`);
                     if (webPort === "") {
                         output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
                     } else {

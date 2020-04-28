@@ -560,6 +560,7 @@ declare global {
         hashDevice: string;
         hashType: hash;
         hashUser: string;
+        ipAddress: string;
         nameDevice: string;
         nameUser: string;
         status: heartbeatStatus;

@@ -10,9 +10,6 @@ import serverVars from "./serverVars.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
-        ipAddress:string = (serverVars.addresses[0].length > 1)
-            ? serverVars.addresses[0][1][1]
-            : serverVars.addresses[0][0][1],
         inviteRequest = function local_server_invite_request():void {
             const payload:string = (data.action === "invite-request" || data.action === "invite-complete")
                     ? (function local_server_invite_request_payload():string {
@@ -20,7 +17,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                             port:number = data.port;
                         let output:string = "";
                         data.userName = serverVars.nameUser;
-                        data.ip = ipAddress;
+                        data.ip = serverVars.ipAddress;
                         data.port = serverVars.webPort;
                         output = JSON.stringify({
                             invite: data
@@ -56,7 +53,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                                     "invite-error": data
                                 }));
                             } else if (data.action === "invite-complete") {
-                                data.message = `Originator, ip - ${ipAddress} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
+                                data.message = `Originator, ip - ${serverVars.ipAddress} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
                                 vars.ws.broadcast(JSON.stringify({
                                     "invite-error": data
                                 }));
@@ -81,7 +78,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
     if (data.action === "invite") {
         data.action = "invite-request";
-        responseString = `Invitation received at start terminal ${ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
+        responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
         inviteRequest();
     } else if (data.action === "invite-request") {
         vars.ws.broadcast(dataString);
@@ -96,7 +93,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 : `Ignored${respond}`;
         inviteRequest();
     } else if (data.action === "invite-complete") {
-        const respond:string = ` invitation sent to from start terminal ${ipAddress} to start browser.`;
+        const respond:string = ` invitation sent to from start terminal ${serverVars.ipAddress} to start browser.`;
         vars.ws.broadcast(dataString);
         responseString = (data.status === "accepted")
             ? `Accepted${respond}`
