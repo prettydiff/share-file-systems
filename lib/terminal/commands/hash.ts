@@ -57,12 +57,16 @@ const library = {
                             hashString = JSON.stringify(listObject);
                         } else if (hashes.length > 1) {
                             hash.update(hashes.join(""));
-                            hash.digest("hex").replace(/\s+$/, "");
+                            hashString = hash.digest("hex").replace(/\s+$/, "");
                         } else {
                             hashString = hashes[0];
                         }
                         hashOutput.hash = hashString;
-                        input.callback(hashOutput);
+                        if (vars.command === "hash") {
+                            library.log([hashString]);
+                        } else {
+                            input.callback(hashOutput);
+                        }
                     },
                     hashBack = function terminal_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                         const hash:Hash = vars.node.crypto.createHash(algorithm);
@@ -202,9 +206,15 @@ const library = {
                 do {
                     if (process.argv[a].indexOf("algorithm:") === 0) {
                         algorithm = <hash>process.argv[a].slice(10);
+                        process.argv.splice(a, 1);
+                        break;
                     }
                     a = a + 1;
                 } while (a < length);
+            }
+            if (listIndex > -1 && process.argv.length > 1) {
+                hashList = true;
+                process.argv.splice(listIndex, 1);
             }
             if (process.argv[0] === undefined) {
                 library.error([`Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`]);
@@ -216,10 +226,6 @@ const library = {
                 hash.update(process.argv[0]);
                 library.log([hash.digest("hex")], true);
                 return;
-            }
-            if (listIndex > -1 && process.argv.length > 1) {
-                hashList = true;
-                process.argv.splice(listIndex, 1);
             }
             input = {
                 callback: function terminal_hash_callback(output:hashOutput):void {
@@ -262,23 +268,33 @@ const library = {
                     limit = Number(ulimit_out);
                     shortLimit = Math.ceil(limit / 5);
                 }
-                if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
-                    // the library is not called from the directory library, which will always passing a parent property and not an id property
-                    const dirConfig:readDirectory = {
-                        callback: function terminal_hash_localCallback(list:directoryList) {
-                            dirComplete(list);
-                        },
-                        depth: 0,
-                        exclusions: vars.exclusions,
-                        mode: "read",
-                        path: <string>input.source,
-                        symbolic: true
-                    };
-                    directory(dirConfig);
-                } else {
-                    // coming from the directory library
-                    dirComplete([[<string>input.source, "file", "", input.parent, 0, input.stat]]);
-                }
+                vars.node.fs.stat(input.source, function terminal_hash_stat(ers:nodeError) {
+                    if (ers === null) {
+                        if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
+                            // not coming from the directory library.  The directory library will always pass a parent property and not an id property
+                            const dirConfig:readDirectory = {
+                                callback: function terminal_hash_stat_dirCallback(list:directoryList) {
+                                    dirComplete(list);
+                                },
+                                depth: 0,
+                                exclusions: vars.exclusions,
+                                mode: "read",
+                                path: <string>input.source,
+                                symbolic: true
+                            };
+                            directory(dirConfig);
+                        } else {
+                            // coming from the directory library
+                            dirComplete([[<string>input.source, "file", "", input.parent, 0, input.stat]]);
+                        }
+                    } else {
+                        if (ers.code === "ENOENT") {
+                            library.log([`File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`]);
+                        } else {
+                            library.error([ers.toString()]);
+                        }
+                    }
+                });
             });
         }
     };

@@ -56,7 +56,7 @@ const test_simulation = function terminal_testSimulation():void {
                         total: filterLength
                     });
                 } else {
-                    sim.execute(index, logger);
+                    sim.execute(filter[b], logger);
                 }
             };
             log.title("Run Selected Tests");

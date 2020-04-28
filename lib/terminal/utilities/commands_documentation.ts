@@ -158,11 +158,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} hash path/to/directory list`,
-                defined: "Returns a JSON string listing all scanned file system objects and each respective hash."
+                defined: "Returns a JSON string of an object where each file, in absolutely path, is a key name and its hash is the key's value."
             },
             {
-                code: `${vars.version.command} hash algorithm:sha3-512`,
-                defined: "Allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
+                code: `${vars.version.command} hash file/system/path algorithm:sha3-512`,
+                defined: "The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
             }
         ]
     },
