@@ -45,7 +45,10 @@ const library = {
     // * bypasses messaging users on server start up
     // * bypasses some security checks
     server = function terminal_server(serverCallback:serverCallback):httpServer {
-        const browser:boolean = (function terminal_server_browserTest():boolean {
+        const ipAddress:string = (serverVars.addresses[0].length > 1)
+                ? serverVars.addresses[0][1][1]
+                : serverVars.addresses[0][0][1],
+            browser:boolean = (function terminal_server_browserTest():boolean {
                 let index:number;
                 const test:number = process.argv.indexOf("test");
                 if (test > -1) {
@@ -127,11 +130,7 @@ const library = {
                     updateRemote = function terminal_server_post_updateRemote():void {
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        if (serverVars.addresses.length > 1) {
-                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][1][1]}.`);
-                        } else {
-                            response.write(`Received directory watch for ${body} at ${serverVars.addresses[0][0][1]}.`);
-                        }
+                        response.write(`Received directory watch for ${body} at ${ipAddress}.`);
                         response.end();
                     };
 
@@ -307,19 +306,11 @@ const library = {
                     });
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
                     output.push("");
-                    if (serverVars.addresses.length > 1) {
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.addresses[0][1][1] + webPort + vars.text.none}`);
-                        if (webPort === "") {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
-                        } else {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
-                        }
+                    output.push(`Address for service: ${vars.text.bold + vars.text.green + ipAddress + webPort + vars.text.none}`);
+                    if (webPort === "") {
+                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
                     } else {
-                        if (webPort === "") {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
-                        } else {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
-                        }
+                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                     }
                     output.push("");
                     library.log.title("Local Service");
