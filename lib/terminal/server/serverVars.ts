@@ -8,7 +8,8 @@ import vars from "../utilities/vars.js";
 interface socketList {
     [key:string]: Socket;
 }
-let mac:string = "";
+let mac:string = "",
+    address:[[string, string, string][], number];
 const serverVars:serverVars = {
         addresses: (function terminal_server_addresses():[[string, string, string][], number] {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
@@ -64,15 +65,20 @@ const serverVars:serverVars = {
                 ? mac6
                 : mac4;
             if (store.length < 1) {
-                return [[["disconnected", "::1", "ipv6"], ["disconnected", "127.0.0.1", "ipv4"]], 0];
+                address = [[["disconnected", "::1", "ipv6"], ["disconnected", "127.0.0.1", "ipv4"]], 0];
+            } else {
+                address = [store, interfaceLongest];
             }
-            return [store, interfaceLongest];
+            return address;
         }()),
         brotli: 7,
         device: {},
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",
+        ipAddress: (address[0].length > 1)
+            ? address[0][1][1]
+            : address[0][0][1],
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
         status: "idle",

@@ -123,7 +123,7 @@ const library = {
                             }
                         }
                         if (data.action === "fs-directory" && data.agent !== serverVars.hashDevice) {
-                            store.remoteWatch = `${serverVars.addresses[0][1][1]}_${serverVars.webPort}`;
+                            store.remoteWatch = `${serverVars.ipAddress}_${serverVars.webPort}`;
                         }
                         return JSON.stringify({
                             fs: store
