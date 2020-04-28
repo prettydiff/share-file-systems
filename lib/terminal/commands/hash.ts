@@ -63,7 +63,7 @@ const library = {
                         }
                         hashOutput.hash = hashString;
                         if (vars.command === "hash") {
-                            library.log([hashString]);
+                            library.log([hashString], true);
                         } else {
                             input.callback(hashOutput);
                         }
@@ -215,6 +215,16 @@ const library = {
             if (listIndex > -1 && process.argv.length > 1) {
                 hashList = true;
                 process.argv.splice(listIndex, 1);
+            }
+            if (process.argv.indexOf("--verbose") > -1) {
+                vars.verbose === true;
+                process.argv.splice(process.argv.indexOf("--verbose"), 1);
+            } else if (process.argv.indexOf("-verbose") > -1) {
+                vars.verbose === true;
+                process.argv.splice(process.argv.indexOf("-verbose"), 1);
+            } else if (process.argv.indexOf("verbose") > -1) {
+                vars.verbose === true;
+                process.argv.splice(process.argv.indexOf("verbose"), 1);
             }
             if (process.argv[0] === undefined) {
                 library.error([`Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`]);
