@@ -233,7 +233,7 @@ const library = {
                     }
                     return false;
                 };
-                if (request.method === "GET" && request.headers.host === "localhost") {
+                if (request.method === "GET" && (request.headers.host === "localhost" || (/localhost:\d{0,5}/).test(request.headers.host) === true)) {
                     methodGET(request, response);
                 } else if (postTest() === true) {
                     post(request, response);
@@ -304,10 +304,12 @@ const library = {
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
                     output.push("");
                     output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.ipAddress + webPort + vars.text.none}`);
-                    if (webPort === "") {
-                        output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
-                    } else {
-                        output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                    if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
+                        if (serverVars.addresses[0][0][2] === "ipv4") {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                        } else {
+                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                        }
                     }
                     output.push("");
                     library.log.title("Local Service");
