@@ -25,7 +25,7 @@ const testMessage = function test_testMessage(input:testMessage):number {
             ]);
         }
     } else {
-        log([`${humanTime(false) + vars.text.underline}Test ${input.index + 1} ignored (${vars.text.angry + input.messages[0] + vars.text.none + vars.text.underline}):${vars.text.none} ${name}`]);
+        log([`${humanTime(false) + vars.text.underline}Test ${input.index + 1} ignored (${vars.text.angry + input.messages[0] + vars.text.none + vars.text.underline}):${vars.text.none} ${input.name}`]);
     }
     return input.fail;
 };
