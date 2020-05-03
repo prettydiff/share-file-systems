@@ -212,7 +212,7 @@ const services = function test_services():testServiceArray {
                     }
                 }
             });
-            /*service.push(<testTemplateFileService>{
+            service.push(<testTemplateFileService>{
                 command: {
                     fs: {
                         action: "fs-copy",
@@ -227,7 +227,7 @@ const services = function test_services():testServiceArray {
                         watch: "no"
                     }
                 },
-                name: "fs:fs-copy, Copy Remote Device to different Remote Device",
+                name: "fs:fs-copy, Copy from Remote Device to different Remote Device",
                 qualifier: "is",
                 test: {
                     "file-list-status": {
@@ -236,7 +236,7 @@ const services = function test_services():testServiceArray {
                         target: "remote-test-ID"
                     }
                 }
-            });*/
+            });
             service.push(<testTemplateFileService>{
                 command: {
                     fs: {
@@ -1395,7 +1395,7 @@ const services = function test_services():testServiceArray {
         serverVars.storage = serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
         readStorage(storageComplete);
     };
-    service.execute = function test_services_execute(index:number, incrementor:Function):void {
+    service.execute = function test_services_execute(index:number, total:number):void {
         const testItem:testServiceInstance = service[index],
             keyword:string = (function test_services_execute_keyword():string {
                 const words:string[] = Object.keys(testItem.command);
@@ -1456,19 +1456,23 @@ const services = function test_services():testServiceArray {
                 });
                 response.on("end", function test_testListRunner_service_callback_end():void {
                     testEvaluation({
+                        index: index,
                         test: <testItem>service[index],
                         testType: "service",
+                        total: total,
                         values: [chunks.join(""), "", ""]
-                    }, incrementor);
+                    });
                 });
             },
             request:http.ClientRequest = http.request(payload, callback);
         request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
             testEvaluation({
+                index: index,
                 test: <testItem>service[index],
                 testType: "service",
+                total: total,
                 values: [`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`, "", ""]
-            }, incrementor);
+            });
         });
         request.write(command);
         setTimeout(function test_testListRunner_service_callback_delay():void {

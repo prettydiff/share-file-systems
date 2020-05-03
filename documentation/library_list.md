@@ -50,7 +50,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**               - Final messaging for a completed test type.
    - **[../lib/terminal/test/application/evaluation.ts](../lib/terminal/test/application/evaluation.ts)**           - Evaluate a given test item and report appropriate failure messaging.
-   - **[../lib/terminal/test/application/message.ts](../lib/terminal/test/application/message.ts)**                 - Formatting and presentation of pass and fail messaging as determined by the evaluation library.
    - **[../lib/terminal/test/application/runner.ts](../lib/terminal/test/application/runner.ts)**                   - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library.
 * Directory *[../lib/terminal/test/samples](../lib/terminal/test/samples)*
    - **[../lib/terminal/test/samples/service.ts](../lib/terminal/test/samples/service.ts)**                         - A list of service related tests.

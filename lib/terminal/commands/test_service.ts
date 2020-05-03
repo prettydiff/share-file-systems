@@ -4,7 +4,6 @@
 import log from "../utilities/log.js";
 import service from "../test/samples/service.js";
 import testListRunner from "../test/application/runner.js";
-import testMessage from "../test/application/message.js";
 import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
@@ -22,32 +21,9 @@ const test_service = function terminal_testService():void {
         const serve:testServiceArray = service(),
             addCallback = function terminal_testService_addCallback():void {
                 let a:number = 0,
-                    b:number = 0,
                     filterLength:number = 0,
                     fail:number = 0;
-                const logger = function terminal_testServices_addCallback_logger(messages:[string, string]) {
-                        const index:number = filter[b];
-                        fail = testMessage({
-                            fail: fail,
-                            index: index,
-                            messages: messages,
-                            name: serve[index].name,
-                            test: <testItem>serve[index],
-                            testType: "selected"
-                        });
-                        b = b + 1;
-                        if (b === filterLength) {
-                            serve.killServers({
-                                callback: completeCallback,
-                                fail: fail,
-                                testType: "selected",
-                                total: filterLength
-                            });
-                        } else {
-                            serve.execute(filter[b], logger);
-                        }
-                    },
-                    filter:number[] = [],
+                const filter:number[] = [],
                     length:number = serve.length;
                 do {
                     if (serve[a].name.indexOf(process.argv[0]) > -1) {
@@ -66,7 +42,7 @@ const test_service = function terminal_testService():void {
                     });
                 } else {
                     log.title("Run Selected Tests");
-                    serve.execute(filter[0], logger);
+                    serve.execute(filter[0], filterLength);
                 }
             };
         serve.addServers(addCallback);

@@ -9,6 +9,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
+let logStatus:boolean = false;
 const library = {
         commas: commas,
         directory: directory,
@@ -40,6 +41,7 @@ const library = {
                                 return;
                             }
                             if (item[0] === fileList[0][0]) {
+                                vars.testLog = logStatus;
                                 callback();
                             } else {
                                 fileList[item[3]][4] = fileList[item[3]][4] - 1;
@@ -50,6 +52,7 @@ const library = {
                         });
                     };
                 if (fileList.length < 1) {
+                    vars.testLog = logStatus;
                     callback();
                     return;
                 }
@@ -79,6 +82,10 @@ const library = {
                 path: filePath,
                 symbolic: true
             };
+        if (callback !== undefined && (callback.name === "test_testServices_logger_remove" || callback.name === "test_testSimulation_logger_remove" || callback.name === "test_testListRunner_increment_remove")) {
+            logStatus = vars.testLog;
+            vars.testLog = false;
+        }
         if (vars.command === "remove") {
             if (process.argv.length < 1) {
                 library.error([

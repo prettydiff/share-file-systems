@@ -121,8 +121,8 @@ const library = {
                 let phase = order[type][0],
                     time:string = library.humanTime(false);
                 if (message !== "") {
-                    sectionTimer(time);
                     library.log([time + message]);
+                    sectionTimer(time);
                 }
                 if (order[type].length < 1) {
                     if (vars.command === "build") {

@@ -255,15 +255,37 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test_service fs:fs-copy`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
+            },
+            {
+                code: `${vars.version.command} test_service log`,
+                defined: "The log argument turns on verbose logging output."
+            },
+            {
+                code: `${vars.version.command} test_service log log`,
+                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
             }
         ]
     },
     test_simulation: {
         description: "Launches a test runner to execute the various commands of the services file.",
-        example: [{
-            code: `${vars.version.command} test_simulation`,
-            defined: "Runs tests against the commands offered by the services file."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test_simulation`,
+                defined: "Runs tests against the commands offered by the services file."
+            },
+            {
+                code: `${vars.version.command} test_simulation fs:fs-copy`,
+                defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
+            },
+            {
+                code: `${vars.version.command} test_simulation log`,
+                defined: "The log argument turns on verbose logging output."
+            },
+            {
+                code: `${vars.version.command} test_simulation log log`,
+                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
+            }
+        ]
     },
     version: {
         description: "Prints the current version number and date of prior modification to the console.",

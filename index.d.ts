@@ -657,6 +657,8 @@ declare global {
         projectPath: string;
         sep: string;
         startTime: [number, number];
+        testLog: boolean;
+        testLogger: (message:string) => void;
         text: {
             [key:string]: string;
         };
@@ -671,8 +673,10 @@ declare global {
         total: number;
     }
     interface testEvaluation {
+        index: number;
         test: testItem;
         testType: testListType;
+        total: number;
         values: [string, string, string];
     }
     interface testItem {
@@ -682,18 +686,10 @@ declare global {
         qualifier: qualifier;
         test: string;
     }
-    interface testMessage {
-        fail: number;
-        index: number;
-        messages: [string, string];
-        name: string;
-        test: testItem;
-        testType: testListType | "selected";
-    }
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
         addServers?: (callback:Function) => void;
-        execute?: (index:number, increment:Function) => void;
+        execute?: (index:number, total:number) => void;
         killServers?: (complete:testComplete) => void;
         serverRemote?: {
             device: {
@@ -719,7 +715,7 @@ declare global {
     }
     interface testSimulationArray extends Array<testItem> {
         [index:number]: testItem;
-        execute?: (index:number, increment:Function) => void;
+        execute?: (index:number, total:number) => void;
     }
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;
@@ -787,6 +783,10 @@ declare global {
         command: {
             "user": devices;
         };
+    }
+    interface testTypeCollection {
+        service: testServiceArray;
+        simulation: testSimulationArray;
     }
     interface textPad extends EventHandlerNonNull {
         (Event, value?:string, title?:string): void;

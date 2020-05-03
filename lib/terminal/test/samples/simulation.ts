@@ -244,6 +244,21 @@ const simulations = function test_simulations():testSimulationArray {
                 test: " seconds total time"
             },
             {
+                command: `lint .${vars.sep}ws-es6${vars.sep}index.js`,
+                qualifier: "contains",
+                test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}ws-es6${vars.sep}index.js${vars.text.none}`
+            },
+            {
+                command: `lint .${vars.sep}ws-es6${vars.sep}index.js`,
+                qualifier: "contains",
+                test: "of memory consumed"
+            },
+            {
+                command: `lint .${vars.sep}lib`,
+                qualifier: "contains",
+                test: `No files matching the pattern "${vars.projectPath}lib" were found.`
+            },
+            {
                 command: "version",
                 qualifier: "ends",
                 test: " seconds total time"
@@ -254,8 +269,11 @@ const simulations = function test_simulations():testSimulationArray {
                 test: `version[name] version ${text.angry}`
             }
         ];
-    simulation.execute = function test_simulations_execute(index:number, increment:Function):void {
-        vars.node.child(`${vars.version.command} ${simulation[index].command}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+    simulation.execute = function test_simulations_execute(index:number, total:number):void {
+        const testArg:string = (vars.testLog === true)
+            ? " application_test_log_argument"
+            : "";
+        vars.node.child(`${vars.version.command} ${simulation[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
             const test:string = (typeof simulation[index].test === "string")
                     ? <string>simulation[index].test
                     : JSON.stringify(simulation[index].test),
@@ -264,10 +282,12 @@ const simulations = function test_simulations():testSimulationArray {
                     : errs.toString();
             simulation[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
             testEvaluation({
+                index: index,
                 test: simulation[index],
                 testType: "simulation",
+                total: total,
                 values: [stdout, error, stdError.toString()]
-            }, increment);
+            });
         });
     };
     return simulation;

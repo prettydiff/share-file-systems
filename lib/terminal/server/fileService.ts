@@ -37,6 +37,7 @@ const library = {
         remove: remove
     },
     fileService = function terminal_server_fileService(response:http.ServerResponse, data:fileService):void {
+        // formats a string to convey file copy status
         const copyMessage = function (numbers:completeStatus):string {
                 const filePlural:string = (numbers.countFile === 1)
                         ? ""
@@ -49,6 +50,7 @@ const library = {
                         : `Copying ${numbers.percent.toFixed(2)}%`;
                 return `${verb} complete. ${library.commas(numbers.countFile)} file${filePlural} written at size ${library.prettyBytes(numbers.writtenSize)} (${library.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
             },
+            // prepares a file list from a remote device otherwise writes the http response if the same device
             fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
                 const copyStatus:copyStatus = {
                         failures: [],
@@ -93,6 +95,7 @@ const library = {
                     library.directory(dirConfig);
                 }
             },
+            // calls httpClient library for file system operations
             httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
                 const payload:string = (function terminal_server_fileService_httpRequest_payload():string {
                         const store:fileService = {
@@ -143,8 +146,9 @@ const library = {
                     };
                 library.httpClient(httpConfig);
             },
+            // a generic handler for responding to file system watch updates
             fsUpdateLocal = function terminal_server_fileService(readLocation:string):void {
-                const fsUpdateCallback = function terminal_server_fileService_watchHandler_fsUpdateCallback(result:directoryList):void {
+                const fsUpdateCallback = function terminal_server_fileService_fsUpdateCallback(result:directoryList):void {
                         vars.ws.broadcast(JSON.stringify({
                             "fs-update-local": result
                         }));
@@ -159,6 +163,7 @@ const library = {
                     };
                 library.directory(dirConfig);
             },
+            // the file system watch handler
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
                     serverVars.watches[value].time = Date.now();
@@ -217,6 +222,7 @@ const library = {
                     }
                 }
             },
+            // prepares the list of selected files on a remote device in response to a file system action
             remoteCopyList = function terminal_server_fileService_remoteCopyList(config:remoteCopyList):void {
                 const list: [string, string, string, number][] = [],
                     callback = function terminal_server_fileService_remoteCopyList_callback(dir:directoryList):void {
@@ -316,6 +322,7 @@ const library = {
                     fileSize:number = 0;
                 library.directory(dirConfig);
             },
+            // when copying files to a different location that location needs to request the files
             requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
                 let writeActive:boolean = false,
                     writtenSize:number = 0,
@@ -328,6 +335,7 @@ const library = {
                     hashFail:string[] = [],
                     listLength = fileData.list.length,
                     cutList:[string, string][] = [],
+                    // prepares the HTTP response message if all requested files are written
                     respond = function terminal_server_fileService_requestFiles_respond():void {
                         const status:completeStatus = {
                                 countFile: countFile,
@@ -374,6 +382,7 @@ const library = {
                         }));
                         response.end();
                     },
+                    // handler to write files if files are written in a single shot, otherwise files are streamed with writeStream
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
                         const fileName:string = fileQueue[index][0];
                         vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
@@ -417,6 +426,7 @@ const library = {
                             }
                         });
                     },
+                    // stream handler if files are streamed, otherwise files are written in a single shot using writeFile
                     writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
                         const fileName:string = <string>fileResponse.headers.file_name,
                             filePath:string = data.name + vars.sep + fileName,
@@ -485,6 +495,7 @@ const library = {
                             fileError(error.toString(), filePath);
                         });
                     },
+                    // the callback for each file request
                     fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
                         const fileChunks:Buffer[] = [],
                             writeable:Writable = new Stream.Writable(),
@@ -535,6 +546,7 @@ const library = {
                             library.error([fileError.toString()]);
                         });
                     },
+                    // after directories are created, if necessary, request the each file from the file list
                     requestFile = function terminal_server_fileService_requestFiles_requestFile():void {
                         const writeCallback:Function = (fileData.stream === true)
                             ? writeStream
@@ -564,6 +576,7 @@ const library = {
                             }
                         }
                     },
+                    // callback to makeDir
                     dirCallback = function terminal_server_fileService_requestFiles_dirCallback():void {
                         a = a + 1;
                         countDir = countDir + 1;
@@ -579,6 +592,7 @@ const library = {
                             respond();
                         }
                     },
+                    // recursively create new directories as necessary
                     makeDir = function terminal_server_fileService_requestFiles_makeLists():void {
                         library.makeDir(data.name + vars.sep + fileData.list[a][2], dirCallback);
                         cutList.push([fileData.list[a][0], "directory"]);
@@ -603,6 +617,7 @@ const library = {
                     requestFile();
                 }
             },
+            // instructions to copy files from one location to another on the same device
             copySameAgent = function terminal_server_fileService_copySameAgent():void {
                 let count:number = 0,
                     countFile:number = 0,
@@ -875,13 +890,12 @@ const library = {
                 data.copyAgent = agent;
                 data.remoteWatch = serverVars.hashDevice;
                 data.watch = "third party action";
-                //console.log(data);
-                //httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
-                    //console.log("");
-                    //console.log("responseBody");
-                    //console.log(responseBody);
+                httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                    console.log("");
+                    console.log("responseBody");
+                    console.log(responseBody);
                     //requestFiles(JSON.parse(<string>responseBody));
-                //}, "Error copying from remote to local device", "body");
+                }, "Error copying from remote to local device", "body");
             }
         } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
             const agent:string = data.agent;

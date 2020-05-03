@@ -17,9 +17,15 @@ const commandName = function terminal_command():string {
             }
             return false;
         },
+        testArg:number = process.argv.indexOf("application_test_log_argument"),
         // eslint-disable-next-line
         logger:(input:string) => void = console.log;
+    if (testArg > -1) {
+        process.argv.splice(testArg, 1);
+        vars.testLog = true;
+    }
     if (arg === undefined) {
+        vars.testLogger("Missing command argument.");
         logger("");
         logger(`${vars.version.name} requires a command. Try:`);
         logger(`${vars.text.cyan + vars.version.command} help${vars.text.none}`);
@@ -64,6 +70,7 @@ const commandName = function terminal_command():string {
     } while (filtered.length > 1 && a < len);
 
     if (filtered.length < 1 || (filtered[0] === "debug" && filtered.length < 2)) {
+        vars.testLogger(`Command ${boldArg} is not a supported command.`);
         logger(`Command ${boldArg} is not a supported command.`);
         logger("");
         logger("Please try:");
@@ -73,14 +80,25 @@ const commandName = function terminal_command():string {
         return "";
     }
     if (filtered.length > 1 && comKeys.indexOf(arg) < 0) {
+        vars.testLogger(`Command '${boldArg}' is ambiguous as it could refer to any of: [${vars.text.cyan + filtered.join(", ") + vars.text.none}]`);
         logger(`Command '${boldArg}' is ambiguous as it could refer to any of: [${vars.text.cyan + filtered.join(", ") + vars.text.none}]`);
         process.exit(1);
         return "";
     }
     if (arg !== filtered[0]) {
-        logger("");
-        logger(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
-        logger("");
+        vars.testLogger(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
+        if (vars.testLog === false) {
+            logger("");
+            logger(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
+            logger("");
+        }
+    }
+    if (filtered[0].indexOf("test") === 0) {
+        const index:number = process.argv.indexOf("log");
+        if (index > -1) {
+            process.argv.splice(index, 1);
+            vars.testLog = true;
+        }
     }
     return filtered[0];
 };

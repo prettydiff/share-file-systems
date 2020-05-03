@@ -23,6 +23,7 @@ const library = {
                 property: "description",
                 total: true
             };
+            vars.testLogger("All commands in a list.");
             library.lists(listConfig);
         } else {
             // specifically mentioned option
@@ -43,6 +44,7 @@ const library = {
                 output.push("");
                 a = a + 1;
             } while (a < len);
+            vars.testLogger("A specific command with code examples.");
             library.log(output);
         }
     };
