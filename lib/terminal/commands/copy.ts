@@ -6,7 +6,7 @@ import { Stream, Writable } from "stream";
 import commas from "../../common/commas.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
-import makeDir from "../utilities/makeDir.js";
+import mkdir from "./mkdir.js";
 import remove from "./remove.js";
 import vars from "../utilities/vars.js";
 
@@ -15,7 +15,7 @@ const library = {
         commas: commas,
         error: error,
         log: log,
-        makeDir: makeDir,
+        mkdir: mkdir,
         remove: remove
     },
     // parameters
@@ -41,7 +41,7 @@ const library = {
         util.complete = function terminal_copy_complete(item:string):void {
             delete dirs[item];
             if (log === true) {
-                vars.testLogger(`Copy completion test for ${item}`);
+                vars.testLogger("copy", "complete", `completion test for ${item}`);
             }
             if (Object.keys(dirs).length < 1) {
                 params.callback([numb.files, numb.size]);
@@ -49,7 +49,7 @@ const library = {
         };
         util.errorOut     = function terminal_copy_errorOut(er:Error):void {
             const filename:string[] = target.split(vars.sep);
-            vars.testLogger("Copy error.  The partially created tree will be removed.");
+            vars.testLogger("copy", "error", "Error, partially created tree will be removed.");
             library.remove(
                 destination + vars.sep + filename[filename.length - 1],
                 function terminal_copy_errorOut_remove() {
@@ -64,11 +64,11 @@ const library = {
                     util.errorOut(er);
                     return;
                 }
-                library.makeDir(place, function terminal_copy_dir_readdir_makeDir():void {
+                library.mkdir(place, function terminal_copy_dir_readdir_mkdir():void {
                     const a = files.length;
                     let b = 0;
                     if (log === true) {
-                        vars.testLogger(`Copy, directory ${place} created and each item contained will get a stat or if empty run the completion test.`);
+                        vars.testLogger("copy", "mkdir", `directory ${place} created and each item contained will get a stat or if empty run the completion test.`);
                     }
                     if (a > 0) {
                         delete dirs[item];
@@ -119,7 +119,7 @@ const library = {
                         prop.mtime,
                         function terminal_copy_file_finish_utimes():void {
                             if (log === true) {
-                                vars.testLogger(`Copy, stream complete for file ${item} and ready for completion test.`);
+                                vars.testLogger("copy", "utimes", `stream complete for file ${item} and ready for completion test.`);
                             }
                             util.complete(item);
                         }
@@ -135,7 +135,7 @@ const library = {
                 }
                 resolvedLink = vars.node.path.resolve(resolvedLink);
                 if (log === true) {
-                    vars.testLogger("Copy, stat object represented by the symbolic link.");
+                    vars.testLogger("copy", "link", "stat object represented by the symbolic link.");
                 }
                 vars.node.fs.stat(resolvedLink, function terminal_copy_link_readlink_stat(ers:Error, stats:Stats):void {
                     let type  = "file",
@@ -195,12 +195,12 @@ const library = {
                 }
                 if (stats.isFile() === true) {
                     if (log === true) {
-                        vars.testLogger(`Copy, stat ${item} is a file.`);
+                        vars.testLogger("copy", "lstat", `stat ${item} is a file or points to a file.`);
                     }
                     numb.files = numb.files + 1;
                     numb.size  = numb.size + stats.size;
                     if (item === dir) {
-                        library.makeDir(dest, function terminal_copy_stat_callback_file():void {
+                        library.mkdir(dest, function terminal_copy_stat_callback_file():void {
                             util.file(item, dir, {
                                 atime: (Date.parse(stats.atime.toString()) / 1000),
                                 mode : stats.mode,
@@ -220,7 +220,7 @@ const library = {
                 } else if (stats.isSymbolicLink() === true) {
                     numb.link = numb.link + 1;
                     if (item === dir) {
-                        library.makeDir(dest, function terminal_copy_stat_callback_symbolic() {
+                        library.mkdir(dest, function terminal_copy_stat_callback_symbolic() {
                             util.link(item, dir);
                         });
                     } else {
@@ -232,7 +232,7 @@ const library = {
             });
         };
         if (vars.command === "copy") {
-            vars.testLogger("Format output when the command is 'copy'.");
+            vars.testLogger("copy", "command", "format output when the command is 'copy'.");
             if (process.argv[0] === undefined || process.argv[1] === undefined) {
                 library.error([
                     "The copy command requires a source path and a destination path.",
@@ -291,7 +291,7 @@ const library = {
         excludeLength    = params.exclusions.length;
         dest             = vars.node.path.resolve(destination) + vars.sep;
         start            = target.slice(0, target.lastIndexOf(vars.sep) + 1);
-        vars.testLogger("Copy, start with a stat wrapper.");
+        vars.testLogger("copy", "start", "begin with a stat wrapper.");
         util.stat(target, start);
     };
 

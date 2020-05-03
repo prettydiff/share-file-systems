@@ -48,15 +48,15 @@ const library = {
                 const output = (direction === "decode")
                     ? Buffer.from(string, "base64").toString("utf8")
                     : Buffer.from(string).toString("base64");
-                vars.testLogger("Writing output to terminal.");
+                vars.testLogger("base64", "screen", "writing output to terminal.");
                 library.log([output]);
             },
             fileWrapper = function terminal_base64_fileWrapper(filePath):void {
-                vars.testLogger("Stat the file path to ensure it exists.");
+                vars.testLogger("base64", "fileWrapper", "stat the file path to ensure it exists.");
                 vars.node.fs.stat(filePath, function terminal_base64_fileWrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         file = function terminal_base64_fileWrapper_stat_file():void {
-                            vars.testLogger("File path points to a file, so now to open it as a byte stream.");
+                            vars.testLogger("base64", "file", "file path points to a file, so now to open it as a byte stream.");
                             vars.node.fs.open(filePath, "r", function terminal_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
                                 let buff  = Buffer.alloc(stat.size);
                                 if (ero !== null) {
@@ -70,7 +70,7 @@ const library = {
                                         return;
                                     }
                                 }
-                                vars.testLogger("Reading the file from the opened stream.");
+                                vars.testLogger("base64", "open", "reading the file from the opened stream.");
                                 vars.node.fs.read(
                                         fd,
                                         buff,
@@ -89,7 +89,7 @@ const library = {
                                                     return;
                                                 }
                                             }
-                                            vars.testLogger("File is read from stream.  Now to determine if operation is 'decode' or 'encode' and then output the result.");
+                                            vars.testLogger("base64", "read", "file is read from stream.  Now to determine if operation is 'decode' or 'encode' and then output the result.");
                                             const output = (direction === "decode")
                                                 ? Buffer.from(buffer.toString("utf8"), "base64").toString("utf8")
                                                 : buffer.toString("base64");
@@ -148,12 +148,12 @@ const library = {
                 });
             };
         if (path === undefined) {
-            vars.testLogger(`No path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`);
+            vars.testLogger("base64", "no path", `no path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`);
             library.error([`No path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`]);
             return;
         }
         if (path.indexOf("string:") === 0) {
-            vars.testLogger("Detected argument beginning with 'string:' which means to read from standard input and write to standard output.");
+            vars.testLogger("base64", "direct input", "detected argument beginning with 'string:' which means to read from standard input and write to standard output.");
             path = path.replace("string:", "");
             if (path.charAt(0) === "\"" && path.charAt(path.length - 1) === "\"") {
                 path.slice(1, path.length - 1);
@@ -164,11 +164,11 @@ const library = {
             return;
         }
         if ((/https?:\/\//).test(path) === true) {
-            vars.testLogger("Fetching source material from HTTP(S).");
+            vars.testLogger("base64", "http", "fetching source material from HTTP(S).");
             http = true;
             library.get(path, screen);
         } else {
-            vars.testLogger("Source material is not standard input or from HTTP(S) so presuming a file path.");
+            vars.testLogger("base64", "file path", "source material is not standard input or from HTTP(S) so presuming a file path.");
             fileWrapper(path);
         }
     };

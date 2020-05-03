@@ -98,10 +98,14 @@ const vars:terminalVariables = {
         sep: "/",
         startTime: process.hrtime(),
         testLog: false,
-        testLogger: function node_testLogger(message:string):void {
+        testLogger: function node_testLogger(library:string, container:string, message:string):void {
             if (vars.testLog === true) {
+                const contain:string = (container === "")
+                        ? ""
+                        : `(${vars.text.bold + container + vars.text.none}) `,
+                    lib:string = vars.text.green + library + vars.text.none;
                 // eslint-disable-next-line
-                console.log(`${vars.text.cyan}Log - ${vars.text.none + message}`);
+                console.log(`${vars.text.cyan}Log - ${vars.text.none + lib}, ${contain + message}`);
             }
         },
         text: {

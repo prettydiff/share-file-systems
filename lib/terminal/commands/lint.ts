@@ -14,15 +14,28 @@ const library = {
         log: log
     },
     lint = function terminal_lint(callback:Function):void {
-        vars.node.child(`eslint`, function terminal_lint_eslintCheck(lint_err:Error) {
-            const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
-                    ? vars.node.path.resolve(process.argv[0])
-                    : vars.js,
-                complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
-            if (lint_err !== null) {
+        const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
+                ? vars.node.path.resolve(process.argv[0])
+                : vars.js,
+            complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
+        if (vars.command === "lint") {
+            vars.verbose = true;
+            if (vars.testLog === false) {
+                library.log.title(`Linting ${lintPath}`);
+            }
+            callback = function terminal_lint_callback():void {
+                library.log([complete], true);
+            };
+        }
+        vars.node.child(`eslint ${lintPath}`, {
+            cwd: vars.projectPath
+        }, function terminal_lint_eslint(err:Error, stdout:string, stderr:string) {
+            vars.testLogger("lint", "child", "run ESLint as a child process");
+            if (err !== null) {
+                vars.testLogger("lint", "child error", err.toString());
                 library.log([
                     "ESLint is not globally installed or is corrupt.",
-                    lint_err.toString(),
+                    err.toString(),
                     `Install ESLint using the command: ${vars.text.green}npm install eslint -g${vars.text.none}`,
                     ""
                 ]);
@@ -33,36 +46,27 @@ const library = {
                 }
                 return;
             }
-            if (vars.command === "lint") {
-                vars.verbose = true;
-                library.log.title(`Linting ${lintPath}`);
-                callback = function terminal_lint_callback():void {
-                    library.log([complete], true);
-                };
-            }
-            vars.node.child(`eslint ${lintPath}`, {
-                cwd: vars.projectPath
-            }, function terminal_lint_eslint(err:Error, stdout:string, stderr:string) {
-                if (stdout === "" || stdout.indexOf("0:0  warning  File ignored because of a matching ignore pattern.") > -1) {
-                    if (err !== null) {
-                        library.error([err.toString()]);
-                        return;
-                    }
-                    if (stderr !== null && stderr !== "") {
-                        library.error([stderr]);
-                        return;
-                    }
-                    library.log([""]);
-                    if (callback === undefined) {
-                        library.log([complete]);
-                    } else {
-                        callback(complete);
-                    }
-                } else {
-                    library.error([stdout, "Lint failure."]);
+            if (stdout === "" || stdout.indexOf("0:0  warning  File ignored because of a matching ignore pattern.") > -1) {
+                if (err !== null) {
+                    library.error([err.toString()]);
                     return;
                 }
-            });
+                if (stderr !== null && stderr !== "") {
+                    library.error([stderr]);
+                    return;
+                }
+                vars.testLogger("lint", "lint complete", "all tests passed and output will be formatted for terminal or callback");
+                library.log([""]);
+                if (callback === undefined) {
+                    library.log([complete]);
+                } else {
+                    callback(complete);
+                }
+            } else {
+                vars.testLogger("lint", "lint fail", "violated an ESLint rule");
+                library.error([stdout, "Lint failure."]);
+                return;
+            }
         });
     };
 

@@ -6,6 +6,7 @@ import vars from "../utilities/vars.js";
 // help text
 const help = function terminal_help():void {
     vars.verbose = true;
+    vars.testLogger("help", "", "help messaging");
     log([
         "",
         `Welcome to ${vars.version.name}.`,

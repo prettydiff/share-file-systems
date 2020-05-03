@@ -11,6 +11,7 @@ import get from "./lib/terminal/commands/get.js";
 import hash from "./lib/terminal/commands/hash.js";
 import help from "./lib/terminal/commands/help.js";
 import lint from "./lib/terminal/commands/lint.js";
+import mkdir from "./lib/terminal/commands/mkdir.js";
 import remove from "./lib/terminal/commands/remove.js";
 import server from "./lib/terminal/commands/server.js";
 import test from "./lib/terminal/commands/test.js";
@@ -31,6 +32,7 @@ import version from "./lib/terminal/commands/version.js";
         hash: hash,
         help: help,
         lint: lint,
+        mkdir: mkdir,
         remove: remove,
         server: server,
         test: test,

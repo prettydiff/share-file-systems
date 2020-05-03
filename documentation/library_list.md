@@ -30,6 +30,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/hash.ts](../lib/terminal/commands/hash.ts)**                                       - A command driven utility to generate hash sequences on strings or file system artifacts.
    - **[../lib/terminal/commands/help.ts](../lib/terminal/commands/help.ts)**                                       - A minor log sequence to output getting started instructions.
    - **[../lib/terminal/commands/lint.ts](../lib/terminal/commands/lint.ts)**                                       - A command driven wrapper for executing external application ESLint.
+   - **[../lib/terminal/commands/mkdir.ts](../lib/terminal/commands/mkdir.ts)**                                     - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/remove.ts](../lib/terminal/commands/remove.ts)**                                   - A command driven utility to recursively remove file system artifacts.
    - **[../lib/terminal/commands/server.ts](../lib/terminal/commands/server.ts)**                                   - A command driven HTTP server for running the terminal instance of the application.
    - **[../lib/terminal/commands/test.ts](../lib/terminal/commands/test.ts)**                                       - A command driven wrapper for all test utilities.
@@ -61,7 +62,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/humanTime.ts](../lib/terminal/utilities/humanTime.ts)**                           - A utility to generate human readable time sequences.
    - **[../lib/terminal/utilities/lists.ts](../lib/terminal/utilities/lists.ts)**                                   - A utility for visually presenting lists of data to the terminal's console.
    - **[../lib/terminal/utilities/log.ts](../lib/terminal/utilities/log.ts)**                                       - A log utility for displaying multiple lines of text to the terminal.
-   - **[../lib/terminal/utilities/makeDir.ts](../lib/terminal/utilities/makeDir.ts)**                               - A utility for creating directories in the file system.
    - **[../lib/terminal/utilities/readFile.ts](../lib/terminal/utilities/readFile.ts)**                             - A utility to read files as text, if text, or as binary, if binary.
    - **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                       - Reads all the storage files and returns a data structure to a callback
    - **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                     - Globally available variables for the terminal utility.

@@ -13,7 +13,7 @@ import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import log from "../utilities/log.js";
-import makeDir from "../utilities/makeDir.js";
+import mkdir from "../commands/mkdir.js";
 import prettyBytes from "../../common/prettyBytes.js";
 import readFile from "../utilities/readFile.js";
 import remove from "../commands/remove.js";
@@ -31,7 +31,7 @@ const library = {
         hash: hash,
         httpClient: httpClient,
         log: log,
-        makeDir: makeDir,
+        mkdir: mkdir,
         prettyBytes: prettyBytes,
         readFile: readFile,
         remove: remove
@@ -576,13 +576,13 @@ const library = {
                             }
                         }
                     },
-                    // callback to makeDir
+                    // callback to mkdir
                     dirCallback = function terminal_server_fileService_requestFiles_dirCallback():void {
                         a = a + 1;
                         countDir = countDir + 1;
                         if (a < listLength) {
                             if (fileData.list[a][1] === "directory") {
-                                makeDir();
+                                mkdir();
                             } else {
                                 data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
                                 requestFile();
@@ -593,8 +593,8 @@ const library = {
                         }
                     },
                     // recursively create new directories as necessary
-                    makeDir = function terminal_server_fileService_requestFiles_makeLists():void {
-                        library.makeDir(data.name + vars.sep + fileData.list[a][2], dirCallback);
+                    mkdir = function terminal_server_fileService_requestFiles_makeLists():void {
+                        library.mkdir(data.name + vars.sep + fileData.list[a][2], dirCallback);
                         cutList.push([fileData.list[a][0], "directory"]);
                     };
                 if (fileData.stream === true) {
@@ -611,7 +611,7 @@ const library = {
                     }));
                 }
                 if (fileData.list[0][1] === "directory") {
-                    makeDir();
+                    mkdir();
                 } else {
                     data.action = <serviceFS>data.action.replace(/((list)|(request))/, "file");
                     requestFile();
@@ -1118,7 +1118,7 @@ const library = {
                 dirs = data.location[0].split(slash);
             dirs.pop();
             if (data.name === "directory") {
-                library.makeDir(data.location[0], function terminal_server_fileService_newDirectory():void {
+                library.mkdir(data.location[0], function terminal_server_fileService_newDirectory():void {
                     fileCallback(`${data.location[0]} created.`);
                     fsUpdateLocal(dirs.join(slash));
                 });

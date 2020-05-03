@@ -43,7 +43,7 @@ const library = {
             dirNames:string[] = [],
             type:boolean = (function terminal_directory_typeof():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
-                vars.testLogger("Directory, set type flag.");
+                vars.testLogger("directory", "type", "set type flag.");
                 if (vars.command === "directory" && typeIndex > -1) {
                     process.argv.splice(typeIndex, 1);
                     return true;
@@ -119,7 +119,7 @@ const library = {
                             }())
                             : false
                     };
-                    vars.testLogger(`Directory, determine the start point and set default configuration if executing using the 'directory' command from the terminal. Mode: ${args.mode}`);
+                    vars.testLogger("directory", "startPath", `determine the start point and set default configuration if executing using the 'directory' command from the terminal. Mode: ${args.mode}`);
                     if (process.argv.length < 1) {
                         library.error([
                             "No path supplied for the directory command. For an example please see:",
@@ -167,7 +167,7 @@ const library = {
                     dirNames.splice(index, 1);
                     dirs = dirs - 1;
                     if (dirs < 1) {
-                        vars.testLogger("Directory, complete so call the callback or output to terminal.");
+                        vars.testLogger("directory", "dirCounter", "complete so call the callback or output to terminal.");
                         if (args.mode === "list") {
                             args.callback(fileList.sort());
                         } else {
@@ -183,7 +183,7 @@ const library = {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
                             if (log === true) {
-                                vars.testLogger(`Directory, reading dir ${filePath} for recursive operations.`);
+                                vars.testLogger("directory", "dir", `reading directory ${filePath} for recursive operations.`);
                             }
                             vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                 if (erd !== null) {
@@ -235,7 +235,7 @@ const library = {
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
                             if (log === true) {
-                                vars.testLogger(`Directory, populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
+                                vars.testLogger("directory", "populate", `populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
                             }
                             if (type === "error") {
                                 list.failures.push(filePath);
@@ -299,7 +299,7 @@ const library = {
                         };
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            vars.testLogger(`Directory, item ${filePath} is missing.`);
+                            vars.testLogger("directory", "missing", `item ${filePath} is missing.`);
                             if (type === true) {
                                 library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
@@ -308,11 +308,11 @@ const library = {
                                 populate("error");
                             }
                         } else {
-                            vars.testLogger(`Directory, stat of item ${filePath} caused an error.`);
+                            vars.testLogger("directory", "stat error", `stat of item ${filePath} caused an error.`);
                             populate("error");
                         }
                     } else if (stat === undefined) {
-                        vars.testLogger(`Directory, item ${filePath} is missing.`);
+                        vars.testLogger("directory", "stat undefined", `item ${filePath} is missing.`);
                         library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                         populate("error");
                     } else if (stat.isDirectory() === true) {

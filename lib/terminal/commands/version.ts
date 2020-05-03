@@ -5,6 +5,7 @@ import vars from "../utilities/vars.js";
 
 // runs apps.log
 const version = function terminal_version():void {
+    vars.testLogger("version", "", "sets verbose and complete flags on the log utility");
     vars.verbose = true;
     log([""], true);
 };

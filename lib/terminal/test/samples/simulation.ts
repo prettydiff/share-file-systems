@@ -36,7 +36,7 @@ const simulations = function test_simulations():testSimulationArray {
         hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
         simulation:testSimulationArray = [
             {
-                command: "asdf",
+                command: "anUnsupportedCommand",
                 qualifier: "contains",
                 test: ` is not a supported command`
             },
@@ -56,7 +56,9 @@ const simulations = function test_simulations():testSimulationArray {
                 test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
             },
             {
+                //cspell:disable
                 command: "base64 decode string:\"bXkgYmlnIHN0cmluZyBzYW1wbGU=\"",
+                //cspell:enable
                 qualifier: "is",
                 test: "my big string sample"
             },
@@ -73,7 +75,9 @@ const simulations = function test_simulations():testSimulationArray {
             {
                 command: "base64 string:\"my big string sample\"",
                 qualifier: "is",
+                //cspell:disable
                 test: "bXkgYmlnIHN0cmluZyBzYW1wbGU="
+                //cspell:enable
             },
             {
                 command: "comm version",
@@ -174,9 +178,19 @@ const simulations = function test_simulations():testSimulationArray {
                 test: "file"
             },
             {
+                command: "get",
+                qualifier: "contains",
+                test: "The get command requires an address and that address must be in http/https scheme."
+            },
+            {
+                command: "get notAnAddress",
+                qualifier: "contains",
+                test: "The get command requires an address in http/https scheme."
+            },
+            {
                 command: "get https://duckduckgo.com/",
                 qualifier: "contains",
-                test: `DDG.page = new DDG.Pages.Home();`
+                test: "DDG.page = new DDG.Pages.Home();"
             },
             {
                 command: "hash",
@@ -184,9 +198,9 @@ const simulations = function test_simulations():testSimulationArray {
                 test: `Command ${text.cyan}hash${text.none} requires some form of address of something to analyze, ${text.angry}but no address is provided${text.none}.`
             },
             {
-                command: "hash asdf",
+                command: "hash anUnsupportedPath",
                 qualifier: "contains",
-                test: `${sep}asdf${text.none} is not a file or directory.`
+                test: `${sep}anUnsupportedPath${text.none} is not a file or directory.`
             },
             {
                 command: `hash ${projectPath}tsconfig.json`,
@@ -244,19 +258,39 @@ const simulations = function test_simulations():testSimulationArray {
                 test: " seconds total time"
             },
             {
-                command: `lint .${vars.sep}ws-es6${vars.sep}index.js`,
+                command: `lint .${sep}ws-es6${sep}index.js`,
                 qualifier: "contains",
-                test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}ws-es6${vars.sep}index.js${vars.text.none}`
+                test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}ws-es6${sep}index.js${vars.text.none}`
             },
             {
-                command: `lint .${vars.sep}ws-es6${vars.sep}index.js`,
+                command: `lint .${sep}ws-es6${sep}index.js`,
                 qualifier: "contains",
                 test: "of memory consumed"
             },
             {
-                command: `lint .${vars.sep}lib`,
+                command: `lint .${sep}lib`,
                 qualifier: "contains",
                 test: `No files matching the pattern "${vars.projectPath}lib" were found.`
+            },
+            {
+                command: `mkdir ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+                qualifier: "contains",
+                test: `Directory created at ${vars.text.cyan + vars.projectPath}lib${sep}terminal${sep}test${sep}testDir${vars.text.none}`
+            },
+            {
+                command: `remove ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+                qualifier: "contains",
+                test: `Share File Systems removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
+            },
+            {
+                command: `mkdir ${vars.projectPath}lib/terminal/test/testDir`,
+                qualifier: "is",
+                test: ""
+            },
+            {
+                command: `remove ${vars.projectPath}lib/terminal/test/testDir`,
+                qualifier: "is",
+                test: ""
             },
             {
                 command: "version",

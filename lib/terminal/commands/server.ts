@@ -5,13 +5,9 @@ import { AddressInfo } from "net";
 import { StringDecoder } from "string_decoder";
 import WebSocket from "../../../ws-es6/index.js";
 
-import copy from "./copy.js";
-import directory from "./directory.js";
 import error from "../utilities/error.js";
 import hash from "./hash.js";
 import log from "../utilities/log.js";
-import makeDir from "../utilities/makeDir.js";
-import remove from "./remove.js";
 
 import vars from "../utilities/vars.js";
 import readStorage from "../utilities/readStorage.js";
@@ -29,16 +25,12 @@ import storage from "../server/storage.js";
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
 const library = {
-        copy: copy,
-        directory: directory,
         error: error,
         hash: hash,
         heartbeat: heartbeat,
         httpClient: httpClient,
         log: log,
-        makeDir: makeDir,
-        readStorage: readStorage,
-        remove: remove
+        readStorage: readStorage
     },
     // at this time the serverCallback argument is only used by test automation and so its availability
     // * locks the server to address ::1 (loopback)

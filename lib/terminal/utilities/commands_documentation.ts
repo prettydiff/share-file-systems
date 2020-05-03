@@ -190,6 +190,13 @@ const commands_documentation = {
             }
         ]
     },
+    mkdir: {
+        description: "Recursively creates a directory structure.  For example if 'my/new/path` were to be created but parent 'my' doesn't exist this command will create all three directories, but it will not alter or overwrite any artifacts already present. Relative paths are relative to the terminal's current working directory.",
+        example: [{
+            code: `${vars.version.command} mkdir my/path/to/create`,
+            defined: "This example would create directories as necessary to ensure the directory structure 'my/path/to/create' is available from the location relative to the terminal's current working directory."
+        }]
+    },
     remove: {
         description: "Remove a file or directory tree from the local file system.",
         example: [

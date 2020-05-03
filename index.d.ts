@@ -658,7 +658,7 @@ declare global {
         sep: string;
         startTime: [number, number];
         testLog: boolean;
-        testLogger: (message:string) => void;
+        testLogger: (library:string, container:string, message:string) => void;
         text: {
             [key:string]: string;
         };
