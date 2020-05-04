@@ -673,6 +673,7 @@ declare global {
         total: number;
     }
     interface testEvaluation {
+        callback: Function;
         index: number;
         test: testItem;
         testType: testListType;
@@ -689,8 +690,9 @@ declare global {
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
         addServers?: (callback:Function) => void;
-        execute?: (index:number, total:number) => void;
+        execute?: (index:number, total:number, callback:Function) => void;
         killServers?: (complete:testComplete) => void;
+        populate?:() => void;
         serverRemote?: {
             device: {
                 [key:string]: httpServer;
@@ -715,7 +717,7 @@ declare global {
     }
     interface testSimulationArray extends Array<testItem> {
         [index:number]: testItem;
-        execute?: (index:number, total:number) => void;
+        execute?: (index:number, total:number, callback:Function) => void;
     }
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;

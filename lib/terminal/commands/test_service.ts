@@ -18,15 +18,14 @@ const test_service = function terminal_testService():void {
             }
         };
     if (typeof process.argv[0] === "string") {
-        const serve:testServiceArray = service(),
-            addCallback = function terminal_testService_addCallback():void {
+        const addCallback = function terminal_testService_addCallback():void {
                 let a:number = 0,
                     filterLength:number = 0,
                     fail:number = 0;
                 const filter:number[] = [],
-                    length:number = serve.length;
+                    length:number = service.length;
                 do {
-                    if (serve[a].name.indexOf(process.argv[0]) > -1) {
+                    if (service[a].name.indexOf(process.argv[0]) > -1) {
                         filter.push(a);
                     }
                     a = a + 1;
@@ -34,7 +33,7 @@ const test_service = function terminal_testService():void {
                 filterLength = filter.length;
                 if (filterLength < 1) {
                     log([`Service test names containing ${vars.text.angry + process.argv[0] + vars.text.none} are not found.`]);
-                    serve.killServers({
+                    service.killServers({
                         callback: completeCallback,
                         fail: fail,
                         testType: "selected",
@@ -42,10 +41,10 @@ const test_service = function terminal_testService():void {
                     });
                 } else {
                     log.title("Run Selected Tests");
-                    serve.execute(filter[0], filterLength);
+                    service.execute(filter[0], filterLength, completeCallback);
                 }
             };
-        serve.addServers(addCallback);
+        service.addServers(addCallback);
     } else {
         log.title("Run All Service Tests");
         testListRunner("service", completeCallback);

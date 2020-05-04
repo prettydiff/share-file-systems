@@ -14,8 +14,8 @@ const library = {
         remove: remove
     },
     list:testTypeCollection = {
-        service: service(),
-        simulation: simulation()
+        service: service,
+        simulation: simulation
     },
     testListRunner = function test_testListRunner(testListType:testListType, callback:Function):void {
         if (vars.command === testListType) {
@@ -28,12 +28,12 @@ const library = {
         if (testListType === "service") {
             const addServers = function test_testListRunner_addServers():void {
                 list.service.addServers(function test_testListRunner_serviceCallback():void {
-                    list.service.execute(0, list.service.length);
+                    list.service.execute(0, list.service.length, callback);
                 });
             };
             addServers();
         } else {
-            list[testListType].execute(0, list[testListType].length);
+            list[testListType].execute(0, list[testListType].length, callback);
         }
     };
 

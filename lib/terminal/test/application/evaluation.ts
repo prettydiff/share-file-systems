@@ -27,8 +27,8 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
             ? serviceItem.name
             : command,
         list:testTypeCollection = {
-            service: service(),
-            simulation: simulation()
+            service: service,
+            simulation: simulation
         },
         increment = function test_testEvaluation_increment(messages:[string, string, string[]]):void {
             const command:string = (typeof output.test.command === "string")
@@ -43,17 +43,11 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                 interval = function test_testEvaluation_increment_interval():void {
                     output.index = output.index + 1;
                     if (output.index < output.total) {
-                        list[output.testType].execute(output.index, output.total);
+                        list[output.testType].execute(output.index, output.total, output.callback);
                     } else {
                         const complete:testComplete = {
                             callback: function test_testEvaluation_increment_interval_callback(message:string, failCount:number):void {
-                                vars.verbose = true;
-                                log([message], true);
-                                if (failCount > 0) {
-                                    process.exit(1);
-                                } else {
-                                    process.exit(0);
-                                }
+                                output.callback(message, failCount);
                             },
                             fail: fail,
                             testType: output.testType,
