@@ -22,7 +22,7 @@ const commandName = function terminal_command():string {
         logger:(input:string) => void = console.log;
     if (testArg > -1) {
         process.argv.splice(testArg, 1);
-        vars.testLog = true;
+        vars.testLogFlag = "simulation";
     }
     if (arg === undefined) {
         vars.testLogger("commandName", "missing", "missing command argument.");
@@ -87,7 +87,7 @@ const commandName = function terminal_command():string {
     }
     if (arg !== filtered[0]) {
         vars.testLogger("commandName", "filtered not supported", `${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
-        if (vars.testLog === false) {
+        if (vars.testLogFlag === "") {
             logger("");
             logger(`${boldArg} is not a supported command. ${vars.version.name} is assuming command ${vars.text.bold + vars.text.cyan + filtered[0] + vars.text.none}.`);
             logger("");
@@ -97,7 +97,7 @@ const commandName = function terminal_command():string {
         const index:number = process.argv.indexOf("log");
         if (index > -1) {
             process.argv.splice(index, 1);
-            vars.testLog = true;
+            vars.testLogFlag = "service";
         }
     }
     return filtered[0];

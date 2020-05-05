@@ -9,14 +9,17 @@ import vars from "../utilities/vars.js";
 // run the test suite using the build application
 const test_service = function terminal_testService():void {
     const completeCallback =  function terminal_testService_callback(message:string, failCount:number):void {
-            vars.verbose = true;
-            log([message], true);
-            if (failCount > 0) {
-                process.exit(1);
-            } else {
-                process.exit(0);
-            }
-        };
+        vars.verbose = true;
+        log([message], true);
+        if (failCount > 0) {
+            process.exit(1);
+        } else {
+            process.exit(0);
+        }
+    };
+    if (vars.testLogFlag !== "") {
+        vars.testLogFlag = "service";
+    }
     if (typeof process.argv[0] === "string") {
         const addCallback = function terminal_testService_addCallback():void {
                 let a:number = 0,
@@ -41,7 +44,11 @@ const test_service = function terminal_testService():void {
                     });
                 } else {
                     log.title("Run Selected Tests");
-                    service.execute(filter[0], filterLength, completeCallback);
+                    service.execute({
+                        complete: completeCallback,
+                        index: 0,
+                        list: filter
+                    })
                 }
             };
         service.addServers(addCallback);

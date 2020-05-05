@@ -156,7 +156,7 @@ const library = {
                     };
                 vars.testLogger("hash", "dirComplete", `reading the directory tree is complete with ${listLength} items and a ulimit of ${limit}.`);
                 list.sort(sortFunction);
-                if (vars.verbose === true && vars.testLog === false) {
+                if (vars.verbose === true && vars.testLogFlag === "") {
                     library.log([`${library.humanTime(false)}Completed analyzing the directory tree in the file system and found ${vars.text.green + library.commas(listLength) + vars.text.none} file system objects.`]);
                 }
                 if (limit < 1 || listLength < limit) {

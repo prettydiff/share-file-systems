@@ -302,10 +302,13 @@ const sep:string = vars.sep,
             test: `version[name] version ${text.angry}`
         }
     ];
-simulation.execute = function test_simulations_execute(index:number, total:number, callback:Function):void {
-    const testArg:string = (vars.testLog === true)
-        ? " application_test_log_argument"
-        : "";
+simulation.execute = function test_simulations_execute(config:testExecute):void {
+    const testArg:string = (vars.testLogFlag === "simulation")
+            ? " application_test_log_argument"
+            : "",
+        index:number = (config.list.length < 1)
+            ? config.index
+            : config.list[config.index];
     vars.node.child(`${vars.version.command} ${simulation[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
         const test:string = (typeof simulation[index].test === "string")
                 ? <string>simulation[index].test
@@ -315,11 +318,11 @@ simulation.execute = function test_simulations_execute(index:number, total:numbe
                 : errs.toString();
         simulation[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
         testEvaluation({
-            callback: callback,
-            index: index,
+            callback: config.complete,
+            index: config.index,
+            list: config.list,
             test: simulation[index],
             testType: "simulation",
-            total: total,
             values: [stdout, error, stdError.toString()]
         });
     });

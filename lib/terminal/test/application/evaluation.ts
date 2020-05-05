@@ -41,9 +41,16 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                     ? serviceItem.name
                     : command,
                 interval = function test_testEvaluation_increment_interval():void {
+                    const total:number = (output.list.length < 1)
+                        ? list[output.testType].length
+                        : output.list.length;
                     output.index = output.index + 1;
-                    if (output.index < output.total) {
-                        list[output.testType].execute(output.index, output.total, output.callback);
+                    if (output.index < total) {
+                        list[output.testType].execute({
+                            complete: output.callback,
+                            index: output.index,
+                            list: output.list
+                        });
                     } else {
                         const complete:testComplete = {
                             callback: function test_testEvaluation_increment_interval_callback(message:string, failCount:number):void {
@@ -51,7 +58,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                             },
                             fail: fail,
                             testType: output.testType,
-                            total: output.total
+                            total: total
                         };
                         if (output.testType === "service") {
                             list.service.killServers(complete);
@@ -98,21 +105,24 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
         },
         capital:string = output.testType.charAt(0).toUpperCase() + output.testType.slice(1),
         logString:string = `${vars.text.cyan}Log - ${vars.text.none}`,
-        testLog:string[] = (vars.testLog === true && output.values[0].indexOf(logString) > -1)
-            ? (function test_testEvaluation_log():string[] {
-                const endIndex:number = output.values[0].lastIndexOf(logString),
-                    str:string = output.values[0].slice(endIndex),
-                    strIndex:number = str.indexOf("\n"),
-                    total:number = endIndex + strIndex,
-                    log:string = output.values[0].slice(0, total).replace(logString, ""),
-                    logs:string[] = log.split(`\n${logString}`);
-                output.values[0] = output.values[0].slice(total + 1);
-                logs.forEach(function test_testEvaluation_log_each(value:string, index:number, array:string[]):void {
-                    array[index] = `   ${vars.text.angry}*${vars.text.none} ${value}`;
-                });
-                return logs;
+        testLog:string[] = (vars.testLogFlag === "service")
+            ? (function test_testEvaluation_logService():string[] {
+                const store:string[] = vars.testLogStore;
+                vars.testLogStore = [];
+                return store;
             }())
-            : [];
+            : (vars.testLogFlag === "simulation" && output.values[0].indexOf(logString) > -1)
+                ? (function test_testEvaluation_logSimulation():string[] {
+                    const endIndex:number = output.values[0].lastIndexOf(logString),
+                        str:string = output.values[0].slice(endIndex),
+                        strIndex:number = str.indexOf("\n"),
+                        total:number = endIndex + strIndex,
+                        log:string = output.values[0].slice(0, total).replace(logString, ""),
+                        logs:string[] = log.split(`\n${logString}`);
+                    output.values[0] = output.values[0].slice(total + 1);
+                    return logs;
+                }())
+                : [];
     if (output.test.artifact === "" || output.test.artifact === undefined) {
         vars.flags.write = "";
     } else {

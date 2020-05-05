@@ -370,7 +370,7 @@ const library = {
                 },
                 // phase services wraps a call to services test library
                 service: function terminal_build_serviceTests():void {
-                    heading("Tests of calls to the local service");
+                    heading("Tests of supported services");
                     library.testListRunner("service", testsCallback);
                 },
                 // phase simulation is merely a call to simulation test library
@@ -380,11 +380,7 @@ const library = {
                 },
                 // phase typescript compiles the working code into JavaScript
                 typescript: function terminal_build_typescript():void {
-                    const flag = {
-                            services: false,
-                            typescript: false
-                        },
-                        incremental:string = (process.argv.indexOf("incremental") > -1)
+                    const incremental:string = (process.argv.indexOf("incremental") > -1)
                             ? "--incremental"
                             : "--pretty",
                         command:string = (process.argv.indexOf("local") > -1)
@@ -415,11 +411,7 @@ const library = {
                         if (err !== null) {
                             const str = err.toString();
                             if (str.indexOf("command not found") > 0 || str.indexOf("is not recognized") > 0) {
-                                library.log([`${vars.text.angry}TypeScript does not appear to be installed.${vars.text.none}`]);
-                                flag.typescript = true;
-                                if (flag.services === true) {
-                                    next(`${vars.text.angry}Install TypeScript with this command: ${vars.text.green}npm install typescript -g${vars.text.none}`);
-                                }
+                                library.log([`${vars.text.angry}TypeScript does not appear to be globally installed.${vars.text.none}`]);
                             } else {
                                 library.error([err.toString(), stdout]);
                                 return;

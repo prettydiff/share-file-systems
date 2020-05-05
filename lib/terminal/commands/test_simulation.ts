@@ -18,6 +18,9 @@ const test_simulation = function terminal_testSimulation():void {
             process.exit(0);
         }
     };
+    if (vars.testLogFlag !== "") {
+        vars.testLogFlag = "simulation";
+    }
     if (typeof process.argv[0] === "string") {
         const filter:number[] = [],
             length:number = simulation.length;
@@ -34,7 +37,11 @@ const test_simulation = function terminal_testSimulation():void {
             log([`Simulation test names containing ${vars.text.angry + process.argv[0] + vars.text.none} are not found.`]);
         } else {
             log.title("Run Selected Tests");
-            simulation.execute(filter[0], filterLength, completeCallback);
+            simulation.execute({
+                complete: completeCallback,
+                index: 0,
+                list: filter
+            });
         }
     } else {
         log.title("Run All Simulation Tests");

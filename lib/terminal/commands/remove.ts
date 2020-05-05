@@ -9,7 +9,6 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
-let logStatus:boolean = false;
 const library = {
         commas: commas,
         directory: directory,
@@ -17,7 +16,8 @@ const library = {
         log: log
     },
     remove = function terminal_remove(filePath:string, callback:Function):void {
-        let testLog:boolean = true;
+        let testLog:testLogFlag = vars.testLogFlag,
+            testLogFlag:boolean = (vars.testLogFlag !== "");
         const numb:any = {
                 dirs: 0,
                 file: 0,
@@ -32,13 +32,13 @@ const library = {
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
                             ? "rmdir"
                             : "unlink";
-                        if (testLog === true) {
+                        if (testLogFlag === true) {
                             vars.testLogger("remove", "destroy", "recursively remove items, rmdir for directories and unlink for other artifacts");
                         }
                         vars.node.fs[type](item[0], function terminal_remove_removeItems_destroy_callback(er:nodeError):void {
                             if (vars.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {
-                                    testLog = false;
+                                    testLogFlag = false;
                                     terminal_remove_removeItems_destroy(item);
                                     return;
                                 }
@@ -46,19 +46,19 @@ const library = {
                                 return;
                             }
                             if (item[0] === fileList[0][0]) {
-                                vars.testLog = logStatus;
+                                vars.testLogFlag = testLog;
                                 callback();
                             } else {
                                 fileList[item[3]][4] = fileList[item[3]][4] - 1;
                                 if (fileList[item[3]][4] < 1) {
-                                    testLog = false;
+                                    testLogFlag = false;
                                     terminal_remove_removeItems_destroy(fileList[item[3]]);
                                 }
                             }
                         });
                     };
                 if (fileList.length < 1) {
-                    vars.testLog = logStatus;
+                    vars.testLogFlag = testLog;
                     callback();
                     return;
                 }
@@ -89,11 +89,13 @@ const library = {
                 symbolic: true
             };
         if (callback !== undefined && callback.name === "test_testListRunner_increment_remove") {
-            logStatus = vars.testLog;
-            vars.testLog = false;
+            vars.testLogFlag = "";
+            testLogFlag = false;
         }
         if (vars.command === "remove") {
-            vars.testLogger("remove", "command", "prepare the application to work with standard input/output");
+            if (testLogFlag === true) {
+                vars.testLogger("remove", "command", "prepare the application to work with standard input/output");
+            }
             if (process.argv.length < 1) {
                 library.error([
                     "Command remove requires a file path",
@@ -139,7 +141,9 @@ const library = {
                 }
             };
         }
-        vars.testLogger("remove", "directory", "gather a directory list of descendant items and then remove them all");
+        if (testLogFlag === true) {
+            vars.testLogger("remove", "directory", "gather a directory list of descendant items and then remove them all");
+        }
         library.directory(dirConfig);
     };
 

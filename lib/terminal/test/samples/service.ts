@@ -120,6 +120,7 @@ service.populate = function test_services_populate():void {
         test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"agentType\":\"device\",\"dirs\":[["
     });
     service.push(<testTemplateFileService>{
+        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -145,6 +146,7 @@ service.populate = function test_services_populate():void {
         }
     });
     service.push(<testTemplateFileService>{
+        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -170,6 +172,7 @@ service.populate = function test_services_populate():void {
         }
     });
     service.push(<testTemplateFileService>{
+        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -220,6 +223,7 @@ service.populate = function test_services_populate():void {
         }
     });*/
     service.push(<testTemplateFileService>{
+        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -239,6 +243,7 @@ service.populate = function test_services_populate():void {
         test: "fs-update-remote"
     });
     service.push(<testTemplateFileService>{
+        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -258,6 +263,7 @@ service.populate = function test_services_populate():void {
         test: `["${windowsPath}storage","directory"`
     });
     service.push(<testTemplateFileService>{
+        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -1397,8 +1403,11 @@ service.addServers = function test_services_addServers(callback:Function):void {
     serverVars.storage = serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
     readStorage(storageComplete);
 };
-service.execute = function test_services_execute(index:number, total:number, callback:Function):void {
-    const testItem:testServiceInstance = service[index],
+service.execute = function test_services_execute(config:testExecute):void {
+    const index:number = (config.list.length < 1)
+            ? config.index
+            : config.list[config.index],
+        testItem:testServiceInstance = service[index],
         keyword:string = (function test_services_execute_keyword():string {
             const words:string[] = Object.keys(testItem.command);
             return words[0];
@@ -1458,11 +1467,11 @@ service.execute = function test_services_execute(index:number, total:number, cal
             });
             response.on("end", function test_testListRunner_service_callback_end():void {
                 testEvaluation({
-                    callback: callback,
-                    index: index,
+                    callback: config.complete,
+                    index: config.index,
+                    list: config.list,
                     test: <testItem>service[index],
                     testType: "service",
-                    total: total,
                     values: [chunks.join(""), "", ""]
                 });
             });
@@ -1470,11 +1479,11 @@ service.execute = function test_services_execute(index:number, total:number, cal
         request:http.ClientRequest = http.request(payload, requestCallback);
     request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
         testEvaluation({
-            callback: callback,
-            index: index,
+            callback: config.complete,
+            index: config.index,
+            list: config.list,
             test: <testItem>service[index],
             testType: "service",
-            total: total,
             values: [`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`, "", ""]
         });
     });

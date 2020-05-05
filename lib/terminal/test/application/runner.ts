@@ -18,6 +18,9 @@ const library = {
         simulation: simulation
     },
     testListRunner = function test_testListRunner(testListType:testListType, callback:Function):void {
+        if (vars.testLogFlag !== "") {
+            vars.testLogFlag = testListType;
+        }
         if (vars.command === testListType) {
             callback = function test_lint_callback(message:string):void {
                 library.log([message, "\u0007"], true); // bell sound
@@ -28,12 +31,20 @@ const library = {
         if (testListType === "service") {
             const addServers = function test_testListRunner_addServers():void {
                 list.service.addServers(function test_testListRunner_serviceCallback():void {
-                    list.service.execute(0, list.service.length, callback);
+                    list.service.execute({
+                        complete: callback,
+                        index: 0,
+                        list: []
+                    });
                 });
             };
             addServers();
         } else {
-            list[testListType].execute(0, list[testListType].length, callback);
+            list[testListType].execute({
+                complete: callback,
+                index: 0,
+                list: []
+            });
         }
     };
 

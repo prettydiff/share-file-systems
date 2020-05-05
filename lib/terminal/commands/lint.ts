@@ -20,7 +20,7 @@ const library = {
             complete:string = `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + lintPath + vars.text.none}`;
         if (vars.command === "lint") {
             vars.verbose = true;
-            if (vars.testLog === false) {
+            if (vars.testLogFlag === "") {
                 library.log.title(`Linting ${lintPath}`);
             }
             callback = function terminal_lint_callback():void {

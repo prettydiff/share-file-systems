@@ -29,6 +29,7 @@ declare global {
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
     type testListType = "service" | "simulation";
+    type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
@@ -657,8 +658,9 @@ declare global {
         projectPath: string;
         sep: string;
         startTime: [number, number];
-        testLog: boolean;
+        testLogFlag: testLogFlag;
         testLogger: (library:string, container:string, message:string) => void;
+        testLogStore: string[];
         text: {
             [key:string]: string;
         };
@@ -675,10 +677,15 @@ declare global {
     interface testEvaluation {
         callback: Function;
         index: number;
+        list: number[];
         test: testItem;
         testType: testListType;
-        total: number;
         values: [string, string, string];
+    }
+    interface testExecute {
+        complete: Function;
+        index: number;
+        list: number[];
     }
     interface testItem {
         artifact?: string;
@@ -690,7 +697,7 @@ declare global {
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
         addServers?: (callback:Function) => void;
-        execute?: (index:number, total:number, callback:Function) => void;
+        execute?: (config:testExecute) => void;
         killServers?: (complete:testComplete) => void;
         populate?:() => void;
         serverRemote?: {
@@ -717,7 +724,7 @@ declare global {
     }
     interface testSimulationArray extends Array<testItem> {
         [index:number]: testItem;
-        execute?: (index:number, total:number, callback:Function) => void;
+        execute?: (config:testExecute) => void;
     }
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;
