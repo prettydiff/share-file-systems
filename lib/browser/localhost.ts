@@ -1,3 +1,6 @@
+
+/* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
+
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";

@@ -8,6 +8,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/fs.ts](../lib/browser/fs.ts)**                                                               - A collection of utilities for handling file system related tasks in the browser.
    - **[../lib/browser/getNodesByType.ts](../lib/browser/getNodesByType.ts)**                                       - An extension for the DOM to request descendant nodes by node type.
    - **[../lib/browser/invite.ts](../lib/browser/invite.ts)**                                                       - A collection of utilities for processing invitation related tasks.
+   - **[../lib/browser/localhost.ts](../lib/browser/localhost.ts)**                                                 - The file that is sourced into the index.html file and generates the default browser experience.
    - **[../lib/browser/modal.ts](../lib/browser/modal.ts)**                                                         - A collection of utilities for generating and manipulating modals/windows in the browser.
    - **[../lib/browser/network.ts](../lib/browser/network.ts)**                                                     - The methods that execute data requests to the local terminal instance of the application.
    - **[../lib/browser/settings.ts](../lib/browser/settings.ts)**                                                   - A collection of utilities and event handlers associated with processing the application state and system settings.
