@@ -336,7 +336,7 @@ const library = {
 
                     vars.ws = new WebSocket.Server({
                         host: (serverVars.addresses[0].length > 1)
-                            ? "[::1]"
+                            ? "::"
                             : "127.0.0.1",
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_socketCallback():void {

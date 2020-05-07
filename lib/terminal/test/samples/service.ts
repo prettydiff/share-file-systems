@@ -25,7 +25,7 @@ const projectPath:string = vars.projectPath,
     windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
     windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
     loopback:string = (serverVars.addresses[0].length > 1)
-        ? "[::1]"
+        ? "::"
         : "127.0.0.1",
     hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
 
