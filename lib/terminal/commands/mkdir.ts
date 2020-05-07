@@ -7,8 +7,20 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // makes specified directory structures in the local file system
-const mkdir = function terminal_mkdir(dirToMake:string, callback:Function):void {
-    let testLog:boolean = true;
+const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRecursion:boolean):void {
+    const testLog = (logRecursion === true)
+        ? {
+            callback: true,
+            callback_mkdir: true,
+            stat: true,
+            stat_ok: true
+        }
+        : {
+            callback: false,
+            callback_mkdir: false,
+            stat: false,
+            stat_ok: false
+        };
     if (vars.command === "mkdir") {
         vars.testLogger("mkdir", "command", "preparing the directory utility for standard input/output");
         if (process.argv[0] === undefined) {
@@ -23,7 +35,10 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function):void 
             }
         };
     }
-    vars.testLogger("mkdir", "stat", "determine if the specified path already exists");
+    if (testLog.stat === true) {
+        testLog.stat = false;
+        vars.testLogger("mkdir", "stat", "determine if the specified path already exists");
+    }
     vars.node.fs.stat(dirToMake, function terminal_mkdir_stat(err:nodeError, stats:Stats):void {
         let dirs   = [],
             ind    = 0,
@@ -45,11 +60,11 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function):void 
                                         error([errB.toString()]);
                                         return;
                                     }
-                                    if (testLog === true) {
+                                    if (testLog.callback_mkdir === true) {
+                                        testLog.callback_mkdir = false;
                                         vars.testLogger("mkdir", "callback_mkdir", "directory created and so perform the next recursive operation or execute callback");
                                     }
                                     if (ind < len) {
-                                        testLog = false;
                                         terminal_mkdir_stat_recursiveStat();
                                     } else {
                                         callback();
@@ -67,11 +82,11 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function):void 
                         error([`Destination directory, '${vars.text.cyan + dirToMake + vars.text.none}', is a file.`]);
                         return;
                     }
-                    if (testLog === true) {
-                        vars.testLogger("mkdir", "stat stat", "each recursive directory gets a new stat. When something already exists at the destination it will not be overwritten, so complete");
+                    if (testLog.callback === true) {
+                        testLog.callback = false;
+                        vars.testLogger("mkdir", "recursiveStat_callback", "each recursive directory gets a new stat. When something already exists at the destination it will not be overwritten, so complete");
                     }
                     if (ind < len) {
-                        testLog = false;
                         terminal_mkdir_stat_recursiveStat();
                     } else {
                         callback();
@@ -87,7 +102,9 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function):void 
                     ind = ind + 1;
                 }
                 len = dirs.length;
-                vars.testLogger("mkdir", "stat ok", "there is no problem with the stat so begin recursive operations");
+                if (testLog.stat_ok === true) {
+                    vars.testLogger("mkdir", "stat ok", "there is no problem with the stat so begin recursive operations");
+                }
                 recursiveStat();
                 return;
             }

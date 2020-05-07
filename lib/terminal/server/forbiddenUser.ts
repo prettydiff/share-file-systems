@@ -8,6 +8,7 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
 const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, agentType:agentType, response:ServerResponse):void {
+    vars.testLogger("forbiddenUser", "", "Messaging for connections from agents without a stored hash in the user or device lists.");
     delete serverVars[agentType][agentName];
     storage(JSON.stringify(serverVars.user), response, agentType);
     vars.ws.broadcast(JSON.stringify({

@@ -509,6 +509,7 @@ declare global {
         callback: Function;
         depth: number;
         exclusions: string[];
+        logRecursion: boolean;
         mode: directoryMode;
         path: string;
         search?: string;

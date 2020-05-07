@@ -30,17 +30,29 @@ const library = {
                 link : 0,
                 size : 0
             },
-            util:any  = {};
+            util:any  = {},
+            testLog = {
+                complete: true,
+                link: true,
+                lstat: true,
+                mkdir: true,
+                utimes: true
+            },
+            mkdirRecursion = {
+                dir: true,
+                file: true,
+                link: true
+            };
         let start:string = "",
             dest:string  = "",
             dirs:any  = {},
             target:string        = "",
             destination:string   = "",
-            excludeLength:number = 0,
-            log:boolean          = true;
+            excludeLength:number = 0
         util.complete = function terminal_copy_complete(item:string):void {
             delete dirs[item];
-            if (log === true) {
+            if (testLog.complete === true) {
+                testLog.complete = false;
                 vars.testLogger("copy", "complete", `completion test for ${item}`);
             }
             if (Object.keys(dirs).length < 1) {
@@ -67,7 +79,8 @@ const library = {
                 library.mkdir(place, function terminal_copy_dir_readdir_mkdir():void {
                     const a = files.length;
                     let b = 0;
-                    if (log === true) {
+                    if (testLog.mkdir === true) {
+                        testLog.mkdir = false;
                         vars.testLogger("copy", "mkdir", `directory ${place} created and each item contained will get a stat or if empty run the completion test.`);
                     }
                     if (a > 0) {
@@ -81,11 +94,12 @@ const library = {
                             util.stat(item + vars.sep + files[b], item);
                             b = b + 1;
                         } while (b < a);
-                        log = false;
                     } else {
                         util.complete(item);
                     }
-                });
+                }, mkdirRecursion.dir);
+                mkdirRecursion.dir = false;
+
             });
         };
         util.file     = function terminal_copy_file(item:string, dir:string, prop:nodeFileProps):void {
@@ -118,7 +132,8 @@ const library = {
                         prop.atime,
                         prop.mtime,
                         function terminal_copy_file_finish_utimes():void {
-                            if (log === true) {
+                            if (testLog.utimes === true) {
+                                testLog.utimes = false;
                                 vars.testLogger("copy", "utimes", `stream complete for file ${item} and ready for completion test.`);
                             }
                             util.complete(item);
@@ -134,7 +149,8 @@ const library = {
                     return;
                 }
                 resolvedLink = vars.node.path.resolve(resolvedLink);
-                if (log === true) {
+                if (testLog.link === true) {
+                    testLog.link = false;
                     vars.testLogger("copy", "link", "stat object represented by the symbolic link.");
                 }
                 vars.node.fs.stat(resolvedLink, function terminal_copy_link_readlink_stat(ers:Error, stats:Stats):void {
@@ -194,7 +210,8 @@ const library = {
                     return;
                 }
                 if (stats.isFile() === true) {
-                    if (log === true) {
+                    if (testLog.lstat === true) {
+                        testLog.lstat = false;
                         vars.testLogger("copy", "lstat", `stat ${item} is a file or points to a file.`);
                     }
                     numb.files = numb.files + 1;
@@ -206,7 +223,8 @@ const library = {
                                 mode : stats.mode,
                                 mtime: (Date.parse(stats.mtime.toString()) / 1000)
                             });
-                        });
+                        }, mkdirRecursion.file);
+                        mkdirRecursion.file = false;
                     } else {
                         util.file(item, dir, {
                             atime: (Date.parse(stats.atime.toString()) / 1000),
@@ -222,7 +240,8 @@ const library = {
                     if (item === dir) {
                         library.mkdir(dest, function terminal_copy_stat_callback_symbolic() {
                             util.link(item, dir);
-                        });
+                        }, mkdirRecursion.link);
+                        mkdirRecursion.link = false;
                     } else {
                         util.link(item, dir);
                     }

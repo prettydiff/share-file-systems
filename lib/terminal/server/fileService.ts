@@ -22,6 +22,7 @@ import vars from "../utilities/vars.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 
+let logRecursion:boolean = true;
 const library = {
         base64: base64,
         commas: commas,
@@ -48,6 +49,7 @@ const library = {
                     verb:string = (numbers.percent === 100)
                         ? "Copy"
                         : `Copying ${numbers.percent.toFixed(2)}%`;
+                vars.testLogger("fileService", "copyMessage", "Status information about multiple file copy.");
                 return `${verb} complete. ${library.commas(numbers.countFile)} file${filePlural} written at size ${library.prettyBytes(numbers.writtenSize)} (${library.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
             },
             // prepares a file list from a remote device otherwise writes the http response if the same device
@@ -63,6 +65,7 @@ const library = {
                         })
                     : message;
                 if (data.agent === serverVars.hashDevice) {
+                    vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(payload);
                     response.end();
@@ -88,10 +91,12 @@ const library = {
                         },
                         depth: 2,
                         exclusions: [],
+                        logRecursion: false,
                         mode: "read",
                         path: data.name,
                         symbolic: true
                     };
+                    vars.testLogger("fileService", "fileCallback", "When the operation is not limited to the local device perform a directory operation for the HTTP payload.");
                     library.directory(dirConfig);
                 }
             },
@@ -144,6 +149,7 @@ const library = {
                         remoteName: data.agent,
                         response: response
                     };
+                vars.testLogger("fileService", "httpRequest", "An abstraction to the httpClient library for the fileService library.");
                 library.httpClient(httpConfig);
             },
             // a generic handler for responding to file system watch updates
@@ -157,10 +163,13 @@ const library = {
                         callback: fsUpdateCallback,
                         depth: 2,
                         exclusions: [],
+                        logRecursion: logRecursion,
                         mode: "read",
                         path: readLocation,
                         symbolic: true
                     };
+                logRecursion = false;
+                vars.testLogger("fileService", "fsUpdateLocal", "Read from a directory and send the data to the local browser via websocket broadcast.");
                 library.directory(dirConfig);
             },
             // the file system watch handler
@@ -168,6 +177,7 @@ const library = {
                 if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
                     serverVars.watches[value].time = Date.now();
                     if (data.agent === serverVars.hashDevice) {
+                        vars.testLogger("fileService", "watchHandler", "Central watch handler for local device file system");
                         fsUpdateLocal(value);
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
@@ -212,13 +222,16 @@ const library = {
                                 },
                                 depth: 2,
                                 exclusions: [],
+                                logRecursion: logRecursion,
                                 mode: "read",
                                 path: value,
                                 symbolic: true
                             },
                             interval = setInterval(intervalHandler, 60000);
+                        vars.testLogger("fileService", "watchHandler", "Central watch handler for file systems outside current device, checked against a timed interval");
                         // create directoryList object and send to remote
                         library.directory(dirConfig);
+                        logRecursion = false;
                     }
                 }
             },
@@ -272,11 +285,13 @@ const library = {
                                 callback: terminal_server_fileService_remoteCopyList_callback,
                                 depth: 0,
                                 exclusions: [],
+                                logRecursion: logRecursion,
                                 mode: "read",
                                 path: data.location[config.index],
                                 symbolic: false
                             };
                             library.directory(recursiveConfig);
+                            logRecursion = false;
                         } else {
                             // sort directories ahead of files and then sort shorter directories before longer directories
                             // * This is necessary to ensure directories are written before the files and child directories that go in them.
@@ -313,6 +328,7 @@ const library = {
                         callback: callback,
                         depth: 0,
                         exclusions: [],
+                        logRecursion: logRecursion,
                         mode: "read",
                         path: data.location[config.index],
                         symbolic: false
@@ -320,7 +336,9 @@ const library = {
                 let directories:number =0,
                     fileCount:number = 0,
                     fileSize:number = 0;
+                vars.testLogger("fileService", "remoteCopyList", "Gathers the directory data from the requested file system trees so that the local device may request each file from the remote.");
                 library.directory(dirConfig);
+                logRecursion = false;
             },
             // when copying files to a different location that location needs to request the files
             requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
@@ -330,7 +348,8 @@ const library = {
                     a:number = 0,
                     activeRequests:number = 0,
                     countDir:number = 0,
-                    countFile:number = 0;
+                    countFile:number = 0,
+                    testLog:boolean = true;
                 const fileQueue:[string, number, string, Buffer][] = [],
                     hashFail:string[] = [],
                     listLength = fileData.list.length,
@@ -370,6 +389,7 @@ const library = {
                                     }, "Error requesting file removal for fs-cut.", "body");
                                 }
                             };
+                        vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
                         library.log([``]);
                         cut();
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -385,6 +405,7 @@ const library = {
                     // handler to write files if files are written in a single shot, otherwise files are streamed with writeStream
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
                         const fileName:string = fileQueue[index][0];
+                        vars.testLogger("fileService", "writeFile", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
                         vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
                             const hashFailLength:number = hashFail.length;
                             if (wr !== null) {
@@ -434,7 +455,7 @@ const library = {
                                 ? vars.node.zlib.createBrotliDecompress()
                                 : null,
                             writeStream:fs.WriteStream = vars.node.fs.createWriteStream(filePath),
-                            hash:Hash = vars.node.crypto.createHash("sha512"),
+                            hash:Hash = vars.node.crypto.createHash(serverVars.hashType),
                             fileError = function terminal_server_fileService_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
                                 hashFail.push(fileAddress);
                                 library.error([message]);
@@ -444,6 +465,7 @@ const library = {
                                     }
                                 });
                             };
+                        vars.testLogger("fileService", "requestFiles writeStream", "Writing files to disk as a byte stream ensures the file's integrity so that it can be verified by hash comparison.");
                         if (fileResponse.headers.compression === "true") {
                             fileResponse.pipe(decompress).pipe(writeStream);
                         } else {
@@ -501,8 +523,9 @@ const library = {
                             writeable:Writable = new Stream.Writable(),
                             responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd(file:Buffer):void {
                                 const fileName:string = <string>fileResponse.headers.file_name,
-                                    hash:Hash = vars.node.crypto.createHash("sha512").update(file),
+                                    hash:Hash = vars.node.crypto.createHash(serverVars.hashType).update(file),
                                     hashString:string = hash.digest("hex");
+                                vars.testLogger("fileService", "requestFiles fileRequestCallback responseEnd", "Handler for completely received HTTP response of requested artifact.");
                                 if (hashString === fileResponse.headers.hash) {
                                     fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
                                     if (writeActive === false) {
@@ -522,6 +545,7 @@ const library = {
                                     requestFile();
                                 }
                             };
+                        vars.testLogger("fileService", "requestFiles fileRequestCallback", "Callback for the HTTP artifact request if the requests are not streams but the files are written as streams.");
                         writeable.write = function (writeableChunk:Buffer):boolean {
                             fileChunks.push(writeableChunk);
                             return false;
@@ -551,6 +575,7 @@ const library = {
                         const writeCallback:Function = (fileData.stream === true)
                             ? writeStream
                             : fileRequestCallback;
+                        vars.testLogger("fileService", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
                         data.depth = fileData.list[a][3];
                         if (data.copyAgent !== serverVars.hashDevice) {
                             const status:completeStatus = {
@@ -561,6 +586,7 @@ const library = {
                                     : ((writtenSize / fileData.fileSize) * 100),
                                 writtenSize: writtenSize
                             };
+                            vars.testLogger("fileService", "requestFiles requestFile", "If copyAgent is not the local device then update the status data.");
                             data.id = `local-${data.name.replace(/\\/g, "\\\\")}|${copyMessage(status)}`;
                         }
                         data.location = [fileData.list[a][0]];
@@ -589,12 +615,13 @@ const library = {
                             }
                         }
                         if (countFile + countDir === listLength) {
+                            vars.testLogger("fileService", "requestFiles dirCallback", "All artifacts accounted for, so write response.");
                             respond();
                         }
                     },
                     // recursively create new directories as necessary
                     mkdir = function terminal_server_fileService_requestFiles_makeLists():void {
-                        library.mkdir(data.name + vars.sep + fileData.list[a][2], dirCallback);
+                        library.mkdir(data.name + vars.sep + fileData.list[a][2], dirCallback, false);
                         cutList.push([fileData.list[a][0], "directory"]);
                     };
                 if (fileData.stream === true) {
@@ -610,6 +637,7 @@ const library = {
                         "file-list-status": output
                     }));
                 }
+                vars.testLogger("fileService", "requestFiles", "A giant function to request one or more files from a remote/user device.  Before files are requested the directory structure is locally created.");
                 if (fileData.list[0][1] === "directory") {
                     mkdir();
                 } else {
@@ -623,6 +651,7 @@ const library = {
                     countFile:number = 0,
                     writtenSize:number = 0;
                 const length:number = data.location.length;
+                vars.testLogger("fileService", "copySameAgent", "Copying artifacts from one location to another on the same agent.");
                 data.location.forEach(function terminal_server_fileService_copySameAgent_each(value:string):void {
                     const callback = function terminal_server_fileService_copySameAgent_each_copy([fileCount, fileSize]):void {
                             count = count + 1;
@@ -650,6 +679,7 @@ const library = {
                 });
             };
         if (data.agent !== serverVars.hashDevice && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
+            vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
             httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
                 response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                 response.write(responseBody);
@@ -775,11 +805,13 @@ const library = {
                                     callback: driveList,
                                     depth: 1,
                                     exclusions: [],
+                                    logRecursion: logRecursion,
                                     mode: "read",
                                     path: `${value}\\`,
                                     symbolic: true
                                 };
                                 library.directory(dirConfig);
+                                logRecursion = false;
                             });
                         });
                     },
@@ -788,6 +820,7 @@ const library = {
                 let count:number = 0,
                     output:directoryList = [],
                     failures:string[] = [];
+                vars.testLogger("fileService", "fs-directory and watch", "Access local directory data and set watch or set watch for remote agent directory.");
                 if (pathList[0] === "defaultLocation") {
                     pathList[0] = vars.projectPath;
                 }
@@ -800,6 +833,7 @@ const library = {
                                 callback: callback,
                                 depth: data.depth,
                                 exclusions: [],
+                                logRecursion: logRecursion,
                                 mode: "read",
                                 path: value,
                                 symbolic: true
@@ -813,10 +847,12 @@ const library = {
                                 value = value + "\\";
                             }
                             library.directory(dirConfig);
+                            logRecursion = false;
                         });
                     }
                 });
             } else {
+                vars.testLogger("fileService", "fs-details remote", "Get directory data from a remote agent without setting a file system watch.");
                 // remote file server access
                 httpRequest(function terminal_server_fileService_remoteFileAccess(responseBody:string|Buffer):void {
                     response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -830,16 +866,19 @@ const library = {
                 }, `Error on reading from remote file system at agent ${data.agent}`, "body");
             }
         } else if (data.action === "fs-close") {
+            vars.testLogger("fileService", "fs-close", "Close a file system watch.");
             if (serverVars.watches[data.location[0]] !== undefined) {
                 serverVars.watches[data.location[0]].close();
                 delete serverVars.watches[data.location[0]];
             }
             fileCallback(`Watcher ${data.location[0]} closed.`);
         } else if (data.action === "fs-copy" || data.action === "fs-cut") {
+            vars.testLogger("fileService", "fs-copy", "All branches of file system copy");
             if (data.agent === serverVars.hashDevice) {
                 if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                     // * data.agent === local
                     // * data.copyAgent === local
+                    vars.testLogger("fileService", "fs-copy copySameAgent", "Call copySameAgent if data.agent and data.copyAgent are the same agents.");
                     copySameAgent();
                 } else {
                     // copy from local to remote
@@ -863,11 +902,13 @@ const library = {
                         index: 0,
                         length: data.location.length
                     };
+                    vars.testLogger("fileService", "fs-copy destination-not-local", "When the destination is not the local device call the remoteCopyList function to get a list of artifacts to request.");
                     remoteCopyList(listData);
                 }
             } else if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                 // data.agent === remote
                 // data.copyAgent === local
+                vars.testLogger("fileService", "fs-copy origination-not-local", "When the files exist on the local device but are requested remotely then the remote agent must request the list of files to know what to request.");
                 data.action = <serviceType>`${data.action}-list`;
                 httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
                     requestFiles(JSON.parse(<string>responseBody));
@@ -875,6 +916,7 @@ const library = {
             } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
                 // * data.agent === sameRemoteAgent
                 // * data.agent === sameRemoteAgent
+                vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");
                 data.action = <serviceType>`${data.action}-self`;
                 httpRequest(function terminal_server_fileService_sameRemote(responseBody:string|Buffer):void {
                     response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
@@ -885,6 +927,7 @@ const library = {
                 const agent:string = data.agent;
                 // * data.agent === remoteAgent
                 // * data.copyAgent === differentRemoteAgent
+                vars.testLogger("fileService", "fs-copy destination-origination-different", "When the origination and destination are different and neither is the local device the destination device must be told to start the destination-not-local operation and then respond back with status.");
                 data.action = <serviceType>`${data.action}-list-remote`;
                 data.agent = data.copyAgent;
                 data.copyAgent = agent;
@@ -899,6 +942,7 @@ const library = {
             }
         } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
             const agent:string = data.agent;
+            vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
             data.agent = data.copyAgent;
             data.copyAgent =agent;
             data.action = <serviceType>`${data.action.replace("-remote", "")}`;
@@ -906,12 +950,13 @@ const library = {
                 requestFiles(JSON.parse(<string>responseBody));
             }, "Error copying from remote to local device", "body");
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
-            // request a single file
+            // respond with a single file
             // * generated internally from function requestFiles
             // * fs-copy-list and fs-cut-list (copy from remote to local device)
             // * fs-copy-request and fs-cut-request (copy from local device to remote)
-            const hash:Hash = vars.node.crypto.createHash("sha512"),
+            const hash:Hash = vars.node.crypto.createHash(serverVars.hashType),
                 hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
+            vars.testLogger("fileService", "fs-copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_server_fileService_fileRequest():void {
                 const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]),
@@ -960,10 +1005,13 @@ const library = {
                 index: 0,
                 length: data.location.length
             };
+            vars.testLogger("fileService", "fs-copy-list", "Call the remoteCopyList function so that a remote agent knows what files to request.");
             remoteCopyList(listData);
         } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
+            vars.testLogger("fileService", "fs-copy-request", "Calls the requestFiles function from a remote agent.");
             requestFiles(JSON.parse(data.remoteWatch));
         } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
+            vars.testLogger("fileService", "fs-copy-self", "Copies files from one location to another on the same local device as requested by a remote agent.");
             copySameAgent();
         } else if (data.action === "fs-cut-remove") {
             let a:number = 0;
@@ -999,9 +1047,11 @@ const library = {
                 if (watchTest === true) {
                     serverVars.watches[data.watch].close();
                 }
+            vars.testLogger("fileService", "fs-cut-remote", "Removes artifacts from the origination once all other operations are complete and integrity is verified.");
             remove();
         } else if (data.action === "fs-destroy") {
             let count:number = 0;
+            vars.testLogger("fileService", "fs-destroy", `Destroying: ${data.location}`);
             data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {
                 if (serverVars.watches[value] !== undefined) {
                     serverVars.watches[value].close();
@@ -1022,6 +1072,7 @@ const library = {
             });
         } else if (data.action === "fs-rename") {
             const newPath:string[] = data.location[0].split(vars.sep);
+            vars.testLogger("fileService", "fs-rename", `Renames an existing file system artifact, ${data.name}`);
             newPath.pop();
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
@@ -1032,10 +1083,12 @@ const library = {
                         type:agentType = (data.copyAgent === "")
                             ? "device"
                             : data.copyType;
+                    vars.testLogger("fileService", "rs-rename response", `An error upon renaming artifact: ${erRename}`);
                     fileCallback(`Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);
                 } else {
                     library.error([erRename.toString()]);
                     library.log([erRename.toString()]);
+                    vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
                     response.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"});
                     response.write(erRename.toString());
                     response.end();
@@ -1056,6 +1109,7 @@ const library = {
                     b = b + 1;
                     storage.push(stringData)
                     if (b === length) {
+                        vars.testLogger("fileService", "dataString callback", `Callback to action ${data.action} that writes an HTTP response.`);
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         response.write(JSON.stringify(storage));
                         response.end();
@@ -1068,6 +1122,7 @@ const library = {
                             id: input.id,
                             filePath: input.source
                         };
+                        vars.testLogger("fileService", "fileReader", `Reading a file for action fs-read, ${input.source}`);
                         if (readError !== null) {
                             library.error([readError.toString()]);
                             vars.ws.broadcast(JSON.stringify({
@@ -1093,6 +1148,7 @@ const library = {
             let a:number = 0,
                 b:number = 0,
                 index:number;
+            vars.testLogger("fileService", "dataString", `Action ${data.action}`);
             do {
                 if (data.action === "fs-base64") {
                     index = data.location[a].indexOf(":");
@@ -1116,12 +1172,13 @@ const library = {
                     ? "\\"
                     : "/",
                 dirs = data.location[0].split(slash);
+            vars.testLogger("fileService", "fs-new", `Create a new item of type ${data.name}`);
             dirs.pop();
             if (data.name === "directory") {
                 library.mkdir(data.location[0], function terminal_server_fileService_newDirectory():void {
                     fileCallback(`${data.location[0]} created.`);
                     fsUpdateLocal(dirs.join(slash));
-                });
+                }, false);
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fileService_newFile(erNewFile:Error):void {
                     if (erNewFile === null) {
@@ -1152,13 +1209,17 @@ const library = {
                     callback: callback,
                     depth: data.depth,
                     exclusions: [],
+                    logRecursion: logRecursion,
                     mode: "search",
                     path: data.location[0],
                     search: data.name,
                     symbolic: true
                 };
+            vars.testLogger("fileService", "fs-search", `Performs a directory search operation on ${data.location[0]} of agent ${data.agent}`);
             library.directory(dirConfig);
+            logRecursion = false;
         } else if (data.action === "fs-write") {
+            vars.testLogger("fileService", "fs-write", "Writes or over-writes a file to disk.");
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
                 const agent:string = (data.copyAgent === "")
                         ? serverVars.hashDevice

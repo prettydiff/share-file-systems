@@ -84,6 +84,7 @@ const library = {
                 callback: removeItems,
                 depth: 0,
                 exclusions: [],
+                logRecursion: true,
                 mode: "read",
                 path: filePath,
                 symbolic: true

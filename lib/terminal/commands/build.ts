@@ -356,6 +356,7 @@ const library = {
                         callback: dirs,
                         depth: 0,
                         exclusions: [],
+                        logRecursion: true,
                         mode: "read",
                         path: `${vars.projectPath}lib`,
                         symbolic: false

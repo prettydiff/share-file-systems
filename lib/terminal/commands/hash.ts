@@ -300,6 +300,7 @@ const library = {
                                 },
                                 depth: 0,
                                 exclusions: vars.exclusions,
+                                logRecursion: true,
                                 mode: "read",
                                 path: <string>input.source,
                                 symbolic: true

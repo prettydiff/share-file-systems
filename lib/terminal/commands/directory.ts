@@ -37,13 +37,23 @@ const library = {
         let dirTest:boolean = false,
             size:number = 0,
             dirs:number = 0,
-            search:string,
-            log:boolean = true;
+            search:string;
         const dirCount:number[] = [],
             dirNames:string[] = [],
+            log = (args.logRecursion === true)
+                ? {
+                    dir: true,
+                    populate: true
+                }
+                : {
+                    dir: false,
+                    populate: false
+                },
             type:boolean = (function terminal_directory_typeof():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
-                vars.testLogger("directory", "type", "set type flag.");
+                if (args.logRecursion === true) {
+                    vars.testLogger("directory", "type", "set type flag.");
+                }
                 if (vars.command === "directory" && typeIndex > -1) {
                     process.argv.splice(typeIndex, 1);
                     return true;
@@ -77,6 +87,7 @@ const library = {
                             return 0;
                         }()),
                         exclusions: vars.exclusions,
+                        logRecursion: false,
                         mode: (function terminal_directory_startPath_mode():directoryMode {
                             let b:number = 0;
                             do {
@@ -146,7 +157,6 @@ const library = {
                 let dirList:string[] = item.split(vars.sep),
                     dirPath:string = "",
                     index:number = 0;
-                log = false;
                 dirList.pop();
                 dirPath = dirList.join(vars.sep);
                 if (dirPath === "") {
@@ -167,7 +177,9 @@ const library = {
                     dirNames.splice(index, 1);
                     dirs = dirs - 1;
                     if (dirs < 1) {
-                        vars.testLogger("directory", "dirCounter", "complete so call the callback or output to terminal.");
+                        if (args.logRecursion === true) {
+                            vars.testLogger("directory", "dirCounter", "complete so call the callback or output to terminal.");
+                        }
                         if (args.mode === "list") {
                             args.callback(fileList.sort());
                         } else {
@@ -182,7 +194,8 @@ const library = {
                 vars.node.fs[method](filePath, function terminal_directory_wrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
-                            if (log === true) {
+                            if (log.dir === true) {
+                                log.dir = false;
                                 vars.testLogger("directory", "dir", `reading directory ${filePath} for recursive operations.`);
                             }
                             vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
@@ -234,7 +247,8 @@ const library = {
                             });
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
-                            if (log === true) {
+                            if (log.populate === true) {
+                                log.populate = false;
                                 vars.testLogger("directory", "populate", `populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
                             }
                             if (type === "error") {

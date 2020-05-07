@@ -117,6 +117,7 @@ const library = {
                         library.hash(input);
                     },
                     updateRemote = function terminal_server_post_updateRemote():void {
+                        vars.testLogger("server", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
                         vars.ws.broadcast(body);
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(`Received directory watch for ${body} at ${serverVars.ipAddress}.`);
