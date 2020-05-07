@@ -1,15 +1,15 @@
-import browser from "./lib/browser/browser.js";
-import context from "./lib/browser/context.js";
-import fs from "./lib/browser/fs.js";
-import getNodesByType from "./lib/browser/getNodesByType.js";
-import invite from "./lib/browser/invite.js";
-import modal from "./lib/browser/modal.js";
-import network from "./lib/browser/network.js";
-import settings from "./lib/browser/settings.js";
-import share from "./lib/browser/share.js";
-import systems from "./lib/browser/systems.js";
-import util from "./lib/browser/util.js";
-import webSocket from "./lib/browser/webSocket.js";
+import browser from "./browser.js";
+import context from "./context.js";
+import fs from "./fs.js";
+import getNodesByType from "./getNodesByType.js";
+import invite from "./invite.js";
+import modal from "./modal.js";
+import network from "./network.js";
+import settings from "./settings.js";
+import share from "./share.js";
+import systems from "./systems.js";
+import util from "./util.js";
+import webSocket from "./webSocket.js";
 
 (function local():void {
 
@@ -34,6 +34,38 @@ import webSocket from "./lib/browser/webSocket.js";
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
+                defaultModals = function local_restore_defaultModals():void {
+                    const payloadModal:ui_modal = {
+                        agent: browser.data.hashDevice,
+                        agentType: "device",
+                        content: null,
+                        read_only: false,
+                        single: true,
+                        status: "hidden",
+                        title: "",
+                        type: "systems"
+                    };
+
+                    // building logging utility (systems log)
+                    if (document.getElementById("systems-modal") === null) {
+                        payloadModal.content = systems.modalContent();
+                        payloadModal.title = document.getElementById("systemLog").innerHTML;
+                        payloadModal.type = "systems";
+                        payloadModal.width = 800;
+                        modal.create(payloadModal);
+                        document.getElementById("systems-modal").style.display = "none";
+                    }
+                    // building settings modal
+                    if (document.getElementById("settings-modal") === null) {
+                        payloadModal.content = settings.modalContent();
+                        payloadModal.inputs = ["close"];
+                        payloadModal.title = document.getElementById("settings").innerHTML;
+                        payloadModal.type = "settings";
+                        delete payloadModal.width;
+                        modal.create(payloadModal);
+                        document.getElementById("settings-modal").style.display = "none";
+                    }
+                },
                 applyLogin = function local_restore_applyLogin():void {
                     const login:HTMLElement = document.getElementById("login"),
                         button:HTMLButtonElement = login.getElementsByTagName("button")[0],
@@ -74,6 +106,7 @@ import webSocket from "./lib/browser/webSocket.js";
                         handlerMouse = function local_restore_applyLogin_button():void {
                             action();
                         };
+                    defaultModals();
                     browser.pageBody.setAttribute("class", "login");
                     nameUser.onkeyup = handlerKeyboard;
                     nameDevice.onkeyup = handlerKeyboard;
@@ -112,16 +145,6 @@ import webSocket from "./lib/browser/webSocket.js";
                         },
                         login = function local_restore_complete_login(event:KeyboardEvent):void {
                             util.formKeys(event, util.login);
-                        },
-                        payloadModal:ui_modal = {
-                            agent: browser.data.hashDevice,
-                            agentType: "device",
-                            content: null,
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: "",
-                            type: "systems"
                         },
                         loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
                         loginInputsLength:number = loginInputs.length,
@@ -164,26 +187,8 @@ import webSocket from "./lib/browser/webSocket.js";
                     // watch for local idleness
                     document.onclick = activate;
 
-                    if (browser.data.hashDevice !== "") {
-                        // building logging utility (systems log)
-                        if (document.getElementById("systems-modal") === null) {
-                            payloadModal.content = systems.modalContent();
-                            payloadModal.title = document.getElementById("systemLog").innerHTML;
-                            payloadModal.type = "systems";
-                            payloadModal.width = 800;
-                            modal.create(payloadModal);
-                            document.getElementById("systems-modal").style.display = "none";
-                        }
-                        // building settings modal
-                        if (document.getElementById("settings-modal") === null) {
-                            payloadModal.content = settings.modalContent();
-                            payloadModal.inputs = ["close"];
-                            payloadModal.title = document.getElementById("settings").innerHTML;
-                            payloadModal.type = "settings";
-                            delete payloadModal.width;
-                            modal.create(payloadModal);
-                            document.getElementById("settings-modal").style.display = "none";
-                        }
+                    if (browser.data.hashDevice !== "" && document.getElementById("settings") === null) {
+                        defaultModals();
                     }
 
                     // systems log messages
