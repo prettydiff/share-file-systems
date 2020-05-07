@@ -40,7 +40,7 @@ const library = {
             search:string;
         const dirCount:number[] = [],
             dirNames:string[] = [],
-            log = (args.logRecursion === true)
+            log = (args !== undefined && args.logRecursion === true)
                 ? {
                     dir: true,
                     populate: true
@@ -51,7 +51,7 @@ const library = {
                 },
             type:boolean = (function terminal_directory_typeof():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
-                if (args.logRecursion === true) {
+                if (args !== undefined && args.logRecursion === true) {
                     vars.testLogger("directory", "type", "set type flag.");
                 }
                 if (vars.command === "directory" && typeIndex > -1) {
