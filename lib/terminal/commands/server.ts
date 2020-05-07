@@ -187,33 +187,32 @@ const library = {
                 });
             },
             httpServer:httpServer = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, response:ServerResponse):void {
-                const localhostPort:RegExp = (/localhost:\d{0,5}/),
+                const host:string = (function terminal_server_create_postTest_host():string {
+                        const addresses:[string, string, string][] = serverVars.addresses[0],
+                            length:number = addresses.length;
+                        let a:number = 0,
+                            name:string = request.headers.host;
+                        if (name === "localhost" || (/localhost:\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
+                            return "localhost";
+                        }
+                        if (name.indexOf(":") > 0) {
+                            name = name.slice(0, name.lastIndexOf(":"));
+                        }
+                        if (name.charAt(0) === "[") {
+                            name = name.slice(1, name.length - 1);
+                        }
+                        if (name === "::1" || name === "127.0.0.1") {
+                            return "localhost";
+                        }
+                        do {
+                            if (addresses[a][1] === name) {
+                                return "localhost";
+                            }
+                            a = a + 1;
+                        } while (a < length);
+                        return request.headers.host;
+                    }()),
                     postTest = function terminal_server_create_postTest():boolean {
-                        const host:string = (function terminal_server_create_postTest_host():string {
-                            const addresses:[string, string, string][] = serverVars.addresses[0],
-                                length:number = addresses.length;
-                            let a:number = 0,
-                                name:string = request.headers.host;
-                            if (name === "localhost" || localhostPort.test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
-                                return "localhost";
-                            }
-                            if (name.indexOf(":") > 0) {
-                                name = name.slice(0, name.lastIndexOf(":"));
-                            }
-                            if (name.charAt(0) === "[") {
-                                name = name.slice(1, name.length - 1);
-                            }
-                            if (name === "::1" || name === "127.0.0.1") {
-                                return "localhost";
-                            }
-                            do {
-                                if (addresses[a][1] === name) {
-                                    return "localhost";
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                            return request.headers.host;
-                        }());
                         if (
                             request.method === "POST" && (
                                 host === "localhost" || (
@@ -229,7 +228,7 @@ const library = {
                         }
                         return false;
                     };
-                if (request.method === "GET" && (request.headers.host === "localhost" || localhostPort.test(request.headers.host) === true)) {
+                if (request.method === "GET" && host === "localhost") {
                     methodGET(request, response);
                 } else if (postTest() === true) {
                     post(request, response);
