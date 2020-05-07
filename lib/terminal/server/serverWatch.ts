@@ -59,6 +59,7 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
     if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0 || filename.indexOf(".git") === 0) {
         return;
     }
+    vars.testLogger("serverWatch", "", "Establishing watch for application components to refresh the page or compile updated code.");
     if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
         let start:number,
             compile:number,

@@ -10,25 +10,21 @@ import serverVars from "./serverVars.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
-        inviteRequest = function local_server_invite_request():void {
-            const payload:string = (data.action === "invite-request" || data.action === "invite-complete")
-                    ? (function local_server_invite_request_payload():string {
-                        const ip:string = data.ip,
-                            port:number = data.port;
-                        let output:string = "";
-                        data.userName = serverVars.nameUser;
-                        data.ip = serverVars.ipAddress;
-                        data.port = serverVars.webPort;
-                        output = JSON.stringify({
-                            invite: data
-                        });
-                        data.ip = ip;
-                        data.port = port;
-                        return output;
-                    }())
-                    : JSON.stringify({
+        inviteHttp = function local_server_invite_inviteHttp():void {
+            const payload:string = (function local_server_invite_inviteHTTP_payload():string {
+                    const ip:string = data.ip,
+                        port:number = data.port;
+                    let output:string = "";
+                    data.userName = serverVars.nameUser;
+                    data.ip = serverVars.ipAddress;
+                    data.port = serverVars.webPort;
+                    output = JSON.stringify({
                         invite: data
-                    }),
+                    });
+                    data.ip = ip;
+                    data.port = port;
+                    return output;
+                }()),
                 httpConfig:httpConfiguration = {
                     agentType: data.type,
                     callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
@@ -72,28 +68,33 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         }));
                     }
                 };
+            vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);
             httpClient(httpConfig);
         };
     let responseString:string;
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
     if (data.action === "invite") {
+        vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
         data.action = "invite-request";
         responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
-        inviteRequest();
+        inviteHttp();
     } else if (data.action === "invite-request") {
+        vars.testLogger("invite", "invite-request", "Process an invitation request from a remote agent by sending the request data to the browser.");
         vars.ws.broadcast(dataString);
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
     } else if (data.action === "invite-response") {
-        const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`
+        const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
+        vars.testLogger("invite", "invite-response", "The user has made a decision about the invitation and now that decision must be sent back to the originating agent.");
         data.action = "invite-complete";
         responseString = (data.status === "accepted")
             ? `Accepted${respond}`
             : (data.status === "declined")
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
-        inviteRequest();
+        inviteHttp();
     } else if (data.action === "invite-complete") {
         const respond:string = ` invitation sent to from start terminal ${serverVars.ipAddress} to start browser.`;
+        vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
         vars.ws.broadcast(dataString);
         responseString = (data.status === "accepted")
             ? `Accepted${respond}`

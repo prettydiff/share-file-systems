@@ -81,6 +81,7 @@ const library = {
                         library.log([errorMessage.toString()]);
                     }
                 };
+            vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }
@@ -139,7 +140,9 @@ const library = {
             });
         },
         response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
+            vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
             if (serverVars[data.agentType][data.agentFrom] === undefined) {
+                vars.testLogger("heartbeat", "response unrecognized-agent", "When the agent is not recognized close out the HTTP response without sending a payload.");
                 // trapping unexpected user
                 if (response !== null) {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
@@ -156,6 +159,7 @@ const library = {
                         shareString:string = (sameAgent === true)
                         ? JSON.stringify(serverVars[data.agentType][data.shareFrom].shares)
                         : JSON.stringify(serverVars.device[data.shareFrom].shares);
+                    vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
                     if (shareString !== JSON.stringify(data.shares)) {
                         if (sameAgent === true) {
                             serverVars[data.agentType][data.shareFrom].shares = data.shares;
@@ -170,6 +174,7 @@ const library = {
                         }
                     }
                 }
+                vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
                 data.agentTo = data.agentFrom;
                 data.agentFrom = (data.agentType === "device")
                     ? serverVars.hashDevice

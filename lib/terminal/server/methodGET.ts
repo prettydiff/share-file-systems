@@ -25,6 +25,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
         localPath:string = (uri === "/")
             ? `${vars.projectPath}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
+    vars.testLogger("methodGet", "", "Handles all HTTP requests to the server of method 'GET' and dynamically populates the HTML with data.");
     vars.node.fs.stat(localPath, function terminal_server_create_stat(ers:nodeError, stat:Stats):void {
         const random:number = Math.random(),
             // navigating a file structure in the browser by direct address, like apache HTTP
@@ -47,6 +48,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                 return;
             }
             if (stat.isDirectory() === true) {
+                vars.testLogger("methodGet", "directory", "In the case a directory is requested then write an HTML list of contained artifacts to populate in the browser.");
                 vars.node.fs.readdir(localPath, function terminal_server_create_stat_dir(erd:Error, list:string[]) {
                     const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                     if (erd !== null) {
@@ -83,6 +85,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                                 library.readStorage(appliedData);
                             },
                             csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
+                        vars.testLogger("methodGET", "readCallback", "After reading the requested file now to make decisions about what to do with it.");
                         if (localPath.indexOf(".js") === localPath.length - 3) {
                             response.writeHead(200, {"Content-Type": "application/javascript"});
                         } else if (localPath.indexOf(".css") === localPath.length - 4) {

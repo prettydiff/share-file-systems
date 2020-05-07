@@ -93,6 +93,7 @@ const library = {
                                 directInput: true,
                                 source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
                             };
+                        vars.testLogger("server", "hashDevice", "Create a hash to name a device.");
                         library.hash(input);
                     },
                     hashShare = function terminal_server_post_hashShare():void {
@@ -114,6 +115,7 @@ const library = {
                                 id: body,
                                 source: serverVars.hashUser + serverVars.hashDevice + hashShare.type + hashShare.share
                             };
+                        vars.testLogger("server", "hashShare", "Create a hash to name a new share.");
                         library.hash(input);
                     },
                     updateRemote = function terminal_server_post_updateRemote():void {

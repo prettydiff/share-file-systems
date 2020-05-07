@@ -107,6 +107,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             timeout: 1000
         },
         fsRequest:http.ClientRequest = vars.node.http.request(payload, callback);
+    vars.testLogger("httpClient", "", "An abstraction over node.http.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

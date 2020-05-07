@@ -23,6 +23,7 @@ const library = {
                         response.end();
                     }
                 };
+                vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
                 if (vars.command.indexOf("test") === 0) {
                     respond(`${task} storage written with false response for testing.`);
                 } else {
@@ -42,6 +43,7 @@ const library = {
                 }
             },
             writeCallback = function terminal_server_storage_writeStorage(erSettings:Error):void {
+                vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
                 if (erSettings !== null) {
                     library.error([erSettings.toString()]);
                     library.log([erSettings.toString()]);
@@ -70,6 +72,7 @@ const library = {
                 }
             };
         let parsed:storage = JSON.parse(dataString);
+        vars.testLogger("storage", "", `Write application data to disk for type ${task}`);
         if (parsed[task] === undefined) {
             library.error([`Attempted to write undefined to storage for task: ${task}`]);
         } else if (vars.command.indexOf("test") === 0) {
