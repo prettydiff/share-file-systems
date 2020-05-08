@@ -50,7 +50,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} commands directory`,
-                defined: "Details the mentioned command with examples."
+                defined: "Details the mentioned command with examples, which in this case is the 'directory' command."
+            },
+            {
+                code: `${vars.version.command} commands all`,
+                defined: "Specifying 'all' will output verbose documentation and code examples for all supported commands."
             }
         ]
     },

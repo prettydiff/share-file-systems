@@ -17,7 +17,16 @@ const log = function terminal_log(output:string[], end?:boolean):void {
         logger(value);
     });
     if (vars.verbose === true && end === true) {
+        const version:string = `${vars.version.name} version ${vars.text.angry + vars.version.number + vars.text.none}`,
+            length:number = version.replace(/\u001b\[\d+m/g, "").length,
+            line:string[] = [];
+        let a:number = 0;
+        do {
+            line.push("_");
+            a = a + 1;
+        } while (a < length);
         logger("");
+        logger(line.join(""));
         logger(`${vars.version.name} version ${vars.text.angry + vars.version.number + vars.text.none}`);
         logger(`Dated ${vars.text.cyan + vars.version.date + vars.text.none}`);
         humanTime(true);

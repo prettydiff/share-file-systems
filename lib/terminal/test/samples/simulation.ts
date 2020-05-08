@@ -86,7 +86,7 @@ const sep:string = vars.sep,
         {
             command: "commands",
             qualifier: "contains",
-            test: `Commands are tested using the ${text.green}simulation${text.none} command.`
+            test: `Commands are tested using the ${text.green}test_simulation${text.none} command.`
         },
         {
             command: "commands base64",

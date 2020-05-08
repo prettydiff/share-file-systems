@@ -84,7 +84,7 @@ const library = {
             output.push("For examples and usage instructions specify a command name, for example:");
             output.push(`${vars.text.green + vars.version.command} commands hash${vars.text.none}`);
             output.push("");
-            output.push(`Commands are tested using the ${vars.text.green}simulation${vars.text.none} command.`);
+            output.push(`Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`);
         } else if (vars.command === "options" && lists.total === true) {
             output.push(`${vars.text.green + keyLength + vars.text.none} matching option${plural}.`);
         }
