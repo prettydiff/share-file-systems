@@ -265,7 +265,16 @@ const library = {
                                         "Code file missing required descriptive comment at top of code.",
                                         "--------------------------------------------------------------",
                                         "",
-                                        file
+                                        "Include a comment prior to all other code.  Here is an example:",
+                                        `${vars.text.cyan + vars.text.bold}/* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */${vars.text.none}`,
+                                        "",
+                                        `${vars.text.underline}Requirements:${vars.text.none}`,
+                                        `${vars.text.angry}*${vars.text.none} The comment occurs before all other code.  White space characters may reside prior to the comment, but nothing else.`,
+                                        `${vars.text.angry}*${vars.text.none} The comment must be of block comment type comprising a slash and asterisk: ${vars.text.green + vars.text.bold}/*${vars.text.none}`,
+                                        `${vars.text.angry}*${vars.text.none} The comment comprises three parts in this order:`,
+                                        `   ${vars.text.angry}1${vars.text.none} A path to the file relative to the project root, without file extension, and using forward slash as the directory separator.`,
+                                        `   ${vars.text.angry}2${vars.text.none} A separator comprising of a space, a hyphen, and a second space.`,
+                                        `   ${vars.text.angry}3${vars.text.none} An English statement describing the code file.`
                                     ]);
                                     return
                                 }

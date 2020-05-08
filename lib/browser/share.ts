@@ -135,6 +135,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         },
         perAgentType: function local_share_content_perAgentType(agentNames:agentNames):void {
             const type:agentType = agentNames.agentType;
+            agentTypeUL = document.createElement("ul");
             if (agentName === "" && (agentType === "" || agentType === type)) {
                 const title:HTMLElement = document.createElement("h3"),
                     list:string[] = Object.keys(browser[type]),
@@ -143,7 +144,6 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                     const plural:string = (listLength === 1)
                         ? ""
                         : "s";
-                    agentTypeUL = document.createElement("ul");
                     agentTypeUL.setAttribute("class", "agentList")
                     title.innerHTML = `There are ${listLength} <strong>${type + plural}</strong> shared.`;
                     lists.appendChild(title);
