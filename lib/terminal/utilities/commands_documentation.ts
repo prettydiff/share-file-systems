@@ -251,8 +251,8 @@ const commands_documentation = {
                 defined: "Runs all the tests in the test suite."
             },
             {
-                code: `${vars.version.command} test_simulation help`,
-                defined: "Filter the tests to run by supplying a text fragment to filter against test commands.  For example if there are 2 tests whose commands contain that string then only those 2 tests will be evaluated."
+                code: `${vars.version.command} test log`,
+                defined: "The log argument turns on verbose logging output with annotations."
             }
         ]
     },
@@ -269,7 +269,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} test_service log`,
-                defined: "The log argument turns on verbose logging output."
+                defined: "The log argument turns on verbose logging output with annotations."
             },
             {
                 code: `${vars.version.command} test_service log log`,
@@ -285,12 +285,12 @@ const commands_documentation = {
                 defined: "Runs tests against the commands offered by the services file."
             },
             {
-                code: `${vars.version.command} test_simulation fs:fs-copy`,
+                code: `${vars.version.command} test_simulation help`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
                 code: `${vars.version.command} test_simulation log`,
-                defined: "The log argument turns on verbose logging output."
+                defined: "The log argument turns on verbose logging output with annotations."
             },
             {
                 code: `${vars.version.command} test_simulation log log`,
