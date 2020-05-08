@@ -318,7 +318,9 @@ const library = {
                                 library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
                             } else {
-                                library.log([angryPath]);
+                                if (args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                    library.log([angryPath]);
+                                }
                                 populate("error");
                             }
                         } else {

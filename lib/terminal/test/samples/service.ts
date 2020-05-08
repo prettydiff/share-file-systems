@@ -4,6 +4,7 @@
 import * as http from "http";
 
 import agents from "../../../common/agents.js";
+import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
 import server from "../../commands/server.js";
 import serverVars from "../../server/serverVars.js";
@@ -22,8 +23,9 @@ import testEvaluation from "../application/evaluation.js";
 // * test - the value to compare against
 
 const projectPath:string = vars.projectPath,
+    sep:string = vars.sep,
     windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
-    windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
+    windowsSep:string = sep.replace(/\\/g, "\\\\"),
     loopback:string = (serverVars.addresses[0].length > 1)
         ? "::"
         : "127.0.0.1",
@@ -120,7 +122,7 @@ service.populate = function test_services_populate():void {
         test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"agentType\":\"device\",\"dirs\":[["
     });
     service.push(<testTemplateFileService>{
-        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
+        artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -146,7 +148,7 @@ service.populate = function test_services_populate():void {
         }
     });
     service.push(<testTemplateFileService>{
-        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
+        artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -172,7 +174,7 @@ service.populate = function test_services_populate():void {
         }
     });
     service.push(<testTemplateFileService>{
-        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
+        artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -223,7 +225,7 @@ service.populate = function test_services_populate():void {
         }
     });*/
     service.push(<testTemplateFileService>{
-        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
+        artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -243,7 +245,7 @@ service.populate = function test_services_populate():void {
         test: "fs-update-remote"
     });
     service.push(<testTemplateFileService>{
-        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
+        artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -263,7 +265,7 @@ service.populate = function test_services_populate():void {
         test: `["${windowsPath}storage","directory"`
     });
     service.push(<testTemplateFileService>{
-        artifact: `${vars.projectPath}storage${vars.sep}tsconfig.json`,
+        artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -700,7 +702,7 @@ service.populate = function test_services_populate():void {
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${vars.sep}lib`],
+                location: [`${projectPath}js${sep}lib`],
                 name: ".js",
                 watch: "no"
             }
@@ -719,7 +721,7 @@ service.populate = function test_services_populate():void {
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${vars.sep}lib`],
+                location: [`${projectPath}js${sep}lib`],
                 name: ".js",
                 watch: "no"
             }
@@ -738,7 +740,7 @@ service.populate = function test_services_populate():void {
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${vars.sep}lib`],
+                location: [`${projectPath}js${sep}lib`],
                 name: ".js",
                 watch: "no"
             }
@@ -757,7 +759,7 @@ service.populate = function test_services_populate():void {
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${vars.sep}lib`],
+                location: [`${projectPath}js${sep}lib`],
                 name: ".js",
                 watch: "no"
             }
@@ -848,7 +850,7 @@ service.populate = function test_services_populate():void {
                 agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 dirs: [
-                    [`${projectPath}storage${vars.sep}storage.txt`, "file", "", 0, 0, "stat"]
+                    [`${projectPath}storage${sep}storage.txt`, "file", "", 0, 0, "stat"]
                 ],
                 fail: [],
                 location: `${projectPath}storage`,
@@ -1355,53 +1357,88 @@ service.populate = function test_services_populate():void {
     });
 };
 service.addServers = function test_services_addServers(callback:Function):void {
-    const storageComplete = function test_services_addServers_storageComplete(storageData:storageItems):void {
-        const complete = function test_services_addServers_complete(counts:agentCounts):void {
+    const flags = {
+            removal: false,
+            storage: false
+        },
+        servers = function test_services_addServers_servers():void {
+            const complete = function test_services_addServers_servers_complete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
                 if (counts.count === counts.total) {
                     callback();
                 }
             };
+            agents({
+                complete: complete,
+                countBy: "agent",
+                perAgent: function test_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
+                    const serverCallback = function test_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
+                        serverVars[output.agentType][output.agent].port = output.webPort;
+                        serverVars[output.agentType][output.agent].ip = loopback;
+                        if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
+                            serverVars.wsPort = output.wsPort;
+                        }
+                        complete(counts);
+                    };
+                    service.serverRemote[agentNames.agentType][agentNames.agent] = server({
+                        agent: agentNames.agent,
+                        agentType: agentNames.agentType,
+                        callback: serverCallback
+                    });
+                },
+                source: serverVars
+            });
+        },
+        storageComplete = function test_services_addServers_storageComplete(storageData:storageItems):void {
 
-        serverVars.brotli = storageData.settings.brotli;
-        serverVars.hashDevice = storageData.settings.hashDevice;
-        serverVars.hashType = storageData.settings.hashType;
-        serverVars.hashUser = storageData.settings.hashUser;
-        serverVars.nameDevice = storageData.settings.nameDevice;
-        serverVars.nameUser = storageData.settings.nameUser;
-        serverVars.device = storageData.device;
-        serverVars.user = storageData.user;
+            serverVars.brotli = storageData.settings.brotli;
+            serverVars.hashDevice = storageData.settings.hashDevice;
+            serverVars.hashType = storageData.settings.hashType;
+            serverVars.hashUser = storageData.settings.hashUser;
+            serverVars.nameDevice = storageData.settings.nameDevice;
+            serverVars.nameUser = storageData.settings.nameUser;
+            serverVars.device = storageData.device;
+            serverVars.user = storageData.user;
 
-        service.serverRemote = {
-            device: {},
-            user: {}
-        };
+            service.serverRemote = {
+                device: {},
+                user: {}
+            };
 
-        service.populate();
-
-        agents({
-            complete: complete,
-            countBy: "agent",
-            perAgent: function test_services_addServers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-                const serverCallback = function test_services_addServers_perAgent_serverCallback(output:serverOutput):void {
-                    serverVars[output.agentType][output.agent].port = output.webPort;
-                    serverVars[output.agentType][output.agent].ip = loopback;
-                    if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
-                        serverVars.wsPort = output.wsPort;
+            service.populate();
+            flags.storage = true;
+            if (flags.removal === true) {
+                servers();
+            }
+        },
+        removal = function test_services_addServers_removal():void {
+            let count:number = 0;
+            const list:string[] = [
+                    `${projectPath}serviceTestLocal`,
+                    `${projectPath}serviceLocal`,
+                    `${projectPath}serviceTestLocal.json`,
+                    `${projectPath}serviceLocal.json`,
+                    `${projectPath}serviceTestRemote`,
+                    `${projectPath}serviceRemote`,
+                    `${projectPath}serviceTestRemote.json`,
+                    `${projectPath}serviceRemote.json`,
+                ],
+                removeCallback = function test_services_addServers_removal_removeCallback():void {
+                    count = count + 1;
+                    if (count === list.length) {
+                        flags.removal = true;
+                        if (flags.storage === true) {
+                            servers();
+                        }
                     }
-                    complete(counts);
                 };
-                service.serverRemote[agentNames.agentType][agentNames.agent] = server({
-                    agent: agentNames.agent,
-                    agentType: agentNames.agentType,
-                    callback: serverCallback
-                });
-            },
-            source: serverVars
-        });
-    };
-    serverVars.storage = serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
+            list.forEach(function test_services_addServers_removal_each(value:string):void {
+                remove(value, removeCallback);
+            });
+        };
+    serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storage`;
     readStorage(storageComplete);
+    removal();
 };
 service.execute = function test_services_execute(config:testExecute):void {
     const index:number = (config.list.length < 1)

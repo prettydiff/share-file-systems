@@ -192,7 +192,7 @@ const library = {
                             length:number = addresses.length;
                         let a:number = 0,
                             name:string = request.headers.host;
-                        if (name === "localhost" || (/localhost:\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
+                        if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
                             return "localhost";
                         }
                         if (name.indexOf(":") > 0) {
