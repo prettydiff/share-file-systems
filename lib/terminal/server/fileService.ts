@@ -348,8 +348,7 @@ const library = {
                     a:number = 0,
                     activeRequests:number = 0,
                     countDir:number = 0,
-                    countFile:number = 0,
-                    testLog:boolean = true;
+                    countFile:number = 0;
                 const fileQueue:[string, number, string, Buffer][] = [],
                     hashFail:string[] = [],
                     listLength = fileData.list.length,
@@ -934,10 +933,11 @@ const library = {
                 data.remoteWatch = serverVars.hashDevice;
                 data.watch = "third party action";
                 httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
-                    console.log("");
-                    console.log("responseBody");
-                    console.log(responseBody);
+                    //console.log("");
+                    //console.log("responseBody");
+                    //console.log(responseBody);
                     //requestFiles(JSON.parse(<string>responseBody));
+                    library.log([<string>responseBody]);
                 }, "Error copying from remote to local device", "body");
             }
         } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {

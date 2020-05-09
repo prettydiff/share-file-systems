@@ -31,6 +31,11 @@ const library = {
             cwd: vars.projectPath
         }, function terminal_lint_eslint(err:Error, stdout:string, stderr:string) {
             vars.testLogger("lint", "child", "run ESLint as a child process");
+            if (stdout.indexOf("error") > 0) {
+                vars.testLogger("lint", "lint fail", "violated an ESLint rule");
+                library.error([stdout, "Lint failure."]);
+                return;
+            }
             if (err !== null) {
                 vars.testLogger("lint", "child error", err.toString());
                 library.log([
@@ -62,10 +67,6 @@ const library = {
                 } else {
                     callback(complete);
                 }
-            } else {
-                vars.testLogger("lint", "lint fail", "violated an ESLint rule");
-                library.error([stdout, "Lint failure."]);
-                return;
             }
         });
     };

@@ -257,12 +257,12 @@ const sep:string = vars.sep,
             test: " seconds total time"
         },
         {
-            command: `lint .${sep}ws-es6${sep}index.js`,
+            command: `lint .${sep}js${sep}application.js`,
             qualifier: "contains",
-            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}ws-es6${sep}index.js${vars.text.none}`
+            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}js${sep}application.js${vars.text.none}`
         },
         {
-            command: `lint .${sep}ws-es6${sep}index.js`,
+            command: `lint .${sep}js${sep}application.js`,
             qualifier: "contains",
             test: "of memory consumed"
         },
@@ -298,8 +298,13 @@ const sep:string = vars.sep,
         },
         {
             command: "version 2",
-            qualifier: "begins",
+            qualifier: "contains",
             test: `version[name] version ${text.angry}`
+        },
+        {
+            command: "version 3",
+            qualifier: "begins",
+            test: `_________`
         }
     ];
 simulation.execute = function test_simulations_execute(config:testExecute):void {

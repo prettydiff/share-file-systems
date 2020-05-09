@@ -237,7 +237,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .settings .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;margin:0 1em 0 0;vertical-align:middle;width:1em}
 
 /* share list */
-#spaces .agentList{margin:1em 1em 1em 2em;padding:0}
+#spaces .agentList{font-size:1.5em;margin:1em 1em 1em 2em;padding:0}
 #spaces .agentList li{border-style:none}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .agentList button{background:transparent;border-style:none;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
