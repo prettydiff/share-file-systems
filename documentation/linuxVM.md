@@ -21,3 +21,15 @@ I had the wonderful experience of my Ubuntu guest stealing access of the microph
    1. Go back into properties and change it to *24bit, 48000 hertz* and click *OK* button.
    1. The *Playback* tab is complete. Repeat that process for the microphone under the *Recoding* tab.
    1. Ensure the microphone is enabled in the Windows host recording application.
+
+## Hostname
+On a relatively clean Linux box there are only two places that need updating to change the hostname.
+
+1. `vim /etc/hosts` - modify the existing hostname
+2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
+
+## Adapters
+In the VM host configure 2 adapters for each guest machine.
+
+1. **NAT** - This should be the default configuration and all default settings are fine. This provides internet access to the guest machine.
+2. **Host Based Adapter** - The default settings for this adapter type are fine.  This provides connectivity between the host and guest machine.

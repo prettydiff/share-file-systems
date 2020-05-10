@@ -22,6 +22,10 @@ import vars from "../utilities/vars.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 
+// This logRecursion variable gates test automation logging of the "directory" library
+// 1. If the variable is outside the fileService library it will limit logging to one use and only for the first test
+// 2. If the variable is moved within the fileService library it will limit logging to one use per each test
+// 3. If the variable is reassigned to a value of 'false' it will eliminate "directory" logging for all tests regardless of scope
 let logRecursion:boolean = true;
 const library = {
         base64: base64,
@@ -168,9 +172,9 @@ const library = {
                         path: readLocation,
                         symbolic: true
                     };
-                logRecursion = false;
                 vars.testLogger("fileService", "fsUpdateLocal", "Read from a directory and send the data to the local browser via websocket broadcast.");
                 library.directory(dirConfig);
+                logRecursion = false;
             },
             // the file system watch handler
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
@@ -941,10 +945,11 @@ const library = {
                 }, "Error copying from remote to local device", "body");
             }
         } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
+            // issue a fs-copy-list on an agent from a different agent
             const agent:string = data.agent;
             vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
             data.agent = data.copyAgent;
-            data.copyAgent =agent;
+            data.copyAgent = agent;
             data.action = <serviceType>`${data.action.replace("-remote", "")}`;
             httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
                 requestFiles(JSON.parse(<string>responseBody));

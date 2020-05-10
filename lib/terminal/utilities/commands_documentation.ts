@@ -274,6 +274,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test_service log log`,
                 defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
+            },
+            {
+                code: `${vars.version.command} test_service log "Copy from Remote Device to different Remote Device"`,
+                defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]
     },
@@ -295,6 +299,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test_simulation log log`,
                 defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
+            },
+            {
+                code: `${vars.version.command} test_simulation log "hash ${vars.projectPath} list ignore ['node_modules'"`,
+                defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]
     },
