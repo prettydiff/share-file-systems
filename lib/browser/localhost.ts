@@ -4,7 +4,7 @@
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";
-import getNodesByType from "./getNodesByType.js";
+import getNodesByType from "./dom.js";
 import invite from "./invite.js";
 import modal from "./modal.js";
 import network from "./network.js";
@@ -32,7 +32,7 @@ import webSocket from "./webSocket.js";
             let storage:any,
                 a:number = 0,
                 cString:string = "",
-                localDevice:HTMLElement = null,
+                localDevice:Element = null,
                 active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
@@ -70,7 +70,7 @@ import webSocket from "./webSocket.js";
                     }
                 },
                 applyLogin = function local_restore_applyLogin():void {
-                    const login:HTMLElement = document.getElementById("login"),
+                    const login:Element = document.getElementById("login"),
                         button:HTMLButtonElement = login.getElementsByTagName("button")[0],
                         nameUser:HTMLInputElement = <HTMLInputElement>document.getElementById("login-user"),
                         nameDevice:HTMLInputElement = <HTMLInputElement>document.getElementById("login-device"),
@@ -135,8 +135,8 @@ import webSocket from "./webSocket.js";
                             active = Date.now();
                         },
                         shareAll = function local_restore_complete_shareAll(event:MouseEvent):void {
-                            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                                parent:HTMLElement = <HTMLElement>element.parentNode,
+                            const element:Element = <Element>event.srcElement || <Element>event.target,
+                                parent:Element = <Element>element.parentNode,
                                 classy:string = element.getAttribute("class");
                             if (parent.getAttribute("class") === "all-shares") {
                                 share.modal("", "", null);
@@ -151,7 +151,7 @@ import webSocket from "./webSocket.js";
                         },
                         loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
                         loginInputsLength:number = loginInputs.length,
-                        agentList:HTMLElement = document.getElementById("agentList"),
+                        agentList:Element = document.getElementById("agentList"),
                         allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
                         allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
                     let a:number = 0;
@@ -301,13 +301,13 @@ import webSocket from "./webSocket.js";
                                             watch: "yes"
                                         },
                                         selection = function local_restore_modalKeys_selection(id:string):void {
-                                            const box:HTMLElement = document.getElementById(id),
+                                            const box:Element = document.getElementById(id),
                                                 modalData:ui_modal = browser.data.modals[id],
                                                 keys:string[] = (modalData.selection === undefined)
                                                     ? []
                                                     : Object.keys(modalData.selection),
-                                                fileList:HTMLElement = <HTMLElement>box.getElementsByClassName("fileList")[0],
-                                                list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
+                                                fileList:Element = box.getElementsByClassName("fileList")[0],
+                                                list:HTMLCollectionOf<Element> = (fileList === undefined)
                                                     ? null
                                                     : fileList.getElementsByTagName("li"),
                                                 length:number = (list === null)
@@ -334,9 +334,9 @@ import webSocket from "./webSocket.js";
                                                     }
                                                     : JSON.parse(responseText),
                                                 id:string = payload.id,
-                                                files:[HTMLElement, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
-                                                    ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number, string] {
-                                                        const p:HTMLElement = document.createElement("p");
+                                                files:[Element, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
+                                                    ? (function local_restore_modalKeys_fsCallback_missing():[Element, number, string] {
+                                                        const p:Element = document.createElement("p");
                                                         p.setAttribute("class", "error");
                                                         if (payload.dirs === "missing") {
                                                             p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
@@ -358,7 +358,7 @@ import webSocket from "./webSocket.js";
                                                 }
                                             }
                                         },
-                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number, string], textValue:String):void {
+                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[Element, number, string], textValue:String):void {
                                             storage.settings.modals[id].content = files[0];
                                             storage.settings.modals[id].id = id;
                                             storage.settings.modals[value].text_event = fs.text;
@@ -366,15 +366,15 @@ import webSocket from "./webSocket.js";
                                                 storage.settings.modals[id].text_value = textValue;
                                             }
                                             storage.settings.modals[id].text_event = fs.text;
-                                            const box:HTMLElement = modal.create(storage.settings.modals[id]);
+                                            const box:Element = modal.create(storage.settings.modals[id]);
                                             fs.listFail(files[1], box);
                                             selection(id);
                                             z(value);
                                             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                         },
-                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number, string]):void {
-                                            const fsModal:HTMLElement = document.getElementById(id),
-                                                body:HTMLElement = <HTMLElement>fsModal.getElementsByClassName("body")[0];
+                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[Element, number, string]):void {
+                                            const fsModal:Element = document.getElementById(id),
+                                                body:Element = fsModal.getElementsByClassName("body")[0];
                                             fs.listFail(files[1], fsModal);
                                             body.innerHTML = "";
                                             body.appendChild(files[0]);
@@ -383,7 +383,7 @@ import webSocket from "./webSocket.js";
                                         };
                                     if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
                                         let search:HTMLInputElement;
-                                        const delay:HTMLElement = util.delay();
+                                        const delay:Element = util.delay();
                                         storage.settings.modals[value].content = delay;
                                         storage.settings.modals[value].id = value;
                                         storage.settings.modals[value].text_event = fs.text;
@@ -396,7 +396,7 @@ import webSocket from "./webSocket.js";
                                     } else if (agent === browser.data.hashDevice) {
                                         network.fs(payload, callback);
                                     } else {
-                                        const delay:HTMLElement = util.delay();
+                                        const delay:Element = util.delay();
                                         storage.settings.modals[value].content = delay;
                                         storage.settings.modals[value].id = value;
                                         storage.settings.modals[value].text_event = fs.text;
@@ -421,7 +421,7 @@ import webSocket from "./webSocket.js";
                                 } else if (storage.settings.modals[value].type === "systems") {
                                     storage.settings.modals[value].content = systems.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    const systemsModal:HTMLElement = document.getElementById("systems-modal");
+                                    const systemsModal:Element = document.getElementById("systems-modal");
                                     let button:HTMLButtonElement;
                                     if (storage.settings.modals[value].text_value === "status") {
                                         button = <HTMLButtonElement>systemsModal.getElementsByClassName("status")[0];
@@ -454,7 +454,7 @@ import webSocket from "./webSocket.js";
                                     browser.data.hashType = storage.settings.hashType;
                                     storage.settings.modals[value].content = settings.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    const settingsModal:HTMLElement = document.getElementById("settings-modal"),
+                                    const settingsModal:Element = document.getElementById("settings-modal"),
                                         inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
                                         length:number = inputs.length;
                                     let a:number = 0;

@@ -82,11 +82,11 @@ declare global {
         data: ui_data;
         device: devices;
         loadTest: boolean;
-        localNetwork:localNetwork;
+        localNetwork: localNetwork;
         messages:messages;
-        pageBody:HTMLElement;
-        socket?:WebSocket;
-        style:HTMLStyleElement;
+        pageBody: Element;
+        socket?: WebSocket;
+        style: HTMLStyleElement;
         user: devices;
     }
     interface clipboard {
@@ -113,7 +113,7 @@ declare global {
         }
     }
     interface context extends EventHandlerNonNull {
-        (Event, element?:HTMLElement): void;
+        (Event:Event, element?:Element): void;
     }
     interface contextFunctions {
         base64: Function;
@@ -130,7 +130,7 @@ declare global {
         share: Function;
     }
     interface contextNew extends EventHandlerNonNull {
-        (Event, element?:HTMLElement, type?:string): void;
+        (Event:Event, element?:Element, type?:string): void;
     }
     interface completeStatus {
         countFile: number;
@@ -176,8 +176,9 @@ declare global {
         getElementsByAttribute: Function;
     }
     interface Element {
-        getNodesByType: Function;
-        getElementsByAttribute: Function;
+        getAncestor: (identifier:string, selector:selector) => Element;
+        getElementsByAttribute: (name:string, value:string) => Element[];
+        getNodesByType: (typeValue:string|number) => Node[];
     }
     interface fileService {
         action      : serviceType;
@@ -335,10 +336,10 @@ declare global {
         [key:string]: Function;
     }
     interface modalSettings extends EventHandlerNonNull {
-        (Event, user?:string, configuration?:ui_modal): void;
+        (Event:Event, user?:string, configuration?:ui_modal): void;
     }
     interface modalTop extends EventHandlerNonNull {
-        (Event, srcElement?:HTMLElement): void;
+        (Event:Event, srcElement?: Element): void;
     }
     interface modifyFile {
         end: string;
@@ -352,7 +353,7 @@ declare global {
         destroy?: EventHandlerNonNull;
         details?: context;
         detailsList?: EventHandlerNonNull;
-        element?: HTMLElement;
+        element?: Element;
         fsNew?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         menuRemove?: () => void;
@@ -365,10 +366,10 @@ declare global {
         drag?: EventHandlerNonNull;
         dragFlag?: dragFlag;
         expand?: EventHandlerNonNull;
-        list?: (location:string, dirData:fsRemote) => [HTMLElement, number, string];
-        listFail?: (count:number, box:HTMLElement) => void;
+        list?: (location:string, dirData:fsRemote) => [Element, number, string];
+        listFail?: (count:number, box: Element) => void;
         listFocus?: EventHandlerNonNull;
-        listItem?: (item:directoryItem, extraClass:string) => HTMLElement;
+        listItem?: (item:directoryItem, extraClass:string) => Element;
         navigate?: navigate;
         parent?: EventHandlerNonNull;
         rename?: EventHandlerNonNull;
@@ -380,7 +381,7 @@ declare global {
         text?: EventHandlerNonNull;
     }
     interface module_invite {
-        accept?: (box:HTMLElement) => void;
+        accept?: (box:Element) => void;
         decline?: EventHandlerNonNull;
         portValidation?: EventHandlerNonNull;
         removeWarning?: EventHandlerNonNull;
@@ -392,7 +393,7 @@ declare global {
     interface module_modal {
         close?: EventHandlerNonNull;
         confirm?: EventHandlerNonNull;
-        create?: (options:ui_modal) => HTMLElement;
+        create?: (options:ui_modal) => Element;
         export?: EventHandlerNonNull;
         importSettings?: EventHandlerNonNull;
         maximize?: EventHandlerNonNull;
@@ -414,7 +415,7 @@ declare global {
         storage?: (type:storageType) => void;
     }
     interface module_settings {
-        addUserColor?: (agent:string, type:agentType, settingsBody:HTMLElement) => void;
+        addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
         agentColor?: EventHandlerNonNull;
         applyAgentColors?: (agent:string, type:agentType, colors:[string, string]) => void;
         audio?: EventHandlerNonNull;
@@ -422,18 +423,18 @@ declare global {
         colorScheme?: EventHandlerNonNull;
         compressionToggle?: EventHandlerNonNull;
         modal?: EventHandlerNonNull;
-        modalContent?: () => HTMLElement;
+        modalContent?: () => Element;
         styleText?: (input:styleText) => void;
         text?: (event:KeyboardEvent|FocusEvent) => void;
     }
     interface module_share {
         addAgent?: (agentName:string, id:string, type:agentType) => void;
-        content?: (agent:string, agentType:agentType|"") => HTMLElement;
+        content?: (agent:string, agentType:agentType|"") => Element;
         context?: EventHandlerNonNull;
         deleteItem?: EventHandlerNonNull;
         deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
         deleteToggle?: EventHandlerNonNull;
-        deleteUser?: (box:HTMLElement) => void;
+        deleteUser?: (box:Element) => void;
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
         update?: (updateShareConfiguration) => void;
@@ -443,28 +444,27 @@ declare global {
         expand?: EventHandlerNonNull;
         message?: (type:string, content:string, timeStore?:string) => void;
         modal?: EventHandlerNonNull;
-        modalContent?: () => HTMLElement;
+        modalContent?: () => Element;
         tabs?: EventHandlerNonNull;
     }
     interface module_util {
         audio?: (name:string) => void;
         dateFormat?: (date:Date) => string;
-        delay?: () => HTMLElement;
+        delay?: () => Element;
         dragBox?: eventCallback;
-        dragList?: (event:Event, dragBox:HTMLElement) => void;
+        dragList?: (event:Event, dragBox:Element) => void;
         fileListStatus?: (text:string) => void;
         fixHeight?: () => void;
         formKeys?: (event:KeyboardEvent, submit:Function) => void;
-        getAncestor?: (start:HTMLElement, identifier:string, selector:selector) => HTMLElement;
-        getAgent?: (element:HTMLElement) => agency;
+        getAgent?: (element:Element) => agency;
         keys?: (event:KeyboardEvent) => void;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         minimizeAll?: EventHandlerNonNull;
         minimizeAllFlag?: boolean;
-        selectedAddresses?: (element:HTMLElement, type:string) => [string, shareType, string][];
+        selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
         selectExpression?: RegExp;
-        selectNone?:(element:HTMLElement) => void;
+        selectNone?:(element:Element) => void;
     }
     interface navConfig {
         agentName: string;
@@ -474,7 +474,7 @@ declare global {
         readOnly: boolean;
     }
     interface navigate extends EventHandlerNonNull {
-        (Event, config?: navConfig): void;
+        (Event:Event, config?: navConfig): void;
     }
     interface nodeCopyParams {
         callback: Function;
@@ -799,7 +799,7 @@ declare global {
         simulation: testSimulationArray;
     }
     interface textPad extends EventHandlerNonNull {
-        (Event, value?:string, title?:string): void;
+        (Event:Event, value?:string, title?:string): void;
     }
     interface ui_data {
         audio: boolean;
@@ -820,8 +820,8 @@ declare global {
     interface ui_modal {
         agent: string;
         agentType: agentType;
-        content: HTMLElement;
-        focus?: HTMLElement;
+        content: Element;
+        focus?: Element;
         height?: number;
         history?: string[];
         id?: string;

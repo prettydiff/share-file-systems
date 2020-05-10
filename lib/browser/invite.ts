@@ -12,7 +12,7 @@ import deviceShare from "../common/deviceShare.js";
 const invite:module_invite = {};
 
 /* Accept an invitation, handler on a modal's confirm button*/
-invite.accept = function local_invite_accept(box:HTMLElement):void {
+invite.accept = function local_invite_accept(box:Element):void {
     const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
         invitation:invite = JSON.parse(dataString).invite,
@@ -52,8 +52,8 @@ invite.accept = function local_invite_accept(box:HTMLElement):void {
 
 /* Handler for declining an invitation request */
 invite.decline = function local_invite_decline(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        boxLocal:HTMLElement = util.getAncestor(element, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        boxLocal:Element = element.getAncestor("box", "class"),
         para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
         invitation:invite = JSON.parse(dataString).invite,
@@ -82,10 +82,10 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
 
 /* Removes form validation warnings for an unselected radio button set in the invite messaging. */
 invite.removeWarning = function local_invite_removeWarning(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        para:HTMLElement = <HTMLElement>element.parentNode.parentNode,
-        parent:HTMLElement = <HTMLElement>para.parentNode,
-        warning:HTMLElement = <HTMLElement>parent.getElementsByClassName("inviteWarning")[0],
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        para:Element = <Element>element.parentNode.parentNode,
+        parent:Element = <Element>para.parentNode,
+        warning:Element = parent.getElementsByClassName("inviteWarning")[0],
         inputs:HTMLCollectionOf<HTMLInputElement> = para.getElementsByTagName("input");
     let a:number = inputs.length;
     do {
@@ -99,11 +99,11 @@ invite.removeWarning = function local_invite_removeWarning(event:MouseEvent):voi
 /* Basic form validation on the port field */
 invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
     const portElement:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        portParent:HTMLElement = <HTMLElement>portElement.parentNode,
+        portParent:Element = <Element>portElement.parentNode,
         element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
             ? portElement
             : (function local_invite_port_finder():HTMLInputElement {
-                let body:HTMLElement = util.getAncestor(portParent, "body", "class"),
+                let body:Element = portParent.getAncestor("body", "class"),
                     a:number = 0;
                 const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
                     length:number = inputs.length;
@@ -114,7 +114,7 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
                     a = a + 1;
                 } while (a < length);
             }()),
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+        parent:Element = <Element>element.parentNode,
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
     if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
@@ -136,8 +136,8 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
         ip:string,
         port:string,
         portNumber:number;
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
         input:HTMLElement = (function local_invite_request():HTMLElement {
 
             // value attainment and form validation
@@ -149,9 +149,9 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
                     port: -1
                 };
             let a:number = 0,
-                parentNode:HTMLElement;
+                parentNode:Element;
             do {
-                parentNode = <HTMLElement>inputs[a].parentNode;
+                parentNode = <Element>inputs[a].parentNode;
                 if (inputs[a].value === "device" || inputs[a].value === "user") {
                     if (inputs[a].value === "device") {
                         indexes.type = a;
@@ -185,7 +185,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
             }
             return null;
         }()),
-        body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+        body:Element = box.getElementsByClassName("body")[0],
         content:HTMLElement = <HTMLElement>body.getElementsByClassName("inviteUser")[0],
         footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
         inviteData:invite = {
@@ -216,9 +216,9 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
     options.text_value = JSON.stringify(saved);
     network.storage("settings");
     if (input !== null) {
-        const p:HTMLElement = <HTMLElement>input.parentNode.parentNode,
+        const p:Element = <Element>input.parentNode.parentNode,
             inputs:HTMLCollectionOf<HTMLElement> = p.getElementsByTagName("input"),
-            warning:HTMLElement = document.createElement("p");
+            warning:Element = document.createElement("p");
         let a:number = inputs.length;
         p.setAttribute("class", "warning");
         do {
@@ -244,7 +244,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
 invite.respond = function local_invite_respond(message:string):void {
     const invitation:invite = JSON.parse(message).invite;
     if (invitation.status === "invited") {
-        const div:HTMLElement = document.createElement("div"),
+        const div:Element = document.createElement("div"),
             modals:string[] = Object.keys(browser.data.modals),
             length:number = modals.length,
             users:string[] = Object.keys(browser.user),
@@ -280,7 +280,7 @@ invite.respond = function local_invite_respond(message:string):void {
                 width: 500
             };
         let text:HTMLElement = document.createElement("h3"),
-            label:HTMLElement = document.createElement("label"),
+            label:Element = document.createElement("label"),
             textarea:HTMLTextAreaElement = document.createElement("textarea"),
             a:number = 0;
         // if the user or device is already added then respond automatically.
@@ -318,7 +318,7 @@ invite.respond = function local_invite_respond(message:string):void {
         modal.create(payloadModal);
         util.audio("invite");
     } else {
-        const modal:HTMLElement = document.getElementById(invitation.modal);
+        const modal:Element = document.getElementById(invitation.modal);
         if (modal === null) {
             if (invitation.status === "accepted") {
                 browser[invitation.type][invitation.deviceHash] = {
@@ -331,11 +331,11 @@ invite.respond = function local_invite_respond(message:string):void {
                 share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
             }
         } else {
-            const error:HTMLElement = <HTMLElement>modal.getElementsByClassName("error")[0],
+            const error:Element = modal.getElementsByClassName("error")[0],
                 delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
                 footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
                 inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                prepOutput = function local_invite_respond_prepOutput(output:HTMLElement):void {
+                prepOutput = function local_invite_respond_prepOutput(output:Element):void {
                     if (invitation.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
@@ -358,7 +358,7 @@ invite.respond = function local_invite_respond(message:string):void {
             delay.style.display = "none";
             inviteUser.style.display = "block";
             if (error === null || error === undefined) {
-                const p:HTMLElement = document.createElement("p");
+                const p:Element = document.createElement("p");
                 prepOutput(p);
                 modal.getElementsByClassName("inviteUser")[0].appendChild(p);
             } else {
@@ -370,12 +370,12 @@ invite.respond = function local_invite_respond(message:string):void {
 
 /* Invite users to your shared space */
 invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal):void {
-    const inviteElement:HTMLElement = document.createElement("div"),
+    const inviteElement:Element = document.createElement("div"),
         separator:string = "|spaces|",
         random:string = Math.random().toString(),
         blur = function local_invite_start_blur(event:FocusEvent):void {
-            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                box:HTMLElement = util.getAncestor(element, "box", "class"),
+            const element:Element = <Element>event.srcElement || <Element>event.target,
+                box:Element = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
@@ -386,12 +386,12 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
         saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
             ? JSON.parse(settings.text_value)
             : null;
-    let p:HTMLElement = document.createElement("p"),
-        label:HTMLElement = document.createElement("label"),
+    let p:Element = document.createElement("p"),
+        label:Element = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
         text:HTMLTextAreaElement = document.createElement("textarea"),
-        h3:HTMLElement = document.createElement("h3"),
-        section:HTMLElement = document.createElement("div");
+        h3:Element = document.createElement("h3"),
+        section:Element = document.createElement("div");
 
     // Type
     h3.innerHTML = "Connection Type";

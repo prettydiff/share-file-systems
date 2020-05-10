@@ -10,13 +10,13 @@ import agents from "../common/agents.js";
 const settings:module_settings = {};
 
 /* Add agent color options to the settings menu */
-settings.addUserColor = function local_settings_addUserColor(agent:string, type:agentType, settingsBody:HTMLElement) {
-    const ul:HTMLElement = <HTMLElement>settingsBody.getElementsByClassName(`${type}-color-list`)[0],
-        li:HTMLElement = document.createElement("li"),
-        p:HTMLElement = document.createElement("p"),
+settings.addUserColor = function local_settings_addUserColor(agent:string, type:agentType, settingsBody:Element):void {
+    const ul:Element = settingsBody.getElementsByClassName(`${type}-color-list`)[0],
+        li:Element = document.createElement("li"),
+        p:Element = document.createElement("p"),
         agentColor:[string, string] = browser.data.colors[type][agent];
     let span:HTMLElement,
-        label:HTMLElement,
+        label:Element,
         input:HTMLInputElement,
         text:Text;
     p.innerHTML = browser[type][agent].name;
@@ -61,11 +61,11 @@ settings.agentColor = function local_settings_modal(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
         color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
-        parent:HTMLElement = <HTMLElement>element.parentNode;
+        parent:Element = <Element>element.parentNode;
     if (colorTest.test(color) === true) {
         if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
-            const item:HTMLElement = <HTMLElement>parent.parentNode,
-                ancestor:HTMLElement = util.getAncestor(element, "ul", "tag"),
+            const item:Element = <Element>parent.parentNode,
+                ancestor:Element = element.getAncestor("ul", "tag"),
                 type:agentType = <agentType>ancestor.getAttribute("class").split("-")[0],
                 agent:string = item.getAttribute("data-agent"),
                 swatch:HTMLElement = <HTMLElement>parent.getElementsByClassName("swatch")[0];
@@ -192,7 +192,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
             }
         },
         perAgentType: function local_settings_colorScheme_perAgent(agentNames) {
-            const list:HTMLElement = <HTMLElement>document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
+            const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
             if (list === undefined) {
                 agentColors = null;
             } else {
@@ -206,7 +206,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
 /* Shows and hides additional textual information about compression */
 settings.compressionToggle = function local_settings_compressionToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+        parent:Element = <Element>element.parentNode,
         info:HTMLElement = <HTMLElement>parent.getElementsByClassName("compression-details")[0];
     if (info.style.display === "none") {
         info.style.display = "block";
@@ -229,19 +229,19 @@ settings.modal = function local_settings_modal(event:MouseEvent):void {
 };
 
 /* The content of the settings modal */
-settings.modalContent = function local_settings_modalContent():HTMLElement {
-    const settingsBody:HTMLElement = document.createElement("div"),
+settings.modalContent = function local_settings_modalContent():Element {
+    const settingsBody:Element = document.createElement("div"),
         random:string = Math.random().toString(),
-        createSection = function local_settings_modalContent(title:string):HTMLElement {
-            const container:HTMLElement = document.createElement("div"),
-                h3:HTMLElement = document.createElement("h3");
+        createSection = function local_settings_modalContent(title:string):Element {
+            const container:Element = document.createElement("div"),
+                h3:Element = document.createElement("h3");
             container.setAttribute("class", "section");
             h3.innerHTML = title;
             container.appendChild(h3);
             return container;
         },
         perAgentType = function local_settings_modalContent_perAgentType(agentNames:agentNames):void {
-            const ul:HTMLElement = document.createElement("ul");
+            const ul:Element = document.createElement("ul");
             section = createSection(`◩ ${agentNames.agentType.charAt(0).toUpperCase() + agentNames.agentType.slice(1)} Color Definitions`);
             p = document.createElement("p");
             p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
@@ -250,11 +250,11 @@ settings.modalContent = function local_settings_modalContent():HTMLElement {
             section.appendChild(ul);
             settingsBody.appendChild(section);
         };
-    let section:HTMLElement,
+    let section:Element,
         p:HTMLElement = document.createElement("p"),
         select:HTMLElement,
         option:HTMLOptionElement,
-        label:HTMLElement = document.createElement("label"),
+        label:Element = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
         button:HTMLElement = document.createElement("button"),
         text:Text = document.createTextNode("Compression level. Accepted values are 0 - 11");
@@ -421,7 +421,7 @@ settings.text = function local_settings_text(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
     if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.keyCode === 13))) {
         const numb:number = Number(element.value),
-            parent:HTMLElement = <HTMLElement>element.parentNode,
+            parent:Element = <Element>element.parentNode,
             parentText:string = parent.innerHTML.toLowerCase();
         if (parentText.indexOf("brotli") > 0) {
             if (isNaN(numb) === true || numb < 0 || numb > 11) {

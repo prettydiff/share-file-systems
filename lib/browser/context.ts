@@ -17,11 +17,12 @@ let clipboard:string = "";
 /* Handler for file system artifact copy */
 context.copy = function local_context_copy(event:MouseEvent):void {
     const addresses:string[] = [],
-        element:HTMLElement = (context.element.nodeName.toLowerCase() === "li")
+        element:Element = (context.element.nodeName.toLowerCase() === "li")
             ? context.element
-            : <HTMLElement>context.element.parentNode,
-        box:HTMLElement = util.getAncestor(<HTMLElement>element.parentNode, "box", "class"),
-        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            : <Element>context.element.parentNode,
+        parent:Element = <Element>element.parentNode,
+        box:Element = parent.getAncestor("box", "class"),
+        contextElement:Element = <Element>event.srcElement || <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Copy") === 0)
@@ -58,8 +59,8 @@ context.copy = function local_context_copy(event:MouseEvent):void {
 
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent):void {
-    const element:HTMLElement = context.element,
-        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = context.element,
+        contextElement:Element = <Element>event.srcElement || <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Base64") === 0)
@@ -68,7 +69,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                     ? "Edit"
                     : "Hash",
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         length:number = addresses.length,
         agency:agency = util.getAgent(box),
         payloadNetwork:fileService = {
@@ -106,7 +107,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                 length:number = data.length;
             let a:number = 0,
                 textArea:HTMLTextAreaElement,
-                modalResult:HTMLElement,
+                modalResult:Element,
                 body:HTMLElement,
                 heading:HTMLElement;
             do {
@@ -133,8 +134,8 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             network.storage("settings");
         };
     let a:number = 0,
-        delay:HTMLElement,
-        modalInstance:HTMLElement;
+        delay:Element,
+        modalInstance:Element;
     do {
         if (addresses[a][1] === "file") {
             delay = util.delay();
@@ -154,9 +155,9 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
 
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function local_context_destroy():void {
-    let element:HTMLElement = context.element,
+    let element:Element = context.element,
         selected:[string, shareType, string][],
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         agency:agency = util.getAgent(element),
         payload:fileService = {
             action: "fs-destroy",
@@ -190,8 +191,8 @@ context.destroy = function local_context_destroy():void {
 
 /* Handler for details action of context menu */
 context.details = function local_context_details(event:MouseEvent):void {
-    const element:HTMLElement = context.element,
-        div:HTMLElement = util.delay(),
+    const element:Element = context.element,
+        div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
         payloadModal:ui_modal = {
@@ -208,7 +209,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             type: "details",
             width: 500
         },
-        modalInstance:HTMLElement = modal.create(payloadModal),
+        modalInstance:Element = modal.create(payloadModal),
         id:string = modalInstance.getAttribute("id"),
         payloadNetwork:fileService = {
             action: "fs-details",
@@ -237,7 +238,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                     ? []
                     : payload.dirs,
                 fileList:directoryList = [],
-                body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
+                body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
                 details:fsDetails = {
                     size: 0,
@@ -245,14 +246,14 @@ context.details = function local_context_details(event:MouseEvent):void {
                     directories: 0,
                     links: 0
                 },
-                output:HTMLElement = document.createElement("div");
+                output:Element = document.createElement("div");
             let a:number = 0,
-                tr:HTMLElement,
+                tr:Element,
                 td:HTMLElement,
                 stat:Stats,
-                heading:HTMLElement = document.createElement("h3"),
+                heading:Element = document.createElement("h3"),
                 table:HTMLElement = document.createElement("table"),
-                tbody:HTMLElement = document.createElement("tbody"),
+                tbody:Element = document.createElement("tbody"),
                 mTime:Date,
                 aTime:Date,
                 cTime:Date;
@@ -425,21 +426,21 @@ context.detailsList = function local_context_detailsList(event:MouseEvent) {
         title:string = (sortType === "size")
             ? "Largest"
             : "Most Recent",
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+        parent:Element = <Element>element.parentNode,
         table:HTMLElement = (function local_context_details_refinement_table():HTMLElement {
-            let el:HTMLElement = parent;
+            let el:Element = parent;
             do {
-                el = <HTMLElement>el.nextSibling;
+                el = <Element>el.nextSibling;
             } while (el.nodeName.toLowerCase() !== "table");
-            return el;
+            return <HTMLElement>el;
         }()),
-        tbody:HTMLElement = <HTMLElement>table.firstChild,
+        tbody:Element = <Element>table.firstChild,
         p:HTMLElement = <HTMLElement>table.previousSibling,
         data:directoryList = JSON.parse(element.nonce),
         dataLength:number = data.length;
     let a:number = 0,
-        tr:HTMLElement,
-        td:HTMLElement,
+        tr:Element,
+        td:Element,
         stat:Stats;
     p.innerHTML = `Top ${dataLength} ${title} Files`;
     tbody.innerHTML = "";
@@ -471,14 +472,15 @@ context.element = null;
 
 /* Handler for creating new directories */
 context.fsNew = function local_context_fsNew(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
             // 13 is enter
             const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
-                actionParent:HTMLElement = <HTMLElement>actionElement.parentNode;
+                actionParent:Element = <Element>actionElement.parentNode;
             if (actionEvent.keyCode === 13) {
                 const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
-                    id:string = util.getAncestor(<HTMLElement>actionElement.parentNode, "box", "class").getAttribute("id"),
+                    parent:Element = <Element>actionElement.parentNode,
+                    id:string = parent.getAncestor("box", "class").getAttribute("id"),
                     agency:agency = util.getAgent(actionElement),
                     payload:fileService = {
                         action: "fs-new",
@@ -502,7 +504,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             } else {
                 // 27 is escape
                 if (actionEvent.keyCode === 27) {
-                    const list:HTMLElement = util.getAncestor(actionElement, "fileList", "class"),
+                    const list:Element = actionElement.getAncestor("fileList", "class"),
                         input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
                     list.removeChild(actionParent.parentNode.parentNode);
                     input.focus();
@@ -516,9 +518,9 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
             if (actionEvent.type === "blur" && value.replace(/\s+/, "") !== "") {
                 if (value.replace(/\s+/, "") !== "") {
-                    const actionParent:HTMLElement = <HTMLElement>actionElement.parentNode,
+                    const actionParent:Element = <Element>actionElement.parentNode,
                         agency:agency = util.getAgent(actionElement),
-                        id:string = util.getAncestor(<HTMLElement>actionElement.parentNode, "box", "class").getAttribute("id"),
+                        id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
                         payload:fileService = {
                             action: "fs-new",
                             agent: agency[0],
@@ -545,7 +547,8 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 input:HTMLInputElement = document.createElement("input"),
                 field:HTMLInputElement = document.createElement("input"),
                 text:HTMLElement = document.createElement("label"),
-                box = util.getAncestor(<HTMLElement>context.element.parentNode, "box", "class"),
+                parent:Element = <Element>context.element.parentNode,
+                box = parent.getAncestor("box", "class"),
                 type:contextType = (context.type !== "")
                     ? context.type
                     : (element.innerHTML.indexOf("New File") === 0)
@@ -600,17 +603,17 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
 
 /* Creates context menu */
 context.menu = function local_context_menu(event:MouseEvent):void {
-    const itemList:HTMLElement[] = [],
+    const itemList:Element[] = [],
         menu:HTMLElement = document.createElement("ul"),
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
             : "CTRL";
-    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    let element:Element = <Element>event.srcElement || <Element>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
-        parent:HTMLElement = <HTMLElement>element.parentNode,
-        item:HTMLElement,
+        parent:Element = <Element>element.parentNode,
+        item:Element,
         button:HTMLButtonElement,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
@@ -638,7 +641,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             destroy: function local_context_menu_destroy():void {
-                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
+                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -711,7 +714,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             rename: function local_context_menu_rename():void {
-                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
+                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -740,8 +743,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         return;
     }
     if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
-        element = <HTMLElement>element.parentNode;
-        parent = <HTMLElement>parent.parentNode;
+        element = <Element>element.parentNode;
+        parent = <Element>parent.parentNode;
         nodeName = element.nodeName.toLowerCase();
     }
     context.element = element;
@@ -822,7 +825,7 @@ context.menuRemove = function local_context_menuRemove():void {
 
 /* Prepare the network action to write files */
 context.paste = function local_context_paste():void {
-    const element:HTMLElement = util.getAncestor(context.element, "box", "class"),
+    const element:Element = context.element.getAncestor("box", "class"),
         destination:string = element.getElementsByTagName("input")[0].value,
         clipData:clipboard = JSON.parse(clipboard),
         payload:fileService = {

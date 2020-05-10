@@ -37,16 +37,16 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
             });
         },
         sharesModal = function local_share_addUser_sharesModal(event:MouseEvent) {
-            let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+            let element:Element = <Element>event.srcElement || <Element>event.target,
                 agent:string = element.getAttribute("id"),
                 agentType:agentType = <agentType>element.getAttribute("data-agent-type");
-            element = util.getAncestor(element, "button", "tag");
+            element = element.getAncestor("button", "tag");
             share.modal(agent, agentType, null);
         },
         modals:string[] = Object.keys(browser.data.modals),
         length: number = modals.length;
     let a:number = 0,
-        shareUser:HTMLElement;
+        shareUser:Element;
     button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
     if (userHash === browser.data.hashDevice) {
         button.setAttribute("class", "active");
@@ -60,10 +60,10 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
     li.appendChild(button);
     document.getElementById(type).getElementsByTagName("ul")[0].appendChild(li);
     if (browser.loadTest === false) {
-        settings.addUserColor(userHash, type, <HTMLElement>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
+        settings.addUserColor(userHash, type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         do {
             if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
-                const agentList:HTMLElement = <HTMLElement>document.getElementById(modals[a]).getElementsByClassName("agentList")[0];
+                const agentList:Element = <Element>document.getElementById(modals[a]).getElementsByClassName("agentList")[0];
                 if (agentList !== undefined) {
                     shareUser = document.createElement("li");
                     shareUser.appendChild(share.content(userHash, type));
@@ -77,15 +77,15 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
 };
 
 /* Generate the content of a share modal */
-share.content = function local_share_content(agentName:string, agentType:agentType|""):HTMLElement {
+share.content = function local_share_content(agentName:string, agentType:agentType|""):Element {
     if (agentName === undefined) {
         return document.getElementById("systems-modal");
     }
 
-    const lists:HTMLElement = document.createElement("div"),
+    const lists:Element = document.createElement("div"),
         fileNavigate = function local_share_content_fileNavigate(event:MouseEvent):void {
-            const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-                list:HTMLElement = <HTMLElement>element.parentNode.parentNode.parentNode,
+            const element:Element = <Element>event.srcElement || <Element>event.target,
+                list:Element = <Element>element.parentNode.parentNode.parentNode,
                 agentType:agentType = <agentType>list.getAttribute("id"),
                 path:string = element.firstChild.textContent,
                 type:string = element.getAttribute("class"),
@@ -111,14 +111,14 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 readOnly: (agent !== browser.data.hashDevice && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
             });
         };
-    let agentTypeUL:HTMLElement,
-        shareListUL:HTMLElement;
+    let agentTypeUL:Element,
+        shareListUL:Element;
 
     agents({
         countBy: "share",
         perAgent: function local_share_content_perAgent(agentNames:agentNames):void {
-            const li:HTMLElement = document.createElement("li"),
-                title:HTMLElement = document.createElement("h4");
+            const li:Element = document.createElement("li"),
+                title:Element = document.createElement("h4");
             shareListUL = document.createElement("ul");
             title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
             li.appendChild(title);
@@ -127,7 +127,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
                 li.appendChild(shareListUL);
             } else {
-                const p:HTMLElement = document.createElement("p");
+                const p:Element = document.createElement("p");
                 p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
                 li.appendChild(p);
             }
@@ -137,7 +137,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             const type:agentType = agentNames.agentType;
             agentTypeUL = document.createElement("ul");
             if (agentName === "" && (agentType === "" || agentType === type)) {
-                const title:HTMLElement = document.createElement("h3"),
+                const title:Element = document.createElement("h3"),
                     list:string[] = Object.keys(browser[type]),
                     listLength:number = list.length;
                 if (listLength > 0) {
@@ -155,9 +155,9 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             }
         },
         perShare: function local_share_content_perShare(agentNames:agentNames):void {
-            const li:HTMLElement = document.createElement("li"),
+            const li:Element = document.createElement("li"),
                 button:HTMLElement = document.createElement("button"),
-                status:HTMLElement = document.createElement("strong"),
+                status:Element = document.createElement("strong"),
                 shareItem:deviceShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                 shareType:string = shareItem.type;
             button.setAttribute("class", agentNames.agentType);
@@ -174,7 +174,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             if (agentNames.agentType === "device") {
                 const del:HTMLElement = document.createElement("button"),
                     readOnly:HTMLButtonElement = document.createElement("button"),
-                    span:HTMLElement = document.createElement("span");
+                    span:Element = document.createElement("span");
                 if (shareItem.readOnly === true) {
                     li.setAttribute("class", "share");
                     readOnly.setAttribute("class", "grant-full-access");
@@ -209,13 +209,13 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
 
 /* Share utility for the context menu list */
 share.context = function local_share_context():void {
-    const element:HTMLElement = context.element,
+    const element:Element = context.element,
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
         deviceData:deviceShares = browser.device[addresses[0][2]].shares,
         shares:string[] = Object.keys(deviceData),
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         agent:agency = util.getAgent(box),
         payload: hashShareConfiguration = {
             callback: function local_share_context_shareHash(responseBody:string):void {
@@ -274,9 +274,9 @@ share.context = function local_share_context():void {
 
 /* Delete a share from a device */
 share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         agent:agency = util.getAgent(element),
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+        parent:Element = <Element>element.parentNode,
         address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
         shares:deviceShares = browser.device[agent[0]].shares,
         keys:string[] = Object.keys(shares),
@@ -290,8 +290,8 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
         a = a + 1;
     } while (a < length);
     if (length === 1) {
-        const p:HTMLElement = document.createElement("p"),
-            granny:HTMLElement = <HTMLElement>parent.parentNode;
+        const p:Element = document.createElement("p"),
+            granny:Element = <Element>parent.parentNode;
         p.innerHTML = `Device <em>${browser.device[agent[0]].name}</em> has no shares.`;
         granny.parentNode.appendChild(p);
         granny.parentNode.removeChild(granny);
@@ -304,9 +304,9 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
 
 /* Creates a confirmation modal listing users for deletion */
 share.deleteList = function local_share_deleteList(event:MouseEvent, configuration?:ui_modal):void {
-    const content:HTMLElement = document.createElement("div"),
-        p:HTMLElement = document.createElement("p"),
-        ul:HTMLElement = document.createElement("ul"),
+    const content:Element = document.createElement("div"),
+        p:Element = document.createElement("p"),
+        ul:Element = document.createElement("ul"),
         users:devices = browser.user,
         names:string[] = Object.keys(users),
         length:number = names.length,
@@ -323,10 +323,10 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
             type: "share_delete",
             width: 750
         };
-    let li:HTMLElement,
+    let li:Element,
         a:number = 0,
         input:HTMLInputElement,
-        label:HTMLElement,
+        label:Element,
         text:Text;
     p.setAttribute("class", "summary");
     if (length > 0) {
@@ -374,7 +374,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
 /* Changes visual state of items in the shares delete list as they are checked or unchecked*/
 share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        label:HTMLElement = <HTMLElement>element.parentNode;
+        label:Element = <Element>element.parentNode;
     if (element.checked === true) {
         label.setAttribute("class", "checked");
     } else {
@@ -383,22 +383,22 @@ share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
 };
 
 /* Terminates one or more users */
-share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
-    const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+share.deleteUser = function local_shares_deleteUser(box:Element):void {
+    const body:Element = box.getElementsByClassName("body")[0],
         agentType:agentType = <agentType>box.getAttribute("data-agentType"),
-        list:HTMLCollectionOf<HTMLElement> = body.getElementsByTagName("li"),
-        agents:HTMLCollectionOf<HTMLElement> = document.getElementById(agentType).getElementsByTagName("li"),
+        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
+        agents:HTMLCollectionOf<Element> = document.getElementById(agentType).getElementsByTagName("li"),
         names:string[] = [],
         modals:string[] = Object.keys(browser.data.modals),
         modalsLength:number = modals.length,
-        userColors:HTMLCollectionOf<HTMLElement> = document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0].getElementsByTagName("li");
+        userColors:HTMLCollectionOf<Element> = document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0].getElementsByTagName("li");
     let a:number = list.length,
         agentsLength:number = agents.length,
         b:number = 3,
         c:number,
         text:string,
         length:number,
-        h3:HTMLCollectionOf<HTMLElement>,
+        h3:HTMLCollectionOf<Element>,
         close:HTMLButtonElement,
         colorLength:number = userColors.length;
     do {
@@ -466,7 +466,7 @@ share.deleteUser = function local_shares_deleteUser(box:HTMLElement):void {
 
 /* Displays a list of shared items for each user */
 share.modal = function local_shares_modal(agent:string, agentType:agentType|"", configuration:ui_modal|null):void {
-    const content:HTMLElement = share.content(agent, agentType),
+    const content:Element = share.content(agent, agentType),
         title:string = (agent === "")
             ? (agentType === "")
                 ? "⌘ All Shares"
@@ -500,14 +500,14 @@ share.modal = function local_shares_modal(agent:string, agentType:agentType|"", 
 
 /* Toggle a share between read only and full access */
 share.readOnly = function local_share_readOnly(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        parent:Element = <Element>element.parentNode,
         address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
         agency:agency = util.getAgent(element),
         shares:deviceShares = browser[agency[2]][agency[0]].shares,
         keys:string[] = Object.keys(shares),
         length:number = keys.length,
-        span:HTMLElement = <HTMLElement>parent.getElementsByClassName("read-only-status")[0];
+        span:Element = parent.getElementsByClassName("read-only-status")[0];
     let a:number = 0;
     if (agency[2] !== "device") {
         return;
@@ -543,14 +543,14 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
         b:number = 0,
         shareBest:number = -1,
         shareTop:number = -1,
-        title:HTMLElement,
-        box:HTMLElement,
-        body:HTMLElement,
+        title:Element,
+        box:Element,
+        body:Element,
         titleText:string,
         parentDirectory:HTMLElement,
         back:HTMLElement,
         header:HTMLElement,
-        headings:HTMLCollectionOf<HTMLElement>,
+        headings:HTMLCollectionOf<Element>,
         close:HTMLButtonElement,
         address:string,
         fileShares:boolean = false;
@@ -604,7 +604,7 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
                     } while (b > 0);
                 }
             } else {
-                body = <HTMLElement>box.getElementsByClassName("body")[0];
+                body = box.getElementsByClassName("body")[0];
                 body.innerHTML = "";
                 body.appendChild(share.content(browser.data.modals[modals[a]].agent, browser.data.modals[modals[a]].agentType));
             }
@@ -617,7 +617,7 @@ share.update = function local_share_update(configuration:shareUpdateConfiguratio
                 b = 0;
                 shareBest = -1;
                 shareTop = -1;
-                title = <HTMLElement>box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
+                title = box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
                 titleText = title.innerHTML;
                 parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
                 back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];

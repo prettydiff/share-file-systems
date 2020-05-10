@@ -8,10 +8,10 @@ import share from "./share.js";
 import systems from "./systems.js";
 import util from "./util.js";
 
-const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
+const title:Element = document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
     close = function local_socketClose():void {
-        const device:HTMLElement = document.getElementById(browser.data.hashDevice);
+        const device:Element = document.getElementById(browser.data.hashDevice);
         title.setAttribute("class", "title offline");
         title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
         if (device !== null) {
@@ -44,7 +44,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             },
             error = function local_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
-                    modal:HTMLElement = document.getElementById("systems-modal"),
+                    modal:Element = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
                     payload:string = JSON.stringify(errorData);
                 systems.message("errors", payload, "websocket");
@@ -63,9 +63,9 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 }
                 do {
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.hashDevice) {
-                        const box:HTMLElement = document.getElementById(modalKeys[a]),
-                            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                            list:[HTMLElement, number, string] = fs.list(root, {
+                        const box:Element = document.getElementById(modalKeys[a]),
+                            body:Element = box.getElementsByClassName("body")[0],
+                            list:[Element, number, string] = fs.list(root, {
                                 dirs: fsData,
                                 fail: fsData.failures,
                                 id: modalKeys[a]
@@ -97,7 +97,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             },
             fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
                 const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
-                    list:[HTMLElement, number, string] = fs.list(data.location, {
+                    list:[Element, number, string] = fs.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
                         fail: data.fail
@@ -106,18 +106,18 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     keyLength:number = modalKeys.length;
                 let a:number = 0,
                     modalAgent:string,
-                    body:HTMLElement,
-                    box:HTMLElement,
-                    status:HTMLElement;
+                    body:Element,
+                    box:Element,
+                    status:Element;
                 do {
                     modalAgent = browser.data.modals[modalKeys[a]].agent;
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
                         box = document.getElementById(browser.data.modals[modalKeys[a]].id);
                         if (box !== null) {
-                            body = <HTMLElement>box.getElementsByClassName("body")[0];
+                            body = box.getElementsByClassName("body")[0];
                             body.innerHTML = "";
                             body.appendChild(list[0]);
-                            status = <HTMLElement>box.getElementsByClassName("status-bar")[0];
+                            status = box.getElementsByClassName("status-bar")[0];
                             if (status !== undefined) {
                                 status.getElementsByTagName("p")[0].innerHTML = list[2];
                             }
@@ -131,7 +131,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             },
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
-                    buttons:HTMLCollectionOf<HTMLElement> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
+                    buttons:HTMLCollectionOf<Element> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
                     length:number = (buttons === null)
                         ? 0
                         : buttons.length,
@@ -157,13 +157,13 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             },
             invitation = function local_socketMessage_invite():void {
                 const inviteData:invite = JSON.parse(event.data)["invite-error"],
-                    modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
+                    modal:Element = document.getElementById(inviteData.modal);
                 if (modal === null) {
                     return;
                 }
                 let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
                     content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                    p:HTMLElement = document.createElement("p");
+                    p:Element = document.createElement("p");
                 p.innerHTML = inviteData.message;
                 p.setAttribute("class", "error");
                 content.appendChild(p);
@@ -194,7 +194,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
         }
     },
     open = function local_socketOpen():void {
-        const device:HTMLElement = document.getElementById(browser.data.hashDevice);
+        const device:Element = document.getElementById(browser.data.hashDevice);
         if (device !== null) {
             device.setAttribute("class", "active");
         }

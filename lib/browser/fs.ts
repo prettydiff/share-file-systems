@@ -14,10 +14,10 @@ const fs:module_fs = {};
 
 /* step back through a modal's address history */
 fs.back = function local_fs_back(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
-        header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
+        header:Element = box.getElementsByClassName("header")[0],
         address:HTMLInputElement = <HTMLInputElement>header.getElementsByTagName("input")[0],
         history = browser.data.modals[id].history;
     if (history.length > 1) {
@@ -30,17 +30,17 @@ fs.back = function local_fs_back(event:MouseEvent):void {
 /* navigate into a directory by double click */
 fs.directory = function local_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        li:HTMLElement = (element.nodeName.toLowerCase() === "li")
+        li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
-            : <HTMLElement>element.parentNode,
-        body:HTMLElement = util.getAncestor(li, "body", "class"),
-        box:HTMLElement = <HTMLElement>body.parentNode.parentNode,
+            : <Element>element.parentNode,
+        body:Element = li.getAncestor("body", "class"),
+        box:Element = <Element>body.parentNode.parentNode,
         input:HTMLInputElement = box.getElementsByTagName("input")[0],
         watchValue:string = input.value,
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
         callback = function local_fs_directory_callback(responseText:string):void {
-            const list:[HTMLElement, number, string] = fs.list(path, JSON.parse(responseText));
+            const list:[Element, number, string] = fs.list(path, JSON.parse(responseText));
             body.innerHTML = "";
             body.appendChild(list[0]);
             fs.listFail(list[1], box);
@@ -68,22 +68,22 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
 
 /* drag and drop of selected list items */
 fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        item:HTMLElement = (function local_fs_drag_item():HTMLElement {
-            let el:HTMLElement = element;
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        item:Element = (function local_fs_drag_item():Element {
+            let el:Element = element;
             if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
                 event.preventDefault();
             }
             if (el.nodeName.toLowerCase() === "li") {
                 return el;
             }
-            return util.getAncestor(el, "li", "tag");
+            return el.getAncestor("li", "tag");
         }()),
-        fileList:HTMLElement = (function local_fs_drag_fileList():HTMLElement {
-            let parent:HTMLElement = <HTMLElement>element.parentNode;
+        fileList:Element = (function local_fs_drag_fileList():Element {
+            let parent:Element = <Element>element.parentNode;
             if (parent.parentNode.nodeName.toLowerCase() !== "div") {
                 do {
-                    parent = <HTMLElement>parent.parentNode;
+                    parent = <Element>parent.parentNode;
                 } while (parent !== document.documentElement && parent.parentNode.nodeName.toLowerCase() !== "div");
             }
             return parent;
@@ -118,7 +118,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             }
             let id:string = "";
             const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
-                    const addressList:[string, shareType, string][] = util.selectedAddresses(<HTMLElement>list.firstChild, list.getAttribute("data-state")),
+                    const addressList:[string, shareType, string][] = util.selectedAddresses(<Element>list.firstChild, list.getAttribute("data-state")),
                         output:string[] = [];
                     addressList.forEach(function local_fs_drag_drop_addresses_each(value:[string, shareType, string]) {
                         output.push(value[0]);
@@ -149,7 +149,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                         ulBottom:number,
                         ulRight:number,
                         ulIndex:number,
-                        goal:HTMLElement,
+                        goal:Element,
                         zIndex:number = 0;
                     do {
                         if (ul[a] !== list) {
@@ -166,7 +166,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                                 ulIndex = browser.data.modals[ulBox.getAttribute("id")].zIndex;
                                 if (ulBottom > clientY && ulRight > clientX && ulIndex > zIndex) {
                                     zIndex = ulIndex;
-                                    goal = <HTMLElement>ul[a];
+                                    goal = <Element>ul[a];
                                 }
                             }
                         }
@@ -175,7 +175,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     if (goal === undefined || goal === fileList) {
                         return "";
                     }
-                    goal = util.getAncestor(goal, "box", "class");
+                    goal = goal.getAncestor("box", "class");
                     id = goal.getAttribute("id");
                     return goal.getElementsByTagName("input")[0].value;
                 }()),
@@ -220,10 +220,10 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                 outOfBounds = true;
                 if (init === false) {
                     const checkbox:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
-                        selected:HTMLElement[] = [];
+                        selected:Element[] = [];
                     let a:number = 0,
                         length:number = checkbox.length,
-                        listItem:HTMLElement,
+                        listItem:Element,
                         cut:boolean = true;
                     init = true;
                     list.setAttribute("id", "file-list-drag");
@@ -288,8 +288,8 @@ fs.dragFlag = "";
 
 /* Shows child elements of a directory */
 fs.expand = function local_fs_expand(event:MouseEvent):void {
-    const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = util.getAncestor(button, "box", "class"),
+    const button:Element = <Element>event.srcElement || <Element>event.target,
+        box:Element = button.getAncestor("box", "class"),
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
         const agency:agency = util.getAgent(button),
@@ -306,7 +306,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
                 watch: "no"
             },
             callback = function local_fs_expand_callback(responseText:string) {
-                const list:[HTMLElement, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
+                const list:[Element, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
                 li.appendChild(list[0]);
             };
         button.innerHTML = "-<span>Collapse this folder</span>";
@@ -324,7 +324,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
 };
 
 /* Builds the HTML file list */
-fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement, number, string] {
+fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, number, string] {
     const local:directoryList = [],
         list:directoryList = <directoryList>dirData.dirs,
         length:number = list.length,
@@ -332,7 +332,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         failLength:number = (dirData.fail === undefined)
             ? 0
             : dirData.fail.length,
-        box:HTMLElement = document.getElementById(dirData.id),
+        box:Element = document.getElementById(dirData.id),
         count:[number, number, number, number] = [0, 0, 0, 0],
         plural = function local_fs_list_plural(input:string, quantity:number):string {
             if (quantity === 1) {
@@ -347,7 +347,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
         localLength:number = 0,
         status:string = "";
     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly") {
-        const p:HTMLElement = document.createElement("p");
+        const p:Element = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
             p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
@@ -357,7 +357,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
             p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
         }
         if (box !== null) {
-            const body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0];
+            const body:Element = box.getElementsByClassName("body")[0];
             body.innerHTML = "";
             body.appendChild(p);
         }
@@ -431,10 +431,10 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[HTMLElement
 };
 
 /* Display status information when the Operating system locks files from access */
-fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
-    const statusBar:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
-        p:HTMLElement = statusBar.getElementsByTagName("p")[0],
-        ul:HTMLElement = statusBar.getElementsByTagName("ul")[0],
+fs.listFail = function local_fs_listFail(count:number, box:Element):void {
+    const statusBar:Element = box.getElementsByClassName("status-bar")[0],
+        p:Element = statusBar.getElementsByTagName("p")[0],
+        ul:Element = statusBar.getElementsByTagName("ul")[0],
         filePlural:string = (count === 1)
             ? ""
             : "s";
@@ -450,8 +450,8 @@ fs.listFail = function local_fs_listFail(count:number, box:HTMLElement):void {
 
 /* When clicking on a file list give focus to an input field so that the list can receive focus */
 fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        listItems:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
         inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
             ? listItems[listItems.length - 1].getElementsByTagName("input")
             : null,
@@ -464,7 +464,7 @@ fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
 };
 
 /* Build a single file system object from data */
-fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):HTMLElement {
+fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):Element {
     const driveLetter = function local_fs_listItem_driveLetter(drive:string):string {
             return drive.replace("\\\\", "\\");
         },
@@ -473,7 +473,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         text:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
         mouseOver = function local_fs_listItem_mouseOver(event:MouseEvent):void {
-            const dragBox:HTMLElement = document.getElementById("dragBox"),
+            const dragBox:Element = document.getElementById("dragBox"),
                 element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
             if (dragBox !== null) {
                 if (event.ctrlKey === true) {
@@ -578,7 +578,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                 if (responseText === "") {
                     return;
                 }
-                const files:[HTMLElement, number, string] = fs.list(location, JSON.parse(responseText)),
+                const files:[Element, number, string] = fs.list(location, JSON.parse(responseText)),
                     value:string = files[0].getAttribute("title"),
                     shareName:string = (agentType === "device")
                         ? `Device, ${browser.device[agentName].name}`
@@ -607,11 +607,11 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     return;
                 }
                 const payload:fsRemote = JSON.parse(responseText),
-                    box:HTMLElement = document.getElementById(payload.id),
-                    body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                    files:HTMLElement = (payload.dirs === "missing")
-                        ? (function local_fs_navigate_callbackRemote_missing():HTMLElement {
-                            const p:HTMLElement = document.createElement("p");
+                    box:Element = document.getElementById(payload.id),
+                    body:Element = box.getElementsByClassName("body")[0],
+                    files:Element = (payload.dirs === "missing")
+                        ? (function local_fs_navigate_callbackRemote_missing():Element {
+                            const p:Element = document.createElement("p");
                             p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
                             p.setAttribute("class", "error");
                             return p;
@@ -650,7 +650,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             type: "fileNavigate",
             width: 800
         },
-        box:HTMLElement = modal.create(payloadModal);
+        box:Element = modal.create(payloadModal);
         payloadNetwork.id = box.getAttribute("id");
     }
     network.fs(payloadNetwork, callback);
@@ -658,16 +658,16 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
 
 /* Request file system information of the parent directory */
 fs.parent = function local_fs_parent(event:MouseEvent):boolean {
-    const element:HTMLElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        header:HTMLElement = <HTMLElement>element.parentNode,
+    const element:Element = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+        header:Element = <Element>element.parentNode,
         input:HTMLInputElement = header.getElementsByTagName("input")[0],
         slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
             ? "/"
             : "\\",
         value:string = input.value,
-        bodyParent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
-        body:HTMLElement = <HTMLElement>bodyParent.getElementsByTagName("div")[0],
-        box:HTMLElement = <HTMLElement>bodyParent.parentNode,
+        bodyParent:Element = <Element>element.parentNode.parentNode,
+        body:Element = bodyParent.getElementsByTagName("div")[0],
+        box:Element = <Element>bodyParent.parentNode,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
         payload:fileService = {
@@ -683,7 +683,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
             watch: value
         },
         callback = function local_fs_parent_callback(responseText:string):void {
-            const list:[HTMLElement, number, string] = fs.list(input.value, JSON.parse(responseText));
+            const list:[Element, number, string] = fs.list(input.value, JSON.parse(responseText));
             body.innerHTML = "";
             body.appendChild(list[0]);
             fs.listFail(list[1], box);
@@ -707,12 +707,12 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
 
 /* The front-side of renaming a file system object */
 fs.rename = function local_fs_rename(event:MouseEvent):void {
-    const element:HTMLElement = (context.element === null)
-            ? <HTMLElement>event.srcElement || <HTMLElement>event.target
+    const element:Element = (context.element === null)
+            ? <Element>event.srcElement || <Element>event.target
             : context.element,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         input:HTMLInputElement = document.createElement("input"),
-        li:HTMLElement = util.getAncestor(element, "li", "tag"),
+        li:Element = element.getAncestor("li", "tag"),
         action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.keyCode === 13)) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
@@ -748,7 +748,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                 input.value = input.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
             }
         };
-    let label:HTMLElement,
+    let label:Element,
         slash:"\\" | "/" = "/",
         last:string,
         text:string,
@@ -778,8 +778,8 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 
 /* A service to write file changes to the file system */
 fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
         agency:agency = util.getAgent(box),
         payload:fileService = {
@@ -795,10 +795,10 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
             watch: "no"
         },
         callback = function local_fs_saveFile_callback(message:string):void {
-            const footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-                body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                buttons:HTMLElement = <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
-                pList:HTMLCollectionOf<HTMLElement> = footer.getElementsByTagName("p"),
+            const footer:Element = box.getElementsByClassName("footer")[0],
+                body:Element = box.getElementsByClassName("body")[0],
+                buttons:Element = footer.getElementsByClassName("footer-buttons")[0],
+                pList:HTMLCollectionOf<Element> = footer.getElementsByTagName("p"),
                 p:HTMLElement = document.createElement("p");
             p.innerHTML = message;
             p.setAttribute("class", "message");
@@ -817,11 +817,11 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
         ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
         : searchElement;
     if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
-        const box:HTMLElement = util.getAncestor(element, "box", "class"),
-            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+        const box:Element = element.getAncestor("box", "class"),
+            body:Element = box.getElementsByClassName("body")[0],
             addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
             address:string = addressLabel.getElementsByTagName("input")[0].value,
-            statusBar:HTMLElement = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
+            statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
             value:string = element.value,
             agency:agency = util.getAgent(box),
@@ -913,7 +913,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
 
 /* Expand the search field to a large size when focused */
 fs.searchFocus = function local_fs_searchFocus(event:Event):void {
-    const search:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const search:Element = <Element>event.srcElement || <Element>event.target,
         searchParent:HTMLElement = <HTMLElement>search.parentNode,
         address:HTMLElement = <HTMLElement>searchParent.previousSibling;
     searchParent.style.width = "60%";
@@ -925,14 +925,14 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     event.preventDefault();
     event.stopPropagation();
     context.menuRemove();
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        li:HTMLElement = (element.nodeName.toLowerCase() === "li")
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
-            : <HTMLElement>element.parentNode,
+            : <Element>element.parentNode,
         input:HTMLInputElement = li.getElementsByTagName("input")[0];
     let state:boolean = input.checked,
-        body:HTMLElement = li,
-        box:HTMLElement,
+        body:Element = li,
+        box:Element,
         modalData:ui_modal;
     if (document.getElementById("newFileItem") !== null) {
         return;
@@ -943,8 +943,8 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     }
     input.focus();
     modal.zTop(event);
-    body = util.getAncestor(body, "body", "class");
-    box = <HTMLElement>body.parentNode.parentNode;
+    body = body.getAncestor("body", "class");
+    box = <Element>body.parentNode.parentNode;
     modalData = browser.data.modals[box.getAttribute("id")];
 
     if (document.getElementById("dragBox") !== null) {
@@ -981,7 +981,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
                 }
             };
         let a:number = 0,
-            focus:HTMLElement = browser.data.modals[box.getAttribute("id")].focus,
+            focus:Element = browser.data.modals[box.getAttribute("id")].focus,
             elementIndex:number = -1,
             focusIndex:number = -1,
             listLength:number = liList.length;
@@ -1023,11 +1023,11 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
             inputsLength = inputs.length,
             selected:boolean = (li.getAttribute("class").indexOf("selected") > 0);
         let a:number = 0,
-            item:HTMLElement;
+            item:Element;
         do {
             if (inputs[a].checked === true) {
                 inputs[a].checked = false;
-                item = <HTMLElement>inputs[a].parentNode.parentNode;
+                item = <Element>inputs[a].parentNode.parentNode;
                 item.setAttribute("class", item.getAttribute("class").replace(util.selectExpression, ""));
             }
             a = a + 1;
@@ -1045,8 +1045,8 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
 
 /* Requests file system data from a text field, such as manually typing an address */
 fs.text = function local_fs_text(event:KeyboardEvent):void {
-    let parent:HTMLElement,
-        box:HTMLElement,
+    let parent:Element,
+        box:Element,
         id:string,
         button:boolean = false,
         windows:boolean = false,
@@ -1061,8 +1061,8 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
             return el.getElementsByTagName("input")[0];
         }()),
         watchValue:string = element.value;
-    parent = <HTMLElement>element.parentNode.parentNode.parentNode;
-    box = <HTMLElement>parent.parentNode;
+    parent = <Element>element.parentNode.parentNode.parentNode;
+    box = <Element>parent.parentNode;
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
     if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
@@ -1083,7 +1083,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
                 if (responseText === "") {
                     parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
                 } else {
-                    const list:[HTMLElement, number, string] = fs.list(element.value, JSON.parse(responseText));
+                    const list:[Element, number, string] = fs.list(element.value, JSON.parse(responseText));
                     parent.innerHTML = "";
                     parent.appendChild(list[0]);
                     fs.listFail(list[1], box);

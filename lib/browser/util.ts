@@ -95,9 +95,9 @@ util.dateFormat = function local_util_dateFormat(date:Date):string {
 };
 
 /* Create a div element with a spinner and class name of 'delay' */
-util.delay = function local_util_delay():HTMLElement {
-    const div:HTMLElement = document.createElement("div"),
-        text:HTMLElement = document.createElement("p"),
+util.delay = function local_util_delay():Element {
+    const div:Element = document.createElement("div"),
+        text:Element = document.createElement("p"),
         svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     // cspell:disable
     svg.setAttribute("viewBox", "0 0 57 57");
@@ -114,10 +114,10 @@ util.delay = function local_util_delay():HTMLElement {
 
 /* Drag a selection box to capture a collection of items into a selection */
 util.dragBox = function local_util_dragBox(event:Event, callback:Function):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        list:HTMLElement = util.getAncestor(element, "fileList", "class"),
-        body:HTMLElement = util.getAncestor(list, "body", "class"),
-        box:HTMLElement = util.getAncestor(body, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        list:Element = element.getAncestor("fileList", "class"),
+        body:HTMLElement = <HTMLElement>list.getAncestor("body", "class"),
+        box:HTMLElement = <HTMLElement>body.getAncestor("box", "class"),
         boxTop:number = box.offsetTop,
         boxLeft:number = box.offsetLeft,
         bodyTop:number = body.offsetTop,
@@ -134,7 +134,7 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
         maxLeft:number = boxLeft + bodyLeft - bodyScrollLeft,
         maxRight:number = boxLeft + bodyLeft + bodyWidth - 4,
         drag:HTMLElement = document.createElement("div"),
-        oldDrag:HTMLElement = document.getElementById("dragBox"),
+        oldDrag:Element = document.getElementById("dragBox"),
         touch:boolean      = (event !== null && event.type === "touchstart"),
         mouseEvent = <MouseEvent>event,
         touchEvent = <TouchEvent>event,
@@ -256,8 +256,8 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
 };
 
 /* Selects list items in response to drawing a drag box */
-util.dragList = function local_util_dragList(event:MouseEvent, dragBox:HTMLElement):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+util.dragList = function local_util_dragList(event:MouseEvent, dragBox:Element):void {
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
         length:number = li.length,
         perimeter = function local_util_dragList_perimeter(node:HTMLElement):perimeter {
@@ -269,7 +269,7 @@ util.dragList = function local_util_dragList(event:MouseEvent, dragBox:HTMLEleme
             };
         },
         liLocation:perimeter[] = [],
-        dragArea:perimeter = perimeter(dragBox);
+        dragArea:perimeter = perimeter(<HTMLElement>dragBox);
     let a:number = 0,
         first:number = 0,
         last:number = 0;
@@ -350,13 +350,13 @@ util.dragList = function local_util_dragList(event:MouseEvent, dragBox:HTMLEleme
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function local_util_fileListStatus(text:string):void {
     const data:copyStatus = JSON.parse(text),
-        modals:HTMLElement[] = (data.target.indexOf("remote-") === 0)
+        modals:Element[] = (data.target.indexOf("remote-") === 0)
             ? [document.getElementById(data.target.replace("remote-", ""))]
-            : (function local_util_fileListStatus_modals():HTMLElement[] {
+            : (function local_util_fileListStatus_modals():Element[] {
                 const names:string[] = Object.keys(browser.data.modals),
                     address:string = data.target.replace("local-", ""),
                     namesLength:number = names.length,
-                    output:HTMLElement[] = [];
+                    output:Element[] = [];
                 let b:number = 0;
                 do {
                     if (browser.data.modals[names[b]].text_value === address) {
@@ -367,17 +367,17 @@ util.fileListStatus = function local_util_fileListStatus(text:string):void {
                 return output;
             }()),
         failLength:number = Math.min(10, data.failures.length),
-        fails:HTMLElement = document.createElement("ul"),
+        fails:Element = document.createElement("ul"),
         length:number = modals.length;
-    let statusBar:HTMLElement,
-        list:HTMLElement,
-        p:HTMLElement,
-        clone:HTMLElement,
+    let statusBar:Element,
+        list:Element,
+        p:Element,
+        clone:Element,
         a:number = 0;
     if (length > 0) {
         if (failLength > 0) {
             let b:number = 0,
-                li:HTMLElement;
+                li:Element;
             do {
                 li = document.createElement("li");
                 li.innerHTML = data.failures[b];
@@ -421,8 +421,8 @@ util.fixHeight = function local_util_fixHeight():void {
 util.formKeys = function local_util_login(event:KeyboardEvent, submit:Function):void {
     const key:string = event.key;
     if (key === "Enter") {
-        const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-            div:HTMLElement = util.getAncestor(element, "div", "tag"),
+        const element:Element = <Element>event.srcElement || <Element>event.target,
+            div:Element = element.getAncestor("div", "tag"),
             inputs:HTMLCollectionOf<HTMLInputElement> = div.getElementsByTagName("input"),
             length:number = inputs.length;
         let a:number = 0;
@@ -437,48 +437,13 @@ util.formKeys = function local_util_login(event:KeyboardEvent, submit:Function):
     }
 };
 
-/* Gets a node higher in the tree */
-util.getAncestor = function local_util_getAncestor(start:HTMLElement, identifier:string, selector:selector):HTMLElement {
-    if (start === null || start === undefined) {
-        return null;
-    }
-    const test = function local_util_getAncestor_test():boolean {
-        if (selector === "class") {
-            if (start.getAttribute("class") === identifier) {
-                return true;
-            }
-            return false;
-        }
-        if (selector === "id") {
-            if (start.getAttribute("id") === identifier) {
-                return true;
-            }
-            return false;
-        }
-        if (start.nodeName.toLowerCase() === identifier) {
-            return true;
-        }
-        return false;
-    };
-    if (test() === true) {
-        return start;
-    }
-    do {
-        start = <HTMLElement>start.parentNode;
-        if (start === null) {
-            return null;
-        }
-    } while (start !== document.documentElement && test() === false);
-    return start;
-};
-
 /* Get the agent of a given modal */
-util.getAgent = function local_util_getAgent(element:HTMLElement):agency {
-    const box:HTMLElement = util.getAncestor(element, "box", "class"),
+util.getAgent = function local_util_getAgent(element:Element):agency {
+    const box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id");
     let agent:string = browser.data.modals[id].agent;
     if (agent === "" && browser.data.modals[id].type === "shares") {
-        const ancestor = util.getAncestor(element, "agent", "class");
+        const ancestor = element.getAncestor("agent", "class");
         agent = ancestor.getAttribute("data-hash");
     }
     return [agent, browser.data.modals[id].read_only, browser.data.modals[id].agentType];
@@ -487,12 +452,12 @@ util.getAgent = function local_util_getAgent(element:HTMLElement):agency {
 /* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
     const key:string = event.key,
-        element:HTMLElement = (function local_util_keys_element():HTMLElement {
-            let el:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+        element:Element = (function local_util_keys_element():Element {
+            let el:Element = <Element>event.srcElement || <Element>event.target;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }
-            return util.getAncestor(el, "li", "tag");
+            return el.getAncestor("li", "tag");
         }());
     if (key === "F5" || key === "f5" || (event.ctrlKey === true && (key === "r" || key === "R"))) {
         location.reload();
@@ -547,10 +512,10 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     } else if (event.ctrlKey === true) {
         if (key === "a" || key === "A") {
             // key a, select all
-            const list:HTMLElement = (element.nodeName.toLowerCase() === "ul")
+            const list:Element = (element.nodeName.toLowerCase() === "ul")
                     ? element
-                    : <HTMLElement>element.parentNode,
-                items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
+                    : <Element>element.parentNode,
+                items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
                 length:number = items.length;
             let a:number = 0;
             do {
@@ -619,21 +584,21 @@ util.minimizeAll = function local_util_minimizeAll() {
 util.minimizeAllFlag = false;
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
-util.selectedAddresses = function local_util_selectedAddresses(element:HTMLElement, type:string):[string, shareType, string][] {
+util.selectedAddresses = function local_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
     const output:[string, shareType, string][] = [],
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+        parent:Element = <Element>element.parentNode,
         agent:string = util.getAgent(element)[0],
         drag:boolean = (parent.getAttribute("id") === "file-list-drag");
     let a:number = 0,
         length:number = 0,
-        itemList:HTMLCollectionOf<HTMLElement>,
-        box:HTMLElement,
+        itemList:HTMLCollectionOf<Element>,
+        box:Element,
         dataModal:ui_modal,
-        addressItem:HTMLElement;
+        addressItem:Element;
     if (element.nodeName.toLowerCase() !== "li") {
-        element = <HTMLElement>element.parentNode;
+        element = <Element>element.parentNode;
     }
-    box = util.getAncestor(element, "box", "class");
+    box = element.getAncestor("box", "class");
     dataModal = browser.data.modals[box.getAttribute("id")];
     itemList = (drag === true)
         ? parent.getElementsByTagName("li")
@@ -642,8 +607,8 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
     do {
         if (itemList[a].getElementsByTagName("input")[0].checked === true) {
             addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
-                ? <HTMLElement>itemList[a].firstChild.nextSibling
-                : <HTMLElement>itemList[a].firstChild;
+                ? <Element>itemList[a].firstChild.nextSibling
+                : <Element>itemList[a].firstChild;
             output.push([addressItem.innerHTML, <shareType>itemList[a].getAttribute("class").replace(util.selectExpression, ""), agent]);
             if (type === "cut") {
                 itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, " cut"));
@@ -673,17 +638,17 @@ util.selectedAddresses = function local_util_selectedAddresses(element:HTMLEleme
 util.selectExpression = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
-util.selectNone = function local_util_selectNone(element:HTMLElement):void {
-    const box:HTMLElement = util.getAncestor(element, "box", "class");
+util.selectNone = function local_util_selectNone(element:Element):void {
+    const box:Element = element.getAncestor("box", "class");
     let a:number = 0,
         inputLength:number,
-        li:HTMLCollectionOf<HTMLElement>,
+        li:HTMLCollectionOf<Element>,
         inputs:HTMLCollectionOf<HTMLInputElement>,
-        fileList:HTMLElement;
+        fileList:Element;
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
-    fileList = <HTMLElement>box.getElementsByClassName("fileList")[0];
+    fileList = <Element>box.getElementsByClassName("fileList")[0];
     inputs = fileList.getElementsByTagName("input");
     li = fileList.getElementsByTagName("li");
     inputLength = inputs.length;

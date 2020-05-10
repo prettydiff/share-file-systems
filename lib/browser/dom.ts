@@ -1,11 +1,65 @@
 
-/* lib/browser/getNodesByType - An extension for the DOM to request descendant nodes by node type. */
-const getNodesByType = function local_getNodesByType():void {
-    const typeFunction = function local_getNodesByType_typeFunction(typeValue:string|number):Node[] {
+/* lib/browser/dom - Extensions to the DOM to provide navigational function not present from the standard methods */
+const dom = function local_dom():void {
+    const getAncestor = function local_dom_getAncestor(identifier:string, selector:selector):Element {
+            // eslint-disable-next-line
+            let start:Element = (this === document) ? document.documentElement : this;
+            const test = function local_dom_getAncestor_test():boolean {
+                    if (selector === "class") {
+                        if (start.getAttribute("class") === identifier) {
+                            return true;
+                        }
+                        return false;
+                    }
+                    if (selector === "id") {
+                        if (start.getAttribute("id") === identifier) {
+                            return true;
+                        }
+                        return false;
+                    }
+                    if (start.nodeName.toLowerCase() === identifier) {
+                        return true;
+                    }
+                    return false;
+                };
+            if (start === null || start === undefined) {
+                return null;
+            }
+            if (start === document.documentElement || test() === true) {
+                return start;
+            }
+            do {
+                start = <Element>start.parentNode;
+                if (start === null) {
+                    return null;
+                }
+            } while (start !== document.documentElement && test() === false);
+            return start;
+        },
+        getElementsByAttribute = function local_dom_getElementsByAttribute(name:string, value:string):Element[] {
+            // eslint-disable-next-line
+            const attrs:Attr[] = this.typeFunction(2),
+                out:Element[]   = [];
+            if (typeof name !== "string") {
+                name = "";
+            }
+            if (typeof value !== "string") {
+                value = "";
+            }
+            attrs.forEach(function local_dom_getElementsByAttribute_loop(item) {
+                if (item.name === name || name === "") {
+                    if (item.value === value || value === "") {
+                        out.push(item.ownerElement);
+                    }
+                }
+            });
+            return out;
+        },
+        getNodesByType = function local_dom_getNodesByType(typeValue:string|number):Node[] {
             let types:number     = 0;
             const valueTest:string = (typeof typeValue === "string") ? typeValue.toUpperCase() : "",
                 // eslint-disable-next-line
-                root:HTMLElement = (this === document) ? document.documentElement : this;
+                root:Element = (this === document) ? document.documentElement : this;
 
             // Normalize string input for case insensitivity.
             if (typeof typeValue === "string") {
@@ -53,9 +107,9 @@ const getNodesByType = function local_getNodesByType():void {
             }
 
             // A handy dandy function to trap all the DOM walking
-            return (function local_getNodesByType_typeFunction_walking():Node[] {
+            return (function local_dom_getNodesByType_walking():Node[] {
                 const output:Node[] = [],
-                    child  = function local_getNodesByType_typeFunction_walking_child(x:HTMLElement):void {
+                    child  = function local_dom_getNodesByType_walking_child(x:Element):void {
                         const children:NodeListOf<ChildNode> = x.childNodes;
                         let a:NamedNodeMap    = x.attributes,
                             b:number    = a.length,
@@ -72,11 +126,11 @@ const getNodesByType = function local_getNodesByType():void {
                         if (b > 0) {
                             do {
                                 if (children[c].nodeType === types || types === 0) {
-                                    output.push(<HTMLElement>children[c]);
+                                    output.push(<Element>children[c]);
                                 }
                                 if (children[c].nodeType === 1) {
                                     //recursion magic
-                                    local_getNodesByType_typeFunction_walking_child(<HTMLElement>children[c]);
+                                    local_dom_getNodesByType_walking_child(<Element>children[c]);
                                 }
                                 c = c + 1;
                             } while (c < b);
@@ -85,43 +139,16 @@ const getNodesByType = function local_getNodesByType():void {
                 child(root);
                 return output;
             }());
-        },
-        getElementsByAttribute = function local_getNodesByType_getElementsByAttribute(name:string, value:string):Element[] {
-            // eslint-disable-next-line
-            const attrs:Attr[] = this.typeFunction(2),
-                out:Element[]   = [];
-            if (typeof name !== "string") {
-                name = "";
-            }
-            if (typeof value !== "string") {
-                value = "";
-            }
-            attrs.forEach(function local_getNodesByType_getElementsByAttribute_loop(item) {
-                if (item.name === name || name === "") {
-                    if (item.value === value || value === "") {
-                        out.push(item.ownerElement);
-                    }
-                }
-            });
-            return out;
         };
 
     // Create a document method
-    document.getNodesByType         = typeFunction;
     document.getElementsByAttribute = getElementsByAttribute;
-
-    (function local_getNodesByType_addToExistingElements() {
-        const el = document.getNodesByType(1);
-        el.forEach(function local_getNodesByType_addToExistingElements_loop(item) {
-            item.getNodesByType         = typeFunction;
-            item.getElementsByAttribute = getElementsByAttribute;
-        });
-    }());
-    // Add this code as a method onto each DOM element
+    document.getNodesByType         = getNodesByType;
 
     // Ensure dynamically created elements get this method too
-    Element.prototype.getNodesByType         = typeFunction;
+    Element.prototype.getAncestor            = getAncestor;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
+    Element.prototype.getNodesByType         = getNodesByType;
 
     // Disabling addEventListener via reassignment because the preferred pattern is directly assigning handlers to the respective events
     Element.prototype.addEventListener       = function local_getNodesByType_addEventListener():Element {
@@ -132,4 +159,4 @@ const getNodesByType = function local_getNodesByType():void {
 
 }
 
-export default getNodesByType;
+export default dom;
