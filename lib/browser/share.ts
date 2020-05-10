@@ -479,7 +479,9 @@ share.modal = function local_shares_modal(agent:string, agentType:agentType|"", 
     if (configuration === undefined || configuration === null) {
         configuration = {
             agent: agent,
-            agentType: "device",
+            agentType: (agentType === "")
+                ? "device"
+                : agentType,
             content: content,
             read_only: false,
             title: title,

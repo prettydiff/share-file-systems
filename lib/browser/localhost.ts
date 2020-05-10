@@ -438,7 +438,10 @@ import webSocket from "./webSocket.js";
                                     }
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {
-                                    share.modal(storage.settings.modals[value].agent, storage.settings.modals[value].agentType, storage.settings.modals[value]);
+                                    const agentType:agentType|"" = (storage.settings.modals[value].title.indexOf("All Shares") > -1)
+                                        ? ""
+                                        : storage.settings.modals[value].agentType;
+                                    share.modal(storage.settings.modals[value].agent, agentType, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "share_delete") {
                                     share.deleteList(null, storage.settings.modals[value]);
