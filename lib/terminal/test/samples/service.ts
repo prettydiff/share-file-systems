@@ -199,7 +199,7 @@ service.populate = function test_services_populate():void {
             }
         }
     });
-    /*service.push(<testTemplateFileService>{
+    service.push(<testTemplateFileService>{
         command: {
             fs: {
                 action: "fs-copy",
@@ -223,7 +223,7 @@ service.populate = function test_services_populate():void {
                 target: "remote-test-ID"
             }
         }
-    });*/
+    });
     service.push(<testTemplateFileService>{
         artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {

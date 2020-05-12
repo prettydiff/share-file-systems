@@ -133,8 +133,8 @@
 #spaces ul.agentList li li{border-color:#ccc}
 
 /* share delete */
-#spaces .sharesDeleteList label{background:#eee}
-#spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
+#spaces .share-delete label{background:#eee}
+#spaces .share-delete .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
 #spaces .fileList li,

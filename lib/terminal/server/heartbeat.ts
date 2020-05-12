@@ -71,14 +71,18 @@ const library = {
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
-                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                        library.log([errorMessage.toString()]);
+                        if (errorMessage.code !== "ETIMEDOUT") {
+                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
+                            library.log([errorMessage.toString()]);
+                        }
                     },
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
-                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                        library.log([errorMessage.toString()]);
+                        if (errorMessage.code !== "ETIMEDOUT") {
+                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
+                            library.log([errorMessage.toString()]);
+                        }
                     }
                 };
             vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");

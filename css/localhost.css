@@ -131,8 +131,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box{border-style:none;left:auto;margin:0;padding:0;position:absolute;z-index:10}
 #spaces .box h3{font-size:2em}
 #spaces .box p.error{font-size:2em}
-#spaces .box p.summary{font-size:2em;margin:0 2em}
+#spaces .box .summary{font-size:2em}
+#spaces .box p.summary{margin:1em}
 #spaces .box p.summary strong{display:block}
+#spaces .box .share-delete h3{margin:1em 1em 0}
+#spaces .box .share-delete ul{margin:0}
 #spaces .messageList .expansion span,
 #spaces .box .header button span,
 #spaces .fileList .expansion span,
@@ -254,11 +257,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentList .agent h4{display:inline}
 
 /* share delete */
-#spaces .sharesDeleteList{padding:0 5em}
-#spaces .sharesDeleteList li{display:block;list-style:none;margin:2em 0 0}
-#spaces .sharesDeleteList input{display:inline-block;margin:0 1em 0 0}
-#spaces .sharesDeleteList label{border-style:solid;border-width:0.05em;display:block;font-size:2em;padding:0.5em}
-#spaces .sharesDeleteList label:hover{text-decoration:underline}
+#spaces .share-delete{padding:0 5em}
+#spaces .share-delete li{display:block;list-style:none;margin:0 0 1em}
+#spaces .share-delete input{display:inline-block;margin:0 1em 0 0}
+#spaces .share-delete label{border-style:solid;border-width:0.05em;display:block;padding:0.5em}
+#spaces .share-delete label:hover{text-decoration:underline}
 
 /* file navigator modal content */
 #spaces .fileList{margin:0;min-height:100%;padding:0 5em}

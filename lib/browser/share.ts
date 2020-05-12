@@ -272,6 +272,119 @@ share.context = function local_share_context():void {
     util.selectNone(element);
 };
 
+/* Terminates one or more users */
+share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
+    const body:Element = box.getElementsByClassName("body")[0],
+        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
+        deleted:[string, string][] = [],
+        modals:string[] = Object.keys(browser.data.modals);
+    let a:number = list.length,
+        userColors:HTMLCollectionOf<Element>,
+        colorLength:number,
+        modalsLength:number = modals.length,
+        user:boolean = false,
+        device:boolean = false,
+        input:HTMLInputElement,
+        type:string,
+        modal:Element,
+        li:HTMLCollectionOf<HTMLElement>,
+        liLength:number,
+        subtitle:Element,
+        b:number = 3,
+        c:number,
+        hash:string,
+        length:number,
+        close:HTMLButtonElement,
+        parent:Element;
+    do {
+        a = a - 1;
+        input = list[a].getElementsByTagName("input")[0];
+        if (input.checked === true) {
+            hash = input.value;
+            type = input.getAttribute("data-type");
+            parent = <Element>document.getElementById(hash).parentNode;
+            deleted.push([type, hash]);
+            if (list[a].parentNode.childNodes.length < 2) {
+                subtitle = document.createElement("p");
+                subtitle.innerHTML = `No ${type}s to delete.`;
+                subtitle.setAttribute("class", "summary");
+                list[a].parentNode.parentNode.insertBefore(subtitle, list[a].parentNode);
+                list[a].parentNode.parentNode.removeChild(list[a].parentNode);
+            } else {
+                list[a].parentNode.removeChild(list[a]);
+            }
+            if (type === "user") {
+                user = true;
+            } else if (type === "device") {
+                device = true;
+            }
+            parent.parentNode.removeChild(parent);
+            delete browser[type][hash];
+        }
+    } while (a > 0);
+    if (deleted.length < 1) {
+        return;
+    }
+    a = 0;
+    length = deleted.length;
+    do {
+        b = 0;
+        // loop through the current modals
+        do {
+            if (browser.data.modals[modals[b]].type === "shares" && (browser.data.modals[modals[b]].title === "⌘ All Shares" || browser.data.modals[modals[b]].agentType === deleted[a][0])) {
+                // for all open "share" type modals remove any mention of the deleted agents
+                modal = document.getElementById(modals[b]);
+                li = modal.getElementsByClassName("body")[0].getElementsByTagName("li");
+                liLength = li.length;
+                if (liLength > 0) {
+                    c = 0;
+                    do {
+                        subtitle = <Element>li[c].parentNode.previousSibling;
+                        if (li[c].getAttribute("data-hash") === deleted[a][1] && subtitle.getElementsByTagName("strong")[0].innerHTML === `${deleted[a][0]}s`) {
+                            if (li[c].parentNode.childNodes.length < 2) {
+                                li[c].parentNode.parentNode.removeChild(li[c].parentNode);
+                                subtitle.innerHTML = `There are no <strong>${deleted[a][0]}</strong> connections at this time.`;
+                            } else {
+                                li[c].parentNode.removeChild(li[c]);
+                            }
+                            break;
+                        }
+                        c = c + 1;
+                    } while (c < liLength);
+                }
+            } else if (browser.data.modals[modals[b]].agent === deleted[a][1] && browser.data.modals[modals[b]].agentType === deleted[a][0]) {
+                // close all open modals related to the deleted agents
+                close = <HTMLButtonElement>document.getElementById(modals[c]).getElementsByClassName("close")[0];
+                close.click();
+                modals.splice(modals.indexOf(modals[b], 1));
+                modalsLength = modalsLength - 1;
+            }
+            b = b + 1;
+        } while (b < modalsLength);
+
+        b = 0;
+        userColors = document.getElementById("settings-modal").getElementsByClassName(`${deleted[a][0]}-color-list`)[0].getElementsByTagName("li");
+        colorLength = userColors.length;
+        // loop through the color swatches in the settings modal
+        do {
+            subtitle = <Element>userColors[b].parentNode;
+            //console.log(userColors[b].getAttribute("data-agent") === deleted[a][1]+" "+subtitle.getAttribute("class"));
+            if (userColors[b].getAttribute("data-agent") === deleted[a][1] && subtitle.getAttribute("class") === `${deleted[a][0]}-color-list`) {
+                userColors[b].parentNode.removeChild(userColors[b]);
+                break;
+            }
+            b = b + 1;
+        } while (b < colorLength);
+        a = a + 1;
+    } while (a > length);
+    if (user === true) {
+        network.storage("user");
+    }
+    if (device === true) {
+        network.storage("device");
+    }
+};
+
 /* Delete a share from a device */
 share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
@@ -305,18 +418,11 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
 /* Creates a confirmation modal listing users for deletion */
 share.deleteList = function local_share_deleteList(event:MouseEvent, configuration?:ui_modal):void {
     const content:Element = document.createElement("div"),
-        p:Element = document.createElement("p"),
-        ul:Element = document.createElement("ul"),
-        users:devices = browser.user,
-        names:string[] = Object.keys(users),
-        length:number = names.length,
         payloadModal:ui_modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: content,
-            inputs: (length > 1)
-                ? ["confirm", "cancel", "close"]
-                : ["close"],
+            inputs: ["close"],
             read_only: false,
             single: true,
             title: "<span class=\"icon-delete\">☣</span> Delete Shares",
@@ -324,42 +430,70 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
             width: 750
         };
     let li:Element,
-        a:number = 0,
         input:HTMLInputElement,
         label:Element,
-        text:Text;
-    p.setAttribute("class", "summary");
-    if (length > 0) {
-        p.innerHTML = "<strong>Please be warned that confirming this change is permanent.</strong> The user will be deleted from your devices and you from theirs.";
-        ul.setAttribute("class", "sharesDeleteList");
-        do {
-            if (names[a] !== browser.data.hashDevice) {
+        text:Text,
+        p:Element,
+        h3:Element,
+        names:string[],
+        length:number,
+        total:number = 0,
+        ul:Element = document.createElement("ul");
+    content.setAttribute("class", "share-delete");
+    agents({
+        countBy: "agent",
+        perAgent: function local_share_deleteList_perAgent(agentNames:agentNames):void {
+            if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
                 li = document.createElement("li");
+                li.setAttribute("class", "summary");
                 label = document.createElement("label");
                 input = document.createElement("input");
-                text = document.createTextNode(names[a]);
+                text = document.createTextNode(browser[agentNames.agentType][agentNames.agent].name);
                 input.type = "checkbox";
+                input.value = agentNames.agent;
+                input.setAttribute("data-type", agentNames.agentType);
                 input.onclick = share.deleteToggle;
                 label.appendChild(input);
                 label.appendChild(text);
                 li.appendChild(label);
                 ul.appendChild(li);
             }
-            a = a + 1;
-        } while (a < length);
-        content.appendChild(p);
-        content.appendChild(ul);
-    } else {
-        p.innerHTML = "No users to delete."
-        content.appendChild(p);
+        },
+        perAgentType: function local_share_deleteList_perAgentType(agentNames:agentNames):void {
+            h3 = document.createElement("h3");
+            h3.innerHTML = `${agentNames.agentType.charAt(0).toUpperCase() + agentNames.agentType.slice(1)}s`;
+            names = Object.keys(browser[agentNames.agentType]);
+            length = names.length;
+            content.appendChild(h3);
+            total = total + length;
+            if ((agentNames.agentType === "device" && length > 1) || (agentNames.agentType !== "device" && length > 0)) {
+                ul = document.createElement("ul");
+                content.appendChild(ul);
+            } else {
+                p = document.createElement("p");
+                p.setAttribute("class", "summary");
+                p.innerHTML = `No ${agentNames.agentType}s to delete.`;
+                content.appendChild(p);
+            }
+        },
+        source: browser
+    });
+    if (total > 1) {
+        p = document.createElement("p");
+        p.setAttribute("class", "summary");
+        p.innerHTML = "<strong>Please be warned that confirming these change is permanent.</strong> Confirming any selected changes will remove the relationship both locally and on the remote devices/users.";
+        content.insertBefore(p, content.firstChild);
     }
     if (configuration === undefined) {
+        if (total > 1) {
+            payloadModal.inputs = ["confirm", "cancel", "close"];
+        }
         modal.create(payloadModal);
         network.storage("settings");
     } else {
         configuration.agent = browser.data.hashDevice;
         configuration.content = content;
-        if (length > 1) {
+        if (total > 1) {
             configuration.inputs = ["confirm", "cancel", "close"];
         } else {
             configuration.inputs = ["close"];
@@ -380,88 +514,6 @@ share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
     } else {
         label.removeAttribute("class");
     }
-};
-
-/* Terminates one or more users */
-share.deleteUser = function local_shares_deleteUser(box:Element):void {
-    const body:Element = box.getElementsByClassName("body")[0],
-        agentType:agentType = <agentType>box.getAttribute("data-agentType"),
-        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-        agents:HTMLCollectionOf<Element> = document.getElementById(agentType).getElementsByTagName("li"),
-        names:string[] = [],
-        modals:string[] = Object.keys(browser.data.modals),
-        modalsLength:number = modals.length,
-        userColors:HTMLCollectionOf<Element> = document.getElementById("settings-modal").getElementsByClassName("user-color-list")[0].getElementsByTagName("li");
-    let a:number = list.length,
-        agentsLength:number = agents.length,
-        b:number = 3,
-        c:number,
-        text:string,
-        length:number,
-        h3:HTMLCollectionOf<Element>,
-        close:HTMLButtonElement,
-        colorLength:number = userColors.length;
-    do {
-        a = a - 1;
-        if (list[a].getElementsByTagName("input")[0].checked === true) {
-            text = list[a].lastChild.textContent;
-            names.push(text);
-            list[a].parentNode.removeChild(list[a]);
-            delete browser.user[text];
-        }
-    } while (a > 0);
-    if (names.length < 1) {
-        return;
-    }
-    a = 0;
-    length = names.length;
-    do {
-        b = agentsLength;
-        // loop through user buttons to remove the user
-        do {
-            b = b - 1;
-            if (agents[b].getElementsByTagName("button")[0].getAttribute("data-agent") === names[a]) {
-                agents[b].parentNode.removeChild(agents[b]);
-                break;
-            }
-        } while (b > 3);
-        agentsLength = agentsLength - 1;
-
-        // loop through shares modals to remove the deleted user
-        c = 0;
-        do {
-            if (browser.data.modals[modals[c]].type === "shares") {
-                // on the all shares modal simply remove the concerned user
-                if (browser.data.modals[modals[c]].agent === "") {
-                    h3 = document.getElementById(modals[c]).getElementsByTagName("h3");
-                    b = h3.length;
-                    do {
-                        b = b - 1;
-                        if (h3[b].innerHTML.indexOf(names[a]) === 0) {
-                            h3[b].parentNode.parentNode.removeChild(h3[b].parentNode);
-                        }
-                    } while (b > 0);
-                // simply close the deleted user's share modals
-                } else if (browser.data.modals[modals[c]].agent === names[a]) {
-                    close = <HTMLButtonElement>document.getElementById(modals[c]).getElementsByClassName("close")[0];
-                    close.click();
-                }
-            }
-            c = c + 1;
-        } while (c < modalsLength);
-        
-        // loop through user colors
-        c = 0;
-        do {
-            if (userColors[c].getElementsByTagName("p")[0].innerHTML === names[a]) {
-                userColors[c].parentNode.removeChild(userColors[c]);
-            }
-            c = c + 1;
-        } while (c < colorLength);
-        colorLength = colorLength - 1;
-        a = a + 1;
-    } while (a < length);
-    network.storage("user");
 };
 
 /* Displays a list of shared items for each user */

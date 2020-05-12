@@ -1,6 +1,9 @@
 
 /* lib/browser/dom - Extensions to the DOM to provide navigational function not present from the standard methods */
 const dom = function local_dom():void {
+    // getAncestor - A method to walk up the DOM towards the documentElement.
+    // * identifier: string - The string value to search for.
+    // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
     const getAncestor = function local_dom_getAncestor(identifier:string, selector:selector):Element {
             // eslint-disable-next-line
             let start:Element = (this === document) ? document.documentElement : this;
@@ -36,9 +39,13 @@ const dom = function local_dom():void {
             } while (start !== document.documentElement && test() === false);
             return start;
         },
+        // getElementByAttribute - Search all descendant elements containing a matching attribute with matching value and returns an array of corresponding elements.
+        // * name: string - The name of the attribute to search for.  An empty string means accept every attribute name.
+        // * value: string - The attribute value to search for.  An empty string means accept any attribute value.  
         getElementsByAttribute = function local_dom_getElementsByAttribute(name:string, value:string):Element[] {
             // eslint-disable-next-line
-            const attrs:Attr[] = this.typeFunction(2),
+            const start:Element = (this === document) ? document.documentElement : this,
+                attrs:Attr[] = <Attr[]>start.getNodesByType(2),
                 out:Element[]   = [];
             if (typeof name !== "string") {
                 name = "";
@@ -55,55 +62,49 @@ const dom = function local_dom():void {
             });
             return out;
         },
+        // getNodesByType - Returns an array of DOM nodes matching the provided node type.
+        // * typeValue: string|number = The value must be a node type name or a node type number (0-12)
+        // - An empty string, "all", or 0 means gather all descendant nodes regardless of type.
+        // - For standard values see: https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
         getNodesByType = function local_dom_getNodesByType(typeValue:string|number):Node[] {
-            let types:number     = 0;
-            const valueTest:string = (typeof typeValue === "string") ? typeValue.toUpperCase() : "",
+            const valueString:string = (typeof typeValue === "string") ? typeValue.toLowerCase() : "",
                 // eslint-disable-next-line
-                root:Element = (this === document) ? document.documentElement : this;
-
-            // Normalize string input for case insensitivity.
-            if (typeof typeValue === "string") {
-                typeValue = typeValue.toLowerCase();
-            }
+                root:Element = (this === document) ? document.documentElement : this,
+                numb:number = (isNaN(Number(typeValue)) === false)
+                    ? Number(typeValue)
+                    : 0;
+            let types:number = (numb > 12 || numb < 0)
+                ? 0
+                : Math.round(numb);
 
             // If input is a string and supported standard value
             // associate to the standard numeric type
-            if (typeValue === "all") {
+            if (valueString === "all" || typeValue === "") {
                 types = 0;
-            } else if (typeValue === "element_node") {
+            } else if (valueString === "element_node") {
                 types = 1;
-            } else if (typeValue === "attribute_node") {
+            } else if (valueString === "attribute_node") {
                 types = 2;
-            } else if (typeValue === "text_node") {
+            } else if (valueString === "text_node") {
                 types = 3;
-            } else if (typeValue === "cdata_section_node") {
+            } else if (valueString === "cdata_section_node") {
                 types = 4;
-            } else if (typeValue === "entity_reference_node") {
+            } else if (valueString === "entity_reference_node") {
                 types = 5;
-            } else if (typeValue === "entity_node") {
+            } else if (valueString === "entity_node") {
                 types = 6;
-            } else if (typeValue === "processing_instruction_node") {
+            } else if (valueString === "processing_instruction_node") {
                 types = 7;
-            } else if (typeValue === "comment_node") {
+            } else if (valueString === "comment_node") {
                 types = 8;
-            } else if (typeValue === "document_node") {
+            } else if (valueString === "document_node") {
                 types = 9;
-            } else if (typeValue === "document_type_node") {
+            } else if (valueString === "document_type_node") {
                 types = 10;
-            } else if (typeValue === "document_fragment_node") {
+            } else if (valueString === "document_fragment_node") {
                 types = 11;
-            } else if (typeValue === "notation_node") {
+            } else if (valueString === "notation_node") {
                 types = 12;
-            }
-
-            // If input is type string but the value is a supported number
-            if (isNaN(Number(valueTest)) === false && (valueTest.length === 1 || valueTest === "10" || valueTest === "11" || valueTest === "12")) {
-                types = Number(valueTest);
-            }
-
-            // If input is a supported number
-            if (valueTest === "" && (typeValue === 0 || typeValue === 1 || typeValue === 2 || typeValue === 3 || typeValue === 4 || typeValue === 5 || typeValue === 6 || typeValue === 7 || typeValue === 8 || typeValue === 9 || typeValue === 10 || typeValue === 11 || typeValue === 12)) {
-                types = typeValue;
             }
 
             // A handy dandy function to trap all the DOM walking
@@ -151,9 +152,9 @@ const dom = function local_dom():void {
     Element.prototype.getNodesByType         = getNodesByType;
 
     // Disabling addEventListener via reassignment because the preferred pattern is directly assigning handlers to the respective events
-    Element.prototype.addEventListener       = function local_getNodesByType_addEventListener():Element {
+    Element.prototype.addEventListener       = function local_getNodesByType_addEventListener():void {
         // eslint-disable-next-line
-        console.log(`addEventListener used on ${this}\naddEventListener is not supported in this application.`);
+        new Error(`addEventListener used on ${this}\naddEventListener is not supported in this application.`);
         return undefined;
     }; 
 

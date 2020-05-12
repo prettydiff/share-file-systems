@@ -119,7 +119,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .body > textarea{background:#222;color:#ccc}
 .dark #spaces .agentList .agent button.grant-full-access,
 .dark #spaces .box button.cancel,
-.dark #spaces .sharesDeleteList .checked,
+.dark #spaces .share-delete .checked,
 .dark #spaces .box .delete{background:#300;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}
 .dark #spaces #dragBox{background:#9cf;border-color:#69c}
 
@@ -144,8 +144,8 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces ul.agentList li li{border-color:#ccc}
 
 /* share delete */
-.dark #spaces .sharesDeleteList .checked{color:#c33}
-.dark #spaces .sharesDeleteList label{background:#333}
+.dark #spaces .share-delete .checked{color:#c33}
+.dark #spaces .share-delete label{background:#333}
 
 /* file navigator modal content */
 .dark #spaces .fileList li,
