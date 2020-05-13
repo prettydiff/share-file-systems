@@ -275,25 +275,18 @@ share.context = function local_share_context():void {
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
         box:Element = element.getAncestor("box", "class"),
-        agent:agency = util.getAgent(box),
         payload: hashShareConfiguration = {
             callback: function local_share_context_shareHash(responseBody:string):void {
-                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse,
-                    update:shareUpdateConfiguration = {
-                        agent: agent[0],
-                        id: box.getAttribute("id"),
-                        shares: browser[agent[2]][agent[0]].shares,
-                        type: agent[2]
-                    };
+                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse;
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,
                     readOnly: true,
                     type: <shareType>shareResponse.type
                 };
+                share.update();
                 network.storage("device");
                 network.heartbeat("active", shareResponse.device, browser.device[shareResponse.device].shares);
-                share.update(update);
             },
             device: "",
             share: "",
@@ -334,35 +327,25 @@ share.context = function local_share_context():void {
 /* Terminates one or more users */
 share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
     const body:Element = box.getElementsByClassName("body")[0],
-        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-        deleted:[string, string][] = [],
-        modals:string[] = Object.keys(browser.data.modals);
+        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li");
     let a:number = list.length,
-        userColors:HTMLCollectionOf<Element>,
-        colorLength:number,
-        modalsLength:number = modals.length,
+        count:number = 0,
         user:boolean = false,
         device:boolean = false,
         input:HTMLInputElement,
-        type:string,
-        modal:Element,
-        li:HTMLCollectionOf<HTMLElement>,
-        liLength:number,
+        type:agentType,
         subtitle:Element,
-        b:number = 3,
-        c:number,
         hash:string,
-        length:number,
-        close:HTMLButtonElement,
         parent:Element;
+
+    // put the deleted agents into a list
     do {
         a = a - 1;
         input = list[a].getElementsByTagName("input")[0];
         if (input.checked === true) {
             hash = input.value;
-            type = input.getAttribute("data-type");
+            type = <agentType>input.getAttribute("data-type");
             parent = <Element>document.getElementById(hash).parentNode;
-            deleted.push([type, hash]);
             if (list[a].parentNode.childNodes.length < 2) {
                 subtitle = document.createElement("p");
                 subtitle.innerHTML = `No ${type}s to delete.`;
@@ -378,64 +361,15 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
                 device = true;
             }
             parent.parentNode.removeChild(parent);
+            share.removeNameButton(hash, type);
+            count = count + 1;
             delete browser[type][hash];
         }
     } while (a > 0);
-    if (deleted.length < 1) {
+    if (count < 1) {
         return;
     }
-    a = 0;
-    length = deleted.length;
-    do {
-        b = 0;
-        // loop through the current modals
-        do {
-            if (browser.data.modals[modals[b]].type === "shares" && (browser.data.modals[modals[b]].title === "⌘ All Shares" || browser.data.modals[modals[b]].agentType === deleted[a][0])) {
-                // for all open "share" type modals remove any mention of the deleted agents
-                modal = document.getElementById(modals[b]);
-                li = modal.getElementsByClassName("body")[0].getElementsByTagName("li");
-                liLength = li.length;
-                if (liLength > 0) {
-                    c = 0;
-                    do {
-                        subtitle = <Element>li[c].parentNode.previousSibling;
-                        if (li[c].getAttribute("data-hash") === deleted[a][1] && subtitle.getElementsByTagName("strong")[0].innerHTML === `${deleted[a][0]}s`) {
-                            if (li[c].parentNode.childNodes.length < 2) {
-                                li[c].parentNode.parentNode.removeChild(li[c].parentNode);
-                                subtitle.innerHTML = `There are no <strong>${deleted[a][0]}</strong> connections at this time.`;
-                            } else {
-                                li[c].parentNode.removeChild(li[c]);
-                            }
-                            break;
-                        }
-                        c = c + 1;
-                    } while (c < liLength);
-                }
-            } else if (browser.data.modals[modals[b]].agent === deleted[a][1] && browser.data.modals[modals[b]].agentType === deleted[a][0]) {
-                // close all open modals related to the deleted agents
-                close = <HTMLButtonElement>document.getElementById(modals[c]).getElementsByClassName("close")[0];
-                close.click();
-                modals.splice(modals.indexOf(modals[b], 1));
-                modalsLength = modalsLength - 1;
-            }
-            b = b + 1;
-        } while (b < modalsLength);
-
-        b = 0;
-        userColors = document.getElementById("settings-modal").getElementsByClassName(`${deleted[a][0]}-color-list`)[0].getElementsByTagName("li");
-        colorLength = userColors.length;
-        // loop through the color swatches in the settings modal
-        do {
-            subtitle = <Element>userColors[b].parentNode;
-            //console.log(userColors[b].getAttribute("data-agent") === deleted[a][1]+" "+subtitle.getAttribute("class"));
-            if (userColors[b].getAttribute("data-agent") === deleted[a][1] && subtitle.getAttribute("class") === `${deleted[a][0]}-color-list`) {
-                userColors[b].parentNode.removeChild(userColors[b]);
-                break;
-            }
-            b = b + 1;
-        } while (b < colorLength);
-        a = a + 1;
-    } while (a > length);
+    share.update();
     if (user === true) {
         network.storage("user");
     }
@@ -470,6 +404,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     } else {
         parent.parentNode.removeChild(parent);
     }
+    share.update();
     network.storage("device");
     network.heartbeat("active", agent[0], browser.device[agent[0]].shares);
 };
@@ -644,134 +579,73 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
         element.innerHTML = "Grant Full Access";
         span.innerHTML = "(Read Only)";
     }
+    share.update();
     network.heartbeat("active", agency[0], browser.device[agency[0]].shares);
+    network.storage(agency[2]);
+};
+
+/* Remove a named agent's button and their color swatches*/
+share.removeNameButton = function local_share_removeNameButton(agent:string, agentType:agentType):void {
+    const userColors = document.getElementById("settings-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+        colorLength:number = userColors.length,
+        button:Element = document.getElementById(agent),
+        parent:Element = (button === null)
+            ? null
+            : <Element>button.parentNode,
+        list:Element = (button === null)
+            ? null
+            : <Element>parent.parentNode;
+    let a:number = 0;
+
+    // remove the named button for the agent
+    if (parent !== null && list !== null && list.getAttribute("id") === agentType) {
+        list.removeChild(parent);
+    }
+
+    // loop through the color swatches in the settings modal to remove the agent's colors
+    do {
+        if (userColors[a].getAttribute("data-agent") === agent) {
+            userColors[a].parentNode.removeChild(userColors[a]);
+            break;
+        }
+        a = a + 1;
+    } while (a < colorLength);
 };
 
 /* Updates the contents of share modals */
-share.update = function local_share_update(configuration:shareUpdateConfiguration):void {
+share.update = function local_share_update():void {
+    const modals = Object.keys(browser.data.modals),
+        modalLength = modals.length;
     let a:number = 0,
-        b:number = 0,
-        shareBest:number = -1,
-        shareTop:number = -1,
-        title:Element,
-        box:Element,
+        modal:Element,
         body:Element,
-        titleText:string,
-        parentDirectory:HTMLElement,
-        back:HTMLElement,
-        header:HTMLElement,
-        headings:HTMLCollectionOf<Element>,
-        close:HTMLButtonElement,
-        address:string,
-        fileShares:boolean = false;
-    const modals:string[] = Object.keys(browser.data.modals),
-        modalLength:number = modals.length,
-        shareKeys:string[] = (configuration.shares === "deleted")
-            ? []
-            : Object.keys(configuration.shares),
-        shareLength:number = (configuration.shares === "deleted")
-            ? 0
-            : shareKeys.length,
-        windows:boolean = (function local_share_update_windows():boolean {
-            if (configuration.shares === "deleted" || shareLength < 1) {
-                return false;
-            }
-            do {
-                if (configuration.shares[shareKeys[b]].type === "directory" || configuration.shares[shareKeys[b]].type === "file" || configuration.shares[shareKeys[b]].type === "link") {
-                    fileShares = true;
-                    if (configuration.shares[shareKeys[0]].name.charAt(0) === "\\" || (/^\w:\\/).test(configuration.shares[shareKeys[0]].name) === true) {
-                        return true;
-                    }
-                    return false;
-                }
-                b = b + 1;
-            } while (b < shareLength);
-            return false;
-        }());
-    if (configuration.shares !== "deleted") {
-        browser[configuration.type][configuration.agent].shares = configuration.shares;
-    }
-
-    // loop through modals
+        agent:string,
+        item:ui_modal,
+        agentType:agentType | "";
     do {
-        box = document.getElementById(modals[a]);
-        // share modals
-        if (browser.data.modals[modals[a]].type === "shares" && (browser.data.modals[modals[a]].agent === "" || browser.data.modals[modals[a]].agent === configuration.agent)) {
-            if (configuration.shares === "deleted") {
-                if (browser.data.modals[modals[a]].agent === configuration.agent) {
-                    close = <HTMLButtonElement>box.getElementsByClassName("close")[0];
-                    close.click();
-                } else {
-                    body = <HTMLElement>box.getElementsByClassName("body")[0];
-                    headings = body.getElementsByTagName("h3");
-                    b = headings.length;
-                    do {
-                        b = b - 1;
-                        if (headings[b].innerHTML === configuration.agent) {
-                            headings[b].parentNode.parentNode.removeChild(headings[b].parentNode);
-                            break;
-                        }
-                    } while (b > 0);
-                }
+        if (browser.data.modals[modals[a]].type === "shares") {
+            item = browser.data.modals[modals[a]];
+            modal = document.getElementById(modals[a]);
+            body = modal.getElementsByClassName("body")[0];
+            if (item.title.indexOf("All Shares") > -1) {
+                agentType = "";
+                agent = "";
+            } else if (item.title.indexOf("All User Shares") > -1) {
+                agentType = "user";
+                agent = "";
+            } else if (item.title.indexOf("All Device Shares") > -1) {
+                agentType = "device";
+                agent = "";
             } else {
-                body = box.getElementsByClassName("body")[0];
-                body.innerHTML = "";
-                body.appendChild(share.content(browser.data.modals[modals[a]].agent, browser.data.modals[modals[a]].agentType));
-            }
-        // file navigate modals
-        } else if (fileShares === true && browser.data.modals[modals[a]].type === "fileNavigate" && browser.data.modals[modals[a]].agent === configuration.agent) {
-            if (configuration.shares === "deleted") {
-                close = <HTMLButtonElement>box.getElementsByClassName("close")[0];
-                close.click();
-            } else if (shareLength > 0) {
-                b = 0;
-                shareBest = -1;
-                shareTop = -1;
-                title = box.getElementsByClassName("heading")[0].getElementsByTagName("button")[0];
-                titleText = title.innerHTML;
-                parentDirectory = <HTMLElement>box.getElementsByClassName("parentDirectory")[0];
-                back = <HTMLElement>box.getElementsByClassName("backDirectory")[0];
-                header = <HTMLElement>parentDirectory.parentNode;
-                address = browser.data.modals[modals[a]].text_value;
-                do {
-                    if (address.indexOf(configuration.shares[shareKeys[b]].name) === 0 || (windows === true && address.toLowerCase().indexOf(configuration.shares[shareKeys[b]].name.toLowerCase()) === 0)) {
-                        if (shareBest < 0) {
-                            shareBest = b;
-                            shareTop = b;
-                        }
-                        if (configuration.shares[shareKeys[b]].name.length > configuration.shares[shareBest].name.length) {
-                            shareBest = b;
-                        } else if (configuration.shares[shareKeys[b]].name.length < configuration.shares[shareTop].name.length) {
-                            shareTop = b;
-                        }
-                    }
-                    b = b + 1;
-                } while (b < shareLength);
-                if (shareBest > -1) {
-                    if (browser.data.modals[box.getAttribute("id")].agent !== browser.data.hashDevice) {
-                        if (configuration.shares[shareBest].readOnly === true) {
-                            titleText = titleText.replace(/\s+(\(Read\s+Only\)\s+)?-\s+/, " (Read Only) - ");
-                            title.innerHTML = titleText;
-                            browser.data.modals[modals[a]].title = titleText;
-                            browser.data.modals[modals[a]].read_only = true;
-                        } else {
-                            titleText = titleText.replace(" (Read Only)", "");
-                            title.innerHTML = titleText;
-                            browser.data.modals[modals[a]].title = titleText;
-                            browser.data.modals[modals[a]].read_only = false;
-                        }
-                        if (address === configuration.shares[shareTop].name || (windows === true && address.toLowerCase() === configuration.shares[shareTop].name.toLowerCase())) {
-                            parentDirectory.style.display = "none";
-                            back.style.marginLeft = "-6em";
-                            header.style.paddingLeft = "10.5em";
-                        } else {
-                            parentDirectory.style.display = "inline-block";
-                            back.style.marginLeft = "-9em";
-                            header.style.paddingLeft = "15em";
-                        }
-                    }
+                if (item.title.indexOf("device") > -1) {
+                    agentType = "device";
+                } else {
+                    agentType = "user";
                 }
+                agent = item.agent;
             }
+            body.innerHTML = "";
+            body.appendChild(share.content(agent, agentType));
         }
         a = a + 1;
     } while (a < modalLength);

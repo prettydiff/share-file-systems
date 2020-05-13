@@ -437,7 +437,8 @@ declare global {
         deleteToggle?: EventHandlerNonNull;
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
-        update?: (updateShareConfiguration) => void;
+        removeNameButton?: (agent:string, agentType:agentType) => void;
+        update?: () => void;
     }
     interface module_systems {
         close?: EventHandlerNonNull;
@@ -585,12 +586,6 @@ declare global {
     }
     interface sharesDeleteList extends EventHandlerNonNull {
         (event:MouseEvent, configuration?:ui_modal): void;
-    }
-    interface shareUpdateConfiguration {
-        agent:string;
-        id?: string;
-        shares:deviceShares|"deleted";
-        type: agentType;
     }
     interface shareUpdate {
         user: string;

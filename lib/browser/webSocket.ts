@@ -23,24 +23,11 @@ const title:Element = document.getElementsByClassName("title")[0],
             return;
         }
         const deleteAgent = function local_socketMessage_deleteUser(type:agentType):void {
-                const agent:string = JSON.parse(event.data)["delete-user"],
-                    agentList:HTMLCollectionOf<HTMLElement> = document.getElementById(type).getElementsByTagName("li"),
-                    length:number = agentList.length,
-                    config:shareUpdateConfiguration = {
-                        agent: agent,
-                        shares: "deleted",
-                        type: type
-                    };
-                let a:number = 1;
+                const agent:string = JSON.parse(event.data)["delete-user"];
                 delete browser[type][agent];
-                do {
-                    if (agentList[a].innerHTML.indexOf(agent) > 0) {
-                        agentList[a].parentNode.removeChild(agentList[a]);
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < length);
-                share.update(config);
+                share.removeNameButton(agent, type);
+                share.update();
+                network.storage(type);
             },
             error = function local_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
@@ -131,28 +118,20 @@ const title:Element = document.getElementsByClassName("title")[0],
             },
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
-                    buttons:HTMLCollectionOf<Element> = document.getElementById(heartbeat.agentType).getElementsByTagName("button"),
-                    length:number = (buttons === null)
-                        ? 0
-                        : buttons.length,
-                    update:shareUpdateConfiguration = {
-                        agent: heartbeat.shareFrom,
-                        shares: heartbeat.shares,
-                        type: heartbeat.agentType
-                    };
-                let a:number = 0;
-                if (buttons === null) {
-                    return;
+                    button:Element = document.getElementById(heartbeat.shareFrom),
+                    parent:Element = (button === null)
+                        ? null
+                        : <Element>button.parentNode,
+                    list:Element = (button === null)
+                        ? null
+                        : <Element>parent.parentNode;
+                if (list !== null && list.getAttribute("id") === heartbeat.agentType) {
+                    button.setAttribute("class", heartbeat.status);
                 }
-                do {
-                    if (buttons[a].getAttribute("id") === heartbeat.agentFrom) {
-                        buttons[a].setAttribute("class", heartbeat.status);
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < length);
                 if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
-                    share.update(update);
+                    browser[heartbeat.agentType][heartbeat.shareFrom].shares = heartbeat.shares;
+                    share.update();
+                    network.storage(heartbeat.agentType);
                 }
             },
             invitation = function local_socketMessage_invite():void {
