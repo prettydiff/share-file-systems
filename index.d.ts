@@ -469,7 +469,6 @@ declare global {
     interface navConfig {
         agentName: string;
         agentType: agentType;
-        nameDevice: string;
         path: string;
         readOnly: boolean;
     }

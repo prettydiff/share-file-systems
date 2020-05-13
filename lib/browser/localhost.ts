@@ -373,8 +373,11 @@ import webSocket from "./webSocket.js";
                                             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                         },
                                         callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[Element, number, string]):void {
-                                            const fsModal:Element = document.getElementById(id),
-                                                body:Element = fsModal.getElementsByClassName("body")[0];
+                                            const fsModal:Element = document.getElementById(id);
+                                            if (fsModal === null) {
+                                                return;
+                                            }
+                                            let body:Element = fsModal.getElementsByClassName("body")[0];
                                             fs.listFail(files[1], fsModal);
                                             body.innerHTML = "";
                                             body.appendChild(files[0]);

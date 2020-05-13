@@ -681,6 +681,9 @@ const library = {
                     library.copy(copyConfig);
                 });
             };
+        if (data.location[0] === "**root**") {
+            data.location[0] = vars.sep;
+        }
         if (data.agent !== serverVars.hashDevice && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
             vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
             httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {

@@ -104,57 +104,11 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             fs.navigate(event, {
                 agentName: agent,
                 agentType: agentType,
-                nameDevice: (agentType === "device")
-                    ? browser.device[agent].name
-                    : "",
                 path: address,
                 readOnly: (agent !== browser.data.hashDevice && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
             });
-        };
-    let agentTypeUL:Element,
-        shareListUL:Element;
-
-    agents({
-        countBy: "share",
-        perAgent: function local_share_content_perAgent(agentNames:agentNames):void {
-            const li:Element = document.createElement("li"),
-                title:Element = document.createElement("h4");
-            shareListUL = document.createElement("ul");
-            title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
-            li.appendChild(title);
-            li.setAttribute("data-hash", agentNames.agent);
-            li.setAttribute("class", "agent");
-            if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
-                li.appendChild(shareListUL);
-            } else {
-                const p:Element = document.createElement("p");
-                p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
-                li.appendChild(p);
-            }
-            agentTypeUL.appendChild(li);
         },
-        perAgentType: function local_share_content_perAgentType(agentNames:agentNames):void {
-            const type:agentType = agentNames.agentType;
-            agentTypeUL = document.createElement("ul");
-            if (agentName === "" && (agentType === "" || agentType === type)) {
-                const title:Element = document.createElement("h3"),
-                    list:string[] = Object.keys(browser[type]),
-                    listLength:number = list.length;
-                if (listLength > 0) {
-                    const plural:string = (listLength === 1)
-                        ? ""
-                        : "s";
-                    agentTypeUL.setAttribute("class", "agentList")
-                    title.innerHTML = `There are ${listLength} <strong>${type + plural}</strong> shared.`;
-                    lists.appendChild(title);
-                    lists.appendChild(agentTypeUL);
-                } else {
-                    title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
-                    lists.appendChild(title);
-                }
-            }
-        },
-        perShare: function local_share_content_perShare(agentNames:agentNames):void {
+        perShare = function local_share_content_perShare(agentNames:agentNames):void {
             const li:Element = document.createElement("li"),
                 button:HTMLElement = document.createElement("button"),
                 status:Element = document.createElement("strong"),
@@ -195,15 +149,120 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 li.appendChild(readOnly);
                 li.appendChild(span);
             } else {
-                if (shareItem.readOnly === true) {
+                if (shareItem.readOnly === false) {
                     li.setAttribute("class", "full-access");
                     li.appendChild(button);
                 }
             }
             shareListUL.appendChild(li);
-        },
-        source: browser
-    });
+        };
+    let agentTypeUL:Element,
+        shareListUL:Element;
+
+    if (agentName === "" || agentType === "") {
+        agents({
+            countBy: "share",
+            perAgent: function local_share_content_perAgent(agentNames:agentNames):void {
+                const li:Element = document.createElement("li"),
+                    title:Element = document.createElement("h4");
+                shareListUL = document.createElement("ul");
+                title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
+                if (agentNames.agentType === "device") {
+                    const button:HTMLElement = document.createElement("button");
+                    button.setAttribute("class", "file-system-root");
+                    button.innerHTML = "File System Root";
+                    button.onclick = function local_share_content_perAgent_fsRoot():void {
+                        fs.navigate(null, {
+                            agentName: agentNames.agent,
+                            agentType: "device",
+                            path: "**root**",
+                            readOnly: false
+                        });
+                    };
+                    title.appendChild(button);
+                }
+                li.appendChild(title);
+                li.setAttribute("data-hash", agentNames.agent);
+                li.setAttribute("class", "agent");
+                if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
+                    li.appendChild(shareListUL);
+                } else {
+                    const p:Element = document.createElement("p");
+                    p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
+                    li.appendChild(p);
+                }
+                agentTypeUL.appendChild(li);
+            },
+            perAgentType: function local_share_content_perAgentType(agentNames:agentNames):void {
+                const type:agentType = agentNames.agentType;
+                agentTypeUL = document.createElement("ul");
+                if (agentName === "" && (agentType === "" || agentType === type)) {
+                    const title:Element = document.createElement("h3"),
+                        list:string[] = Object.keys(browser[type]),
+                        listLength:number = list.length;
+                    if (listLength > 0) {
+                        const plural:string = (listLength === 1)
+                                ? ""
+                                : "s",
+                            verb:string = (listLength === 1)
+                                ? "is"
+                                : "are";
+                        agentTypeUL.setAttribute("class", "agentList")
+                        title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> shared.`;
+                        lists.appendChild(title);
+                        lists.appendChild(agentTypeUL);
+                    } else {
+                        title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
+                        lists.appendChild(title);
+                    }
+                }
+            },
+            perShare: perShare,
+            source: browser
+        });
+    } else {
+        const title:Element = document.createElement("h3"),
+            div:Element = document.createElement("div"),
+            shares:string[] = Object.keys(browser[agentType][agentName].shares),
+            shareLength:number = shares.length;
+        title.innerHTML = `Shares for ${agentType} ${browser[agentType][agentName].name}`;
+        div.setAttribute("class", "agentList");
+        if (agentType === "device") {
+            const button:HTMLElement = document.createElement("button");
+            button.setAttribute("class", "file-system-root");
+            button.innerHTML = "File System Root";
+            button.onclick = function local_share_content_perAgent_fsRoot():void {
+                fs.navigate(null, {
+                    agentName: agentName,
+                    agentType: "device",
+                    path: "**root**",
+                    readOnly: false
+                });
+            };
+            title.appendChild(button);
+        }
+        div.appendChild(title);
+        if (shareLength < 1) {
+            const p:Element = document.createElement("p");
+            p.setAttribute("class", "no-shares");
+            p.innerHTML = `${agentType.slice(0, 1).toUpperCase() + agentType.slice(1)} <em>${browser[agentType][agentName].name}</em> has no shares.`;
+            div.appendChild(p);
+        } else {
+            let a:number = 0;
+            shareListUL = document.createElement("ul");
+            shareListUL.setAttribute("class", "agent");
+            do {
+                perShare({
+                    agent: agentName,
+                    agentType: agentType,
+                    share: shares[a]
+                });
+                a = a + 1;
+            } while (a < shareLength);
+            div.appendChild(shareListUL);
+        }
+        lists.appendChild(div);
+    }
     return lists;
 };
 
@@ -519,19 +578,18 @@ share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
 /* Displays a list of shared items for each user */
 share.modal = function local_shares_modal(agent:string, agentType:agentType|"", configuration:ui_modal|null):void {
     const content:Element = share.content(agent, agentType),
+        icon:string = (agentType === "device")
+            ? "🖳"
+            : "👤",
         title:string = (agent === "")
             ? (agentType === "")
                 ? "⌘ All Shares"
-                : (agentType === "device")
-                    ? "🖳 All Device Shares"
-                    : "👤 All User Shares"
-            : (agentType === "device")
-                ? `🖳 Shares for device - ${agent}`
-                : `👤 Shares for user - ${agent}`;
+                : `${icon} All ${agentType.charAt(0).toUpperCase() + agentType.slice(1)} Shares`
+            : `${icon} Shares for ${agentType} - ${browser[agentType][agent].name}`;
     if (configuration === undefined || configuration === null) {
         configuration = {
             agent: agent,
-            agentType: (agentType === "")
+            agentType: (agentType === "" || agent === "")
                 ? "device"
                 : agentType,
             content: content,

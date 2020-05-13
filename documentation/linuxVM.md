@@ -33,3 +33,29 @@ In the VM host configure 2 adapters for each guest machine.
 
 1. **NAT** - This should be the default configuration and all default settings are fine. This provides internet access to the guest machine.
 2. **Host Based Adapter** - The default settings for this adapter type are fine.  This provides connectivity between the host and guest machine.
+
+## Ports
+Linux will not allow use of reserved ports (anything below 1024) for applications run by regular users, so we have to fix that.
+
+Run these commands from the terminal
+
+1. `sudo apt-get update && sudo apt-get install authbind`
+2. `sudo touch /etc/authbind/byport/80`
+3. `sudo chown yourUserName /etc/authbind/byport/80`
+4. `sudo chmod 500 /etc/authbind/byport/80`
+5. `sudo touch /etc/authbind/byport/81`
+6. `sudo chown yourUserName /etc/authbind/byport/81`
+7. `sudo chmod 500 /etc/authbind/byport/81`
+8. `sudo touch /etc/authbind/byport/443`
+9. `sudo chown yourUserName /etc/authbind/byport/443`
+10. `sudo chmod 500 /etc/authbind/byport/443`
+11. `sudo touch /etc/authbind/byport/444`
+12. `sudo chown yourUserName /etc/authbind/byport/444`
+13. `sudo chmod 500 /etc/authbind/byport/444`
+
+Provide an alias to your *.bashrc* file
+
+1. `vim ~/.bashrc`
+2. `alias spacefs="authbind node js/application"`
+
+Then just execute the application as: `spacefs server`

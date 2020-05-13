@@ -142,6 +142,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces ul.agentList li{border-color:#000}
 .dark #spaces div.agentList li,
 .dark #spaces ul.agentList li li{border-color:#ccc}
+.dark #spaces .agentList .file-system-root{background:#024;border-color:#6cf;color:#6cf}
 
 /* share delete */
 .dark #spaces .share-delete .checked{color:#c33}

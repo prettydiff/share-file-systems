@@ -563,9 +563,6 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         agentType:agentType = (agentName === browser.data.hashDevice)
             ? "device"
             : config.agentType,
-        deviceName:string = (config === undefined || config.nameDevice === "")
-            ? browser.data.nameDevice
-            : config.nameDevice,
         location:string = (config !== undefined && typeof config.path === "string")
             ? config.path
             : "defaultLocation",
@@ -607,8 +604,11 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     return;
                 }
                 const payload:fsRemote = JSON.parse(responseText),
-                    box:Element = document.getElementById(payload.id),
-                    body:Element = box.getElementsByClassName("body")[0],
+                    box:Element = document.getElementById(payload.id);
+                if (box === null) {
+                    return;
+                }
+                let body:Element = box.getElementsByClassName("body")[0],
                     files:Element = (payload.dirs === "missing")
                         ? (function local_fs_navigate_callbackRemote_missing():Element {
                             const p:Element = document.createElement("p");
@@ -644,9 +644,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
-            title: (agentType === "device")
-                ? `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}[${deviceName}]`
-                : `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentName}`,
+            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${browser[agentType][agentName].name}`,
             type: "fileNavigate",
             width: 800
         },

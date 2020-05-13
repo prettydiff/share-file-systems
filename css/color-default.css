@@ -131,6 +131,7 @@
 #spaces ul.agentList li{border-color:#000}
 #spaces div.agentList li,
 #spaces ul.agentList li li{border-color:#ccc}
+#spaces .agentList .file-system-root{background:#ddf;border-color:#009;color:#009}
 
 /* share delete */
 #spaces .share-delete label{background:#eee}

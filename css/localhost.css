@@ -185,8 +185,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
 #spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
-#spaces .box .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 0 0 -2.5em;padding:0.125em;width:1.25em}
-#spaces .box .delete span{display:block;text-indent:-2000em}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 
 /* systems modal content */
@@ -240,21 +238,34 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .settings .swatch{border-style:solid;border-width:0.1em;display:inline-block;height:1em;margin:0 1em 0 0;vertical-align:middle;width:1em}
 
 /* share list */
-#spaces .agentList{font-size:1.5em;margin:1em 1em 1em 2em;padding:0}
+#spaces .agentList,
+#spaces .no-shares{font-size:1.5em;padding:0}
+#spaces .agentList{margin:1em 1em 1em 2em}
+#spaces .no-shares{margin:1em 1em 1em 2.667em}
+#spaces .agentList h3{font-size:1em}
 #spaces .agentList li{border-style:none}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
-#spaces .agentList button{background:transparent;border-style:none;cursor:pointer;display:inline-block;font-size:1.4em;padding:0.2em 0 1.2em;text-align:left;width:100%}
-#spaces .agentList .share button{width:75%}
+#spaces .agentList button.device,
+#spaces .agentList button.user{background:transparent;border-style:none;display:inline-block;font-size:1em;padding:0.2em 0 1.2em;text-align:left}
+#spaces .agentList .share button{width:auto}
 #spaces .agentList .share button.delete{width:1.25em}
-#spaces .agentList .share button.make-read-only,
-#spaces .agentList .share button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-weight:bold;padding:0;text-align:center;width:20%}
-#spaces .agentList .read-only-status{float:right;font-weight:normal}
+#spaces .agentList .delete{border-style:solid;border-width:0.1em;display:block;float:left;font-size:1.5em;font-weight:normal;height:1.25em;line-height:1;margin:0.25em 1em 0 0;padding:0.125em;width:1.25em}
+#spaces .agentList .delete span{display:block;text-indent:-2000em}
+#spaces .agentList .file-system-root,
+#spaces .agentList button.make-read-only,
+#spaces .agentList button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-size:1em;font-weight:bold;padding:0;text-align:center;width:12em}
+#spaces .agentList .read-only-status{display:block;font-weight:normal}
 #spaces .agentList .full-access .read-only-status{font-weight:bold}
-#spaces .agentList button:hover{text-decoration:underline}
-#spaces .agentList .agent{margin:0 0 1em}
-#spaces .agentList .agent::before{content:"👤 "}
+#spaces .agentList button:hover{cursor:pointer;text-decoration:underline}
+#spaces .agentList li.agent{margin:0 0 1em}
+#spaces .agentList li.agent::before{content:"👤 "}
 #spaces .agentList .agent h3,
 #spaces .agentList .agent h4{display:inline}
+#spaces .agentList .agent p,
+#spaces .no-shares,
+#spaces .agentList .agent ul,
+#spaces .agentList ul.agent{clear:both;margin:2em 0 0;padding:0}
+#spaces .agentList ul.agent li{border-style:solid;border-width:0 0 0.1em;list-style-type:none}
 
 /* share delete */
 #spaces .share-delete{padding:0 5em}
