@@ -10,7 +10,9 @@ const commandName = function terminal_command():string {
         b:number = 0;
     const arg:string = process.argv[2],
         boldArg:string = vars.text.angry + arg + vars.text.none,
-        len:number = arg.length + 1,
+        len:number = (arg === undefined)
+            ? 0
+            : arg.length + 1,
         commandFilter = function terminal_command_commandFilter(item:string):boolean {
             if (item.indexOf(arg.slice(0, a)) === 0) {
                 return true;

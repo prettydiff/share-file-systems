@@ -10,6 +10,9 @@ It is necessary to run Linux and without additional hardware at the time of this
    1. Others, you might need to search if after all these steps it still doesn't work.
 1. Open Powershell as an administrator and run this command: `bcdedit /set hypervisorlaunchtype off` and then close this Powershell instance.  This step does not require a restart and is the gap between enabling hardware virtualization from the bios and allowing Virtual Box access to that hardware feature.
 
+## Local VM password
+**spaces1234**
+
 ## Microphone
 I had the wonderful experience of my Ubuntu guest stealing access of the microphone away from the Windows host.  This was not an Ubuntu problem but rather a Virtual Box and Windows problem.  Here are the steps to solve this problem.
 1. Go into the settings for the VM instance and disable all audio hardware support.
@@ -25,7 +28,7 @@ I had the wonderful experience of my Ubuntu guest stealing access of the microph
 ## Hostname
 On a relatively clean Linux box there are only two places that need updating to change the hostname.
 
-1. `vim /etc/hosts` - modify the existing hostname
+1. `sudo vim /etc/hosts` - modify the existing hostname
 2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
 
 ## Adapters
@@ -56,6 +59,6 @@ Run these commands from the terminal
 Provide an alias to your *.bashrc* file
 
 1. `vim ~/.bashrc`
-2. `alias spacefs="authbind node js/application"`
+2. `alias sharefs="authbind node js/application"`
 
-Then just execute the application as: `spacefs server`
+Then just execute the application as: `sharefs server`

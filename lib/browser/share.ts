@@ -274,7 +274,6 @@ share.context = function local_share_context():void {
         shares:string[] = Object.keys(deviceData),
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
-        box:Element = element.getAncestor("box", "class"),
         payload: hashShareConfiguration = {
             callback: function local_share_context_shareHash(responseBody:string):void {
                 const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse;
