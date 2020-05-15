@@ -118,7 +118,7 @@ const title:Element = document.getElementsByClassName("title")[0],
             },
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
-                    button:Element = document.getElementById(heartbeat.shareFrom),
+                    button:Element = document.getElementById(heartbeat.agentFrom),
                     parent:Element = (button === null)
                         ? null
                         : <Element>button.parentNode,

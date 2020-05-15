@@ -608,7 +608,10 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                 if (box === null) {
                     return;
                 }
-                let body:Element = box.getElementsByClassName("body")[0],
+                let loc:string = (location === "**root**")
+                        ? payload.dirs[0][0]
+                        : location,
+                body:Element = box.getElementsByClassName("body")[0],
                     files:Element = (payload.dirs === "missing")
                         ? (function local_fs_navigate_callbackRemote_missing():Element {
                             const p:Element = document.createElement("p");
@@ -616,7 +619,10 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                             p.setAttribute("class", "error");
                             return p;
                         }())
-                        : fs.list(location, payload)[0];
+                        : fs.list(loc, payload)[0];
+                if (location === "**root**") {
+                    box.getElementsByTagName("input")[0].value = loc;
+                }
                 body.innerHTML = "";
                 body.appendChild(files);
             },

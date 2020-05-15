@@ -284,7 +284,6 @@ invite.respond = function local_invite_respond(message:string):void {
                     port: invitation.port,
                     shares: <deviceShares>invitation.shares
                 };
-                browser.data.colors[invitation.type][invitation.deviceHash] = ["", ""];
                 share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
             }
         } else {
@@ -302,7 +301,6 @@ invite.respond = function local_invite_respond(message:string):void {
                             port: invitation.port,
                             shares: <deviceShares>invitation.shares
                         };
-                        browser.data.colors[invitation.type][invitation.deviceHash] = ["", ""];
                         share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
                         util.audio("invite");
                         network.storage(invitation.type);

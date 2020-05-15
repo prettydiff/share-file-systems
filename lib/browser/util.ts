@@ -414,7 +414,7 @@ util.fixHeight = function local_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
     document.getElementById("spaces").style.height = `${height / 10}em`;
     browser.content.style.height = `${(height - 51) / 10}em`;
-    document.getElementById("user").style.height = `${(height - 102) / 10}em`;
+    document.getElementById("agentList").style.height = `${(height - 102) / 10}em`;
 };
 
 /* A simple utility to provide form execution to input fields not in a form */

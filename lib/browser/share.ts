@@ -348,6 +348,7 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
             parent.parentNode.removeChild(parent);
             share.removeNameButton(hash, type);
             count = count + 1;
+            delete browser.data.colors[type][hash];
             delete browser[type][hash];
         }
     } while (a > 0);
@@ -360,6 +361,9 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
     }
     if (device === true) {
         network.storage("device");
+    }
+    if (user === true || device === true) {
+        network.storage("settings");
     }
 };
 

@@ -681,7 +681,7 @@ const library = {
                     library.copy(copyConfig);
                 });
             };
-        if (data.location[0] === "**root**") {
+        if (data.location[0] === "**root**" && data.agent === serverVars.hashDevice) {
             data.location[0] = vars.sep;
         }
         if (data.agent !== serverVars.hashDevice && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
