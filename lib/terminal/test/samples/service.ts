@@ -986,18 +986,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "invited",
@@ -1022,18 +1015,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "invited",
@@ -1058,18 +1044,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "invited",
@@ -1094,18 +1073,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "accepted",
@@ -1130,18 +1102,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "invited",
@@ -1166,18 +1131,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "declined",
@@ -1202,18 +1160,11 @@ service.populate = function test_services_populate():void {
                 modal: "test-modal",
                 port: 80,
                 shares: {
-                    [serverVars.hashDevice]: {
-                        ip: loopback,
-                        name: "old desktop computer",
-                        port: 80,
-                        shares: {
-                            "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                                execute: false,
-                                name: "C:\\music",
-                                readOnly: true,
-                                type: "directory"
-                            }
-                        }
+                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
+                        execute: false,
+                        name: "C:\\music",
+                        readOnly: true,
+                        type: "directory"
                     }
                 },
                 status: "accepted",

@@ -102,7 +102,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 ip: data.ip,
                 name: data.name,
                 port: data.port,
-                shares: <deviceShares>data.shares
+                shares: data.shares
             };
             storage(JSON.stringify(serverVars[data.type]), "", data.type);
         }

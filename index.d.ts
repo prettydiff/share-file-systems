@@ -15,6 +15,8 @@ declare global {
     type eventCallback = (event:Event, callback:Function) => void;
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "idle" | "offline";
+    type inviteAction = "invite" | "invite-request" | "invite-response" | "invite-complete";
+    type inviteStatus = "accepted" | "declined" | "invited";
     type messageList = [string, string];
     type messageListError = [string, string, string[]];
     type messageType = "errors" | "status" | "users";
@@ -292,7 +294,7 @@ declare global {
         port: number;
     }
     interface invite {
-        action: "invite" | "invite-request" | "invite-response" | "invite-complete";
+        action: inviteAction;
         deviceName: string;
         deviceHash: string;
         ip: string;
@@ -300,8 +302,8 @@ declare global {
         modal: string;
         name: string;
         port: number;
-        shares: deviceShares | devices;
-        status: "accepted" | "declined" | "invited";
+        shares: deviceShares;
+        status: inviteStatus;
         type: agentType;
         userHash: string;
         userName: string;
@@ -310,6 +312,14 @@ declare global {
         ip: number,
         port: number,
         type: number
+    }
+    interface invitePayload {
+        action: inviteAction;
+        ip: string;
+        modal: string;
+        port: number;
+        status: inviteStatus;
+        type: agentType;
     }
     interface inviteSaved {
         ip: string;
@@ -383,6 +393,7 @@ declare global {
     interface module_invite {
         accept?: (box:Element) => void;
         decline?: EventHandlerNonNull;
+        payload?: (config:invitePayload) => invite;
         portValidation?: EventHandlerNonNull;
         request?: (event:MouseEvent, options:ui_modal) => void;
         respond?: (message:string) => void;
