@@ -94,7 +94,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 : `Ignored${respond}`;
         inviteHttp();
     } else if (data.action === "invite-complete") {
-        const respond:string = ` invitation sent to from start terminal ${serverVars.ipAddress} to start browser.`;
+        const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
         vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
         vars.ws.broadcast(dataString);
         if (data.status === "accepted") {

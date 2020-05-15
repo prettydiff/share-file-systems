@@ -761,7 +761,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         functions.paste();
     } else if (parent.getAttribute("class") === "fileList") {
         functions.details();
-        if (box.getAttribute("data-agent") === browser.data.hashDevice) {
+        if (box.getAttribute("data-agentType") === "device") {
             functions.share();
         }
         if (element.getAttribute("class").indexOf("file") === 0) {

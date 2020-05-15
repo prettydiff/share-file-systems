@@ -18,7 +18,7 @@
 
 /* Context menu, right click */
 #spaces #contextMenu{border-color:#000}
-#spaces #contextMenu button{background:#ddd;border-color:#000}
+#spaces #contextMenu button{background:#ddd;border-color:#000;color:#222}
 #spaces #contextMenu button:hover{background:#eee;color:#00f}
 #spaces #contextMenu .destroy{background:#fdd;color:#c00}
 #spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}

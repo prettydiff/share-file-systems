@@ -604,42 +604,47 @@ share.removeNameButton = function local_share_removeNameButton(agent:string, age
 /* Updates the contents of share modals */
 share.update = function local_share_update():void {
     const modals = Object.keys(browser.data.modals),
-        modalLength = modals.length;
+        modalLength = modals.length,
+        closer = function local_share_update_closer(modal:Element):void {
+            const close = <HTMLElement>modal.getElementsByClassName("close")[0];
+            close.click();
+        };
     let a:number = 0,
         modal:Element,
-        close:HTMLElement,
         body:Element,
         agent:string,
         item:ui_modal,
         agentType:agentType | "";
     do {
         item = browser.data.modals[modals[a]];
-        if (browser[item.agentType][item.agent] === undefined) {
-            modal = document.getElementById(modals[a]);
-            close = <HTMLElement>modal.getElementsByClassName("close")[0];
-            close.click();
+        if (browser[item.agentType][item.agent] === undefined && item.type !== "shares") {
+            closer(document.getElementById(modals[a]));
         } else if (item.type === "shares") {
             modal = document.getElementById(modals[a]);
-            body = modal.getElementsByClassName("body")[0];
-            if (item.title.indexOf("All Shares") > -1) {
-                agentType = "";
-                agent = "";
-            } else if (item.title.indexOf("All User Shares") > -1) {
-                agentType = "user";
-                agent = "";
-            } else if (item.title.indexOf("All Device Shares") > -1) {
-                agentType = "device";
-                agent = "";
+            if (item.agent !== "" && browser[item.agentType][item.agent] === undefined) {
+                closer(modal);
             } else {
-                if (item.title.indexOf("device") > -1) {
-                    agentType = "device";
-                } else {
+                body = modal.getElementsByClassName("body")[0];
+                if (item.title.indexOf("All Shares") > -1) {
+                    agentType = "";
+                    agent = "";
+                } else if (item.title.indexOf("All User Shares") > -1) {
                     agentType = "user";
+                    agent = "";
+                } else if (item.title.indexOf("All Device Shares") > -1) {
+                    agentType = "device";
+                    agent = "";
+                } else {
+                    if (item.title.indexOf("device") > -1) {
+                        agentType = "device";
+                    } else {
+                        agentType = "user";
+                    }
+                    agent = item.agent;
                 }
-                agent = item.agent;
+                body.innerHTML = "";
+                body.appendChild(share.content(agent, agentType));
             }
-            body.innerHTML = "";
-            body.appendChild(share.content(agent, agentType));
         }
         a = a + 1;
     } while (a < modalLength);
