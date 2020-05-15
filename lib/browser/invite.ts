@@ -19,6 +19,7 @@ invite.accept = function local_invite_accept(box:Element):void {
     network.inviteAccept(invite.payload({
         action: "invite-response",
         ip: invitation.ip,
+        message: `Invite accepted: ${util.dateFormat(new Date())}`,
         modal: invitation.modal,
         port: invitation.port,
         status: "accepted",
@@ -48,6 +49,7 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
     network.inviteAccept(invite.payload({
         action: "invite-response",
         ip: invitation.ip,
+        message: `Invite declined: ${util.dateFormat(new Date())}`,
         modal: invitation.modal,
         port: invitation.port,
         status: "declined",
@@ -62,11 +64,11 @@ invite.payload = function local_invite_payload(config:invitePayload):invite {
         action: config.action,
         deviceHash: browser.data.hashDevice,
         deviceName: browser.data.nameDevice,
-        message: `Invite declined: ${util.dateFormat(new Date())}`,
+        ip: config.ip,
+        message: config.message,
         name: (config.type === "user")
             ? browser.data.nameUser
             : browser.data.nameDevice,
-        ip: "",
         modal: config.modal,
         port: config.port,
         shares: (config.type === "user")
@@ -198,6 +200,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
     network.inviteRequest(invite.payload({
         action: "invite",
         ip: ip,
+        message: box.getElementsByTagName("textarea")[0].value,
         modal: options.id,
         port: portNumber,
         status: "invited",
@@ -234,6 +237,7 @@ invite.respond = function local_invite_respond(message:string):void {
             network.inviteAccept(invite.payload({
                 action: "invite-response",
                 ip: invitation.ip,
+                message: `Invite accepted: ${util.dateFormat(new Date())}`,
                 modal: invitation.modal,
                 port: invitation.port,
                 status: "accepted",

@@ -316,6 +316,7 @@ declare global {
     interface invitePayload {
         action: inviteAction;
         ip: string;
+        message: string;
         modal: string;
         port: number;
         status: inviteStatus;
