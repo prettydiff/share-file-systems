@@ -118,14 +118,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             },
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
-                    button:Element = document.getElementById(heartbeat.agentFrom),
-                    parent:Element = (button === null)
-                        ? null
-                        : <Element>button.parentNode,
-                    list:Element = (button === null)
-                        ? null
-                        : <Element>parent.parentNode;
-                if (list !== null && list.getAttribute("id") === heartbeat.agentType) {
+                    button:Element = document.getElementById(heartbeat.agentFrom);
+                if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                     button.setAttribute("class", heartbeat.status);
                 }
                 if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
