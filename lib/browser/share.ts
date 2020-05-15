@@ -42,11 +42,7 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
                 agentType:agentType = <agentType>element.getAttribute("data-agent-type");
             element = element.getAncestor("button", "tag");
             share.modal(agent, agentType, null);
-        },
-        modals:string[] = Object.keys(browser.data.modals),
-        length: number = modals.length;
-    let a:number = 0,
-        shareUser:Element;
+        };
     button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
     if (userHash === browser.data.hashDevice) {
         button.setAttribute("class", "active");
@@ -61,17 +57,7 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
     document.getElementById(type).getElementsByTagName("ul")[0].appendChild(li);
     if (browser.loadTest === false) {
         settings.addUserColor(userHash, type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
-        do {
-            if (browser.data.modals[modals[a]].type === "shares" && browser.data.modals[modals[a]].agent === "") {
-                const agentList:Element = <Element>document.getElementById(modals[a]).getElementsByClassName("agentList")[0];
-                if (agentList !== undefined) {
-                    shareUser = document.createElement("li");
-                    shareUser.appendChild(share.content(userHash, type));
-                    agentList.appendChild(shareUser);
-                }
-            }
-            a = a + 1;
-        } while (a < length);
+        share.update();
         network.storage(type);
     }
 };
@@ -617,13 +603,18 @@ share.update = function local_share_update():void {
         modalLength = modals.length;
     let a:number = 0,
         modal:Element,
+        close:HTMLElement,
         body:Element,
         agent:string,
         item:ui_modal,
         agentType:agentType | "";
     do {
-        if (browser.data.modals[modals[a]].type === "shares") {
-            item = browser.data.modals[modals[a]];
+        item = browser.data.modals[modals[a]];
+        if (browser[item.agentType][item.agent] === undefined) {
+            modal = document.getElementById(modals[a]);
+            close = <HTMLElement>modal.getElementsByClassName("close")[0];
+            close.click();
+        } else if (item.type === "shares") {
             modal = document.getElementById(modals[a]);
             body = modal.getElementsByClassName("body")[0];
             if (item.title.indexOf("All Shares") > -1) {

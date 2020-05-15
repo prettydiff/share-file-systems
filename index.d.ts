@@ -384,7 +384,6 @@ declare global {
         accept?: (box:Element) => void;
         decline?: EventHandlerNonNull;
         portValidation?: EventHandlerNonNull;
-        removeWarning?: EventHandlerNonNull;
         request?: (event:MouseEvent, options:ui_modal) => void;
         respond?: (message:string) => void;
         start?: sharesDeleteList;

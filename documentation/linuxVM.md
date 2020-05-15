@@ -10,8 +10,32 @@ It is necessary to run Linux and without additional hardware at the time of this
    1. Others, you might need to search if after all these steps it still doesn't work.
 1. Open Powershell as an administrator and run this command: `bcdedit /set hypervisorlaunchtype off` and then close this Powershell instance.  This step does not require a restart and is the gap between enabling hardware virtualization from the bios and allowing Virtual Box access to that hardware feature.
 
+## Clone a VM
+### Hostname
+On a relatively clean Linux box there are only two places that need updating to change the hostname.
+
+1. `sudo vim /etc/hosts` - modify the existing hostname
+2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
+
+### Change Application Device Name
+This change is for the Share File Systems application not the OS.
+
+Settings:
+1. `vim ./storage/settings.json`
+2. Change the `nameDevice` property
+3. Optionally the `nameUser` can be changed as well
+
+Device:
+1. `vim ./storage/device.json`
+2. Change the `name` property to anything else
+
+### IP Address
+The IP address shouldn't need to be changed, because the host assigns the address from a DHCP pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
+1. `ifconfig` - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
+2. `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the netmask.
+
 ## Local VM password
-**spaces1234**
+**share1234**
 
 ## Microphone
 I had the wonderful experience of my Ubuntu guest stealing access of the microphone away from the Windows host.  This was not an Ubuntu problem but rather a Virtual Box and Windows problem.  Here are the steps to solve this problem.
@@ -24,12 +48,6 @@ I had the wonderful experience of my Ubuntu guest stealing access of the microph
    1. Go back into properties and change it to *24bit, 48000 hertz* and click *OK* button.
    1. The *Playback* tab is complete. Repeat that process for the microphone under the *Recoding* tab.
    1. Ensure the microphone is enabled in the Windows host recording application.
-
-## Hostname
-On a relatively clean Linux box there are only two places that need updating to change the hostname.
-
-1. `sudo vim /etc/hosts` - modify the existing hostname
-2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
 
 ## Adapters
 In the VM host configure 2 adapters for each guest machine.

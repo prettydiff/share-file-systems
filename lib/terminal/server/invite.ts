@@ -7,6 +7,7 @@ import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
+import storage from "./storage.js";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
@@ -96,6 +97,15 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         const respond:string = ` invitation sent to from start terminal ${serverVars.ipAddress} to start browser.`;
         vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
         vars.ws.broadcast(dataString);
+        if (data.status === "accepted") {
+            serverVars[data.type][data[`${data.type}Hash`]] = {
+                ip: data.ip,
+                name: data.name,
+                port: data.port,
+                shares: <deviceShares>data.shares
+            };
+            storage(JSON.stringify(serverVars[data.type]), "", data.type);
+        }
         responseString = (data.status === "accepted")
             ? `Accepted${respond}`
             : (data.status === "declined")

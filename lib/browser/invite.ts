@@ -80,22 +80,6 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
     modal.close(event);  
 };
 
-/* Removes form validation warnings for an unselected radio button set in the invite messaging. */
-invite.removeWarning = function local_invite_removeWarning(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
-        para:Element = <Element>element.parentNode.parentNode,
-        parent:Element = <Element>para.parentNode,
-        warning:Element = parent.getElementsByClassName("inviteWarning")[0],
-        inputs:HTMLCollectionOf<HTMLInputElement> = para.getElementsByTagName("input");
-    let a:number = inputs.length;
-    do {
-        a = a - 1;
-        inputs[a].onclick = null;
-    } while (a > 0);
-    parent.removeChild(warning);
-    para.removeAttribute("class");
-}
-
 /* Basic form validation on the port field */
 invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
     const portElement:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
@@ -217,14 +201,8 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
     network.storage("settings");
     if (input !== null) {
         const p:Element = <Element>input.parentNode.parentNode,
-            inputs:HTMLCollectionOf<HTMLElement> = p.getElementsByTagName("input"),
             warning:Element = document.createElement("p");
-        let a:number = inputs.length;
         p.setAttribute("class", "warning");
-        do {
-            a = a - 1;
-            inputs[a].onclick = invite.removeWarning;
-        } while (a > 0);
         input.focus();
         warning.innerHTML = "<strong>Please select an invitation type.</strong>";
         warning.setAttribute("class", "inviteWarning");
@@ -481,7 +459,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
             agent: browser.data.hashDevice,
             agentType: "device",
             content: inviteElement,
-            height: 550,
+            height: 650,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             read_only: false,
             title: document.getElementById("user-invite").innerHTML,
@@ -496,7 +474,14 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
 
 invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
-        description:HTMLElement = <HTMLElement>element.parentNode.parentNode.parentNode.lastChild;
+        parent:Element = <Element>element.parentNode.parentNode,
+        grandParent:Element = <Element>parent.parentNode,
+        warning:Element = grandParent.getElementsByClassName("inviteWarning")[0],
+        description:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("type-description")[0];
+    if (warning !== undefined) {
+        grandParent.removeChild(warning);
+        parent.removeAttribute("class");
+    }
     if (element.value === "device") {
         description.innerHTML = "Including a personal device will provide unrestricted access to and from that device. This username will be imposed upon that device";
     } else {
