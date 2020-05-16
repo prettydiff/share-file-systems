@@ -52,6 +52,7 @@ import webSocket from "./webSocket.js";
                     // building logging utility (systems log)
                     if (document.getElementById("systems-modal") === null) {
                         payloadModal.content = systems.modalContent();
+                        payloadModal.inputs = ["close"];
                         payloadModal.title = document.getElementById("systemLog").innerHTML;
                         payloadModal.type = "systems";
                         payloadModal.width = 800;
@@ -190,7 +191,7 @@ import webSocket from "./webSocket.js";
                     // watch for local idleness
                     document.onclick = activate;
 
-                    if (browser.data.hashDevice !== "" && document.getElementById("settings") === null) {
+                    if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
                         defaultModals();
                     }
 

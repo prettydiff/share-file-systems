@@ -122,6 +122,7 @@ const library = {
         },
         delete: function terminal_server_heartbeatDelete(deleted:[string, string][], response:ServerResponse):void {
             let a:number = 0,
+                agent:device,
                 agentType:agentType,
                 self:string,
                 device:boolean = false,
@@ -162,25 +163,28 @@ const library = {
                 };
             do {
                 agentType = <agentType>deleted[a][1];
-                self = (agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser;
-                payload.agentFrom = self;
-                payload.agentTo = deleted[a][0];
-                payload.agentType = agentType;
-                payload.shareFrom = self;
-                httpConfig.agentType = agentType;
-                httpConfig.ip = serverVars[agentType][deleted[a][0]].ip;
-                httpConfig.payload = JSON.stringify(payload);
-                httpConfig.port = serverVars[agentType][deleted[a][0]].port;
-                httpConfig.remoteName = self;
-                library.httpClient(httpConfig);
-                delete serverVars[agentType][deleted[a][0]];
-                if (agentType === "device") {
-                    device = true;
-                }
-                if (agentType === "user") {
-                    user = true;
+                agent = serverVars[agentType][deleted[a][0]];
+                if (agent !== undefined) {
+                    self = (agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser;
+                    payload.agentFrom = self;
+                    payload.agentTo = deleted[a][0];
+                    payload.agentType = agentType;
+                    payload.shareFrom = self;
+                    httpConfig.agentType = agentType;
+                    httpConfig.ip = agent.ip;
+                    httpConfig.payload = JSON.stringify(payload);
+                    httpConfig.port = agent.port;
+                    httpConfig.remoteName = self;
+                    library.httpClient(httpConfig);
+                    delete serverVars[agentType][deleted[a][0]];
+                    if (agentType === "device") {
+                        device = true;
+                    }
+                    if (agentType === "user") {
+                        user = true;
+                    }
                 }
                 a = a + 1;
             } while (a < length);

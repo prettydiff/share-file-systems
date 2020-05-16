@@ -622,6 +622,8 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                         : fs.list(loc, payload)[0];
                 if (location === "**root**") {
                     box.getElementsByTagName("input")[0].value = loc;
+                    browser.data.modals[payload.id].text_value = loc;
+                    network.storage("settings");
                 }
                 body.innerHTML = "";
                 body.appendChild(files);
