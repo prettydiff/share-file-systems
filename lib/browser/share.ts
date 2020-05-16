@@ -312,8 +312,41 @@ share.context = function local_share_context():void {
     util.selectNone(element);
 };
 
-/* Terminates one or more users */
-share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
+/* Terminate an agent */
+share.deleteAgent = function local_share_deleteAgent(agent:string, agentType:agentType):void {
+    const userColors = document.getElementById("settings-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
+        colorLength:number = userColors.length,
+        button:Element = document.getElementById(agent),
+        parent:Element = (button === null)
+            ? null
+            : <Element>button.parentNode;
+    let a:number = 0;
+
+    // remove the agent from the data structures
+    delete browser[agentType][agent];
+    delete browser.data.colors[agentType][agent];
+    network.storage(agentType);
+    network.storage("settings");
+
+    // remove the named button for the agent
+    if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
+        parent.parentNode.removeChild(parent);
+    }
+
+    // loop through the color swatches in the settings modal to remove the agent's colors
+    do {
+        if (userColors[a].getAttribute("data-agent") === agent) {
+            userColors[a].parentNode.removeChild(userColors[a]);
+            break;
+        }
+        a = a + 1;
+    } while (a < colorLength);
+
+    share.update();
+};
+
+/* Processes agent termination from a share_delete modal */
+share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void {
     const body:Element = box.getElementsByClassName("body")[0],
         list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
         deleted:[string, agentType][] = [];
@@ -350,7 +383,7 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
                 device = true;
             }
             parent.parentNode.removeChild(parent);
-            share.removeNameButton(hash, type);
+            share.deleteAgent(hash, type);
             count = count + 1;
             deleted.push([hash, type]);
         }
@@ -421,7 +454,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
     } else {
         configuration.agent = browser.data.hashDevice;
         configuration.content = content;
-        if (total > 1) {
+        if (total > 0) {
             configuration.inputs = ["confirm", "cancel", "close"];
         } else {
             configuration.inputs = ["close"];
@@ -577,41 +610,6 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
     share.update();
     network.heartbeat("active", agency[0], browser.device[agency[0]].shares);
     network.storage(agency[2]);
-};
-
-/* Remove a named agent's button and their color swatches*/
-share.removeNameButton = function local_share_removeNameButton(agent:string, agentType:agentType):void {
-    const userColors = document.getElementById("settings-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
-        colorLength:number = userColors.length,
-        button:Element = document.getElementById(agent),
-        parent:Element = (button === null)
-            ? null
-            : <Element>button.parentNode,
-        list:Element = (button === null)
-            ? null
-            : <Element>parent.parentNode;
-    let a:number = 0;
-
-    delete browser[agentType][agent];
-    delete browser.data.colors[agentType][agent];
-    network.storage(agentType);
-    network.storage("settings");
-
-    // remove the named button for the agent
-    if (parent !== null && list !== null && list.getAttribute("id") === agentType) {
-        list.removeChild(parent);
-    }
-
-    // loop through the color swatches in the settings modal to remove the agent's colors
-    do {
-        if (userColors[a].getAttribute("data-agent") === agent) {
-            userColors[a].parentNode.removeChild(userColors[a]);
-            break;
-        }
-        a = a + 1;
-    } while (a < colorLength);
-
-    share.update();
 };
 
 /* Updates the contents of share modals */

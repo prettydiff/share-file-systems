@@ -59,7 +59,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
     } else if (options.type === "invite-accept") {
         invite.accept(box);
     } else if (options.type === "share_delete") {
-        share.deleteAgent(box);
+        share.deleteAgentList(box);
     }
     modal.close(event);
 };

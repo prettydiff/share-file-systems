@@ -443,14 +443,14 @@ declare global {
         addAgent?: (agentName:string, id:string, type:agentType) => void;
         content?: (agent:string, agentType:agentType|"") => Element;
         context?: EventHandlerNonNull;
-        deleteAgent?: (box:Element) => void;
+        deleteAgent?: (agent:string, agentType:agentType) => void;
+        deleteAgentList?: (box:Element) => void;
         deleteItem?: EventHandlerNonNull;
         deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
         deleteListContent?: () => Element;
         deleteToggle?: EventHandlerNonNull;
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
-        removeNameButton?: (agent:string, agentType:agentType) => void;
         update?: () => void;
     }
     interface module_systems {
