@@ -10,26 +10,11 @@ import util from "./util.js";
 
 const title:Element = document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
-    close = function local_socketClose():void {
-        const device:Element = document.getElementById(browser.data.hashDevice);
-        title.setAttribute("class", "title offline");
-        title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
-        if (device !== null) {
-            device.setAttribute("class", "offline");
-        }
-    },
     message = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
         }
-        const deleteAgent = function local_socketMessage_deleteUser(type:agentType):void {
-                const agent:string = JSON.parse(event.data)["delete-user"];
-                delete browser[type][agent];
-                share.removeNameButton(agent, type);
-                share.update();
-                network.storage(type);
-            },
-            error = function local_socketMessage_error():void {
+        const error = function local_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
                     modal:Element = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
@@ -119,13 +104,20 @@ const title:Element = document.getElementsByClassName("title")[0],
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
-                if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
-                    button.setAttribute("class", heartbeat.status);
-                }
-                if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
-                    browser[heartbeat.agentType][heartbeat.shareFrom].shares = heartbeat.shares;
+                if (heartbeat.status === "deleted") {
+                    delete browser[heartbeat.agentType][heartbeat.agentFrom];
+                    share.removeNameButton(heartbeat.agentFrom, heartbeat.agentType);
                     share.update();
                     network.storage(heartbeat.agentType);
+                } else {
+                    if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
+                        button.setAttribute("class", heartbeat.status);
+                    }
+                    if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
+                        browser[heartbeat.agentType][heartbeat.shareFrom].shares = heartbeat.shares;
+                        share.update();
+                        network.storage(heartbeat.agentType);
+                    }
                 }
             },
             invitation = function local_socketMessage_invite():void {
@@ -144,11 +136,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 content.style.display = "block";
                 footer.style.display = "block";
             };
-        if (event.data.indexOf("{\"delete-user\":") === 0) {
-            deleteAgent("user");
-        } else if (event.data.indexOf("{\"delete-device\":") === 0) {
-            deleteAgent("device");
-        } else if (event.data.indexOf("{\"error\":") === 0) {
+        if (event.data.indexOf("{\"error\":") === 0) {
             error();
         } else if (event.data.indexOf("{\"file-list-status\":") === 0) {
             util.fileListStatus(JSON.parse(event.data)["file-list-status"]);
@@ -176,7 +164,13 @@ const title:Element = document.getElementsByClassName("title")[0],
     },
     webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = new WebSocket(`ws://localhost:${browser.localNetwork.wsPort}/`),
-            error = function local_socketError(this:WebSocket):any {
+            error = function local_socketError():any {
+                const device:Element = document.getElementById(browser.data.hashDevice);
+                title.setAttribute("class", "title offline");
+                title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+                if (device !== null) {
+                    device.setAttribute("class", "offline");
+                }
                 setTimeout(function local_socketError_timeout():void {
                     browser.socket = local_webSocket();
                 }, 5000);
@@ -185,8 +179,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = message;
-        socket.onclose = close;
-        socket.onerror = error;
+        socket.onclose = error;
         return socket;
     };
 

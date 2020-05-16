@@ -192,9 +192,12 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                                 : "s",
                             verb:string = (listLength === 1)
                                 ? "is"
-                                : "are";
+                                : "are",
+                            adjective:string = (type === "device")
+                                ? "available"
+                                : "shared";
                         agentTypeUL.setAttribute("class", "agentList")
-                        title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> shared.`;
+                        title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
                         lists.appendChild(title);
                         lists.appendChild(agentTypeUL);
                     } else {
@@ -350,6 +353,7 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
             count = count + 1;
             delete browser.data.colors[type][hash];
             delete browser[type][hash];
+            network.heartbeat("deleted", `${type}:${hash}`, {});
         }
     } while (a > 0);
     if (count < 1) {

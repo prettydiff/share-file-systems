@@ -118,6 +118,9 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
                 }
             }
         },
+        command:string = (status === "deleted")
+            ? "heartbeat-delete"
+            : "heartbeat-broadcast",
         heartbeat:heartbeatBroadcast = {
             agentFrom: "localhost-browser",
             shareFrom: share,
@@ -130,7 +133,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.send(JSON.stringify({
-        "heartbeat-broadcast": heartbeat
+        [command]: heartbeat
     }));
 };
 

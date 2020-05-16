@@ -29,6 +29,7 @@ const library = {
         hash: hash,
         heartbeat: heartbeat,
         httpClient: httpClient,
+        invite: invite,
         log: log,
         readStorage: readStorage
     },
@@ -164,6 +165,8 @@ const library = {
                         library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
                     } else if (task === "heartbeat-response") {
                         vars.ws.broadcast(body);
+                    } else if (task === "heartbeat-delete") {
+                        library.heartbeat.delete(JSON.parse(body)["heartbeat-delete"], response);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);
@@ -182,7 +185,7 @@ const library = {
                         hashDevice();
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
-                        invite(body, response);
+                        library.invite(body, response);
                     }
                 });
             },

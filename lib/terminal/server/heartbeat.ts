@@ -71,7 +71,7 @@ const library = {
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                         heartbeatError.agentFrom = agent;
                         heartbeatError.agentType = type;
-                        if (errorMessage.code !== "ETIMEDOUT") {
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                             library.log([errorMessage.toString()]);
                         }
@@ -143,6 +143,36 @@ const library = {
                 source: serverVars
             });
         },
+        delete: function terminal_server_heartbeatDelete(data:heartbeatBroadcast, response:ServerResponse):void {
+            const agency:[string, string] = <[string, string]>data.status.split(":"),
+                agentType:agentType = <agentType>agency[0],
+                agent:string = agency[1],
+                self:string = (agentType === "device")
+                    ? serverVars.hashDevice
+                    : serverVars.hashUser,
+                payload:heartbeat = {
+                    agentFrom: self,
+                    agentTo: agent,
+                    agentType: agentType,
+                    shareFrom: self,
+                    shares: {},
+                    status: "deleted"
+                },
+                httpConfig:httpConfiguration = {
+                    agentType: agentType,
+                    callback: function terminal_server_heartbeatDelete_callback():void {},
+                    callbackType: "body",
+                    errorMessage: "",
+                    id: "heartbeat",
+                    ip: serverVars[agentType][agent].ip,
+                    payload: JSON.stringify({
+                        "heartbeat": payload
+                    }),
+                    port: serverVars[agentType][agent].port,
+                    remoteName: ""
+                };
+            library.httpClient(httpConfig);
+        },
         response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
             vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
             if (serverVars[data.agentType][data.agentFrom] === undefined) {
@@ -158,38 +188,46 @@ const library = {
                 vars.ws.broadcast(JSON.stringify({
                     "heartbeat-response": data
                 }));
-                if (data.shareFrom !== "") {
-                    const sameAgent:boolean = (data.agentFrom === data.shareFrom),
-                        shareString:string = (sameAgent === true)
-                        ? JSON.stringify(serverVars[data.agentType][data.shareFrom].shares)
-                        : JSON.stringify(serverVars.device[data.shareFrom].shares);
-                    vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
-                    if (shareString !== JSON.stringify(data.shares)) {
-                        if (sameAgent === true) {
-                            serverVars[data.agentType][data.shareFrom].shares = data.shares;
-                            library.storage(JSON.stringify({
-                                [data.agentType]: serverVars[data.agentType]
-                            }), "", data.agentType);
-                        } else {
-                            serverVars.device[data.shareFrom].shares = data.shares;
-                            library.storage(JSON.stringify({
-                                device: serverVars.device
-                            }), "", "device");
+                if (data.status === "deleted") {
+                    if (response !== null) {
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write("Response to remote user deletion.");
+                        response.end();
+                    }
+                } else {
+                    if (data.shareFrom !== "") {
+                        const sameAgent:boolean = (data.agentFrom === data.shareFrom),
+                            shareString:string = (sameAgent === true)
+                            ? JSON.stringify(serverVars[data.agentType][data.shareFrom].shares)
+                            : JSON.stringify(serverVars.device[data.shareFrom].shares);
+                        vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
+                        if (shareString !== JSON.stringify(data.shares)) {
+                            if (sameAgent === true) {
+                                serverVars[data.agentType][data.shareFrom].shares = data.shares;
+                                library.storage(JSON.stringify({
+                                    [data.agentType]: serverVars[data.agentType]
+                                }), "", data.agentType);
+                            } else {
+                                serverVars.device[data.shareFrom].shares = data.shares;
+                                library.storage(JSON.stringify({
+                                    device: serverVars.device
+                                }), "", "device");
+                            }
                         }
                     }
-                }
-                vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
-                data.agentTo = data.agentFrom;
-                data.agentFrom = (data.agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser;
-                data.status = serverVars.status;
-                if (response !== null) {
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(JSON.stringify({
-                        "heartbeat-response": data
-                    }));
-                    response.end();
+                    vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
+                    data.agentTo = data.agentFrom;
+                    data.agentFrom = (data.agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser;
+                    data.status = serverVars.status;
+                    if (response !== null) {
+                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+                        response.write(JSON.stringify({
+                            "heartbeat-response": data
+                        }));
+                        response.end();
+                    }
                 }
             }
         }
