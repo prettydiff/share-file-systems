@@ -2,7 +2,7 @@
 These files are generic libraries that environment agnostic and will work both in the browser and on the terminal.
 
 ## Files
-Do not edit below this line.  Contents dynamically populated.
+<!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[agents.ts](agents.ts)**           - Traverses the list of agents, devices and users, and performs an action on each as dictated by a callback
 * **[commas.ts](commas.ts)**           - Converts numbers into a string of comma separated triplets.

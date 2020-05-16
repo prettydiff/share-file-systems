@@ -1,13 +1,11 @@
+<!-- documentation/developer_guide - A quick overview of the technical aspects for jumping to the project with a goal of extending the code. -->
+
 # Share File Systems - Developer Guide
 
 ## Code Location
-All code for this application is located in 3 places:
-* localhost.ts - This is the file that is consumed by the browser and provides user interaction.
+All code for this application is located in 2 places:
 * application.ts - This is the Node.js application file.
 * lib - This directory contains all supporting code libraries
-   - lib/browser - All supporting libraries for the *localhost.ts* file.
-   - lib/terminal - All supporting libraries for the *application.ts* file.
-   - lib/terminal/server - All supporting libraries for actions via network interface as executed by *lib/terminal/server.ts*.
 
 ## Configuration
 I am not a fan of configuring software.  I consider preliminary software configurations necessary to execute an application a time wasting punishment from incompetent developers.  Well written software requires no preliminary configuration because flexibility is built into the application at run time.  The application's default configurations are stored in the `version.json` file.

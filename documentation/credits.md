@@ -1,3 +1,5 @@
+<!-- documentation/credits - A list of external source material not originally created within this project. -->
+
 # Share File System - Credits
 
 ## Audio

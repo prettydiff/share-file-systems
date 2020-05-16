@@ -341,8 +341,6 @@ share.deleteAgent = function local_share_deleteAgent(agent:string, agentType:age
         }
         a = a + 1;
     } while (a < colorLength);
-
-    share.update();
 };
 
 /* Processes agent termination from a share_delete modal */
@@ -393,9 +391,6 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
     }
     network.deleteAgents(deleted);
     share.update();
-    if (user === true || device === true) {
-        network.storage("settings");
-    }
 };
 
 /* Delete a share from a device */
@@ -628,7 +623,7 @@ share.update = function local_share_update():void {
         agentType:agentType | "";
     do {
         item = browser.data.modals[modals[a]];
-        if (browser[item.agentType][item.agent] === undefined && item.type !== "shares") {
+        if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "share_delete") {
             closer(document.getElementById(modals[a]));
         } else if (item.type === "shares") {
             modal = document.getElementById(modals[a]);

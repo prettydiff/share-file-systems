@@ -1,3 +1,5 @@
+<!-- documentation/invitation - Notes on the flow control of the invitation process. -->
+
 # Adding A User
 At the time of this writing, 21 SEP, this documentation is written in the perspective of one user inviting one other without consideration for additional users.
 

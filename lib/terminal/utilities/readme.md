@@ -2,7 +2,7 @@
 The various utility libraries for the terminal instance of the application.
 
 ## Files
-Do not edit below this line.  Contents dynamically populated.
+<!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[commandName.ts](commandName.ts)**                       - A library for visually presenting command documentation to the terminal.
 * **[commands_documentation.ts](commands_documentation.ts)** - A data structure defining command documentation with usage examples.

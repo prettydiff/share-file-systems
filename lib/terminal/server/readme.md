@@ -2,7 +2,7 @@
 These files are libraries that comprise */lib/terminal/server.ts* **which in turn comprises *application.ts*.
 
 ## Files
-Do not edit below this line.  Contents dynamically populated.
+<!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[fileService.ts](fileService.ts)**     - This library executes various file system related services and actions.
 * **[forbiddenUser.ts](forbiddenUser.ts)** - A single function for handling rejected HTTP responses associated with disallowed requests.

@@ -2,7 +2,7 @@
 The test runner utility and supporting libraries.
 
 ## Files
-Do not edit below this line.  Contents dynamically populated.
+<!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[complete.ts](complete.ts)**     - Final messaging for a completed test type.
 * **[evaluation.ts](evaluation.ts)** - Evaluate a given test item and report appropriate failure messaging.

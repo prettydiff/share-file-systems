@@ -1,3 +1,5 @@
+<!-- documentation/terminal_commands - Documentation using application commands from the terminal. -->
+
 # Share File Systems - Terminal Commands
 ON the terminal this application is a collection of independent utilities designed for portability and insertion into other applications.  These utilities are executed as commands.  Here is an example:
 ```

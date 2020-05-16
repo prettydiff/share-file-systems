@@ -1,3 +1,5 @@
+<!-- documentation/modal - Notes about modals and the graphic user interface that displays in the browser. -->
+
 # Share File Systems - Modals
 The modals are the central means of communicating specific content to the user in the browser.  They are designed to be fluid and flexible to visual users much like an OS graphic user interface without sacrificing keyboard access or accessibility.
 

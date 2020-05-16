@@ -2,7 +2,7 @@
 The terminal libraries that executable as either an included library or as a command from the terminal.
 
 ## Files
-Do not edit below this line.  Contents dynamically populated.
+<!-- Do not edit below this line.  Contents dynamically populated. -->
 
 * **[base64.ts](base64.ts)**                   - A command driven utility for performing base64 encoding/decoding.
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.

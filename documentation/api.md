@@ -1,3 +1,5 @@
+<!-- documentation/api - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts. -->
+
 # Share File Systems - API Documentation
 This documentation is collected from the interfaces defined in *index.d.ts* and their use in *lib/terminal/server.ts*.
 

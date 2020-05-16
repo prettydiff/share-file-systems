@@ -104,8 +104,10 @@ const title:Element = document.getElementsByClassName("title")[0],
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
+
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
+                    share.update();
                 } else {
                     if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                         button.setAttribute("class", heartbeat.status);

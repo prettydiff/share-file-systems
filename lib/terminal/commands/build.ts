@@ -181,196 +181,230 @@ const library = {
                 libReadme: function terminal_build_libReadme():void {
                     heading("Writing lib directory readme.md files.");
 
-                    const dirs = function terminal_build_libReadme_dirs(dirList:directoryList) {
-                        let writeStart:number = 0,
-                            writeEnd:number = 0,
-                            master:number = 0,
-                            a:number = 0,
-                            fileStart:number = 0,
-                            fileEnd:number = 0;
-                        const length:number = dirList.length,
-                            masterList = function terminal_build_libReadme_masterList():void {
-                                let a:number = 0,
-                                    b:number = 0,
-                                    path:string;
-                                const fileLength:number = files.length,
-                                    fileContents:string[] = [],
-                                    filePath:string = `${vars.projectPath}documentation${vars.sep}library_list.md`;
-                                fileContents.push(`# Share File Systems - Code Library List`);
-                                fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
-                                fileContents.push("");
-                                do {
-                                    if (a < 1 || files[a].path !== files[a - 1].path) {
-                                        path = `* Directory *[../${files[a].path}](../${files[a].path})*`;
-                                        fileContents.push(path);
-                                    }
-                                    path = `   - **[../${files[a].path}/${files[a].name}.ts](../${files[a].path}/${files[a].name}.ts)**`;
-                                    b = files[a].path.length + files[a].name.length;
-                                    if (b < master) {
-                                        do {
-                                            path = `${path}  `;
-                                            b = b + 1;
-                                        } while (b < master);
-                                    }
-                                    fileContents.push(`${path} - ${files[a].description}`);
-                                    a = a + 1;
-                                } while (a < fileLength);
-                                vars.node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_build_libReadme_masterList_write(erWrite:nodeError):void {
-                                    if (erWrite !== null) {
-                                        library.error([erWrite.toString()]);
-                                        return;
-                                    }
-                                    library.log([`${library.humanTime(false)}Updated ${filePath}`]);
-                                    next("Completed writing lib directory readme.md files.");
-                                });
-                            },
-                            write = function terminal_build_libReadme_write(path:string, fileList:string):void {
-                                const filePath:string = `${vars.projectPath + path.replace(/\//g, vars.sep) + vars.sep}readme.md`;
-                                writeStart = writeStart + 1;
-                                vars.node.fs.readFile(filePath, "utf8", function terminal_build_libReadme_write_readFile(erRead:nodeError, readme:String):void {
-                                    if (erRead !== null) {
-                                        library.error([
-                                            "Error reading file during documentation build task.",
-                                            `File: ${filePath}`
-                                        ]);
-                                        return;
-                                    }
-                                    const index:number = readme.indexOf("Contents dynamically populated.") + "Contents dynamically populated.".length;
-                                    readme = readme.slice(0, index) + `\n\n${fileList}`;
-                                    // Sixth, write the documentation to each respective file
-                                    vars.node.fs.writeFile(filePath, readme, "utf8", function terminal_build_libReadme_write_readFile_writeFile(erWrite:nodeError):void {
+                    let dirList:directoryList = [];
+                    const callback = function terminal_build_dirCallback(list:directoryList):void {
+                            if (dirList.length < 1) {
+                                dirList = list;
+                            } else {
+                                dirList = dirList.concat(list);
+                                dirs();
+                            }
+                        },
+                        dirs = function terminal_build_libReadme_dirs():void {
+                            let writeStart:number = 0,
+                                writeEnd:number = 0,
+                                master:number = 0,
+                                a:number = 0,
+                                fileStart:number = 0,
+                                fileEnd:number = 0;
+                            const length:number = dirList.length,
+                                masterList = function terminal_build_libReadme_masterList():void {
+                                    let a:number = 0,
+                                        b:number = 0,
+                                        path:string,
+                                        extension:"md"|"ts";
+                                    const fileLength:number = files.length,
+                                        fileContents:string[] = [],
+                                        filePath:string = `${vars.projectPath}documentation${vars.sep}library_list.md`;
+                                    fileContents.push("<!-- documentation/library_list - Automated list of all code and documentation files with brief descriptions. -->");
+                                    fileContents.push("");
+                                    fileContents.push(`# Share File Systems - Code Library List`);
+                                    fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
+                                    fileContents.push("");
+                                    do {
+                                        if (files[a].path === "documentation") {
+                                            extension = "md";
+                                        } else {
+                                            extension = "ts";
+                                        }
+                                        if (a < 1 || files[a].path !== files[a - 1].path) {
+                                            path = `* Directory *[../${files[a].path}](../${files[a].path})*`;
+                                            fileContents.push(path);
+                                        }
+                                        path = `   - **[../${files[a].path}/${files[a].name}.${extension}](../${files[a].path}/${files[a].name}.${extension})**`;
+                                        b = files[a].path.length + files[a].name.length;
+                                        if (b < master) {
+                                            do {
+                                                path = `${path}  `;
+                                                b = b + 1;
+                                            } while (b < master);
+                                        }
+                                        fileContents.push(`${path} - ${files[a].description}`);
+                                        a = a + 1;
+                                    } while (a < fileLength);
+                                    vars.node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_build_libReadme_masterList_write(erWrite:nodeError):void {
                                         if (erWrite !== null) {
+                                            library.error([erWrite.toString()]);
+                                            return;
+                                        }
+                                        library.log([`${library.humanTime(false)}Updated ${filePath}`]);
+                                        next("Completed writing lib directory readme.md files.");
+                                    });
+                                },
+                                write = function terminal_build_libReadme_write(path:string, fileList:string):void {
+                                    const filePath:string = `${vars.projectPath + path.replace(/\//g, vars.sep) + vars.sep}readme.md`;
+                                    writeStart = writeStart + 1;
+                                    vars.node.fs.readFile(filePath, "utf8", function terminal_build_libReadme_write_readFile(erRead:nodeError, readme:String):void {
+                                        if (erRead !== null) {
                                             library.error([
-                                                "Error writing file during documentation build task.",
+                                                "Error reading file during documentation build task.",
                                                 `File: ${filePath}`
                                             ]);
                                             return;
                                         }
-                                        library.log([`${library.humanTime(false)}Updated ${filePath}`]);
-                                        writeEnd = writeEnd + 1;
-                                        if (writeEnd === writeStart) {
-                                            // Finally, once all the readme.md files are written write one file master documentation for all library files
-                                            masterList();
-                                        }
+                                        const sample:string = "Contents dynamically populated. -->",
+                                            index:number = readme.indexOf(sample) + sample.length;
+                                        readme = readme.slice(0, index) + `\n\n${fileList}`;
+                                        // Sixth, write the documentation to each respective file
+                                        vars.node.fs.writeFile(filePath, readme, "utf8", function terminal_build_libReadme_write_readFile_writeFile(erWrite:nodeError):void {
+                                            if (erWrite !== null) {
+                                                library.error([
+                                                    "Error writing file during documentation build task.",
+                                                    `File: ${filePath}`
+                                                ]);
+                                                return;
+                                            }
+                                            library.log([`${library.humanTime(false)}Updated ${filePath}`]);
+                                            writeEnd = writeEnd + 1;
+                                            if (writeEnd === writeStart) {
+                                                // Finally, once all the readme.md files are written write one file master documentation for all library files
+                                                masterList();
+                                            }
+                                        });
                                     });
-                                });
-                            },
-                            readFile = function terminal_build_libReadme_readFile(erRead:nodeError, file:string):void {
-                                if (erRead !== null) {
-                                    library.error(["Error reading file during documentation build task."]);
-                                    return;
-                                }
-                                if ((/^\s*\/\* \w+(\/\w+)+ - \w/).test(file) === false) {
-                                    library.error([
-                                        "Code file missing required descriptive comment at top of code.",
-                                        "--------------------------------------------------------------",
-                                        "",
-                                        "Include a comment prior to all other code.  Here is an example:",
-                                        `${vars.text.cyan + vars.text.bold}/* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */${vars.text.none}`,
-                                        "",
-                                        `${vars.text.underline}Requirements:${vars.text.none}`,
-                                        `${vars.text.angry}*${vars.text.none} The comment occurs before all other code.  White space characters may reside prior to the comment, but nothing else.`,
-                                        `${vars.text.angry}*${vars.text.none} The comment must be of block comment type comprising a slash and asterisk: ${vars.text.green + vars.text.bold}/*${vars.text.none}`,
-                                        `${vars.text.angry}*${vars.text.none} The comment comprises three parts in this order:`,
-                                        `   ${vars.text.angry}1${vars.text.none} A path to the file relative to the project root, without file extension, and using forward slash as the directory separator.`,
-                                        `   ${vars.text.angry}2${vars.text.none} A separator comprising of a space, a hyphen, and a second space.`,
-                                        `   ${vars.text.angry}3${vars.text.none} An English statement describing the code file.`
-                                    ]);
-                                    return
-                                }
-                                const comment:string = file.slice(file.indexOf("/* ") + 3, file.indexOf(" */")),
-                                    dashIndex:number = comment.indexOf(" - "),
-                                    path:string[] = comment.slice(0, dashIndex).split("/"),
-                                    name:string = path.pop(),
-                                    doc:docItem = {
-                                        description: comment.slice(dashIndex + 3),
-                                        name: name,
-                                        namePadded: `* **[${name}.ts](${name}.ts)**`,
-                                        path: path.join("/")
-                                    };
-                                fileEnd = fileEnd + 1;
-                                // Fourth, build the necessary data structure from reach the first comment of each file
-                                files.push(doc);
-                                // Fifth, once all TypeScript files are read the respective documentation content must be built
-                                if (fileEnd === fileStart) {
-                                    files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):number {
-                                        if (x.path < y.path) {
-                                            return -1;
-                                        }
-                                        if (x.path === y.path && x.name < y.name) {
-                                            return -1;
-                                        }
-                                        return 1;
-                                    });
-                                    let a:number = 1,
-                                        b:number = 0,
-                                        c:number = 0,
-                                        longest:number = files[a].name.length,
-                                        list:string[] = [];
-                                    const fileLength:number = files.length,
-                                        buildList = function terminal_build_libReadme_readFile_buildList():void {
-                                            do {
-                                                c = files[b].name.length;
-                                                if (c < longest) {
-                                                    do {
-                                                        files[b].namePadded = `${files[b].namePadded}  `;
-                                                        c = c + 1;
-                                                    } while (c < longest);
-                                                }
-                                                list.push(`${files[b].namePadded} - ${files[b].description}`);
-                                                b = b + 1;
-                                            } while (b < a);
-                                            write(files[b - 1].path, list.join("\n"));
+                                },
+                                readFile = function terminal_build_libReadme_readFile(erRead:nodeError, file:string):void {
+                                    if (erRead !== null) {
+                                        library.error(["Error reading file during documentation build task."]);
+                                        return;
+                                    }
+                                    if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+ - \w/).test(file) === false) {
+                                        library.error([
+                                            "Code file missing required descriptive comment at top of code.",
+                                            `${vars.text.angry + file.slice(0, 300) + vars.text.none}`,
+                                            "--------------------------------------------------------------",
+                                            "",
+                                            "Include a comment prior to all other code.  Here is an example:",
+                                            `${vars.text.cyan + vars.text.bold}/* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */${vars.text.none}`,
+                                            "",
+                                            `${vars.text.underline}Requirements:${vars.text.none}`,
+                                            `${vars.text.angry}*${vars.text.none} The comment occurs before all other code.  White space characters may reside prior to the comment, but nothing else.`,
+                                            `${vars.text.angry}*${vars.text.none} For TypeScript files the comment must be of block comment type comprising a slash and asterisk: ${vars.text.green + vars.text.bold}/*${vars.text.none}`,
+                                            `${vars.text.angry}*${vars.text.none} For Markdown files the comment must be a standard HTML comment: ${vars.text.green + vars.text.bold}<!--${vars.text.none}`,
+                                            `${vars.text.angry}*${vars.text.none} The comment comprises three parts in this order:`,
+                                            `   ${vars.text.angry}1${vars.text.none} A path to the file relative to the project root, without file extension, and using forward slash as the directory separator.`,
+                                            `   ${vars.text.angry}2${vars.text.none} A separator comprising of a space, a hyphen, and a second space.`,
+                                            `   ${vars.text.angry}3${vars.text.none} An English statement describing the code file.`
+                                        ]);
+                                        return
+                                    }
+                                    const md:boolean = (file.replace(/^\s+/, "").indexOf("<!--") === 0),
+                                        comment:string = (md === true)
+                                            ? file.slice(file.indexOf("<!-- ") + 5, file.indexOf(" -->"))
+                                            : file.slice(file.indexOf("/* ") + 3, file.indexOf(" */")),
+                                        dashIndex:number = comment.indexOf(" - "),
+                                        path:string[] = comment.slice(0, dashIndex).split("/"),
+                                        name:string = path.pop(),
+                                        extension:string = (md === true)
+                                            ? "md"
+                                            : "ts",
+                                        doc:docItem = {
+                                            description: comment.slice(dashIndex + 3),
+                                            name: name,
+                                            namePadded: `* **[${name}.${extension}](${name}.${extension})**`,
+                                            path: path.join("/")
                                         };
-                                    master = files[a].path.length + files[a].name.length
-                                    do {
-                                        if (files[a].path === files[a - 1].path) {
-                                            if (files[a].name.length > longest) {
-                                                longest = files[a].name.length;
+                                    fileEnd = fileEnd + 1;
+                                    // Fourth, build the necessary data structure from reach the first comment of each file
+                                    files.push(doc);
+                                    // Fifth, once all TypeScript files are read the respective documentation content must be built
+                                    if (fileEnd === fileStart) {
+                                        files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):number {
+                                            if (x.path < y.path) {
+                                                return -1;
                                             }
-                                            if (files[a].path.length + files[a].name.length > master) {
-                                                master = files[a].path.length + files[a].name.length;
+                                            if (x.path === y.path && x.name < y.name) {
+                                                return -1;
                                             }
-                                        } else {
-                                            buildList();
-                                            list = [];
-                                            longest = 0;
-                                        }
-                                        a = a + 1;
-                                    } while (a < fileLength);
-                                    buildList();
+                                            return 1;
+                                        });
+                                        let a:number = 1,
+                                            b:number = 0,
+                                            c:number = 0,
+                                            longest:number = files[a].name.length,
+                                            list:string[] = [];
+                                        const fileLength:number = files.length,
+                                            buildList = function terminal_build_libReadme_readFile_buildList():void {
+                                                do {
+                                                    c = files[b].name.length;
+                                                    if (c < longest) {
+                                                        do {
+                                                            files[b].namePadded = `${files[b].namePadded}  `;
+                                                            c = c + 1;
+                                                        } while (c < longest);
+                                                    }
+                                                    list.push(`${files[b].namePadded} - ${files[b].description}`);
+                                                    b = b + 1;
+                                                } while (b < a);
+                                                write(files[b - 1].path, list.join("\n"));
+                                            };
+                                        master = files[a].path.length + files[a].name.length
+                                        do {
+                                            if (files[a].path === files[a - 1].path) {
+                                                if (files[a].name.length > longest) {
+                                                    longest = files[a].name.length;
+                                                }
+                                                if (files[a].path.length + files[a].name.length > master) {
+                                                    master = files[a].path.length + files[a].name.length;
+                                                }
+                                            } else {
+                                                buildList();
+                                                list = [];
+                                                longest = 0;
+                                            }
+                                            a = a + 1;
+                                        } while (a < fileLength);
+                                        buildList();
+                                    }
+                                },
+                                nameTest = function terminal_build_libReadme_nameTest(index:number, name:string):boolean {
+                                    if (dirList[index][0].lastIndexOf(name) === dirList[index][0].length - name.length) {
+                                        return true;
+                                    }
+                                    return false;
+                                },
+                                files:docItem[] = [];
+                            // Second, sort the directory data first by file types and then alphabetically
+                            dirList.sort(function terminal_build_libReadme_dirs_sort(x:directoryItem, y:directoryItem):number {
+                                if (x[1] === "file" && y[1] !== "file") {
+                                    return -1;
                                 }
-                            },
-                            files:docItem[] = [];
-                        // Second, sort the directory data first by file types and then alphabetically
-                        dirList.sort(function terminal_build_libReadme_dirs_sort(x:directoryItem, y:directoryItem):number {
-                            if (x[1] === "file" && y[1] !== "file") {
-                                return -1;
-                            }
-                            if (x[1] === "file" && y[1] === "file" && x[0] < y[0]) {
-                                return -1;
-                            }
-                            return 1;
-                        });
-                        // Third, read from each of the TypeScript files and direct output to readFile function
-                        do {
-                            if (dirList[a][1] === "file" && dirList[a][0].slice(dirList[a][0].length - 3) === ".ts") {
-                                fileStart = fileStart + 1;
-                                vars.node.fs.readFile(dirList[a][0], "utf8", readFile);
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                    },
-                    dirConfig:readDirectory = {
-                        callback: dirs,
-                        depth: 0,
-                        exclusions: [],
-                        logRecursion: true,
-                        mode: "read",
-                        path: `${vars.projectPath}lib`,
-                        symbolic: false
-                    };
+                                if (x[1] === "file" && y[1] === "file" && x[0] < y[0]) {
+                                    return -1;
+                                }
+                                return 1;
+                            });
+                            // Third, read from each of the TypeScript files and direct output to readFile function
+                            do {
+                                if (dirList[a][1] === "file" && (dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" || (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false))) {
+                                    fileStart = fileStart + 1;
+                                    vars.node.fs.readFile(dirList[a][0], "utf8", readFile);
+                                }
+                                a = a + 1;
+                            } while (a < length);
+                        },
+                        dirConfig:readDirectory = {
+                            callback: callback,
+                            depth: 0,
+                            exclusions: [],
+                            logRecursion: true,
+                            mode: "read",
+                            path: `${vars.projectPath}lib`,
+                            symbolic: false
+                        };
                     // First, get the file system data for the lib directory and then direct output to the dirs function
+                    library.directory(dirConfig);
+                    dirConfig.path = `${vars.projectPath}documentation`;
                     library.directory(dirConfig);
                 },
                 // phase lint is merely a call to the lint library
