@@ -105,10 +105,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
                 if (heartbeat.status === "deleted") {
-                    delete browser[heartbeat.agentType][heartbeat.agentFrom];
                     share.removeNameButton(heartbeat.agentFrom, heartbeat.agentType);
-                    share.update();
-                    network.storage(heartbeat.agentType);
                 } else {
                     if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                         button.setAttribute("class", heartbeat.status);

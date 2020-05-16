@@ -446,6 +446,7 @@ declare global {
         deleteAgent?: (box:Element) => void;
         deleteItem?: EventHandlerNonNull;
         deleteList?: (event:MouseEvent, configuration?:ui_modal) => void;
+        deleteListContent?: () => Element;
         deleteToggle?: EventHandlerNonNull;
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;

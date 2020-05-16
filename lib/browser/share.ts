@@ -352,8 +352,6 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
             parent.parentNode.removeChild(parent);
             share.removeNameButton(hash, type);
             count = count + 1;
-            delete browser.data.colors[type][hash];
-            delete browser[type][hash];
             deleted.push([hash, type]);
         }
     } while (a > 0);
@@ -400,7 +398,8 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
 
 /* Creates a confirmation modal listing users for deletion */
 share.deleteList = function local_share_deleteList(event:MouseEvent, configuration?:ui_modal):void {
-    const content:Element = document.createElement("div"),
+    const content:Element = share.deleteListContent(),
+        total:number = content.getElementsByTagName("li").length,
         payloadModal:ui_modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
@@ -412,6 +411,31 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
             type: "share_delete",
             width: 750
         };
+    
+    if (configuration === undefined) {
+        if (total > 0) {
+            payloadModal.inputs = ["confirm", "cancel", "close"];
+        }
+        modal.create(payloadModal);
+        network.storage("settings");
+    } else {
+        configuration.agent = browser.data.hashDevice;
+        configuration.content = content;
+        if (total > 1) {
+            configuration.inputs = ["confirm", "cancel", "close"];
+        } else {
+            configuration.inputs = ["close"];
+        }
+        configuration.single = true;
+        configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
+        configuration.type = "share_delete";
+        modal.create(configuration);
+    }
+};
+
+/* Creates the HTML content of the share_delete type modal. */
+share.deleteListContent = function local_shares_deleteListContent():Element {
+    const content:Element = document.createElement("div");
     let li:Element,
         input:HTMLInputElement,
         label:Element,
@@ -467,25 +491,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         p.innerHTML = "<strong>Please be warned that confirming these change is permanent.</strong> Confirming any selected changes will remove the relationship both locally and on the remote devices/users.";
         content.insertBefore(p, content.firstChild);
     }
-    if (configuration === undefined) {
-        if (total > 1) {
-            payloadModal.inputs = ["confirm", "cancel", "close"];
-        }
-        modal.create(payloadModal);
-        network.storage("settings");
-    } else {
-        configuration.agent = browser.data.hashDevice;
-        configuration.content = content;
-        if (total > 1) {
-            configuration.inputs = ["confirm", "cancel", "close"];
-        } else {
-            configuration.inputs = ["close"];
-        }
-        configuration.single = true;
-        configuration.title = "<span class=\"icon-delete\">☣</span> Delete Shares";
-        configuration.type = "share_delete";
-        modal.create(configuration);
-    }
+    return content;
 };
 
 /* Changes visual state of items in the shares delete list as they are checked or unchecked*/
@@ -586,6 +592,11 @@ share.removeNameButton = function local_share_removeNameButton(agent:string, age
             : <Element>parent.parentNode;
     let a:number = 0;
 
+    delete browser[agentType][agent];
+    delete browser.data.colors[agentType][agent];
+    network.storage(agentType);
+    network.storage("settings");
+
     // remove the named button for the agent
     if (parent !== null && list !== null && list.getAttribute("id") === agentType) {
         list.removeChild(parent);
@@ -599,6 +610,8 @@ share.removeNameButton = function local_share_removeNameButton(agent:string, age
         }
         a = a + 1;
     } while (a < colorLength);
+
+    share.update();
 };
 
 /* Updates the contents of share modals */
@@ -645,6 +658,11 @@ share.update = function local_share_update():void {
                 body.innerHTML = "";
                 body.appendChild(share.content(agent, agentType));
             }
+        } else if (item.type === "share_delete") {
+            modal = document.getElementById(modals[a]);
+            body = modal.getElementsByClassName("body")[0];
+            body.innerHTML = "";
+            body.appendChild(share.deleteListContent());
         }
         a = a + 1;
     } while (a < modalLength);
