@@ -315,7 +315,8 @@ share.context = function local_share_context():void {
 /* Terminates one or more users */
 share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
     const body:Element = box.getElementsByClassName("body")[0],
-        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li");
+        list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
+        deleted:[string, agentType][] = [];
     let a:number = list.length,
         count:number = 0,
         user:boolean = false,
@@ -353,19 +354,14 @@ share.deleteAgent = function local_shares_deleteAgent(box:Element):void {
             count = count + 1;
             delete browser.data.colors[type][hash];
             delete browser[type][hash];
-            network.heartbeat("deleted", `${type}:${hash}`, {});
+            deleted.push([hash, type]);
         }
     } while (a > 0);
     if (count < 1) {
         return;
     }
+    network.deleteAgents(deleted);
     share.update();
-    if (user === true) {
-        network.storage("user");
-    }
-    if (device === true) {
-        network.storage("device");
-    }
     if (user === true || device === true) {
         network.storage("settings");
     }

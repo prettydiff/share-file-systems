@@ -9,6 +9,32 @@ const network:module_network = {},
     loc:string = location.href.split("?")[0];
 let messageTransmit:boolean = true;
 
+/* Send instructions to remove this local device/user from deleted remote agents */
+network.deleteAgents = function local_network_deleteAgents(deleted:[string, string][]) {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_fs_readyState():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    const error:messageError = {
+                        error: `XHR responded with ${xhr.status} when sending heartbeat`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    };
+                    systems.message("errors", JSON.stringify(error));
+                    network.storage("messages");
+                }
+            }
+        };
+    messageTransmit = false;
+    context.menuRemove();
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.send(JSON.stringify({
+        "delete-agents": deleted
+    }));
+};
+
 /* Accesses the file system */
 network.fs = function local_network_fs(configuration:fileService, callback:Function):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
@@ -118,9 +144,6 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
                 }
             }
         },
-        command:string = (status === "deleted")
-            ? "heartbeat-delete"
-            : "heartbeat-broadcast",
         heartbeat:heartbeatBroadcast = {
             agentFrom: "localhost-browser",
             shareFrom: share,
@@ -133,7 +156,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.send(JSON.stringify({
-        [command]: heartbeat
+        "heartbeat-broadcast": heartbeat
     }));
 };
 

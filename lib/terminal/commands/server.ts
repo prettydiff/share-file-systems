@@ -165,8 +165,8 @@ const library = {
                         library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
                     } else if (task === "heartbeat-response") {
                         vars.ws.broadcast(body);
-                    } else if (task === "heartbeat-delete") {
-                        library.heartbeat.delete(JSON.parse(body)["heartbeat-delete"], response);
+                    } else if (task === "delete-agents") {
+                        library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);

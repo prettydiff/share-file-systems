@@ -143,35 +143,66 @@ const library = {
                 source: serverVars
             });
         },
-        delete: function terminal_server_heartbeatDelete(data:heartbeatBroadcast, response:ServerResponse):void {
-            const agency:[string, string] = <[string, string]>data.status.split(":"),
-                agentType:agentType = <agentType>agency[0],
-                agent:string = agency[1],
-                self:string = (agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser,
+        delete: function terminal_server_heartbeatDelete(deleted:[string, string][], response:ServerResponse):void {
+            let a:number = 0,
+                agentType:agentType,
+                self:string,
+                device:boolean = false,
+                user: boolean = false;
+            const length:number = deleted.length,
                 payload:heartbeat = {
-                    agentFrom: self,
-                    agentTo: agent,
-                    agentType: agentType,
-                    shareFrom: self,
+                    agentFrom: "",
+                    agentTo: "",
+                    agentType: "device",
+                    shareFrom: "",
                     shares: {},
                     status: "deleted"
                 },
                 httpConfig:httpConfiguration = {
-                    agentType: agentType,
-                    callback: function terminal_server_heartbeatDelete_callback():void {},
+                    agentType: "device",
+                    callback: function terminal_server_heartbeatDelete_callback():boolean {
+                        return false;
+                    },
                     callbackType: "body",
                     errorMessage: "",
                     id: "heartbeat",
-                    ip: serverVars[agentType][agent].ip,
-                    payload: JSON.stringify({
-                        "heartbeat": payload
-                    }),
-                    port: serverVars[agentType][agent].port,
+                    ip: "",
+                    payload: "",
+                    port: 80,
                     remoteName: ""
                 };
-            library.httpClient(httpConfig);
+            do {
+                agentType = <agentType>deleted[a][1];
+                self = (agentType === "device")
+                    ? serverVars.hashDevice
+                    : serverVars.hashUser;
+                payload.agentFrom = self;
+                payload.agentTo = deleted[a][0];
+                payload.agentType = agentType;
+                payload.shareFrom = self;
+                httpConfig.agentType = agentType;
+                httpConfig.ip = serverVars[agentType][deleted[a][0]].ip;
+                httpConfig.payload = JSON.stringify(payload);
+                httpConfig.port = serverVars[agentType][deleted[a][0]].port;
+                library.httpClient(httpConfig);
+                delete serverVars[agentType][deleted[a][0]];
+                if (agentType === "device") {
+                    device = true;
+                }
+                if (agentType === "user") {
+                    user = true;
+                }
+                a = a + 1;
+            } while (a < length);
+            if (device === true) {
+                storage(JSON.stringify(device), "", "device");
+            }
+            if (user === true) {
+                storage(JSON.stringify(user), "", "user");
+            }
+            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+            response.write("Instructions sent to delete this account from remote agents.");
+            response.end();
         },
         response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
             vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
