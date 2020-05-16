@@ -33,14 +33,6 @@ const library = {
                     shares: {},
                     status: data.status
                 },
-                heartbeatError:heartbeat = {
-                    agentFrom: "",
-                    agentTo: "",
-                    agentType: "user",
-                    shareFrom: "",
-                    shares: {},
-                    status: "offline"
-                },
                 counts:agentCounts = {
                     count: 0,
                     total: 0
@@ -69,16 +61,12 @@ const library = {
                     port: 80,
                     remoteName: "",
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        heartbeatError.agentFrom = agent;
-                        heartbeatError.agentType = type;
                         if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                             vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                             library.log([errorMessage.toString()]);
                         }
                     },
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        heartbeatError.agentFrom = agent;
-                        heartbeatError.agentType = type;
                         if (errorMessage.code !== "ETIMEDOUT") {
                             vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                             library.log([errorMessage.toString()]);
@@ -95,7 +83,6 @@ const library = {
                 perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
                     if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== serverVars.hashDevice)) {
                         payload.agentTo = agentNames.agent;
-                        heartbeatError.agentTo = agentNames.agent;
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                         httpConfig.payload = JSON.stringify({
@@ -116,16 +103,6 @@ const library = {
                             : (type === "device")
                                 ? data.shares
                                 : library.deviceShare(serverVars.device);
-
-                    // heartbeatError
-                    heartbeatError.agentFrom = (type === "device")
-                        ? serverVars.hashDevice
-                        : serverVars.hashUser;
-                    heartbeatError.agentType = type;
-                    heartbeatError.shareFrom = (type === "device")
-                        ? data.shareFrom
-                        : serverVars.hashUser;
-                    heartbeatError.shares = shares;
 
                     // httpConfig
                     httpConfig.agentType = type;
@@ -169,7 +146,19 @@ const library = {
                     ip: "",
                     payload: "",
                     port: 80,
-                    remoteName: ""
+                    remoteName: "",
+                    requestError: function terminal_server_heartbeatDelete_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
+                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
+                            library.log([errorMessage.toString()]);
+                        }
+                    },
+                    responseError: function terminal_server_heartbeatDelete_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
+                        if (errorMessage.code !== "ETIMEDOUT") {
+                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
+                            library.log([errorMessage.toString()]);
+                        }
+                    }
                 };
             do {
                 agentType = <agentType>deleted[a][1];
@@ -184,6 +173,7 @@ const library = {
                 httpConfig.ip = serverVars[agentType][deleted[a][0]].ip;
                 httpConfig.payload = JSON.stringify(payload);
                 httpConfig.port = serverVars[agentType][deleted[a][0]].port;
+                httpConfig.remoteName = self;
                 library.httpClient(httpConfig);
                 delete serverVars[agentType][deleted[a][0]];
                 if (agentType === "device") {
