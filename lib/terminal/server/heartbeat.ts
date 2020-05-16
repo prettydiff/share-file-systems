@@ -174,7 +174,9 @@ const library = {
                     payload.shareFrom = self;
                     httpConfig.agentType = agentType;
                     httpConfig.ip = agent.ip;
-                    httpConfig.payload = JSON.stringify(payload);
+                    httpConfig.payload = JSON.stringify({
+                        "heartbeat": payload
+                    });
                     httpConfig.port = agent.port;
                     httpConfig.remoteName = self;
                     library.httpClient(httpConfig);
