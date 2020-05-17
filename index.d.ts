@@ -862,6 +862,7 @@ declare global {
     interface version {
         command: string;
         date: string;
+        hash: string;
         name: string;
         number: string;
         port: number;

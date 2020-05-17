@@ -471,105 +471,126 @@ const library = {
                 },
                 // write the current version, change date, and modify html
                 version: function terminal_build_version():void {
-                    const pack:string = `${vars.projectPath}package.json`;
-                    heading("Writing version data");
-                    vars.node.fs.stat(pack, function terminal_build_version_stat(ers:Error, stat:Stats) {
-                        if (ers !== null) {
-                            library.error([ers.toString()]);
-                            return;
-                        }
-                        const month:string = (function terminal_build_version_stat_month():string {
-                                let numb:number = stat.mtime.getMonth();
-                                if (numb === 0) {
-                                    return "JAN";
-                                }
-                                if (numb === 1) {
-                                    return "FEB";
-                                }
-                                if (numb === 2) {
-                                    return "MAR";
-                                }
-                                if (numb === 3) {
-                                    return "APR";
-                                }
-                                if (numb === 4) {
-                                    return "MAY";
-                                }
-                                if (numb === 5) {
-                                    return "JUN";
-                                }
-                                if (numb === 6) {
-                                    return "JUL";
-                                }
-                                if (numb === 7) {
-                                    return "AUG";
-                                }
-                                if (numb === 8) {
-                                    return "SEP";
-                                }
-                                if (numb === 9) {
-                                    return "OCT";
-                                }
-                                if (numb === 10) {
-                                    return "NOV";
-                                }
-                                if (numb === 11) {
-                                    return "DEC";
-                                }
-                            }()),
-                            dayString:string = stat.mtime.getDate().toString(),
-                            dayPadded:string = (dayString.length < 2)
-                                ? `0${dayString}`
-                                : dayString,
-                            date:string = `${dayPadded} ${month} ${stat.mtime.getFullYear().toString()}`,
-                            html:string = `${vars.projectPath}index.html`,
-                            flag = {
-                                html: false,
-                                json: false
-                            };
-                        vars.version.date = date.replace(/-/g, "");
+                    const pack:string = `${vars.projectPath}package.json`,
+                        html:string = `${vars.projectPath}index.html`,
+                        flag = {
+                            html: false,
+                            json: false
+                        },
+                        commitHash = function terminal_build_version_commitHash(hashErr:nodeError, stdout:string, stderr:string):void {
+                            if (hashErr !== null) {
+                                library.error([hashErr.toString()]);
+                                return;
+                            }
+                            if (stderr !== "") {
+                                library.error([stderr]);
+                                return;
+                            }
 
-                        // read package.json
-                        vars.node.fs.readFile(pack, "utf8", function terminal_build_version_stat_read(err:Error, data:string) {
+                            vars.version.hash = stdout.replace(/\s+/g, "");
+
+                            // modify index.html
+                            vars.node.fs.readFile(html, "utf8", readHTML);
+
+                            // modify version.json
+                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", writeVersion);
+                        },
+                        writeHTML = function terminal_build_version_writeHTML(erh:Error):void {
+                            if (erh !== null) {
+                                library.error([erh.toString()]);
+                                return;
+                            }
+                            flag.html = true;
+                            if (flag.json === true) {
+                                next("Version data written");
+                            }
+                        },
+                        readHTML = function terminal_build_version_readHTML(err:Error, fileData:string):void {
+                            if (err !== null) {
+                                library.error([err.toString()]);
+                                return;
+                            }
+                            const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
+                            fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
+                            vars.node.fs.writeFile(html, fileData, "utf8", writeHTML);
+                        },
+                        writeVersion =  function terminal_build_version_writeVersion(erj:Error):void {
+                            if (erj !== null) {
+                                library.error([erj.toString()]);
+                                return;
+                            }
+                            flag.json = true;
+                            if (flag.html === true) {
+                                next("Version data written");
+                            }
+                        },
+                        readPack = function terminal_build_version_read(err:Error, data:string) {
                             if (err !== null) {
                                 library.error([err.toString()]);
                                 return;
                             }
                             vars.version.number = JSON.parse(data).version;
 
-                            // modify index.html
-                            vars.node.fs.readFile(html, "utf8", function terminal_build_version_stat_read_html(err:Error, fileData:string):void {
-                                if (err !== null) {
-                                    library.error([err.toString()]);
-                                    return;
-                                }
-                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
-                                fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
-                                vars.node.fs.writeFile(html, fileData, "utf8", function terminal_build_version_stat_read_html_write(erh:Error):void {
-                                    if (erh !== null) {
-                                        library.error([erh.toString()]);
-                                        return;
+                            vars.node.child("git rev-parse HEAD", {
+                                cwd: vars.projectPath
+                            }, commitHash);
+                        },
+                        packStat = function terminal_build_version_stat(ers:Error, stat:Stats) {
+                            if (ers !== null) {
+                                library.error([ers.toString()]);
+                                return;
+                            }
+                            const month:string = (function terminal_build_version_stat_month():string {
+                                    let numb:number = stat.mtime.getMonth();
+                                    if (numb === 0) {
+                                        return "JAN";
                                     }
-                                    flag.html = true;
-                                    if (flag.json === true) {
-                                        next("Version data written");
+                                    if (numb === 1) {
+                                        return "FEB";
                                     }
-                                });
-                            });
-
-                            // modify version.json
-                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", function terminal_build_version_stat_read_html_write(erj:Error):void {
-                                if (erj !== null) {
-                                    library.error([erj.toString()]);
-                                    return;
-                                }
-                                flag.json = true;
-                                if (flag.html === true) {
-                                    next("Version data written");
-                                }
-                            });
-                        });
-                    });
+                                    if (numb === 2) {
+                                        return "MAR";
+                                    }
+                                    if (numb === 3) {
+                                        return "APR";
+                                    }
+                                    if (numb === 4) {
+                                        return "MAY";
+                                    }
+                                    if (numb === 5) {
+                                        return "JUN";
+                                    }
+                                    if (numb === 6) {
+                                        return "JUL";
+                                    }
+                                    if (numb === 7) {
+                                        return "AUG";
+                                    }
+                                    if (numb === 8) {
+                                        return "SEP";
+                                    }
+                                    if (numb === 9) {
+                                        return "OCT";
+                                    }
+                                    if (numb === 10) {
+                                        return "NOV";
+                                    }
+                                    if (numb === 11) {
+                                        return "DEC";
+                                    }
+                                }()),
+                                dayString:string = stat.mtime.getDate().toString(),
+                                dayPadded:string = (dayString.length < 2)
+                                    ? `0${dayString}`
+                                    : dayString,
+                                date:string = `${dayPadded} ${month} ${stat.mtime.getFullYear().toString()}`;
+                            vars.version.date = date.replace(/-/g, "");
+    
+                            // read package.json
+                            vars.node.fs.readFile(pack, "utf8", readPack);
+                        };
+                    heading("Writing version data");
+                    vars.node.fs.stat(pack, packStat);
                 }
             };
         if (test === false || test === undefined) {

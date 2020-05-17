@@ -325,8 +325,6 @@ share.deleteAgent = function local_share_deleteAgent(agent:string, agentType:age
     // remove the agent from the data structures
     delete browser[agentType][agent];
     delete browser.data.colors[agentType][agent];
-    network.storage(agentType);
-    network.storage("settings");
 
     // remove the named button for the agent
     if (parent !== null && button.getAttribute("data-agent-type") === agentType) {
@@ -350,8 +348,6 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
         deleted:[string, agentType][] = [];
     let a:number = list.length,
         count:number = 0,
-        user:boolean = false,
-        device:boolean = false,
         input:HTMLInputElement,
         type:agentType,
         subtitle:Element,
@@ -375,11 +371,6 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
             } else {
                 list[a].parentNode.removeChild(list[a]);
             }
-            if (type === "user") {
-                user = true;
-            } else if (type === "device") {
-                device = true;
-            }
             parent.parentNode.removeChild(parent);
             share.deleteAgent(hash, type);
             count = count + 1;
@@ -391,6 +382,7 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
     }
     network.deleteAgents(deleted);
     share.update();
+    network.storage("settings");
 };
 
 /* Delete a share from a device */

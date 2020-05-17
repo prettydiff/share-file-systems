@@ -133,6 +133,7 @@ const vars:terminalVariables = {
         version: {
             command: "node js/application",
             date: "",
+            hash: "",
             name: "Share File Systems",
             number: "",
             port: 80

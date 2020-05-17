@@ -29,6 +29,7 @@ const log = function terminal_log(output:string[], end?:boolean):void {
         logger(line.join(""));
         logger(`${vars.version.name} version ${vars.text.angry + vars.version.number + vars.text.none}`);
         logger(`Dated ${vars.text.cyan + vars.version.date + vars.text.none}`);
+        logger(`Commit ${vars.version.hash}`);
         humanTime(true);
     }
 };

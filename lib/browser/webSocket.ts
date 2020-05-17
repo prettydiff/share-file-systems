@@ -108,6 +108,8 @@ const title:Element = document.getElementsByClassName("title")[0],
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update();
+                    network.storage(heartbeat.agentType);
+                    network.storage("settings");
                 } else {
                     if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                         button.setAttribute("class", heartbeat.status);

@@ -311,7 +311,7 @@ const library = {
                     }
                     output.push("");
                     library.log.title("Local Service");
-                    library.log(output);
+                    library.log(output, vars.verbose);
                 };
 
                 if (process.cwd() !== vars.projectPath) {

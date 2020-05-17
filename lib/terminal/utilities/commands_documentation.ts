@@ -240,6 +240,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} server test browser 9000`,
                 defined: "An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
+            },
+            {
+                code: `${vars.version.command} server verbose`,
+                defined: "Print extra details to the terminal when running the server, such as application version number and git commit hash."
             }
         ]
     },

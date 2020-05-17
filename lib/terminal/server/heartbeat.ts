@@ -55,9 +55,7 @@ const library = {
                     errorMessage: "",
                     id: "heartbeat",
                     ip: "",
-                    payload: JSON.stringify({
-                        "heartbeat": payload
-                    }),
+                    payload: "",
                     port: 80,
                     remoteName: "",
                     requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
