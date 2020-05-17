@@ -310,8 +310,8 @@ const library = {
                         }
                     }
                     output.push("");
-                    library.log.title("Local Service");
-                    library.log(output, vars.verbose);
+                    library.log.title("Local Server");
+                    library.log(output, true);
                 };
 
                 if (process.cwd() !== vars.projectPath) {

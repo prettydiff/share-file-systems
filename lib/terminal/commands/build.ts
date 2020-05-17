@@ -477,70 +477,72 @@ const library = {
                             html: false,
                             json: false
                         },
-                        commitHash = function terminal_build_version_commitHash(hashErr:nodeError, stdout:string, stderr:string):void {
-                            if (hashErr !== null) {
-                                library.error([hashErr.toString()]);
-                                return;
-                            }
-                            if (stderr !== "") {
-                                library.error([stderr]);
-                                return;
-                            }
-
-                            vars.version.hash = stdout.replace(/\s+/g, "");
-
-                            // modify index.html
-                            vars.node.fs.readFile(html, "utf8", readHTML);
-
-                            // modify version.json
-                            vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", writeVersion);
-                        },
-                        writeHTML = function terminal_build_version_writeHTML(erh:Error):void {
-                            if (erh !== null) {
-                                library.error([erh.toString()]);
-                                return;
-                            }
-                            flag.html = true;
-                            if (flag.json === true) {
-                                next("Version data written");
-                            }
-                        },
-                        readHTML = function terminal_build_version_readHTML(err:Error, fileData:string):void {
-                            if (err !== null) {
-                                library.error([err.toString()]);
-                                return;
-                            }
-                            const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g");
-                            fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
-                            vars.node.fs.writeFile(html, fileData, "utf8", writeHTML);
-                        },
-                        writeVersion =  function terminal_build_version_writeVersion(erj:Error):void {
-                            if (erj !== null) {
-                                library.error([erj.toString()]);
-                                return;
-                            }
-                            flag.json = true;
-                            if (flag.html === true) {
-                                next("Version data written");
-                            }
-                        },
-                        readPack = function terminal_build_version_read(err:Error, data:string) {
-                            if (err !== null) {
-                                library.error([err.toString()]);
-                                return;
-                            }
-                            vars.version.number = JSON.parse(data).version;
-
-                            vars.node.child("git rev-parse HEAD", {
-                                cwd: vars.projectPath
-                            }, commitHash);
-                        },
                         packStat = function terminal_build_version_stat(ers:Error, stat:Stats) {
                             if (ers !== null) {
                                 library.error([ers.toString()]);
                                 return;
                             }
-                            const month:string = (function terminal_build_version_stat_month():string {
+                            const readPack = function terminal_build_version_stat_read(err:Error, data:string) {
+                                    if (err !== null) {
+                                        library.error([err.toString()]);
+                                        return;
+                                    }
+                                    const commitHash = function terminal_build_version_stat_read_commitHash(hashErr:nodeError, stdout:string, stderr:string):void {
+                                        const readHTML = function terminal_build_version_stat_read_commitHash_readHTML(err:Error, fileData:string):void {
+                                                if (err !== null) {
+                                                    library.error([err.toString()]);
+                                                    return;
+                                                }
+                                                const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
+                                                    writeHTML = function terminal_build_version_stat_read_commitHash_readHTML_writeHTML(erh:Error):void {
+                                                        if (erh !== null) {
+                                                            library.error([erh.toString()]);
+                                                            return;
+                                                        }
+                                                        flag.html = true;
+                                                        if (flag.json === true) {
+                                                            next("Version data written");
+                                                        }
+                                                    };
+                                                fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
+                                                vars.node.fs.writeFile(html, fileData, "utf8", writeHTML);
+                                            },
+                                            writeVersion =  function terminal_build_version_stat_read_commitHash_writeVersion(erj:Error):void {
+                                                if (erj !== null) {
+                                                    library.error([erj.toString()]);
+                                                    return;
+                                                }
+                                                flag.json = true;
+                                                if (flag.html === true) {
+                                                    next("Version data written");
+                                                }
+                                            };
+            
+                                        if (hashErr !== null) {
+                                            library.error([hashErr.toString()]);
+                                            return;
+                                        }
+                                        if (stderr !== "") {
+                                            library.error([stderr]);
+                                            return;
+                                        }
+            
+                                        vars.version.hash = stdout.replace(/\s+/g, "");
+            
+                                        // modify index.html
+                                        vars.node.fs.readFile(html, "utf8", readHTML);
+            
+                                        // modify version.json
+                                        vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", writeVersion);
+                                    };
+    
+                                    vars.version.number = JSON.parse(data).version;
+        
+                                    vars.node.child("git rev-parse HEAD", {
+                                        cwd: vars.projectPath
+                                    }, commitHash);
+                                },
+                                month:string = (function terminal_build_version_stat_month():string {
                                     let numb:number = stat.mtime.getMonth();
                                     if (numb === 0) {
                                         return "JAN";
