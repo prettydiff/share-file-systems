@@ -163,7 +163,7 @@ const library = {
                     } else if (task === "heartbeat-broadcast") {
                         // * prepare heartbeat data for connected agents
                         library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
-                    } else if (task === "heartbeat-response") {
+                    } else if (task === "heartbeat-response-device" || task === "heartbeat-response-user") {
                         vars.ws.broadcast(body);
                     } else if (task === "delete-agents") {
                         library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
@@ -236,7 +236,7 @@ const library = {
                 } else if (postTest() === true) {
                     post(request, response);
                 } else {
-                    // the delay is necessary to prevent a race condition against updating the serverVars.users object
+                    // the delay is necessary to prevent a race condition between service execution and data storage writing
                     setTimeout(function terminal_server_create_delay():void {
                         if (postTest() === true) {
                             post(request, response);
@@ -250,7 +250,7 @@ const library = {
                             response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
                             response.end();
                         }
-                    }, 100);
+                    }, 50);
                 }
             }),
             serverError = function terminal_server_serverError(error:nodeError):void {

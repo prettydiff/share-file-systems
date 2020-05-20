@@ -297,19 +297,19 @@ const sep:string = vars.sep,
             test: ""
         },
         {
-            command: "version",
-            qualifier: "ends",
-            test: " seconds total time"
+            command: "version 1",
+            qualifier: "contains",
+            test: `Version ${text.angry}`
         },
         {
             command: "version 2",
-            qualifier: "contains",
-            test: `version[name] version ${text.angry}`
+            qualifier: "begins",
+            test: `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - Version${vars.text.none}`
         },
         {
             command: "version 3",
-            qualifier: "begins",
-            test: `_________`
+            qualifier: "contains",
+            test: `Archive ${vars.text.cyan}`
         }
     ];
 simulation.execute = function test_simulations_execute(config:testExecute):void {

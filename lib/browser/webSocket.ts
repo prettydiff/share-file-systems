@@ -101,8 +101,35 @@ const title:Element = document.getElementsByClassName("title")[0],
                     util.fileListStatus(data.status);
                 }
             },
-            heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
+            heartbeatDevice = function local_socketMessage_heartbeatUser():void {
+                const heartbeat:heartbeatDevice = JSON.parse(event.data)["heartbeat-response-device"],
+                    button:Element = document.getElementById(heartbeat.agentFrom);
+
+                if (heartbeat.status === "deleted") {
+                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
+                    share.update();
+                    network.storage(heartbeat.agentType);
+                    network.storage("settings");
+                } else {
+                    if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
+                        button.setAttribute("class", heartbeat.status);
+                    }
+                    if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser.device)) {
+                        const keys:string[] = Object.keys(heartbeat.shares),
+                            length:number = keys.length;
+                        let a:number = 0;
+                        do {
+                            
+                            a = a + 1;
+                        } while (a < length);
+                        browser.device = heartbeat.shares;
+                        share.update();
+                        network.storage(heartbeat.agentType);
+                    }
+                }
+            },
+            heartbeatUser = function local_socketMessage_heartbeatUser():void {
+                const heartbeat:heartbeatUser = JSON.parse(event.data)["heartbeat-response-user"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
 
                 if (heartbeat.status === "deleted") {
@@ -145,8 +172,10 @@ const title:Element = document.getElementsByClassName("title")[0],
             fsUpdateLocal();
         } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
             fsUpdateRemote();
-        } else if (event.data.indexOf("{\"heartbeat-response\":") === 0) {
-            heartbeat();
+        } else if (event.data.indexOf("{\"heartbeat-response-device\":") === 0) {
+            heartbeatDevice();
+        } else if (event.data.indexOf("{\"heartbeat-response-user\":") === 0) {
+            heartbeatUser();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {

@@ -199,7 +199,7 @@ service.populate = function test_services_populate():void {
             }
         }
     });
-    service.push(<testTemplateFileService>{
+    /*service.push(<testTemplateFileService>{
         command: {
             fs: {
                 action: "fs-copy",
@@ -223,7 +223,7 @@ service.populate = function test_services_populate():void {
                 target: "remote-test-ID"
             }
         }
-    });
+    });*/
     service.push(<testTemplateFileService>{
         artifact: `${projectPath}storage${sep}tsconfig.json`,
         command: {
@@ -1175,7 +1175,7 @@ service.populate = function test_services_populate():void {
         },
         name: "invite, invite-complete - Local user invite complete, accepted",
         qualifier: "is",
-        test: "Accepted invitation sent to from start terminal XXXX to start browser."
+        test: "Accepted invitation returned to XXXX from this local terminal XXXX and to the local browser(s)."
     });
     service.push(<testTemplateInvite>{
         command: {
@@ -1204,7 +1204,7 @@ service.populate = function test_services_populate():void {
         },
         name: "invite, invite-complete - Local user invite complete, ignored",
         qualifier: "is",
-        test: "Ignored invitation sent to from start terminal XXXX to start browser."
+        test: "Ignored invitation returned to XXXX from this local terminal XXXX and to the local browser(s)."
     });
     service.push(<testTemplateHeartbeatBroadcast>{
         command: {
@@ -1254,11 +1254,55 @@ service.populate = function test_services_populate():void {
                 agentType: "device",
                 shareFrom: serverVars.hashDevice,
                 shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
+                    "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
+                        "ip"    : "::1",
+                        "name"  : "test device laptop",
+                        "port"  : 0,
+                        "shares": {
+                            "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
+                                "execute" : false,
+                                "name"    : "C:\\mp3\\deviceLaptop",
+                                "readOnly": true,
+                                "type"    : "directory"
+                            },
+                            "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
+                                "execute" : false,
+                                "name"    : "E:\\deviceLaptop",
+                                "readOnly": false,
+                                "type"    : "directory"
+                            },
+                            "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
+                                "execute" : false,
+                                "name"    : "C:\\deviceLaptop\\notes.pdf",
+                                "readOnly": true,
+                                "type"    : "file"
+                            }
+                        }
+                    },
+                    "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
+                        "ip"    : "::1",
+                        "name"  : "test device desktop",
+                        "port"  : 0,
+                        "shares": {
+                            "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
+                                "execute" : false,
+                                "name"    : "C:\\mp3\\deviceDesktop",
+                                "readOnly": true,
+                                "type"    : "directory"
+                            },
+                            "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
+                                "execute" : false,
+                                "name"    : "E:\\deviceDesktop",
+                                "readOnly": false,
+                                "type"    : "directory"
+                            },
+                            "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
+                                "execute" : false,
+                                "name"    : "C:\\deviceDesktop\\notes.pdf",
+                                "readOnly": true,
+                                "type"    : "file"
+                            }
+                        }
                     }
                 },
                 status: "active"
@@ -1267,17 +1311,61 @@ service.populate = function test_services_populate():void {
         name: "heartbeat, regular heartbeat",
         qualifier: "is",
         test: {
-            "heartbeat-response": {
+            "heartbeat-response-device": {
                 agentFrom: serverVars.hashDevice,
                 agentTo: serverVars.hashDevice,
                 agentType: "device",
                 shareFrom: serverVars.hashDevice,
                 shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
+                    "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
+                        "ip"    : "::1",
+                        "name"  : "test device laptop",
+                        "port"  : 0,
+                        "shares": {
+                            "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
+                                "execute" : false,
+                                "name"    : "C:\\mp3\\deviceLaptop",
+                                "readOnly": true,
+                                "type"    : "directory"
+                            },
+                            "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
+                                "execute" : false,
+                                "name"    : "E:\\deviceLaptop",
+                                "readOnly": false,
+                                "type"    : "directory"
+                            },
+                            "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
+                                "execute" : false,
+                                "name"    : "C:\\deviceLaptop\\notes.pdf",
+                                "readOnly": true,
+                                "type"    : "file"
+                            }
+                        }
+                    },
+                    "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
+                        "ip"    : "::1",
+                        "name"  : "test device desktop",
+                        "port"  : 0,
+                        "shares": {
+                            "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
+                                "execute" : false,
+                                "name"    : "C:\\mp3\\deviceDesktop",
+                                "readOnly": true,
+                                "type"    : "directory"
+                            },
+                            "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
+                                "execute" : false,
+                                "name"    : "E:\\deviceDesktop",
+                                "readOnly": false,
+                                "type"    : "directory"
+                            },
+                            "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
+                                "execute" : false,
+                                "name"    : "C:\\deviceDesktop\\notes.pdf",
+                                "readOnly": true,
+                                "type"    : "file"
+                            }
+                        }
                     }
                 },
                 status: "active"
@@ -1292,11 +1380,30 @@ service.populate = function test_services_populate():void {
                 agentType: "device",
                 shareFrom: serverVars.hashDevice,
                 shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
+                    "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
+                        "ip"    : "::1",
+                        "name"  : "test device desktop",
+                        "port"  : 0,
+                        "shares": {
+                            "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
+                                "execute" : false,
+                                "name"    : "C:\\mp3\\deviceDesktop",
+                                "readOnly": true,
+                                "type"    : "directory"
+                            },
+                            "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
+                                "execute" : false,
+                                "name"    : "E:\\deviceDesktop",
+                                "readOnly": false,
+                                "type"    : "directory"
+                            },
+                            "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
+                                "execute" : false,
+                                "name"    : "C:\\deviceDesktop\\notes.pdf",
+                                "readOnly": true,
+                                "type"    : "file"
+                            }
+                        }
                     }
                 },
                 status: "active"
@@ -1373,6 +1480,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                     `${projectPath}serviceRemote`,
                     `${projectPath}serviceTestRemote.json`,
                     `${projectPath}serviceRemote.json`,
+                    `${projectPath}storage${sep}version.json`
                 ],
                 removeCallback = function test_services_addServers_removal_removeCallback():void {
                     count = count + 1;
@@ -1448,37 +1556,36 @@ service.execute = function test_services_execute(config:testExecute):void {
                     : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
             timeout: 1000
         },
-        requestCallback = function test_testListRunner_service_callback(response:http.IncomingMessage):void {
+        evaluator = function test_service_execute_evaluator(message:string):void {
+            testEvaluation({
+                callback: config.complete,
+                index: config.index,
+                list: config.list,
+                test: <testItem>service[index],
+                testType: "service",
+                values: [message, "", ""]
+            });
+        },
+        requestCallback = function test_service_callback(response:http.IncomingMessage):void {
             const chunks:string[] = [];
-            response.on("data", function test_testListRunner_service_callback_data(chunk:string):void {
+            response.on("data", function test_service_callback_data(chunk:string):void {
                 chunks.push(chunk);
             });
-            response.on("end", function test_testListRunner_service_callback_end():void {
-                testEvaluation({
-                    callback: config.complete,
-                    index: config.index,
-                    list: config.list,
-                    test: <testItem>service[index],
-                    testType: "service",
-                    values: [chunks.join(""), "", ""]
-                });
+            response.on("end", function test_service_callback_end():void {
+                // A delay is built into the server to eliminate a race condition between service execution and data writing.
+                // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
+                // * The delay here is the HTTP round trip plus 10ms.
+                setTimeout(function test_service_callback_end_delay():void {
+                    request.end();
+                    evaluator(chunks.join(""));
+                }, 10);
             });
         },
         request:http.ClientRequest = http.request(payload, requestCallback);
     request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
-        testEvaluation({
-            callback: config.complete,
-            index: config.index,
-            list: config.list,
-            test: <testItem>service[index],
-            testType: "service",
-            values: [`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`, "", ""]
-        });
+        evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
     request.write(command);
-    setTimeout(function test_testListRunner_service_callback_delay():void {
-        request.end();
-    }, 100);
 };
 service.killServers = function test_services_killServers(complete:testComplete):void {
     const agentComplete = function test_services_killServers_complete(counts:agentCounts):void {

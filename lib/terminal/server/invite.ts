@@ -104,13 +104,15 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 port: data.port,
                 shares: data.shares
             };
-            storage(JSON.stringify(serverVars[data.type]), "", data.type);
-        }
-        responseString = (data.status === "accepted")
-            ? `Accepted${respond}`
-            : (data.status === "declined")
+            storage(JSON.stringify({
+                [data.type]: serverVars[data.type]
+            }), "", data.type);
+            responseString = `Accepted${respond}`;
+        } else {
+            responseString = (data.status === "declined")
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
+        }
     }
      //log([responseString]);
     response.write(responseString);
