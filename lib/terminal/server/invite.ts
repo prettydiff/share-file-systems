@@ -39,9 +39,9 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     ip: data.ip,
                     payload: payload,
                     port: data.port,
-                    remoteName: (data.ip.indexOf(":") > -1)
-                        ? `invite@[${data.ip}]:${data.port}`
-                        : `invite@${data.ip}:${data.port}`,
+                    remoteName: (data.type === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser,
                     requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
                         if (errorMessage.code === "ETIMEDOUT") {
                             if (data.action === "invite-request") {
@@ -77,27 +77,36 @@ const invite = function terminal_server_invite(dataString:string, response:http.
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
     if (data.action === "invite") {
         vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
-        data.action = "invite-request";
         responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
+
+        data.action = "invite-request";
         inviteHttp();
     } else if (data.action === "invite-request") {
         vars.testLogger("invite", "invite-request", "Process an invitation request from a remote agent by sending the request data to the browser.");
-        vars.ws.broadcast(dataString);
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
+
+        if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
+            // if the agent is already registered with the remote then bypass the user by auto-approving the request
+            data.action = "invite-complete";
+            data.status = "accepted";
+            inviteHttp();
+        } else {
+            vars.ws.broadcast(dataString);
+        }
     } else if (data.action === "invite-response") {
         const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
         vars.testLogger("invite", "invite-response", "The user has made a decision about the invitation and now that decision must be sent back to the originating agent.");
-        data.action = "invite-complete";
         responseString = (data.status === "accepted")
             ? `Accepted${respond}`
             : (data.status === "declined")
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
+
+        data.action = "invite-complete";
         inviteHttp();
     } else if (data.action === "invite-complete") {
         const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
         vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
-        vars.ws.broadcast(dataString);
         if (data.status === "accepted") {
             serverVars[data.type][data[`${data.type}Hash`]] = {
                 ip: data.ip,
@@ -114,6 +123,8 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
         }
+
+        vars.ws.broadcast(dataString);
     }
      //log([responseString]);
     response.write(responseString);

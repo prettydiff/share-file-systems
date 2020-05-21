@@ -312,7 +312,7 @@ share.context = function local_share_context():void {
     util.selectNone(element);
 };
 
-/* Terminate an agent */
+/* Terminate an agent from either a websocket request or from share.deleteAgentList */
 share.deleteAgent = function local_share_deleteAgent(agent:string, agentType:agentType):void {
     const userColors = document.getElementById("settings-modal").getElementsByClassName(`${agentType}-color-list`)[0].getElementsByTagName("li"),
         colorLength:number = userColors.length,

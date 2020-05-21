@@ -10,6 +10,15 @@ import util from "./util.js";
 
 const title:Element = document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
+    rand:number = Math.random(),
+    sock:WebSocketObject = {
+        [`sock${rand}`]: (function local_socket():WebSocketLocal {
+            // A minor security circumvention.
+            const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
+            WebSocket = null;
+            return socket;
+        }())
+    },
     message = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
@@ -119,10 +128,14 @@ const title:Element = document.getElementsByClassName("title")[0],
                             length:number = keys.length;
                         let a:number = 0;
                         do {
-                            
+                            if (browser[heartbeat.agentType][keys[a]] === undefined) {
+                                browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
+                                share.addAgent(heartbeat.shares[keys[a]].name, keys[a], "device");
+                            } else {
+                                browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
+                            }
                             a = a + 1;
                         } while (a < length);
-                        browser.device = heartbeat.shares;
                         share.update();
                         network.storage(heartbeat.agentType);
                     }
@@ -193,7 +206,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         title.setAttribute("class", "title");
     },
     webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = new WebSocket(`ws://localhost:${browser.localNetwork.wsPort}/`),
+        const socket:WebSocket = new sock[`sock${rand}`](`ws://localhost:${browser.localNetwork.wsPort}/`),
             error = function local_socketError():any {
                 const device:Element = document.getElementById(browser.data.hashDevice);
                 title.setAttribute("class", "title offline");

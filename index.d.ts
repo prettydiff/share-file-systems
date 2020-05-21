@@ -3,7 +3,6 @@ import { Stats } from "fs";
 import { Server } from "net";
 
 declare global {
-
     type agency = [string, boolean, agentType];
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
@@ -878,5 +877,10 @@ declare global {
     interface watches {
         [key:string]: any;
     }
-
+    interface WebSocketLocal extends WebSocket {
+        new (address:string): WebSocket;
+    }
+    interface WebSocketObject {
+        [key:string]: WebSocketLocal;
+    }
 }
