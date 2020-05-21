@@ -73,6 +73,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             httpClient(httpConfig);
         };
     let responseString:string;
+
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
     if (data.action === "invite") {
         vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");

@@ -186,10 +186,14 @@ const library = {
                 a = a + 1;
             } while (a < length);
             if (device === true) {
-                storage(JSON.stringify(device), "", "device");
+                storage(JSON.stringify({
+                    device: serverVars.device
+                }), "", "device");
             }
             if (user === true) {
-                storage(JSON.stringify(user), "", "user");
+                storage(JSON.stringify({
+                    user: serverVars.user
+                }), "", "user");
             }
             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
             response.write("Instructions sent to delete this account from remote agents.");
