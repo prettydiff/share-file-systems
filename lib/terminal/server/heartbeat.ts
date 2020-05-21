@@ -238,8 +238,9 @@ const library = {
                                     }
                                     a = a + 1;
                                 } while (a < length);
+                                data.shares = serverVars.device;
                                 vars.ws.broadcast(JSON.stringify({
-                                    ["heartbeat-response-device"]: serverVars.device
+                                    ["heartbeat-response-device"]: data
                                 }));
                                 library.storage(JSON.stringify({
                                     [data.agentType]: serverVars[data.agentType]
