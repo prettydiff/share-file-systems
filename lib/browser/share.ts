@@ -557,15 +557,15 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         parent:Element = <Element>element.parentNode,
         agency:agency = util.getAgent(element),
-        hash:string = parent.getAttribute("data-hash");
+        hash:string = parent.getAttribute("data-hash"),
+        item:deviceShare = browser.device[agency[0]].shares[hash];
     if (agency[2] !== "device") {
         return;
-    }console.log(browser[agency[2]][agency[0]].shares[hash].readOnly);
-    //console.log(browser.device["075c96764388fc1c489318ba790f57bc18f7c8ba1b53a877397d4667d2ee77a250af6bd227ef51d57a984628e745cc12b8974d98af456a2a2978466140caab0f"].shares["4d1961adafeafe0e8d3802a9f60869d59dce61f393b307e54a1f511c10b66659b5ba252404a9c042b254a023363401824496ea27e5f67dd4fe093e9a58fd1dca"].readOnly);
-    if (browser[agency[2]][agency[0]].shares[hash].readOnly === true) {
-        browser[agency[2]][agency[0]].shares[hash].readOnly = false;
+    }
+    if (item.readOnly === true) {
+        item.readOnly = false;
     } else {
-        browser[agency[2]][agency[0]].shares[hash].readOnly = true;
+        item.readOnly = true;
     }
     network.heartbeat("active", agency[0], browser.device[agency[0]].shares);
     network.storage(agency[2]);
