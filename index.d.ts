@@ -458,7 +458,7 @@ declare global {
         deleteToggle?: EventHandlerNonNull;
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
-        update?: () => void;
+        update?: (exclusion:string) => void;
     }
     interface module_systems {
         close?: EventHandlerNonNull;
@@ -879,8 +879,5 @@ declare global {
     }
     interface WebSocketLocal extends WebSocket {
         new (address:string): WebSocket;
-    }
-    interface WebSocketObject {
-        [key:string]: WebSocketLocal;
     }
 }

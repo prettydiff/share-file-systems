@@ -10,15 +10,12 @@ import util from "./util.js";
 
 const title:Element = document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
-    rand:number = Math.random(),
-    sock:WebSocketObject = {
-        [`sock${rand}`]: (function local_socket():WebSocketLocal {
-            // A minor security circumvention.
-            const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
-            WebSocket = null;
-            return socket;
-        }())
-    },
+    sock:WebSocketLocal = (function local_socket():WebSocketLocal {
+        // A minor security circumvention.
+        const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
+        WebSocket = null;
+        return socket;
+    }()),
     message = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
@@ -110,13 +107,13 @@ const title:Element = document.getElementsByClassName("title")[0],
                     util.fileListStatus(data.status);
                 }
             },
-            heartbeatDevice = function local_socketMessage_heartbeatUser():void {
+            heartbeatDevice = function local_socketMessage_heartbeatDevice():void {
                 const heartbeat:heartbeatDevice = JSON.parse(event.data)["heartbeat-response-device"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
 
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
-                    share.update();
+                    share.update("");
                     network.storage(heartbeat.agentType);
                     network.storage("settings");
                 } else {
@@ -131,12 +128,14 @@ const title:Element = document.getElementsByClassName("title")[0],
                             if (browser[heartbeat.agentType][keys[a]] === undefined) {
                                 browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
                                 share.addAgent(heartbeat.shares[keys[a]].name, keys[a], "device");
-                            } else {
+                            } else if (heartbeat.shareFrom !== browser.data.hashDevice) {
                                 browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
                             }
                             a = a + 1;
                         } while (a < length);
-                        share.update();
+                        if (heartbeat.shareFrom !== browser.data.hashDevice) {
+                            share.update("");
+                        }
                         network.storage(heartbeat.agentType);
                     }
                 }
@@ -147,7 +146,7 @@ const title:Element = document.getElementsByClassName("title")[0],
 
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
-                    share.update();
+                    share.update("");
                     network.storage(heartbeat.agentType);
                     network.storage("settings");
                 } else {
@@ -156,7 +155,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     }
                     if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
                         browser[heartbeat.agentType][heartbeat.shareFrom].shares = heartbeat.shares;
-                        share.update();
+                        share.update("");
                         network.storage(heartbeat.agentType);
                     }
                 }
@@ -206,7 +205,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         title.setAttribute("class", "title");
     },
     webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = new sock[`sock${rand}`](`ws://localhost:${browser.localNetwork.wsPort}/`),
+        const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
             error = function local_socketError():any {
                 const device:Element = document.getElementById(browser.data.hashDevice);
                 title.setAttribute("class", "title offline");

@@ -57,7 +57,7 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
     document.getElementById(type).getElementsByTagName("ul")[0].appendChild(li);
     if (browser.loadTest === false) {
         settings.addUserColor(userHash, type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
-        share.update();
+        share.update("");
         network.storage(type);
     }
 };
@@ -71,15 +71,16 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
     const lists:Element = document.createElement("div"),
         fileNavigate = function local_share_content_fileNavigate(event:MouseEvent):void {
             const element:Element = <Element>event.srcElement || <Element>event.target,
-                list:Element = <Element>element.parentNode.parentNode.parentNode,
-                agentType:agentType = <agentType>list.getAttribute("id"),
+                parent:Element = <Element>element.parentNode,
+                agent:string = parent.parentNode.previousSibling.firstChild.textContent,
+                share:string = parent.getAttribute("data-hash"),
+                agentType:agentType = <agentType>element.getAttribute("class"),
                 path:string = element.firstChild.textContent,
                 type:string = element.getAttribute("class"),
                 slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
                     ? "/"
                     : "\\";
-            let address:string,
-                agent:string = element.parentNode.parentNode.previousSibling.firstChild.textContent;
+            let address:string;
             if (type === "file" || type === "link") {
                 const dirs:string[] = path.replace(/\\/g, "/").split("/");
                 dirs.pop();
@@ -91,8 +92,22 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 agentName: agent,
                 agentType: agentType,
                 path: address,
-                readOnly: (agent !== browser.data.hashDevice && element.getElementsByClassName("read-only-status")[0].innerHTML === "(Read Only)")
+                readOnly: browser.device[agentType][agent].shares[share].readOnly
             });
+        },
+        deviceButton = function local_share_content_deviceButton(title:Element, hash:string):void {
+            const button:HTMLElement = document.createElement("button");
+                button.setAttribute("class", "file-system-root");
+                button.innerHTML = "File System Root";
+                button.onclick = function local_share_content_perAgent_fsRoot():void {
+                    fs.navigate(null, {
+                        agentName: hash,
+                        agentType: "device",
+                        path: "**root**",
+                        readOnly: false
+                    });
+                };
+                title.appendChild(button);
         },
         perShare = function local_share_content_perShare(agentNames:agentNames):void {
             const li:Element = document.createElement("li"),
@@ -154,18 +169,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 shareListUL = document.createElement("ul");
                 title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
                 if (agentNames.agentType === "device") {
-                    const button:HTMLElement = document.createElement("button");
-                    button.setAttribute("class", "file-system-root");
-                    button.innerHTML = "File System Root";
-                    button.onclick = function local_share_content_perAgent_fsRoot():void {
-                        fs.navigate(null, {
-                            agentName: agentNames.agent,
-                            agentType: "device",
-                            path: "**root**",
-                            readOnly: false
-                        });
-                    };
-                    title.appendChild(button);
+                    deviceButton(title, agentNames.agent);
                 }
                 li.appendChild(title);
                 li.setAttribute("data-hash", agentNames.agent);
@@ -217,18 +221,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         title.innerHTML = `Shares for ${agentType} ${browser[agentType][agentName].name}`;
         div.setAttribute("class", "agentList");
         if (agentType === "device") {
-            const button:HTMLElement = document.createElement("button");
-            button.setAttribute("class", "file-system-root");
-            button.innerHTML = "File System Root";
-            button.onclick = function local_share_content_perAgent_fsRoot():void {
-                fs.navigate(null, {
-                    agentName: agentName,
-                    agentType: "device",
-                    path: "**root**",
-                    readOnly: false
-                });
-            };
-            title.appendChild(button);
+            deviceButton(title, agentName);
         }
         div.appendChild(title);
         if (shareLength < 1) {
@@ -255,7 +248,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
     return lists;
 };
 
-/* Share utility for the context menu list */
+/* Share utility for the "adding a share" context menu list */
 share.context = function local_share_context():void {
     const element:Element = context.element,
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
@@ -272,7 +265,7 @@ share.context = function local_share_context():void {
                     readOnly: true,
                     type: <shareType>shareResponse.type
                 };
-                share.update();
+                share.update("");
                 network.storage("device");
                 network.heartbeat("active", shareResponse.device, browser.device[shareResponse.device].shares);
             },
@@ -381,15 +374,16 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
         return;
     }
     network.deleteAgents(deleted);
-    share.update();
+    share.update("");
     network.storage("settings");
 };
 
 /* Delete a share from a device */
 share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
-        agent:agency = util.getAgent(element),
         parent:Element = <Element>element.parentNode,
+        box:Element = parent.getAncestor("box", "class"),
+        agent:agency = util.getAgent(box),
         address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
         shares:deviceShares = browser.device[agent[0]].shares,
         keys:string[] = Object.keys(shares),
@@ -411,7 +405,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     } else {
         parent.parentNode.removeChild(parent);
     }
-    share.update();
+    share.update(box.getAttribute("id"));
     network.storage("device");
     network.heartbeat("active", agent[0], browser.device[agent[0]].shares);
 };
@@ -562,45 +556,24 @@ share.modal = function local_shares_modal(agent:string, agentType:agentType|"", 
 share.readOnly = function local_share_readOnly(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         parent:Element = <Element>element.parentNode,
-        address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
         agency:agency = util.getAgent(element),
-        shares:deviceShares = browser[agency[2]][agency[0]].shares,
-        keys:string[] = Object.keys(shares),
-        length:number = keys.length,
-        span:Element = parent.getElementsByClassName("read-only-status")[0];
-    let a:number = 0;
+        hash:string = parent.getAttribute("data-hash");
     if (agency[2] !== "device") {
         return;
-    }
-    do {
-        if (shares[keys[a]].name === address) {
-            if (shares[keys[a]].readOnly === true) {
-                shares[keys[a]].readOnly = false;
-            } else {
-                shares[keys[a]].readOnly = true;
-            }
-            break;
-        }
-        a = a + 1;
-    } while (a < length);
-    if (element.getAttribute("class") === "grant-full-access") {
-        element.setAttribute("class", "make-read-only");
-        parent.setAttribute("class", "full-access");
-        element.innerHTML = "Make Read Only";
-        span.innerHTML = "(Full Access)";
+    }console.log(browser[agency[2]][agency[0]].shares[hash].readOnly);
+    //console.log(browser.device["075c96764388fc1c489318ba790f57bc18f7c8ba1b53a877397d4667d2ee77a250af6bd227ef51d57a984628e745cc12b8974d98af456a2a2978466140caab0f"].shares["4d1961adafeafe0e8d3802a9f60869d59dce61f393b307e54a1f511c10b66659b5ba252404a9c042b254a023363401824496ea27e5f67dd4fe093e9a58fd1dca"].readOnly);
+    if (browser[agency[2]][agency[0]].shares[hash].readOnly === true) {
+        browser[agency[2]][agency[0]].shares[hash].readOnly = false;
     } else {
-        element.setAttribute("class", "grant-full-access");
-        parent.removeAttribute("class");
-        element.innerHTML = "Grant Full Access";
-        span.innerHTML = "(Read Only)";
+        browser[agency[2]][agency[0]].shares[hash].readOnly = true;
     }
-    share.update();
     network.heartbeat("active", agency[0], browser.device[agency[0]].shares);
     network.storage(agency[2]);
+    share.update("");
 };
 
 /* Updates the contents of share modals */
-share.update = function local_share_update():void {
+share.update = function local_share_update(exclusion:string):void {
     const modals = Object.keys(browser.data.modals),
         modalLength = modals.length,
         closer = function local_share_update_closer(modal:Element):void {
@@ -614,40 +587,42 @@ share.update = function local_share_update():void {
         item:ui_modal,
         agentType:agentType | "";
     do {
-        item = browser.data.modals[modals[a]];
-        if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "share_delete") {
-            closer(document.getElementById(modals[a]));
-        } else if (item.type === "shares") {
-            modal = document.getElementById(modals[a]);
-            if (item.agent !== "" && browser[item.agentType][item.agent] === undefined) {
-                closer(modal);
-            } else {
-                body = modal.getElementsByClassName("body")[0];
-                if (item.title.indexOf("All Shares") > -1) {
-                    agentType = "";
-                    agent = "";
-                } else if (item.title.indexOf("All User Shares") > -1) {
-                    agentType = "user";
-                    agent = "";
-                } else if (item.title.indexOf("All Device Shares") > -1) {
-                    agentType = "device";
-                    agent = "";
+        if (exclusion !== modals[a]) {
+            item = browser.data.modals[modals[a]];
+            if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "share_delete") {
+                closer(document.getElementById(modals[a]));
+            } else if (item.type === "shares") {
+                modal = document.getElementById(modals[a]);
+                if (item.agent !== "" && browser[item.agentType][item.agent] === undefined) {
+                    closer(modal);
                 } else {
-                    if (item.title.indexOf("device") > -1) {
-                        agentType = "device";
-                    } else {
+                    body = modal.getElementsByClassName("body")[0];
+                    if (item.title.indexOf("All Shares") > -1) {
+                        agentType = "";
+                        agent = "";
+                    } else if (item.title.indexOf("All User Shares") > -1) {
                         agentType = "user";
+                        agent = "";
+                    } else if (item.title.indexOf("All Device Shares") > -1) {
+                        agentType = "device";
+                        agent = "";
+                    } else {
+                        if (item.title.indexOf("device") > -1) {
+                            agentType = "device";
+                        } else {
+                            agentType = "user";
+                        }
+                        agent = item.agent;
                     }
-                    agent = item.agent;
+                    body.innerHTML = "";
+                    body.appendChild(share.content(agent, agentType));
                 }
+            } else if (item.type === "share_delete") {
+                modal = document.getElementById(modals[a]);
+                body = modal.getElementsByClassName("body")[0];
                 body.innerHTML = "";
-                body.appendChild(share.content(agent, agentType));
+                body.appendChild(share.deleteListContent());
             }
-        } else if (item.type === "share_delete") {
-            modal = document.getElementById(modals[a]);
-            body = modal.getElementsByClassName("body")[0];
-            body.innerHTML = "";
-            body.appendChild(share.deleteListContent());
         }
         a = a + 1;
     } while (a < modalLength);
