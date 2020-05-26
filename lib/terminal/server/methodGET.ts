@@ -72,11 +72,17 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             if (stat.isFile() === true) {
                 const readCallback = function terminal_server_create_readCallback(args:readFile, data:string|Buffer):void {
                         let tool:boolean = false;
-                        const pageState = function terminal_server_create_readCallback_pageState():void {
+                        const pageState = function terminal_server_create_readCallback_pageState(type:string):void {
                                 const appliedData = function terminal_server_create_readCallback_appliedData(storageData:storageItems):void {
                                         const dataString:string = (typeof data === "string")
-                                                ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
-                                                : "";
+                                            ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
+                                            : "";
+                                        response.setHeader("content-security-policy", csp);
+                                        response.setHeader("connection", "keep-alive");
+                                        // cspell:disable
+                                        response.setHeader("X-FRAME-OPTIONS", "sameorigin");
+                                        // cspell:enable
+                                        response.writeHead(200, {"Content-Type": type});
                                         response.write(dataString);
                                         response.end();
                                     };
@@ -96,20 +102,10 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                             response.writeHead(200, {"Content-Type": "image/png"});
                         } else if (localPath.indexOf(".svg") === localPath.length - 4) {
                             response.writeHead(200, {"Content-Type": "image/svg+xml"});
-                        } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
-                            response.setHeader("content-security-policy", csp);
-                            response.setHeader("connection", "keep-alive");
-                            response.writeHead(200, {"Content-Type": "application/xhtml+xml"});
-                            if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
-                                pageState();
-                            }
-                        } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                            response.setHeader("content-security-policy", csp);
-                            response.setHeader("connection", "keep-alive");
-                            response.writeHead(200, {"Content-Type": "text/html"});
-                            if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {
-                                pageState();
-                            }
+                        } else if (localPath.indexOf(".xhtml") === localPath.length - 6 && localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
+                            pageState("application/xhtml+xml");
+                        } else if ((localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) && localPath === `${vars.projectPath}index.html` && typeof data === "string") {
+                            pageState("text/html");
                         } else {
                             response.writeHead(200, {"Content-Type": "text/plain"});
                         }

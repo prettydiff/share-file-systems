@@ -13,6 +13,7 @@ const title:Element = document.getElementsByClassName("title")[0],
     sock:WebSocketLocal = (function local_socket():WebSocketLocal {
         // A minor security circumvention.
         const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
+        // eslint-disable-next-line
         WebSocket = null;
         return socket;
     }()),

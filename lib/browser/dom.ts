@@ -140,6 +140,11 @@ const dom = function local_dom():void {
                 child(root);
                 return output;
             }());
+        },
+        disallowed = function local_dom_disallowed():void {
+            // eslint-disable-next-line
+            new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
+            return undefined;
         };
 
     // Create a document method
@@ -152,11 +157,8 @@ const dom = function local_dom():void {
     Element.prototype.getNodesByType         = getNodesByType;
 
     // Disabling addEventListener via reassignment because the preferred pattern is directly assigning handlers to the respective events
-    Element.prototype.addEventListener       = function local_getNodesByType_addEventListener():void {
-        // eslint-disable-next-line
-        new Error(`addEventListener used on ${this}\naddEventListener is not supported in this application.`);
-        return undefined;
-    }; 
+    Element.prototype.addEventListener       = disallowed;
+    document.write                           = disallowed;
 
 }
 

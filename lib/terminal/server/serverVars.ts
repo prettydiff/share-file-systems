@@ -1,13 +1,9 @@
 
 /* lib/terminal/server/serverVars - A library of variables globally available for all server related tasks. */
 import { NetworkInterfaceInfo } from "os";
-import { Socket } from "net";
 
 import vars from "../utilities/vars.js";
 
-interface socketList {
-    [key:string]: Socket;
-}
 let mac:string = "",
     address:[[string, string, string][], number];
 const serverVars:serverVars = {
@@ -81,7 +77,7 @@ const serverVars:serverVars = {
             : address[0][0][1],
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
-        status: "idle",
+        status: "active",
         storage: `${vars.projectPath}storage`,
         timeStore: 0,
         user: {},

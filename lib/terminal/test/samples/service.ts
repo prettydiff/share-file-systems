@@ -981,18 +981,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "invited",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1010,18 +1003,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "invited",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1039,18 +1025,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "invited",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1068,18 +1047,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "accepted",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1097,18 +1069,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "invited",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1126,18 +1091,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "declined",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1155,18 +1113,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "accepted",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1184,18 +1135,11 @@ service.populate = function test_services_populate():void {
                 deviceHash: serverVars.hashDevice,
                 deviceName: "old desktop computer",
                 message: "Hello",
-                name: "",
+                name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
                 port: 80,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "invited",
                 type: "device",
                 userHash: "21ca7db79e6eb80ea103c4a10f7dee9b6ee3116717579ee9f06808a0eb8b8f416d063512c8fd91199d9fa17fbafaa9dccb93034530a8e473dffd321aca1ec872",
@@ -1211,14 +1155,7 @@ service.populate = function test_services_populate():void {
             "heartbeat-broadcast": {
                 agentFrom: "localhost-browser",
                 shareFrom: serverVars.hashDevice,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "active"
             }
         },
@@ -1231,14 +1168,7 @@ service.populate = function test_services_populate():void {
             "heartbeat-broadcast": {
                 agentFrom: "localhost-terminal",
                 shareFrom: serverVars.hashDevice,
-                shares: {
-                    "76e9d9d3e3d66051b793b980f21ab270e14fa3c2682a4f9a047ce104c853291ab846669d4305aeda67126af6850c06bc168cda9610f3d730a601185e29ee20be": {
-                        execute: false,
-                        name: "C:\\music",
-                        readOnly: true,
-                        type: "directory"
-                    }
-                },
+                shares: serverVars.device[serverVars.hashDevice].shares,
                 status: "active"
             }
         },
@@ -1253,117 +1183,91 @@ service.populate = function test_services_populate():void {
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 shareFrom: serverVars.hashDevice,
-                shares: {
-                    "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
-                        "ip"    : "::1",
-                        "name"  : "test device laptop",
-                        "port"  : 0,
-                        "shares": {
-                            "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
-                                "execute" : false,
-                                "name"    : "C:\\mp3\\deviceLaptop",
-                                "readOnly": true,
-                                "type"    : "directory"
-                            },
-                            "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
-                                "execute" : false,
-                                "name"    : "E:\\deviceLaptop",
-                                "readOnly": false,
-                                "type"    : "directory"
-                            },
-                            "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
-                                "execute" : false,
-                                "name"    : "C:\\deviceLaptop\\notes.pdf",
-                                "readOnly": true,
-                                "type"    : "file"
-                            }
-                        }
-                    },
-                    "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
-                        "ip"    : "::1",
-                        "name"  : "test device desktop",
-                        "port"  : 0,
-                        "shares": {
-                            "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
-                                "execute" : false,
-                                "name"    : "C:\\mp3\\deviceDesktop",
-                                "readOnly": true,
-                                "type"    : "directory"
-                            },
-                            "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
-                                "execute" : false,
-                                "name"    : "E:\\deviceDesktop",
-                                "readOnly": false,
-                                "type"    : "directory"
-                            },
-                            "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
-                                "execute" : false,
-                                "name"    : "C:\\deviceDesktop\\notes.pdf",
-                                "readOnly": true,
-                                "type"    : "file"
-                            }
-                        }
-                    }
-                },
+                shares: serverVars.device,
                 status: "active"
             }
         },
-        name: "heartbeat, regular heartbeat",
+        name: "heartbeat response",
         qualifier: "is",
         test: {
             "heartbeat-response-device": {
-                agentFrom: serverVars.hashDevice,
-                agentTo: serverVars.hashDevice,
+                agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentType: "device",
-                shareFrom: serverVars.hashDevice,
+                shareFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 shares: {
+                    "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594": {
+                        ip: loopback,
+                        name: "test local device",
+                        port: 0,
+                        shares: {
+                            "a89e4ac7eec0c4b557aab68ad7499dd136d21d8eb2e5f51a6973dcf5f854b9a1895bec63f3a9d1b5e6243524e6bb8bc29d34c9741c1fc7fc77a7f0e8a934d153": {
+                                execute: false,
+                                name: "C:\\mp3\\deviceLocal",
+                                readOnly: true,
+                                type: "directory"
+                            },
+                            "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b": {
+                                execute: false,
+                                name: "E:\\deviceLocal",
+                                readOnly: false,
+                                type: "directory"
+                            },
+                            "2772fe10a1f1efe6a34c01408dc6bf51fa43ba657c72cff9f77c02a96eb61490b995325330a1b954e1e8e6e55d87003840e65c223e1e465d1a30486dfdef1211": {
+                                execute: false,
+                                name: "C:\\deviceLocal\\notes.pdf",
+                                readOnly: true,
+                                type: "file"
+                            }
+                        }
+                    },
                     "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e": {
-                        "ip"    : "::1",
-                        "name"  : "test device laptop",
-                        "port"  : 0,
-                        "shares": {
+                        ip: loopback,
+                        name: "test device laptop",
+                        port: 0,
+                        shares: {
                             "ccd7be8a1603ae4ca8d39f142e538c18fa16b157ce8f315a0f8a66060b3fbe71fa429bc309c964e8b8ce6c7cf699b4802777a99b5c961e8419ae24d6bfaf241b": {
-                                "execute" : false,
-                                "name"    : "C:\\mp3\\deviceLaptop",
-                                "readOnly": true,
-                                "type"    : "directory"
+                                execute: false,
+                                name: "C:\\mp3\\deviceLaptop",
+                                readOnly: true,
+                                type: "directory"
                             },
                             "1a36a5c57a86e6015aff4a2888d1e399d7a8b74d306952f01243822f84812174224feee82760d90883b300cb3848f2ef4c41cc00a703101b47b314c6af5894ee": {
-                                "execute" : false,
-                                "name"    : "E:\\deviceLaptop",
-                                "readOnly": false,
-                                "type"    : "directory"
+                                execute: false,
+                                name: "E:\\deviceLaptop",
+                                readOnly: false,
+                                type: "directory"
                             },
                             "0d8e80125088946594d6d80070e833b978a466e9789504e51c67462d09133f33994d0ea06cf9006d4d7fc651a5adceab72b6b80797166288458cfb53d021dbc6": {
-                                "execute" : false,
-                                "name"    : "C:\\deviceLaptop\\notes.pdf",
-                                "readOnly": true,
-                                "type"    : "file"
+                                execute: false,
+                                name: "C:\\deviceLaptop\\notes.pdf",
+                                readOnly: true,
+                                type: "file"
                             }
                         }
                     },
                     "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
-                        "ip"    : "::1",
-                        "name"  : "test device desktop",
-                        "port"  : 0,
-                        "shares": {
+                        ip: loopback,
+                        name: "test device desktop",
+                        port: 0,
+                        shares: {
                             "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
-                                "execute" : false,
-                                "name"    : "C:\\mp3\\deviceDesktop",
-                                "readOnly": true,
-                                "type"    : "directory"
+                                execute: false,
+                                name: "C:\\mp3\\deviceDesktop",
+                                readOnly: true,
+                                type: "directory"
                             },
                             "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
-                                "execute" : false,
-                                "name"    : "E:\\deviceDesktop",
-                                "readOnly": false,
-                                "type"    : "directory"
+                                execute: false,
+                                name: "E:\\deviceDesktop",
+                                readOnly: false,
+                                type: "directory"
                             },
                             "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
-                                "execute" : false,
-                                "name"    : "C:\\deviceDesktop\\notes.pdf",
-                                "readOnly": true,
-                                "type"    : "file"
+                                execute: false,
+                                name: "C:\\deviceDesktop\\notes.pdf",
+                                readOnly: true,
+                                type: "file"
                             }
                         }
                     }
@@ -1379,33 +1283,7 @@ service.populate = function test_services_populate():void {
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 shareFrom: serverVars.hashDevice,
-                shares: {
-                    "fa042a71aee124b7b667d97fd84c0a309e72aefcae5d95762bc05d39cbeedae88122758f8625910a669271251d5f561a1c2749c6d66664f5d35dcc8c608c1a89": {
-                        "ip"    : "::1",
-                        "name"  : "test device desktop",
-                        "port"  : 0,
-                        "shares": {
-                            "36b0d1a2ddc81858b0339d3296b4f69513b779a122ec279ea71a1cb50231952e5f5ba9197c6438e91cd3d8bd6b3d5feee78ce4fd0e4386abe3af0487449a02d7": {
-                                "execute" : false,
-                                "name"    : "C:\\mp3\\deviceDesktop",
-                                "readOnly": true,
-                                "type"    : "directory"
-                            },
-                            "71f79d5cc211b5fa52f95a33ad9aaa4b6bf3ad3951ac06365ee316e5f4da70811fd3ed8fa585024009683cf83e40fd31211b1a36324dfc79148d12dea16fbcef": {
-                                "execute" : false,
-                                "name"    : "E:\\deviceDesktop",
-                                "readOnly": false,
-                                "type"    : "directory"
-                            },
-                            "768b031d795208e4adca58a4908161e77d61132c3e6ef5a76960fcd51b05f1e96ada60af01b3a9561f5c061a6e9dabc311e9970853b8b5ce0c1f0966b02315e7": {
-                                "execute" : false,
-                                "name"    : "C:\\deviceDesktop\\notes.pdf",
-                                "readOnly": true,
-                                "type"    : "file"
-                            }
-                        }
-                    }
-                },
+                shares: serverVars.device,
                 status: "active"
             }
         },
@@ -1559,6 +1437,7 @@ service.execute = function test_services_execute(config:testExecute):void {
         evaluator = function test_service_execute_evaluator(message:string):void {
             testEvaluation({
                 callback: config.complete,
+                fail: config.fail,
                 index: config.index,
                 list: config.list,
                 test: <testItem>service[index],
@@ -1578,7 +1457,7 @@ service.execute = function test_services_execute(config:testExecute):void {
                 setTimeout(function test_service_callback_end_delay():void {
                     request.end();
                     evaluator(chunks.join(""));
-                }, 10);
+                }, 25);
             });
         },
         request:http.ClientRequest = http.request(payload, requestCallback);

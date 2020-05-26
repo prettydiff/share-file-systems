@@ -46,6 +46,7 @@ const test_service = function terminal_testService():void {
                     log.title("Run Selected Tests");
                     service.execute({
                         complete: completeCallback,
+                        fail: 0,
                         index: 0,
                         list: filter
                     })

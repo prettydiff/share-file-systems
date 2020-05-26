@@ -691,6 +691,7 @@ declare global {
     }
     interface testEvaluation {
         callback: Function;
+        fail: number;
         index: number;
         list: number[];
         test: testItem;
@@ -699,6 +700,7 @@ declare global {
     }
     interface testExecute {
         complete: Function;
+        fail: number;
         index: number;
         list: number[];
     }

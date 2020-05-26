@@ -39,6 +39,7 @@ const test_simulation = function terminal_testSimulation():void {
             log.title("Run Selected Tests");
             simulation.execute({
                 complete: completeCallback,
+                fail: 0,
                 index: 0,
                 list: filter
             });

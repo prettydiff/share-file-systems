@@ -33,6 +33,7 @@ const library = {
                 list.service.addServers(function test_testListRunner_serviceCallback():void {
                     list.service.execute({
                         complete: callback,
+                        fail: 0,
                         index: 0,
                         list: []
                     });
@@ -42,6 +43,7 @@ const library = {
         } else {
             list[testListType].execute({
                 complete: callback,
+                fail: 0,
                 index: 0,
                 list: []
             });

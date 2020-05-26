@@ -38,6 +38,8 @@ const library = {
     // * bypasses messaging users on server start up
     // * bypasses some security checks
     server = function terminal_server(serverCallback:serverCallback):httpServer {
+        let portWeb:number,
+            portWS:number;
         const browser:boolean = (function terminal_server_browserTest():boolean {
                 let index:number;
                 const test:number = process.argv.indexOf("test");
@@ -336,6 +338,7 @@ const library = {
                         : serverVars.webPort + 1;
 
                     httpServer.port = serverAddress.port;
+                    portWeb = serverAddress.port;
 
                     vars.ws = new WebSocket.Server({
                         host: (serverVars.addresses[0].length > 1)
@@ -375,8 +378,8 @@ const library = {
                             serverCallback.callback({
                                 agent: serverCallback.agent,
                                 agentType: serverCallback.agentType,
-                                webPort: serverVars.webPort,
-                                wsPort: serverVars.wsPort
+                                webPort: portWeb,
+                                wsPort: portWS
                             });
                         }
                     });

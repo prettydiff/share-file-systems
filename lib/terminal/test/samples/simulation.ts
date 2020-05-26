@@ -329,6 +329,7 @@ simulation.execute = function test_simulations_execute(config:testExecute):void 
         simulation[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
         testEvaluation({
             callback: config.complete,
+            fail: config.fail,
             index: config.index,
             list: config.list,
             test: simulation[index],

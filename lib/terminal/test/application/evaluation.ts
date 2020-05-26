@@ -13,7 +13,6 @@ import simulation from "../samples/simulation.js";
 import testComplete from "./complete.js";
 
 const testEvaluation = function test_testEvaluation(output:testEvaluation):void {
-    let fail:number = 0;
     const serviceItem:testItem|testServiceInstance = (output.testType === "service")
             ? <testServiceInstance>output.test
             : null,
@@ -48,6 +47,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                     if (output.index < total) {
                         list[output.testType].execute({
                             complete: output.callback,
+                            fail: output.fail,
                             index: output.index,
                             list: output.list
                         });
@@ -56,7 +56,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                             callback: function test_testEvaluation_increment_interval_callback(message:string, failCount:number):void {
                                 output.callback(message, failCount);
                             },
-                            fail: fail,
+                            fail: output.fail,
                             testType: output.testType,
                             total: total
                         };
@@ -71,7 +71,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                     if (messages[0] === "") {
                         log([`${humanTime(false) + vars.text.green}Passed ${output.testType} ${output.index + 1}: ${vars.text.none + name}`]);
                     } else if (messages[0].indexOf("fail - ") === 0) {
-                        fail = fail + 1;
+                        output.fail = output.fail + 1;
                         log([`${humanTime(false) + vars.text.angry}Fail ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
@@ -150,7 +150,26 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
         return;
     }
     if (typeof output.values[0] === "string") {
-        output.values[0] = output.values[0].replace(/\s+$/, "").replace(/^\s+/, "").replace(/\s::(\s|\.)/g, " XXXX ").replace(/\u0020-?\d+(\.\d+)*(\s|\.)/g, " XXXX ").replace(/\\n-?\d+(\.\d+)*\s/g, "\\nXXXX ").replace(/\(\d+ /g, "(XXXX ").replace(/ \d+B/g, " XXXX").replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
+        // clip trailing space
+        output.values[0] = output.values[0].replace(/\s+$/, "");
+        // clip starting space
+        output.values[0] = output.values[0].replace(/^\s+/, "");
+        // replace numbers preceding a capital B
+        output.values[0] = output.values[0].replace(/ \d+B/g, " XXXX");
+        // replace numbers following a space
+        output.values[0] = output.values[0].replace(/\u0020-?\d+(\.\d+)*(\s|\.)/g, " XXXX ");
+        // replace numbers following a newline character
+        output.values[0] = output.values[0].replace(/\\n-?\d+(\.\d+)*\s/g, "\\nXXXX ");
+        // replace numbers following a parenthesis
+        output.values[0] = output.values[0].replace(/\(\d+ /g, "(XXXX ");
+        if (output.testType === "service") {
+            // replace port numbers
+            output.values[0] = output.values[0].replace(/"port":\d+,/g, "\"port\":0,");
+            // replace wildcard IPv6 address
+            output.values[0] = output.values[0].replace(/\s::(\s|\.)/g, " XXXX ");
+            // replace IPv6 addresses framed in square braces
+            output.values[0] = output.values[0].replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
+        }
     }
     if (output.test.qualifier.indexOf("file") === 0) {
         if (output.test.artifact === "" || output.test.artifact === undefined) {
