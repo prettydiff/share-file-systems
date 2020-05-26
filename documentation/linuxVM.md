@@ -82,3 +82,48 @@ Provide an alias to your *.bashrc* file
 2. `alias sharefs="authbind node js/application"`
 
 Then just execute the application as: `sharefs server`
+
+## Custom Prompt
+Modify the prompt into something informative matching the style of this application
+
+`vim ~/.bashrc`
+
+1. Search the file for a variable named `PS1`, which is the prompt value.
+2. If found change that line to `PS1="[\[\033[01;34m\]\h-\T\[\033[00m\]]\[\033[01;32m\]\w\[\033[00m\]> "`
+3. If not found then add the code above to the end of the file.
+
+## Vim Configuration
+1. `rm ~/.vimrc`
+2. `vim ~/.vimrc`
+
+Once in the file add this content:
+
+```
+filetype plugin on
+scriptencoding utf8
+syntax on          "turn on syntax highlighting
+
+set autoindent     "new lines recieve same indentation as previous line
+set confirm        "display a warning when exiting an unsaved file
+set cursorline     "highlight the current line the cursor is on
+set encoding=utf8  "set character encoding scheme
+set expandtab      "use spaces instead of tabs for indentation
+set history=1000   "number of steps in the change history for undo
+set hlsearch       "highlight all matches to a given search pattern
+set incsearch      "show search pattern match as the pattern is typed in
+set list           "clearly distinguish whitespace characters
+set listchars=trail:\·,precedes:\«,extends:\»,eol:\¬,tab:\¦\¬ "custom whitespace character definitions
+set nobackup       "do not create a backup when overwriting a file
+set nowritebackup  "do not create a backup when overwriting a file
+set noswapfile     "do not store file contents in a swap file in memory
+set number         "line number
+set relativenumber "current line number plus relative numbers for other lines
+set ruler          "always show cursor position in status bar
+set smarttab       "use full custom indentation when pressing the tab key
+set shiftwidth=4   "number of spaces in a tab stop
+set showmatch      "point out closing braces when the cursor is on opening braces
+set softtabstop=4  "treat a run of spaces as a single character when using backspace
+set tabstop=4      "indentation width
+set t_Co=256       "enable 256 colors (the shell must support this value)
+set wildmenu       "display command line's tab complete options as a menu
+```

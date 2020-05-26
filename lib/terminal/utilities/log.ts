@@ -22,7 +22,7 @@ const log = function terminal_log(output:string[], end?:boolean):void {
             logger("________________________________________________");
             logger(`Version ${vars.text.angry + vars.version.number + vars.text.none}`);
             logger(`Updated ${vars.version.date}`);
-            logger(`Archive ${vars.text.cyan + vars.version.hash + vars.text.none}`);
+            logger(`git Log ${vars.text.cyan + vars.version.hash + vars.text.none}`);
         }
         if (vars.verbose === true) {
             humanTime(true);
