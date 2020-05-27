@@ -232,7 +232,7 @@ const library = {
                             return true;
                         }
                         return false;
-                    };console.log(request.headers["request-type"]);
+                    };
                 if (request.method === "GET" && host === "localhost") {
                     methodGET(request, response);
                 } else if (request.method === "GET" && (request.headers.agentType === "device" || request.headers.agentType === "user") && serverVars[request.headers.agentType][<string>request.headers.agent] !== undefined) {

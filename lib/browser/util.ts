@@ -296,6 +296,9 @@ util.dragList = function local_util_dragList(event:MouseEvent, dragBox:Element):
             (dragArea.left <= (liLocation[0].left + li[0].clientWidth) && dragArea.right >= liLocation[0].right)
         ) {
             a = 0;
+            if (dragArea.bottom > liLocation[length - 1].bottom && dragArea.top < liLocation[length - 1].bottom) {
+                last = length - 1;
+            }
             do {
                 if (liLocation[a].top < dragArea.top) {
                     if (liLocation[a].bottom >= dragArea.bottom) {
