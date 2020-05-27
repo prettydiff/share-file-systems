@@ -179,14 +179,18 @@ const library = {
             // the file system watch handler
             watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
                 if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
-                    serverVars.watches[value].time = Date.now();
                     if (data.agent === serverVars.hashDevice) {
-                        vars.testLogger("fileService", "watchHandler", "Central watch handler for local device file system");
-                        fsUpdateLocal(value);
+                        if (serverVars.watches[value] !== undefined) {
+                            const now:number = Date.now();
+                            vars.testLogger("fileService", "watchHandler", "Central watch handler for local device file system");
+                            if (serverVars.watches[value].time > now - 2000) {
+                                fsUpdateLocal(value);
+                            }
+                            serverVars.watches[value].time = now;
+                        }
                     } else {
                         const intervalHandler = function terminal_server_fileServices_watchHandler_intervalHandler():void {
                                 if (serverVars.watches[value] === undefined) {
-                                    delete serverVars.watches[value];
                                     clearInterval(interval);
                                 } else if (Date.now() > serverVars.watches[value].time - 7200000) {
                                     serverVars.watches[value].close();
@@ -233,6 +237,9 @@ const library = {
                             },
                             interval = setInterval(intervalHandler, 60000);
                         vars.testLogger("fileService", "watchHandler", "Central watch handler for file systems outside current device, checked against a timed interval");
+                        if (serverVars.watches[value] !== undefined) {
+                            serverVars.watches[value].time = Date.now();
+                        }
                         // create directoryList object and send to remote
                         library.directory(dirConfig);
                         logRecursion = false;
@@ -726,8 +733,11 @@ const library = {
                                 if (serverVars.watches[watchPath] === undefined) {
                                     serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
                                         recursive: (process.platform === "win32" || process.platform === "darwin")
-                                    }, function terminal_server_fileService_pathEach_putStat_watch():void {
-                                        watchHandler(watchPath);
+                                    }, function terminal_server_fileService_putCallback_watch(eventType:string, fileName:string):void {
+                                        // throttling is necessary in the case of recursive watches in areas the OS frequently stores user settings
+                                        if (fileName !== null && fileName.split(vars.sep).length < 2) {
+                                            watchHandler(watchPath);
+                                        }
                                     });
                                 } else {
                                     serverVars.watches[watchPath].time = Date.now();
@@ -916,7 +926,7 @@ const library = {
                 // data.copyAgent === local
                 vars.testLogger("fileService", "fs-copy origination-not-local", "When the files exist on the local device but are requested remotely then the remote agent must request the list of files to know what to request.");
                 data.action = <serviceType>`${data.action}-list`;
-                httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                httpRequest(function terminal_server_fileService_httpCopy(responseBody:string|Buffer):void {
                     requestFiles(JSON.parse(<string>responseBody));
                 }, "Error copying from remote to local device", "body");
             } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
@@ -939,7 +949,7 @@ const library = {
                 data.copyAgent = agent;
                 data.remoteWatch = serverVars.hashDevice;
                 data.watch = "third party action";
-                httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+                httpRequest(function terminal_server_fileService_httpRemoteRemote(responseBody:string|Buffer):void {
                     //console.log("");
                     //console.log("responseBody");
                     //console.log(responseBody);
@@ -954,7 +964,7 @@ const library = {
             data.agent = data.copyAgent;
             data.copyAgent = agent;
             data.action = <serviceType>`${data.action.replace("-remote", "")}`;
-            httpRequest(function terminal_server_fileService_toLocalhost(responseBody:string|Buffer):void {
+            httpRequest(function terminal_server_fileService_httpCopyRemote(responseBody:string|Buffer):void {
                 requestFiles(JSON.parse(<string>responseBody));
             }, "Error copying from remote to local device", "body");
         } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
@@ -1065,7 +1075,7 @@ const library = {
                     serverVars.watches[value].close();
                     delete serverVars.watches[value];
                 }
-                library.remove(value, function terminal_server_fileService_destroy():void {
+                library.remove(value, function terminal_server_fileService_destroyEach_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
                         const agent:string = (data.copyAgent === "")
@@ -1123,12 +1133,12 @@ const library = {
                         response.end();
                     }
                 },
-                fileReader = function terminal_server_fileService_fileReader(input:base64Input):void {
-                    vars.node.fs.readFile(input.source, "utf8", function terminal_server_fileService_fileReader(readError:nodeError, fileData:string) {
+                fileReader = function terminal_server_fileService_fileReader(fileInput:base64Input):void {
+                    vars.node.fs.readFile(fileInput.source, "utf8", function terminal_server_fileService_fileReader_read(readError:nodeError, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
-                            id: input.id,
-                            filePath: input.source
+                            id: fileInput.id,
+                            filePath: fileInput.source
                         };
                         vars.testLogger("fileService", "fileReader", `Reading a file for action fs-read, ${input.source}`);
                         if (readError !== null) {
@@ -1169,8 +1179,9 @@ const library = {
                     hashInput.source = data.location[a].slice(index + 1);
                     library.hash(hashInput);
                 } else if (data.action === "fs-read") {
-                    input.id = data.id;
-                    input.source = data.location[a];
+                    index = data.location[a].indexOf(":");
+                    input.id = data.location[a].slice(0, index);
+                    input.source = data.location[a].slice(index + 1);
                     fileReader(input);
                 }
                 a = a + 1;

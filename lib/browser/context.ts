@@ -141,7 +141,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             delay = util.delay();
             payloadModal.content = delay;
             payloadModal.left = event.clientX + (a * 10);
-            payloadModal.title = `${type} - ${agency[0]} - ${addresses[a][0]}`;
+            payloadModal.title = `${type} - ${browser[agency[2]][agency[0]].name} - ${addresses[a][0]}`;
             payloadModal.top = (event.clientY - 60) + (a * 10);
             modalInstance = modal.create(payloadModal);
             payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);

@@ -676,6 +676,15 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         box:Element = <Element>bodyParent.parentNode,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
+        newAddress:string = (function local_fs_parent_newAddress():string {
+            if ((/^\w:\\$/).test(value) === true) {
+                return "\\";
+            }
+            if (value.indexOf(slash) === value.lastIndexOf(slash)) {
+                return value.slice(0, value.lastIndexOf(slash) + 1);
+            }
+            return value.slice(0, value.lastIndexOf(slash));
+        }()),
         payload:fileService = {
             action: "fs-directory",
             agent: agency[0],
@@ -684,30 +693,24 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
             copyType: "device",
             depth: 2,
             id: id,
-            location: [input.value],
+            location: [newAddress],
             name: "",
             watch: value
         },
         callback = function local_fs_parent_callback(responseText:string):void {
-            const list:[Element, number, string] = fs.list(input.value, JSON.parse(responseText));
+            const list:[Element, number, string] = fs.list(newAddress, JSON.parse(responseText));
+            input.value = newAddress;
             body.innerHTML = "";
             body.appendChild(list[0]);
             fs.listFail(list[1], box);
             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
-            browser.data.modals[id].text_value = input.value;
+            browser.data.modals[id].text_value = newAddress;
             network.storage("settings");
         };
-    if (input.value === "\\" || input.value === "/") {
+    if (newAddress === "\\" || newAddress === "/") {
         return false;
     }
-    if ((/^\w:\\$/).test(value) === true) {
-        input.value = "\\";
-    } else if (value.indexOf(slash) === value.lastIndexOf(slash)) {
-        input.value = value.slice(0, value.lastIndexOf(slash) + 1);
-    } else {
-        input.value = value.slice(0, value.lastIndexOf(slash));
-    }
-    browser.data.modals[id].history.push(input.value);
+    browser.data.modals[id].history.push(newAddress);
     network.fs(payload, callback);
 };
 
