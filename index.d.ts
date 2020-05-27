@@ -294,6 +294,7 @@ declare global {
         port: number;
         remoteName: string;
         requestError?: (error:nodeError, agent?:string, type?:agentType) => void;
+        requestType: string;
         response?: any;
         responseError?: (error:nodeError, agent?:string, type?:agentType) => void;
     }

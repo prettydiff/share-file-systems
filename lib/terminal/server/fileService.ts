@@ -151,6 +151,7 @@ const library = {
                         payload: payload,
                         port: serverVars[data.agentType][data.agent].port,
                         remoteName: data.agent,
+                        requestType: data.action,
                         response: response
                     };
                 vars.testLogger("fileService", "httpRequest", "An abstraction to the httpClient library for the fileService library.");
@@ -224,6 +225,7 @@ const library = {
                                             payload: payload,
                                             port: serverVars[data.agentType][data.agent].port,
                                             remoteName: data.agent,
+                                            requestType: data.action,
                                             response: response
                                         };
                                     library.httpClient(httpConfig);

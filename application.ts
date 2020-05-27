@@ -15,6 +15,7 @@ import mkdir from "./lib/terminal/commands/mkdir.js";
 import remove from "./lib/terminal/commands/remove.js";
 import server from "./lib/terminal/commands/server.js";
 import test from "./lib/terminal/commands/test.js";
+import test_agent from "./lib/terminal/commands/test_agent.js";
 import test_service from "./lib/terminal/commands/test_service.js";
 import test_simulation from "./lib/terminal/commands/test_simulation.js";
 import vars from "./lib/terminal/utilities/vars.js";
@@ -36,6 +37,7 @@ import version from "./lib/terminal/commands/version.js";
         remove: remove,
         server: server,
         test: test,
+        test_agent: test_agent,
         test_service: test_service,
         test_simulation: test_simulation,
         version: version

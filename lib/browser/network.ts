@@ -30,6 +30,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:[string, stri
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "delete-agents");
     xhr.send(JSON.stringify({
         "delete-agents": deleted
     }));
@@ -66,6 +67,7 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", configuration.action);
     xhr.send(JSON.stringify({
         fs: configuration
     }));
@@ -97,6 +99,7 @@ network.hashDevice = function local_network_hashDevice(callback:Function):void {
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "hashDevice");
     xhr.send(JSON.stringify({hashDevice:hashes}));
 };
 
@@ -126,6 +129,7 @@ network.hashShare = function local_network_hashShare(configuration:hashShareConf
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "hashShare");
     xhr.send(JSON.stringify({hashShare:payload}));
 };
 
@@ -155,6 +159,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "heartbeat-broadcast");
     xhr.send(JSON.stringify({
         "heartbeat-broadcast": heartbeat
     }));
@@ -184,6 +189,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", configuration.action);
     xhr.send(JSON.stringify({
         invite: configuration
     }));
@@ -208,6 +214,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", inviteData.action);
     xhr.send(JSON.stringify({
         invite: inviteData
     }));
@@ -241,6 +248,7 @@ network.storage = function local_network_storage(type:storageType):void {
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", type);
     xhr.send(payload);
 };
 

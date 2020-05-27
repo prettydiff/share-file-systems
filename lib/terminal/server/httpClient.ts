@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/httpClient - A library for handling all child HTTP requests. */
-import * as http from "http";
+import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions} from "http";
 
 import forbiddenUser from "./forbiddenUser.js";
 import serverVars from "./serverVars.js";
@@ -12,7 +12,7 @@ import vars from "../utilities/vars.js";
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
     const callback: Function = (config.callbackType === "object")
             ? config.callback
-            : function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
+            : function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
                 const chunks:Buffer[] = [];
                 fsResponse.setEncoding("utf8");
                 fsResponse.on("data", function terminal_server_httpClient_data(chunk:Buffer):void {
@@ -80,14 +80,15 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
                 : "",
-        headers:http.OutgoingHttpHeaders = (invite === "")
+        headers:OutgoingHttpHeaders = (invite === "")
             ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
                 "agent-hash": serverVars.hashUser,
                 "agent-name": serverVars.nameUser,
                 "agent-type": config.agentType,
-                "remote-user": config.remoteName
+                "remote-user": config.remoteName,
+                "request-type": config.requestType
             }
             : {
                 "content-type": "application/x-www-form-urlencoded",
@@ -96,9 +97,10 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                 "agent-name": serverVars.nameUser,
                 "agent-type": config.agentType,
                 "remote-user": config.remoteName,
+                "request-type": config.requestType,
                 "invite": invite
             },
-        payload:http.RequestOptions = {
+        payload:RequestOptions = {
             headers: headers,
             host: config.ip,
             method: "POST",
@@ -106,7 +108,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             port: config.port,
             timeout: 1000
         },
-        fsRequest:http.ClientRequest = vars.node.http.request(payload, callback);
+        fsRequest:ClientRequest = vars.node.http.request(payload, callback);
     vars.testLogger("httpClient", "", "An abstraction over node.http.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([

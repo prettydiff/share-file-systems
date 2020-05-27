@@ -232,9 +232,13 @@ const library = {
                             return true;
                         }
                         return false;
-                    };
+                    };console.log(request.headers["request-type"]);
                 if (request.method === "GET" && host === "localhost") {
                     methodGET(request, response);
+                } else if (request.method === "GET" && (request.headers.agentType === "device" || request.headers.agentType === "user") && serverVars[request.headers.agentType][<string>request.headers.agent] !== undefined) {
+                    response.writeHead(200, {"Content-Type": "text/plain"});
+                    response.write(`Test response from ${serverVars.hashDevice}`);
+                    response.end();
                 } else if (postTest() === true) {
                     post(request, response);
                 } else {

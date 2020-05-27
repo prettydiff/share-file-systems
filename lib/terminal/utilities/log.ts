@@ -23,12 +23,10 @@ const log = function terminal_log(output:string[], end?:boolean):void {
             logger(`Version ${vars.text.angry + vars.version.number + vars.text.none}`);
             logger(`Updated ${vars.version.date}`);
             logger(`git Log ${vars.text.cyan + vars.version.hash + vars.text.none}`);
+            logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
         }
-        if (vars.verbose === true) {
+        if (vars.verbose === true && vars.command !== "server" && vars.command !== "version") {
             humanTime(true);
-        } else if (vars.command === "server" || vars.command === "version") {
-            logger("________________________________________________");
-            logger("");
         }
     }
 };

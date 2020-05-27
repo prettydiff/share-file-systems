@@ -61,6 +61,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                             error: errorMessage
                         }));
                     },
+                    requestType: data.action,
                     response: response,
                     responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
                         log([data.action, errorMessage.toString()]);

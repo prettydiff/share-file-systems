@@ -570,36 +570,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = (agentName === browser.data.hashDevice)
-            ? function local_fs_navigate_callbackSelf(responseText:string):void {
-                if (responseText === "") {
-                    return;
-                }
-                const files:[Element, number, string] = fs.list(location, JSON.parse(responseText)),
-                    value:string = files[0].getAttribute("title"),
-                    shareName:string = (agentType === "device")
-                        ? `Device, ${browser.device[agentName].name}`
-                        : `User, ${browser.user[agentName].name}`,
-                    payload:ui_modal = {
-                        agent: agentName,
-                        agentType: agentType,
-                        content: files[0],
-                        inputs: ["close", "maximize", "minimize", "text"],
-                        read_only: false,
-                        selection: {},
-                        status_bar: true,
-                        status_text: files[2],
-                        text_event: fs.text,
-                        text_placeholder: "Optionally type a file system address here.",
-                        text_value: value,
-                        title: `${document.getElementById("fileNavigator").innerHTML} - ${shareName}`,
-                        type: "fileNavigate",
-                        width: 800
-                    };
-                files[0].removeAttribute("title");
-                modal.create(payload);
-            }
-            : function local_fs_navigate_callbackRemote(responseText:string):void {
+        callback:Function = function local_fs_navigate_callback(responseText:string):void {
                 if (responseText === "") {
                     return;
                 }
@@ -613,7 +584,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                         : location,
                 body:Element = box.getElementsByClassName("body")[0],
                     files:Element = (payload.dirs === "missing")
-                        ? (function local_fs_navigate_callbackRemote_missing():Element {
+                        ? (function local_fs_navigate_callback_missing():Element {
                             const p:Element = document.createElement("p");
                             p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
                             p.setAttribute("class", "error");
@@ -639,9 +610,8 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             location: [location],
             name: "",
             watch: "yes"
-        };
-    if (agentName !== browser.data.hashDevice) {
-        const payloadModal:ui_modal = {
+        },
+        payloadModal:ui_modal = {
             agent: agentName,
             agentType: agentType,
             content: util.delay(),
@@ -657,8 +627,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             width: 800
         },
         box:Element = modal.create(payloadModal);
-        payloadNetwork.id = box.getAttribute("id");
-    }
+    payloadNetwork.id = box.getAttribute("id");
     network.fs(payloadNetwork, callback);
 };
 

@@ -72,6 +72,7 @@ const library = {
                             library.log([errorMessage.toString()]);
                         }
                     },
+                    requestType: "heartbeat",
                     responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
                             vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
@@ -154,6 +155,7 @@ const library = {
                             library.log([errorMessage.toString()]);
                         }
                     },
+                    requestType: "heartbeat-delete-agents",
                     responseError: function terminal_server_heartbeatDelete_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                         if (errorMessage.code !== "ETIMEDOUT") {
                             vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);

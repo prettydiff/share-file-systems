@@ -17,6 +17,7 @@ The terminal libraries that executable as either an included library or as a com
 * **[remove.ts](remove.ts)**                   - A command driven utility to recursively remove file system artifacts.
 * **[server.ts](server.ts)**                   - A command driven HTTP server for running the terminal instance of the application.
 * **[test.ts](test.ts)**                       - A command driven wrapper for all test utilities.
+* **[test_agent.ts](test_agent.ts)**           - A connectivity tester to shared remote agents.
 * **[test_service.ts](test_service.ts)**       - A command driven wrapper for the service tests, which test the various services used by the application.
 * **[test_simulation.ts](test_simulation.ts)** - A command driven wrapper for running simulation tests of supported terminal commands.
 * **[version.ts](version.ts)**                 - A command utility for expressing the application's version.
