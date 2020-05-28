@@ -57,11 +57,16 @@ const test_agent = function terminal_testAgent():void {
             });
             log(store, true);
         } else {
-            const payload:RequestOptions = {
+            const requestBody:string = `${vars.version.name} agent test for ${storage[agentType][arg].name} from ${storage.settings.nameDevice}.`,
+                payload:RequestOptions = {
                     headers: {
-                        agent: hash,
-                        agentType: agentType,
-                        "request-type": "agent_test"
+                        "content-type": "application/x-www-form-urlencoded",
+                        "content-length": Buffer.byteLength(requestBody),
+                        "agent-hash": hash,
+                        "agent-name": agent.name,
+                        "agent-type": agentType,
+                        "remote-user": arg,
+                        "request-type": "test_agent"
                     },
                     host: agent.ip,
                     method: "GET",
@@ -99,7 +104,7 @@ const test_agent = function terminal_testAgent():void {
                 return;
             }
             request.on("error", requestError);
-            request.write(`${vars.version.name} agent test for ${storage[agentType][arg].name} from ${storage.settings.nameDevice}.`);
+            request.write(requestBody);
             request.end();
         }
     });
