@@ -257,27 +257,27 @@ const commands_documentation = {
         ]
     },
     test_agent: {
-        description: "Allows testing connectivity to a remote agent by agent hash.  Think of this as an alternative to ping where specified port, address, and protocol are tested.",
+        description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
         example: [
             {
                 code: `${vars.version.command} test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
-                defined: "If this command returns a response string the connection is successful."
+                defined: "This will test a connection to the specified agent."
             },
             {
                 code: `${vars.version.command} test_agent list`,
-                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses."
+                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
             },
             {
                 code: `${vars.version.command} test_agent device`,
-                defined: "An argument of 'all' will run connectivity on device agents."
+                defined: "An argument of 'device' will test connectivity on each device agent."
             },
             {
                 code: `${vars.version.command} test_agent user`,
-                defined: "An argument of 'user' will run connectivity on user agents."
+                defined: "An argument of 'user' will test connectivity on each user agent."
             },
             {
                 code: `${vars.version.command} test_agent all`,
-                defined: "An argument of 'all' will run connectivity on all stored remote agents."
+                defined: "An argument of 'all' will run connectivity tests on all stored agents."
             }
         ]
     },
