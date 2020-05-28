@@ -99,7 +99,7 @@ const test_agent = function terminal_testAgent():void {
                                     ? Buffer.concat(chunks).toString()
                                     : chunks.join("");
                             count = count + 1;
-                            if (body === `response from ${agent}`) {
+                            if (body === `response from ${<string>response.headers["agent-hash"]}`) {
                                 log([outputString({
                                     agent: <string>response.headers["agent-hash"],
                                     agentType: <agentType>response.headers["agent-type"],
