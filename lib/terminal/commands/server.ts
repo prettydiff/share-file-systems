@@ -237,7 +237,13 @@ const library = {
                     requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
                 //console.log(requestType);
                 if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
-                    response.setHeader("agent-hash", serverVars.hashDevice);
+                    if (request.headers["agent-type"] === "device") {
+                        response.setHeader("agent-hash", serverVars.hashDevice);
+                        response.setHeader("agent-type", "device");
+                    } else {
+                        response.setHeader("agent-hash", serverVars.hashUser);
+                        response.setHeader("agent-type", "user");
+                    }
                     response.writeHead(200, {"Content-Type": "text/plain"});
                     response.write(`response from ${serverVars.hashDevice}`);
                     response.end();

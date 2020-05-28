@@ -82,11 +82,11 @@ const test_agent = function terminal_testAgent():void {
                         port: storage[agentType][agentHash].port,
                         timeout: 1000
                     },
-                    outputString = function terminal_testAgent_storage_errorString(status:string, type:"request"|"response", agent:string):string {
-                        status = (status === "bad")
+                    outputString = function terminal_testAgent_storage_errorString(output:testAgentOutput):string {
+                        const status = (output.status === "bad")
                             ? `${vars.text.angry}Bad${vars.text.none}`
                             : `${vars.text.green + vars.text.bold}Good${vars.text.none}`;
-                        return `${status} ${type} from ${storage[agentType][agent].name} (${vars.text.cyan + agent + vars.text.none}).`;
+                        return `${status} ${output.type} from ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
                     },
                     callback = function terminal_testAgent_storage_callback(response:IncomingMessage):void {
                         const chunks:Buffer[] = [];
@@ -97,14 +97,23 @@ const test_agent = function terminal_testAgent():void {
                         response.on("end", function terminal_testAgent_storage_callback_end():void {
                             const body:string = (Buffer.isBuffer(chunks[0]) === true)
                                     ? Buffer.concat(chunks).toString()
-                                    : chunks.join(""),
-                                agent:string = <string>response.headers["agent-hash"];
+                                    : chunks.join("");
                             count = count + 1;
                             if (body === `response from ${agent}`) {
-                                log([outputString("good", "response", agent)], (count === total));
+                                log([outputString({
+                                    agent: <string>response.headers["agent-hash"],
+                                    agentType: <agentType>response.headers["agent-type"],
+                                    status: "good",
+                                    type: "response"
+                                })], (count === total));
                             } else {
                                 log([
-                                    outputString("bad", "response", agent),
+                                    outputString({
+                                        agent: <string>response.headers["agent-hash"],
+                                        agentType: <agentType>response.headers["agent-type"],
+                                        status: "bad",
+                                        type: "response"
+                                    }),
                                     "Response is malformed."
                                 ], (count === total));
                             }
@@ -112,14 +121,24 @@ const test_agent = function terminal_testAgent():void {
                         response.on("error", function terminal_testAgent_storage_callback_error(httpError:nodeError):void {
                             count = count + 1;
                             log([
-                                outputString("bad", "response", <string>response.headers["agent-hash"]),
+                                outputString({
+                                    agent: <string>response.headers["agent-hash"],
+                                    agentType: <agentType>response.headers["agent-type"],
+                                    status: "bad",
+                                    type: "response"
+                                }),
                                 httpError.toString()
                             ], (count === total));
                         });
                     },
                     requestError = function terminal_testAgent_storage_error(httpError:nodeError):void {
                         log([
-                            outputString("bad", "request", agentHash),
+                            outputString({
+                                agent: agentHash,
+                                agentType: agentType,
+                                status: "bad",
+                                type: "request"
+                            }),
                             httpError.toString()
                         ], (count === total - 1));
                     },

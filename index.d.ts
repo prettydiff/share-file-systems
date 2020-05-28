@@ -685,6 +685,12 @@ declare global {
         version: version;
         ws: any;
     }
+    interface testAgentOutput {
+        agent: string;
+        agentType: agentType;
+        status: "bad" | "good";
+        type: "request" | "response";
+    }
     interface testComplete {
         callback: Function;
         fail: number;
