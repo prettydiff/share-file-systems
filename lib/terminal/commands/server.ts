@@ -232,7 +232,10 @@ const library = {
                             return true;
                         }
                         return false;
-                    };
+                    },
+                    // eslint-disable-next-line - for testing connectivity
+                    requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
+                console.log(requestType);
                 if (request.method === "GET" && host === "localhost") {
                     methodGET(request, response);
                 } else if (request.method === "GET" && (request.headers.agentType === "device" || request.headers.agentType === "user") && serverVars[request.headers.agentType][<string>request.headers.agent] !== undefined) {

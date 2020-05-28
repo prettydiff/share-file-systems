@@ -258,10 +258,16 @@ const commands_documentation = {
     },
     test_agent: {
         description: "Allows testing connectivity to a remote agent by agent hash",
-        example: [{
-            code: `${vars.version.command} test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
-            defined: "If this command returns a response string the connection is successful."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
+                defined: "If this command returns a response string the connection is successful."
+            },
+            {
+                code: `${vars.version.command} test_agent list`,
+                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses."
+            }
+        ]
     },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",

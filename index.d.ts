@@ -44,7 +44,7 @@ declare global {
         perAgent?: (agentNames:agentNames, counts:agentCounts) => void;
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
-        source: browser | serverVars;
+        source: browser | serverVars | storageItems;
     }
     interface agentNames {
         agent?: string;
