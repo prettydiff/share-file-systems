@@ -5,6 +5,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 
 * Directory *[../documentation](../documentation)*
    - **[../documentation/api.md](../documentation/api.md)**                                                         - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts.
+   - **[../documentation/commands.md](../documentation/commands.md)**                                               - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
    - **[../documentation/credits.md](../documentation/credits.md)**                                                 - A list of external source material not originally created within this project.
    - **[../documentation/developer_guide.md](../documentation/developer_guide.md)**                                 - A quick overview of the technical aspects for jumping to the project with a goal of extending the code.
    - **[../documentation/file_copy.md](../documentation/file_copy.md)**                                             - Notes on the flow control of file copy.

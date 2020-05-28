@@ -104,13 +104,14 @@ declare global {
         device: colorList;
         user: colorList;
     }
+    interface commandExample {
+        code: string;
+        defined: string;
+    }
     interface commandList {
         [key:string]: {
             description: string;
-            example: {
-                code: string,
-                defined: string
-            }[];
+            example: commandExample[];
         }
     }
     interface context extends EventHandlerNonNull {
