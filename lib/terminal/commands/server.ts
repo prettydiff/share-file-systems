@@ -240,7 +240,7 @@ const library = {
                     response.writeHead(200, {"Content-Type": "text/plain"});
                     response.write(`${vars.text.green + vars.text.bold}Good${vars.text.none} response from ${vars.text.cyan + serverVars.hashDevice + vars.text.none}`);
                     response.end();
-                } if (request.method === "GET" && host === "localhost") {
+                } else if (request.method === "GET" && host === "localhost") {
                     methodGET(request, response);
                 } else if (postTest() === true) {
                     post(request, response);

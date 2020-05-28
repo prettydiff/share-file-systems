@@ -26,7 +26,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             ? `${vars.projectPath}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
     vars.testLogger("methodGet", "", "Handles all HTTP requests to the server of method 'GET' and dynamically populates the HTML with data.");
-    vars.node.fs.stat(localPath, function terminal_server_create_stat(ers:nodeError, stat:Stats):void {
+    vars.node.fs.stat(localPath, function terminal_server_get_stat(ers:nodeError, stat:Stats):void {
         const random:number = Math.random(),
             // navigating a file structure in the browser by direct address, like apache HTTP
             page:string = [
@@ -49,13 +49,13 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             }
             if (stat.isDirectory() === true) {
                 vars.testLogger("methodGet", "directory", "In the case a directory is requested then write an HTML list of contained artifacts to populate in the browser.");
-                vars.node.fs.readdir(localPath, function terminal_server_create_stat_dir(erd:Error, list:string[]) {
+                vars.node.fs.readdir(localPath, function terminal_server_get_stat_dir(erd:Error, list:string[]) {
                     const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                     if (erd !== null) {
                         library.error([erd.toString()]);
                         return;
                     }
-                    list.forEach(function terminal_server_create_stat_dir_list(value:string) {
+                    list.forEach(function terminal_server_get_stat_dir_list(value:string) {
                         if ((/\.x?html?$/).test(value.toLowerCase()) === true) {
                             dirList.push(`<li><a href="${uri.replace(/\/$/, "")}/${value}">${value}</a></li>`);
                         } else {
@@ -70,10 +70,10 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                 return;
             }
             if (stat.isFile() === true) {
-                const readCallback = function terminal_server_create_readCallback(args:readFile, data:string|Buffer):void {
+                const readCallback = function terminal_server_get_readCallback(args:readFile, data:string|Buffer):void {
                         let tool:boolean = false;
-                        const pageState = function terminal_server_create_readCallback_pageState(type:string):void {
-                                const appliedData = function terminal_server_create_readCallback_appliedData(storageData:storageItems):void {
+                        const pageState = function terminal_server_get_readCallback_pageState(type:string):void {
+                                const appliedData = function terminal_server_get_readCallback_pageState_appliedData(storageData:storageItems):void {
                                         const dataString:string = (typeof data === "string")
                                             ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                             : "";
