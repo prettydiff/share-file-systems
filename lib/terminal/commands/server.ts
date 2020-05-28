@@ -235,13 +235,13 @@ const library = {
                     },
                     // eslint-disable-next-line - for testing connectivity
                     requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
-                console.log(requestType);
-                if (request.method === "GET" && host === "localhost") {
-                    methodGET(request, response);
-                } else if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
+                //console.log(requestType);
+                if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
                     response.writeHead(200, {"Content-Type": "text/plain"});
                     response.write(`${vars.text.green + vars.text.bold}Good${vars.text.none} response from ${vars.text.cyan + serverVars.hashDevice + vars.text.none}`);
                     response.end();
+                } if (request.method === "GET" && host === "localhost") {
+                    methodGET(request, response);
                 } else if (postTest() === true) {
                     post(request, response);
                 } else {
