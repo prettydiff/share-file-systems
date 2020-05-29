@@ -233,7 +233,7 @@ const library = {
                         }
                         return false;
                     },
-                    // eslint-disable-next-line - for testing connectivity
+                    // eslint-disable-next-line
                     requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
                 //console.log(requestType);
                 if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {

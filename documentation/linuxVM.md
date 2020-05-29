@@ -117,7 +117,6 @@ set nobackup       "do not create a backup when overwriting a file
 set nowritebackup  "do not create a backup when overwriting a file
 set noswapfile     "do not store file contents in a swap file in memory
 set number         "line number
-set relativenumber "current line number plus relative numbers for other lines
 set ruler          "always show cursor position in status bar
 set smarttab       "use full custom indentation when pressing the tab key
 set shiftwidth=4   "number of spaces in a tab stop

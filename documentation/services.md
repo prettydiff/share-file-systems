@@ -220,7 +220,7 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
       * depth    : 1
       * id       : string
       * location : string[]
-      * name     : ""
+      * name     : string, the address of the containing file navigator modal (if any)
       * watch    : "no"
 * **fs-details**
    - description: Returns a fully recursive summary of a given file system artifact or directory tree.

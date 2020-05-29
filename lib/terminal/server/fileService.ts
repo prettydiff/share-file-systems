@@ -106,41 +106,38 @@ const library = {
             },
             // calls httpClient library for file system operations
             httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
-                const payload:string = (function terminal_server_fileService_httpRequest_payload():string {
-                        const store:fileService = {
-                                action: data.action,
-                                agent: data.agent,
-                                agentType: data.agentType,
-                                copyAgent: data.copyAgent,
-                                copyType: data.copyType,
-                                depth: data.depth,
-                                id: data.id,
-                                location: data.location,
-                                name: data.name,
-                                remoteWatch: (data.remoteWatch === undefined)
-                                    ? null
-                                    : data.remoteWatch,
-                                watch: data.watch
-                            };
-                        if (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write") {
-                            store.agent= serverVars.hashDevice;
-                            store.agentType = "device";
-                            store.copyAgent = data.agent;
-                            store.copyType = data.agentType;
-                        } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
-                            if (store.agentType === "device") {
-                                store.agent = serverVars.hashDevice;
-                            } else {
-                                store.agent = serverVars.hashUser;
-                            }
-                        }
-                        if (data.action === "fs-directory" && data.agent !== serverVars.hashDevice) {
-                            store.remoteWatch = `${serverVars.ipAddress}_${serverVars.webPort}`;
-                        }
-                        return JSON.stringify({
-                            fs: store
-                        });
-                    }()),
+                const test:boolean = (vars.command.indexOf("test") === 0 && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")),
+                    payload:fileService = {
+                        action: data.action,
+                        agent: (test === true)
+                            ? (data.copyType === "device")
+                                ? serverVars.hashDevice
+                                : serverVars.hashUser
+                            : (data.action === "fs-copy-request" || data.action === "fs-cut-request")
+                                ? (data.agentType === "device")
+                                    ? serverVars.hashDevice
+                                    : serverVars.hashUser
+                                : data.agent,
+                        agentType: (test === true && data.copyAgent !== "")
+                            ? <agentType>data.copyAgent
+                            : data.agentType,
+                        copyAgent: (test === true)
+                            ? data.agent
+                            : data.copyAgent,
+                        copyType: (test === true)
+                            ? data.agentType
+                            : data.copyType,
+                        depth: data.depth,
+                        id: data.id,
+                        location: data.location,
+                        name: data.name,
+                        remoteWatch: (data.action === "fs-directory")
+                            ? `${serverVars.ipAddress}_${serverVars.webPort}`
+                            : (data.remoteWatch === undefined)
+                                ? null
+                                : data.remoteWatch,
+                        watch: data.watch
+                    },
                     httpConfig:httpConfiguration = {
                         agentType: data.agentType,
                         callback: callback,
@@ -148,7 +145,9 @@ const library = {
                         errorMessage: errorMessage,
                         id: data.id,
                         ip: serverVars[data.agentType][data.agent].ip,
-                        payload: payload,
+                        payload: JSON.stringify({
+                            fs: payload
+                        }),
                         port: serverVars[data.agentType][data.agent].port,
                         remoteName: data.agent,
                         requestType: data.action,
@@ -1080,13 +1079,34 @@ const library = {
                 library.remove(value, function terminal_server_fileService_destroyEach_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        const agent:string = (data.copyAgent === "")
-                                ? serverVars.hashDevice
-                                : data.copyAgent,
-                            type:agentType = (data.copyAgent === "")
-                                ? "device"
-                                : data.copyType;
-                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);
+                        if (data.name === "") {
+                            const agent:string = (data.copyAgent === "")
+                                    ? serverVars.hashDevice
+                                    : data.copyAgent,
+                                type:agentType = (data.copyAgent === "")
+                                    ? "device"
+                                    : data.copyType;
+                            fileCallback(`Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);
+                        } else {
+                            library.directory({
+                                callback: function terminal_server_fileService_destroyEach_remove_callback(directoryList:directoryList):void {
+                                    const responseData:fsRemote = {
+                                        dirs: directoryList,
+                                        fail: directoryList.failures,
+                                        id: data.id
+                                    };
+                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
+                                    response.write(JSON.stringify(responseData));
+                                    response.end();
+                                },
+                                depth: 2,
+                                exclusions: [],
+                                logRecursion: false,
+                                mode: "read",
+                                path: data.name,
+                                symbolic: true
+                            });
+                        }
                     }
                 });
             });
@@ -1127,7 +1147,7 @@ const library = {
                         path: output.filePath
                     };
                     b = b + 1;
-                    storage.push(stringData)
+                    storage.push(stringData);
                     if (b === length) {
                         vars.testLogger("fileService", "dataString callback", `Callback to action ${data.action} that writes an HTTP response.`);
                         response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});

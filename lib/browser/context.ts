@@ -168,11 +168,21 @@ context.destroy = function local_context_destroy():void {
             depth: 1,
             id: box.getAttribute("id"),
             location: [],
-            name: "",
+            name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
             watch: "no"
         },
-        callback = function local_context_destroy_callback():void {
-            return;
+        callback = function local_context_destroy_callback(responseText:string):void {
+            const list:[Element, number, string] = fs.list(payload.name, JSON.parse(responseText)),
+                body:Element = box.getElementsByClassName("body")[0],
+                count:number = payload.location.length,
+                plural:string = (count === 1)
+                    ? ""
+                    : "s";
+            if (box.parentNode !== null) {
+                body.innerHTML = "";
+                body.appendChild(list[0]);
+                box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = `${payload.location.length} item${plural} deleted.`;
+            }
         }; 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
@@ -832,7 +842,7 @@ context.paste = function local_context_paste():void {
             action   : <serviceType>`fs-${clipData.type}`,
             agent    : clipData.agent,
             agentType: clipData.agentType,
-            copyAgent: "",
+            copyAgent: browser.data.modals[element.getAttribute("id")].agent,
             copyType : "device",
             depth    : 1,
             id       : element.getAttribute("id"),

@@ -622,7 +622,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
-            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${browser[agentType][agentName].name}`,
+            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentType.charAt(0).toUpperCase() + agentType.slice(1)}, ${browser[agentType][agentName].name}`,
             type: "fileNavigate",
             width: 800
         },

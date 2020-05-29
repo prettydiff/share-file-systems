@@ -309,7 +309,7 @@ const sep:string = vars.sep,
         {
             command: "version 3",
             qualifier: "contains",
-            test: `Archive ${vars.text.cyan}`
+            test: `git Log ${vars.text.cyan}`
         }
     ];
 simulation.execute = function test_simulations_execute(config:testExecute):void {

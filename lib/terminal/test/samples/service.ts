@@ -458,7 +458,7 @@ service.populate = function test_services_populate():void {
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestLocal.json`],
+                location: [`new-window-id:${projectPath}serviceTestLocal.json`],
                 name: "",
                 watch: "no"
             }
@@ -467,7 +467,7 @@ service.populate = function test_services_populate():void {
         qualifier: "is",
         test: [{
             content: "local text fragment",
-            id: "test-ID",
+            id: "new-window-id",
             path: `${projectPath}serviceTestLocal.json`
         }]
     });
@@ -481,7 +481,7 @@ service.populate = function test_services_populate():void {
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestRemote.json`],
+                location: [`new-window-id:${projectPath}serviceTestRemote.json`],
                 name: "",
                 watch: "no"
             }
@@ -490,7 +490,7 @@ service.populate = function test_services_populate():void {
         qualifier: "is",
         test: [{
             content: "remote device text fragment",
-            id: "test-ID",
+            id: "new-window-id",
             path: `${projectPath}serviceTestRemote.json`
         }]
     });

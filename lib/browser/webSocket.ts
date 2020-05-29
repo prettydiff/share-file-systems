@@ -180,7 +180,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         if (event.data.indexOf("{\"error\":") === 0) {
             error();
         } else if (event.data.indexOf("{\"file-list-status\":") === 0) {
-            util.fileListStatus(JSON.parse(event.data)["file-list-status"]);
+            util.fileListStatus(event.data.slice("{\"file-list-status\":".length, event.data.length - 1));
         } else if (event.data.indexOf("{\"fs-update-local\":") === 0 && browser.loadTest === false) {
             fsUpdateLocal();
         } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
