@@ -142,7 +142,6 @@ const vars:terminalVariables = {
     };
 
 vars.sep = vars.node.path.sep;
-vars.projectPath = process.cwd() + vars.sep;
 vars.js = `${vars.projectPath}js${vars.sep}`;
 
 export default vars;

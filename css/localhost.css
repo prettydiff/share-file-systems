@@ -157,10 +157,10 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .corner-tr{background:transparent;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;top:0;width:2em;z-index:3}
 #spaces .box .corner-bl{background:transparent;border-style:solid;border-width:0.1em 0.1em 0 0;bottom:0;cursor:sw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;width:2em;z-index:3}
 #spaces .box .corner-br{background:transparent;border-style:solid;border-width:0.1em 0 0 0.1em;bottom:0;cursor:se-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;width:2em;z-index:3}
-#spaces .box .side-t{background:transparent;border-style:none;cursor:ns-resize;font-size:1em;left:2em;height:1em;position:absolute;text-indent:-2000em;top:0;z-index:2}
-#spaces .box .side-r{background:transparent;border-style:none;cursor:ew-resize;font-size:1em;right:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
-#spaces .box .side-b{background:transparent;border-style:none;bottom:0;cursor:ns-resize;font-size:1em;left:2em;height:1em;position:absolute;text-indent:-2000em;z-index:2}
-#spaces .box .side-l{background:transparent;border-style:none;cursor:ew-resize;font-size:1em;left:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
+#spaces .box .side-t{background:transparent;border-style:none;cursor:n-resize;font-size:1em;left:2em;height:1em;position:absolute;text-indent:-2000em;top:0;z-index:2}
+#spaces .box .side-r{background:transparent;border-style:none;cursor:e-resize;font-size:1em;right:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
+#spaces .box .side-b{background:transparent;border-style:none;bottom:0;cursor:s-resize;font-size:1em;left:2em;height:1em;position:absolute;text-indent:-2000em;z-index:2}
+#spaces .box .side-l{background:transparent;border-style:none;cursor:w-resize;font-size:1em;left:0;position:absolute;text-indent:-2000em;top:2em;width:1em;z-index:2}
 #spaces .box .footer{border-style:none solid solid;border-width:0 0.1em 0.1em;bottom:0;display:block;margin:0;padding:2em;position:relative;z-index:4}
 #spaces .box .footer .footer-buttons{float:right}
 #spaces .box .footer button{border-width:0.05em;display:inline-block;font-weight:bold;margin:0 0 0 2em}
@@ -275,7 +275,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .share-delete label:hover{text-decoration:underline}
 
 /* file navigator modal content */
-#spaces .fileList{margin:0;min-height:100%;padding:0 5em}
+#spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0 5em}
 #spaces .fileList label{cursor:text;display:inline-block}
 #spaces .fileList li{border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
 #spaces .fileList li ul{border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}

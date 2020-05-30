@@ -79,7 +79,7 @@ Run these commands from the terminal
 Provide an alias to your *.bashrc* file
 
 1. `vim ~/.bashrc`
-2. `alias sharefs="authbind node js/application"`
+2. `alias sharefs="authbind node ~/share-file-systems/js/application"`
 
 Then just execute the application as: `sharefs server`
 
