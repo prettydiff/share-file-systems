@@ -207,7 +207,7 @@ Launches a test runner to execute the various commands of the services file.
    - The log argument turns on verbose logging output with annotations.
 1. `node js/application test_simulation log log`
    - If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice.
-1. `node js/application test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`
+1. `node js/application test_simulation log "hash  list ignore ['node_modules'"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
 ## version

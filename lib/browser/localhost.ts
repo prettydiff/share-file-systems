@@ -348,42 +348,20 @@ import webSocket from "./webSocket.js";
                                                         }
                                                         return [p, 0, ""];
                                                     }())
-                                                    : fs.list(storage.settings.modals[value].text_value, payload),
-                                                textValue:string = files[0].getAttribute("title");
+                                                    : fs.list(storage.settings.modals[value].text_value, payload);
                                             files[0].removeAttribute("title");
                                             if (responseText !== "") {
-                                                if (agent === browser.data.hashDevice) {
-                                                    callbackLocal(id, files, textValue);
-                                                } else {
-                                                    callbackRemote(id, files);
+                                                const fsModal:Element = document.getElementById(id);
+                                                if (fsModal === null) {
+                                                    return;
                                                 }
+                                                let body:Element = fsModal.getElementsByClassName("body")[0];
+                                                fs.listFail(files[1], fsModal);
+                                                body.innerHTML = "";
+                                                body.appendChild(files[0]);
+                                                selection(id);
+                                                fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                             }
-                                        },
-                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[Element, number, string], textValue:String):void {
-                                            storage.settings.modals[id].content = files[0];
-                                            storage.settings.modals[id].id = id;
-                                            storage.settings.modals[value].text_event = fs.text;
-                                            if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
-                                                storage.settings.modals[id].text_value = textValue;
-                                            }
-                                            storage.settings.modals[id].text_event = fs.text;
-                                            const box:Element = modal.create(storage.settings.modals[id]);
-                                            fs.listFail(files[1], box);
-                                            selection(id);
-                                            z(value);
-                                            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
-                                        },
-                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[Element, number, string]):void {
-                                            const fsModal:Element = document.getElementById(id);
-                                            if (fsModal === null) {
-                                                return;
-                                            }
-                                            let body:Element = fsModal.getElementsByClassName("body")[0];
-                                            fs.listFail(files[1], fsModal);
-                                            body.innerHTML = "";
-                                            body.appendChild(files[0]);
-                                            selection(id);
-                                            fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                         };
                                     if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
                                         let search:HTMLInputElement;
@@ -397,8 +375,6 @@ import webSocket from "./webSocket.js";
                                             selection(value);
                                         });
                                         z(value);
-                                    } else if (agent === browser.data.hashDevice) {
-                                        network.fs(payload, callback);
                                     } else {
                                         const delay:Element = util.delay();
                                         storage.settings.modals[value].content = delay;

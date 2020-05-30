@@ -565,7 +565,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             : config.agentType,
         location:string = (config !== undefined && typeof config.path === "string")
             ? config.path
-            : "defaultLocation",
+            : "**root**",
         readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.readOnly === true),
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
@@ -575,11 +575,12 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     return;
                 }
                 const payload:fsRemote = JSON.parse(responseText),
-                    box:Element = document.getElementById(payload.id);
+                    box:Element = document.getElementById(payload.id),
+                    replaceAddress:boolean = (location === "**root**");
                 if (box === null) {
                     return;
                 }
-                let loc:string = (location === "**root**")
+                let loc:string = (replaceAddress === true)
                         ? payload.dirs[0][0]
                         : location,
                 body:Element = box.getElementsByClassName("body")[0],
@@ -591,9 +592,11 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                             return p;
                         }())
                         : fs.list(loc, payload)[0];
-                if (location === "**root**") {
+                if (replaceAddress === true) {
+                    const modal:ui_modal = browser.data.modals[payload.id];
                     box.getElementsByTagName("input")[0].value = loc;
-                    browser.data.modals[payload.id].text_value = loc;
+                    modal.text_value = loc;
+                    modal.history[modal.history.length - 1] = loc;
                     network.storage("settings");
                 }
                 body.innerHTML = "";

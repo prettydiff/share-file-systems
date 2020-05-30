@@ -838,9 +838,6 @@ const library = {
                     output:directoryList = [],
                     failures:string[] = [];
                 vars.testLogger("fileService", "fs-directory and watch", "Access local directory data and set watch or set watch for remote agent directory.");
-                if (pathList[0] === "defaultLocation") {
-                    pathList[0] = vars.projectPath;
-                }
                 pathList.forEach(function terminal_server_fileService_pathEach(value:string):void {
                     if (value === "\\" || value === "\\\\") {
                         windowsRoot();
