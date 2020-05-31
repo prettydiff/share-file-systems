@@ -108,12 +108,6 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
         vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
         if (data.status === "accepted") {
-            const hbConfig:heartbeatBroadcast = {
-                agentFrom: "localhost-terminal",
-                shareFrom: "",
-                shares: {},
-                status: "active"
-            };
             serverVars[data.type][data[`${data.type}Hash`]] = {
                 ip: data.ip,
                 name: data.name,
@@ -123,7 +117,6 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             storage(JSON.stringify({
                 [data.type]: serverVars[data.type]
             }), "", data.type);
-            heartbeat.broadcast(hbConfig, response);
             responseString = `Accepted${respond}`;
         } else {
             responseString = (data.status === "declined")

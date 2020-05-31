@@ -84,7 +84,7 @@ const library = {
             vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
-            }
+            }console.log(serverVars.device);
             library.agents({
                 complete: responder,
                 countBy: "agent",
