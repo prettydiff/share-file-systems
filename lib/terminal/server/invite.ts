@@ -5,6 +5,7 @@ import * as http from "http";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
+import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
@@ -74,12 +75,10 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             httpClient(httpConfig);
         };
     let responseString:string;
-
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
     if (data.action === "invite") {
         vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
         responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
-
         data.action = "invite-request";
         inviteHttp();
     } else if (data.action === "invite-request") {
@@ -109,6 +108,12 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
         vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
         if (data.status === "accepted") {
+            const hbConfig:heartbeatBroadcast = {
+                agentFrom: "localhost-terminal",
+                shareFrom: "",
+                shares: {},
+                status: "active"
+            };
             serverVars[data.type][data[`${data.type}Hash`]] = {
                 ip: data.ip,
                 name: data.name,
@@ -118,6 +123,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             storage(JSON.stringify({
                 [data.type]: serverVars[data.type]
             }), "", data.type);
+            heartbeat.broadcast(hbConfig, response);
             responseString = `Accepted${respond}`;
         } else {
             responseString = (data.status === "declined")
@@ -127,9 +133,11 @@ const invite = function terminal_server_invite(dataString:string, response:http.
 
         vars.ws.broadcast(dataString);
     }
-     //log([responseString]);
-    response.write(responseString);
-    response.end();
+    if (data.action !== "invite-complete" || (data.action === "invite-complete" && data.status !== "accepted")) {
+        //log([responseString]);
+        response.write(responseString);
+        response.end();
+    }
 };
 
 export default invite;
