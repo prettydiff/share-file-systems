@@ -106,7 +106,7 @@ const vars:terminalVariables = {
                 if (regNode.test(process.argv[a]) === true) {
                     nodeIndex = a;
                 } else if (regApp.test(process.argv[a]) === true) {
-                    projectPath = process.argv[a].replace(regApp, "") + vars.sep;
+                    projectPath = process.argv[a].replace(regApp, "");
                 }
                 a = a + 1;
             } while (a < length);
@@ -160,6 +160,7 @@ const vars:terminalVariables = {
     };
 
 vars.sep = vars.node.path.sep;
+vars.projectPath = vars.projectPath + vars.sep;
 vars.js = `${vars.projectPath}js${vars.sep}`;
 
 export default vars;
