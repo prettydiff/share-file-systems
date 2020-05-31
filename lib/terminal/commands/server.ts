@@ -292,6 +292,11 @@ const library = {
                     serverVars.device = storageData.device;
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.user = storageData.user;
+                    if (serverVars.addresses[0][0][1] === "192.168.56.1") {
+                        serverVars.device[serverVars.hashDevice].ip = "192.168.56.1";
+                    } else {
+                        serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
+                    }
                     //serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
                     //serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
 

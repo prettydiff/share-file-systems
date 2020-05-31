@@ -23,7 +23,7 @@ const library = {
     },
     // This logic will push out heartbeat data
     heartbeat = {
-        broadcast: function terminal_server_heartbeat(data:heartbeatBroadcast, response:ServerResponse):void {
+        broadcast: function terminal_server_heartbeat(data:heartbeatBroadcast, response:ServerResponse):void {console.log(serverVars.device);
             // heartbeat from local, forward to each remote terminal
             const payload_device:heartbeatDevice = {
                     agentFrom: serverVars.hashDevice,

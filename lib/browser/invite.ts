@@ -15,32 +15,35 @@ const invite:module_invite = {};
 invite.accept = function local_invite_accept(box:Element):void {
     const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
-        invitation:invite = JSON.parse(dataString).invite;
-    network.inviteAccept(invite.payload({
-        action: "invite-response",
-        ip: invitation.ip,
-        message: `Invite accepted: ${util.dateFormat(new Date())}`,
-        modal: invitation.modal,
-        port: invitation.port,
-        status: "accepted",
-        type: invitation.type
-    }));
+        invitation:invite = JSON.parse(dataString).invite,
+        payload:invite = invite.payload({
+            action: "invite-response",
+            ip: invitation.ip,
+            message: `Invite accepted: ${util.dateFormat(new Date())}`,
+            modal: invitation.modal,
+            port: invitation.port,
+            status: "accepted",
+            type: invitation.type
+        });
+    payload.deviceHash = invitation.deviceHash;
+    payload.userHash = invitation.userHash;
+    network.inviteAccept(payload);
     if (invitation.type === "device") {
         browser.data.nameUser = invitation.userName;
     }
-    browser[invitation.type][invitation.deviceHash] = {
+    browser[invitation.type][`${invitation.type}Hash`] = {
         ip: invitation.ip,
         name: invitation.name,
         port: invitation.port,
         shares: <deviceShares>invitation.shares
     };
     share.addAgent({
-        hash: invitation.deviceHash,
+        hash: invitation[`${invitation.type}Hash`],
         name: invitation.name,
         save: true,
         type: invitation.type
     });
-    browser.data.colors[invitation.type][invitation.deviceHash] = settings.colorScheme[browser.data.color];
+    browser.data.colors[invitation.type][`${invitation.type}Hash`] = settings.colorScheme[browser.data.color];
     network.storage(invitation.type);
 };
 
@@ -238,7 +241,7 @@ invite.respond = function local_invite_respond(message:string):void {
             textarea:HTMLTextAreaElement = document.createElement("textarea"),
             a:number = 0;
         // if the user or device is already added then respond automatically.
-        if (users.indexOf(invitation.deviceHash) > -1 || devices.indexOf(invitation.deviceHash) > -1 ) {
+        if (users.indexOf(invitation.userHash) > -1 || devices.indexOf(invitation.deviceHash) > -1 ) {
             network.inviteAccept(invite.payload({
                 action: "invite-response",
                 ip: invitation.ip,
@@ -283,14 +286,14 @@ invite.respond = function local_invite_respond(message:string):void {
         const modal:Element = document.getElementById(invitation.modal);
         if (modal === null) {
             if (invitation.status === "accepted") {
-                browser[invitation.type][invitation.deviceHash] = {
+                browser[invitation.type][`${invitation.type}Hash`] = {
                     ip: invitation.ip,
                     name: invitation.name,
                     port: invitation.port,
                     shares: <deviceShares>invitation.shares
                 };
                 share.addAgent({
-                    hash: invitation.deviceHash,
+                    hash: invitation[`${invitation.type}Hash`],
                     name: invitation.name,
                     save: true,
                     type: invitation.type
@@ -305,14 +308,14 @@ invite.respond = function local_invite_respond(message:string):void {
                     if (invitation.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
-                        browser[invitation.type][invitation.deviceHash] = {
+                        browser[invitation.type][`${invitation.type}Hash`] = {
                             ip: invitation.ip,
                             name: invitation.name,
                             port: invitation.port,
                             shares: <deviceShares>invitation.shares
                         };
                         share.addAgent({
-                            hash: invitation.deviceHash,
+                            hash: invitation[`${invitation.type}Hash`],
                             name: invitation.name,
                             save: true,
                             type: invitation.type
