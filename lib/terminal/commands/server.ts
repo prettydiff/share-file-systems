@@ -292,6 +292,8 @@ const library = {
                     serverVars.device = storageData.device;
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.user = storageData.user;
+                    //serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
+                    //serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;

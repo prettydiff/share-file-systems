@@ -217,6 +217,10 @@ const library = {
                     vars.ws.broadcast(JSON.stringify({
                         [`heartbeat-response-${data.agentType}`]: data
                     }));
+                    delete serverVars.device[data.agentType][data.agentFrom];
+                    library.storage(JSON.stringify({
+                        [data.agentType]: serverVars[data.agentType]
+                    }), "", data.agentType);
                     if (response !== null) {
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write("Response to remote user deletion.");
@@ -257,7 +261,7 @@ const library = {
                                         ["heartbeat-response-user"]: data
                                     }));
                                     library.storage(JSON.stringify({
-                                        [data.agentType]: serverVars[data.agentType]
+                                        user: serverVars.user
                                     }), "", "user");
                                 } else if (data.agentType === "device") {
                                     deviceStorage(data.shares);
