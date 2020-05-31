@@ -4,23 +4,6 @@ import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
 const commandName = function terminal_command():string {
-    {
-        // this block normalizes node execution across operating systems and directory locations in the case that node could be executed as a component of a shell utility
-        const length:number = process.argv.length,
-            regNode:RegExp = new RegExp("((\\\\)|\/)node(\\.exe)?$"),
-            regApp:RegExp = new RegExp("((\\\\)|\/)js((\\\\)|\/)application(\\.js)?$");
-        let a:number = 0,
-            nodeIndex:number = 0;
-        do {
-            if (regNode.test(process.argv[a]) === true) {
-                nodeIndex = a;
-            } else if (regApp.test(process.argv[a]) === true) {
-                vars.projectPath = process.argv[a].replace(regApp, "") + vars.sep;
-            }
-            a = a + 1;
-        } while (a < length);
-        process.argv = process.argv.slice(nodeIndex);
-    }
     let comKeys:string[] = Object.keys(vars.commands),
         filtered:string[] = [],
         a:number = 0,
