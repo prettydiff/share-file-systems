@@ -14,26 +14,26 @@ import util from "./util.js";
 const share:module_share = {};
 
 /* Adds users to the user bar */
-share.addAgent = function local_share_addAgent(userName:string, userHash:string, type:agentType):void {
+share.addAgent = function local_share_addAgent(input:addAgent):void {
     const li:HTMLLIElement = document.createElement("li"),
         button:HTMLElement = document.createElement("button"),
         addStyle = function local_share_addUser_addStyle() {
             let body:string,
                 heading:string;
-            if (browser.data.colors[type][userHash] === undefined) {
+            if (browser.data.colors[input.type][input.hash] === undefined) {
                 body = settings.colorDefaults[browser.data.color][0];
                 heading = settings.colorDefaults[browser.data.color][1];
-                browser.data.colors[type][userHash] = [body, heading];
+                browser.data.colors[input.type][input.hash] = [body, heading];
                 network.storage("settings");
             } else {
-                body = browser.data.colors[type][userHash][0];
-                heading = browser.data.colors[type][userHash][1];
+                body = browser.data.colors[input.type][input.hash][0];
+                heading = browser.data.colors[input.type][input.hash][1];
             }
             settings.styleText({
-                agent: userHash,
+                agent: input.hash,
                 colors: [body, heading],
                 replace: false,
-                type: type
+                type: input.type
             });
         },
         sharesModal = function local_share_addUser_sharesModal(event:MouseEvent) {
@@ -43,22 +43,24 @@ share.addAgent = function local_share_addAgent(userName:string, userHash:string,
             element = element.getAncestor("button", "tag");
             share.modal(agent, agentType, null);
         };
-    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${userName}`;
-    if (userHash === browser.data.hashDevice) {
+    button.innerHTML = `<em class="status-active">●<span> Active</span></em><em class="status-idle">●<span> Idle</span></em><em class="status-offline">●<span> Offline</span></em> ${input.name}`;
+    if (input.hash === browser.data.hashDevice) {
         button.setAttribute("class", "active");
     } else {
         button.setAttribute("class", "offline");
     }
     addStyle();
-    button.setAttribute("id", userHash);
-    button.setAttribute("data-agent-type", type);
+    button.setAttribute("id", input.hash);
+    button.setAttribute("data-agent-type", input.type);
     button.onclick = sharesModal;
     li.appendChild(button);
-    document.getElementById(type).getElementsByTagName("ul")[0].appendChild(li);
+    document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
     if (browser.loadTest === false) {
-        settings.addUserColor(userHash, type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
+        settings.addUserColor(input.hash, input.type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         share.update("");
-        network.storage(type);
+        if (input.save === true) {
+            network.storage(input.type);
+        }
     }
 };
 

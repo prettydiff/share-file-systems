@@ -73,6 +73,18 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                 };
             vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);
             httpClient(httpConfig);
+        },
+        accepted = function local_server_invite_accepted(respond:string):void {
+            serverVars[data.type][data[`${data.type}Hash`]] = {
+                ip: data.ip,
+                name: data.name,
+                port: data.port,
+                shares: data.shares
+            };
+            storage(JSON.stringify({
+                [data.type]: serverVars[data.type]
+            }), "", data.type);
+            responseString = `Accepted${respond}`;
         };
     let responseString:string;
     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
@@ -96,34 +108,25 @@ const invite = function terminal_server_invite(dataString:string, response:http.
     } else if (data.action === "invite-response") {
         const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`;
         vars.testLogger("invite", "invite-response", "The user has made a decision about the invitation and now that decision must be sent back to the originating agent.");
-        responseString = (data.status === "accepted")
-            ? `Accepted${respond}`
-            : (data.status === "declined")
+        if (data.status === "accepted") {
+            accepted(respond);
+        } else {
+            responseString = (data.status === "declined")
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
-
+        }
         data.action = "invite-complete";
         inviteHttp();
     } else if (data.action === "invite-complete") {
         const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
         vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
         if (data.status === "accepted") {
-            serverVars[data.type][data[`${data.type}Hash`]] = {
-                ip: data.ip,
-                name: data.name,
-                port: data.port,
-                shares: data.shares
-            };
-            storage(JSON.stringify({
-                [data.type]: serverVars[data.type]
-            }), "", data.type);
-            responseString = `Accepted${respond}`;
+            accepted(respond);
         } else {
             responseString = (data.status === "declined")
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
         }
-
         vars.ws.broadcast(dataString);
     }
     if (data.action !== "invite-complete" || (data.action === "invite-complete" && data.status !== "accepted")) {

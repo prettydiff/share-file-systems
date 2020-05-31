@@ -92,7 +92,12 @@ import webSocket from "./webSocket.js";
                                         port: browser.localNetwork.httpPort,
                                         shares: {}
                                     };
-                                    share.addAgent(nameDevice.value, hashes.device, "device");
+                                    share.addAgent({
+                                        hash: hashes.device,
+                                        name: nameDevice.value,
+                                        save: true,
+                                        type: "device"
+                                    });
                                     browser.pageBody.removeAttribute("class");
                                     browser.loadTest = false;
                                     network.storage("device");
@@ -268,7 +273,12 @@ import webSocket from "./webSocket.js";
                                     let a:number = 0;
                                     if (listLength > 0) {
                                         do {
-                                            share.addAgent(browser[type][list[a]].name, list[a], type);
+                                            share.addAgent({
+                                                hash: list[a],
+                                                name: browser[type][list[a]].name,
+                                                save: false,
+                                                type: type
+                                            });
                                             a = a + 1;
                                         } while (a < listLength);
                                     }

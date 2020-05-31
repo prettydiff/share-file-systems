@@ -34,7 +34,12 @@ invite.accept = function local_invite_accept(box:Element):void {
         port: invitation.port,
         shares: <deviceShares>invitation.shares
     };
-    share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
+    share.addAgent({
+        hash: invitation.deviceHash,
+        name: invitation.name,
+        save: true,
+        type: invitation.type
+    });
     browser.data.colors[invitation.type][invitation.deviceHash] = settings.colorScheme[browser.data.color];
     network.storage(invitation.type);
 };
@@ -284,7 +289,12 @@ invite.respond = function local_invite_respond(message:string):void {
                     port: invitation.port,
                     shares: <deviceShares>invitation.shares
                 };
-                share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
+                share.addAgent({
+                    hash: invitation.deviceHash,
+                    name: invitation.name,
+                    save: true,
+                    type: invitation.type
+                });
             }
         } else {
             const error:Element = modal.getElementsByClassName("error")[0],
@@ -301,9 +311,13 @@ invite.respond = function local_invite_respond(message:string):void {
                             port: invitation.port,
                             shares: <deviceShares>invitation.shares
                         };
-                        share.addAgent(invitation.name, invitation.deviceHash, invitation.type);
+                        share.addAgent({
+                            hash: invitation.deviceHash,
+                            name: invitation.name,
+                            save: true,
+                            type: invitation.type
+                        });
                         util.audio("invite");
-                        network.storage(invitation.type);
                     } else {
                         output.innerHTML = "Invitation declined. :(";
                         output.setAttribute("class", "error");

@@ -34,6 +34,12 @@ declare global {
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 
+    interface addAgent {
+        type: agentType;
+        hash: string;
+        name: string;
+        save: boolean;
+    }
     interface agentCounts {
         count: number;
         total: number;
@@ -449,7 +455,7 @@ declare global {
         text?: (event:KeyboardEvent|FocusEvent) => void;
     }
     interface module_share {
-        addAgent?: (agentName:string, id:string, type:agentType) => void;
+        addAgent?: (input:addAgent) => void;
         content?: (agent:string, agentType:agentType|"") => Element;
         context?: EventHandlerNonNull;
         deleteAgent?: (agent:string, agentType:agentType) => void;

@@ -126,7 +126,12 @@ const title:Element = document.getElementsByClassName("title")[0],
                         do {
                             if (browser[heartbeat.agentType][keys[a]] === undefined) {
                                 browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
-                                share.addAgent(heartbeat.shares[keys[a]].name, keys[a], "device");
+                                share.addAgent({
+                                    hash: keys[a],
+                                    name: heartbeat.shares[keys[a]].name,
+                                    save: false,
+                                    type: "device"
+                                });
                             } else if (heartbeat.shareFrom !== browser.data.hashDevice) {
                                 browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
                             }

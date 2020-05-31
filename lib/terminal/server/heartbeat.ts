@@ -84,7 +84,7 @@ const library = {
             vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
-            }console.log(serverVars.device);
+            }
             library.agents({
                 complete: responder,
                 countBy: "agent",
@@ -217,7 +217,7 @@ const library = {
                     vars.ws.broadcast(JSON.stringify({
                         [`heartbeat-response-${data.agentType}`]: data
                     }));
-                    delete serverVars.device[data.agentType][data.agentFrom];
+                    delete serverVars[data.agentType][data.agentFrom];
                     library.storage(JSON.stringify({
                         [data.agentType]: serverVars[data.agentType]
                     }), "", data.agentType);
