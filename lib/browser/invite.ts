@@ -16,6 +16,7 @@ invite.accept = function local_invite_accept(box:Element):void {
     const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
         invitation:invite = JSON.parse(dataString).invite,
+        hash:string = invitation[`${invitation.type}Hash`],
         payload:invite = invite.payload({
             action: "invite-response",
             ip: invitation.ip,
@@ -31,19 +32,19 @@ invite.accept = function local_invite_accept(box:Element):void {
     if (invitation.type === "device") {
         browser.data.nameUser = invitation.userName;
     }
-    browser[invitation.type][`${invitation.type}Hash`] = {
+    browser[invitation.type][hash] = {
         ip: invitation.ip,
         name: invitation.name,
         port: invitation.port,
         shares: <deviceShares>invitation.shares
     };
     share.addAgent({
-        hash: invitation[`${invitation.type}Hash`],
+        hash: hash,
         name: invitation.name,
         save: true,
         type: invitation.type
     });
-    browser.data.colors[invitation.type][`${invitation.type}Hash`] = settings.colorScheme[browser.data.color];
+    browser.data.colors[invitation.type][hash] = settings.colorScheme[browser.data.color];
     network.storage(invitation.type);
 };
 
@@ -218,7 +219,8 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
 
 /* Receive an invitation from another user */
 invite.respond = function local_invite_respond(message:string):void {
-    const invitation:invite = JSON.parse(message).invite;
+    const invitation:invite = JSON.parse(message).invite,
+        hash:string = invitation[`${invitation.type}Hash`];
     if (invitation.status === "invited") {
         const div:Element = document.createElement("div"),
             modals:string[] = Object.keys(browser.data.modals),
@@ -286,14 +288,14 @@ invite.respond = function local_invite_respond(message:string):void {
         const modal:Element = document.getElementById(invitation.modal);
         if (modal === null) {
             if (invitation.status === "accepted") {
-                browser[invitation.type][`${invitation.type}Hash`] = {
+                browser[invitation.type][hash] = {
                     ip: invitation.ip,
                     name: invitation.name,
                     port: invitation.port,
                     shares: <deviceShares>invitation.shares
                 };
                 share.addAgent({
-                    hash: invitation[`${invitation.type}Hash`],
+                    hash: hash,
                     name: invitation.name,
                     save: true,
                     type: invitation.type
@@ -308,14 +310,14 @@ invite.respond = function local_invite_respond(message:string):void {
                     if (invitation.status === "accepted") {
                         output.innerHTML = "Invitation accepted!";
                         output.setAttribute("class", "accepted");
-                        browser[invitation.type][`${invitation.type}Hash`] = {
+                        browser[invitation.type][hash] = {
                             ip: invitation.ip,
                             name: invitation.name,
                             port: invitation.port,
                             shares: <deviceShares>invitation.shares
                         };
                         share.addAgent({
-                            hash: invitation[`${invitation.type}Hash`],
+                            hash: hash,
                             name: invitation.name,
                             save: true,
                             type: invitation.type

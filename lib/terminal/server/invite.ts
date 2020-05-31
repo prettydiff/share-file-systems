@@ -74,13 +74,22 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);
             httpClient(httpConfig);
         },
-        accepted = function local_server_invite_accepted(respond:string):void {console.log(data);
-            serverVars[data.type][data[`${data.type}Hash`]] = {
-                ip: data.ip,
-                name: data.name,
-                port: data.port,
-                shares: data.shares
-            };
+        accepted = function local_server_invite_accepted(respond:string):void {
+            if (data.action === "invite-response") {
+                serverVars[data.type][data[`${data.type}Hash`]] = {
+                    ip: data.ip,
+                    name: data.name,
+                    port: data.port,
+                    shares: data.shares
+                };
+            } else {
+                serverVars[data.type][data[`${data.type}Hash`]] = {
+                    ip: data.ip,
+                    name: data.name,
+                    port: data.port,
+                    shares: data.shares
+                };
+            }
             storage(JSON.stringify({
                 [data.type]: serverVars[data.type]
             }), "", data.type);
