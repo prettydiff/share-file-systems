@@ -99,8 +99,9 @@ const library = {
                 },
                 source: serverVars
             });
+            // respond irrespective of broadcast status or completion to prevent hanging sockets
             response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-            response.write("Heartbeat response received for each remote terminal.");
+            response.write("Heartbeat broadcast sent.");
             response.end();
         },
         delete: function terminal_server_heartbeatDelete(deleted:[string, string][], response:ServerResponse):void {
