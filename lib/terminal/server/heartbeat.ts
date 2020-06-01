@@ -41,23 +41,13 @@ const library = {
                     shares: library.deviceShare(serverVars.device),
                     status: data.status
                 },
-                counts:agentCounts = {
-                    count: 0,
-                    total: 0
-                },
                 responder = function terminal_server_heartbeat_responder():void {
-                    counts.count = counts.count + 1;
-                    if (counts.count === counts.total && response !== null) {
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write("Heartbeat response received for each remote terminal.");
-                        response.end();
-                    }
+                    return;
                 },
                 httpConfig:httpConfiguration = {
                     agentType: "user",
                     callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
                         vars.ws.broadcast(<string>responseBody);
-                        responder();
                     },
                     callbackType: "body",
                     errorMessage: "",
@@ -98,10 +88,7 @@ const library = {
                         httpConfig.payload = JSON.stringify({
                             "heartbeat": payload
                         });
-                        counts.total = agentCounts.total;
                         library.httpClient(httpConfig);
-                    } else {
-                        responder();
                     }
                 },
                 perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
@@ -112,6 +99,9 @@ const library = {
                 },
                 source: serverVars
             });
+            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+            response.write("Heartbeat response received for each remote terminal.");
+            response.end();
         },
         delete: function terminal_server_heartbeatDelete(deleted:[string, string][], response:ServerResponse):void {
             let a:number = 0,
@@ -227,7 +217,11 @@ const library = {
                         response.end();
                     }
                 } else {
-                    if (data.shareFrom !== "") {
+                    if (data.shareFrom === "") {
+                        vars.ws.broadcast(JSON.stringify({
+                            [`heartbeat-response-${data.agentType}`]: data
+                        }));
+                    } else {
                         const sameAgent:boolean = (data.agentFrom === data.shareFrom),
                             shareString:string = (sameAgent === true)
                                 ? JSON.stringify(serverVars[data.agentType][data.shareFrom].shares)

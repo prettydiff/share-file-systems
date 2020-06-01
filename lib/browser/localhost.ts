@@ -175,7 +175,7 @@ import webSocket from "./webSocket.js";
                     } while (a < loginInputsLength);
 
                     browser.socket = webSocket();
-                    setTimeout(idleness, idleTime);
+                    idleness();
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
