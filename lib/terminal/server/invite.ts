@@ -10,7 +10,6 @@ import vars from "../utilities/vars.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
-import { stringify } from "querystring";
 
 const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
@@ -77,11 +76,23 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             httpClient(httpConfig);
         },
         accepted = function local_server_invite_accepted(respond:string):void {
-            serverVars[data.type][data[`${data.type}Hash`]] = {
-                ip: data.ip,
-                name: data.name,
-                port: data.port,
-                shares: data.shares
+            const keys:string[] = Object.keys(data.shares);
+            if (data.type === "device") {
+                const length:number = keys.length;
+                let a:number = 0;
+                do {
+                    if (serverVars.device[keys[a]] === undefined) {
+                        serverVars.device[keys[a]] = data.shares[keys[a]];
+                    }
+                    a = a + 1;
+                } while (a < length);
+            } else if (data.type === "user") {
+                serverVars[data.type][data.userHash] = {
+                    ip: data.ip,
+                    name: data.name,
+                    port: data.port,
+                    shares: data.shares[keys[0]].shares
+                }
             };
             storage(JSON.stringify({
                 [data.type]: serverVars[data.type]
@@ -94,14 +105,34 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
         responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
         data.action = "invite-request";
+        data.shares = (data.type === "device")
+            ? serverVars.device
+            : {
+                [serverVars.hashUser]: {
+                    ip: serverVars.ipAddress,
+                    name: serverVars.nameUser,
+                    port: serverVars.webPort,
+                    shares: deviceShare(serverVars.device)
+                }
+            };
         inviteHttp(data.ip, data.port);
     } else if (data.action === "invite-request") {
         vars.testLogger("invite", "invite-request", "Process an invitation request from a remote agent by sending the request data to the browser.");
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
-
         if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
             // if the agent is already registered with the remote then bypass the user by auto-approving the request
+            accepted(`  invitation.  Request processed at remote terminal ${data.ip}.  Agent already present, so auto accepted and returned to start terminal.`);
             data.action = "invite-complete";
+            data.shares = (data.type === "device")
+                ? serverVars.device
+                : {
+                    [serverVars.hashUser]: {
+                        ip: serverVars.ipAddress,
+                        name: serverVars.nameUser,
+                        port: serverVars.webPort,
+                        shares: deviceShare(serverVars.device)
+                    }
+                };
             data.status = "accepted";
             inviteHttp(data.ip, data.port);
         } else {
@@ -117,11 +148,18 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             if (data.type === "device") {
                 data.deviceHash = serverVars.hashDevice;
                 data.deviceName = serverVars.nameDevice;
-                data.shares = serverVars.device[serverVars.hashDevice].shares;
+                data.shares = serverVars.device;
             } else {
                 data.userHash = serverVars.hashUser;
                 data.userName = serverVars.nameUser;
-                data.shares = deviceShare(serverVars.device);
+                data.shares = {
+                    [serverVars.hashUser]: {
+                        ip: serverVars.ipAddress,
+                        name: serverVars.nameUser,
+                        port: serverVars.webPort,
+                        shares: deviceShare(serverVars.device)
+                    }
+                };
             }
             data.ip = serverVars.ipAddress;
             data.port = serverVars.webPort;

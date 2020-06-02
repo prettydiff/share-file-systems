@@ -16,7 +16,6 @@ invite.accept = function local_invite_accept(box:Element):void {
     const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
         dataString:string = para[para.length - 1].innerHTML,
         invitation:invite = JSON.parse(dataString).invite,
-        hash:string = invitation[`${invitation.type}Hash`],
         payload:invite = invite.payload({
             action: "invite-response",
             ip: invitation.ip,
@@ -28,23 +27,45 @@ invite.accept = function local_invite_accept(box:Element):void {
         });
     payload.deviceHash = invitation.deviceHash;
     payload.userHash = invitation.userHash;
+    invite.addAgents(invitation);
     network.inviteAccept(payload);
+};
+
+/* A wrapper around share.addAgents for converting devices type into device type */
+invite.addAgents = function local_invite_addAgents(invitation:invite):void {
+    const shareKeys:string[] = Object.keys(invitation.shares);
     if (invitation.type === "device") {
+        const length:number = 0;
+        let a:number = 0;
+        do {
+            if (browser.device[shareKeys[a]] === undefined) {
+                browser.device[shareKeys[a]] = invitation.shares[shareKeys[a]];
+                share.addAgent({
+                    hash: shareKeys[a],
+                    name: invitation.userName,
+                    save: false,
+                    type: "device"
+                });
+                browser.data.colors.user[shareKeys[a]] = settings.colorScheme[browser.data.color];
+            }
+            a = a + 1;
+        } while (a < length);
         browser.data.nameUser = invitation.userName;
+    } else if (invitation.type === "user") {
+        browser.user[invitation.userHash] = {
+            ip: invitation.ip,
+            name: invitation.userName,
+            port: invitation.port,
+            shares: invitation.shares[shareKeys[0]].shares
+        };
+        share.addAgent({
+            hash: shareKeys[0],
+            name: invitation.name,
+            save: false,
+            type: "user"
+        });
+        browser.data.colors.user[shareKeys[0]] = settings.colorScheme[browser.data.color];
     }
-    browser[invitation.type][hash] = {
-        ip: invitation.ip,
-        name: invitation.name,
-        port: invitation.port,
-        shares: <deviceShares>invitation.shares
-    };
-    share.addAgent({
-        hash: hash,
-        name: invitation.name,
-        save: true,
-        type: invitation.type
-    });
-    browser.data.colors[invitation.type][hash] = settings.colorScheme[browser.data.color];
     network.storage(invitation.type);
 };
 
@@ -53,20 +74,7 @@ invite.complete = function local_invite_complete(invitation:invite):void {
     const hash:string = invitation[`${invitation.type}Hash`],
         modal:Element = document.getElementById(invitation.modal);
     if (modal === null) {
-        if (invitation.status === "accepted") {
-            browser[invitation.type][hash] = {
-                ip: invitation.ip,
-                name: invitation.name,
-                port: invitation.port,
-                shares: <deviceShares>invitation.shares
-            };
-            share.addAgent({
-                hash: hash,
-                name: invitation.name,
-                save: true,
-                type: invitation.type
-            });
-        }
+        invite.addAgents(invitation);
     } else {
         const error:Element = modal.getElementsByClassName("error")[0],
             delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
@@ -76,18 +84,7 @@ invite.complete = function local_invite_complete(invitation:invite):void {
                 if (invitation.status === "accepted") {
                     output.innerHTML = "Invitation accepted!";
                     output.setAttribute("class", "accepted");
-                    browser[invitation.type][hash] = {
-                        ip: invitation.ip,
-                        name: invitation.name,
-                        port: invitation.port,
-                        shares: <deviceShares>invitation.shares
-                    };
-                    share.addAgent({
-                        hash: hash,
-                        name: invitation.name,
-                        save: true,
-                        type: invitation.type
-                    });
+                    invite.addAgents(invitation);
                     util.audio("invite");
                 } else {
                     output.innerHTML = "Invitation declined. :(";
@@ -139,9 +136,7 @@ invite.payload = function local_invite_payload(config:invitePayload):invite {
             : browser.data.nameDevice,
         modal: config.modal,
         port: config.port,
-        shares: (config.type === "user")
-            ? deviceShare(browser.device)
-            : browser.device[browser.data.hashDevice].shares,
+        shares: {},
         status: config.status,
         type: config.type,
         userHash: "",

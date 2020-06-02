@@ -317,7 +317,7 @@ declare global {
         modal: string;
         name: string;
         port: number;
-        shares: deviceShares;
+        shares: devices;
         status: inviteStatus;
         type: agentType;
         userHash: string;
@@ -408,6 +408,7 @@ declare global {
     }
     interface module_invite {
         accept?: (box:Element) => void;
+        addAgents?: (invitation:invite) => void;
         complete?: (invitation:invite) => void;
         decline?: EventHandlerNonNull;
         payload?: (config:invitePayload) => invite;
