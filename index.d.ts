@@ -408,11 +408,12 @@ declare global {
     }
     interface module_invite {
         accept?: (box:Element) => void;
+        complete?: (invitation:invite) => void;
         decline?: EventHandlerNonNull;
         payload?: (config:invitePayload) => invite;
         portValidation?: EventHandlerNonNull;
         request?: (event:MouseEvent, options:ui_modal) => void;
-        respond?: (message:string) => void;
+        respond?: (invitation:invite) => void;
         start?: sharesDeleteList;
         typeToggle?: EventHandlerNonNull;
     }

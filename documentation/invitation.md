@@ -3,36 +3,56 @@
 # Adding A User
 At the time of this writing, 21 SEP, this documentation is written in the perspective of one user inviting one other without consideration for additional users.
 
-## Invitation Message Flow
-1. A user initiates an invitation from the browser using an HTTP request to the local terminal application with the HTTP POST body prefixed by `invite:` and an action value of `invite`.
-2. The local terminal application strips the `invite:` prefix and changes the action property to `invite-request`.  An HTTP response is generated for the local browser and an HTTP request is sent to the specified IP and port.
-3. The remote terminal application receives the HTTP request and sends an HTTP response.  The HTTP body is sent to the remote's web browser via Web Socket.
-4. On the remote web browser a modal is generated with the invitation content.  The remote user can accept or deny the request, but both generate an HTTP request with that status back to the remote terminal application.  The action property is changed to value `invite-response`.
-5. The remote terminal issues an HTTP response for the remote browser and generates an HTTP request to the originating terminal application.  The action property is changed to `invite-complete`.
-6. The originating terminal application receives the HTTP request and generates a response for the remote terminal application.  The originating terminal application sends the HTTP body to the local browser via Web Socket.
-7. The originating browser receives the invitation response and performs the necessary messaging for the user.
 
+## Code
+* The major steps of this list correspond with the steps indicated in the diagram below.
+* Each sub-step starts with a function identifier and the file where that function resides.
+* The described flow control assumes a fully accepted invitation so that all steps are described.  Declined invitations are killed at user response.
+
+1. *Request*, Local Browser Interface
+   1. `invite.start`, `lib/browser/invite.ts`: Invitation is initiated by the local user, which creates a form in the web browser.
+   2. `invite.request`, `lib/browser/invite.ts`: Submitting the invitation form executes the request function, which builds the necessary data package with an *action* property value **invite**.
+   3. `network.inviteRequest`, `lib/browser/network.ts`: A network call is executed to the local terminal application.
+2. *Request*, Local Terminal Service
+   1. `terminal_server_post_end`, `lib/terminal/commands/server.ts`: All application instructions out of the browser go to server post function.
+   2. `invite`, `lib/terminal/server/invite.ts`:  The service application sends the invitation transmission function which processes all invitation transmission actions looking at the *action* data property.  At this step it renames the data package's *action* property to **invite-request** and sends the request to the remote terminal application.
+3. *Request*, Remote Terminal Service
+   1. `terminal_server_post_end`, `lib/terminal/commands/server.ts`: The remote computer receives the invitation request at its server post function.
+   2. `invite`, `lib/terminal/server/invite.ts`: The request is passed to invitation transmission function to broadcast to the listening browsers via WebSockets.
+4. *Request*, Remote Browser Interface
+   1. `local_socketMessage`, `lib/browser/webSocket.ts`: The browser uses the same function to process all incoming WebSocket events.  At this step the WebSocket code does nothing but call the invitation response function.
+   2. `invite.respond`, `lib/browser/invite.ts`: The invitation response function generates the form where a person on the remote device/user accepts, declines, or ignores the invitation.
+5. *Response*, Remote Browser Interface
+   1. `invite.accept`, `lib/browser/invite.ts`: The remote person executes the acceptance function, which prepares a data payload for the terminal application.
+   2. `network.inviteAccept`, `lib/browser/network.ts`: The payload representing the accepted invitation is sent out of the browser with an *action* property of value **invite-response**.
+6. *Response*, Remote Terminal Service
+   1. `terminal_server_post_end`, `lib/terminal/commands/server.ts`: All application instructions out of the browser go to server post function.
+   2. `invite`, `lib/terminal/server/invite.ts`: The service application sends the invitation transmission function which processes all invitation transmission actions looking at the *action* data property.  At this step it renames the data package's *action* property to **invite-complete**, saves the originating agent data to storage, and sends the request to the original local terminal application.
+7. *Response*, Local Terminal Service
+   1. `terminal_server_post_end`, `lib/terminal/commands/server.ts`: The local computer receives the invitation response at its server post function.
+   2. `invite`, `lib/terminal/server/invite.ts`: The response is passed to invitation transmission function to broadcast to the listening browsers via WebSockets and it saves the remote agent data to storage.
+8. *Response*, Local Browser Interface
+   1. `local_socketMessage`, `lib/browser/webSocket.ts`: The WebSocket code does nothing but call the invitation response function exactly as it did on the remote computer.
+   2. `invite.respond`, `lib/browser/invite.ts`: The invitation response function sees the *action* data property has a value of **invite-complete** and add the new agent(s).
 
 ## Diagram of Message Flow
 ```
 Start user, sending invitation        | End user, receiving the invitation
---------------------------------------|-----------------------------------
-    (invite)        (invite-request)  |
- _    HTTP    ___       HTTP          |    ___      WS              _
-|_| 1------> |   | 2------------------|-> |   | 3----------------> |_|
-    <------- |   | <------------------|-- |   |
-             |   |      HTTP          |   |   |    HTTP
-       WS    |   | <------------------|-5 |   | <----------------4
-7   <------6 |___| -------------------|-> |___| ----------------->
-                    (invite-complete) |          (invite-response)
+--------------------------------------|-------------------------------------
+                                      |
+ _    HTTP    ___       HTTP          |      ___      WS                  _
+|_| 1------> |   | 2 -----------------|---> |   | 3------------------> 4 |_|
+    <------- |   | <------------------|---- |   |
+    (invite) |   |  (invite-request)  |     |   |
+             |   |                    |     |   |
+             |   |      HTTP          |     |   |    HTTP
+       WS    |   | <------------------|-- 6 |   | <--------------------5
+8   <------7 |___| -------------------|---> |___| --------------------->
+                    (invite-complete) |            (invite-response)
                                       | 
-start        start                    |   remote                   remote
-user         terminal                 |   terminal                 user
-(browser)    (local service)          |   (local service)          (browser)
+start        start                    |     remote                 remote
+user         terminal                 |     terminal               user
+(browser)    (local service)          |     (local service)        (browser)
 
 data.action value is in parenthesis
 ```
-
-## Code
-* All related code for this process can be found in `/lib/terminal/server/invite.ts` imported by `/lib/terminal/server.ts`.
-* Steps 2 and 5 (invite-request and invite-complete) change the IP and port data to direct traffic across the network.

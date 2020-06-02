@@ -130,13 +130,13 @@ const library = {
                     };
 
                 // request handling
-                request.on('data', function terminal_server_create_data(data:Buffer) {
+                request.on('data', function terminal_server_post_data(data:Buffer) {
                     body = body + decoder.write(data);
                     if (body.length > 1e6) {
                         request.connection.destroy();
                     }
                 });
-                request.on("error", function terminal_server_create_errorRequest(errorMessage:nodeError):void {
+                request.on("error", function terminal_server_post_errorRequest(errorMessage:nodeError):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         library.log([body, "request", errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
@@ -144,7 +144,7 @@ const library = {
                         }));
                     }
                 });
-                response.on("error", function terminal_server_create_errorResponse(errorMessage:nodeError):void {
+                response.on("error", function terminal_server_post_errorResponse(errorMessage:nodeError):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         library.log([body, "response"]);
                         if (errorMessage.toString().indexOf("write after end") > -1) {
@@ -157,7 +157,7 @@ const library = {
                 });
 
                 // request callbacks
-                request.on("end", function terminal_server_create_end():void {
+                request.on("end", function terminal_server_post_end():void {
                     let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
                     if (task === "heartbeat") {
                         // * process received heartbeat data from other agents

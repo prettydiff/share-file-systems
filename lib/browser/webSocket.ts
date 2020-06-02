@@ -195,7 +195,12 @@ const title:Element = document.getElementsByClassName("title")[0],
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {
-            invite.respond(event.data);
+            const invitation:invite = JSON.parse(event.data).invite;
+            if (invitation.action === "invite-complete") {
+                invite.complete(invitation);
+            } else {
+                invite.respond(invitation);
+            }
         } else if (event.data === "reload") {
             location.reload();
         }

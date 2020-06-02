@@ -48,6 +48,65 @@ invite.accept = function local_invite_accept(box:Element):void {
     network.storage(invitation.type);
 };
 
+/* Handles final status of an invitation response */
+invite.complete = function local_invite_complete(invitation:invite):void {
+    const hash:string = invitation[`${invitation.type}Hash`],
+        modal:Element = document.getElementById(invitation.modal);
+    if (modal === null) {
+        if (invitation.status === "accepted") {
+            browser[invitation.type][hash] = {
+                ip: invitation.ip,
+                name: invitation.name,
+                port: invitation.port,
+                shares: <deviceShares>invitation.shares
+            };
+            share.addAgent({
+                hash: hash,
+                name: invitation.name,
+                save: true,
+                type: invitation.type
+            });
+        }
+    } else {
+        const error:Element = modal.getElementsByClassName("error")[0],
+            delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
+            footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
+            inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+            prepOutput = function local_invite_respond_prepOutput(output:Element):void {
+                if (invitation.status === "accepted") {
+                    output.innerHTML = "Invitation accepted!";
+                    output.setAttribute("class", "accepted");
+                    browser[invitation.type][hash] = {
+                        ip: invitation.ip,
+                        name: invitation.name,
+                        port: invitation.port,
+                        shares: <deviceShares>invitation.shares
+                    };
+                    share.addAgent({
+                        hash: hash,
+                        name: invitation.name,
+                        save: true,
+                        type: invitation.type
+                    });
+                    util.audio("invite");
+                } else {
+                    output.innerHTML = "Invitation declined. :(";
+                    output.setAttribute("class", "error");
+                }
+            };
+        footer.style.display = "none";
+        delay.style.display = "none";
+        inviteUser.style.display = "block";
+        if (error === null || error === undefined) {
+            const p:Element = document.createElement("p");
+            prepOutput(p);
+            modal.getElementsByClassName("inviteUser")[0].appendChild(p);
+        } else {
+            prepOutput(error);
+        }
+    }
+};
+
 /* Handler for declining an invitation request */
 invite.decline = function local_invite_decline(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
@@ -218,15 +277,11 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
 };
 
 /* Receive an invitation from another user */
-invite.respond = function local_invite_respond(message:string):void {
-    const invitation:invite = JSON.parse(message).invite,
-        hash:string = invitation[`${invitation.type}Hash`];
+invite.respond = function local_invite_respond(invitation:invite):void {
     if (invitation.status === "invited") {
         const div:Element = document.createElement("div"),
             modals:string[] = Object.keys(browser.data.modals),
             length:number = modals.length,
-            users:string[] = Object.keys(browser.user),
-            devices:string[] = Object.keys(browser.device),
             payloadModal:ui_modal = {
                 agent: browser.data.hashDevice,
                 agentType: "device",
@@ -237,24 +292,14 @@ invite.respond = function local_invite_respond(message:string):void {
                 title: `Invitation from ${invitation.name}`,
                 type: "invite-accept",
                 width: 500
-            };
+            },
+            ip:string = (invitation.ip.indexOf(":") < 0)
+                ? `${invitation.ip}:${invitation.port}`
+                : `[${invitation.ip}]:${invitation.port}`;
         let text:HTMLElement = document.createElement("h3"),
             label:Element = document.createElement("label"),
             textarea:HTMLTextAreaElement = document.createElement("textarea"),
             a:number = 0;
-        // if the user or device is already added then respond automatically.
-        if (users.indexOf(invitation.userHash) > -1 || devices.indexOf(invitation.deviceHash) > -1 ) {
-            network.inviteAccept(invite.payload({
-                action: "invite-response",
-                ip: invitation.ip,
-                message: `Invite accepted: ${util.dateFormat(new Date())}`,
-                modal: invitation.modal,
-                port: invitation.port,
-                status: "accepted",
-                type: invitation.type
-            }));
-            return;
-        }
         do {
             if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${invitation.name}`) {
                 // there should only be one invitation at a time from a given user otherwise there is spam
@@ -263,11 +308,7 @@ invite.respond = function local_invite_respond(message:string):void {
             a = a + 1;
         } while (a < length);
         div.setAttribute("class", "userInvitation");
-        if (invitation.ip.indexOf(":") < 0) {
-            text.innerHTML = `User <strong>${invitation.name}</strong> from ${invitation.ip}:${invitation.port} is inviting you to share spaces.`;
-        } else {
-            text.innerHTML = `User <strong>${invitation.name}</strong> from [${invitation.ip}]:${invitation.port} is inviting you to share spaces.`;
-        }
+        text.innerHTML = `User <strong>${invitation.name}</strong> from ${ip} is inviting you to share spaces.`;
         div.appendChild(text);
         text = document.createElement("p");
         label.innerHTML = `${invitation.name} said:`;
@@ -278,67 +319,11 @@ invite.respond = function local_invite_respond(message:string):void {
         text = document.createElement("p");
         text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
         div.appendChild(text);
-        text = document.createElement("p");
-        text.innerHTML = message;
-        text.style.display = "none";
         div.appendChild(text);
         modal.create(payloadModal);
         util.audio("invite");
     } else {
-        const modal:Element = document.getElementById(invitation.modal);
-        if (modal === null) {
-            if (invitation.status === "accepted") {
-                browser[invitation.type][hash] = {
-                    ip: invitation.ip,
-                    name: invitation.name,
-                    port: invitation.port,
-                    shares: <deviceShares>invitation.shares
-                };
-                share.addAgent({
-                    hash: hash,
-                    name: invitation.name,
-                    save: true,
-                    type: invitation.type
-                });
-            }
-        } else {
-            const error:Element = modal.getElementsByClassName("error")[0],
-                delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
-                footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-                inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                prepOutput = function local_invite_respond_prepOutput(output:Element):void {
-                    if (invitation.status === "accepted") {
-                        output.innerHTML = "Invitation accepted!";
-                        output.setAttribute("class", "accepted");
-                        browser[invitation.type][hash] = {
-                            ip: invitation.ip,
-                            name: invitation.name,
-                            port: invitation.port,
-                            shares: <deviceShares>invitation.shares
-                        };
-                        share.addAgent({
-                            hash: hash,
-                            name: invitation.name,
-                            save: true,
-                            type: invitation.type
-                        });
-                        util.audio("invite");
-                    } else {
-                        output.innerHTML = "Invitation declined. :(";
-                        output.setAttribute("class", "error");
-                    }
-                };
-            footer.style.display = "none";
-            delay.style.display = "none";
-            inviteUser.style.display = "block";
-            if (error === null || error === undefined) {
-                const p:Element = document.createElement("p");
-                prepOutput(p);
-                modal.getElementsByClassName("inviteUser")[0].appendChild(p);
-            } else {
-                prepOutput(error);
-            }
-        }
+        
     }
 };
 
@@ -468,6 +453,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
     }
 };
 
+/* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
 invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         parent:Element = <Element>element.parentNode.parentNode,
