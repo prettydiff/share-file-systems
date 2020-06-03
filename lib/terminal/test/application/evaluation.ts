@@ -163,8 +163,10 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
         // replace numbers following a parenthesis
         output.values[0] = output.values[0].replace(/\(\d+ /g, "(XXXX ");
         if (output.testType === "service") {
-            // replace port numbers
+            // replace port numbers in the stored test
             output.values[0] = output.values[0].replace(/"port":\d+,/g, "\"port\":0,");
+            // replace port numbers in the standard output
+            output.values[0] = output.values[0].replace(/\\"port\\":\d+,/g, "\\\"port\\\":0,");
             // replace wildcard IPv6 address
             output.values[0] = output.values[0].replace(/\s::(\s|\.)/g, " XXXX ");
             // replace IPv6 addresses framed in square braces

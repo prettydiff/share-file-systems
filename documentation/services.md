@@ -332,6 +332,7 @@ Currently supported names: *messages*, *settings*, *users*
 Stores systems and utility messaging from the browser.  At this time only error messaging is populated.
 
 #### Messaging Example
+<!-- cspell:disable -->
 ```json
 {
    "messages": {
@@ -350,6 +351,7 @@ Stores systems and utility messaging from the browser.  At this time only error 
    }
 }
 ```
+<!-- cspell:enable -->
 
 #### Error Messaging
 The error messaging is an error message and a stack trace stored as an array.
@@ -419,7 +421,7 @@ Stores state of the GUI and content displayed in the browser
             "status_bar"      : true,
             "status_text"     : "13 directories, 15 files, 0 links, 0 errors",
             "text_placeholder": "Optionally type a file system address here.",
-            "text_value"      : "C:\\Users\\austincheney\\share-file-systems",
+            "text_value"      : "C:\\Users\\username\\share-file-systems",
             "title"           : "<span class=\"icon-fileNavigator\">⌹</span> File Navigator - Austin[Desktop]",
             "type"            : "fileNavigate",
             "width"           : 819,
@@ -429,7 +431,7 @@ Stores state of the GUI and content displayed in the browser
             "top"             : 230,
             "height"          : 403,
             "status"          : "normal",
-            "history"         : ["C:\\Users\\austincheney\\share-file-systems"],
+            "history"         : ["C:\\Users\\username\\share-file-systems"],
             "search"          : ["",""]
          }
       },

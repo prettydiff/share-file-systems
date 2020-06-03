@@ -287,12 +287,12 @@ const sep:string = vars.sep,
             test: `Share File Systems removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
         },
         {
-            command: `mkdir ${vars.projectPath}lib/terminal/test/testDir`,
+            command: `mkdir ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir`,
             qualifier: "is",
             test: ""
         },
         {
-            command: `remove ${vars.projectPath}lib/terminal/test/testDir`,
+            command: `remove ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir`,
             qualifier: "is",
             test: ""
         },

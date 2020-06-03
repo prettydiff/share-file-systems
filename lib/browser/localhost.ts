@@ -337,7 +337,7 @@ import webSocket from "./webSocket.js";
                                                 } while (b < length);
                                             }
                                         },
-                                        callback = function local_restore_modalKeys_fsCallback(responseText:string, agent:string):void {
+                                        callback = function local_restore_modalKeys_fsCallback(responseText:string):void {
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = (responseText === "")
                                                     ? {

@@ -71,8 +71,7 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
 
 /* Handles final status of an invitation response */
 invite.complete = function local_invite_complete(invitation:invite):void {
-    const hash:string = invitation[`${invitation.type}Hash`],
-        modal:Element = document.getElementById(invitation.modal);
+    const modal:Element = document.getElementById(invitation.modal);
     if (modal === null) {
         invite.addAgents(invitation);
     } else {
@@ -273,53 +272,49 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
 
 /* Receive an invitation from another user */
 invite.respond = function local_invite_respond(invitation:invite):void {
-    if (invitation.status === "invited") {
-        const div:Element = document.createElement("div"),
-            modals:string[] = Object.keys(browser.data.modals),
-            length:number = modals.length,
-            payloadModal:ui_modal = {
-                agent: browser.data.hashDevice,
-                agentType: "device",
-                content: div,
-                height: 300,
-                inputs: ["cancel", "confirm", "close"],
-                read_only: false,
-                title: `Invitation from ${invitation.name}`,
-                type: "invite-accept",
-                width: 500
-            },
-            ip:string = (invitation.ip.indexOf(":") < 0)
-                ? `${invitation.ip}:${invitation.port}`
-                : `[${invitation.ip}]:${invitation.port}`;
-        let text:HTMLElement = document.createElement("h3"),
-            label:Element = document.createElement("label"),
-            textarea:HTMLTextAreaElement = document.createElement("textarea"),
-            a:number = 0;
-        do {
-            if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${invitation.name}`) {
-                // there should only be one invitation at a time from a given user otherwise there is spam
-                return;
-            }
-            a = a + 1;
-        } while (a < length);
-        div.setAttribute("class", "userInvitation");
-        text.innerHTML = `User <strong>${invitation.name}</strong> from ${ip} is inviting you to share spaces.`;
-        div.appendChild(text);
-        text = document.createElement("p");
-        label.innerHTML = `${invitation.name} said:`;
-        textarea.value = invitation.message;
-        label.appendChild(textarea);
-        text.appendChild(label);
-        div.appendChild(text);
-        text = document.createElement("p");
-        text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
-        div.appendChild(text);
-        div.appendChild(text);
-        modal.create(payloadModal);
-        util.audio("invite");
-    } else {
-        
-    }
+    const div:Element = document.createElement("div"),
+        modals:string[] = Object.keys(browser.data.modals),
+        length:number = modals.length,
+        payloadModal:ui_modal = {
+            agent: browser.data.hashDevice,
+            agentType: "device",
+            content: div,
+            height: 300,
+            inputs: ["cancel", "confirm", "close"],
+            read_only: false,
+            title: `Invitation from ${invitation.name}`,
+            type: "invite-accept",
+            width: 500
+        },
+        ip:string = (invitation.ip.indexOf(":") < 0)
+            ? `${invitation.ip}:${invitation.port}`
+            : `[${invitation.ip}]:${invitation.port}`;
+    let text:HTMLElement = document.createElement("h3"),
+        label:Element = document.createElement("label"),
+        textarea:HTMLTextAreaElement = document.createElement("textarea"),
+        a:number = 0;
+    do {
+        if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${invitation.name}`) {
+            // there should only be one invitation at a time from a given user otherwise there is spam
+            return;
+        }
+        a = a + 1;
+    } while (a < length);
+    div.setAttribute("class", "userInvitation");
+    text.innerHTML = `User <strong>${invitation.name}</strong> from ${ip} is inviting you to share spaces.`;
+    div.appendChild(text);
+    text = document.createElement("p");
+    label.innerHTML = `${invitation.name} said:`;
+    textarea.value = invitation.message;
+    label.appendChild(textarea);
+    text.appendChild(label);
+    div.appendChild(text);
+    text = document.createElement("p");
+    text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
+    div.appendChild(text);
+    div.appendChild(text);
+    modal.create(payloadModal);
+    util.audio("invite");
 };
 
 /* Invite users to your shared space */

@@ -69,7 +69,7 @@ const library = {
             library.agents({
                 complete: responder,
                 countBy: "agent",
-                perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames, agentCounts:agentCounts):void {
+                perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames):void {
                     httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                     httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                     httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
@@ -263,7 +263,7 @@ const library = {
                     if (response !== null) {
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
                         response.write(JSON.stringify({
-                            [`heartbeat-response-${data.agentType}`]: data
+                            "heartbeat-response": data
                         }));
                         response.end();
                     }

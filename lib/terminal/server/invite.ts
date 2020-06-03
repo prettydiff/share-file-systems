@@ -93,14 +93,13 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     port: data.port,
                     shares: data.shares[keys[0]].shares
                 }
-            };
+            }
             storage(JSON.stringify({
                 [data.type]: serverVars[data.type]
             }), "", data.type);
             responseString = `Accepted${respond}`;
         };
     let responseString:string;
-    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
     if (data.action === "invite") {
         vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
         responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
@@ -121,7 +120,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
         if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
             // if the agent is already registered with the remote then bypass the user by auto-approving the request
-            accepted(`  invitation.  Request processed at remote terminal ${data.ip}.  Agent already present, so auto accepted and returned to start terminal.`);
+            accepted(` invitation. Request processed at remote terminal ${data.ip}.  Agent already present, so auto accepted and returned to start terminal.`);
             data.action = "invite-complete";
             data.shares = (data.type === "device")
                 ? serverVars.device
@@ -182,11 +181,10 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         }
         vars.ws.broadcast(dataString);
     }
-    if (data.action !== "invite-complete" || (data.action === "invite-complete" && data.status !== "accepted")) {
-        //log([responseString]);
-        response.write(responseString);
-        response.end();
-    }
+    //log([responseString]);
+    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+    response.write(responseString);
+    response.end();
 };
 
 export default invite;

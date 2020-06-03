@@ -97,8 +97,8 @@ const vars:terminalVariables = {
         projectPath: (function node_projectPath():string {
             // this block normalizes node execution across operating systems and directory locations in the case that node could be executed as a component of a shell utility
             const length:number = process.argv.length,
-                regNode:RegExp = new RegExp("((\\\\)|\/)node(\\.exe)?$"),
-                regApp:RegExp = new RegExp("((\\\\)|\/)js((\\\\)|\/)application(\\.js)?$");
+                regNode:RegExp = new RegExp("((\\\\)|/)node(\\.exe)?$"),
+                regApp:RegExp = new RegExp("((\\\\)|/)js((\\\\)|/)application(\\.js)?$");
             let a:number = 0,
                 projectPath:string = "",
                 nodeIndex:number = 0;
