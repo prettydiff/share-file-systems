@@ -25,7 +25,7 @@ declare global {
     type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = storageType | "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat" | "heartbeat-broadcast" | "heartbeat-response-device" | "heartbeat-response-user" | "invite";
+    type serverTask = storageType | "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat" | "heartbeat-broadcast" | "heartbeat-response" | "invite";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
@@ -268,26 +268,16 @@ declare global {
         device: string;
         user: string;
     }
-    interface heartbeatDevice {
+    interface heartbeat {
         agentTo: string;
         agentFrom: string;
-        agentType: "device";
-        shareFrom: string;
+        agentType: agentType;
         shares: devices;
-        status: heartbeatStatus;
-    }
-    interface heartbeatUser {
-        agentTo: string;
-        agentFrom: string;
-        agentType: "user";
-        shareFrom: string;
-        shares: deviceShares;
         status: heartbeatStatus;
     }
     interface heartbeatBroadcast {
         agentFrom: "localhost-browser" | "localhost-terminal";
-        shareFrom: string;
-        shares: deviceShares;
+        shares: devices;
         status: heartbeatStatus;
     }
     interface httpConfiguration {
@@ -438,7 +428,7 @@ declare global {
         deleteAgents?: (deleted:[string, string][]) => void;
         hashDevice?: (callback:Function) => void;
         hashShare?: (configuration:hashShareConfiguration) => void;
-        heartbeat?: (status:heartbeatStatus, share:string, shares:deviceShares) => void;
+        heartbeat?: (status:heartbeatStatus) => void;
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
@@ -785,12 +775,12 @@ declare global {
     }
     interface testTemplateHeartbeat {
         command: {
-            "heartbeat": heartbeatDevice;
+            "heartbeat": heartbeat;
         };
         name: string;
         qualifier: qualifier;
         test: {
-            "heartbeat-response-device": heartbeatDevice;
+            "heartbeat-response-device": heartbeat;
         } | string;
     }
     interface testTemplateHeartbeatBroadcast {

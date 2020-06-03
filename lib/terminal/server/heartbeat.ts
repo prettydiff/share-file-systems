@@ -25,20 +25,11 @@ const library = {
     heartbeat = {
         broadcast: function terminal_server_heartbeat(data:heartbeatBroadcast, response:ServerResponse):void {
             // heartbeat from local, forward to each remote terminal
-            const payload_device:heartbeatDevice = {
-                    agentFrom: serverVars.hashDevice,
+            const payload:heartbeat = {
+                    agentFrom: "",
                     agentTo: "",
                     agentType: "device",
-                    shareFrom: data.shareFrom,
-                    shares: serverVars.device,
-                    status: data.status
-                },
-                payload_user:heartbeatUser = {
-                    agentFrom: serverVars.hashUser,
-                    agentTo: "",
-                    agentType: "user",
-                    shareFrom: serverVars.hashUser,
-                    shares: library.deviceShare(serverVars.device),
+                    shares: {},
                     status: data.status
                 },
                 responder = function terminal_server_heartbeat_responder():void {
@@ -70,10 +61,10 @@ const library = {
                         }
                     }
                 };
-            let payload:heartbeatDevice|heartbeatUser;
             vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
+                serverVars.device = data.shares;
             }
             library.agents({
                 complete: responder,
@@ -93,9 +84,22 @@ const library = {
                 },
                 perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
                     httpConfig.agentType = agentNames.agentType;
-                    payload = (agentNames.agentType === "device")
-                        ? payload_device
-                        : payload_user;
+                    if (agentNames.agentType === "device") {
+                        payload.agentFrom = serverVars.hashDevice;
+                        payload.agentType = "device";
+                        payload.shares = serverVars.device;
+                    } else if (agentNames.agentType === "user") {
+                        payload.agentFrom = serverVars.hashUser;
+                        payload.agentType = "user";
+                        payload.shares = {
+                            [serverVars.hashUser]: {
+                                ip: serverVars.ipAddress,
+                                name: serverVars.nameUser,
+                                port: serverVars.webPort,
+                                shares: deviceShare(serverVars.device)
+                            }
+                        }
+                    }
                 },
                 source: serverVars
             });
@@ -109,23 +113,13 @@ const library = {
                 agent:device,
                 agentType:agentType,
                 device:boolean = false,
-                payload:heartbeatDevice|heartbeatUser,
                 user: boolean = false;
             const length:number = deleted.length,
-                payload_device:heartbeatDevice = {
-                    agentFrom: serverVars.hashDevice,
+                payload:heartbeat = {
+                    agentFrom: "",
                     agentTo: "",
                     agentType: "device",
                     shares: {},
-                    shareFrom: serverVars.hashDevice,
-                    status: "deleted"
-                },
-                payload_user:heartbeatUser = {
-                    agentFrom: serverVars.hashUser,
-                    agentTo: "",
-                    agentType: "user",
-                    shares: {},
-                    shareFrom: serverVars.hashUser,
                     status: "deleted"
                 },
                 httpConfig:httpConfiguration = {
@@ -159,10 +153,12 @@ const library = {
                 agent = serverVars[agentType][deleted[a][0]];
                 if (agent !== undefined) {
                     if (agentType === "device") {
-                        payload = payload_device;
+                        payload.agentFrom = serverVars.hashDevice;
+                        payload.agentType = "device";
                         device = true;
                     } else if (agentType === "user") {
-                        payload = payload_user;
+                        payload.agentFrom = serverVars.hashUser;
+                        payload.agentType = "user";
                         user = true;
                     }
                     payload.agentTo = deleted[a][0];
@@ -192,7 +188,7 @@ const library = {
             response.write("Instructions sent to delete this account from remote agents.");
             response.end();
         },
-        response: function terminal_server_heartbeatResponse(data:heartbeatDevice|heartbeatUser, response:ServerResponse):void {
+        response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
             vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
             if (serverVars[data.agentType][data.agentFrom] === undefined) {
                 vars.testLogger("heartbeat", "response unrecognized-agent", "When the agent is not recognized close out the HTTP response without sending a payload.");
@@ -206,7 +202,7 @@ const library = {
                 // heartbeat from remote
                 if (data.status === "deleted") {
                     vars.ws.broadcast(JSON.stringify({
-                        [`heartbeat-response-${data.agentType}`]: data
+                        "heartbeat-response": data
                     }));
                     delete serverVars[data.agentType][data.agentFrom];
                     library.storage(JSON.stringify({
@@ -218,55 +214,46 @@ const library = {
                         response.end();
                     }
                 } else {
-                    if (data.shareFrom === "") {
-                        vars.ws.broadcast(JSON.stringify({
-                            [`heartbeat-response-${data.agentType}`]: data
-                        }));
-                    } else {
-                        const sameAgent:boolean = (data.agentFrom === data.shareFrom),
-                            shareString:string = (sameAgent === true)
-                                ? JSON.stringify(serverVars[data.agentType][data.shareFrom].shares)
-                                : JSON.stringify(serverVars.device[data.shareFrom].shares),
-                            deviceStorage = function terminal_server_heartbeatResponse_deviceStorage(devices:devices):void {
-                                const keys:string[] = Object.keys(devices),
-                                    length:number = keys.length;
-                                let a:number = 0;
-                                do {
-                                    if (serverVars.device[keys[a]] === undefined) {
-                                        serverVars.device[keys[a]] = devices[keys[a]];
-                                    } else {
-                                        serverVars.device[keys[a]].shares = devices[keys[a]].shares;
-                                    }
-                                    a = a + 1;
-                                } while (a < length);
-                                data.shares = serverVars.device;
-                                vars.ws.broadcast(JSON.stringify({
-                                    ["heartbeat-response-device"]: data
-                                }));
-                                library.storage(JSON.stringify({
-                                    [data.agentType]: serverVars[data.agentType]
-                                }), "", "device");
-                            };
-                        vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
-                        if (shareString !== JSON.stringify(data.shares)) {
-                            if (sameAgent === true) {
-                                if (data.agentType === "user") {
-                                    serverVars.user[data.agentFrom].shares = data.shares;
-                                    vars.ws.broadcast(JSON.stringify({
-                                        ["heartbeat-response-user"]: data
-                                    }));
-                                    library.storage(JSON.stringify({
-                                        user: serverVars.user
-                                    }), "", "user");
-                                } else if (data.agentType === "device") {
-                                    deviceStorage(data.shares);
+                    const keys:string[] = Object.keys(data.shares),
+                        length:number = keys.length;
+                    let store:boolean = true;
+                    vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
+                    vars.ws.broadcast(JSON.stringify({
+                        "heartbeat-response": data
+                    }));
+                    if (data.agentType === "device") {
+                        let a:number = 0;
+                        if (JSON.stringify(data.shares) === JSON.stringify(serverVars.device)) {
+                            data.shares = {};
+                            store = false;
+                        } else {
+                            do {
+                                if (serverVars.device[keys[a]] === undefined) {
+                                    serverVars.device[keys[a]] = data.shares[keys[a]];
+                                } else {
+                                    serverVars.device[keys[a]].shares = data.shares[keys[a]].shares;
                                 }
-                            } else {
-                                // device type, because user type does not identify devices
-                                deviceStorage(<devices>data.shares);
-                            }
+                                a = a + 1;
+                            } while (a < length);
+                            data.shares = serverVars.device;
+                        }
+                    } else if (data.agentType === "user") {
+                        if (JSON.stringify(serverVars.user[data.agentFrom].shares) === JSON.stringify(data.shares[keys[0]].shares)) {
+                            data.shares = {};
+                            store = false;
+                        } else {
+                            serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
                         }
                     }
+                    vars.ws.broadcast(JSON.stringify({
+                        "heartbeat-response": data
+                    }));
+                    if (store === true) {
+                        library.storage(JSON.stringify({
+                            [data.agentType]: serverVars[data.agentType]
+                        }), "", data.agentType);
+                    }
+
                     vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
                     data.agentTo = data.agentFrom;
                     data.agentFrom = (data.agentType === "device")

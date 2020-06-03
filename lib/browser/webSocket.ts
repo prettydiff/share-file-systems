@@ -108,59 +108,39 @@ const title:Element = document.getElementsByClassName("title")[0],
                     util.fileListStatus(data.status);
                 }
             },
-            heartbeatDevice = function local_socketMessage_heartbeatDevice():void {
-                const heartbeat:heartbeatDevice = JSON.parse(event.data)["heartbeat-response-device"],
+            heartbeat = function local_socketMessage_heartbeat():void {
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
                     network.storage("settings");
                 } else {
+                    const keys:string[] = Object.keys(heartbeat.shares);
                     if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                         button.setAttribute("class", heartbeat.status);
                     }
-                    if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser.device)) {
-                        const keys:string[] = Object.keys(heartbeat.shares),
-                            length:number = keys.length;
-                        let a:number = 0;
-                        do {
-                            if (browser[heartbeat.agentType][keys[a]] === undefined) {
-                                browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
-                                share.addAgent({
-                                    hash: keys[a],
-                                    name: heartbeat.shares[keys[a]].name,
-                                    save: false,
-                                    type: "device"
-                                });
-                            } else if (heartbeat.shareFrom !== browser.data.hashDevice) {
-                                browser[heartbeat.agentType][keys[a]] = heartbeat.shares[keys[a]];
-                            }
-                            a = a + 1;
-                        } while (a < length);
-                        if (heartbeat.shareFrom !== browser.data.hashDevice) {
-                            share.update("");
+                    if (keys.length > 0) {
+                        if (heartbeat.agentType === "device") {
+                            const length:number = keys.length;
+                            let a:number = 0;
+                            do {
+                                if (browser.device[keys[a]] === undefined) {
+                                    browser.device[keys[a]] = heartbeat.shares[keys[a]];
+                                    share.addAgent({
+                                        hash: keys[a],
+                                        name: heartbeat.shares[keys[a]].name,
+                                        save: false,
+                                        type: "device"
+                                    });
+                                }
+                                a = a + 1;
+                            } while (a < length);
+                            browser.device[heartbeat.agentFrom] = heartbeat.shares[heartbeat.agentFrom];
+                        } else if (heartbeat.agentType === "user") {
+                            browser.user[heartbeat.agentFrom].shares = heartbeat.shares[keys[0]].shares;
                         }
-                        network.storage(heartbeat.agentType);
-                    }
-                }
-            },
-            heartbeatUser = function local_socketMessage_heartbeatUser():void {
-                const heartbeat:heartbeatUser = JSON.parse(event.data)["heartbeat-response-user"],
-                    button:Element = document.getElementById(heartbeat.agentFrom);
-
-                if (heartbeat.status === "deleted") {
-                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
-                    share.update("");
-                    network.storage(heartbeat.agentType);
-                    network.storage("settings");
-                } else {
-                    if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
-                        button.setAttribute("class", heartbeat.status);
-                    }
-                    if (heartbeat.shareFrom !== "" && JSON.stringify(heartbeat.shares) !== JSON.stringify(browser[heartbeat.agentType][heartbeat.shareFrom].shares)) {
-                        browser[heartbeat.agentType][heartbeat.shareFrom].shares = heartbeat.shares;
                         share.update("");
-                        network.storage(heartbeat.agentType);
                     }
                 }
             },
@@ -188,10 +168,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             fsUpdateLocal();
         } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
             fsUpdateRemote();
-        } else if (event.data.indexOf("{\"heartbeat-response-device\":") === 0) {
-            heartbeatDevice();
-        } else if (event.data.indexOf("{\"heartbeat-response-user\":") === 0) {
-            heartbeatUser();
+        } else if (event.data.indexOf("{\"heartbeat-response\":") === 0) {
+            heartbeat();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {

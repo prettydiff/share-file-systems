@@ -4,6 +4,7 @@ import browser from "./browser.js";
 import context from "./context.js";
 import systems from "./systems.js";
 import util from "./util.js";
+import serverVars from "../terminal/server/serverVars.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
@@ -134,7 +135,7 @@ network.hashShare = function local_network_hashShare(configuration:hashShareConf
 };
 
 /* Provides active user status from across the network at regular intervals */
-network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:string, shares:deviceShares):void {
+network.heartbeat = function local_network_heartbeat(status:heartbeatStatus):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
@@ -150,8 +151,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, sha
         },
         heartbeat:heartbeatBroadcast = {
             agentFrom: "localhost-browser",
-            shareFrom: share,
-            shares: shares,
+            shares: serverVars.device,
             status: status
         };
     

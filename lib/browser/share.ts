@@ -269,7 +269,7 @@ share.context = function local_share_context():void {
                 };
                 share.update("");
                 network.storage("device");
-                network.heartbeat("active", shareResponse.device, browser.device[shareResponse.device].shares);
+                network.heartbeat("active");
             },
             device: "",
             share: "",
@@ -409,7 +409,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     }
     share.update(box.getAttribute("id"));
     network.storage("device");
-    network.heartbeat("active", agent[0], browser.device[agent[0]].shares);
+    network.heartbeat("active");
 };
 
 /* Creates a confirmation modal listing users for deletion */
@@ -569,7 +569,7 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
     } else {
         item.readOnly = true;
     }
-    network.heartbeat("active", agency[0], browser.device[agency[0]].shares);
+    network.heartbeat("active");
     network.storage(agency[2]);
     share.update("");
 };

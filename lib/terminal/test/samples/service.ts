@@ -1155,7 +1155,7 @@ service.populate = function test_services_populate():void {
             "heartbeat-broadcast": {
                 agentFrom: "localhost-browser",
                 shareFrom: serverVars.hashDevice,
-                shares: serverVars.device[serverVars.hashDevice].shares,
+                shares: serverVars.device,
                 status: "active"
             }
         },
@@ -1168,7 +1168,7 @@ service.populate = function test_services_populate():void {
             "heartbeat-broadcast": {
                 agentFrom: "localhost-terminal",
                 shareFrom: serverVars.hashDevice,
-                shares: serverVars.device[serverVars.hashDevice].shares,
+                shares: serverVars.device,
                 status: "active"
             }
         },

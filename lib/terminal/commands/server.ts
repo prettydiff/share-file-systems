@@ -165,7 +165,7 @@ const library = {
                     } else if (task === "heartbeat-broadcast") {
                         // * prepare heartbeat data for connected agents
                         library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
-                    } else if (task === "heartbeat-response-device" || task === "heartbeat-response-user") {
+                    } else if (task === "heartbeat-response") {
                         vars.ws.broadcast(body);
                     } else if (task === "delete-agents") {
                         library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
@@ -376,8 +376,7 @@ const library = {
                                 } else {
                                     const hbConfig:heartbeatBroadcast = {
                                         agentFrom: "localhost-terminal",
-                                        shareFrom: "",
-                                        shares: {},
+                                        shares: serverVars.device,
                                         status: "idle"
                                     };
                                     logOutput(storageData);
