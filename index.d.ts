@@ -739,7 +739,6 @@ declare global {
         name: string;
         qualifier: qualifier;
         shares?: testServiceShares;
-        task?: () => void;
         test: object | string;
     }
     interface testServiceShares {

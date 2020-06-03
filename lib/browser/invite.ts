@@ -7,8 +7,6 @@ import settings from "./settings.js";
 import share from "./share.js";
 import util from "./util.js";
 
-import deviceShare from "../common/deviceShare.js";
-
 const invite:module_invite = {};
 
 /* Accept an invitation, handler on a modal's confirm button*/

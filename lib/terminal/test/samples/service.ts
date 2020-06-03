@@ -1471,9 +1471,6 @@ service.addServers = function test_services_addServers(callback:Function):void {
     removal();
 };
 service.execute = function test_services_execute(config:testExecute):void {
-    if (service[config.index].task !== undefined) {
-        service[config.index].task();
-    }
     const index:number = (config.list.length < 1)
             ? config.index
             : config.list[config.index],

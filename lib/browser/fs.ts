@@ -6,7 +6,6 @@ import browser from "./browser.js";
 import context from "./context.js";
 import modal from "./modal.js";
 import network from "./network.js";
-import share from "./share.js";
 import util from "./util.js";
 import commas from "../common/commas.js";
 

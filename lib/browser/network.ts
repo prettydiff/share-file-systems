@@ -4,7 +4,6 @@ import browser from "./browser.js";
 import context from "./context.js";
 import systems from "./systems.js";
 import util from "./util.js";
-import serverVars from "../terminal/server/serverVars.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
@@ -151,7 +150,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus):voi
         },
         heartbeat:heartbeatBroadcast = {
             agentFrom: "localhost-browser",
-            shares: serverVars.device,
+            shares: browser.device,
             status: status
         };
     
