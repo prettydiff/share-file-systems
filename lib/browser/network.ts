@@ -134,7 +134,7 @@ network.hashShare = function local_network_hashShare(configuration:hashShareConf
 };
 
 /* Provides active user status from across the network at regular intervals */
-network.heartbeat = function local_network_heartbeat(status:heartbeatStatus):void {
+network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, update:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
@@ -148,9 +148,11 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus):voi
                 }
             }
         },
-        heartbeat:heartbeatBroadcast = {
+        heartbeat:heartbeatUpdate = {
             agentFrom: "localhost-browser",
-            shares: browser.device,
+            shares: (update === true)
+                ? browser.device[browser.data.hashDevice].shares
+                : {},
             status: status
         };
     
@@ -158,9 +160,9 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus):voi
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", "heartbeat-broadcast");
+    xhr.setRequestHeader("request-type", "heartbeat-update");
     xhr.send(JSON.stringify({
-        "heartbeat-broadcast": heartbeat
+        "heartbeat-update": heartbeat
     }));
 };
 

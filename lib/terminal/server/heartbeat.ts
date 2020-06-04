@@ -21,6 +21,90 @@ const library = {
         log: log,
         storage: storage
     },
+    broadcast = function terminal_server_heartbeatBroadcast(config:heartbeatBroadcast) {
+        const payload:heartbeat = {
+                agentFrom: "",
+                agentTo: "",
+                agentType: "device",
+                shares: {},
+                status: config.status
+            },
+            responder = function terminal_server_heartbeatUpdate_responder():void {
+                return;
+            },
+            httpConfig:httpConfiguration = {
+                agentType: "user",
+                callback: function terminal_server_heartbeatUpdate_callback(responseBody:Buffer|string):void {
+                    parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
+                },
+                callbackType: "body",
+                errorMessage: "",
+                id: "heartbeat",
+                ip: "",
+                payload: "",
+                port: 80,
+                remoteName: "",
+                requestError: function terminal_server_heartbeatUpdate_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
+                        library.log([errorMessage.toString()]);
+                    }
+                },
+                requestType: (config.status === "deleted")
+                    ? "heartbeat-delete-agents"
+                    : "heartbeat",
+                responseError: function terminal_server_heartbeatUpdate_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
+                    if (errorMessage.code !== "ETIMEDOUT") {
+                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
+                        library.log([errorMessage.toString()]);
+                    }
+                }
+            };
+        library.agents({
+            complete: responder,
+            countBy: "agent",
+            perAgent: function terminal_server_heartbeatUpdate_perAgent(agentNames:agentNames):void {
+                httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
+                httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
+                httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
+                httpConfig.remoteName = agentNames.agent;
+                if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
+                    payload.agentTo = agentNames.agent
+                    httpConfig.payload = JSON.stringify({
+                        "heartbeat": payload
+                    });
+                    library.httpClient(httpConfig);
+                }
+            },
+            perAgentType: function terminal_server_heartbeatUpdate_perAgentType(agentNames:agentNames) {
+                httpConfig.agentType = agentNames.agentType;
+                payload.agentType = agentNames.agentType;
+                if (agentNames.agentType === "device") {
+                    payload.agentFrom = serverVars.hashDevice;
+                    payload.shares = (config.sendShares === true)
+                        ? serverVars.device
+                        : {};
+                } else if (agentNames.agentType === "user") {
+                    payload.agentFrom = serverVars.hashUser;
+                    payload.shares = (config.sendShares === true)
+                        ? {
+                            [serverVars.hashUser]: {
+                                ip: serverVars.ipAddress,
+                                name: serverVars.nameUser,
+                                port: serverVars.webPort,
+                                shares: deviceShare(serverVars.device)
+                            }
+                        }
+                        : {};
+                }
+            },
+            source: serverVars
+        });
+        // respond irrespective of broadcast status or completion to prevent hanging sockets
+        config.response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+        config.response.write(config.httpBody);
+        config.response.end();
+    },
     parse = function terminal_server_heartbeatParse(data:heartbeat):void {
         const keys:string[] = Object.keys(data.shares),
             length:number = keys.length;
@@ -55,156 +139,19 @@ const library = {
         }));
     },
     // This logic will push out heartbeat data
-    heartbeat = {
-        broadcast: function terminal_server_heartbeat(data:heartbeatBroadcast, response:ServerResponse):void {
-            // heartbeat from local, forward to each remote terminal
-            const payload:heartbeat = {
-                    agentFrom: "",
-                    agentTo: "",
-                    agentType: "device",
-                    shares: {},
-                    status: data.status
-                },
-                responder = function terminal_server_heartbeat_responder():void {
-                    return;
-                },
-                httpConfig:httpConfiguration = {
-                    agentType: "user",
-                    callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
-                        parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
-                    },
-                    callbackType: "body",
-                    errorMessage: "",
-                    id: "heartbeat",
-                    ip: "",
-                    payload: "",
-                    port: 80,
-                    remoteName: "",
-                    requestError: function terminal_server_heartbeat_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                            library.log([errorMessage.toString()]);
-                        }
-                    },
-                    requestType: "heartbeat",
-                    responseError: function terminal_server_heartbeat_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        if (errorMessage.code !== "ETIMEDOUT") {
-                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                            library.log([errorMessage.toString()]);
-                        }
-                    }
-                };
-            vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
-            if (data.agentFrom === "localhost-browser") {
-                serverVars.status = data.status;
-                serverVars.device = data.shares;
-            }
-            library.agents({
-                complete: responder,
-                countBy: "agent",
-                perAgent: function terminal_server_heartbeat_perAgent(agentNames:agentNames):void {
-                    httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
-                    httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
-                    httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
-                    httpConfig.remoteName = agentNames.agent;
-                    if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
-                        payload.agentTo = agentNames.agent
-                        httpConfig.payload = JSON.stringify({
-                            "heartbeat": payload
-                        });
-                        library.httpClient(httpConfig);
-                    }
-                },
-                perAgentType: function terminal_server_heartbeat_perAgentType(agentNames:agentNames) {
-                    httpConfig.agentType = agentNames.agentType;
-                    if (agentNames.agentType === "device") {
-                        payload.agentFrom = serverVars.hashDevice;
-                        payload.agentType = "device";
-                        payload.shares = serverVars.device;
-                    } else if (agentNames.agentType === "user") {
-                        payload.agentFrom = serverVars.hashUser;
-                        payload.agentType = "user";
-                        payload.shares = {
-                            [serverVars.hashUser]: {
-                                ip: serverVars.ipAddress,
-                                name: serverVars.nameUser,
-                                port: serverVars.webPort,
-                                shares: deviceShare(serverVars.device)
-                            }
-                        }
-                    }
-                },
-                source: serverVars
-            });
-            // respond irrespective of broadcast status or completion to prevent hanging sockets
-            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-            response.write("Heartbeat broadcast sent.");
-            response.end();
-        },
+    heartbeat:heartbeatObject = {
         delete: function terminal_server_heartbeatDelete(deleted:[string, string][], response:ServerResponse):void {
+            const length:number = deleted.length;
             let a:number = 0,
-                agent:device,
-                agentType:agentType,
                 device:boolean = false,
                 user: boolean = false;
-            const length:number = deleted.length,
-                payload:heartbeat = {
-                    agentFrom: "",
-                    agentTo: "",
-                    agentType: "device",
-                    shares: {},
-                    status: "deleted"
-                },
-                httpConfig:httpConfiguration = {
-                    agentType: "device",
-                    callback: function terminal_server_heartbeatDelete_callback():boolean {
-                        return false;
-                    },
-                    callbackType: "body",
-                    errorMessage: "",
-                    id: "heartbeat",
-                    ip: "",
-                    payload: "",
-                    port: 80,
-                    remoteName: "",
-                    requestError: function terminal_server_heartbeatDelete_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                            library.log([errorMessage.toString()]);
-                        }
-                    },
-                    requestType: "heartbeat-delete-agents",
-                    responseError: function terminal_server_heartbeatDelete_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
-                        if (errorMessage.code !== "ETIMEDOUT") {
-                            vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                            library.log([errorMessage.toString()]);
-                        }
-                    }
-                };
             do {
-                agentType = <agentType>deleted[a][1];
-                agent = serverVars[agentType][deleted[a][0]];
-                if (agent !== undefined) {
-                    if (agentType === "device") {
-                        payload.agentFrom = serverVars.hashDevice;
-                        payload.agentType = "device";
-                        device = true;
-                    } else if (agentType === "user") {
-                        payload.agentFrom = serverVars.hashUser;
-                        payload.agentType = "user";
-                        user = true;
-                    }
-                    payload.agentTo = deleted[a][0];
-                    httpConfig.agentType = agentType;
-                    httpConfig.ip = agent.ip;
-                    httpConfig.payload = JSON.stringify({
-                        "heartbeat": payload
-                    });
-                    httpConfig.port = agent.port;
-                    httpConfig.remoteName = payload.agentFrom;
-                    library.httpClient(httpConfig);
-                    delete serverVars[agentType][deleted[a][0]];
+                if (deleted[a][1] === "device") {
+                    device = true;
+                } else if (deleted[a][1] === "user") {
+                    user = true;
                 }
+                delete serverVars[deleted[a][1]][deleted[a][0]];
                 a = a + 1;
             } while (a < length);
             if (device === true) {
@@ -217,9 +164,12 @@ const library = {
                     user: serverVars.user
                 }), "", "user");
             }
-            response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-            response.write("Instructions sent to delete this account from remote agents.");
-            response.end();
+            broadcast({
+                httpBody: "Instructions sent to delete this account from remote agents.",
+                response: response,
+                sendShares: false,
+                status: "deleted"
+            });
         },
         parse: parse,
         response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
@@ -249,7 +199,6 @@ const library = {
                     }
                 } else {
                     parse(data);
-
                     vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
                     data.agentTo = data.agentFrom;
                     data.agentFrom = (data.agentType === "device")
@@ -264,6 +213,26 @@ const library = {
                         response.end();
                     }
                 }
+            }
+        },
+        update: function terminal_server_heartbeatUpdate(data:heartbeatUpdate, response:ServerResponse):void {
+            // heartbeat from local, forward to each remote terminal
+            vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
+            const share:boolean = (JSON.stringify(data.shares) !== "{}");
+            if (data.agentFrom === "localhost-browser") {
+                serverVars.status = data.status;
+            }
+            if (share === true) {
+                serverVars.device[serverVars.hashDevice].shares = data.shares;
+                storage(JSON.stringify({
+                    device: serverVars.device
+                }), "", "device");
+                broadcast({
+                    httpBody: "Heartbeat broadcast sent.",
+                    response: response,
+                    sendShares: share,
+                    status: data.status
+                });
             }
         }
     };

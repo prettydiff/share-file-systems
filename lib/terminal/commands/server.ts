@@ -162,9 +162,9 @@ const library = {
                     if (task === "heartbeat") {
                         // * process received heartbeat data from other agents
                         library.heartbeat.response(JSON.parse(body).heartbeat, response)
-                    } else if (task === "heartbeat-broadcast") {
+                    } else if (task === "heartbeat-update") {
                         // * prepare heartbeat data for connected agents
-                        library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
+                        library.heartbeat.update(JSON.parse(body)["heartbeat-update"], response);
                     } else if (task === "heartbeat-response") {
                         heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
                     } else if (task === "delete-agents") {
@@ -374,13 +374,13 @@ const library = {
                                 if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                     logOutput(storageData);
                                 } else {
-                                    const hbConfig:heartbeatBroadcast = {
+                                    const hbConfig:heartbeatUpdate = {
                                         agentFrom: "localhost-terminal",
-                                        shares: serverVars.device,
+                                        shares: {},
                                         status: "idle"
                                     };
                                     logOutput(storageData);
-                                    library.heartbeat.broadcast(hbConfig, null);
+                                    library.heartbeat.update(hbConfig, null);
                                 }
                             };
 

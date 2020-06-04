@@ -268,8 +268,7 @@ share.context = function local_share_context():void {
                     type: <shareType>shareResponse.type
                 };
                 share.update("");
-                network.storage("device");
-                network.heartbeat("active");
+                network.heartbeat("active", true);
             },
             device: "",
             share: "",
@@ -414,8 +413,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
         parent.parentNode.removeChild(parent);
     }
     share.update(box.getAttribute("id"));
-    network.storage("device");
-    network.heartbeat("active");
+    network.heartbeat("active", true);
 };
 
 /* Creates a confirmation modal listing users for deletion */
@@ -575,8 +573,7 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
     } else {
         item.readOnly = true;
     }
-    network.heartbeat("active");
-    network.storage(agency[2]);
+    network.heartbeat("active", true);
     share.update("");
 };
 

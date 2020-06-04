@@ -1150,11 +1150,11 @@ service.populate = function test_services_populate():void {
         qualifier: "is",
         test: "Ignored invitation returned to XXXX from this local terminal XXXX and to the local browser(s)."
     });
-    service.push(<testTemplateHeartbeatBroadcast>{
+    service.push(<testTemplateHeartbeatUpdate>{
         command: {
-            "heartbeat-broadcast": {
+            "heartbeat-update": {
                 agentFrom: "localhost-browser",
-                shares: serverVars.device,
+                shares: {},
                 status: "active"
             }
         },
@@ -1162,11 +1162,11 @@ service.populate = function test_services_populate():void {
         qualifier: "is",
         test: "Heartbeat broadcast sent."
     });
-    service.push(<testTemplateHeartbeatBroadcast>{
+    service.push(<testTemplateHeartbeatUpdate>{
         command: {
-            "heartbeat-broadcast": {
+            "heartbeat-update": {
                 agentFrom: "localhost-terminal",
-                shares: serverVars.device,
+                shares: {},
                 status: "active"
             }
         },
