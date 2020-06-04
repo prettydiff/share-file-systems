@@ -227,13 +227,13 @@ const library = {
                 storage(JSON.stringify({
                     device: serverVars.device
                 }), "", "device");
-                broadcast({
-                    httpBody: "Heartbeat broadcast sent.",
-                    response: response,
-                    sendShares: share,
-                    status: data.status
-                });
             }
+            broadcast({
+                httpBody: "Heartbeat broadcast sent.",
+                response: response,
+                sendShares: share,
+                status: data.status
+            });
         }
     };
 
