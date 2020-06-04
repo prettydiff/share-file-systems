@@ -26,7 +26,7 @@ const library = {
             length:number = keys.length;
         let store:boolean = false;
         vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
-        if (data.agentType === "device") {
+        if (data.agentType === "device" && length > 0) {
             let a:number = 0;
             do {
                 if (serverVars.device[keys[a]] === undefined) {
