@@ -385,9 +385,15 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         parent:Element = <Element>element.parentNode,
         box:Element = parent.getAncestor("box", "class"),
-        agent:agency = util.getAgent(box),
+        agent:string = (function local_share_deleteItem_agency():string {
+            const boxAgent:agency = util.getAgent(box);
+            if (boxAgent[0] === null || boxAgent[0] === "") {
+                return element.getAncestor("agent", "class").getAttribute("data-hash");
+            }
+            return boxAgent[0];
+        }()),
         address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-        shares:deviceShares = browser.device[agent[0]].shares,
+        shares:deviceShares = browser.device[agent].shares,
         keys:string[] = Object.keys(shares),
         length:number = keys.length;
     let a:number = 0;
@@ -401,7 +407,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
     if (length === 1) {
         const p:Element = document.createElement("p"),
             granny:Element = <Element>parent.parentNode;
-        p.innerHTML = `Device <em>${browser.device[agent[0]].name}</em> has no shares.`;
+        p.innerHTML = `Device <em>${browser.device[agent].name}</em> has no shares.`;
         granny.parentNode.appendChild(p);
         granny.parentNode.removeChild(granny);
     } else {

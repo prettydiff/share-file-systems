@@ -166,7 +166,7 @@ const library = {
                         // * prepare heartbeat data for connected agents
                         library.heartbeat.broadcast(JSON.parse(body)["heartbeat-broadcast"], response);
                     } else if (task === "heartbeat-response") {
-                        vars.ws.broadcast(body);
+                        heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
                     } else if (task === "delete-agents") {
                         library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {

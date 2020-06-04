@@ -21,6 +21,39 @@ const library = {
         log: log,
         storage: storage
     },
+    parse = function terminal_server_heartbeatParse(data:heartbeat):void {
+        const keys:string[] = Object.keys(data.shares),
+            length:number = keys.length;
+        let store:boolean = false;
+        vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
+        if (data.agentType === "device") {
+            let a:number = 0;
+            do {
+                if (serverVars.device[keys[a]] === undefined) {
+                    serverVars.device[keys[a]] = data.shares[keys[a]];
+                    store = true;
+                } else if (JSON.stringify(serverVars.device[keys[a]].shares) !== JSON.stringify(data.shares[keys[a]].shares)) {
+                    serverVars.device[keys[a]].shares = data.shares[keys[a]].shares;
+                    store = true;
+                }
+                a = a + 1;
+            } while (a < length);
+            data.shares = serverVars.device;
+        } else if (data.agentType === "user" && JSON.stringify(serverVars.user[data.agentFrom].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
+            serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
+            store = true;
+        }
+        if (store === true) {
+            library.storage(JSON.stringify({
+                [data.agentType]: serverVars[data.agentType]
+            }), "", data.agentType);
+        } else {
+            data.shares = {};
+        }
+        vars.ws.broadcast(JSON.stringify({
+            "heartbeat-response": data
+        }));
+    },
     // This logic will push out heartbeat data
     heartbeat = {
         broadcast: function terminal_server_heartbeat(data:heartbeatBroadcast, response:ServerResponse):void {
@@ -38,7 +71,7 @@ const library = {
                 httpConfig:httpConfiguration = {
                     agentType: "user",
                     callback: function terminal_server_heartbeat_callback(responseBody:Buffer|string):void {
-                        vars.ws.broadcast(<string>responseBody);
+                        parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
                     },
                     callbackType: "body",
                     errorMessage: "",
@@ -188,6 +221,7 @@ const library = {
             response.write("Instructions sent to delete this account from remote agents.");
             response.end();
         },
+        parse: parse,
         response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
             vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
             if (serverVars[data.agentType][data.agentFrom] === undefined) {
@@ -214,45 +248,7 @@ const library = {
                         response.end();
                     }
                 } else {
-                    const keys:string[] = Object.keys(data.shares),
-                        length:number = keys.length;
-                    let store:boolean = true;
-                    vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
-                    vars.ws.broadcast(JSON.stringify({
-                        "heartbeat-response": data
-                    }));
-                    if (data.agentType === "device") {
-                        let a:number = 0;
-                        if (JSON.stringify(data.shares) === JSON.stringify(serverVars.device)) {
-                            data.shares = {};
-                            store = false;
-                        } else {
-                            do {
-                                if (serverVars.device[keys[a]] === undefined) {
-                                    serverVars.device[keys[a]] = data.shares[keys[a]];
-                                } else {
-                                    serverVars.device[keys[a]].shares = data.shares[keys[a]].shares;
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                            data.shares = serverVars.device;
-                        }
-                    } else if (data.agentType === "user") {
-                        if (JSON.stringify(serverVars.user[data.agentFrom].shares) === JSON.stringify(data.shares[keys[0]].shares)) {
-                            data.shares = {};
-                            store = false;
-                        } else {
-                            serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
-                        }
-                    }
-                    vars.ws.broadcast(JSON.stringify({
-                        "heartbeat-response": data
-                    }));
-                    if (store === true) {
-                        library.storage(JSON.stringify({
-                            [data.agentType]: serverVars[data.agentType]
-                        }), "", data.agentType);
-                    }
+                    parse(data);
 
                     vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
                     data.agentTo = data.agentFrom;
