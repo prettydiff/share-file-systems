@@ -21,6 +21,7 @@ const library = {
         log: log,
         storage: storage
     },
+    forbidden:string = "Unexpected user.",
     broadcast = function terminal_server_heartbeatBroadcast(config:heartbeatBroadcast) {
         const payload:heartbeat = {
                 agentFrom: "",
@@ -35,7 +36,7 @@ const library = {
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeatUpdate_callback(responseBody:Buffer|string):void {
-                    if (config.status !== "deleted") {
+                    if (config.status !== "deleted" && responseBody !== forbidden) {
                         parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
                     }
                 },
@@ -181,7 +182,7 @@ const library = {
                 // trapping unexpected user
                 if (response !== null) {
                     response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write("Unexpected user.");
+                    response.write(forbidden);
                     response.end();
                 }
             } else {
