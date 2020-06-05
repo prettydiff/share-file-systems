@@ -26,7 +26,7 @@ declare global {
     type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = storageType | "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat" | "heartbeat-update" | "heartbeat-response" | "invite";
+    type serverTask = storageType | "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat" | "heartbeat-delete-agents" | "heartbeat-update" | "heartbeat-response" | "invite";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
@@ -52,6 +52,10 @@ declare global {
         perAgentType?: (agentNames:agentNames, counts:agentCounts) => void;
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
         source: browser | serverVars | storageItems;
+    }
+    interface agentDeletion {
+        device: string[];
+        user: string[];
     }
     interface agentNames {
         agent?: string;
@@ -274,16 +278,17 @@ declare global {
         agentFrom: string;
         agentType: agentType;
         shares: devices;
-        status: heartbeatStatus;
+        status: heartbeatStatus | agentDeletion;
     }
     interface heartbeatBroadcast {
-        httpBody: string;
+        deleted: agentDeletion;
         response: ServerResponse;
         sendShares: boolean;
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        delete: (deleted:[string, string][], response:ServerResponse) => void;
+        delete: (deleted:agentDeletion, response:ServerResponse) => void;
+        deleteResponse: (data:heartbeat, response:ServerResponse) => void;
         parse: (data:heartbeat) => void;
         response: (data:heartbeat, response:ServerResponse) => void;
         update: (data:heartbeatUpdate, response:ServerResponse) => void;
@@ -438,7 +443,7 @@ declare global {
     }
     interface module_network {
         fs?: (localService, callback:Function, id?:string) => void;
-        deleteAgents?: (deleted:[string, string][]) => void;
+        deleteAgents?: (deleted:agentDeletion) => void;
         hashDevice?: (callback:Function) => void;
         hashShare?: (configuration:hashShareConfiguration) => void;
         heartbeat?: (status:heartbeatStatus, update:boolean) => void;

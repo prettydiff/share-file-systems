@@ -108,6 +108,30 @@ const title:Element = document.getElementsByClassName("title")[0],
                     util.fileListStatus(data.status);
                 }
             },
+            heartbeatDelete = function local_socketMessage_heartbeatDelete():void {
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-delete-agents"];
+                if (heartbeat.agentType === "device") {
+                    const deletion:agentDeletion = <agentDeletion>heartbeat.status,
+                        removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
+                        devices:string[] = Object.keys(browser.device),
+                        users:string[] = Object.keys(browser.user);
+                    devices.forEach(function local_socketMessage_heartbeatDelete_deviceEach(value:string) {
+                        if (value !== browser.data.hashDevice && (removeSelf === true || deletion.device.indexOf(value) > -1)) {
+                            share.deleteAgent(value, "device");
+                        }
+                    });
+                    users.forEach(function local_socketMessage_heartbeatDelete_userEach(value:string) {
+                        if (removeSelf === true || deletion.user.indexOf(value) > -1) {
+                            share.deleteAgent(value, "user");
+                        }
+                    });
+                    share.update("");
+                } else if (heartbeat.agentType === "user") {
+                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
+                    share.update("");
+                }
+                network.storage("settings");
+            },
             heartbeat = function local_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
@@ -118,7 +142,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 } else {
                     const keys:string[] = Object.keys(heartbeat.shares);
                     if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
-                        button.setAttribute("class", heartbeat.status);
+                        button.setAttribute("class", <heartbeatStatus>heartbeat.status);
                     }
                     if (keys.length > 0) {
                         if (heartbeat.agentType === "device") {
@@ -170,6 +194,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             fsUpdateRemote();
         } else if (event.data.indexOf("{\"heartbeat-response\":") === 0) {
             heartbeat();
+        } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
+            heartbeatDelete();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {

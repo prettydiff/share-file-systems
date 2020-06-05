@@ -163,12 +163,17 @@ const library = {
                         // * process received heartbeat data from other agents
                         library.heartbeat.response(JSON.parse(body).heartbeat, response)
                     } else if (task === "heartbeat-update") {
-                        // * prepare heartbeat data for connected agents
+                        // * prepare heartbeat pulse for connected agents
                         library.heartbeat.update(JSON.parse(body)["heartbeat-update"], response);
                     } else if (task === "heartbeat-response") {
-                        heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
+                        // * response to a heartbeat pulse
+                        library.heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
                     } else if (task === "delete-agents") {
+                        // * received a request from the browser to delete agents
                         library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
+                    } else if (task === "heartbeat-delete-agents") {
+                        // * received instructions from remote to delete agents
+                        library.heartbeat.delete(JSON.parse(body)["heartbeat-delete-agents"], response);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);

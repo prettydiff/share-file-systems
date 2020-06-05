@@ -111,7 +111,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                     ip: serverVars.ipAddress,
                     name: serverVars.nameUser,
                     port: serverVars.webPort,
-                    shares: deviceShare(serverVars.device)
+                    shares: deviceShare(serverVars.device, null)
                 }
             };
         inviteHttp(data.ip, data.port);
@@ -129,7 +129,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         ip: serverVars.ipAddress,
                         name: serverVars.nameUser,
                         port: serverVars.webPort,
-                        shares: deviceShare(serverVars.device)
+                        shares: deviceShare(serverVars.device, null)
                     }
                 };
             data.status = "accepted";
@@ -156,7 +156,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
                         ip: serverVars.ipAddress,
                         name: serverVars.nameUser,
                         port: serverVars.webPort,
-                        shares: deviceShare(serverVars.device)
+                        shares: deviceShare(serverVars.device, null)
                     }
                 };
             }

@@ -339,7 +339,10 @@ share.deleteAgent = function local_share_deleteAgent(agent:string, agentType:age
 share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void {
     const body:Element = box.getElementsByClassName("body")[0],
         list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-        deleted:[string, agentType][] = [];
+        deleted:agentDeletion = {
+            device: [],
+            user: []
+        };
     let a:number = list.length,
         count:number = 0,
         input:HTMLInputElement,
@@ -368,7 +371,7 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
             parent.parentNode.removeChild(parent);
             share.deleteAgent(hash, type);
             count = count + 1;
-            deleted.push([hash, type]);
+            deleted[type].push(hash);
         }
     } while (a > 0);
     if (count < 1) {

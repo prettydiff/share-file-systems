@@ -1,6 +1,6 @@
 /* lib/common/deviceShare - Converts the local device list into a flattened object of shares for remote users. */
 
-const deviceShare = function terminal_common_deviceShare(devices:devices):deviceShares {
+const deviceShare = function terminal_common_deviceShare(devices:devices, deleted:agentDeletion):deviceShares {
     const deviceList:string[] = Object.keys(devices),
         shareList:deviceShares = {};
     let deviceLength = deviceList.length;
@@ -9,13 +9,15 @@ const deviceShare = function terminal_common_deviceShare(devices:devices):device
             shareLength:number;
         do {
             deviceLength = deviceLength - 1;
-            shares = Object.keys(devices[deviceList[deviceLength]].shares);
-            shareLength = shares.length;
-            if (shareLength > 0) {
-                do {
-                    shareLength = shareLength - 1;
-                    shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
-                } while (shareLength > 0);
+            if (deleted === null || deleted.device.indexOf(deviceList[deviceLength]) < 0) {
+                shares = Object.keys(devices[deviceList[deviceLength]].shares);
+                shareLength = shares.length;
+                if (shareLength > 0) {
+                    do {
+                        shareLength = shareLength - 1;
+                        shareList[shares[shareLength]] = devices[deviceList[deviceLength]].shares[shares[shareLength]];
+                    } while (shareLength > 0);
+                }
             }
         } while (deviceLength > 0);
     }
