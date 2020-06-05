@@ -290,7 +290,7 @@ declare global {
     }
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
-        shares: deviceShares;
+        shares: devices;
         status: heartbeatStatus;
     }
     interface httpConfiguration {

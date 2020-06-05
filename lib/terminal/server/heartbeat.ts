@@ -223,7 +223,7 @@ const library = {
                 serverVars.status = data.status;
             }
             if (share === true) {
-                serverVars.device[serverVars.hashDevice].shares = data.shares;
+                serverVars.device = data.shares;
                 storage(JSON.stringify({
                     device: serverVars.device
                 }), "", "device");
