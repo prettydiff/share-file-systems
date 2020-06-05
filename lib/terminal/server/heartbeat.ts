@@ -35,7 +35,9 @@ const library = {
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeatUpdate_callback(responseBody:Buffer|string):void {
-                    parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
+                    if (config.status !== "deleted") {
+                        parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
+                    }
                 },
                 callbackType: "body",
                 errorMessage: "",
@@ -204,6 +206,7 @@ const library = {
                     data.agentFrom = (data.agentType === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
+                    data.shares = {};
                     data.status = serverVars.status;
                     if (response !== null) {
                         response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
