@@ -10,7 +10,7 @@ const network:module_network = {},
 let messageTransmit:boolean = true;
 
 /* Send instructions to remove this local device/user from deleted remote agents */
-network.deleteAgents = function local_network_deleteAgents(deleted:agentDeletion) {
+network.deleteAgents = function local_network_deleteAgents(deleted:agentDeletion):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
@@ -24,8 +24,6 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentDeletion
                 }
             }
         };
-    messageTransmit = false;
-    context.menuRemove();
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;

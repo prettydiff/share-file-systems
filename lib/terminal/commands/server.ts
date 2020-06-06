@@ -168,6 +168,13 @@ const library = {
                     } else if (task === "heartbeat-response") {
                         // * response to a heartbeat pulse
                         library.heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
+                    } else if (task === "fs") {
+                        // * file system interaction for both local and remote
+                        readOnly(request, response, body);
+                    } else if (task === "fs-update-remote") {
+                        // * remote: Changes to the remote user's file system
+                        // * local : Update local "File Navigator" modals for the respective remote user
+                        updateRemote();
                     } else if (task === "delete-agents") {
                         // * received a request from the browser to delete agents
                         library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
@@ -177,13 +184,6 @@ const library = {
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);
-                    } else if (task === "fs") {
-                        // * file system interaction for both local and remote
-                        readOnly(request, response, body);
-                    } else if (task === "fs-update-remote") {
-                        // * remote: Changes to the remote user's file system
-                        // * local : Update local "File Navigator" modals for the respective remote user
-                        updateRemote();
                     } else if (task === "hashShare") {
                         // * generate a hash string to name a share
                         hashShare();

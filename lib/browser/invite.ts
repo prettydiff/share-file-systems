@@ -11,9 +11,8 @@ const invite:module_invite = {};
 
 /* Accept an invitation, handler on a modal's confirm button*/
 invite.accept = function local_invite_accept(box:Element):void {
-    const para:HTMLCollectionOf<HTMLElement> = box.getElementsByClassName("body")[0].getElementsByTagName("p"),
-        dataString:string = para[para.length - 1].innerHTML,
-        invitation:invite = JSON.parse(dataString).invite,
+    const div:Element = box.getElementsByClassName("agentInvitation")[0],
+        invitation:invite = JSON.parse(div.getAttribute("data-invitation")),
         payload:invite = invite.payload({
             action: "invite-response",
             ip: invitation.ip,
@@ -40,7 +39,7 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
                 browser.device[shareKeys[a]] = invitation.shares[shareKeys[a]];
                 share.addAgent({
                     hash: shareKeys[a],
-                    name: invitation.userName,
+                    name: invitation.name,
                     save: false,
                     type: "device"
                 });
@@ -64,7 +63,6 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
         });
         browser.data.colors.user[shareKeys[0]] = settings.colorScheme[browser.data.color];
     }
-    network.storage(invitation.type);
 };
 
 /* Handles final status of an invitation response */
@@ -124,8 +122,12 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
 invite.payload = function local_invite_payload(config:invitePayload):invite {
     return {
         action: config.action,
-        deviceHash: browser.data.hashDevice,
-        deviceName: browser.data.nameDevice,
+        deviceHash: (config.type === "user")
+            ? ""
+            : browser.data.hashDevice,
+        deviceName: (config.type === "user")
+            ? ""
+            : browser.data.nameDevice,
         ip: config.ip,
         message: config.message,
         name: (config.type === "user")
@@ -136,8 +138,8 @@ invite.payload = function local_invite_payload(config:invitePayload):invite {
         shares: {},
         status: config.status,
         type: config.type,
-        userHash: "",
-        userName: ""
+        userHash: browser.data.hashUser,
+        userName: browser.data.nameUser
     };
 };
 
@@ -298,7 +300,7 @@ invite.respond = function local_invite_respond(invitation:invite):void {
         }
         a = a + 1;
     } while (a < length);
-    div.setAttribute("class", "userInvitation");
+    div.setAttribute("class", "agentInvitation");
     text.innerHTML = `User <strong>${invitation.name}</strong> from ${ip} is inviting you to share spaces.`;
     div.appendChild(text);
     text = document.createElement("p");
@@ -310,7 +312,7 @@ invite.respond = function local_invite_respond(invitation:invite):void {
     text = document.createElement("p");
     text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
     div.appendChild(text);
-    div.appendChild(text);
+    div.setAttribute("data-invitation", JSON.stringify(invitation));console.log(invitation);
     modal.create(payloadModal);
     util.audio("invite");
 };

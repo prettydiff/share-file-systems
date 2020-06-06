@@ -442,8 +442,8 @@ declare global {
         zTop?: modalTop;
     }
     interface module_network {
-        fs?: (localService, callback:Function, id?:string) => void;
         deleteAgents?: (deleted:agentDeletion) => void;
+        fs?: (localService, callback:Function, id?:string) => void;
         hashDevice?: (callback:Function) => void;
         hashShare?: (configuration:hashShareConfiguration) => void;
         heartbeat?: (status:heartbeatStatus, update:boolean) => void;
