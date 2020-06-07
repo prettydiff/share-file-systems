@@ -25,6 +25,7 @@ invite.accept = function local_invite_accept(box:Element):void {
     payload.deviceHash = invitation.deviceHash;
     payload.userHash = invitation.userHash;
     invite.addAgents(invitation);
+    payload.shares = invitation.shares;
     network.inviteAccept(payload);
 };
 
@@ -312,7 +313,7 @@ invite.respond = function local_invite_respond(invitation:invite):void {
     text = document.createElement("p");
     text.innerHTML = `Press the <em>Confirm</em> button to accept the invitation or close this modal to ignore it.`;
     div.appendChild(text);
-    div.setAttribute("data-invitation", JSON.stringify(invitation));console.log(invitation);
+    div.setAttribute("data-invitation", JSON.stringify(invitation));
     modal.create(payloadModal);
     util.audio("invite");
 };

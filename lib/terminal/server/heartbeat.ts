@@ -152,6 +152,7 @@ const library = {
         }
         config.response.end();
     },
+    // updates shares/storage only if necessary and then sends the payload to the browser
     parse = function terminal_server_heartbeatParse(data:heartbeat):void {
         const keys:string[] = Object.keys(data.shares),
             length:number = keys.length;
