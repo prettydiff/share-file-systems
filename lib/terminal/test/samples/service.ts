@@ -1154,6 +1154,7 @@ service.populate = function test_services_populate():void {
         command: {
             "heartbeat-update": {
                 agentFrom: "localhost-browser",
+                broadcastList: null,
                 shares: {},
                 status: "active"
             }
@@ -1166,6 +1167,7 @@ service.populate = function test_services_populate():void {
         command: {
             "heartbeat-update": {
                 agentFrom: "localhost-terminal",
+                broadcastList: null,
                 shares: {},
                 status: "active"
             }

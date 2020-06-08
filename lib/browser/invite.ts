@@ -34,7 +34,6 @@ invite.accept = function local_invite_accept(box:Element):void {
 invite.addAgents = function local_invite_addAgents(invitation:invite):void {
     const shareKeys:string[] = Object.keys(invitation.shares);
     if (invitation.type === "device") {
-        const length:number = 0;
         let a:number = shareKeys.length;
         do {
             a = a - 1;
