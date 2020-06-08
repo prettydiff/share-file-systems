@@ -25,6 +25,7 @@ invite.accept = function local_invite_accept(box:Element):void {
     payload.deviceHash = invitation.deviceHash;
     payload.userHash = invitation.userHash;
     invite.addAgents(invitation);
+    // this shares definition is what's written to storage when the remote agent accepts an invitation
     payload.shares = invitation.shares;
     network.inviteAccept(payload);
 };

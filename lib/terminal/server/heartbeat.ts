@@ -46,12 +46,12 @@ const library = {
                     ? config.deleted
                     : config.status
             },
-            responder = function terminal_server_heartbeatUpdate_responder():void {
+            responder = function terminal_server_heartbeatBroadcast_responder():void {
                 return;
             },
             httpConfig:httpConfiguration = {
                 agentType: "user",
-                callback: function terminal_server_heartbeatUpdate_callback(responseBody:Buffer|string):void {
+                callback: function terminal_server_heartbeatBroadcast_callback(responseBody:Buffer|string):void {
                     if (config.status === "deleted" && responseBody.indexOf("{\"heartbeat-response\":{") === 0) {
                         parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
                     }
@@ -63,14 +63,14 @@ const library = {
                 payload: "",
                 port: 80,
                 remoteName: "",
-                requestError: function terminal_server_heartbeatUpdate_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
+                requestError: function terminal_server_heartbeatBroadcast_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                     if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                         vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                         library.log([errorMessage.toString()]);
                     }
                 },
                 requestType: "heartbeat",
-                responseError: function terminal_server_heartbeatUpdate_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
+                responseError: function terminal_server_heartbeatBroadcast_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
                         library.log([errorMessage.toString()]);
@@ -80,7 +80,7 @@ const library = {
         library.agents({
             complete: responder,
             countBy: "agent",
-            perAgent: function terminal_server_heartbeatUpdate_perAgent(agentNames:agentNames):void {
+            perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
                 if (config.status === "deleted") {
                     if (agentNames.agentType === "user") {
                         if (config.deleted.user.indexOf(agentNames.agent) > -1) {
@@ -116,7 +116,7 @@ const library = {
                     library.httpClient(httpConfig);
                 }
             },
-            perAgentType: function terminal_server_heartbeatUpdate_perAgentType(agentNames:agentNames) {
+            perAgentType: function terminal_server_heartbeatBroadcast_perAgentType(agentNames:agentNames) {
                 httpConfig.agentType = agentNames.agentType;
                 payload.agentType = agentNames.agentType;
                 if (agentNames.agentType === "device") {
@@ -124,7 +124,7 @@ const library = {
                     payload.shares = (config.sendShares === true)
                         ? serverVars.device
                         : {};
-                } else if (agentNames.agentType === "user") {
+                } else if (agentNames.agentType === "user") {console.log(config.deleted);
                     payload.agentFrom = serverVars.hashUser;
                     payload.shares = (config.sendShares === true)
                         ? {
@@ -132,7 +132,7 @@ const library = {
                                 ip: serverVars.ipAddress,
                                 name: serverVars.nameUser,
                                 port: serverVars.webPort,
-                                shares: deviceShare(serverVars.device, config.deleted)
+                                shares: library.deviceShare(serverVars.device, config.deleted)
                             }
                         }
                         : {};

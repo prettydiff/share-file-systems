@@ -180,7 +180,7 @@ const library = {
                         library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
                     } else if (task === "heartbeat-delete-agents") {
                         // * received instructions from remote to delete agents
-                        library.heartbeat.delete(JSON.parse(body)["heartbeat-delete-agents"], response);
+                        library.heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], response);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
                         storage(body, response, task);

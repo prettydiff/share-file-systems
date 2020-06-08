@@ -216,6 +216,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         }
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
         title.setAttribute("class", "title");
+        document.getElementById(browser.data.hashDevice).setAttribute("class", "active");
     },
     webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
