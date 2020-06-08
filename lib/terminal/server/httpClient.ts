@@ -3,6 +3,7 @@
 import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions} from "http";
 
 import forbiddenUser from "./forbiddenUser.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 import error from "../utilities/error.js";
@@ -56,9 +57,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                             error: errorMessage
                         }));
                     }
-                    config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                    config.response.write(JSON.stringify(fsRemote));
-                    config.response.end();
+                    response(config.response, "application/json", JSON.stringify(fsRemote));
                 }
                 : config.requestError,
         responseError = (config.id === "heartbeat")

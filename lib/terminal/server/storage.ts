@@ -6,26 +6,20 @@ import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 const library = {
         error: error,
         log: log
     },
-    storage = function terminal_server_storage(dataString:string, response:ServerResponse | "", task:storageType):void {
+    storage = function terminal_server_storage(dataString:string, serverResponse:ServerResponse, task:storageType):void {
         const location:string = serverVars.storage + vars.sep + task,
             fileName:string = `${location}-${Math.random()}.json`,
             rename = function terminal_server_storage_rename():void {
-                const respond = function terminal_server_storage_rename_respond(message:string):void {
-                    if (response !== "") {
-                        response.writeHead(200, {"Content-Type": "text/plain"});
-                        response.write(message);
-                        response.end();
-                    }
-                };
                 vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
                 if (vars.command.indexOf("test") === 0) {
-                    respond(`${task} storage written with false response for testing.`);
+                    response(serverResponse, "text/plain", `${task} storage written with false response for testing.`);
                 } else {
                     vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_renameNode(erName:Error) {
                         if (erName !== null) {
@@ -35,10 +29,10 @@ const library = {
                                     library.error([erUnlink.toString()]);
                                 }
                             });
-                            respond(erName.toString());
+                            response(serverResponse, "text/plain", erName.toString());
                             return;
                         }
-                        respond(`${task} written.`);
+                        response(serverResponse, "text/plain", `${task} written`);
                     });
                 }
             },
@@ -47,11 +41,7 @@ const library = {
                 if (erSettings !== null) {
                     library.error([erSettings.toString()]);
                     library.log([erSettings.toString()]);
-                    if (response !== "") {
-                        response.writeHead(200, {"Content-Type": "text/plain"});
-                        response.write(erSettings.toString());
-                        response.end();
-                    }
+                    response(serverResponse, "text/plain", erSettings.toString());
                     return;
                 }
                 if (task === "settings") {

@@ -9,9 +9,10 @@ import readFile from "../utilities/readFile.js";
 import readStorage from "../utilities/readStorage.js";
 import vars from "../utilities/vars.js";
 
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
-const methodGET = function terminal_server_get(request:IncomingMessage, response:ServerResponse):void {
+const methodGET = function terminal_server_get(request:IncomingMessage, serverResponse:ServerResponse):void {
     let quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
             ? request.url.slice(0, quest)
@@ -39,9 +40,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
             if (ers !== null) {
                 if (ers.code === "ENOENT") {
                     library.log([`${vars.text.angry}404${vars.text.none} for ${uri}`]);
-                    response.writeHead(200, {"Content-Type": "text/html"});
-                    response.write(page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`));
-                    response.end();
+                    response(serverResponse, "text/html", page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`));
                 } else {
                     library.error([ers.toString()]);
                 }
@@ -63,55 +62,50 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                         }
                     });
                     dirList.push("</ul>");
-                    response.writeHead(200, {"Content-Type": "text/html"});
-                    response.write(page.replace("insertMe", dirList.join("")));
-                    response.end();
+                    response(serverResponse, "text/html", page.replace("insertMe", dirList.join("")));
                 });
                 return;
             }
             if (stat.isFile() === true) {
                 const readCallback = function terminal_server_get_readCallback(args:readFile, data:string|Buffer):void {
-                        let tool:boolean = false;
+                        let tool:boolean = false,
+                            type:string = "";
                         const pageState = function terminal_server_get_readCallback_pageState(type:string):void {
                                 const appliedData = function terminal_server_get_readCallback_pageState_appliedData(storageData:storageItems):void {
                                         const dataString:string = (typeof data === "string")
                                             ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                             : "";
-                                        response.setHeader("content-security-policy", csp);
-                                        response.setHeader("connection", "keep-alive");
+                                        serverResponse.setHeader("content-security-policy", csp);
+                                        serverResponse.setHeader("connection", "keep-alive");
                                         // cspell:disable
-                                        response.setHeader("X-FRAME-OPTIONS", "sameorigin");
+                                        serverResponse.setHeader("X-FRAME-OPTIONS", "sameorigin");
                                         // cspell:enable
-                                        response.writeHead(200, {"Content-Type": type});
-                                        response.write(dataString);
-                                        response.end();
+                                        response(serverResponse, type, dataString);
                                     };
-                                
                                 tool = true;
                                 library.readStorage(appliedData);
                             },
                             csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
                         vars.testLogger("methodGET", "readCallback", "After reading the requested file now to make decisions about what to do with it.");
                         if (localPath.indexOf(".js") === localPath.length - 3) {
-                            response.writeHead(200, {"Content-Type": "application/javascript"});
+                            type = "application/javascript";
                         } else if (localPath.indexOf(".css") === localPath.length - 4) {
-                            response.writeHead(200, {"Content-Type": "text/css"});
+                            type = "text/css";
                         } else if (localPath.indexOf(".jpg") === localPath.length - 4) {
-                            response.writeHead(200, {"Content-Type": "image/jpeg"});
+                            type = "image/jpeg";
                         } else if (localPath.indexOf(".png") === localPath.length - 4) {
-                            response.writeHead(200, {"Content-Type": "image/png"});
+                            type = "image/png";
                         } else if (localPath.indexOf(".svg") === localPath.length - 4) {
-                            response.writeHead(200, {"Content-Type": "image/svg+xml"});
+                            type = "image/svg+xml";
                         } else if (localPath.indexOf(".xhtml") === localPath.length - 6 && localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
                             pageState("application/xhtml+xml");
                         } else if ((localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) && localPath === `${vars.projectPath}index.html` && typeof data === "string") {
                             pageState("text/html");
                         } else {
-                            response.writeHead(200, {"Content-Type": "text/plain"});
+                            type = "text/plain";
                         }
                         if (tool === false) {
-                            response.write(data);
-                            response.end();
+                            response(serverResponse, type, data);
                         }
                     },
                     readConfig:readFile = {
@@ -122,7 +116,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, response
                     };
                 library.readFile(readConfig);
             } else {
-                response.end();
+                serverResponse.end();
             }
             return;
         }

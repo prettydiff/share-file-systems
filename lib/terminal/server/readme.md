@@ -11,6 +11,7 @@ These files are libraries that comprise */lib/terminal/server.ts* **which in tur
 * **[invite.ts](invite.ts)**               - Manages the order of invitation related processes for traffic across the internet.
 * **[methodGET.ts](methodGET.ts)**         - The library for handling all traffic related to HTTP requests with method GET.
 * **[readOnly.ts](readOnly.ts)**           - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
+* **[response.ts](response.ts)**           - A uniform means of handling HTTP responses.
 * **[serverVars.ts](serverVars.ts)**       - A library of variables globally available for all server related tasks.
 * **[serverWatch.ts](serverWatch.ts)**     - A library that establishes a file system watch respective to the application itself.
 * **[storage.ts](storage.ts)**             - A library for writing data to storage.

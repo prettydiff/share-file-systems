@@ -20,6 +20,7 @@ import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 // This logRecursion variable gates test automation logging of the "directory" library
@@ -41,7 +42,7 @@ const library = {
         readFile: readFile,
         remove: remove
     },
-    fileService = function terminal_server_fileService(response:http.ServerResponse, data:fileService):void {
+    fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
         // formats a string to convey file copy status
         const copyMessage = function (numbers:completeStatus):string {
                 const filePlural:string = (numbers.countFile === 1)
@@ -70,9 +71,7 @@ const library = {
                     : message;
                 if (data.agent === serverVars.hashDevice) {
                     vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(payload);
-                    response.end();
+                    response(serverResponse, "text/plain", payload);
                 } else {
                     const dirConfig:readDirectory = {
                         callback: function terminal_server_fileService_fileCallback_dir(directory:directoryList):void {
@@ -87,11 +86,9 @@ const library = {
                                     location: location,
                                     status: payload
                                 };
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                            response.write(JSON.stringify({
+                            response(serverResponse, "application/json", JSON.stringify({
                                 "fs-update-remote": update
                             }));
-                            response.end();
                         },
                         depth: 2,
                         exclusions: [],
@@ -213,9 +210,7 @@ const library = {
                                         httpConfig:httpConfiguration = {
                                             agentType: data.agentType,
                                             callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
-                                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                                response.write(responseBody);
-                                                response.end();
+                                                response(serverResponse, "application/json", responseBody);
                                             },
                                             callbackType: "body",
                                             errorMessage: `Error related to remote file system watch at ${data.agent}.`,
@@ -403,15 +398,13 @@ const library = {
                         vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
                         library.log([``]);
                         cut();
-                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                         vars.ws.broadcast(JSON.stringify({
                             "file-list-status": output
                         }));
                         output.target = `remote-${fileData.id}`;
-                        response.write(JSON.stringify({
+                        response(serverResponse, "application/json", JSON.stringify({
                             "file-list-status": output
                         }));
-                        response.end();
                     },
                     // handler to write files if files are written in a single shot, otherwise files are streamed with writeStream
                     writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
@@ -695,9 +688,7 @@ const library = {
         if (data.agent !== serverVars.hashDevice && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
             vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
             httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
-                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                response.write(responseBody);
-                response.end();
+                response(serverResponse, "application/json", responseBody);
             }, `Error requesting ${data.action} from remote.`, "body");
         } else if (data.action === "fs-directory" || data.action === "fs-details") {
             if (data.agent === serverVars.hashDevice || (data.agent !== serverVars.hashDevice && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
@@ -713,13 +704,12 @@ const library = {
                                 fail:[],
                                 id: data.id
                             };
-                            response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                             if (output.length < 1) {
-                                response.write(JSON.stringify(responseData));
+                                response(serverResponse, "application/json", JSON.stringify(responseData));
                             } else {
                                 responseData.dirs = output;
                                 responseData.fail = failures;
-                                response.write(JSON.stringify(responseData));
+                                response(serverResponse, "application/json", JSON.stringify(responseData));
                             }
                             
                             // please note
@@ -744,7 +734,6 @@ const library = {
                                     serverVars.watches[watchPath].time = Date.now();
                                 }
                             }
-                            response.end();
                         }
                     },
                     windowsRoot = function terminal_server_fileService_windowsRoot():void {
@@ -869,14 +858,12 @@ const library = {
                 vars.testLogger("fileService", "fs-details remote", "Get directory data from a remote agent without setting a file system watch.");
                 // remote file server access
                 httpRequest(function terminal_server_fileService_remoteFileAccess(responseBody:string|Buffer):void {
-                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
                     if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
                         vars.ws.broadcast(responseBody);
-                        response.write("Terminal received file system response from remote.");
+                        response(serverResponse, "text/plain", "Terminal received file system response from remote.");
                     } else {
-                        response.write(responseBody);
+                        response(serverResponse, "application/json", responseBody);
                     }
-                    response.end();
                 }, `Error on reading from remote file system at agent ${data.agent}`, "body");
             }
         } else if (data.action === "fs-close") {
@@ -906,9 +893,7 @@ const library = {
                             data.agentType = data.copyType;
                             data.remoteWatch = JSON.stringify(listData);
                             httpRequest(function terminal_server_fileService_remoteListCallback_http(responseBody:string|Buffer):void {
-                                response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                response.write(responseBody);
-                                response.end();
+                                response(serverResponse, "application/json", responseBody);
                             }, "Error sending list of files to remote for copy from local device.", "body");
                         },
                         files: [],
@@ -933,9 +918,7 @@ const library = {
                 vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");
                 data.action = <serviceType>`${data.action}-self`;
                 httpRequest(function terminal_server_fileService_sameRemote(responseBody:string|Buffer):void {
-                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                    response.write(responseBody);
-                    response.end();
+                    response(serverResponse, "application/json", responseBody);
                 }, `Error copying files to and from agent ${data.agent}.`, "body");
             } else {
                 const agent:string = data.agent;
@@ -981,20 +964,20 @@ const library = {
                             params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: serverVars.brotli}
                         })
                         : null;
-                response.setHeader("hash", hash.digest("hex"));
-                response.setHeader("file_name", data.remoteWatch);
-                response.setHeader("file_size", data.depth);
-                response.setHeader("cut_path", data.location[0]);
+                serverResponse.setHeader("hash", hash.digest("hex"));
+                serverResponse.setHeader("file_name", data.remoteWatch);
+                serverResponse.setHeader("file_size", data.depth);
+                serverResponse.setHeader("cut_path", data.location[0]);
                 if (serverVars.brotli > 0) {
-                    response.setHeader("compression", "true");
+                    serverResponse.setHeader("compression", "true");
                 } else {
-                    response.setHeader("compression", "false");
+                    serverResponse.setHeader("compression", "false");
                 }
-                response.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
                 if (serverVars.brotli > 0) {
-                    readStream.pipe(compress).pipe(response);
+                    readStream.pipe(compress).pipe(serverResponse);
                 } else {
-                    readStream.pipe(response);
+                    readStream.pipe(serverResponse);
                 }
             });
             if (data.id.indexOf("|Copying ") > 0) {
@@ -1009,12 +992,7 @@ const library = {
         } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
             const listData:remoteCopyList = {
                 callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
-                    //if (data.watch === "third party action") {
-                    //} else {
-                        response.writeHead(200, {"Content-Type": "application/octet-stream; charset=utf-8"});
-                        response.write(JSON.stringify(listData));
-                        response.end();
-                    //}
+                    response(serverResponse, "application/octet-stream", JSON.stringify(listData));
                 },
                 files: [],
                 id: data.id,
@@ -1055,9 +1033,7 @@ const library = {
                             });
                         }
                     } else {
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write("File system items removed.");
-                        response.end();
+                        response(serverResponse, "text/plain", "File system items removed.");
                     }
                 };
                 if (watchTest === true) {
@@ -1092,9 +1068,7 @@ const library = {
                                         fail: directoryList.failures,
                                         id: data.id
                                     };
-                                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                                    response.write(JSON.stringify(responseData));
-                                    response.end();
+                                    response(serverResponse, "application/json", JSON.stringify(responseData));
                                 },
                                 depth: 2,
                                 exclusions: [],
@@ -1126,9 +1100,7 @@ const library = {
                     library.error([erRename.toString()]);
                     library.log([erRename.toString()]);
                     vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
-                    response.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(erRename.toString());
-                    response.end();
+                    response(serverResponse, "text/plain", erRename.toString());
                 }
             });
         } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
@@ -1147,9 +1119,7 @@ const library = {
                     storage.push(stringData);
                     if (b === length) {
                         vars.testLogger("fileService", "dataString callback", `Callback to action ${data.action} that writes an HTTP response.`);
-                        response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                        response.write(JSON.stringify(storage));
-                        response.end();
+                        response(serverResponse, "application/json", JSON.stringify(storage));
                     }
                 },
                 fileReader = function terminal_server_fileService_fileReader(fileInput:base64Input):void {
@@ -1225,9 +1195,7 @@ const library = {
                     } else {
                         library.error([erNewFile.toString()]);
                         library.log([erNewFile.toString()]);
-                        response.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(erNewFile.toString());
-                        response.end();
+                        response(serverResponse, "text/plain", erNewFile.toString());
                     }
                 });
             }
@@ -1239,9 +1207,7 @@ const library = {
                         id: data.id
                     };
                     delete result.failures;
-                    response.writeHead(200, {"Content-Type": "application/json; charset=utf-8"});
-                    response.write(JSON.stringify(output));
-                    response.end();
+                    response(serverResponse, "application/json", JSON.stringify(output));
                 },
                 dirConfig:readDirectory = {
                     callback: callback,
@@ -1275,9 +1241,7 @@ const library = {
                     }));
                     message = `Error writing file: ${erw.toString()}`;
                 }
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write(message);
-                response.end();
+                response(serverResponse, "text/plain", message);
             });
         }
     };

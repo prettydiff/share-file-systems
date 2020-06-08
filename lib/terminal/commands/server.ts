@@ -18,6 +18,7 @@ import httpClient from "../server/httpClient.js";
 import invite from "../server/invite.js";
 import methodGET from "../server/methodGET.js";
 import readOnly from "../server/readOnly.js";
+import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serverWatch from "../server/serverWatch.js";
 import storage from "../server/storage.js";
@@ -66,7 +67,7 @@ const library = {
                 : (process.platform === "win32")
                     ? "start"
                     : "xdg-open",
-            post = function terminal_server_post(request:IncomingMessage, response:ServerResponse) {
+            post = function terminal_server_post(request:IncomingMessage, serverResponse:ServerResponse) {
                 let body:string = "";
                 const decoder:StringDecoder = new StringDecoder("utf8"),
                     hashDevice = function terminal_server_post_hashDevice():void {
@@ -80,9 +81,7 @@ const library = {
                                     serverVars.hashDevice = hashDevice.hash;
                                     serverVars.nameDevice = nameData.device;
                                     hashes.device = hashDevice.hash;
-                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                    response.write(JSON.stringify(hashes));
-                                    response.end();
+                                    response(serverResponse, "text/plain", JSON.stringify(hashes));
                                 };
                                 serverVars.hashUser = hashUser.hash;
                                 serverVars.nameUser = nameData.user;
@@ -110,9 +109,7 @@ const library = {
                                             share: outputBody.share,
                                             type: outputBody.type
                                         };
-                                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                                    response.write(JSON.stringify({shareHashResponse:hashResponse}));
-                                    response.end();
+                                    response(serverResponse, "application/json", JSON.stringify({shareHashResponse:hashResponse}));
                                 },
                                 directInput: true,
                                 id: body,
@@ -124,9 +121,7 @@ const library = {
                     updateRemote = function terminal_server_post_updateRemote():void {
                         vars.testLogger("server", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
                         vars.ws.broadcast(body);
-                        response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`Received directory watch for ${body} at ${serverVars.ipAddress}.`);
-                        response.end();
+                        response(serverResponse, "text/plain", `Received directory watch for ${body} at ${serverVars.ipAddress}.`);
                     };
 
                 // request handling
@@ -144,7 +139,7 @@ const library = {
                         }));
                     }
                 });
-                response.on("error", function terminal_server_post_errorResponse(errorMessage:nodeError):void {
+                serverResponse.on("error", function terminal_server_post_errorResponse(errorMessage:nodeError):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         library.log([body, "response"]);
                         if (errorMessage.toString().indexOf("write after end") > -1) {
@@ -161,29 +156,29 @@ const library = {
                     let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
                     if (task === "heartbeat") {
                         // * process received heartbeat data from other agents
-                        library.heartbeat.response(JSON.parse(body).heartbeat, response)
+                        library.heartbeat.response(JSON.parse(body).heartbeat, serverResponse)
                     } else if (task === "heartbeat-update") {
                         // * prepare heartbeat pulse for connected agents
-                        library.heartbeat.update(JSON.parse(body)["heartbeat-update"], response);
+                        library.heartbeat.update(JSON.parse(body)["heartbeat-update"], serverResponse);
                     } else if (task === "heartbeat-response") {
                         // * response to a heartbeat pulse
                         library.heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
                     } else if (task === "fs") {
                         // * file system interaction for both local and remote
-                        readOnly(request, response, body);
+                        readOnly(request, serverResponse, body);
                     } else if (task === "fs-update-remote") {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
                         updateRemote();
                     } else if (task === "delete-agents") {
                         // * received a request from the browser to delete agents
-                        library.heartbeat.delete(JSON.parse(body)["delete-agents"], response);
+                        library.heartbeat.delete(JSON.parse(body)["delete-agents"], serverResponse);
                     } else if (task === "heartbeat-delete-agents") {
                         // * received instructions from remote to delete agents
-                        library.heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], response);
+                        library.heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], serverResponse);
                     } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
                         // * local: Writes changes to storage files
-                        storage(body, response, task);
+                        storage(body, serverResponse, task);
                     } else if (task === "hashShare") {
                         // * generate a hash string to name a share
                         hashShare();
@@ -192,11 +187,11 @@ const library = {
                         hashDevice();
                     } else if (task === "invite") {
                         // * Handle all stages of invitation
-                        library.invite(body, response);
+                        library.invite(body, serverResponse);
                     }
                 });
             },
-            httpServer:httpServer = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, response:ServerResponse):void {
+            httpServer:httpServer = vars.node.http.createServer(function terminal_server_create(request:IncomingMessage, serverResponse:ServerResponse):void {
                 const host:string = (function terminal_server_create_postTest_host():string {
                         const addresses:[string, string, string][] = serverVars.addresses[0],
                             length:number = addresses.length;
@@ -243,33 +238,29 @@ const library = {
                 //console.log(requestType);
                 if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
                     if (request.headers["agent-type"] === "device") {
-                        response.setHeader("agent-hash", serverVars.hashDevice);
-                        response.setHeader("agent-type", "device");
+                        serverResponse.setHeader("agent-hash", serverVars.hashDevice);
+                        serverResponse.setHeader("agent-type", "device");
                     } else {
-                        response.setHeader("agent-hash", serverVars.hashUser);
-                        response.setHeader("agent-type", "user");
+                        serverResponse.setHeader("agent-hash", serverVars.hashUser);
+                        serverResponse.setHeader("agent-type", "user");
                     }
-                    response.writeHead(200, {"Content-Type": "text/plain"});
-                    response.write(`response from ${serverVars.hashDevice}`);
-                    response.end();
+                    response(serverResponse, "text/plain", `response from ${serverVars.hashDevice}`);
                 } else if (request.method === "GET" && host === "localhost") {
-                    methodGET(request, response);
+                    methodGET(request, serverResponse);
                 } else if (postTest() === true) {
-                    post(request, response);
+                    post(request, serverResponse);
                 } else {
                     // the delay is necessary to prevent a race condition between service execution and data storage writing
                     setTimeout(function terminal_server_create_delay():void {
                         if (postTest() === true) {
-                            post(request, response);
+                            post(request, serverResponse);
                         } else {
                             vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}user.json`, function terminal_server_create_delay_userStat(err:nodeError):void {
                                 if (err === null) {
-                                    forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"], response);
+                                    forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"], serverResponse);
                                 }
                             });
-                            response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                            response.write(`ForbiddenAccess:${request.headers["remote-user"]}`);
-                            response.end();
+                            response(serverResponse, "text/plain", `ForbiddenAccess:${request.headers["remote-user"]}`);
                         }
                     }, 50);
                 }

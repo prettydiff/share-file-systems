@@ -9,10 +9,11 @@ import vars from "../utilities/vars.js";
 
 import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
-const invite = function terminal_server_invite(dataString:string, response:http.ServerResponse):void {
+const invite = function terminal_server_invite(dataString:string, serverResponse:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
         inviteHttp = function local_server_invite_inviteHttp(ip:string, port:number):void {
             const payload:string = (function local_server_invite_inviteHTTP_payload():string {
@@ -107,7 +108,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             }
             storage(JSON.stringify({
                 [data.type]: serverVars[data.type]
-            }), "", data.type);
+            }), null, data.type);
             responseString = `Accepted${respond}`;
         };
     let responseString:string;
@@ -193,9 +194,7 @@ const invite = function terminal_server_invite(dataString:string, response:http.
         vars.ws.broadcast(dataString);
     }
     //log([responseString]);
-    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-    response.write(responseString);
-    response.end();
+    response(serverResponse, "text/plain", responseString);
 };
 
 export default invite;

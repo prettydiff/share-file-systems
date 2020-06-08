@@ -7,6 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
@@ -26,14 +27,14 @@ const library = {
         let a:number = list.length;
         if (a > 0) {
             do {
+                a = a - 1;
                 if (type !== "device" || (type === "device" && list[a] !== serverVars.hashDevice)) {
                     delete serverVars[type][list[a]];
                 }
-                a = a - 1;
             } while (a > 0);
             storage(JSON.stringify({
                 [type]: serverVars[type]
-            }), "", type);
+            }), null, type);
         }
     },
     broadcast = function terminal_server_heartbeatBroadcast(config:heartbeatBroadcast) {
@@ -168,15 +169,11 @@ const library = {
                 }
             } while (a > 0);
         }
-        if (config.response !== null) {
-            // respond irrespective of broadcast status or completion to prevent hanging sockets
-            config.response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-            if (config.status === "deleted") {
-                config.response.write("Deletion task sent.");
-            } else {
-                config.response.write("Heartbeat broadcast sent.");
-            }
-            config.response.end();
+        // respond irrespective of broadcast status or completion to prevent hanging sockets
+        if (config.status === "deleted") {
+            response(config.response, "text/plain", "Deletion task sent.");
+        } else {
+            response(config.response, "text/plain", "Heartbeat broadcast sent.");
         }
     },
     // updates shares/storage only if necessary and then sends the payload to the browser
@@ -205,7 +202,7 @@ const library = {
         if (store === true) {
             library.storage(JSON.stringify({
                 [data.agentType]: serverVars[data.agentType]
-            }), "", data.agentType);
+            }), null, data.agentType);
         } else {
             data.shares = {};
         }
@@ -215,23 +212,18 @@ const library = {
     },
     // This logic will push out heartbeat data
     heartbeat:heartbeatObject = {
-        delete: function terminal_server_heartbeatDelete(deleted:agentDeletion, response:ServerResponse):void {
+        delete: function terminal_server_heartbeatDelete(deleted:agentDeletion, serverResponse:ServerResponse):void {
             broadcast({
                 deleted: deleted,
                 list: null,
-                response: response,
+                response: serverResponse,
                 sendShares: true,
                 status: "deleted"
             });
             removeByType(deleted.device, "device");
             removeByType(deleted.user, "user");
-            if (response !== null) {
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write("Requested remote agent deletions.");
-                response.end();
-            }
         },
-        deleteResponse: function terminal_server_heartbeatDeleteResponse(data:heartbeat, response:ServerResponse):void {
+        deleteResponse: function terminal_server_heartbeatDeleteResponse(data:heartbeat, serverResponse:ServerResponse):void {
             if (data.agentType === "device") {
                 const deleted:agentDeletion = <agentDeletion>data.status;
                 if (deleted.device.indexOf(serverVars.hashDevice) > -1) {
@@ -247,28 +239,20 @@ const library = {
                 delete serverVars.user[data.agentFrom];
                 storage(JSON.stringify({
                     user: serverVars.user
-                }), "", "user");
+                }), null, "user");
             }
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-delete-agents": data
             }));
-            if (response !== null) {
-                response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                response.write("Response to remote user deletion.");
-                response.end();
-            }
+            response(serverResponse, "text/plain", "Response to remote user deletion.");
         },
         parse: parse,
-        response: function terminal_server_heartbeatResponse(data:heartbeat, response:ServerResponse):void {
+        response: function terminal_server_heartbeatResponse(data:heartbeat, serverResponse:ServerResponse):void {
             vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
             if (serverVars[data.agentType][data.agentFrom] === undefined) {
                 vars.testLogger("heartbeat", "response unrecognized-agent", "When the agent is not recognized close out the HTTP response without sending a payload.");
                 // trapping unexpected user
-                if (response !== null) {
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(forbidden);
-                    response.end();
-                }
+                response(serverResponse, "text/plain", forbidden);
             } else {
                 // heartbeat from remote
                 parse(data);
@@ -279,13 +263,9 @@ const library = {
                     : serverVars.hashUser;
                 data.shares = {};
                 data.status = serverVars.status;
-                if (response !== null) {
-                    response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-                    response.write(JSON.stringify({
-                        "heartbeat-response": data
-                    }));
-                    response.end();
-                }
+                response(serverResponse, "application/json", JSON.stringify({
+                    "heartbeat-response": data
+                }));
             }
         },
         update: function terminal_server_heartbeatUpdate(data:heartbeatUpdate, response:ServerResponse):void {
@@ -299,7 +279,7 @@ const library = {
                 serverVars.device = data.shares;
                 storage(JSON.stringify({
                     device: serverVars.device
-                }), "", "device");
+                }), null, "device");
             }
             broadcast({
                 deleted: {

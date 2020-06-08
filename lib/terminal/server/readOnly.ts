@@ -3,9 +3,10 @@
 import * as http from "http";
 
 import fileService from "./fileService.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
-const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, response:http.ServerResponse, dataString:string):void {
+const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, serverResponse:http.ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
             ? [data.name]
@@ -41,26 +42,20 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
                     location.splice(dIndex, 1);
                 } else {
                     if (shares[bestMatch].readOnly === true && readOnly.indexOf(data.action) < 0) {
-                        response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-                        response.write(`{"id":"${data.id}","dirs":"readOnly"}`);
-                        response.end();
+                        response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"readOnly"}`);
                         return;
                     }
                 }
             } while (dIndex > 0);
         } else {
-            response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-            response.write(`{"id":"${data.id}","dirs":"noShare"}`);
-            response.end();
+            response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
             return;
         }
     }
     if (location.length > 0 || data.agent === serverVars.hashDevice || data.agent === serverVars.hashUser) {
-        fileService(response, data);
+        fileService(serverResponse, data);
     } else {
-        response.writeHead(403, {"Content-Type": "text/plain; charset=utf-8"});
-        response.write(`{"id":"${data.id}","dirs":"noShare"}`);
-        response.end();
+        response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
     }
 };
 
