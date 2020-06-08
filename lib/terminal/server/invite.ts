@@ -100,7 +100,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
             } else if (data.type === "user") {
                 serverVars[data.type][data.userHash] = {
                     ip: data.ip,
-                    name: data.name,
+                    name: data.userName,
                     port: data.port,
                     shares: data.shares[keyShares[0]].shares
                 }

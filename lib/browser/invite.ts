@@ -41,7 +41,7 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
                 browser.device[shareKeys[a]] = invitation.shares[shareKeys[a]];
                 share.addAgent({
                     hash: shareKeys[a],
-                    name: invitation.name,
+                    name: invitation.shares[shareKeys[a]].name,
                     save: false,
                     type: "device"
                 });
@@ -57,7 +57,7 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
         };
         share.addAgent({
             hash: shareKeys[0],
-            name: invitation.name,
+            name: invitation.userName,
             save: false,
             type: "user"
         });
@@ -129,9 +129,6 @@ invite.payload = function local_invite_payload(config:invitePayload):invite {
             : browser.data.nameDevice,
         ip: config.ip,
         message: config.message,
-        name: (config.type === "user")
-            ? browser.data.nameUser
-            : browser.data.nameDevice,
         modal: config.modal,
         port: config.port,
         shares: {},
@@ -281,29 +278,34 @@ invite.respond = function local_invite_respond(invitation:invite):void {
             height: 300,
             inputs: ["cancel", "confirm", "close"],
             read_only: false,
-            title: `Invitation from ${invitation.name}`,
+            title: (invitation.type === "device")
+                ? `Invitation from ${invitation.deviceName}`
+                : `Invitation from ${invitation.userName}`,
             type: "invite-accept",
             width: 500
         },
         ip:string = (invitation.ip.indexOf(":") < 0)
             ? `${invitation.ip}:${invitation.port}`
-            : `[${invitation.ip}]:${invitation.port}`;
+            : `[${invitation.ip}]:${invitation.port}`,
+        name:string = (invitation.type === "device")
+            ? invitation.deviceName
+            : invitation.userName;
     let text:HTMLElement = document.createElement("h3"),
         label:Element = document.createElement("label"),
         textarea:HTMLTextAreaElement = document.createElement("textarea"),
         a:number = 0;
     do {
-        if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${invitation.name}`) {
+        if (browser.data.modals[modals[a]].type === "invite-accept" && browser.data.modals[modals[a]].title === `Invitation from ${name}`) {
             // there should only be one invitation at a time from a given user otherwise there is spam
             return;
         }
         a = a + 1;
     } while (a < length);
     div.setAttribute("class", "agentInvitation");
-    text.innerHTML = `User <strong>${invitation.name}</strong> from ${ip} is inviting you to share spaces.`;
+    text.innerHTML = `User <strong>${name}</strong> from ${ip} is inviting you to share spaces.`;
     div.appendChild(text);
     text = document.createElement("p");
-    label.innerHTML = `${invitation.name} said:`;
+    label.innerHTML = `${name} said:`;
     textarea.value = invitation.message;
     label.appendChild(textarea);
     text.appendChild(label);

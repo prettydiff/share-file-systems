@@ -325,7 +325,6 @@ declare global {
         ip: string;
         message: string;
         modal: string;
-        name: string;
         port: number;
         shares: devices;
         status: inviteStatus;
