@@ -296,7 +296,7 @@ declare global {
     }
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
-        devices: string[];
+        broadcastList: string[];
         shares: devices;
         status: heartbeatStatus;
     }

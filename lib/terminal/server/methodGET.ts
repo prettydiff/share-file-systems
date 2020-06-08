@@ -70,7 +70,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                 const readCallback = function terminal_server_get_readCallback(args:readFile, data:string|Buffer):void {
                         let tool:boolean = false,
                             type:string = "";
-                        const pageState = function terminal_server_get_readCallback_pageState(type:string):void {
+                        const pageState = function terminal_server_get_readCallback_pageState(pageType:string):void {
                                 const appliedData = function terminal_server_get_readCallback_pageState_appliedData(storageData:storageItems):void {
                                         const dataString:string = (typeof data === "string")
                                             ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
@@ -80,7 +80,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                                         // cspell:disable
                                         serverResponse.setHeader("X-FRAME-OPTIONS", "sameorigin");
                                         // cspell:enable
-                                        response(serverResponse, type, dataString);
+                                        response(serverResponse, pageType, dataString);
                                     };
                                 tool = true;
                                 library.readStorage(appliedData);
@@ -97,10 +97,18 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                             type = "image/png";
                         } else if (localPath.indexOf(".svg") === localPath.length - 4) {
                             type = "image/svg+xml";
-                        } else if (localPath.indexOf(".xhtml") === localPath.length - 6 && localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
-                            pageState("application/xhtml+xml");
-                        } else if ((localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) && localPath === `${vars.projectPath}index.html` && typeof data === "string") {
-                            pageState("text/html");
+                        } else if (localPath.indexOf(".xhtml") === localPath.length - 6) {
+                            if (localPath === `${vars.projectPath}index.xhtml` && typeof data === "string") {
+                                pageState("application/xhtml+xml");
+                            } else {
+                                type = "application/xhtml+xml";
+                            }
+                        } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
+                            if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {
+                                pageState("text/html");
+                            } else {
+                                type = "text/html";
+                            }
                         } else {
                             type = "text/plain";
                         }

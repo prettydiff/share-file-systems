@@ -80,20 +80,19 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
         accepted = function local_server_invite_accepted(respond:string):void {
             const keyShares:string[] = Object.keys(data.shares);
             if (data.type === "device") {
-                const length:number = keyShares.length,
-                    devices:string[] = Object.keys(serverVars.device);
-                let a:number = 0;
+                const devices:string[] = Object.keys(serverVars.device);
+                let a:number = keyShares.length;
                 do {
+                    a = a - 1;
                     if (serverVars.device[keyShares[a]] === undefined) {
                         serverVars.device[keyShares[a]] = data.shares[keyShares[a]];
                     }
-                    a = a + 1;
-                } while (a < length);
+                } while (a > 0);
                 devices.splice(0, 1);
                 if (devices.length > 0) {
                     heartbeat.update({
                         agentFrom: "localhost-terminal",
-                        devices: devices,
+                        broadcastList: devices,
                         shares: serverVars.device,
                         status: "active"
                     }, null);

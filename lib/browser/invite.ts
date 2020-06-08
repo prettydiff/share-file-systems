@@ -35,8 +35,9 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
     const shareKeys:string[] = Object.keys(invitation.shares);
     if (invitation.type === "device") {
         const length:number = 0;
-        let a:number = 0;
+        let a:number = shareKeys.length;
         do {
+            a = a - 1;
             if (browser.device[shareKeys[a]] === undefined) {
                 browser.device[shareKeys[a]] = invitation.shares[shareKeys[a]];
                 share.addAgent({
@@ -45,10 +46,8 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
                     save: false,
                     type: "device"
                 });
-                browser.data.colors.user[shareKeys[a]] = settings.colorScheme[browser.data.color];
             }
-            a = a + 1;
-        } while (a < length);
+        } while (a > 0);
         browser.data.nameUser = invitation.userName;
     } else if (invitation.type === "user") {
         browser.user[invitation.userHash] = {
@@ -63,7 +62,6 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
             save: false,
             type: "user"
         });
-        browser.data.colors.user[shareKeys[0]] = settings.colorScheme[browser.data.color];
     }
 };
 

@@ -286,7 +286,7 @@ const library = {
                     device: [],
                     user: []
                 },
-                list: data.devices,
+                list: data.broadcastList,
                 response: response,
                 sendShares: share,
                 status: data.status
