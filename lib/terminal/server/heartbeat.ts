@@ -77,80 +77,107 @@ const library = {
                     }
                 }
             };
-        library.agents({
-            complete: responder,
-            countBy: "agent",
-            perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
-                if (config.status === "deleted") {
-                    if (agentNames.agentType === "user") {
-                        if (config.deleted.user.indexOf(agentNames.agent) > -1) {
-                            // deleting this user
-                            payload.status = {
-                                device: [],
-                                user: [serverVars.hashUser]
-                            };
-                            httpConfig.requestType = "heartbeat-delete-agents";
-                        } else if (config.sendShares === true) {
-                            // deleting agents, but not this user, regular share update
-                            payload.status = "active";
-                            httpConfig.requestType = "heartbeat";
+        if (config.list === null) {
+            library.agents({
+                complete: responder,
+                countBy: "agent",
+                perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
+                    if (config.status === "deleted") {
+                        if (agentNames.agentType === "user") {
+                            if (config.deleted.user.indexOf(agentNames.agent) > -1) {
+                                // deleting this user
+                                payload.status = {
+                                    device: [],
+                                    user: [serverVars.hashUser]
+                                };
+                                httpConfig.requestType = "heartbeat-delete-agents";
+                            } else if (config.sendShares === true) {
+                                // deleting agents, but not this user, regular share update
+                                payload.status = "active";
+                                httpConfig.requestType = "heartbeat";
+                            } else {
+                                // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
+                                return;
+                            }
                         } else {
-                            // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
-                            return;
+                            httpConfig.requestType = "heartbeat-delete-agents";
                         }
                     } else {
-                        httpConfig.requestType = "heartbeat-delete-agents";
+                        httpConfig.requestType = "heartbeat";
                     }
-                } else {
-                    httpConfig.requestType = "heartbeat";
-                }
-                httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
-                httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
-                httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
-                httpConfig.remoteName = agentNames.agent;
-                if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
-                    payload.agentTo = agentNames.agent
+                    httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
+                    httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
+                    httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
+                    httpConfig.remoteName = agentNames.agent;
+                    if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
+                        payload.agentTo = agentNames.agent;
+                        httpConfig.payload = JSON.stringify({
+                            [httpConfig.requestType]: payload
+                        });
+                        library.httpClient(httpConfig);
+                    }
+                },
+                perAgentType: function terminal_server_heartbeatBroadcast_perAgentType(agentNames:agentNames) {
+                    httpConfig.agentType = agentNames.agentType;
+                    payload.agentType = agentNames.agentType;
+                    if (agentNames.agentType === "device") {
+                        payload.agentFrom = serverVars.hashDevice;
+                        payload.shares = (config.sendShares === true)
+                            ? serverVars.device
+                            : {};
+                    } else if (agentNames.agentType === "user") {
+                        payload.agentFrom = serverVars.hashUser;
+                        payload.shares = (config.sendShares === true)
+                            ? {
+                                [serverVars.hashUser]: {
+                                    ip: serverVars.ipAddress,
+                                    name: serverVars.nameUser,
+                                    port: serverVars.webPort,
+                                    shares: library.deviceShare(serverVars.device, config.deleted)
+                                }
+                            }
+                            : {};
+                        if (config.sendShares === true && JSON.stringify(payload.shares[serverVars.hashUser].shares) === "{}") {
+                            config.sendShares = false;
+                        }
+                    }
+                },
+                source: serverVars
+            });
+        } else {
+            let a:number = config.list.length;
+            httpConfig.agentType = "device";
+            payload.agentType = "device";
+            payload.agentFrom = serverVars.hashDevice;
+            payload.shares = (config.sendShares === true)
+                ? serverVars.device
+                : {};
+            httpConfig.requestType = "heartbeat";
+            do {
+                a = a - 1;
+                httpConfig.errorMessage = `Error with heartbeat to device ${config.list[a]}.`;
+                httpConfig.ip = serverVars.device[config.list[a]].ip;
+                httpConfig.port = serverVars.device[config.list[a]].port;
+                httpConfig.remoteName = config.list[a];
+                if (serverVars.hashDevice !== config.list[a]) {
+                    payload.agentTo = config.list[a];
                     httpConfig.payload = JSON.stringify({
                         [httpConfig.requestType]: payload
                     });
                     library.httpClient(httpConfig);
                 }
-            },
-            perAgentType: function terminal_server_heartbeatBroadcast_perAgentType(agentNames:agentNames) {
-                httpConfig.agentType = agentNames.agentType;
-                payload.agentType = agentNames.agentType;
-                if (agentNames.agentType === "device") {
-                    payload.agentFrom = serverVars.hashDevice;
-                    payload.shares = (config.sendShares === true)
-                        ? serverVars.device
-                        : {};
-                } else if (agentNames.agentType === "user") {console.log(config.deleted);
-                    payload.agentFrom = serverVars.hashUser;
-                    payload.shares = (config.sendShares === true)
-                        ? {
-                            [serverVars.hashUser]: {
-                                ip: serverVars.ipAddress,
-                                name: serverVars.nameUser,
-                                port: serverVars.webPort,
-                                shares: library.deviceShare(serverVars.device, config.deleted)
-                            }
-                        }
-                        : {};
-                    if (config.sendShares === true && JSON.stringify(payload.shares[serverVars.hashUser].shares) === "{}") {
-                        config.sendShares = false;
-                    }
-                }
-            },
-            source: serverVars
-        });
-        // respond irrespective of broadcast status or completion to prevent hanging sockets
-        config.response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
-        if (config.status === "deleted") {
-            config.response.write("Deletion task sent.");
-        } else {
-            config.response.write("Heartbeat broadcast sent.");
+            } while (a > 0);
         }
-        config.response.end();
+        if (config.response !== null) {
+            // respond irrespective of broadcast status or completion to prevent hanging sockets
+            config.response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+            if (config.status === "deleted") {
+                config.response.write("Deletion task sent.");
+            } else {
+                config.response.write("Heartbeat broadcast sent.");
+            }
+            config.response.end();
+        }
     },
     // updates shares/storage only if necessary and then sends the payload to the browser
     parse = function terminal_server_heartbeatParse(data:heartbeat):void {
@@ -191,6 +218,7 @@ const library = {
         delete: function terminal_server_heartbeatDelete(deleted:agentDeletion, response:ServerResponse):void {
             broadcast({
                 deleted: deleted,
+                list: null,
                 response: response,
                 sendShares: true,
                 status: "deleted"
@@ -262,8 +290,8 @@ const library = {
         },
         update: function terminal_server_heartbeatUpdate(data:heartbeatUpdate, response:ServerResponse):void {
             // heartbeat from local, forward to each remote terminal
-            vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             const share:boolean = (JSON.stringify(data.shares) !== "{}");
+            vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }
@@ -278,6 +306,7 @@ const library = {
                     device: [],
                     user: []
                 },
+                list: data.devices,
                 response: response,
                 sendShares: share,
                 status: data.status

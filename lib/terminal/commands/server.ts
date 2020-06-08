@@ -381,6 +381,7 @@ const library = {
                                 } else {
                                     const hbConfig:heartbeatUpdate = {
                                         agentFrom: "localhost-terminal",
+                                        devices: null,
                                         shares: {},
                                         status: "idle"
                                     };

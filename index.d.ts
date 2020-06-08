@@ -282,6 +282,7 @@ declare global {
     }
     interface heartbeatBroadcast {
         deleted: agentDeletion;
+        list: string[];
         response: ServerResponse;
         sendShares: boolean;
         status: heartbeatStatus;
@@ -295,6 +296,7 @@ declare global {
     }
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
+        devices: string[];
         shares: devices;
         status: heartbeatStatus;
     }

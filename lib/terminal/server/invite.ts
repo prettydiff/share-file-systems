@@ -7,6 +7,7 @@ import deviceShare from "../../common/deviceShare.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
+import heartbeat from "./heartbeat.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
@@ -76,22 +77,32 @@ const invite = function terminal_server_invite(dataString:string, response:http.
             httpClient(httpConfig);
         },
         accepted = function local_server_invite_accepted(respond:string):void {
-            const keys:string[] = Object.keys(data.shares);
+            const keyShares:string[] = Object.keys(data.shares);
             if (data.type === "device") {
-                const length:number = keys.length;
+                const length:number = keyShares.length,
+                    devices:string[] = Object.keys(serverVars.device);
                 let a:number = 0;
                 do {
-                    if (serverVars.device[keys[a]] === undefined) {
-                        serverVars.device[keys[a]] = data.shares[keys[a]];
+                    if (serverVars.device[keyShares[a]] === undefined) {
+                        serverVars.device[keyShares[a]] = data.shares[keyShares[a]];
                     }
                     a = a + 1;
                 } while (a < length);
+                devices.splice(0, 1);
+                if (devices.length > 0) {
+                    heartbeat.update({
+                        agentFrom: "localhost-terminal",
+                        devices: devices,
+                        shares: serverVars.device,
+                        status: "active"
+                    }, null);
+                }
             } else if (data.type === "user") {
                 serverVars[data.type][data.userHash] = {
                     ip: data.ip,
                     name: data.name,
                     port: data.port,
-                    shares: data.shares[keys[0]].shares
+                    shares: data.shares[keyShares[0]].shares
                 }
             }
             storage(JSON.stringify({

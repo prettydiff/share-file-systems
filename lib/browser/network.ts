@@ -148,6 +148,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
         },
         heartbeat:heartbeatUpdate = {
             agentFrom: "localhost-browser",
+            devices: null,
             shares: (update === true)
                 ? browser.device
                 : {},
