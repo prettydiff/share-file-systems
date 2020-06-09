@@ -102,9 +102,8 @@ invite.complete = function local_invite_complete(invitation:invite):void {
 invite.decline = function local_invite_decline(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         boxLocal:Element = element.getAncestor("box", "class"),
-        para:HTMLCollectionOf<HTMLElement> = boxLocal.getElementsByClassName("body")[0].getElementsByTagName("p"),
-        dataString:string = para[para.length - 1].innerHTML,
-        invitation:invite = JSON.parse(dataString).invite;
+        inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
+        invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
     network.inviteAccept(invite.payload({
         action: "invite-response",
         ip: invitation.ip,

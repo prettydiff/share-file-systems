@@ -312,7 +312,11 @@ modal.create = function local_modal_create(options:ui_modal):Element {
             button = document.createElement("button");
             button.innerHTML = "🗙 Cancel";
             button.setAttribute("class", "cancel");
-            button.onclick = modal.close;
+            if (options.type === "invite-accept") {
+                button.onclick = invite.decline;
+            } else {
+                button.onclick = modal.close;
+            }
             extra.appendChild(button);
         }
         section.appendChild(extra);
