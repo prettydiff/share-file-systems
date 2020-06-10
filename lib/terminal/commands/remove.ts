@@ -9,13 +9,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
-const library = {
-        commas: commas,
-        directory: directory,
-        error: error,
-        log: log
-    },
-    remove = function terminal_remove(filePath:string, callback:Function):void {
+const remove = function terminal_remove(filePath:string, callback:Function):void {
         let testLog:testLogFlag = vars.testLogFlag,
             testLogFlag:boolean = (vars.testLogFlag !== "");
         const numb:any = {
@@ -42,7 +36,7 @@ const library = {
                                     terminal_remove_removeItems_destroy(item);
                                     return;
                                 }
-                                library.error([er.toString()]);
+                                error([er.toString()]);
                                 return;
                             }
                             if (item[0] === fileList[0][0]) {
@@ -94,11 +88,14 @@ const library = {
             testLogFlag = false;
         }
         if (vars.command === "remove") {
+            if (vars.verbose === true) {
+                log.title("Remove");
+            }
             if (testLogFlag === true) {
                 vars.testLogger("remove", "command", "prepare the application to work with standard input/output");
             }
             if (process.argv.length < 1) {
-                library.error([
+                error([
                     "Command remove requires a file path",
                     `${vars.text.cyan + vars.version.command} remove ../jsFiles${vars.text.none}`
                 ]);
@@ -135,17 +132,17 @@ const library = {
                     }
                     out.push(" at ");
                     out.push(vars.text.angry);
-                    out.push(library.commas(numb.size));
+                    out.push(commas(numb.size));
                     out.push(vars.text.none);
                     out.push(" bytes.");
-                    library.log(["", out.join(""), `Removed ${vars.text.cyan + dirConfig.path + vars.text.none}`], true);
+                    log(["", out.join(""), `Removed ${vars.text.cyan + dirConfig.path + vars.text.none}`], true);
                 }
             };
         }
         if (testLogFlag === true) {
             vars.testLogger("remove", "directory", "gather a directory list of descendant items and then remove them all");
         }
-        library.directory(dirConfig);
+        directory(dirConfig);
     };
 
 export default remove;

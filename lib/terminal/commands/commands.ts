@@ -6,12 +6,7 @@ import wrapIt from "../utilities/wrapIt.js";
 import vars from "../utilities/vars.js";
 
 // CLI commands documentation generator
-const library = {
-        lists: lists,
-        log: log,
-        wrapIt: wrapIt
-    },
-    commands = function terminal_commands():void {
+const commands = function terminal_commands():void {
         let index:number = 0;
         const keys:string[] = (process.argv[0] === "all")
                 ? Object.keys(vars.commands)
@@ -26,8 +21,6 @@ const library = {
                         ? "s"
                         : "";
                 let a:number = 0;
-                output.push(`${vars.text.bold + vars.text.underline + vars.version.name} - Command: ${vars.text.green + keys[index] + vars.text.none}`);
-                output.push("");
                 output.push(comm.description);
                 output.push("");
                 output.push(`${vars.text.underline}Example${plural + vars.text.none}`);
@@ -45,13 +38,14 @@ const library = {
                         output.push("---");
                         output.push("");
                     }
-                    library.log(output);
+                    log(output);
                     terminal_commands_named();
                 } else {
-                    library.log(output, true);
+                    log(output, true);
                 }
             };
         vars.verbose = true;
+        log.title("Commands");
         if (process.argv[0] !== "all" && vars.commands[process.argv[0]] === undefined) {
             // all commands in a list
             const listConfig:nodeLists = {
@@ -63,7 +57,7 @@ const library = {
             };
             vars.verbose = true;
             vars.testLogger("commands", "all", "all commands in a list.");
-            library.lists(listConfig);
+            lists(listConfig);
         } else {
             named();
         }

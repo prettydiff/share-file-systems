@@ -22,6 +22,9 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRe
             stat_ok: false
         };
     if (vars.command === "mkdir") {
+        if (vars.verbose === true) {
+            log.title("Make directories");
+        }
         vars.testLogger("mkdir", "command", "preparing the directory utility for standard input/output");
         if (process.argv[0] === undefined) {
             log(["No directory name specified."]);

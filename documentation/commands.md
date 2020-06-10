@@ -210,6 +210,15 @@ Launches a test runner to execute the various commands of the services file.
 1. `node js/application test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
+## update
+Pulls code from the git repository and then rebuilds the application.
+
+### Examples
+1. `node js/application update`
+   - Without specifying a branch name the application assumes a branch name of 'master'.
+1. `node js/application update devices`
+   - The command with a branch name provided.
+
 ## version
 Prints the current version number and date of prior modification to the console.
 

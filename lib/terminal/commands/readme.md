@@ -20,4 +20,5 @@ The terminal libraries that executable as either an included library or as a com
 * **[test_agent.ts](test_agent.ts)**           - A connectivity tester to shared remote agents.
 * **[test_service.ts](test_service.ts)**       - A command driven wrapper for the service tests, which test the various services used by the application.
 * **[test_simulation.ts](test_simulation.ts)** - A command driven wrapper for running simulation tests of supported terminal commands.
+* **[update.ts](update.ts)**                   - A command to update the application from git and then run the build.
 * **[version.ts](version.ts)**                 - A command utility for expressing the application's version.

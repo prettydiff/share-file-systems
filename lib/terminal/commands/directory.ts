@@ -10,14 +10,7 @@ import vars from "../utilities/vars.js";
 import wrapIt from "../utilities/wrapIt.js";
 
 // similar to node's fs.readdir, but recursive
-const library = {
-        commas: commas,
-        error: error,
-        hash: hash,
-        log: log,
-        wrapIt: wrapIt
-    },
-    directory = function terminal_directory(args:readDirectory):void {
+const directory = function terminal_directory(args:readDirectory):void {
         // arguments:
         // * callback - function - the output is passed into the callback as an argument
         // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
@@ -40,7 +33,7 @@ const library = {
             search:string;
         const dirCount:number[] = [],
             dirNames:string[] = [],
-            log = (args !== undefined && args.logRecursion === true)
+            logTest = (args !== undefined && args.logRecursion === true)
                 ? {
                     dir: true,
                     populate: true
@@ -70,10 +63,10 @@ const library = {
                             if (vars.verbose === true) {
                                 output.push(JSON.stringify(result));
                                 output.push("");
-                                library.wrapIt(output, `${vars.version.name} found ${vars.text.green + library.commas(result.length) + vars.text.none} matching items from address ${vars.text.cyan + startPath + vars.text.none} with a total file size of ${vars.text.green + library.commas(size) + vars.text.none} bytes.`);
-                                library.log(output);
+                                wrapIt(output, `${vars.version.name} found ${vars.text.green + commas(result.length) + vars.text.none} matching items from address ${vars.text.cyan + startPath + vars.text.none} with a total file size of ${vars.text.green + commas(size) + vars.text.none} bytes.`);
+                                log(output);
                             } else {
-                                library.log([JSON.stringify(result)]);
+                                log([JSON.stringify(result)]);
                             }
                         },
                         depth: (function terminal_directory_startPath_depth():number {
@@ -132,7 +125,7 @@ const library = {
                     };
                     vars.testLogger("directory", "startPath", `determine the start point and set default configuration if executing using the 'directory' command from the terminal. Mode: ${args.mode}`);
                     if (process.argv.length < 1) {
-                        library.error([
+                        error([
                             "No path supplied for the directory command. For an example please see:",
                             `    ${vars.text.cyan + vars.version.command} commands directory${vars.text.none}`
                         ]);
@@ -194,8 +187,8 @@ const library = {
                 vars.node.fs[method](filePath, function terminal_directory_wrapper_stat(er:Error, stat:Stats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
-                            if (log.dir === true) {
-                                log.dir = false;
+                            if (logTest.dir === true) {
+                                logTest.dir = false;
                                 vars.testLogger("directory", "dir", `reading directory ${filePath} for recursive operations.`);
                             }
                             vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
@@ -208,7 +201,7 @@ const library = {
                                             args.callback(fileList.sort());
                                         }
                                     } else {
-                                        library.error([erd.toString()]);
+                                        error([erd.toString()]);
                                         return;
                                     }
                                 } else {
@@ -247,8 +240,8 @@ const library = {
                             });
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
-                            if (log.populate === true) {
-                                log.populate = false;
+                            if (logTest.populate === true) {
+                                logTest.populate = false;
                                 vars.testLogger("directory", "populate", `populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
                             }
                             if (type === "error") {
@@ -300,7 +293,7 @@ const library = {
                                         parent: parent,
                                         stat: status
                                     };
-                                    library.hash(hashInput);
+                                    hash(hashInput);
                                 } else {
                                     list.push([filePath, type, "", parent, 0, status]);
                                     if (dirs > 0) {
@@ -315,11 +308,11 @@ const library = {
                         if (er.toString().indexOf("no such file or directory") > 0) {
                             vars.testLogger("directory", "missing", `item ${filePath} is missing.`);
                             if (type === true) {
-                                library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
+                                log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
                             } else {
                                 if (args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
-                                    library.log([angryPath]);
+                                    log([angryPath]);
                                 }
                                 populate("error");
                             }
@@ -329,11 +322,11 @@ const library = {
                         }
                     } else if (stat === undefined) {
                         vars.testLogger("directory", "stat undefined", `item ${filePath} is missing.`);
-                        library.log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
+                        log([`Requested artifact, ${vars.text.cyan + startPath + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                         populate("error");
                     } else if (stat.isDirectory() === true) {
                         if (type === true) {
-                            library.log(["directory"]);
+                            log(["directory"]);
                             return;
                         }
                         if (((args.depth < 1 || filePath.replace(startPath + vars.sep, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
@@ -344,18 +337,18 @@ const library = {
                         }
                     } else if (stat.isSymbolicLink() === true) {
                         if (type === true) {
-                            library.log(["symbolicLink"]);
+                            log(["symbolicLink"]);
                             return;
                         }
                         populate("link");
                     } else if (stat.isFile() === true || stat.isBlockDevice() === true || stat.isCharacterDevice() === true) {
                         if (type === true) {
                             if (stat.isBlockDevice() === true) {
-                                library.log(["blockDevice"]);
+                                log(["blockDevice"]);
                             } else if (stat.isCharacterDevice() === true) {
-                                library.log(["characterDevice"]);
+                                log(["characterDevice"]);
                             } else {
-                                library.log(["file"]);
+                                log(["file"]);
                             }
                             return;
                         }
@@ -364,11 +357,11 @@ const library = {
                     } else {
                         if (type === true) {
                             if (stat.isFIFO() === true) {
-                                library.log(["FIFO"]);
+                                log(["FIFO"]);
                             } else if (stat.isSocket() === true) {
-                                library.log(["socket"]);
+                                log(["socket"]);
                             } else {
-                                library.log(["unknown"]);
+                                log(["unknown"]);
                             }
                             return;
                         }
@@ -376,8 +369,13 @@ const library = {
                     }
                 });
             };
-        if (vars.command === "directory" && args.mode === "search") {
-            args.search = search;
+        if (vars.command === "directory") {
+            if (vars.verbose === true) {
+                log.title("Directory");
+            }
+            if (args.mode === "search") {
+                args.search = search;
+            }
         }
         list.failures = [];
         if (args.depth === undefined) {

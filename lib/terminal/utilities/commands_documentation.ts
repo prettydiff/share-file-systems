@@ -331,6 +331,19 @@ const commands_documentation = {
             }
         ]
     },
+    update: {
+        description: "Pulls code from the git repository and then rebuilds the application.",
+        example: [
+            {
+                code: `${vars.version.command} update`,
+                defined: "Without specifying a branch name the application assumes a branch name of 'master'."
+            },
+            {
+                code: `${vars.version.command} update devices`,
+                defined: "The command with a branch name provided."
+            }
+        ]
+    },
     version: {
         description: "Prints the current version number and date of prior modification to the console.",
         example: [{

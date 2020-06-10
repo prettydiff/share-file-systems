@@ -1,5 +1,6 @@
 
 /* lib/terminal/utilities/commandName - A library for visually presenting command documentation to the terminal. */
+import help from "../commands/help.js";
 import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
@@ -28,13 +29,7 @@ const commandName = function terminal_command():string {
     }
     if (arg === undefined) {
         vars.testLogger("commandName", "missing", "missing command argument.");
-        logger("");
-        logger(`${vars.version.name} requires a command. Try:`);
-        logger(`${vars.text.cyan + vars.version.command} help${vars.text.none}`);
-        logger("");
-        logger("To see a list of commands try:");
-        logger(`${vars.text.cyan + vars.version.command} commands${vars.text.none}`);
-        logger("");
+        help();
         process.exit(1);
         return;
     }

@@ -9,7 +9,7 @@ Provides status update messaging about a file system segment on a remote device.
 **Not formally described as an interface in index.d.ts.** This service is defined as a string format in *lib/terminal/server/fileService.ts*.
 
 ```typescript
-`fileListStatus:{"failures":[],"target":"remote-${data.id}","message":"Copy complete. ${library.commas(countFile)} file${filePlural} written at size ${library.prettyBytes(writtenSize)} (${library.commas(writtenSize)} bytes) with 0 failures."}`
+`fileListStatus:{"failures":[],"target":"remote-${data.id}","message":"Copy complete. ${commas(countFile)} file${filePlural} written at size ${prettyBytes(writtenSize)} (${commas(writtenSize)} bytes) with 0 failures."}`
 ```
 
 * **failures** - string array - A list of file system artifacts that could not be accessed due to restrictions from the operating system or any sort of collision.

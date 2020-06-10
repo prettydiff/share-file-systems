@@ -52,6 +52,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/test_agent.ts](../lib/terminal/commands/test_agent.ts)**                           - A connectivity tester to shared remote agents.
    - **[../lib/terminal/commands/test_service.ts](../lib/terminal/commands/test_service.ts)**                       - A command driven wrapper for the service tests, which test the various services used by the application.
    - **[../lib/terminal/commands/test_simulation.ts](../lib/terminal/commands/test_simulation.ts)**                 - A command driven wrapper for running simulation tests of supported terminal commands.
+   - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                   - A command to update the application from git and then run the build.
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                 - A command utility for expressing the application's version.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/fileService.ts](../lib/terminal/server/fileService.ts)**                             - This library executes various file system related services and actions.
@@ -73,6 +74,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/test/samples/service.ts](../lib/terminal/test/samples/service.ts)**                         - A list of service related tests.
    - **[../lib/terminal/test/samples/simulation.ts](../lib/terminal/test/samples/simulation.ts)**                   - A list of command related tests for running shell simulations against the supported commands.
 * Directory *[../lib/terminal/utilities](../lib/terminal/utilities)*
+   - **[../lib/terminal/utilities/commandList.ts](../lib/terminal/utilities/commandList.ts)**                       - Groups all supported command functions into an object for single point of reference.
    - **[../lib/terminal/utilities/commandName.ts](../lib/terminal/utilities/commandName.ts)**                       - A library for visually presenting command documentation to the terminal.
    - **[../lib/terminal/utilities/commands_documentation.ts](../lib/terminal/utilities/commands_documentation.ts)** - A data structure defining command documentation with usage examples.
    - **[../lib/terminal/utilities/error.ts](../lib/terminal/utilities/error.ts)**                                   - A utility for processing and logging errors from the terminal application.

@@ -9,20 +9,15 @@ import remove from "./remove.js";
 import vars from "../utilities/vars.js";
 
 // simple base64 encode/decode
-const library = {
-        error: error,
-        get: get,
-        log: log,
-        remove: remove
-    },
-    base64 = function terminal_base64(input:base64Input):void {
+const base64 = function terminal_base64(input:base64Input):void {
         let direction:"encode"|"decode" = (function terminal_base64_direction():"encode"|"decode" {
                 const decode:number = process.argv.indexOf("decode"),
                     encode:number = process.argv.indexOf("encode");
                 if (vars.command === "base64") {
+                    log.title("Base64");
                     input = {
                         callback: function terminal_base64_callback(output:string[]):void {
-                            library.log(output);
+                            log(output);
                         },
                         id: "",
                         source: (decode === 0 || encode === 0)
@@ -49,7 +44,7 @@ const library = {
                     ? Buffer.from(string, "base64").toString("utf8")
                     : Buffer.from(string).toString("base64");
                 vars.testLogger("base64", "screen", "writing output to terminal.");
-                library.log([output]);
+                log([output]);
             },
             fileWrapper = function terminal_base64_fileWrapper(filePath):void {
                 vars.testLogger("base64", "fileWrapper", "stat the file path to ensure it exists.");
@@ -61,11 +56,11 @@ const library = {
                                 let buff  = Buffer.alloc(stat.size);
                                 if (ero !== null) {
                                     if (http === true) {
-                                        library.remove(filePath, function terminal_base64_fileWrapper_stat_file_open_removeCallback():void {
+                                        remove(filePath, function terminal_base64_fileWrapper_stat_file_open_removeCallback():void {
                                             return;
                                         });
                                     }
-                                    library.error([ero.toString()]);
+                                    error([ero.toString()]);
                                     if (vars.command !== "server") {
                                         return;
                                     }
@@ -79,12 +74,12 @@ const library = {
                                         0,
                                         function terminal_base64_fileWrapper_stat_file_open_read(err:Error, bytes:number, buffer:Buffer):number {
                                             if (http === true) {
-                                                library.remove(filePath, function terminal_base64_fileWrapper_stat_file_open_read_callback():void {
+                                                remove(filePath, function terminal_base64_fileWrapper_stat_file_open_read_callback():void {
                                                     return;
                                                 });
                                             }
                                             if (err !== null) {
-                                                library.error([err.toString()]);
+                                                error([err.toString()]);
                                                 if (vars.command !== "server") {
                                                     return;
                                                 }
@@ -116,28 +111,28 @@ const library = {
                         };
                     if (er !== null) {
                         if (http === true) {
-                            library.remove(filePath, function terminal_base64_fileWrapper_stat_callback1():void {
+                            remove(filePath, function terminal_base64_fileWrapper_stat_callback1():void {
                                 return;
                             });
                         }
                         if (er.toString().indexOf("no such file or directory") > 0) {
-                            library.error([angryPath]);
+                            error([angryPath]);
                             if (vars.command !== "server") {
                                 return;
                             }
                         }
-                        library.error([er.toString()]);
+                        error([er.toString()]);
                         if (vars.command !== "server") {
                             return;
                         }
                     }
                     if (stat === undefined) {
                         if (http === true) {
-                            library.remove(filePath, function terminal_base64_fileWrapper_stat_callback2():void {
+                            remove(filePath, function terminal_base64_fileWrapper_stat_callback2():void {
                                 return;
                             });
                         }
-                        library.error([angryPath]);
+                        error([angryPath]);
                         if (vars.command !== "server") {
                             return;
                         }
@@ -149,7 +144,7 @@ const library = {
             };
         if (path === undefined) {
             vars.testLogger("base64", "no path", `no path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`);
-            library.error([`No path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`]);
+            error([`No path to encode.  Please see ${vars.text.cyan + vars.version.command} commands base64${vars.text.none} for examples.`]);
             return;
         }
         if (path.indexOf("string:") === 0) {
@@ -166,7 +161,7 @@ const library = {
         if ((/https?:\/\//).test(path) === true) {
             vars.testLogger("base64", "http", "fetching source material from HTTP(S).");
             http = true;
-            library.get(path, screen);
+            get(path, screen);
         } else {
             vars.testLogger("base64", "file path", "source material is not standard input or from HTTP(S) so presuming a file path.");
             fileWrapper(path);

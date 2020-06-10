@@ -43,12 +43,7 @@ interface versionKeyPair {
 * **port** - The application's default TCP port.  If this port is taken the application will instead use any randomly available port.
 
 ## Code Organization
-For simplicity the application is written in a purely functional manner and is broken down into library files using ES6 modules.  The libraries are organized as follows:
-* localhost.ts - The script file that is requested by the HTML file that runs in the browser.
-* application.ts - The code that Node.js executes.
-* lib/browser - Libraries that are called by `localhost.ts` for execution in the browser.
-* lib/terminal - Libraries that are called by `application.ts` for execution in Node.js.
-* lib/terminal/server - Libraries that are called by `lib/terminal/server.ts` for execution of services.
+For simplicity the application is written in a purely functional manner and is broken down into library files using ES6 modules.  For an explanation of the code libraries and code organization see [library_list.md](library_list.md).
 
 ## Code Style
 ### Standards

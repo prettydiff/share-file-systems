@@ -95,12 +95,10 @@ import webSocket from "./webSocket.js";
                                     share.addAgent({
                                         hash: hashes.device,
                                         name: nameDevice.value,
-                                        save: true,
+                                        save: false,
                                         type: "device"
                                     });
                                     browser.pageBody.removeAttribute("class");
-                                    browser.loadTest = false;
-                                    network.storage("device");
                                     network.storage("settings");
                                     browser.loadTest = true;
                                     loadComplete();

@@ -7,13 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // wrapper for ESLint usage
-const library = {
-        directory: directory,
-        error: error,
-        humanTime: humanTime,
-        log: log
-    },
-    lint = function terminal_lint(callback:Function):void {
+const lint = function terminal_lint(callback:Function):void {
         const lintPath:string = (vars.command === "lint" && process.argv[0] !== undefined)
                 ? vars.node.path.resolve(process.argv[0])
                 : vars.js,
@@ -21,10 +15,10 @@ const library = {
         if (vars.command === "lint") {
             vars.verbose = true;
             if (vars.testLogFlag === "") {
-                library.log.title(`Linting ${lintPath}`);
+                log.title(`Linting ${lintPath}`);
             }
             callback = function terminal_lint_callback():void {
-                library.log([complete], true);
+                log([complete], true);
             };
         }
         vars.node.child(`eslint ${lintPath}`, {
@@ -33,19 +27,19 @@ const library = {
             vars.testLogger("lint", "child", "run ESLint as a child process");
             if (stdout.indexOf("error") > 0) {
                 vars.testLogger("lint", "lint fail", "violated an ESLint rule");
-                library.error([stdout, "Lint failure."]);
+                error([stdout, "Lint failure."]);
                 return;
             }
             if (err !== null) {
                 vars.testLogger("lint", "child error", err.toString());
-                library.log([
+                log([
                     "ESLint is not globally installed or is corrupt.",
                     err.toString(),
                     `Install ESLint using the command: ${vars.text.green}npm install eslint -g${vars.text.none}`,
                     ""
                 ]);
                 if (callback === undefined) {
-                    library.log(["Skipping code validation..."]);
+                    log(["Skipping code validation..."]);
                 } else {
                     callback("Skipping code validation...");
                 }
@@ -53,17 +47,17 @@ const library = {
             }
             if (stdout === "" || stdout.indexOf("0:0  warning  File ignored because of a matching ignore pattern.") > -1) {
                 if (err !== null) {
-                    library.error([err.toString()]);
+                    error([err.toString()]);
                     return;
                 }
                 if (stderr !== null && stderr !== "") {
-                    library.error([stderr]);
+                    error([stderr]);
                     return;
                 }
                 vars.testLogger("lint", "lint complete", "all tests passed and output will be formatted for terminal or callback");
-                library.log([""]);
+                log([""]);
                 if (callback === undefined) {
-                    library.log([complete]);
+                    log([complete]);
                 } else {
                     callback(complete);
                 }

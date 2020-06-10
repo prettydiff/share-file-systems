@@ -13,16 +13,7 @@ import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
 // build/test system
-const library = {
-        directory: directory,
-        error: error,
-        hash: hash,
-        humanTime: humanTime,
-        lint: lint,
-        log: log,
-        testListRunner: testListRunner
-    },
-    build = function terminal_build(test:boolean, callback:Function):void {
+const build = function terminal_build(test:boolean, callback:Function):void {
         let firstOrder:boolean = true,
             sectionTime:[number, number] = [0, 0];
         const order = {
@@ -46,7 +37,7 @@ const library = {
             testsCallback = function terminal_build_testsCallback(message:string, failCount:number):void {
                 if (failCount > 0) {
                     vars.verbose = true;
-                    library.log([message], true);
+                    log([message], true);
                     process.exit(1);
                 } else {
                     next(message);
@@ -55,12 +46,12 @@ const library = {
             // a short title for each build/test phase
             heading = function terminal_build_heading(message:string):void {
                 if (firstOrder === true) {
-                    library.log([""]);
+                    log([""]);
                     firstOrder = false;
                 } else if (order[type].length < orderLength) {
-                    library.log(["________________________________________________________________________", "", ""]);
+                    log(["________________________________________________________________________", "", ""]);
                 }
-                library.log([vars.text.cyan + vars.text.bold + message + vars.text.none, ""]);
+                log([vars.text.cyan + vars.text.bold + message + vars.text.none, ""]);
             },
             // indicates how long each phase took
             sectionTimer = function terminal_build_sectionTime(input:string):void {
@@ -112,21 +103,21 @@ const library = {
                     } while (str.length < 9);
                 }
                 times[2] = `${times[2]}.${str}`;
-                library.log([`${vars.text.cyan + vars.text.bold}[${times.join(":")}]${vars.text.none} ${vars.text.green}Total section time.${vars.text.none}`]);
+                log([`${vars.text.cyan + vars.text.bold}[${times.join(":")}]${vars.text.none} ${vars.text.green}Total section time.${vars.text.none}`]);
             },
             // the transition to the next phase or completion
             next = function terminal_build_next(message:string):void {
                 let phase = order[type][0],
-                    time:string = library.humanTime(false);
+                    time:string = humanTime(false);
                 if (message !== "") {
-                    library.log([time + message]);
+                    log([time + message]);
                     sectionTimer(time);
                 }
                 if (order[type].length < 1) {
                     if (vars.command === "build") {
                         vars.verbose = true;
                         heading(`${vars.text.none}All ${vars.text.green + vars.text.bold}build${vars.text.none} tasks complete... Exiting clean!\u0007`);
-                        library.log([""], true);
+                        log([""], true);
                         process.exit(0);
                         return;
                     }
@@ -143,7 +134,7 @@ const library = {
                     heading("Removing unnecessary temporary files");
                     vars.node.fs.readdir(`${vars.projectPath}storage`, function terminal_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
                         if (erd !== null) {
-                            library.error([erd.toString()]);
+                            error([erd.toString()]);
                             return;
                         }
                         const length:number = dirList.length,
@@ -156,7 +147,7 @@ const library = {
                                 start = start + 1;
                                 vars.node.fs.unlink(`${vars.projectPath}storage${vars.sep + dirList[a]}`, function terminal_build_clearStorage_dir_unlink(eru:nodeError):void {
                                     if (eru !== null) {
-                                        library.error([erd.toString()]);
+                                        error([erd.toString()]);
                                         return;
                                     }
                                     end = end + 1;
@@ -203,7 +194,7 @@ const library = {
                     });
                     vars.node.fs.writeFile(filePath, output.join("\n"), "utf8", function terminal_build_commands_write(err:nodeError):void {
                         if (err !== null) {
-                            library.error([err.toString()]);
+                            error([err.toString()]);
                             return;
                         }
                         next(`File ${filePath} successfully written.`);
@@ -266,10 +257,10 @@ const library = {
                                     } while (a < fileLength);
                                     vars.node.fs.writeFile(filePath, fileContents.join("\n"), "utf8", function terminal_build_libReadme_masterList_write(erWrite:nodeError):void {
                                         if (erWrite !== null) {
-                                            library.error([erWrite.toString()]);
+                                            error([erWrite.toString()]);
                                             return;
                                         }
-                                        library.log([`${library.humanTime(false)}Updated ${filePath}`]);
+                                        log([`${humanTime(false)}Updated ${filePath}`]);
                                         next("Completed writing lib directory readme.md files.");
                                     });
                                 },
@@ -278,7 +269,7 @@ const library = {
                                     writeStart = writeStart + 1;
                                     vars.node.fs.readFile(filePath, "utf8", function terminal_build_libReadme_write_readFile(erRead:nodeError, readme:String):void {
                                         if (erRead !== null) {
-                                            library.error([
+                                            error([
                                                 "Error reading file during documentation build task.",
                                                 `File: ${filePath}`
                                             ]);
@@ -290,13 +281,13 @@ const library = {
                                         // Sixth, write the documentation to each respective file
                                         vars.node.fs.writeFile(filePath, readme, "utf8", function terminal_build_libReadme_write_readFile_writeFile(erWrite:nodeError):void {
                                             if (erWrite !== null) {
-                                                library.error([
+                                                error([
                                                     "Error writing file during documentation build task.",
                                                     `File: ${filePath}`
                                                 ]);
                                                 return;
                                             }
-                                            library.log([`${library.humanTime(false)}Updated ${filePath}`]);
+                                            log([`${humanTime(false)}Updated ${filePath}`]);
                                             writeEnd = writeEnd + 1;
                                             if (writeEnd === writeStart) {
                                                 // Finally, once all the readme.md files are written write one file master documentation for all library files
@@ -307,11 +298,11 @@ const library = {
                                 },
                                 readFile = function terminal_build_libReadme_readFile(erRead:nodeError, file:string):void {
                                     if (erRead !== null) {
-                                        library.error(["Error reading file during documentation build task."]);
+                                        error(["Error reading file during documentation build task."]);
                                         return;
                                     }
                                     if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+ - \w/).test(file) === false) {
-                                        library.error([
+                                        error([
                                             "Code file missing required descriptive comment at top of code.",
                                             `${vars.text.angry + file.slice(0, 300) + vars.text.none}`,
                                             "--------------------------------------------------------------",
@@ -435,24 +426,24 @@ const library = {
                             symbolic: false
                         };
                     // First, get the file system data for the lib directory and then direct output to the dirs function
-                    library.directory(dirConfig);
+                    directory(dirConfig);
                     dirConfig.path = `${vars.projectPath}documentation`;
-                    library.directory(dirConfig);
+                    directory(dirConfig);
                 },
                 // phase lint is merely a call to the lint library
                 lint     : function terminal_build_lint():void {
                     heading("Linting");
-                    library.lint(testsCallback);
+                    lint(testsCallback);
                 },
                 // phase services wraps a call to services test library
                 service: function terminal_build_serviceTests():void {
                     heading("Tests of supported services");
-                    library.testListRunner("service", testsCallback);
+                    testListRunner("service", testsCallback);
                 },
                 // phase simulation is merely a call to simulation test library
                 simulation: function terminal_build_simulation():void {
                     heading(`Simulations of Node.js commands from ${vars.version.command}`);
-                    library.testListRunner("simulation", testsCallback);
+                    testListRunner("simulation", testsCallback);
                 },
                 // phase typescript compiles the working code into JavaScript
                 typescript: function terminal_build_typescript():void {
@@ -468,15 +459,15 @@ const library = {
                             }, function terminal_build_typescript_callback(err:Error, stdout:string, stderr:string):void {
                                 const control:string = "\u001b[91m";
                                 if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
-                                    library.error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
+                                    error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
                                     return;
                                 }
                                 if (err !== null) {
-                                    library.error([err.toString()]);
+                                    error([err.toString()]);
                                     return;
                                 }
                                 if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
-                                    library.error([stderr]);
+                                    error([stderr]);
                                     return;
                                 }
                                 next("TypeScript build completed without warnings.");
@@ -487,14 +478,14 @@ const library = {
                         if (err !== null) {
                             const str = err.toString();
                             if (str.indexOf("command not found") > 0 || str.indexOf("is not recognized") > 0) {
-                                library.log([`${vars.text.angry}TypeScript does not appear to be globally installed.${vars.text.none}`]);
+                                log([`${vars.text.angry}TypeScript does not appear to be globally installed.${vars.text.none}`]);
                             } else {
-                                library.error([err.toString(), stdout]);
+                                error([err.toString(), stdout]);
                                 return;
                             }
                         } else {
                             if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
-                                library.error([stderr]);
+                                error([stderr]);
                                 return;
                             }
                             ts();
@@ -511,24 +502,24 @@ const library = {
                         },
                         packStat = function terminal_build_version_stat(ers:Error, stat:Stats) {
                             if (ers !== null) {
-                                library.error([ers.toString()]);
+                                error([ers.toString()]);
                                 return;
                             }
                             const readPack = function terminal_build_version_stat_read(err:Error, data:string) {
                                     if (err !== null) {
-                                        library.error([err.toString()]);
+                                        error([err.toString()]);
                                         return;
                                     }
                                     const commitHash = function terminal_build_version_stat_read_commitHash(hashErr:nodeError, stdout:string, stderr:string):void {
                                         const readHTML = function terminal_build_version_stat_read_commitHash_readHTML(err:Error, fileData:string):void {
                                                 if (err !== null) {
-                                                    library.error([err.toString()]);
+                                                    error([err.toString()]);
                                                     return;
                                                 }
                                                 const regex:RegExp = new RegExp(`<h1>\\s*(\\w+\\s*)*\\s*<span\\s+class=("|')application-version("|')>(version\\s+\\d+(\\.\\d+)+)?\\s*<\\/span>\\s*<\\/h1>`, "g"),
                                                     writeHTML = function terminal_build_version_stat_read_commitHash_readHTML_writeHTML(erh:Error):void {
                                                         if (erh !== null) {
-                                                            library.error([erh.toString()]);
+                                                            error([erh.toString()]);
                                                             return;
                                                         }
                                                         flag.html = true;
@@ -541,7 +532,7 @@ const library = {
                                             },
                                             writeVersion =  function terminal_build_version_stat_read_commitHash_writeVersion(erj:Error):void {
                                                 if (erj !== null) {
-                                                    library.error([erj.toString()]);
+                                                    error([erj.toString()]);
                                                     return;
                                                 }
                                                 flag.json = true;
@@ -551,11 +542,11 @@ const library = {
                                             };
             
                                         if (hashErr !== null) {
-                                            library.error([hashErr.toString()]);
+                                            error([hashErr.toString()]);
                                             return;
                                         }
                                         if (stderr !== "") {
-                                            library.error([stderr]);
+                                            error([stderr]);
                                             return;
                                         }
             
@@ -628,7 +619,7 @@ const library = {
                 }
             };
         if (test === false || test === undefined) {
-            library.log.title("Run All Build Tasks");
+            log.title("Run All Build Tasks");
         }
         next("");
     };
