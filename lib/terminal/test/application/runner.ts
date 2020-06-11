@@ -9,11 +9,7 @@ import service from "../samples/service.js";
 import simulation from "../samples/simulation.js";
 
 // runs various tests of different types
-const library = {
-        log: log,
-        remove: remove
-    },
-    list:testTypeCollection = {
+const list:testTypeCollection = {
         service: service,
         simulation: simulation
     },
@@ -23,9 +19,9 @@ const library = {
         }
         if (vars.command === testListType) {
             callback = function test_lint_callback(message:string):void {
-                library.log([message, "\u0007"], true); // bell sound
+                log([message, "\u0007"], true); // bell sound
             };
-            library.log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
+            log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
 
         if (testListType === "service") {

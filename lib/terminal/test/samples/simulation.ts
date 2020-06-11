@@ -37,7 +37,7 @@ const sep:string = vars.sep,
         {
             command: "",
             qualifier: "contains",
-            test: "Share File Systems requires a command. Try:"
+            test: "To see all the supported features try:"
         },
         {
             command: "anUnsupportedCommand",

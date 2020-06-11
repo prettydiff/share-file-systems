@@ -17,13 +17,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
         uri:string = (quest > 0)
             ? request.url.slice(0, quest)
             : request.url;
-    const library = {
-            error: error,
-            log: log,
-            readFile: readFile,
-            readStorage: readStorage
-        },
-        localPath:string = (uri === "/")
+    const localPath:string = (uri === "/")
             ? `${vars.projectPath}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
     vars.testLogger("methodGet", "", "Handles all HTTP requests to the server of method 'GET' and dynamically populates the HTML with data.");
@@ -39,10 +33,10 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
         if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
             if (ers !== null) {
                 if (ers.code === "ENOENT") {
-                    library.log([`${vars.text.angry}404${vars.text.none} for ${uri}`]);
+                    log([`${vars.text.angry}404${vars.text.none} for ${uri}`]);
                     response(serverResponse, "text/html", page.replace("insertMe", `<p>HTTP 404: ${uri}</p>`));
                 } else {
-                    library.error([ers.toString()]);
+                    error([ers.toString()]);
                 }
                 return;
             }
@@ -51,7 +45,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                 vars.node.fs.readdir(localPath, function terminal_server_get_stat_dir(erd:Error, list:string[]) {
                     const dirList:string[] = [`<p>directory of ${localPath}</p> <ul>`];
                     if (erd !== null) {
-                        library.error([erd.toString()]);
+                        error([erd.toString()]);
                         return;
                     }
                     list.forEach(function terminal_server_get_stat_dir_list(value:string) {
@@ -83,7 +77,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                                         response(serverResponse, pageType, dataString);
                                     };
                                 tool = true;
-                                library.readStorage(appliedData);
+                                readStorage(appliedData);
                             },
                             csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
                         vars.testLogger("methodGET", "readCallback", "After reading the requested file now to make decisions about what to do with it.");
@@ -122,7 +116,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                         path: localPath,
                         stat: stat
                     };
-                library.readFile(readConfig);
+                readFile(readConfig);
             } else {
                 serverResponse.end();
             }

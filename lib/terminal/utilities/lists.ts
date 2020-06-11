@@ -6,12 +6,7 @@ import vars from "./vars.js";
 import wrapIt from "./wrapIt.js";
 
 // CLI string output formatting for lists of items
-const library = {
-        error: error,
-        log: log,
-        wrapIt: wrapIt
-    },
-    lists = function terminal_lists(lists:nodeLists):void {
+const lists = function terminal_lists(lists:nodeLists):void {
         // * lists.empty_line - boolean - if each key should be separated by an empty line
         // * lists.heading    - string  - a text heading to precede the list
         // * lists.obj        - object  - an object to traverse
@@ -32,7 +27,7 @@ const library = {
                     lens:number = 0,
                     comm:string = "";
                 if (len < 1) {
-                    library.error([`Please run the build: ${vars.text.cyan + vars.version.command} build${vars.text.none}`]);
+                    error([`Please run the build: ${vars.text.cyan + vars.version.command} build${vars.text.none}`]);
                     return;
                 }
                 do {
@@ -52,7 +47,7 @@ const library = {
                     }
                     if (item !== "") {
                         // each of the "values" keys
-                        library.wrapIt(output, `   ${vars.text.angry}- ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj.values[keyList[b]]}`);
+                        wrapIt(output, `   ${vars.text.angry}- ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj.values[keyList[b]]}`);
                     } else {
                         // list all items
                         if (lists.property === "each") {
@@ -62,11 +57,11 @@ const library = {
                                 terminal_lists_displayKeys(vars.command, Object.keys(lists.obj.values).sort());
                             } else {
                                 // all items keys and their primitive value
-                                library.wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]]}`);
+                                wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]]}`);
                             }
                         } else {
                             // a list by key and specified property
-                            library.wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]][lists.property]}`);
+                            wrapIt(output, `${vars.text.angry}* ${vars.text.none + vars.text.cyan + comm + vars.text.none}: ${lists.obj[keyList[b]][lists.property]}`);
                         }
                         if (lists.empty_line === true) {
                             output.push("");
@@ -91,7 +86,7 @@ const library = {
         } else if (vars.command === "options" && lists.total === true) {
             output.push(`${vars.text.green + keyLength + vars.text.none} matching option${plural}.`);
         }
-        library.log(output);
+        log(output);
     };
 
 export default lists;

@@ -14,7 +14,9 @@ const base64 = function terminal_base64(input:base64Input):void {
                 const decode:number = process.argv.indexOf("decode"),
                     encode:number = process.argv.indexOf("encode");
                 if (vars.command === "base64") {
-                    log.title("Base64");
+                    if (vars.verbose === true) {
+                        log.title("Base64");
+                    }
                     input = {
                         callback: function terminal_base64_callback(output:string[]):void {
                             log(output);

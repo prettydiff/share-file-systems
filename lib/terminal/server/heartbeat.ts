@@ -14,15 +14,7 @@ import storage from "./storage.js";
 import agents from "../../common/agents.js";
 import deviceShare from "../../common/deviceShare.js";
 
-const library = {
-        agents: agents,
-        deviceShare: deviceShare,
-        error: error,
-        httpClient: httpClient,
-        log: log,
-        storage: storage
-    },
-    forbidden:string = "Unexpected user.",
+const forbidden:string = "Unexpected user.",
     removeByType = function terminal_server_heartbeatDelete_byType(list:string[], type:agentType):void {
         let a:number = list.length;
         if (a > 0) {
@@ -67,19 +59,19 @@ const library = {
                 requestError: function terminal_server_heartbeatBroadcast_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                     if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                         vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                        library.log([errorMessage.toString()]);
+                        log([errorMessage.toString()]);
                     }
                 },
                 requestType: "heartbeat",
                 responseError: function terminal_server_heartbeatBroadcast_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                        library.log([errorMessage.toString()]);
+                        log([errorMessage.toString()]);
                     }
                 }
             };
         if (config.list === null) {
-            library.agents({
+            agents({
                 complete: responder,
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
@@ -115,7 +107,7 @@ const library = {
                         httpConfig.payload = JSON.stringify({
                             [httpConfig.requestType]: payload
                         });
-                        library.httpClient(httpConfig);
+                        httpClient(httpConfig);
                     }
                 },
                 perAgentType: function terminal_server_heartbeatBroadcast_perAgentType(agentNames:agentNames) {
@@ -134,7 +126,7 @@ const library = {
                                     ip: serverVars.ipAddress,
                                     name: serverVars.nameUser,
                                     port: serverVars.webPort,
-                                    shares: library.deviceShare(serverVars.device, config.deleted)
+                                    shares: deviceShare(serverVars.device, config.deleted)
                                 }
                             }
                             : {};
@@ -165,7 +157,7 @@ const library = {
                     httpConfig.payload = JSON.stringify({
                         [httpConfig.requestType]: payload
                     });
-                    library.httpClient(httpConfig);
+                    httpClient(httpConfig);
                 }
             } while (a > 0);
         }
@@ -200,7 +192,7 @@ const library = {
             store = true;
         }
         if (store === true) {
-            library.storage(JSON.stringify({
+            storage(JSON.stringify({
                 [data.agentType]: serverVars[data.agentType]
             }), null, data.agentType);
         } else {
