@@ -54,7 +54,7 @@ const update = function terminal_update():void {
                         ? `${humanTime(false)}Code already up to date.`
                         : ((/Resolving deltas: 100% \(\d+\/\d+\), completed with \d+ local objects\./).test(stderr))
                             ? `${humanTime(false)}Code ${vars.text.green + vars.text.bold}updated${vars.text.none} from git.`
-                            : "unknown";
+                            : "unknown";console.log("stderr");console.log(stderr);
                 if (status === "unknown") {
                     log([
                         "git pull resulted in a status other than successfully pulled or already up to date.",
