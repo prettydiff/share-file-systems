@@ -78,9 +78,9 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
             httpClient(httpConfig);
         },
         accepted = function local_server_invite_accepted(respond:string):void {
-            const keyShares:string[] = Object.keys(data.shares);
             if (data.type === "device") {
-                const devices:string[] = Object.keys(serverVars.device);
+                const keyShares:string[] = Object.keys(data.shares),
+                    devices:string[] = Object.keys(serverVars.device);
                 let a:number = keyShares.length;
                 do {
                     a = a - 1;
@@ -102,7 +102,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     ip: data.ip,
                     name: data.userName,
                     port: data.port,
-                    shares: data.shares[keyShares[0]].shares
+                    shares: data.shares[data.userHash].shares
                 }
             }
             storage(JSON.stringify({

@@ -32,8 +32,8 @@ invite.accept = function local_invite_accept(box:Element):void {
 
 /* A wrapper around share.addAgents for converting devices type into device type */
 invite.addAgents = function local_invite_addAgents(invitation:invite):void {
-    const shareKeys:string[] = Object.keys(invitation.shares);
     if (invitation.type === "device") {
+        const shareKeys:string[] = Object.keys(invitation.shares);
         let a:number = shareKeys.length;
         do {
             a = a - 1;
@@ -53,10 +53,10 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
             ip: invitation.ip,
             name: invitation.userName,
             port: invitation.port,
-            shares: invitation.shares[shareKeys[0]].shares
+            shares: invitation.shares[invitation.userHash].shares
         };
         share.addAgent({
-            hash: shareKeys[0],
+            hash: invitation.userHash,
             name: invitation.userName,
             save: false,
             type: "user"
@@ -86,7 +86,9 @@ invite.complete = function local_invite_complete(invitation:invite):void {
                 }
             };
         footer.style.display = "none";
-        delay.style.display = "none";
+        if (delay !== undefined) {
+            delay.style.display = "none";
+        }
         inviteUser.style.display = "block";
         if (error === null || error === undefined) {
             const p:Element = document.createElement("p");

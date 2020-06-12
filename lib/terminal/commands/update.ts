@@ -36,7 +36,7 @@ const update = function terminal_update():void {
                     branch = process.argv[0];
                 }
                 vars.node.child(`git pull origin ${branch}`, {
-                    cwd: vars.cwd
+                    cwd: vars.projectPath
                 }, git);
             }
         },
@@ -52,7 +52,7 @@ const update = function terminal_update():void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up to date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`
-                        : ((/Resolving deltas: 100% \(\d+\/\d+\), completed with \d+ local objects\./).test(stderr))
+                        : ((/Resolving deltas: 100% \(\d+\/\d+\), completed with \d+ local objects\./).test(stderr) === true || (/\d files? changed/).test(stderr) === true)
                             ? `${humanTime(false)}Code ${vars.text.green + vars.text.bold}updated${vars.text.none} from git.`
                             : "unknown";
                 if (status === "unknown") {
@@ -67,7 +67,7 @@ const update = function terminal_update():void {
                     ]);
                     vars.verbose = false;
                     vars.node.child(`node ${vars.js}application build`, {
-                        cwd: vars.cwd
+                        cwd: vars.projectPath
                     }, build);
                 }
             }
@@ -75,7 +75,7 @@ const update = function terminal_update():void {
     log.title("Update the application");
     vars.verbose = true;
     vars.node.child("git branch", {
-        cwd: vars.cwd
+        cwd: vars.projectPath
     }, branch);
 };
 

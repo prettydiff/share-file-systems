@@ -362,7 +362,10 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                 }, function terminal_server_start_listen_socketCallback():void {
                     const readComplete = function terminal_server_start_listen_socketCallback_readComplete(storageData:storageItems) {
                             serverVars.brotli = storageData.settings.brotli;
+                            serverVars.hashDevice = storageData.settings.hashDevice;
                             serverVars.hashType = storageData.settings.hashType;
+                            serverVars.hashUser = storageData.settings.hashUser;
+                            serverVars.nameDevice = storageData.settings.nameDevice;
                             serverVars.nameUser = storageData.settings.nameUser;
                             if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
                                 logOutput(storageData);
