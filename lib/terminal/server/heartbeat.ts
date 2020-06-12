@@ -24,9 +24,10 @@ const forbidden:string = "Unexpected user.",
                     delete serverVars[type][list[a]];
                 }
             } while (a > 0);
-            storage(JSON.stringify({
-                [type]: serverVars[type]
-            }), null, type);
+            storage({
+                data: serverVars[type],
+                type: type
+            }, null);
         }
     },
     broadcast = function terminal_server_heartbeatBroadcast(config:heartbeatBroadcast) {
@@ -193,9 +194,10 @@ const forbidden:string = "Unexpected user.",
                 store = true;
             }
             if (store === true) {
-                storage(JSON.stringify({
-                    [data.agentType]: serverVars[data.agentType]
-                }), null, data.agentType);
+                storage({
+                    data: serverVars[data.agentType],
+                    type: data.agentType
+                }, null);
             } else {
                 data.shares = {};
             }
@@ -233,9 +235,10 @@ const forbidden:string = "Unexpected user.",
                 }
             } else if (data.agentType === "user") {
                 delete serverVars.user[data.agentFrom];
-                storage(JSON.stringify({
-                    user: serverVars.user
-                }), null, "user");
+                storage({
+                    data: serverVars.user,
+                    type: "user"
+                }, null);
             }
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-delete-agents": data
@@ -273,9 +276,10 @@ const forbidden:string = "Unexpected user.",
             }
             if (share === true) {
                 serverVars.device = data.shares;
-                storage(JSON.stringify({
-                    device: serverVars.device
-                }), null, "device");
+                storage({
+                    data: serverVars.device,
+                    type: "device"
+                }, null);
             }
             broadcast({
                 deleted: {

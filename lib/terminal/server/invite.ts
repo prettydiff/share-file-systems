@@ -105,9 +105,10 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     shares: data.shares[keyShares[0]].shares
                 }
             }
-            storage(JSON.stringify({
-                [data.type]: serverVars[data.type]
-            }), null, data.type);
+            storage({
+                data: serverVars[data.type],
+                type: data.type
+            }, null);
             responseString = `Accepted${respond}`;
         };
     let responseString:string;

@@ -9,13 +9,13 @@ import vars from "../utilities/vars.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 
-const storage = function terminal_server_storage(dataString:string, serverResponse:ServerResponse, task:storageType):void {
-    const location:string = serverVars.storage + vars.sep + task,
+const storage = function terminal_server_storage(data:storage, serverResponse:ServerResponse):void {
+    const location:string = serverVars.storage + vars.sep + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
             if (vars.command.indexOf("test") === 0) {
-                response(serverResponse, "text/plain", `${task} storage written with false response for testing.`);
+                response(serverResponse, "text/plain", `${data.type} storage written with false response for testing.`);
             } else {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_renameNode(erName:Error) {
                     if (erName !== null) {
@@ -28,7 +28,7 @@ const storage = function terminal_server_storage(dataString:string, serverRespon
                         response(serverResponse, "text/plain", erName.toString());
                         return;
                     }
-                    response(serverResponse, "text/plain", `${task} written`);
+                    response(serverResponse, "text/plain", `${data.type} written`);
                 });
             }
         },
@@ -40,8 +40,8 @@ const storage = function terminal_server_storage(dataString:string, serverRespon
                 response(serverResponse, "text/plain", erSettings.toString());
                 return;
             }
-            if (task === "settings") {
-                const settings:ui_data = parsed.settings;
+            if (data.type === "settings") {
+                const settings:ui_data = <ui_data>data.data;
                 if (vars.command.indexOf("test") !== 0) {
                     serverVars.brotli = settings.brotli;
                     serverVars.hashType = settings.hashType;
@@ -57,14 +57,11 @@ const storage = function terminal_server_storage(dataString:string, serverRespon
                 rename();
             }
         };
-    let parsed:storage = JSON.parse(dataString);
-    vars.testLogger("storage", "", `Write application data to disk for type ${task}`);
-    if (parsed[task] === undefined) {
-        error([`Attempted to write undefined to storage for task: ${task}`]);
-    } else if (vars.command.indexOf("test") === 0) {
+    vars.testLogger("storage", "", `Write application data to disk for type ${data.type}`);
+    if (vars.command.indexOf("test") === 0) {
         writeCallback(null);
     } else {
-        vars.node.fs.writeFile(fileName, JSON.stringify(parsed[task]), "utf8", writeCallback);
+        vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
     }
 };
 

@@ -14,7 +14,6 @@ import readStorage from "../utilities/readStorage.js";
 
 import forbiddenUser from "../server/forbiddenUser.js";
 import heartbeat from "../server/heartbeat.js";
-import httpClient from "../server/httpClient.js";
 import invite from "../server/invite.js";
 import methodGET from "../server/methodGET.js";
 import readOnly from "../server/readOnly.js";
@@ -78,9 +77,10 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                                     shares: {}
                                 };
                                 hashes.device = hashDevice.hash;
-                                storage(JSON.stringify({
-                                    "device": serverVars.device
-                                }), null, "device");
+                                storage({
+                                    data: serverVars.device,
+                                    type: "device"
+                                }, null);
                                 response(serverResponse, "text/plain", JSON.stringify(hashes));
                             };
                             serverVars.hashUser = hashUser.hash;
@@ -176,9 +176,10 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                 } else if (task === "heartbeat-delete-agents") {
                     // * received instructions from remote to delete agents
                     heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], serverResponse);
-                } else if (task === "settings" || task === "messages" || task === "device" || task === "user") {
+                } else if (task === "storage") {
                     // * local: Writes changes to storage files
-                    storage(body, serverResponse, task);
+                    const dataPackage:storage = JSON.parse(body);
+                    storage(dataPackage, serverResponse);
                 } else if (task === "hashShare") {
                     // * generate a hash string to name a share
                     hashShare();

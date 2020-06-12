@@ -239,10 +239,18 @@ network.storage = function local_network_storage(type:storageType):void {
                 }
             }
         },
-        payload:string = JSON.stringify({
-            [type]: (type === "settings")
+        storage:storage = {
+            data: (type === "settings")
                 ? browser.data
-                : browser[type]
+                : (type === "messages")
+                    ? browser.messages
+                    : (type === "device")
+                        ? browser.device
+                        : browser.user,
+            type: type
+        },
+        payload:string = JSON.stringify({
+            storage: storage
         });
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
