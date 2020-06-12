@@ -26,8 +26,9 @@ const forbidden:string = "Unexpected user.",
             } while (a > 0);
             storage({
                 data: serverVars[type],
+                response: null,
                 type: type
-            }, null);
+            });
         }
     },
     broadcast = function terminal_server_heartbeatBroadcast(config:heartbeatBroadcast) {
@@ -196,8 +197,9 @@ const forbidden:string = "Unexpected user.",
             if (store === true) {
                 storage({
                     data: serverVars[data.agentType],
+                    response: null,
                     type: data.agentType
-                }, null);
+                });
             } else {
                 data.shares = {};
             }
@@ -237,8 +239,9 @@ const forbidden:string = "Unexpected user.",
                 delete serverVars.user[data.agentFrom];
                 storage({
                     data: serverVars.user,
+                    response: null,
                     type: "user"
-                }, null);
+                });
             }
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-delete-agents": data
@@ -278,8 +281,9 @@ const forbidden:string = "Unexpected user.",
                 serverVars.device = data.shares;
                 storage({
                     data: serverVars.device,
+                    response: null,
                     type: "device"
-                }, null);
+                });
             }
             broadcast({
                 deleted: {

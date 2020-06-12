@@ -79,8 +79,9 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                                 hashes.device = hashDevice.hash;
                                 storage({
                                     data: serverVars.device,
+                                    response: null,
                                     type: "device"
-                                }, null);
+                                });
                                 response(serverResponse, "text/plain", JSON.stringify(hashes));
                             };
                             serverVars.hashUser = hashUser.hash;
@@ -179,7 +180,8 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                 } else if (task === "storage") {
                     // * local: Writes changes to storage files
                     const dataPackage:storage = JSON.parse(body);
-                    storage(dataPackage, serverResponse);
+                    dataPackage.response = serverResponse;
+                    storage(dataPackage);
                 } else if (task === "hashShare") {
                     // * generate a hash string to name a share
                     hashShare();

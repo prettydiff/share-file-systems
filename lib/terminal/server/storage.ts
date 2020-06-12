@@ -9,13 +9,13 @@ import vars from "../utilities/vars.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 
-const storage = function terminal_server_storage(data:storage, serverResponse:ServerResponse):void {
+const storage = function terminal_server_storage(data:storage):void {
     const location:string = serverVars.storage + vars.sep + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
             if (vars.command.indexOf("test") === 0) {
-                response(serverResponse, "text/plain", `${data.type} storage written with false response for testing.`);
+                response(data.response, "text/plain", `${data.type} storage written with false response for testing.`);
             } else {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_renameNode(erName:Error) {
                     if (erName !== null) {
@@ -25,10 +25,10 @@ const storage = function terminal_server_storage(data:storage, serverResponse:Se
                                 error([erUnlink.toString()]);
                             }
                         });
-                        response(serverResponse, "text/plain", erName.toString());
+                        response(data.response, "text/plain", erName.toString());
                         return;
                     }
-                    response(serverResponse, "text/plain", `${data.type} written`);
+                    response(data.response, "text/plain", `${data.type} written`);
                 });
             }
         },
@@ -37,7 +37,7 @@ const storage = function terminal_server_storage(data:storage, serverResponse:Se
             if (erSettings !== null) {
                 error([erSettings.toString()]);
                 log([erSettings.toString()]);
-                response(serverResponse, "text/plain", erSettings.toString());
+                response(data.response, "text/plain", erSettings.toString());
                 return;
             }
             if (data.type === "settings") {

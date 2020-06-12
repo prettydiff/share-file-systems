@@ -639,6 +639,7 @@ declare global {
     }
     interface storage {
         data: devices | messages | ui_data;
+        response: ServerResponse;
         type: storageType;
     }
     interface storageFlag {

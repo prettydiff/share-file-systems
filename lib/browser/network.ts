@@ -247,6 +247,7 @@ network.storage = function local_network_storage(type:storageType):void {
                     : (type === "device")
                         ? browser.device
                         : browser.user,
+            response: null,
             type: type
         },
         payload:string = JSON.stringify({

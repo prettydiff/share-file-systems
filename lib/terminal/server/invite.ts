@@ -107,8 +107,9 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
             }
             storage({
                 data: serverVars[data.type],
+                response: null,
                 type: data.type
-            }, null);
+            });
             responseString = `Accepted${respond}`;
         };
     let responseString:string;
