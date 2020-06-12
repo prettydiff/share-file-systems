@@ -72,9 +72,16 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
 
     const lists:Element = document.createElement("div"),
         fileNavigate = function local_share_content_fileNavigate(event:MouseEvent):void {
-            const element:Element = <Element>event.srcElement || <Element>event.target,
+            const element:Element = (function local_share_content_fileNavigate_getElement():Element {
+                    const item:Element = <Element>event.srcElement || <Element>event.target;
+                    if (item.nodeName.toLowerCase() === "button") {
+                        return item;
+                    }
+                    return item.getAncestor("button", "tag");
+                }()),
                 parent:Element = <Element>element.parentNode,
-                agent:string = parent.parentNode.previousSibling.firstChild.textContent,
+                agentNode:Element = <Element>parent.parentNode.parentNode,
+                agent:string = agentNode.getAttribute("data-hash"),
                 share:string = parent.getAttribute("data-hash"),
                 agentType:agentType = <agentType>element.getAttribute("class"),
                 path:string = element.firstChild.textContent,
@@ -94,7 +101,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 agentName: agent,
                 agentType: agentType,
                 path: address,
-                readOnly: browser.device[agentType][agent].shares[share].readOnly
+                readOnly: browser[agentType][agent].shares[share].readOnly
             });
         },
         deviceButton = function local_share_content_deviceButton(title:Element, hash:string):void {
@@ -110,6 +117,53 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                     });
                 };
                 title.appendChild(button);
+        },
+        perAgent = function local_share_content_perAgent(agentNames:agentNames):void {
+            const li:Element = document.createElement("li"),
+                title:Element = document.createElement("h4");
+            shareListUL = document.createElement("ul");
+            title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
+            if (agentNames.agentType === "device") {
+                deviceButton(title, agentNames.agent);
+            }
+            li.appendChild(title);
+            li.setAttribute("data-hash", agentNames.agent);
+            li.setAttribute("class", "agent");
+            if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
+                li.appendChild(shareListUL);
+            } else {
+                const p:Element = document.createElement("p");
+                p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
+                li.appendChild(p);
+            }
+            agentTypeUL.appendChild(li);
+        },
+        perAgentType = function local_share_content_perAgentType(agentNames:agentNames):void {
+            const type:agentType = agentNames.agentType;
+            agentTypeUL = document.createElement("ul");
+            if (agentName === "" && (agentType === "" || agentType === type)) {
+                const title:Element = document.createElement("h3"),
+                    list:string[] = Object.keys(browser[type]),
+                    listLength:number = list.length;
+                if (listLength > 0) {
+                    const plural:string = (listLength === 1)
+                            ? ""
+                            : "s",
+                        verb:string = (listLength === 1)
+                            ? "is"
+                            : "are",
+                        adjective:string = (type === "device")
+                            ? "available"
+                            : "shared";
+                    agentTypeUL.setAttribute("class", "agentList")
+                    title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                    lists.appendChild(title);
+                    lists.appendChild(agentTypeUL);
+                } else {
+                    title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
+                    lists.appendChild(title);
+                }
+            }
         },
         perShare = function local_share_content_perShare(agentNames:agentNames):void {
             const li:Element = document.createElement("li"),
@@ -154,8 +208,8 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             } else {
                 if (shareItem.readOnly === false) {
                     li.setAttribute("class", "full-access");
-                    li.appendChild(button);
                 }
+                li.appendChild(button);
             }
             shareListUL.appendChild(li);
         };
@@ -165,53 +219,8 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
     if (agentName === "" || agentType === "") {
         agents({
             countBy: "share",
-            perAgent: function local_share_content_perAgent(agentNames:agentNames):void {
-                const li:Element = document.createElement("li"),
-                    title:Element = document.createElement("h4");
-                shareListUL = document.createElement("ul");
-                title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
-                if (agentNames.agentType === "device") {
-                    deviceButton(title, agentNames.agent);
-                }
-                li.appendChild(title);
-                li.setAttribute("data-hash", agentNames.agent);
-                li.setAttribute("class", "agent");
-                if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
-                    li.appendChild(shareListUL);
-                } else {
-                    const p:Element = document.createElement("p");
-                    p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
-                    li.appendChild(p);
-                }
-                agentTypeUL.appendChild(li);
-            },
-            perAgentType: function local_share_content_perAgentType(agentNames:agentNames):void {
-                const type:agentType = agentNames.agentType;
-                agentTypeUL = document.createElement("ul");
-                if (agentName === "" && (agentType === "" || agentType === type)) {
-                    const title:Element = document.createElement("h3"),
-                        list:string[] = Object.keys(browser[type]),
-                        listLength:number = list.length;
-                    if (listLength > 0) {
-                        const plural:string = (listLength === 1)
-                                ? ""
-                                : "s",
-                            verb:string = (listLength === 1)
-                                ? "is"
-                                : "are",
-                            adjective:string = (type === "device")
-                                ? "available"
-                                : "shared";
-                        agentTypeUL.setAttribute("class", "agentList")
-                        title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
-                        lists.appendChild(title);
-                        lists.appendChild(agentTypeUL);
-                    } else {
-                        title.innerHTML = `There are no <strong>${type}</strong> connections at this time.`;
-                        lists.appendChild(title);
-                    }
-                }
-            },
+            perAgent: perAgent,
+            perAgentType: perAgentType,
             perShare: perShare,
             source: browser
         });
@@ -530,34 +539,36 @@ share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
 
 /* Displays a list of shared items for each user */
 share.modal = function local_shares_modal(agent:string, agentType:agentType|"", configuration:ui_modal|null):void {
-    const content:Element = share.content(agent, agentType),
-        icon:string = (agentType === "device")
-            ? "🖳"
-            : "👤",
-        title:string = (agent === "")
-            ? (agentType === "")
-                ? "⌘ All Shares"
-                : `${icon} All ${agentType.charAt(0).toUpperCase() + agentType.slice(1)} Shares`
-            : `${icon} Shares for ${agentType} - ${browser[agentType][agent].name}`;
-    if (configuration === undefined || configuration === null) {
+    if (configuration === null) {
+        const icon:string = (agentType === "device")
+                ? "🖳"
+                : "👤",
+            title:string = (agent === "")
+                ? (agentType === "")
+                    ? "⌘ All Shares"
+                    : `${icon} All ${agentType.charAt(0).toUpperCase() + agentType.slice(1)} Shares`
+                : `${icon} Shares for ${agentType} - ${browser[agentType][agent].name}`;
         configuration = {
             agent: agent,
             agentType: (agentType === "" || agent === "")
                 ? "device"
                 : agentType,
-            content: content,
+            content: share.content(agent, agentType),
+            inputs: ["close", "maximize", "minimize"],
             read_only: false,
+            text_value: title,
             title: title,
             type: "shares",
             width: 800
         };
     } else {
-        configuration.content = content;
-        configuration.title = title;
+        configuration.content = (configuration.title === "👤 All User Shares")
+            ? share.content("", "user")
+            : share.content(agent, agentType);
         configuration.type = "shares";
+        configuration.text_value = configuration.title;
+        configuration.inputs = ["close", "maximize", "minimize"];
     }
-    configuration.text_value = title;
-    configuration.inputs = ["close", "maximize", "minimize"];
     modal.create(configuration);
 };
 

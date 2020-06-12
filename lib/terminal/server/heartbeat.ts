@@ -174,27 +174,31 @@ const forbidden:string = "Unexpected user.",
             length:number = keys.length;
         let store:boolean = false;
         vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
-        if (data.agentType === "device" && length > 0) {
-            let a:number = 0;
-            do {
-                if (serverVars.device[keys[a]] === undefined) {
-                    serverVars.device[keys[a]] = data.shares[keys[a]];
-                    store = true;
-                } else if (JSON.stringify(serverVars.device[keys[a]].shares) !== JSON.stringify(data.shares[keys[a]].shares)) {
-                    serverVars.device[keys[a]].shares = data.shares[keys[a]].shares;
-                    store = true;
-                }
-                a = a + 1;
-            } while (a < length);
-            data.shares = serverVars.device;
-        } else if (data.agentType === "user" && JSON.stringify(serverVars.user[data.agentFrom].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
-            serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
-            store = true;
-        }
-        if (store === true) {
-            storage(JSON.stringify({
-                [data.agentType]: serverVars[data.agentType]
-            }), null, data.agentType);
+        if (length > 0) {
+            if (data.agentType === "device") {
+                let a:number = 0;
+                do {
+                    if (serverVars.device[keys[a]] === undefined) {
+                        serverVars.device[keys[a]] = data.shares[keys[a]];
+                        store = true;
+                    } else if (JSON.stringify(serverVars.device[keys[a]].shares) !== JSON.stringify(data.shares[keys[a]].shares)) {
+                        serverVars.device[keys[a]].shares = data.shares[keys[a]].shares;
+                        store = true;
+                    }
+                    a = a + 1;
+                } while (a < length);
+                data.shares = serverVars.device;
+            } else if (data.agentType === "user" && JSON.stringify(serverVars.user[data.agentFrom].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
+                serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
+                store = true;
+            }
+            if (store === true) {
+                storage(JSON.stringify({
+                    [data.agentType]: serverVars[data.agentType]
+                }), null, data.agentType);
+            } else {
+                data.shares = {};
+            }
         } else {
             data.shares = {};
         }

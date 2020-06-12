@@ -637,14 +637,6 @@ declare global {
         error: string;
         stack: string[];
     }
-    interface stringData {
-        content: string;
-        id: string;
-        path: string;
-    }
-    interface stringDataList extends Array<stringData> {
-        [index:number]: stringData;
-    }
     interface storage {
         messages?: messages;
         settings?: ui_data;
@@ -659,6 +651,14 @@ declare global {
         messages: messages;
         settings: ui_data;
         user: devices;
+    }
+    interface stringData {
+        content: string;
+        id: string;
+        path: string;
+    }
+    interface stringDataList extends Array<stringData> {
+        [index:number]: stringData;
     }
     interface styleText{
         agent: string;
