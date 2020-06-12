@@ -32,16 +32,16 @@ invite.accept = function local_invite_accept(box:Element):void {
 
 /* A wrapper around share.addAgents for converting devices type into device type */
 invite.addAgents = function local_invite_addAgents(invitation:invite):void {
+    const keyShares:string[] = Object.keys(invitation.shares);
     if (invitation.type === "device") {
-        const shareKeys:string[] = Object.keys(invitation.shares);
-        let a:number = shareKeys.length;
+        let a:number = keyShares.length;
         do {
             a = a - 1;
-            if (browser.device[shareKeys[a]] === undefined) {
-                browser.device[shareKeys[a]] = invitation.shares[shareKeys[a]];
+            if (browser.device[keyShares[a]] === undefined) {
+                browser.device[keyShares[a]] = invitation.shares[keyShares[a]];
                 share.addAgent({
-                    hash: shareKeys[a],
-                    name: invitation.shares[shareKeys[a]].name,
+                    hash: keyShares[a],
+                    name: invitation.shares[keyShares[a]].name,
                     save: false,
                     type: "device"
                 });
@@ -49,11 +49,11 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
         } while (a > 0);
         browser.data.nameUser = invitation.userName;
     } else if (invitation.type === "user") {
-        browser.user[invitation.userHash] = {
+        browser.user[keyShares[0]] = {
             ip: invitation.ip,
             name: invitation.userName,
             port: invitation.port,
-            shares: invitation.shares[invitation.userHash].shares
+            shares: invitation.shares[keyShares[0]].shares
         };
         share.addAgent({
             hash: invitation.userHash,
