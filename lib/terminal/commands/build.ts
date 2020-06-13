@@ -138,7 +138,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                             return;
                         }
                         const length:number = dirList.length,
-                            tempTest:RegExp = (/^\w+-0\.\d+.json$/);
+                            tempTest:RegExp = (/((^\w+-0\.\d+)|(undefined)).json$/);
                         let a:number = 0,
                             start:number = 0,
                             end:number = 0;

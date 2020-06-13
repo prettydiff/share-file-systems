@@ -58,6 +58,10 @@ const storage = function terminal_server_storage(data:storage):void {
             }
         };
     vars.testLogger("storage", "", `Write application data to disk for type ${data.type}`);
+    if (data.type === undefined) {
+        error(["Submitted a 'type' value of undefined to the storage utility."]);
+        return;
+    }
     if (vars.command.indexOf("test") === 0) {
         writeCallback(null);
     } else {
