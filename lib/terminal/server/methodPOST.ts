@@ -110,7 +110,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], serverResponse);
             } else if (task === "storage") {
                 // * local: Writes changes to storage files
-                const dataPackage:storage = JSON.parse(body);
+                const dataPackage:storage = JSON.parse(body).storage;
                 dataPackage.response = serverResponse;
                 storage(dataPackage);
             } else if (task === "hashShare") {
