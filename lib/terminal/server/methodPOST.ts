@@ -89,7 +89,9 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 heartbeat.response(JSON.parse(body).heartbeat, serverResponse)
             } else if (task === "heartbeat-update") {
                 // * prepare heartbeat pulse for connected agents
-                heartbeat.update(JSON.parse(body)["heartbeat-update"]);
+                const dataPackage:heartbeatUpdate = JSON.parse(body)["heartbeat-update"];
+                dataPackage.response = serverResponse;
+                heartbeat.update(dataPackage);
             } else if (task === "heartbeat-response") {
                 // * response to a heartbeat pulse
                 heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
