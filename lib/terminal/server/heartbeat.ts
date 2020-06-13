@@ -2,7 +2,6 @@
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
 import { ServerResponse } from "http";
 
-import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
@@ -116,6 +115,7 @@ const forbidden:string = "Unexpected user.",
                 perAgentType: function terminal_server_heartbeatBroadcast_perAgentType(agentNames:agentNames) {
                     httpConfig.agentType = agentNames.agentType;
                     payload.agentType = agentNames.agentType;
+                    payload.shareType = agentNames.agentType;
                     if (agentNames.agentType === "device") {
                         payload.agentFrom = serverVars.hashDevice;
                         payload.shares = (config.sendShares === true)
@@ -133,7 +133,6 @@ const forbidden:string = "Unexpected user.",
                                 }
                             }
                             : {};
-                        payload.shareType = agentNames.agentType;
                         if (config.sendShares === true && JSON.stringify(payload.shares[serverVars.hashUser].shares) === "{}") {
                             config.sendShares = false;
                         }
@@ -197,7 +196,7 @@ const forbidden:string = "Unexpected user.",
                     a = a + 1;
                 } while (a < length);
                 data.shares = serverVars.device;
-            } else if (data.agentType === "user") {
+            } else if (data.shareType === "user") {
                 if (serverVars.user[keys[0]] === undefined) {
                     serverVars.user[keys[0]] = data.shares[keys[0]];
                     store = true;

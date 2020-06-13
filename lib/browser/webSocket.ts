@@ -145,7 +145,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                         button.setAttribute("class", <heartbeatStatus>heartbeat.status);
                     }
                     if (keys.length > 0) {
-                        if (heartbeat.agentType === "device") {
+                        if (heartbeat.shareType === "device") {
                             const length:number = keys.length;
                             let a:number = 0;
                             do {
@@ -161,9 +161,15 @@ const title:Element = document.getElementsByClassName("title")[0],
                                 a = a + 1;
                             } while (a < length);
                             browser.device[heartbeat.agentFrom] = heartbeat.shares[heartbeat.agentFrom];
-                        } else if (heartbeat.agentType === "user") {
+                        } else if (heartbeat.shareType === "user") {
                             if (browser.user[keys[0]] === undefined) {
                                 browser.user[keys[0]] = heartbeat.shares[keys[0]];
+                                share.addAgent({
+                                    hash: keys[0],
+                                    name: heartbeat.shares[keys[0]].name,
+                                    save: false,
+                                    type: "user"
+                                });
                             } else {
                                 browser.user[keys[0]].shares = heartbeat.shares[keys[0]].shares;
                             }
