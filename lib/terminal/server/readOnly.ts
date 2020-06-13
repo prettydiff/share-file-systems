@@ -18,10 +18,12 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         const shares:deviceShares = (data.action === "fs-copy-file" && serverVars[data.copyType][data.copyAgent] !== undefined)
                 ? serverVars[data.copyType][data.copyAgent].shares
                 : serverVars[data.agentType][data.agent].shares,
+            shareKeys:string[] = Object.keys(shares),
             windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
             readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
-            sIndex:number = Object.keys(shares).length,
+            sIndex:number = shareKeys.length,
+            share:deviceShare,
             bestMatch:number = -1;
         if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
             readOnly.push("fs-copy-file");
@@ -29,11 +31,12 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         if (sIndex > 0) {
             do {
                 dIndex = dIndex - 1;
-                sIndex = Object.keys(shares).length;
+                sIndex = shareKeys.length;
                 do {
                     sIndex = sIndex - 1;
-                    if (location[dIndex].indexOf(shares[sIndex].name) === 0 || (windows === true && location[dIndex].toLowerCase().indexOf(shares[sIndex].name.toLowerCase()) === 0)) {
-                        if (bestMatch < 0 || shares[sIndex].name.length > shares[bestMatch].name.length) {
+                    share = shares[shareKeys[sIndex]];
+                    if (location[dIndex].indexOf(share.name) === 0 || (windows === true && location[dIndex].toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
+                        if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
                             bestMatch = sIndex;
                         }
                     }
@@ -41,7 +44,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
                 if (bestMatch < 0) {
                     location.splice(dIndex, 1);
                 } else {
-                    if (shares[bestMatch].readOnly === true && readOnly.indexOf(data.action) < 0) {
+                    if (shares[shareKeys[bestMatch]].readOnly === true && readOnly.indexOf(data.action) < 0) {
                         response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"readOnly"}`);
                         return;
                     }
