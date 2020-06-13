@@ -37,6 +37,7 @@ const forbidden:string = "Unexpected user.",
                 agentTo: "",
                 agentType: "device",
                 shares: {},
+                shareType: "device",
                 status: (config.status === "deleted")
                     ? config.deleted
                     : config.status
@@ -132,6 +133,7 @@ const forbidden:string = "Unexpected user.",
                                 }
                             }
                             : {};
+                        payload.shareType = agentNames.agentType;
                         if (config.sendShares === true && JSON.stringify(payload.shares[serverVars.hashUser].shares) === "{}") {
                             config.sendShares = false;
                         }
@@ -144,11 +146,12 @@ const forbidden:string = "Unexpected user.",
                 agent:string;
             if (a > 0) {
                 httpConfig.agentType = "device";
-                payload.agentType = config.list.type;
+                payload.agentType = "device";
                 payload.agentFrom = serverVars.hashDevice;
                 payload.shares = (config.sendShares === true)
                     ? config.list.payload
                     : {};
+                payload.shareType = config.list.type;
                 httpConfig.requestType = "heartbeat";
                 do {
                     a = a - 1;
@@ -181,7 +184,7 @@ const forbidden:string = "Unexpected user.",
         let store:boolean = false;
         vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
         if (length > 0) {
-            if (data.agentType === "device") {
+            if (data.shareType === "device") {
                 let a:number = 0;
                 do {
                     if (serverVars.device[keys[a]] === undefined) {
@@ -194,15 +197,20 @@ const forbidden:string = "Unexpected user.",
                     a = a + 1;
                 } while (a < length);
                 data.shares = serverVars.device;
-            } else if (data.agentType === "user" && JSON.stringify(serverVars.user[data.agentFrom].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
-                serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
-                store = true;
+            } else if (data.agentType === "user") {
+                if (serverVars.user[keys[0]] === undefined) {
+                    serverVars.user[keys[0]] = data.shares[keys[0]];
+                    store = true;
+                } else if (JSON.stringify(serverVars.user[keys[0]].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
+                    serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
+                    store = true;
+                }
             }
             if (store === true) {
                 storage({
-                    data: serverVars[data.agentType],
+                    data: serverVars[data.shareType],
                     response: null,
-                    type: data.agentType
+                    type: data.shareType
                 });
             } else {
                 data.shares = {};
@@ -289,8 +297,6 @@ const forbidden:string = "Unexpected user.",
                     type: "device"
                 });
             }
-            // tell it to send user shares to devices
-            // currently it only sends device updates to devices
             broadcast({
                 deleted: {
                     device: [],

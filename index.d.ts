@@ -278,6 +278,7 @@ declare global {
         agentFrom: string;
         agentType: agentType;
         shares: devices;
+        shareType: agentType;
         status: heartbeatStatus | agentDeletion;
     }
     interface heartbeatBroadcast {

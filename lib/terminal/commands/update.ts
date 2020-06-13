@@ -44,7 +44,7 @@ const update = function terminal_update():void {
             vars.verbose = true;
             if (childError(err, "build") === false) {
                 log([
-                    `${humanTime(false)}Build complete.`
+                    `${humanTime(false)}Build complete.\u0007`
                 ], true);
             }
         },

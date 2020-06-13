@@ -162,7 +162,11 @@ const title:Element = document.getElementsByClassName("title")[0],
                             } while (a < length);
                             browser.device[heartbeat.agentFrom] = heartbeat.shares[heartbeat.agentFrom];
                         } else if (heartbeat.agentType === "user") {
-                            browser.user[heartbeat.agentFrom].shares = heartbeat.shares[keys[0]].shares;
+                            if (browser.user[keys[0]] === undefined) {
+                                browser.user[keys[0]] = heartbeat.shares[keys[0]];
+                            } else {
+                                browser.user[keys[0]].shares = heartbeat.shares[keys[0]].shares;
+                            }
                         }
                         share.update("");
                     }
