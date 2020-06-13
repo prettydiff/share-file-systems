@@ -270,7 +270,7 @@ const forbidden:string = "Unexpected user.",
                 }));
             }
         },
-        update: function terminal_server_heartbeatUpdate(data:heartbeatUpdate, response:ServerResponse):void {
+        update: function terminal_server_heartbeatUpdate(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (JSON.stringify(data.shares) !== "{}");
             vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
@@ -291,7 +291,7 @@ const forbidden:string = "Unexpected user.",
                     user: []
                 },
                 list: data.broadcastList,
-                response: response,
+                response: data.response,
                 sendShares: share,
                 status: data.status
             });

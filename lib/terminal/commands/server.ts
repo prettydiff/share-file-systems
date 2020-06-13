@@ -128,11 +128,12 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                         const hbConfig:heartbeatUpdate = {
                             agentFrom: "localhost-terminal",
                             broadcastList: null,
+                            response: null,
                             shares: {},
                             status: "idle"
                         };
                         logOutput(storageData);
-                        heartbeat.update(hbConfig, null);
+                        heartbeat.update(hbConfig);
                     }
                 },
                 socketCallback = function terminal_server_start_socketCallback():void {

@@ -52,7 +52,7 @@ const update = function terminal_update():void {
             if (childError(err, "git") === false) {
                 const status:string = (stderr.indexOf("Already up to date.") > -1)
                         ? `${humanTime(false)}Code already up to date.`
-                        : (stderr.indexOf("Fast-forward\s") > 0 && stderr.indexOf("Updating ") > 0)
+                        : ((/Fast-forward\s/).test(stderr) === true && stderr.indexOf("Updating ") > 0)
                             ? `${humanTime(false)}Code ${vars.text.green + vars.text.bold}updated${vars.text.none} from git.`
                             : "unknown";
                 if (status === "unknown") {

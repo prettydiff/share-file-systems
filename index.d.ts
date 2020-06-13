@@ -292,11 +292,12 @@ declare global {
         deleteResponse: (data:heartbeat, response:ServerResponse) => void;
         parse: (data:heartbeat) => void;
         response: (data:heartbeat, response:ServerResponse) => void;
-        update: (data:heartbeatUpdate, response:ServerResponse) => void;
+        update: (data:heartbeatUpdate) => void;
     }
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
         broadcastList: string[];
+        response: ServerResponse;
         shares: devices;
         status: heartbeatStatus;
     }

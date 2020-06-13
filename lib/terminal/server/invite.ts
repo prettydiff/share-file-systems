@@ -101,9 +101,10 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                 heartbeat.update({
                     agentFrom: "localhost-terminal",
                     broadcastList: devices,
-                    shares: serverVars.device,
+                    response: null,
+                    shares: serverVars[data.type],
                     status: "active"
-                }, null);
+                });
             }
             storage({
                 data: serverVars[data.type],
