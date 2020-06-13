@@ -279,7 +279,7 @@ const forbidden:string = "Unexpected user.",
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }
-            if (share === true) {
+            if (share === true && data.type === "device") {
                 serverVars.device = data.shares;
                 storage({
                     data: serverVars.device,

@@ -130,7 +130,8 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                             broadcastList: null,
                             response: null,
                             shares: {},
-                            status: "idle"
+                            status: "idle",
+                            type: "device"
                         };
                         logOutput(storageData);
                         heartbeat.update(hbConfig);

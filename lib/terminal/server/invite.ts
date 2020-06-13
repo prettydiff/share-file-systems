@@ -103,7 +103,8 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     broadcastList: devices,
                     response: null,
                     shares: serverVars[data.type],
-                    status: "active"
+                    status: "active",
+                    type: data.type
                 });
             }
             storage({

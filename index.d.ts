@@ -300,6 +300,7 @@ declare global {
         response: ServerResponse;
         shares: devices;
         status: heartbeatStatus;
+        type: agentType;
     }
     interface httpConfiguration {
         agentType: agentType,

@@ -153,7 +153,8 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
             shares: (update === true)
                 ? browser.device
                 : {},
-            status: status
+            status: status,
+            type: "device"
         };
     
     xhr.onreadystatechange = readyState;
