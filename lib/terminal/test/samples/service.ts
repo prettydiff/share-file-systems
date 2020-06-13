@@ -861,116 +861,132 @@ service.populate = function test_services_populate():void {
         qualifier: "is",
         test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}storage","status":"test payload"}} at XXXX `
     });
-    service.push(<testTemplateSettings>{
+    service.push(<testTemplateStorage>{
         command: {
-            settings: {
-                audio: true,
-                brotli: 7,
-                color: "default",
-                colors: {
-                    device: {
-                        [serverVars.hashDevice]: ["fff", "eee"]
-                    },
-                    user: {}
-                },
-                hashDevice: serverVars.hashDevice,
-                hashType: "sha3-512",
-                hashUser: serverVars.hashUser,
-                modals: {
-                    "systems-modal": {
-                        agent: serverVars.hashDevice,
-                        agentType: "device",
-                        content: null,
-                        inputs: [
-                            "close", "maximize", "minimize"
-                        ],
-                        read_only: false,
-                        single: true,
-                        status: "hidden",
-                        title: "<span class=\"icon-systemLog\">⌬</span> System Log",
-                        type: "systems",
-                        width: 800,
-                        zIndex: 1,
-                        id: "systems-modal",
-                        left: 200,
-                        top: 200,
-                        height: 400
-                    },
-                },
-                modalTypes: [
-                    "systems", "settings", "fileNavigate", "invite-request"
-                ],
-                nameDevice: "this device name",
-                nameUser: "local user name",
-                zIndex: 6
-            }
-        },
-        name: "settings, Local settings storage without HTTP response",
-        qualifier: "is",
-        test: "settings storage written with false response for testing."
-    });
-    service.push(<testTemplateMessages>{
-        command: {
-            messages: {
-                status: [],
-                users: [],
-                errors: [
-                    [
-                        "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
-                            "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
-                            "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
-                            "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
-                            "FSReqCallback.oncomplete (fs.js:154:23)"
-                        ]
-                    ]
-                ]
-            }
-        },
-        name: "messages, Local messages storage without HTTP response",
-        qualifier: "is",
-        test: "messages storage written with false response for testing."
-    });
-    service.push(<testTemplateDevice>{
-        command: {
-            device: {
-                [serverVars.hashDevice]: {
-                    ip: loopback,
-                    name: "local device name",
-                    port: 80,
-                    shares: {
-                        [serverVars.hashDevice]: {
-                            execute: false,
-                            name: "C:\\mp3",
-                            readOnly: false,
-                            type: "directory"
+            storage: {
+                data: {
+                    [serverVars.hashDevice]: {
+                        ip: loopback,
+                        name: "local device name",
+                        port: 80,
+                        shares: {
+                            [serverVars.hashDevice]: {
+                                execute: false,
+                                name: "C:\\mp3",
+                                readOnly: false,
+                                type: "directory"
+                            }
                         }
                     }
-                }
+                },
+                response: null,
+                type: "device"
             }
         },
-        name: "device storage, Local device storage without HTTP response",
+        name: "storage device, Local device storage without HTTP response",
         qualifier: "is",
         test: "device storage written with false response for testing."
     });
-    service.push(<testTemplateUser>{
+    service.push(<testTemplateStorage>{
         command: {
-            user: {
-                [serverVars.hashDevice]: {
-                    ip: loopback,
-                    name: "remote user name",
-                    port: 80,
-                    shares: {
-                        [serverVars.hashDevice]: {
-                            execute: false,
-                            name: "C:\\movies",
-                            readOnly: false,
-                            type: "directory"
-                        }
-                    }
-                }
+            storage: {
+                data: {
+                    audio: true,
+                    brotli: 7,
+                    color: "default",
+                    colors: {
+                        device: {
+                            [serverVars.hashDevice]: ["fff", "eee"]
+                        },
+                        user: {}
+                    },
+                    hashDevice: serverVars.hashDevice,
+                    hashType: "sha3-512",
+                    hashUser: serverVars.hashUser,
+                    modals: {
+                        "systems-modal": {
+                            agent: serverVars.hashDevice,
+                            agentType: "device",
+                            content: null,
+                            inputs: [
+                                "close", "maximize", "minimize"
+                            ],
+                            read_only: false,
+                            single: true,
+                            status: "hidden",
+                            title: "<span class=\"icon-systemLog\">⌬</span> System Log",
+                            type: "systems",
+                            width: 800,
+                            zIndex: 1,
+                            id: "systems-modal",
+                            left: 200,
+                            top: 200,
+                            height: 400
+                        },
+                    },
+                    modalTypes: [
+                        "systems", "settings", "fileNavigate", "invite-request"
+                    ],
+                    nameDevice: "this device name",
+                    nameUser: "local user name",
+                    zIndex: 6
+                },
+                response: null,
+                type: "settings"
             }
         },
-        name: "user storage, Local user storage without HTTP response",
+        name: "storage settings, Local settings storage without HTTP response",
+        qualifier: "is",
+        test: "settings storage written with false response for testing."
+    });
+    service.push(<testTemplateStorage>{
+        command: {
+            storage: {
+                data: {
+                    status: [],
+                    users: [],
+                    errors: [
+                        [
+                            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
+                                "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
+                                "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
+                                "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
+                                "FSReqCallback.oncomplete (fs.js:154:23)"
+                            ]
+                        ]
+                    ]
+                },
+                response: null,
+                type: "messages"
+            }
+        },
+        name: "storage messages, Local messages storage without HTTP response",
+        qualifier: "is",
+        test: "messages storage written with false response for testing."
+    });
+    service.push(<testTemplateStorage>{
+        command: {
+            storage: {
+                data: {
+                    [serverVars.hashDevice]: {
+                        ip: loopback,
+                        name: "remote user name",
+                        port: 80,
+                        shares: {
+                            [serverVars.hashDevice]: {
+                                execute: false,
+                                name: "C:\\movies",
+                                readOnly: false,
+                                type: "directory"
+                            }
+                        }
+                    }
+                },
+                response: null,
+                type: "user"
+            }
+        },
+        name: "storage user, Local user storage without HTTP response",
         qualifier: "is",
         test: "user storage written with false response for testing."
     });

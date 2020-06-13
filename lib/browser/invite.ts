@@ -58,7 +58,7 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
             shares: invitation.shares[keyShares[0]].shares
         };
         share.addAgent({
-            hash: invitation.userHash,
+            hash: keyShares[0],
             name: invitation.userName,
             save: false,
             type: "user"

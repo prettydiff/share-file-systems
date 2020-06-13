@@ -282,7 +282,7 @@ declare global {
     }
     interface heartbeatBroadcast {
         deleted: agentDeletion;
-        list: string[];
+        list: heartbeatShare;
         response: ServerResponse;
         sendShares: boolean;
         status: heartbeatStatus;
@@ -294,9 +294,14 @@ declare global {
         response: (data:heartbeat, response:ServerResponse) => void;
         update: (data:heartbeatUpdate) => void;
     }
+    interface heartbeatShare {
+        distribution: string[];
+        payload: devices;
+        type: agentType;
+    }
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
-        broadcastList: string[];
+        broadcastList: heartbeatShare;
         response: ServerResponse;
         shares: devices;
         status: heartbeatStatus;
@@ -780,11 +785,6 @@ declare global {
         qualifier: qualifier;
         test: string;
     }
-    interface testTemplateDevice extends testTemplate {
-        command: {
-            "device": devices;
-        };
-    }
     interface testTemplateFileService {
         command: {
             "fs": fileService;
@@ -816,24 +816,18 @@ declare global {
             "invite": invite;
         };
     }
-    interface testTemplateMessages extends testTemplate {
+    interface testTemplateStorage extends testTemplate {
         command: {
-            "messages": messages;
-        };
-    }
-    interface testTemplateSettings extends testTemplate {
-        command: {
-            "settings": ui_data;
+            "storage": {
+                data: devices | messages | ui_data;
+                response: ServerResponse;
+                type: storageType;
+            };
         };
     }
     interface testTemplateUpdateRemote extends testTemplate{
         command: {
             "fs-update-remote": fsUpdateRemote;
-        };
-    }
-    interface testTemplateUser extends testTemplate {
-        command: {
-            "user": devices;
         };
     }
     interface testTypeCollection {

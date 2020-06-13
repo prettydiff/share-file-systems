@@ -140,25 +140,27 @@ const forbidden:string = "Unexpected user.",
                 source: serverVars
             });
         } else {
-            let a:number = config.list.length;
+            let a:number = config.list.distribution.length,
+                agent:string;
             if (a > 0) {
                 httpConfig.agentType = "device";
-                payload.agentType = "device";
+                payload.agentType = config.list.type;
                 payload.agentFrom = serverVars.hashDevice;
                 payload.shares = (config.sendShares === true)
-                    ? serverVars.device
+                    ? config.list.payload
                     : {};
                 httpConfig.requestType = "heartbeat";
                 do {
                     a = a - 1;
-                    httpConfig.errorMessage = `Error with heartbeat to device ${config.list[a]}.`;
-                    httpConfig.ip = serverVars.device[config.list[a]].ip;
-                    httpConfig.port = serverVars.device[config.list[a]].port;
-                    httpConfig.remoteName = config.list[a];
-                    if (serverVars.hashDevice !== config.list[a]) {
-                        payload.agentTo = config.list[a];
+                    agent = config.list.distribution[a];
+                    if (serverVars.hashDevice !== agent) {
+                        httpConfig.errorMessage = `Error with heartbeat to device ${serverVars.device[agent].name} (${agent}).`;
+                        httpConfig.ip = serverVars.device[agent].ip;
+                        httpConfig.port = serverVars.device[agent].port;
+                        httpConfig.remoteName = agent;
+                        payload.agentTo = agent;
                         httpConfig.payload = JSON.stringify({
-                            [httpConfig.requestType]: payload
+                            heartbeat: payload
                         });
                         httpClient(httpConfig);
                     }
@@ -287,6 +289,8 @@ const forbidden:string = "Unexpected user.",
                     type: "device"
                 });
             }
+            // tell it to send user shares to devices
+            // currently it only sends device updates to devices
             broadcast({
                 deleted: {
                     device: [],
