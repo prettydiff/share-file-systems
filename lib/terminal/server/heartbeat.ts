@@ -201,7 +201,7 @@ const forbidden:string = "Unexpected user.",
                     serverVars.user[keys[0]] = data.shares[keys[0]];
                     store = true;
                 } else if (JSON.stringify(serverVars.user[keys[0]].shares) !== JSON.stringify(data.shares[keys[0]].shares)) {
-                    serverVars.user[data.agentFrom].shares = data.shares[keys[0]].shares;
+                    serverVars.user[keys[0]].shares = data.shares[keys[0]].shares;
                     store = true;
                 }
             }
@@ -268,25 +268,23 @@ const forbidden:string = "Unexpected user.",
                 response(serverResponse, "text/plain", forbidden);
             } else {
                 // heartbeat from remote
-                const shareString = JSON.stringify(data.shares);
-                if (shareString !== "{}" && data.shareType === "user") {
-                    const deviceKeys:string[] = Object.keys(serverVars.device);
-                    deviceKeys.splice(0, 1);
-                    broadcast({
-                        deleted: {
-                            device: [],
-                            user: []
-                        },
-                        list: {
-                            distribution: deviceKeys,
-                            payload: data.shares,
-                            type: "user"
-                        },
-                        response: null,
-                        sendShares: true,
-                        status: <heartbeatStatus>data.status
-                    });
-                }
+                const deviceKeys:string[] = Object.keys(serverVars.device),
+                    shareString:string = JSON.stringify(data.shares);
+                deviceKeys.splice(0, 1);
+                broadcast({
+                    deleted: {
+                        device: [],
+                        user: []
+                    },
+                    list: {
+                        distribution: deviceKeys,
+                        payload: data.shares,
+                        type: "user"
+                    },
+                    response: null,
+                    sendShares: (shareString !== "{}"),
+                    status: <heartbeatStatus>data.status
+                });
                 parse(data);
                 vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
                 data.agentTo = data.agentFrom;
