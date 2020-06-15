@@ -151,7 +151,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .buttons button.maximize{font-weight:normal}
 #spaces .box h2.heading{border-radius:0;border-style:solid solid none;border-width:0.1em;box-sizing:border-box;float:left;font-size:1em;height:3.35em;margin:0;padding:0;position:relative;width:100%;z-index:6}
 #spaces .box h2.heading button{background:transparent;border-style:none;box-shadow:none;cursor:move;display:block;font-size:1.8em;height:100%;margin:0;overflow:hidden;padding:0.25em 0 0 0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:100%}
-#spaces .box .body{border-style:solid;border-width:0.1em;clear:both;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
+#spaces .box .body{border-style:solid;border-width:0.1em;clear:both;display:block;height:20em;overflow:scroll;margin:0;padding:0;position:relative;right:0;top:0;width:75em;z-index:5}
 #spaces .box .border{border-style:solid;border-width:0.1em;padding:0.75em;position:relative}
 #spaces .box .corner-tl{background:transparent;border-style:solid;border-width:0 0.1em 0.1em 0;cursor:nw-resize;font-size:1em;height:2em;left:0;position:absolute;text-indent:-2000em;top:0;width:2em;z-index:3}
 #spaces .box .corner-tr{background:transparent;border-style:solid;border-width:0 0 0.1em 0.1em;cursor:ne-resize;font-size:1em;height:2em;position:absolute;right:0;text-indent:-2000em;top:0;width:2em;z-index:3}

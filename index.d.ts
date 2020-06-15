@@ -283,6 +283,7 @@ declare global {
     }
     interface heartbeatBroadcast {
         deleted: agentDeletion;
+        directive: "heartbeat" | "heartbeat-delete-agents" | "heartbeat-response";
         list: heartbeatShare;
         response: ServerResponse;
         sendShares: boolean;

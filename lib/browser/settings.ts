@@ -155,40 +155,40 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
         complete: complete,
         countBy: "agent",
         perAgent: function local_settings_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
-            const agent:string = agentNames.agent,
-                agentType:agentType = agentNames.agentType,
-                color:color = browser.data.colors[agentType][agent];
-            if (agentColors === null) {
+            if (agentColors === null || (agentNames.agentType === "user" && agentNames.agent === browser.data.hashUser)) {
+                complete(counts);
                 return;
             }
+            const agent:string = agentNames.agent,
+                agentType:agentType = agentNames.agentType,
+                color:color = browser.data.colors[agentType][agent],
+                agentLength:number = agentColors.length;
+            let c:number = 0,
+                swatches:HTMLCollectionOf<Element>,
+                swatch1:HTMLElement,
+                swatch2:HTMLElement,
+                inputs:HTMLCollectionOf<HTMLInputElement>;
+            // (color[0] === settings.colorDefaults[element.value][0] && color[1] === settings.colorDefaults[element.value][1])
             if (color[0] === settings.colorDefaults[oldScheme][0] && color[1] === settings.colorDefaults[oldScheme][1]) {
-                const agentLength:number = agentColors.length;
-                let c:number = 0,
-                    swatches:HTMLCollectionOf<Element>,
-                    swatch1:HTMLElement,
-                    swatch2:HTMLElement,
-                    inputs:HTMLCollectionOf<HTMLInputElement>;
                 color[0] = settings.colorDefaults[element.value][0];
                 color[1] = settings.colorDefaults[element.value][1];
-                settings.applyAgentColors(agent, agentType, [color[0], color[1]]);
-                do {
-                    if (agentColors[c].getElementsByTagName("p")[0].getAttribute("data-agent") === agent) {
-                        swatches = agentColors[c].getElementsByClassName("swatch");
-                        swatch1 = <HTMLElement>swatches[0];
-                        swatch2 = <HTMLElement>swatches[1];
-                        inputs = agentColors[c].getElementsByTagName("input");
-                        swatch1.style.background = color[0];
-                        swatch2.style.background = color[1];
-                        inputs[0].value = color[0];
-                        inputs[1].value = color[1];
-                        complete(counts);
-                        break;
-                    }
-                    c = c + 1;
-                } while (c < agentLength);
-            } else if (color[0] === settings.colorDefaults[element.value][0] && color[1] === settings.colorDefaults[element.value][1]) {
-                settings.applyAgentColors(agent, agentType, [color[0], color[1]]);
             }
+            settings.applyAgentColors(agent, agentType, [color[0], color[1]]);
+            do {
+                if (agentColors[c].getAttribute("data-agent") === agent) {
+                    swatches = agentColors[c].getElementsByClassName("swatch");
+                    swatch1 = <HTMLElement>swatches[0];
+                    swatch2 = <HTMLElement>swatches[1];
+                    inputs = agentColors[c].getElementsByTagName("input");
+                    swatch1.style.background = `#${color[0]}`;
+                    swatch2.style.background = `#${color[1]}`;
+                    inputs[0].value = color[0];
+                    inputs[1].value = color[1];
+                    break;
+                }
+                c = c + 1;
+            } while (c < agentLength);
+            complete(counts);
         },
         perAgentType: function local_settings_colorScheme_perAgent(agentNames) {
             const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];

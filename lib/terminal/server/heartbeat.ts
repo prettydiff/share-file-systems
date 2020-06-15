@@ -77,29 +77,22 @@ const forbidden:string = "Unexpected user.",
                 complete: responder,
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
-                    if (config.status === "deleted") {
-                        if (agentNames.agentType === "user") {
-                            if (config.deleted.user.indexOf(agentNames.agent) > -1) {
-                                // deleting this user
-                                payload.status = {
-                                    device: [],
-                                    user: [serverVars.hashUser]
-                                };
-                                httpConfig.requestType = "heartbeat-delete-agents";
-                            } else if (config.sendShares === true) {
-                                // deleting agents, but not this user, regular share update
-                                payload.status = "active";
-                                httpConfig.requestType = "heartbeat";
-                            } else {
-                                // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
-                                return;
-                            }
+                    if (config.status === "deleted" && agentNames.agentType === "user") {
+                        if (config.deleted.user.indexOf(agentNames.agent) > -1) {
+                            // deleting this user
+                            payload.status = {
+                                device: [],
+                                user: [serverVars.hashUser]
+                            };
+                        } else if (config.sendShares === true) {
+                            // deleting agents, but not this user, regular share update
+                            payload.status = "active";
                         } else {
-                            httpConfig.requestType = "heartbeat-delete-agents";
+                            // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
+                            return;
                         }
-                    } else {
-                        httpConfig.requestType = "heartbeat";
                     }
+                    httpConfig.requestType = config.directive;
                     httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                     httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                     httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
@@ -107,7 +100,7 @@ const forbidden:string = "Unexpected user.",
                     if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
                         payload.agentTo = agentNames.agent;
                         httpConfig.payload = JSON.stringify({
-                            [httpConfig.requestType]: payload
+                            [config.directive]: payload
                         });
                         httpClient(httpConfig);
                     }
@@ -151,7 +144,7 @@ const forbidden:string = "Unexpected user.",
                     ? config.list.payload
                     : {};
                 payload.shareType = config.list.type;
-                httpConfig.requestType = "heartbeat";
+                httpConfig.requestType = config.directive;
                 do {
                     a = a - 1;
                     agent = config.list.distribution[a];
@@ -226,6 +219,7 @@ const forbidden:string = "Unexpected user.",
         delete: function terminal_server_heartbeatDelete(deleted:agentDeletion, serverResponse:ServerResponse):void {
             broadcast({
                 deleted: deleted,
+                directive: "heartbeat-delete-agents",
                 list: null,
                 response: serverResponse,
                 sendShares: true,
@@ -276,6 +270,7 @@ const forbidden:string = "Unexpected user.",
                         device: [],
                         user: []
                     },
+                    directive: "heartbeat-response",
                     list: {
                         distribution: deviceKeys,
                         payload: data.shares,
@@ -318,6 +313,7 @@ const forbidden:string = "Unexpected user.",
                     device: [],
                     user: []
                 },
+                directive: "heartbeat",
                 list: data.broadcastList,
                 response: data.response,
                 sendShares: share,

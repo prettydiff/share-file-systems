@@ -231,7 +231,16 @@ const title:Element = document.getElementsByClassName("title")[0],
     webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
             error = function local_socketError():any {
-                const device:Element = document.getElementById(browser.data.hashDevice);
+                const device:Element = document.getElementById(browser.data.hashDevice),
+                    agentList:Element = document.getElementById("agentList"),
+                    active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
+                let a:number = active.length,
+                    parent:Element;
+                do {
+                    a = a - 1;
+                    parent = <Element>active[a].parentNode;
+                    parent.setAttribute("class", "offline");
+                } while (a > 0);
                 title.setAttribute("class", "title offline");
                 title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
                 if (device !== null) {
