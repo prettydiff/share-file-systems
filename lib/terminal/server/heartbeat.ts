@@ -313,7 +313,7 @@ const forbidden:string = "Unexpected user.",
                     device: [],
                     user: []
                 },
-                directive: "heartbeat",
+                directive: "heartbeat-response",
                 list: data.broadcastList,
                 response: data.response,
                 sendShares: share,
