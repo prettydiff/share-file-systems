@@ -1194,7 +1194,7 @@ service.populate = function test_services_populate():void {
     });
     service.push(<testTemplateHeartbeat>{
         command: {
-            heartbeat: {
+            "heartbeat-response": {
                 agentFrom: serverVars.hashDevice,
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
@@ -1205,7 +1205,7 @@ service.populate = function test_services_populate():void {
         name: "heartbeat response",
         qualifier: "is",
         test: {
-            "heartbeat-response": {
+            "heartbeat-complete": {
                 agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentType: "device",
@@ -1216,7 +1216,7 @@ service.populate = function test_services_populate():void {
     });
     service.push(<testTemplateHeartbeat>{
         command: {
-            heartbeat: {
+            "heartbeat-response": {
                 agentFrom: serverVars.hashDevice,
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
@@ -1304,7 +1304,7 @@ service.populate = function test_services_populate():void {
         name: "heartbeat response with share change",
         qualifier: "is",
         test: {
-            "heartbeat-response": {
+            "heartbeat-complete": {
                 agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
                 agentType: "device",
@@ -1316,7 +1316,7 @@ service.populate = function test_services_populate():void {
     });
     service.push(<testTemplateHeartbeat>{
         command: {
-            heartbeat: {
+            "heartbeat-response": {
                 agentFrom: serverVars.hashUser,
                 agentTo: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",

@@ -47,8 +47,8 @@ const forbidden:string = "Unexpected user.",
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeatBroadcast_callback(responseBody:Buffer|string):void {
-                    if (config.status === "deleted" && responseBody.indexOf("{\"heartbeat-response\":{") === 0) {
-                        parse(JSON.parse(<string>responseBody)["heartbeat-response"]);
+                    if (config.status === "deleted" && responseBody.indexOf("{\"heartbeat-complete\":{") === 0) {
+                        parse(JSON.parse(<string>responseBody)["heartbeat-complete"]);
                     }
                 },
                 callbackType: "body",
@@ -64,7 +64,7 @@ const forbidden:string = "Unexpected user.",
                         log([errorMessage.toString()]);
                     }
                 },
-                requestType: "heartbeat",
+                requestType: config.requestType,
                 responseError: function terminal_server_heartbeatBroadcast_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
@@ -92,7 +92,6 @@ const forbidden:string = "Unexpected user.",
                             return;
                         }
                     }
-                    httpConfig.requestType = config.directive;
                     httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                     httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                     httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
@@ -100,7 +99,7 @@ const forbidden:string = "Unexpected user.",
                     if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
                         payload.agentTo = agentNames.agent;
                         httpConfig.payload = JSON.stringify({
-                            [config.directive]: payload
+                            [config.requestType]: payload
                         });
                         httpClient(httpConfig);
                     }
@@ -144,7 +143,7 @@ const forbidden:string = "Unexpected user.",
                     ? config.list.payload
                     : {};
                 payload.shareType = config.list.type;
-                httpConfig.requestType = config.directive;
+                httpConfig.requestType = config.requestType;
                 do {
                     a = a - 1;
                     agent = config.list.distribution[a];
@@ -163,10 +162,12 @@ const forbidden:string = "Unexpected user.",
             }
         }
         // respond irrespective of broadcast status or completion to prevent hanging sockets
-        if (config.status === "deleted") {
-            response(config.response, "text/plain", "Deletion task sent.");
-        } else {
-            response(config.response, "text/plain", "Heartbeat broadcast sent.");
+        if (config.response !== null) {
+            if (config.status === "deleted") {
+                response(config.response, "text/plain", "Deletion task sent.");
+            } else {
+                response(config.response, "text/plain", "Heartbeat broadcast sent.");
+            }
         }
     },
     // updates shares/storage only if necessary and then sends the payload to the browser
@@ -211,7 +212,7 @@ const forbidden:string = "Unexpected user.",
             data.shares = {};
         }
         vars.ws.broadcast(JSON.stringify({
-            "heartbeat-response": data
+            "heartbeat-complete": data
         }));
     },
     // This logic will push out heartbeat data
@@ -219,8 +220,8 @@ const forbidden:string = "Unexpected user.",
         delete: function terminal_server_heartbeatDelete(deleted:agentDeletion, serverResponse:ServerResponse):void {
             broadcast({
                 deleted: deleted,
-                directive: "heartbeat-delete-agents",
                 list: null,
+                requestType: "heartbeat-delete-agents",
                 response: serverResponse,
                 sendShares: true,
                 status: "deleted"
@@ -270,12 +271,12 @@ const forbidden:string = "Unexpected user.",
                         device: [],
                         user: []
                     },
-                    directive: "heartbeat-response",
                     list: {
                         distribution: deviceKeys,
                         payload: data.shares,
                         type: "user"
                     },
+                    requestType: "heartbeat-complete",
                     response: null,
                     sendShares: (shareString !== "{}"),
                     status: <heartbeatStatus>data.status
@@ -289,7 +290,7 @@ const forbidden:string = "Unexpected user.",
                 data.shares = {};
                 data.status = serverVars.status;
                 response(serverResponse, "application/json", JSON.stringify({
-                    "heartbeat-response": data
+                    "heartbeat-complete": data
                 }));
             }
         },
@@ -313,8 +314,8 @@ const forbidden:string = "Unexpected user.",
                     device: [],
                     user: []
                 },
-                directive: "heartbeat-response",
                 list: data.broadcastList,
+                requestType: "heartbeat-complete",
                 response: data.response,
                 sendShares: share,
                 status: data.status

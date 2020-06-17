@@ -96,7 +96,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 address = dirs.join(slash);
             } else {
                 address = path;
-            }console.log(agentNode);
+            }
             fs.navigate(event, {
                 agentName: agent,
                 agentType: agentType,

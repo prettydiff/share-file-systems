@@ -84,17 +84,18 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                     response(serverResponse, "text/plain", `Received directory watch for ${body} at ${serverVars.ipAddress}.`);
                 };
             let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
-            if (task === "heartbeat") {
+            if (task === "heartbeat-response") {
                 // * process received heartbeat data from other agents
-                heartbeat.response(JSON.parse(body).heartbeat, serverResponse)
+                heartbeat.response(JSON.parse(body)["heartbeat-response"], serverResponse)
             } else if (task === "heartbeat-update") {
                 // * prepare heartbeat pulse for connected agents
                 const dataPackage:heartbeatUpdate = JSON.parse(body)["heartbeat-update"];
                 dataPackage.response = serverResponse;
                 heartbeat.update(dataPackage);
-            } else if (task === "heartbeat-response") {
+            } else if (task === "heartbeat-complete") {
                 // * response to a heartbeat pulse
-                heartbeat.parse(JSON.parse(body)["heartbeat-response"]);
+                heartbeat.parse(JSON.parse(body)["heartbeat-complete"]);
+                response(serverResponse, "text/plain", "Heartbeat response received and processed.");
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
                 readOnly(request, serverResponse, body);
