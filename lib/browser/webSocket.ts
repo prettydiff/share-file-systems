@@ -133,7 +133,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 network.storage("settings");
             },
             heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-complete"],
                     button:Element = document.getElementById(heartbeat.agentFrom);
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
@@ -202,7 +202,7 @@ const title:Element = document.getElementsByClassName("title")[0],
             fsUpdateLocal();
         } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
             fsUpdateRemote();
-        } else if (event.data.indexOf("{\"heartbeat-response\":") === 0) {
+        } else if (event.data.indexOf("{\"heartbeat-complete\":") === 0) {
             heartbeat();
         } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
             heartbeatDelete();
