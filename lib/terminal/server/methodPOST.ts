@@ -84,10 +84,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                     response(serverResponse, "text/plain", `Received directory watch for ${body} at ${serverVars.ipAddress}.`);
                 };
             let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
-            if (task === "heartbeat-response") {
-                // * process received heartbeat data from other agents
-                heartbeat.response(JSON.parse(body)["heartbeat-response"], serverResponse)
-            } else if (task === "heartbeat-update") {
+            if (task === "heartbeat-update") {
                 // * prepare heartbeat pulse for connected agents
                 const dataPackage:heartbeatUpdate = JSON.parse(body)["heartbeat-update"];
                 dataPackage.response = serverResponse;

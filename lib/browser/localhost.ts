@@ -132,8 +132,13 @@ import webSocket from "./webSocket.js";
                             if (localDevice !== null) {
                                 const status:string = localDevice.getAttribute("class");
                                 if (status !== "active" && browser.socket.readyState === 1) {
+                                    const activeParent:Element = <Element>document.activeElement.parentNode;
                                     localDevice.setAttribute("class", "active");
-                                    network.heartbeat("active", false);
+
+                                    // share interactions will trigger a heartbeat from the terminal service
+                                    if (activeParent === null || activeParent.getAttribute("class") !== "share") {
+                                        network.heartbeat("active", false);
+                                    }
                                 }
                             }
                             active = Date.now();

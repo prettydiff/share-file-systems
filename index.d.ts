@@ -26,7 +26,7 @@ declare global {
     type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-update" | "heartbeat-response" | "invite" | "storage";
+    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-update" | "invite" | "storage";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
@@ -284,7 +284,7 @@ declare global {
     interface heartbeatBroadcast {
         deleted: agentDeletion;
         list: heartbeatShare;
-        requestType: "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-response";
+        requestType: "heartbeat-complete" | "heartbeat-delete-agents";
         response: ServerResponse;
         sendShares: boolean;
         status: heartbeatStatus;
@@ -293,7 +293,6 @@ declare global {
         delete: (deleted:agentDeletion, response:ServerResponse) => void;
         deleteResponse: (data:heartbeat, response:ServerResponse) => void;
         parse: (data:heartbeat) => void;
-        response: (data:heartbeat, response:ServerResponse) => void;
         update: (data:heartbeatUpdate) => void;
     }
     interface heartbeatShare {
@@ -321,7 +320,7 @@ declare global {
         remoteName: string;
         requestError?: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: string;
-        response?: any;
+        response: ServerResponse;
         responseError?: (error:nodeError, agent?:string, type?:agentType) => void;
     }
     interface httpServer extends Server {
@@ -795,15 +794,13 @@ declare global {
         qualifier: qualifier;
         test: testServiceFileTarget;
     }
-    interface testTemplateHeartbeat {
+    interface testTemplateHeartbeatComplete {
         command: {
-            "heartbeat-response": heartbeat;
+            "heartbeat-complete": heartbeat;
         };
         name: string;
         qualifier: qualifier;
-        test: {
-            "heartbeat-complete": heartbeat;
-        } | string;
+        test: string;
     }
     interface testTemplateHeartbeatUpdate {
         command: {

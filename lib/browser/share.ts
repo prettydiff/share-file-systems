@@ -596,8 +596,8 @@ share.update = function local_share_update(exclusion:string):void {
     const modals = Object.keys(browser.data.modals),
         modalLength = modals.length,
         closer = function local_share_update_closer(modal:Element):void {
-            const close = <HTMLElement>modal.getElementsByClassName("close")[0];
-            close.click();
+            modal.parentNode.removeChild(modal);
+            delete browser.data.modals[modal.getAttribute("id")];
         };
     let a:number = 0,
         modal:Element,
@@ -608,7 +608,7 @@ share.update = function local_share_update(exclusion:string):void {
     do {
         if (exclusion !== modals[a]) {
             item = browser.data.modals[modals[a]];
-            if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "share_delete") {
+            if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "settings" && item.type !== "systems" && item.type !== "share_delete") {
                 closer(document.getElementById(modals[a]));
             } else if (item.type === "shares") {
                 modal = document.getElementById(modals[a]);

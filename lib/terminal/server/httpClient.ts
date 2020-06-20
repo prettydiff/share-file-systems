@@ -11,6 +11,13 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
+    if (config.response === undefined) {
+        error([
+            "config.response of httpClient is undefined.",
+            JSON.stringify(config)
+        ]);
+        return;
+    }
     const callback: Function = (config.callbackType === "object")
             ? config.callback
             : function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {

@@ -15,7 +15,6 @@ import hash from "../commands/hash.js";
 import log from "../utilities/log.js";
 import mkdir from "../commands/mkdir.js";
 import prettyBytes from "../../common/prettyBytes.js";
-import readFile from "../utilities/readFile.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
@@ -134,7 +133,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     port: serverVars[data.agentType][data.agent].port,
                     remoteName: data.agent,
                     requestType: data.action,
-                    response: response
+                    response: serverResponse
                 };
             vars.testLogger("fileService", "httpRequest", "An abstraction to the httpClient library for the fileService library.");
             httpClient(httpConfig);
@@ -206,7 +205,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                         port: serverVars[data.agentType][data.agent].port,
                                         remoteName: data.agent,
                                         requestType: data.action,
-                                        response: response
+                                        response: serverResponse
                                     };
                                 httpClient(httpConfig);
                             },

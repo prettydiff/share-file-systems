@@ -13,8 +13,7 @@ import storage from "./storage.js";
 import agents from "../../common/agents.js";
 import deviceShare from "../../common/deviceShare.js";
 
-const forbidden:string = "Unexpected user.",
-    removeByType = function terminal_server_heartbeatDelete_byType(list:string[], type:agentType):void {
+const removeByType = function terminal_server_heartbeatDelete_byType(list:string[], type:agentType):void {
         let a:number = list.length;
         if (a > 0) {
             do {
@@ -65,6 +64,7 @@ const forbidden:string = "Unexpected user.",
                     }
                 },
                 requestType: config.requestType,
+                response: null,
                 responseError: function terminal_server_heartbeatBroadcast_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
                     if (errorMessage.code !== "ETIMEDOUT") {
                         vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
@@ -77,27 +77,27 @@ const forbidden:string = "Unexpected user.",
                 complete: responder,
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
-                    if (config.status === "deleted" && agentNames.agentType === "user") {
-                        if (config.deleted.user.indexOf(agentNames.agent) > -1) {
-                            // deleting this user
-                            payload.status = {
-                                device: [],
-                                user: [serverVars.hashUser]
-                            };
-                        } else if (config.sendShares === true) {
-                            // deleting agents, but not this user, regular share update
-                            payload.status = "active";
-                        } else {
-                            // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
-                            return;
-                        }
-                    }
-                    httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
-                    httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
-                    httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
-                    httpConfig.remoteName = agentNames.agent;
                     if (agentNames.agentType === "user" || (agentNames.agentType === "device" && serverVars.hashDevice !== agentNames.agent)) {
                         payload.agentTo = agentNames.agent;
+                        if (config.status === "deleted" && agentNames.agentType === "user") {
+                            if (config.deleted.user.indexOf(agentNames.agent) > -1) {
+                                // deleting this user
+                                payload.status = {
+                                    device: [],
+                                    user: [serverVars.hashUser]
+                                };
+                            } else if (config.sendShares === true) {
+                                // deleting agents, but not this user, regular share update
+                                payload.status = "active";
+                            } else {
+                                // do not send a delete message to user types unless this user is deleted or deletion of devices changes user shares
+                                return;
+                            }
+                        }
+                        httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
+                        httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
+                        httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
+                        httpConfig.remoteName = agentNames.agent;
                         httpConfig.payload = JSON.stringify({
                             [config.requestType]: payload
                         });
@@ -255,45 +255,6 @@ const forbidden:string = "Unexpected user.",
             response(serverResponse, "text/plain", "Response to remote user deletion.");
         },
         parse: parse,
-        response: function terminal_server_heartbeatResponse(data:heartbeat, serverResponse:ServerResponse):void {
-            vars.testLogger("heartbeat", "response", "Respond to heartbeats from remote agents.");
-            if (serverVars[data.agentType][data.agentFrom] === undefined) {
-                vars.testLogger("heartbeat", "response unrecognized-agent", "When the agent is not recognized close out the HTTP response without sending a payload.");
-                // trapping unexpected user
-                response(serverResponse, "text/plain", forbidden);
-            } else {
-                // heartbeat from remote
-                const deviceKeys:string[] = Object.keys(serverVars.device),
-                    shareString:string = JSON.stringify(data.shares);
-                deviceKeys.splice(0, 1);
-                broadcast({
-                    deleted: {
-                        device: [],
-                        user: []
-                    },
-                    list: {
-                        distribution: deviceKeys,
-                        payload: data.shares,
-                        type: "user"
-                    },
-                    requestType: "heartbeat-complete",
-                    response: null,
-                    sendShares: (shareString !== "{}"),
-                    status: <heartbeatStatus>data.status
-                });
-                parse(data);
-                vars.testLogger("heartbeat", "response write", "Update the browser of the heartbeat data and write the HTTP response.");
-                data.agentTo = data.agentFrom;
-                data.agentFrom = (data.agentType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser;
-                data.shares = {};
-                data.status = serverVars.status;
-                response(serverResponse, "application/json", JSON.stringify({
-                    "heartbeat-complete": data
-                }));
-            }
-        },
         update: function terminal_server_heartbeatUpdate(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (JSON.stringify(data.shares) !== "{}");

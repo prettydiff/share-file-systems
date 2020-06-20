@@ -66,7 +66,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         }));
                     },
                     requestType: data.action,
-                    response: response,
+                    response: serverResponse,
                     responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
                         log([data.action, errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
