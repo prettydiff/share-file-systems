@@ -132,18 +132,21 @@ const title:Element = document.getElementsByClassName("title")[0],
                 }
                 network.storage("settings");
             },
+            heartbeatStatus = function local_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
+                const button:Element = document.getElementById(heartbeat.agentFrom);
+                if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
+                    button.setAttribute("class", <heartbeatStatus>heartbeat.status);
+                }
+            },
             heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-complete"],
-                    button:Element = document.getElementById(heartbeat.agentFrom);
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-complete"];
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
                     network.storage("settings");
                 } else {
                     const keys:string[] = Object.keys(heartbeat.shares);
-                    if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
-                        button.setAttribute("class", <heartbeatStatus>heartbeat.status);
-                    }
+                    heartbeatStatus(heartbeat);
                     if (keys.length > 0) {
                         if (heartbeat.shareType === "device") {
                             const length:number = keys.length;
@@ -193,7 +196,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 content.parentNode.removeChild(content.parentNode.lastChild);
                 content.style.display = "block";
                 footer.style.display = "block";
-            };
+            };console.log(event.data);
         if (event.data.indexOf("{\"error\":") === 0) {
             error();
         } else if (event.data.indexOf("{\"file-list-status\":") === 0) {
@@ -204,6 +207,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             fsUpdateRemote();
         } else if (event.data.indexOf("{\"heartbeat-complete\":") === 0) {
             heartbeat();
+        } else if (event.data.indexOf("{\"heartbeat-status\":") === 0) {
+            heartbeatStatus(JSON.parse(event.data["heartbeat-status"]));
         } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
             heartbeatDelete();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {

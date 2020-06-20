@@ -90,9 +90,11 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 dataPackage.response = serverResponse;
                 heartbeat.update(dataPackage);
             } else if (task === "heartbeat-complete") {
-                // * response to a heartbeat pulse
-                heartbeat.parse(JSON.parse(body)["heartbeat-complete"]);
-                response(serverResponse, "text/plain", "Heartbeat response received and processed.");
+                // * receipt of a heartbeat pulse on the distant end
+                heartbeat.parse(JSON.parse(body)["heartbeat-complete"], serverResponse);
+            } else if (task === "heartbeat-status") {
+                // * the response to a heartbeat at the original requestor
+                vars.ws.broadcast(body);
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
                 readOnly(request, serverResponse, body);

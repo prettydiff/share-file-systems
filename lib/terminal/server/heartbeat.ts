@@ -12,6 +12,7 @@ import storage from "./storage.js";
 
 import agents from "../../common/agents.js";
 import deviceShare from "../../common/deviceShare.js";
+import error from "../utilities/error.js";
 
 const removeByType = function terminal_server_heartbeatDelete_byType(list:string[], type:agentType):void {
         let a:number = list.length;
@@ -43,11 +44,32 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
             responder = function terminal_server_heartbeatBroadcast_responder():void {
                 return;
             },
+            errorHandler = function terminal_server_heartbeatBroadcast_errorHandler(errorMessage:nodeError, agent:string, type:agentType):void {
+                const data:heartbeat = {
+                    agentFrom: agent,
+                    agentTo: (type === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser,
+                    agentType: type,
+                    shares: {},
+                    shareType: type,
+                    status: "offline"
+                };
+                vars.ws.broadcast(JSON.stringify({
+                    "heartbeat-complete": data
+                }));
+                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                    error([
+                        `Error sending or receiving heartbeat to ${type} ${agent}`,
+                        errorMessage.toString()
+                    ]);
+                }
+            },
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeatBroadcast_callback(responseBody:Buffer|string):void {
                     if (config.status === "deleted" && responseBody.indexOf("{\"heartbeat-complete\":{") === 0) {
-                        parse(JSON.parse(<string>responseBody)["heartbeat-complete"]);
+                        parse(JSON.parse(<string>responseBody)["heartbeat-complete"], config.response);
                     }
                 },
                 callbackType: "body",
@@ -57,20 +79,10 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
                 payload: "",
                 port: 80,
                 remoteName: "",
-                requestError: function terminal_server_heartbeatBroadcast_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
-                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                        log([errorMessage.toString()]);
-                    }
-                },
+                requestError: errorHandler,
                 requestType: config.requestType,
                 response: null,
-                responseError: function terminal_server_heartbeatBroadcast_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
-                    if (errorMessage.code !== "ETIMEDOUT") {
-                        vars.ws.broadcast(`Error on ${type} ${agent}: ${errorMessage}`);
-                        log([errorMessage.toString()]);
-                    }
-                }
+                responseError: errorHandler
             };
         if (config.list === null) {
             agents({
@@ -171,7 +183,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
         }
     },
     // updates shares/storage only if necessary and then sends the payload to the browser
-    parse = function terminal_server_heartbeatParse(data:heartbeat):void {
+    parse = function terminal_server_heartbeatParse(data:heartbeat, serverResponse:ServerResponse):void {
         const keys:string[] = Object.keys(data.shares),
             length:number = keys.length;
         let store:boolean = false;
@@ -213,6 +225,9 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
         }
         vars.ws.broadcast(JSON.stringify({
             "heartbeat-complete": data
+        }));
+        response(serverResponse, "application/json", JSON.stringify({
+            "heartbeat-status": data
         }));
     },
     // This logic will push out heartbeat data

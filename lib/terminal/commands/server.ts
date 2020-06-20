@@ -50,7 +50,7 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                 ? "start"
                 : "xdg-open",
         httpServer:httpServer = vars.node.http.createServer(createServer),
-        serverError = function terminal_server_serverError(errorMessage:nodeError):void {
+        serverError = function terminal_server_serverError(errorMessage:nodeError):void {console.log(errorMessage);
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
                     error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP server.`]);
