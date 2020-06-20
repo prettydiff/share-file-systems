@@ -530,6 +530,7 @@ declare global {
         target: string;
     }
     interface nodeError extends Error {
+        address: string;
         code: string;
         Error: Error;
         port: number;

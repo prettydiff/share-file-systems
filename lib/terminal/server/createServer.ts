@@ -10,7 +10,7 @@ import methodGET from "./methodGET.js";
 import methodPOST from "./methodPOST.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
-
+    
 const createServer = function terminal_server_create(request:IncomingMessage, serverResponse:ServerResponse):void {
     const host:string = (function terminal_server_create_host():string {
             const addresses:[string, string, string][] = serverVars.addresses[0],
@@ -18,7 +18,7 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
             let a:number = 0,
                 name:string = request.headers.host;
             if (name === undefined) {
-                return "";
+                return;
             }
             if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
                 return "localhost";
@@ -59,7 +59,9 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
         // eslint-disable-next-line
         requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
     //console.log(requestType);
-    if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
+    if (host === "") {
+        response(serverResponse, "text/plain", `ForbiddenAccess: unknown user`);
+    } else  if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
         if (request.headers["agent-type"] === "device") {
             serverResponse.setHeader("agent-hash", serverVars.hashDevice);
             serverResponse.setHeader("agent-type", "device");

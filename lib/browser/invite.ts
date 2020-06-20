@@ -50,6 +50,8 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
             }
         } while (a > 0);
         browser.data.nameUser = invitation.userName;
+        browser.data.hashUser = invitation.userHash;
+        network.storage("settings");
     } else if (invitation.type === "user") {
         browser.user[keyShares[0]] = {
             ip: invitation.ip,
