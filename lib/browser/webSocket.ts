@@ -196,7 +196,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 content.parentNode.removeChild(content.parentNode.lastChild);
                 content.style.display = "block";
                 footer.style.display = "block";
-            };console.log(event.data);
+            };
         if (event.data.indexOf("{\"error\":") === 0) {
             error();
         } else if (event.data.indexOf("{\"file-list-status\":") === 0) {

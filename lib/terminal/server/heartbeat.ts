@@ -68,11 +68,9 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeatBroadcast_callback(responseBody:Buffer|string):void {
-                    if (config.status === "deleted" && responseBody.indexOf("{\"heartbeat-complete\":{") === 0) {
-                        parse(JSON.parse(<string>responseBody)["heartbeat-complete"], config.response);
-                    }
+                    parse(JSON.parse(<string>responseBody)["heartbeat-complete"], config.response);
                 },
-                callbackType: "body",
+                callbackType: "object",
                 errorMessage: "",
                 id: "heartbeat",
                 ip: "",
@@ -166,7 +164,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
                         httpConfig.remoteName = agent;
                         payload.agentTo = agent;
                         httpConfig.payload = JSON.stringify({
-                            heartbeat: payload
+                            "heartbeat-complete": payload
                         });
                         httpClient(httpConfig);
                     }
@@ -226,6 +224,12 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
         vars.ws.broadcast(JSON.stringify({
             "heartbeat-complete": data
         }));
+        data.shares = {};
+        data.status = serverVars.status;
+        data.agentTo = data.agentFrom;
+        data.agentFrom = (data.agentType === "device")
+            ? serverVars.hashDevice
+            : serverVars.hashUser;
         response(serverResponse, "application/json", JSON.stringify({
             "heartbeat-status": data
         }));

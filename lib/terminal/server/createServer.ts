@@ -58,7 +58,7 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
         },
         // eslint-disable-next-line
         requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
-    //console.log(requestType);
+    //console.log(requestType+" "+host+" "+postTest());
     if (host === "") {
         response(serverResponse, "text/plain", `ForbiddenAccess: unknown user`);
     } else  if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {

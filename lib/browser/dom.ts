@@ -145,20 +145,31 @@ const dom = function local_dom():void {
             // eslint-disable-next-line
             new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
             return undefined;
+        },
+        disallowedList = function local_dom_disallowedList():NodeListOf<any> {
+            const list:any = [];
+            // eslint-disable-next-line
+            new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
+            return list;
         };
 
     // Create a document method
     document.getElementsByAttribute = getElementsByAttribute;
     document.getNodesByType         = getNodesByType;
 
-    // Ensure dynamically created elements get this method too
+    // Ensure dynamically created elements get these methods too
     Element.prototype.getAncestor            = getAncestor;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;
 
-    // Disabling addEventListener via reassignment because the preferred pattern is directly assigning handlers to the respective events
+    // Disabling popular but slow conventions. Enhancements to the project should consider performance and scale
     Element.prototype.addEventListener       = disallowed;
+    Element.prototype.querySelector          = disallowed;
+    Element.prototype.querySelectorAll       = disallowedList;
+    Element.prototype.closest                = disallowed;
     document.write                           = disallowed;
+    document.querySelector                   = disallowed;
+    document.querySelectorAll                = disallowedList;
 
 }
 
