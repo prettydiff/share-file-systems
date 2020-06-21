@@ -45,11 +45,11 @@ const storage = function terminal_server_storage(data:storage):void {
                 if (vars.command.indexOf("test") !== 0) {
                     serverVars.brotli = settings.brotli;
                     serverVars.hashType = settings.hashType;
+                    serverVars.hashUser = settings.hashUser;
+                    serverVars.nameUser = settings.nameUser;
                     if (serverVars.hashDevice === "") {
                         serverVars.hashDevice = settings.hashDevice;
-                        serverVars.hashUser = settings.hashUser;
                         serverVars.nameDevice = settings.nameDevice;
-                        serverVars.nameUser = settings.nameUser;
                     }
                 }
                 rename();
