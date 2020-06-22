@@ -282,6 +282,7 @@ invite.respond = function local_invite_respond(invitation:invite):void {
             height: 300,
             inputs: ["cancel", "confirm", "close"],
             read_only: false,
+            share: browser.data.hashDevice,
             title: (invitation.type === "device")
                 ? `Invitation from ${invitation.deviceName}`
                 : `Invitation from ${invitation.userName}`,

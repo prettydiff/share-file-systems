@@ -3,15 +3,19 @@
 # Services
 
 ## File System
-The file system service is called from *network.fs* and use **localService** TypeScript interface as their data type, which is defined as follows:
+The file system service is called from *network.fs* and use **fileService** TypeScript interface as their data type, which is defined as follows:
 
 * **action**: string, The service name to execute.
 * **agent**: string, The agent (user) where the action must be performed.
-* **copyAgent**: string. The agent of the destination for a *paste* action from *copy* or *cut* services.
+* **agentType**: "device"|"user", The relationship the destination agent has to the local device.
+* **copyAgent**: string, The agent of the destination for a *paste* action from *copy* or *cut* services.
+* **copyShare**: string, The share hash for the given destination modal.
+* **copyType**: "device"|"user", The agent type of the destination modal.
 * **depth**: number, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
 * **id**: The id attribute value of the target modal.  This is only used for non-local operations where content is requested from the network.
 * **location**: string[], A list of locations, such as a list of file system paths.
 * **name**: string, *fs-rename* uses this data as an artifact's new name. The *fs-move* and *fs-paste* services use this as the destination address.
+* **share**: string, The named share (hash) on which the file system is requested from. This property is ignored if the *agentType* is value *device*. User agents do not indicate on which device a share is sourced so the share itself must be specified so that all necessary traffic can be directed to that device.
 * **watch**: "no"|"yes"|string,
    - *"no"* - Do not initiate a file system watch for the given request.
    - *"yes"* - Initiate a new file system watch at the path specified in *location*.
@@ -25,11 +29,13 @@ All file system services begin with *fs-* in their name.  Output format of *dire
    "fs": {
       "action"   : "fs-search",
       "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+      "agentType": "device",
       "copyAgent": "",
       "depth"    : 0,
       "id"       : "fileNavigate-0.276615431234143121",
       "location" : ["e:\\mp3"],
       "name"     : ".m4a",
+      "share"    : "",
       "watch"    : "no"
    }
 }
@@ -84,7 +90,10 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - parameters
       * action   : **"fs-copy"**
       * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
       * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -95,8 +104,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-file"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -107,8 +119,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-list"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -119,6 +134,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-request"**
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * agent    : string
       * copyAgent: string
       * depth    : 1
@@ -131,8 +151,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-self"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -143,8 +166,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -155,8 +181,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-file"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -167,8 +196,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-list"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -179,8 +211,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-remove"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -191,8 +226,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-request"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -203,8 +241,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-self"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -574,7 +615,7 @@ The heartbeat makes use of two services:
 * **delete-agents** - A service to delete agents on the local device and notify agents that some agents are deleted.
 * **heartbeat-complete** - The completed round trip of the *heartbeat-update* service, the response is generated by the service *heartbeat*.  This service changes share data as necessary from the remote agents.
 * **heartbeat-delete-agents** - Instructions for remote agents to delete agents as generated by *delete-agents* service.
-* **heartbeat-response** - Provides the remote response for the *heartbeat-update* service.
+* **heartbeat-status** - Provides the remote response for the *heartbeat-update* service.
 * **heartbeat-update** - The heartbeat-update service is called from various locations and serves two functions:
    - Updates remote agents of whether the current agent is active, idle, or offline.
    - Announces changes to shares.
@@ -599,7 +640,7 @@ The heartbeat makes use of two services:
 ### Heartbeat Example
 ```json
 {
-   "heartbeat": {
+   "heartbeat-complete": {
       "agent"  : "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3",
       "shares" : [
          {

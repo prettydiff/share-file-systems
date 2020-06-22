@@ -29,7 +29,8 @@ import serverVars from "./serverVars.js";
 let logRecursion:boolean = true;
 const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
     // formats a string to convey file copy status
-    const copyMessage = function (numbers:completeStatus):string {
+    const localDevice:boolean = (data.agent === serverVars.hashDevice),
+        copyMessage = function (numbers:completeStatus):string {
             const filePlural:string = (numbers.countFile === 1)
                     ? ""
                     : "s",
@@ -54,7 +55,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         "file-list-status": copyStatus
                     })
                 : message;
-            if (data.agent === serverVars.hashDevice) {
+            if (localDevice === true) {
                 vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
                 response(serverResponse, "text/plain", payload);
             } else {
@@ -118,6 +119,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         : (data.remoteWatch === undefined)
                             ? null
                             : data.remoteWatch,
+                    share: data.share,
                     watch: data.watch
                 },
                 httpConfig:httpConfiguration = {
@@ -161,7 +163,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
         // the file system watch handler
         watchHandler = function terminal_server_fileService_watchHandler(value:string):void {
             if (value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
-                if (data.agent === serverVars.hashDevice) {
+                if (localDevice === true) {
                     if (serverVars.watches[value] !== undefined) {
                         const now:number = Date.now();
                         vars.testLogger("fileService", "watchHandler", "Central watch handler for local device file system");
@@ -667,16 +669,16 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 copy(copyConfig);
             });
         };
-    if (data.location[0] === "**root**" && data.agent === serverVars.hashDevice) {
+    if (data.location[0] === "**root**" && localDevice === true) {
         data.location[0] = vars.sep;
     }
-    if (data.agent !== serverVars.hashDevice && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
+    if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
         vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
         httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
             response(serverResponse, "application/json", responseBody);
         }, `Error requesting ${data.action} from remote.`, "body");
     } else if (data.action === "fs-directory" || data.action === "fs-details") {
-        if (data.agent === serverVars.hashDevice || (data.agent !== serverVars.hashDevice && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+        if (localDevice === true || (localDevice === false && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
             const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
                     count = count + 1;
                     if (result.length > 0) {
@@ -860,7 +862,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
         fileCallback(`Watcher ${data.location[0]} closed.`);
     } else if (data.action === "fs-copy" || data.action === "fs-cut") {
         vars.testLogger("fileService", "fs-copy", "All branches of file system copy");
-        if (data.agent === serverVars.hashDevice) {
+        if (localDevice === true) {
             if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                 // * data.agent === local
                 // * data.copyAgent === local

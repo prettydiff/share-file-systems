@@ -311,6 +311,7 @@ import webSocket from "./webSocket.js";
                                             id: value,
                                             location: [storage.settings.modals[value].text_value],
                                             name: "",
+                                            share: storage.settings.modals[value].share,
                                             watch: "yes"
                                         },
                                         selection = function local_restore_modalKeys_selection(id:string):void {

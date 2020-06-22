@@ -198,12 +198,14 @@ declare global {
         agent       : string;
         agentType   : agentType;
         copyAgent   : string;
+        copyShare?  : string;
         copyType    : agentType;
         depth       : number;
         id          : string;
         location    : string[];
         name        : string;
         remoteWatch?: string;
+        share       : string;
         watch       : string;
     }
     interface fileStore extends Array<[number, string, string, Buffer]> {
@@ -519,6 +521,7 @@ declare global {
         agentType: agentType;
         path: string;
         readOnly: boolean;
+        share: string;
     }
     interface navigate extends EventHandlerNonNull {
         (Event:Event, config?: navConfig): void;
@@ -869,6 +872,7 @@ declare global {
         search?: [string, string];
         selection?: selection;
         single?: boolean;
+        share?: string;
         status?: modalStatus;
         status_bar?: boolean;
         status_text?: string;

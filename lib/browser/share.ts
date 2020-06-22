@@ -101,7 +101,10 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 agentName: agent,
                 agentType: agentType,
                 path: address,
-                readOnly: browser[agentType][agent].shares[share].readOnly
+                readOnly: browser[agentType][agent].shares[share].readOnly,
+                share: (agentType === "user")
+                    ? share
+                    : ""
             });
         },
         deviceButton = function local_share_content_deviceButton(title:Element, hash:string):void {
@@ -113,7 +116,8 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                         agentName: hash,
                         agentType: "device",
                         path: "**root**",
-                        readOnly: false
+                        readOnly: false,
+                        share: ""
                     });
                 };
                 title.appendChild(button);

@@ -66,6 +66,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                         id: "",
                         location: [root],
                         name: "",
+                        share: "",
                         watch: "no"
                     },
                     callback = function local_socketMessage_closeCallback():boolean {

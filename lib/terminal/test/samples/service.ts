@@ -134,6 +134,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
@@ -160,6 +161,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
@@ -186,6 +188,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
@@ -211,6 +214,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}version.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
@@ -237,6 +241,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
@@ -257,6 +262,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
@@ -277,6 +283,7 @@ service.populate = function test_services_populate():void {
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
                 name: `${projectPath}storage`,
+                share: "",
                 watch: "no"
             }
         },
