@@ -6,6 +6,7 @@ import * as http from "http";
 import { Stream, Writable } from "stream";
 import * as zlib from "zlib";
 
+import agents from "../../common/agents.js";
 import base64 from "../commands/base64.js";
 import commas from "../../common/commas.js";
 import copy from "../commands/copy.js";
@@ -30,6 +31,26 @@ let logRecursion:boolean = true;
 const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
     // formats a string to convey file copy status
     const localDevice:boolean = (data.agent === serverVars.hashDevice),
+        remoteUsers:[string, string] = (function terminal_server_fileService_remoteUsers():[string, string] {
+            const values:[string, string] = ["", ""],
+                perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
+                    if (agentNames.agentType === "device") {
+                        if (serverVars.device[agentNames.agent].shares[data.share] !== undefined) {// || (index === 1 && serverVars.device[agentNames.agent].shares[data.share] !== undefined)) {
+                            values[0] = agentNames.agent;
+                        } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined) {
+                            values[1] = agentNames.agent;
+                        }
+                    }
+                };
+            if ((data.agentType === "user" && data.agent === serverVars.hashUser) || (data.copyType === "user" && data.copyAgent === serverVars.hashUser)) {
+                agents({
+                    countBy: "agent",
+                    perAgent: perAgent,
+                    source: serverVars
+                });
+            }
+            return values;
+        }()),
         copyMessage = function (numbers:completeStatus):string {
             const filePlural:string = (numbers.countFile === 1)
                     ? ""
