@@ -102,6 +102,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     [keyShares[0]]: serverVars.user[keyShares[0]]
                 };
             }
+            // updates devices of new agents but does not process invitation
             if (devices.length > 0) {
                 heartbeat.update({
                     agentFrom: "localhost-terminal",

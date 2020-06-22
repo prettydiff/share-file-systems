@@ -100,7 +100,6 @@ import webSocket from "./webSocket.js";
                                     });
                                     browser.pageBody.removeAttribute("class");
                                     network.storage("settings");
-                                    browser.loadTest = true;
                                     loadComplete();
                                 });
                             }

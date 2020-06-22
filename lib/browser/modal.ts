@@ -388,7 +388,9 @@ modal.create = function local_modal_create(options:ui_modal):Element {
         }
         maximize.click();
     }
-    network.storage("settings");
+    if (browser.loadTest === false) {
+        network.storage("settings");
+    }
     return box;
 };
 
