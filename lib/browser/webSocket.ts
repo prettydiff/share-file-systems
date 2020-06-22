@@ -208,7 +208,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         } else if (event.data.indexOf("{\"heartbeat-complete\":") === 0) {
             heartbeat();
         } else if (event.data.indexOf("{\"heartbeat-status\":") === 0) {
-            heartbeatStatus(JSON.parse(event.data["heartbeat-status"]));
+            heartbeatStatus(JSON.parse(event.data)["heartbeat-status"]);
         } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
             heartbeatDelete();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {

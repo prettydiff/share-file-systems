@@ -68,9 +68,9 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeatBroadcast_callback(responseBody:Buffer|string):void {
-                    parse(JSON.parse(<string>responseBody)["heartbeat-complete"], config.response);
+                    vars.ws.broadcast(responseBody);
                 },
-                callbackType: "object",
+                callbackType: "body",
                 errorMessage: "",
                 id: "heartbeat",
                 ip: "",
