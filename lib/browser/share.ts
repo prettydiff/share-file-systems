@@ -79,16 +79,16 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                     }
                     return item.getAncestor("button", "tag");
                 }()),
+                agentType:agentType = <agentType>element.getAttribute("class"),
                 parent:Element = <Element>element.parentNode,
-                agentNode:Element = <Element>parent.parentNode.parentNode,
+                agentNode:Element = element.getAncestor("agent", "class"),
                 agent:string = agentNode.getAttribute("data-hash"),
                 share:string = parent.getAttribute("data-hash"),
-                agentType:agentType = <agentType>element.getAttribute("class"),
                 path:string = element.firstChild.textContent,
                 type:string = element.getAttribute("class"),
                 slash:string = (path.indexOf("/") > -1 && (path.indexOf("\\") < 0 || path.indexOf("\\") > path.indexOf("/")))
                     ? "/"
-                    : "\\";
+                    : "\\";console.log(agentType+" "+agent+" "+share);
             let address:string;
             if (type === "file" || type === "link") {
                 const dirs:string[] = path.replace(/\\/g, "/").split("/");
