@@ -693,8 +693,12 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
     if (data.location[0] === "**root**" && localDevice === true) {
         data.location[0] = vars.sep;
     }
+    if (remoteUsers[1] !== "") {
+        data.copyAgent = remoteUsers[1];
+    }
     if (remoteUsers[0] !== "") {
         vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
+        data.agent = remoteUsers[0];
         httpRequest(function terminal_server_fileService_removeUserRemoteDevice(responseBody:string|Buffer):void {
             response(serverResponse, "application/json", responseBody);
         }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
