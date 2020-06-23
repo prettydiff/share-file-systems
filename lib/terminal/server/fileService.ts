@@ -699,6 +699,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
     if (remoteUsers[0] !== "") {
         vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
         data.agent = remoteUsers[0];
+        data.agentType = "device";
         httpRequest(function terminal_server_fileService_removeUserRemoteDevice(responseBody:string|Buffer):void {
             response(serverResponse, "application/json", responseBody);
         }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
