@@ -35,9 +35,9 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             const values:[string, string] = ["", ""],
                 perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
                     if (agentNames.agentType === "device") {
-                        if (serverVars.device[agentNames.agent].shares[data.share] !== undefined) {// || (index === 1 && serverVars.device[agentNames.agent].shares[data.share] !== undefined)) {
+                        if (serverVars.device[agentNames.agent].shares[data.share] !== undefined && agentNames.agent !== serverVars.hashDevice) {
                             values[0] = agentNames.agent;
-                        } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined) {
+                        } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined && agentNames.agent !== serverVars.hashDevice) {
                             values[1] = agentNames.agent;
                         }
                     }
@@ -693,7 +693,12 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
     if (data.location[0] === "**root**" && localDevice === true) {
         data.location[0] = vars.sep;
     }
-    if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
+    if (remoteUsers[0] !== "") {
+        vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
+        httpRequest(function terminal_server_fileService_removeUserRemoteDevice(responseBody:string|Buffer):void {
+            response(serverResponse, "application/json", responseBody);
+        }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
+    } else if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
         vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
         httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
             response(serverResponse, "application/json", responseBody);
