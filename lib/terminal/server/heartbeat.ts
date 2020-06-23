@@ -224,7 +224,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
         vars.ws.broadcast(JSON.stringify({
             "heartbeat-complete": data
         }));
-        if (data.agentType === "user") {console.log(data);
+        if (data.agentType === "user") {
             const list:string[] = Object.keys(serverVars.device).slice(1);
             broadcast({
                 deleted: {

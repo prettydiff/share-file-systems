@@ -804,7 +804,9 @@ declare global {
         };
         name: string;
         qualifier: qualifier;
-        test: string;
+        test: {
+            "heartbeat-status": heartbeat;
+        };
     }
     interface testTemplateHeartbeatUpdate {
         command: {

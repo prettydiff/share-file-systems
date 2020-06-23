@@ -1211,7 +1211,15 @@ service.populate = function test_services_populate():void {
         },
         name: "heartbeat complete",
         qualifier: "is",
-        test: "Heartbeat response received and processed."
+        test: {
+            "heartbeat-status": {
+                agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentType: "device",
+                shares: {},
+                status: "active"
+            }
+        }
     });
     service.push(<testTemplateHeartbeatComplete>{
         command: {
@@ -1302,7 +1310,16 @@ service.populate = function test_services_populate():void {
         },
         name: "heartbeat complete with share change",
         qualifier: "is",
-        test: "Heartbeat response received and processed."
+        test: {
+            "heartbeat-status": {
+                agentFrom: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentTo: "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
+                agentType: "device",
+                shares: {},
+                shareType: "device",
+                status: "active"
+            }
+        }
     });
 };
 service.addServers = function test_services_addServers(callback:Function):void {
