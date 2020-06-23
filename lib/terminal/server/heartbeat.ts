@@ -224,6 +224,26 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
         vars.ws.broadcast(JSON.stringify({
             "heartbeat-complete": data
         }));
+        if (data.agentType === "user") {console.log(data);
+            const list:string[] = Object.keys(serverVars.device).slice(1);
+            broadcast({
+                deleted: {
+                    device: [],
+                    user: []
+                },
+                list: {
+                    distribution: list,
+                    payload: {
+                        [keys[0]]: serverVars.user[keys[0]]
+                    },
+                    type: "user"
+                },
+                requestType: "heartbeat-complete",
+                response: null,
+                sendShares: true,
+                status: <heartbeatStatus>data.status
+            });
+        }
         data.shares = {};
         data.status = serverVars.status;
         data.agentTo = data.agentFrom;

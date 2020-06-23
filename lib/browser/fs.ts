@@ -38,6 +38,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         watchValue:string = input.value,
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
+        id:string = box.getAttribute("id"),
         callback = function local_fs_directory_callback(responseText:string):void {
             const list:[Element, number, string] = fs.list(path, JSON.parse(responseText));
             body.innerHTML = "";
@@ -54,10 +55,10 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
             copyAgent: "",
             copyType: "device",
             depth: 2,
-            id: box.getAttribute("id"),
+            id: id,
             location: [path],
             name: "",
-            share: browser.data.modals[agency[0]].share,
+            share: browser.data.modals[id].share,
             watch: watchValue
         };
     event.preventDefault();
@@ -187,13 +188,13 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     agent    : browser.data.modals[id].agent,
                     agentType: browser.data.modals[id].agentType,
                     copyAgent: agency[0],
-                    copyShare: browser.data.modals[agency[0]].share,
+                    copyShare: browser.data.modals[box.getAttribute("id")].share,
                     copyType : agency[2],
                     depth    : 1,
                     id       : id,
                     location : addresses,
                     name     : target,
-                    share    : browser.data.modals[browser.data.modals[id].agent].share,
+                    share    : browser.data.modals[id].share,
                     watch    : "no"
                 },
                 callback = function local_fs_drag_drop_callback():void {
@@ -292,6 +293,7 @@ fs.dragFlag = "";
 fs.expand = function local_fs_expand(event:MouseEvent):void {
     const button:Element = <Element>event.srcElement || <Element>event.target,
         box:Element = button.getAncestor("box", "class"),
+        id:string = box.getAttribute("id"),
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
         const agency:agency = util.getAgent(button),
@@ -302,10 +304,10 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
                 copyAgent: "",
                 copyType: "device",
                 depth: 2,
-                id: box.getAttribute("id"),
+                id: id,
                 location: [li.firstChild.nextSibling.textContent],
                 name : "",
-                share: browser.data.modals[agency[0]].share,
+                share: browser.data.modals[id].share,
                 watch: "no"
             },
             callback = function local_fs_expand_callback(responseText:string) {
@@ -671,7 +673,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
             id: id,
             location: [newAddress],
             name: "",
-            share: browser.data.modals[agency[0]].share,
+            share: browser.data.modals[id].share,
             watch: value
         },
         callback = function local_fs_parent_callback(responseText:string):void {
@@ -697,6 +699,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
             ? <Element>event.srcElement || <Element>event.target
             : context.element,
         box:Element = element.getAncestor("box", "class"),
+        id:string = box.getAttribute("id"),
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
         action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
@@ -713,10 +716,10 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                             copyAgent: "",
                             copyType: "device",
                             depth: 1,
-                            id: box.getAttribute("id"),
+                            id: id,
                             location: [text.replace(/\\/g, "\\\\")],
                             name: input.value,
-                            share: browser.data.modals[agency[0]].share,
+                            share: browser.data.modals[id].share,
                             watch: "no"
                         },
                         callback = function local_fs_rename_callback():void {
@@ -767,6 +770,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
+        id:string = box.getAttribute("id"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
         agency:agency = util.getAgent(box),
         payload:fileService = {
@@ -779,7 +783,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
             id: box.getAttribute("id"),
             location: [box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1]],
             name: content,
-            share: browser.data.modals[agency[0]].share,
+            share: browser.data.modals[id].share,
             watch: "no"
         },
         callback = function local_fs_saveFile_callback(message:string):void {
@@ -823,7 +827,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                 id: id,
                 location: [address],
                 name: value,
-                share: browser.data.modals[agency[0]].share,
+                share: browser.data.modals[id].share,
                 watch: "no"
             },
             netCallback = function local_fs_search_callback(responseText:string):void {
@@ -1066,7 +1070,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
                 id: id,
                 location: [element.value],
                 name: "",
-                share: browser.data.modals[agency[0]].share,
+                share: browser.data.modals[id].share,
                 watch: watchValue
             },
             callback = function local_fs_text_callback(responseText:string):void {
