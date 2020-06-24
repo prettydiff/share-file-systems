@@ -109,7 +109,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             }
         },
         // calls httpClient library for file system operations
-        httpRequest = function terminal_server_fileService_httpRequest(callback:Function, errorMessage:string, type:"body"|"object") {
+        httpRequest = function terminal_server_fileService_httpRequest(callback:httpCallback, errorMessage:string, type:"body"|"object") {
             const test:boolean = (vars.command.indexOf("test") === 0 && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")),
                 payload:fileService = {
                     action: data.action,
@@ -584,7 +584,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_server_fileService_requestFiles_requestFile():void {
-                    const writeCallback:Function = (fileData.stream === true)
+                    const writeCallback:httpCallback = (fileData.stream === true)
                         ? writeStream
                         : fileRequestCallback;
                     vars.testLogger("fileService", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
@@ -700,7 +700,14 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
         vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
         data.agent = remoteUsers[0];
         data.agentType = "device";
-        httpRequest(function terminal_server_fileService_removeUserRemoteDevice(responseBody:string|Buffer):void {
+        httpRequest(function terminal_server_fileService_removeUserRemoteDevice(responseBody:string|Buffer, headers:http.IncomingHttpHeaders):void {
+            if (headers.file_name !== undefined) {
+                serverResponse.setHeader("hash", headers.hash);
+                serverResponse.setHeader("file_name", headers.file_name);
+                serverResponse.setHeader("file_size", headers.file_size);
+                serverResponse.setHeader("cut_path", headers.cut_path);
+                serverResponse.setHeader("compression", headers.compression);
+            }
             response(serverResponse, "application/json", responseBody);
         }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
     } else if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {

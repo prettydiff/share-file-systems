@@ -1,6 +1,6 @@
 
 import { Stats } from "fs";
-import { ServerResponse } from "http";
+import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
 import { Server } from "net";
 
 declare global {
@@ -15,6 +15,9 @@ declare global {
     type eventCallback = (event:Event, callback:Function) => void;
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
+    type httpBodyCallback = (body:Buffer|string, headers:IncomingHttpHeaders) => void;
+    type httpObjectCallback = (IncomingMessage) => void;
+    type httpCallback = httpBodyCallback|httpObjectCallback;
     type inviteAction = "invite" | "invite-request" | "invite-response" | "invite-complete";
     type inviteStatus = "accepted" | "declined" | "invited";
     type messageList = [string, string];
@@ -313,7 +316,7 @@ declare global {
     }
     interface httpConfiguration {
         agentType: agentType,
-        callback: Function;
+        callback: httpCallback;
         callbackType: "body" | "object";
         errorMessage: string;
         id: string;

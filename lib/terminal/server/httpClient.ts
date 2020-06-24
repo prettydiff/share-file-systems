@@ -35,7 +35,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                     if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
                         forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user", config.response);
                     } else {
-                        config.callback(body);
+                        config.callback(body, fsResponse.headers);
                     }
                 });
                 fsResponse.on("error", responseError);
