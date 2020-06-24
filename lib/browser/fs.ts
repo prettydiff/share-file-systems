@@ -571,6 +571,9 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         location:string = (config !== undefined && typeof config.path === "string")
             ? config.path
             : "**root**",
+        share:string = (config === undefined || config.share === undefined)
+            ? ""
+            : config.share,
         readOnly:boolean = (agentName !== browser.data.hashDevice && config !== undefined && config.readOnly === true),
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
@@ -617,9 +620,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             id: browser.data.hashDevice,
             location: [location],
             name: "",
-            share: (config === undefined)
-                ? ""
-                : config.share,
+            share: share,
             watch: "yes"
         },
         payloadModal:ui_modal = {
@@ -629,6 +630,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             inputs: ["close", "maximize", "minimize", "text"],
             read_only: readOnly,
             selection: {},
+            share: share,
             status_bar: true,
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
