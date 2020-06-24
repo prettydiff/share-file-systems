@@ -846,7 +846,9 @@ context.menuRemove = function local_context_menuRemove():void {
 context.paste = function local_context_paste():void {
     const element:Element = context.element.getAncestor("box", "class"),
         destination:string = element.getElementsByTagName("input")[0].value,
-        clipData:clipboard = JSON.parse(clipboard),
+        clipData:clipboard = (clipboard === "")
+            ? {}
+            : JSON.parse(clipboard),
         id:string = element.getAttribute("id"),
         payload:fileService = {
             action   : <serviceType>`fs-${clipData.type}`,
@@ -866,6 +868,9 @@ context.paste = function local_context_paste():void {
             clipboard = "";
             util.selectNone(document.getElementById(clipData.id));
         };
+    if (clipboard === "") {
+        return;
+    }
     network.fs(payload, callback);
     context.element = null;
 };
