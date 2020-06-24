@@ -617,7 +617,9 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             id: browser.data.hashDevice,
             location: [location],
             name: "",
-            share: config.share,
+            share: (config === undefined)
+                ? ""
+                : config.share,
             watch: "yes"
         },
         payloadModal:ui_modal = {

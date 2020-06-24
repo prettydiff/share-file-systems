@@ -72,6 +72,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
         box:Element = element.getAncestor("box", "class"),
         length:number = addresses.length,
         agency:agency = util.getAgent(box),
+        id:string = box.getAttribute("id"),
         payloadNetwork:fileService = {
             action: (type === "Edit")
                 ? "fs-read"
@@ -81,10 +82,10 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             copyAgent: "",
             copyType: "device",
             depth: 1,
-            id: box.getAttribute("id"),
+            id: id,
             location: [],
             name: "",
-            share: browser.data.modals[agency[0]].share,
+            share: browser.data.modals[id].share,
             watch: "no"
         },
         payloadModal:ui_modal = {
@@ -160,6 +161,7 @@ context.destroy = function local_context_destroy():void {
         selected:[string, shareType, string][],
         box:Element = element.getAncestor("box", "class"),
         agency:agency = util.getAgent(element),
+        id:string = box.getAttribute("id"),
         payload:fileService = {
             action: "fs-destroy",
             agent: agency[0],
@@ -167,10 +169,10 @@ context.destroy = function local_context_destroy():void {
             copyAgent: "",
             copyType: "device",
             depth: 1,
-            id: box.getAttribute("id"),
+            id: id,
             location: [],
             name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
-            share: browser.data.modals[agency[0]].share,
+            share: browser.data.modals[id].share,
             watch: "no"
         },
         callback = function local_context_destroy_callback(responseText:string):void {
@@ -242,7 +244,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                 return output;
             }()),
             name: "",
-            share: browser.data.modals[agency[0]].share,
+            share: browser.data.modals[id].share,
             watch: "no"
         },
         callback = function local_context_details_callback(response:string):void {
@@ -505,7 +507,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                         id: id,
                         location: [actionElement.getAttribute("data-location") + value],
                         name: actionElement.getAttribute("data-type"),
-                        share: browser.data.modals[agency[0]].share,
+                        share: browser.data.modals[id].share,
                         watch: "no"
                     },
                     callback = function local_context_fsNew_actionKeyboard_callback():void {
@@ -545,7 +547,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                             id: id,
                             location: [actionElement.getAttribute("data-location") + value],
                             name: actionElement.getAttribute("data-type"),
-                            share: browser.data.modals[agency[0]].share,
+                            share: browser.data.modals[id].share,
                             watch: "no"
                         },
                         callback = function local_context_fsNew_actionBlur_callback():void {
