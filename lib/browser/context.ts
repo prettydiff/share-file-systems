@@ -30,11 +30,13 @@ context.copy = function local_context_copy(event:MouseEvent):void {
                 : "cut",
         selected:[string, shareType, string][] = util.selectedAddresses(element, type),
         agency:agency = util.getAgent(box),
+        id:string = box.getAttribute("id"),
         clipData:clipboard = {
             agent: agency[0],
             agentType: agency[2],
             data: addresses,
-            id: box.getAttribute("id"),
+            id: id,
+            share: browser.data.modals[id].share,
             type: type
         },
         clipStore:clipboard = (clipboard === "")
@@ -845,17 +847,19 @@ context.paste = function local_context_paste():void {
     const element:Element = context.element.getAncestor("box", "class"),
         destination:string = element.getElementsByTagName("input")[0].value,
         clipData:clipboard = JSON.parse(clipboard),
+        id:string = element.getAttribute("id"),
         payload:fileService = {
             action   : <serviceType>`fs-${clipData.type}`,
             agent    : clipData.agent,
             agentType: clipData.agentType,
-            copyAgent: browser.data.modals[element.getAttribute("id")].agent,
+            copyAgent: browser.data.modals[id].agent,
+            copyShare: browser.data.modals[id].share,
             copyType : "device",
             depth    : 1,
-            id       : element.getAttribute("id"),
+            id       : id,
             location : clipData.data,
             name     : destination,
-            share    : browser.data.modals[clipData.agent].share,
+            share    : clipData.share,
             watch    : "no"
         },
         callback = function local_context_paste_callback():void {

@@ -106,6 +106,7 @@ declare global {
         agentType: agentType;
         data: string[];
         id: string;
+        share: string;
         type: string;
     }
     interface colorList {
