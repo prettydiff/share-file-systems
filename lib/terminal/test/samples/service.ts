@@ -861,7 +861,7 @@ service.populate = function test_services_populate():void {
                 ],
                 fail: [],
                 location: `${projectPath}storage`,
-                status: "test payload"
+                status: {}
             }
         },
         name: "fs-update-remote, Local",

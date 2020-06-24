@@ -47,8 +47,8 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
                 };
                 text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
                 if (xhr.status === 200 || xhr.status === 0) {
-                    if (text.indexOf("{\"fileListStatus\":") === 0) {
-                        util.fileListStatus(text);
+                    if (text.indexOf("{\"file-list-status\":") === 0) {
+                        util.fileListStatus(JSON.parse(text)["file-list-status"]);
                     } else {
                         callback(text, configuration.agent);
                     }

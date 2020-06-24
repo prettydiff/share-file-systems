@@ -351,9 +351,8 @@ util.dragList = function local_util_dragList(event:MouseEvent, dragBox:Element):
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
-util.fileListStatus = function local_util_fileListStatus(text:string):void {
-    const data:copyStatus = JSON.parse(text),
-        modals:Element[] = (data.target.indexOf("remote-") === 0)
+util.fileListStatus = function local_util_fileListStatus(data:copyStatus):void {
+    const modals:Element[] = (data.target.indexOf("remote-") === 0)
             ? [document.getElementById(data.target.replace("remote-", ""))]
             : (function local_util_fileListStatus_modals():Element[] {
                 const names:string[] = Object.keys(browser.data.modals),
@@ -373,7 +372,9 @@ util.fileListStatus = function local_util_fileListStatus(text:string):void {
         fails:Element = document.createElement("ul"),
         length:number = modals.length;
     let statusBar:Element,
+        id:string,
         list:Element,
+        body:Element,
         p:Element,
         clone:Element,
         a:number = 0;
@@ -405,6 +406,17 @@ util.fileListStatus = function local_util_fileListStatus(text:string):void {
                 if (failLength > 0) {
                     clone = <HTMLElement>fails.cloneNode(true);
                     statusBar.appendChild(clone);
+                }
+                if (data.fileList !== undefined) {
+                    id = modals[a].getAttribute("id");
+                    body = modals[a].getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    list = fs.list(browser.data.modals[id].text_value, {
+                        dirs: data.fileList,
+                        fail: [],
+                        id: id
+                    })[0];
+                    body.appendChild(list);
                 }
             }
             a = a + 1;

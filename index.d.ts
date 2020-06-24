@@ -156,9 +156,10 @@ declare global {
         writtenSize: number;
     }
     interface copyStatus {
-        failures:string[];
-        message:string;
-        target:string;
+        failures: string[];
+        fileList?: directoryList;
+        message: string;
+        target: string;
     }
     interface device {
         ip: string;
@@ -183,10 +184,10 @@ declare global {
         failures?: string[];
     }
     interface docItem {
-        description: string,
-        name: string,
+        description: string;
+        name: string;
         namePadded: string;
-        path: string
+        path: string;
     }
     interface Document {
         getNodesByType: Function;
@@ -213,7 +214,7 @@ declare global {
         watch       : string;
     }
     interface fileStore extends Array<[number, string, string, Buffer]> {
-        [index:number]: [number, string, string, Buffer]
+        [index:number]: [number, string, string, Buffer];
     }
     interface flags {
         error: boolean;
@@ -235,8 +236,8 @@ declare global {
         agentType: agentType;
         dirs: directoryList;
         fail: string[];
-        location:string;
-        status?:string;
+        location: string;
+        status?: copyStatus;
     }
     interface FSWatcher extends Function {
         close: Function;
@@ -507,7 +508,7 @@ declare global {
         delay?: () => Element;
         dragBox?: eventCallback;
         dragList?: (event:Event, dragBox:Element) => void;
-        fileListStatus?: (text:string) => void;
+        fileListStatus?: (data:copyStatus) => void;
         fixHeight?: () => void;
         formKeys?: (event:KeyboardEvent, submit:Function) => void;
         getAgent?: (element:Element) => agency;

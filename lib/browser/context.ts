@@ -856,7 +856,7 @@ context.paste = function local_context_paste():void {
             agentType: clipData.agentType,
             copyAgent: browser.data.modals[id].agent,
             copyShare: browser.data.modals[id].share,
-            copyType : "device",
+            copyType : browser.data.modals[id].agentType,
             depth    : 1,
             id       : id,
             location : clipData.data,

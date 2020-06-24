@@ -91,7 +91,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                 dirs: directory,
                                 fail: [],
                                 location: location,
-                                status: payload
+                                status: copyStatus
                             };
                         response(serverResponse, "application/json", JSON.stringify({
                             "fs-update-remote": update
@@ -370,18 +370,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 cutList:[string, string][] = [],
                 // prepares the HTTP response message if all requested files are written
                 respond = function terminal_server_fileService_requestFiles_respond():void {
-                    const status:completeStatus = {
-                            countFile: countFile,
-                            failures: hashFail.length,
-                            percent: 100,
-                            writtenSize: writtenSize
-                        },
-                        output:copyStatus = {
-                            failures: hashFail,
-                            message: copyMessage(status),
-                            target: `local-${data.name.replace(/\\/g, "\\\\")}`
-                        },
-                        cut = function terminal_server_fileService_requestFiles_respond_cut():void {
+                    const cut = function terminal_server_fileService_requestFiles_respond_cut():void {
                             if (data.action.indexOf("fs-cut") === 0) {
                                 const types:string[] = [];
                                 cutList.sort(function terminal_server_fileService_requestFiles_respond_cut_cutSort(itemA:[string, string], itemB:[string, string]):number {
@@ -401,18 +390,41 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                 httpRequest(function terminal_server_fileService_requestFiles_respond_cut_cutCall(responseBody:string|Buffer):void {
                                     log([<string>responseBody]);
                                 }, "Error requesting file removal for fs-cut.", "body");
+                            } else {
+                                const dirCallback = function terminal_server_fileService_requestFiles_respond_dirCallback(dirItem:directoryList):void {
+                                    const status:completeStatus = {
+                                            countFile: countFile,
+                                            failures: hashFail.length,
+                                            percent: 100,
+                                            writtenSize: writtenSize
+                                        },
+                                        output:copyStatus = {
+                                            failures: hashFail,
+                                            fileList: dirItem,
+                                            message: copyMessage(status),
+                                            target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                        };
+                                    vars.ws.broadcast(JSON.stringify({
+                                        "file-list-status": output
+                                    }));
+                                    output.target = `remote-${fileData.id}`;
+                                    response(serverResponse, "application/json", JSON.stringify({
+                                        "file-list-status": output
+                                    }));
+                                };
+                                directory({
+                                    callback: dirCallback,
+                                    depth: 2,
+                                    exclusions: [],
+                                    logRecursion: logRecursion,
+                                    mode: "read",
+                                    path: data.name,
+                                    symbolic: true
+                                });
                             }
                         };
                     vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
-                    log([``]);
                     cut();
-                    vars.ws.broadcast(JSON.stringify({
-                        "file-list-status": output
-                    }));
-                    output.target = `remote-${fileData.id}`;
-                    response(serverResponse, "application/json", JSON.stringify({
-                        "file-list-status": output
-                    }));
                 },
                 // handler to write files if files are written in a single shot, otherwise files are streamed with writeStream
                 writeFile = function terminal_server_fileService_requestFiles_writeFile(index:number):void {
@@ -443,6 +455,10 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                             if (vars.command.indexOf("test") !== 0) {
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + fileQueue[index][1];
+                                status.countFile = countFile;
+                                status.percent = ((writtenSize / fileData.fileSize) * 100);
+                                status.writtenSize = writtenSize;
+                                output.message = copyMessage(status);
                             }
                             vars.ws.broadcast(JSON.stringify({
                                 "file-list-status": output
@@ -913,9 +929,13 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                 const listData:remoteCopyList = {
                     callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
+                        const agent:string = data.agent,
+                            type:agentType = data.agentType;
                         data.action = <serviceType>`${data.action}-request`;
                         data.agent = data.copyAgent;
                         data.agentType = data.copyType;
+                        data.copyAgent = agent;
+                        data.copyType = type;
                         data.remoteWatch = JSON.stringify(listData);
                         httpRequest(function terminal_server_fileService_remoteListCallback_http(responseBody:string|Buffer):void {
                             response(serverResponse, "application/json", responseBody);
