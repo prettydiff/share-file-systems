@@ -52,6 +52,14 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             }
             return values;
         }()),
+        reverseAgents = function terminal_server_fileService():void {
+            const agent:string = data.agent,
+                type:agentType = data.agentType;
+            data.agent = data.copyAgent;
+            data.agentType = data.copyType;
+            data.copyAgent = agent;
+            data.copyType = type;
+        },
         // prepares file copy status messaging
         copyMessage = function (numbers:completeStatus):string {
             const filePlural:string = (numbers.countFile === 1)
@@ -164,8 +172,8 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             httpClient(httpConfig);
         },
         // a generic handler for responding to file system watch updates
-        fsUpdateLocal = function terminal_server_fileService(readLocation:string):void {
-            const fsUpdateCallback = function terminal_server_fileService_fsUpdateCallback(result:directoryList):void {
+        fsUpdateLocal = function terminal_server_fileService_fsUpdateLocal(readLocation:string):void {
+            const fsUpdateCallback = function terminal_server_fileService_fsUpdateLocal_fsUpdateCallback(result:directoryList):void {
                     vars.ws.broadcast(JSON.stringify({
                         "fs-update-local": result
                     }));
@@ -277,6 +285,10 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     // 1. item type: directory, file
                     // 2. relative path from point of user selection
                     // 3. size in bytes from Stats object
+                    if (dir === undefined || dir[0] === undefined) {
+                        // something went wrong, probably the remote fell offline
+                        return;
+                    }
                     do {
                         if (dir[b][1] === "file") {
                             stat = <fs.Stats>dir[b][5];
@@ -357,18 +369,6 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             directory(dirConfig);
             logRecursion = false;
         },
-        // provides an updated directory list for after copy/cut jobs are complete
-        finalDir = function terminal_server_fileService_finalStatus(callback:(dirItem) => void):void {
-            directory({
-                callback: callback,
-                depth: 2,
-                exclusions: [],
-                logRecursion: logRecursion,
-                mode: "read",
-                path: data.name,
-                symbolic: true
-            });
-        },
         // when copying files to a different location that location needs to request the files
         requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
             let writeActive:boolean = false,
@@ -405,26 +405,34 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                     log([<string>responseBody]);
                                 }, "Error requesting file removal for fs-cut.", "body");
                             } else {
-                                finalDir(function terminal_server_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {
-                                    const status:completeStatus = {
-                                            countFile: countFile,
-                                            failures: hashFail.length,
-                                            percent: 100,
-                                            writtenSize: writtenSize
-                                        },
-                                        output:copyStatus = {
-                                            failures: hashFail,
-                                            fileList: dirItems,
-                                            message: copyMessage(status),
-                                            target: `local-${data.name.replace(/\\/g, "\\\\")}`
-                                        };
-                                    vars.ws.broadcast(JSON.stringify({
-                                        "file-list-status": output
-                                    }));
-                                    output.target = `remote-${fileData.id}`;
-                                    response(serverResponse, "application/json", JSON.stringify({
-                                        "file-list-status": output
-                                    }));
+                                directory({
+                                    callback: function terminal_server_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {
+                                        const status:completeStatus = {
+                                                countFile: countFile,
+                                                failures: hashFail.length,
+                                                percent: 100,
+                                                writtenSize: writtenSize
+                                            },
+                                            output:copyStatus = {
+                                                failures: hashFail,
+                                                fileList: dirItems,
+                                                message: copyMessage(status),
+                                                target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                            };
+                                        vars.ws.broadcast(JSON.stringify({
+                                            "file-list-status": output
+                                        }));
+                                        output.target = `remote-${fileData.id}`;
+                                        response(serverResponse, "application/json", JSON.stringify({
+                                            "file-list-status": output
+                                        }));
+                                    },
+                                    depth: 2,
+                                    exclusions: [],
+                                    logRecursion: logRecursion,
+                                    mode: "read",
+                                    path: data.name,
+                                    symbolic: true
                                 });
                             }
                         };
@@ -934,13 +942,8 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                 const listData:remoteCopyList = {
                     callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
-                        const agent:string = data.agent,
-                            type:agentType = data.agentType;
+                        reverseAgents();
                         data.action = <serviceType>`${data.action}-request`;
-                        data.agent = data.copyAgent;
-                        data.agentType = data.copyType;
-                        data.copyAgent = agent;
-                        data.copyType = type;
                         data.remoteWatch = JSON.stringify(listData);
                         httpRequest(function terminal_server_fileService_remoteListCallback_http(responseBody:string|Buffer):void {
                             response(serverResponse, "application/json", responseBody);
@@ -971,13 +974,11 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 response(serverResponse, "application/json", responseBody);
             }, `Error copying files to and from agent ${data.agent}.`, "body");
         } else {
-            const agent:string = data.agent;
             // * data.agent === remoteAgent
             // * data.copyAgent === differentRemoteAgent
             vars.testLogger("fileService", "fs-copy destination-origination-different", "When the origination and destination are different and neither is the local device the destination device must be told to start the destination-not-local operation and then respond back with status.");
+            reverseAgents();
             data.action = <serviceType>`${data.action}-list-remote`;
-            data.agent = data.copyAgent;
-            data.copyAgent = agent;
             data.remoteWatch = serverVars.hashDevice;
             data.watch = "third party action";
             httpRequest(function terminal_server_fileService_httpRemoteRemote(responseBody:string|Buffer):void {
@@ -992,8 +993,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
         // issue a fs-copy-list on an agent from a different agent
         const agent:string = data.agent;
         vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
-        data.agent = data.copyAgent;
-        data.copyAgent = agent;
+        reverseAgents();
         data.action = <serviceType>`${data.action.replace("-remote", "")}`;
         httpRequest(function terminal_server_fileService_httpCopyRemote(responseBody:string|Buffer):void {
             requestFiles(JSON.parse(<string>responseBody));
@@ -1084,21 +1084,29 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         });
                     }
                 } else {
-                    //response(serverResponse, "text/plain", "File system items removed.");
-                    finalDir(function terminal_server_fileService_cutRemote_finalDir(dirItems:directoryList):void {
-                        const remote:fsUpdateRemote = {
-                            agent: data.agent,
-                            agentType: data.agentType,
-                            dirs: dirItems,
-                            fail: dirItems.failures,
-                            location: data.name
-                        };
-                        vars.ws.broadcast(JSON.stringify({
-                            "fs-update-local": dirItems
-                        }));
-                        response(serverResponse, "application/json", JSON.stringify({
-                            "fs-update-remote": remote
-                        }));
+                    // update destination directory
+                    directory({
+                        callback: function terminal_server_fileService_cutRemote_finalDir(dirItems:directoryList):void {
+                            const remote:fsUpdateRemote = {
+                                agent: data.agent,
+                                agentType: data.agentType,
+                                dirs: dirItems,
+                                fail: dirItems.failures,
+                                location: `remote-${data.watch}`
+                            };
+                            vars.ws.broadcast(JSON.stringify({
+                                "fs-update-local": dirItems
+                            }));
+                            response(serverResponse, "application/json", JSON.stringify({
+                                "fs-update-remote": remote
+                            }));
+                        },
+                        depth: 2,
+                        exclusions: [],
+                        logRecursion: logRecursion,
+                        mode: "read",
+                        path: data.watch,
+                        symbolic: true
                     });
                 }
             };

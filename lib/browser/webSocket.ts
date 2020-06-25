@@ -106,7 +106,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     a = a + 1;
                 } while (a < keyLength);
                 if (typeof data.status === "string") {
-                    util.fileListStatus(data.status);
+                    util.fileListStatus(JSON.parse(data.status));
                 }
             },
             heartbeatDelete = function local_socketMessage_heartbeatDelete():void {
