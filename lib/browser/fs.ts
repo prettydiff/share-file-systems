@@ -777,6 +777,8 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
         id:string = box.getAttribute("id"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
         agency:agency = util.getAgent(box),
+        title:Element = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
+        location:string[] = title.innerHTML.split(" - "),
         payload:fileService = {
             action: "fs-write",
             agent: agency[0],
@@ -785,7 +787,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
             copyType: "device",
             depth: 1,
             id: box.getAttribute("id"),
-            location: [box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].innerHTML.split(`${agency[0]} - `)[1]],
+            location: [location[location.length - 1]],
             name: content,
             share: browser.data.modals[id].share,
             watch: "no"

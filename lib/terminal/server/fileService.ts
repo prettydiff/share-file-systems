@@ -120,6 +120,11 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
         },
         // calls httpClient library for file system operations
         httpRequest = function terminal_server_fileService_httpRequest(callback:httpCallback, errorMessage:string, type:"body"|"object") {
+            if (serverVars[data.agentType] === undefined || serverVars[data.agentType][data.agent] === undefined) {
+                log([`Count not resolve IP address for agent ${data.agent} of type ${data.agentType}.`]);
+                error([`Count not resolve IP address for agent ${data.agent} of type ${data.agentType}.`]);
+                return;
+            }
             const test:boolean = (vars.command.indexOf("test") === 0 && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")),
                 payload:fileService = {
                     action: data.action,
