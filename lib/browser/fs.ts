@@ -690,7 +690,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
             browser.data.modals[id].text_value = newAddress;
             network.storage("settings");
         };
-    if (newAddress === "\\" || newAddress === "/") {
+    if (value === "\\" || value === "/") {
         return false;
     }
     browser.data.modals[id].history.push(newAddress);
