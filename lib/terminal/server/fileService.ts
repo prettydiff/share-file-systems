@@ -406,38 +406,38 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                         vars.ws.broadcast(responseBody);
                                     }
                                 }, "Error requesting file removal for fs-cut.", "body");
-                                directory({
-                                    callback: function terminal_server_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {
-                                        const status:completeStatus = {
-                                                countFile: countFile,
-                                                failures: hashFail.length,
-                                                percent: 100,
-                                                writtenSize: writtenSize
-                                            },
-                                            output:copyStatus = {
-                                                failures: hashFail,
-                                                fileList: dirItems,
-                                                message: copyMessage(status),
-                                                target: `local-${data.name.replace(/\\/g, "\\\\")}`
-                                            };
-                                        vars.ws.broadcast(JSON.stringify({
-                                            "file-list-status": output
-                                        }));
-                                        output.target = `remote-${fileData.id}`;
-                                        response(serverResponse, "application/json", JSON.stringify({
-                                            "file-list-status": output
-                                        }));
-                                    },
-                                    depth: 2,
-                                    exclusions: [],
-                                    logRecursion: logRecursion,
-                                    mode: "read",
-                                    path: data.name,
-                                    symbolic: true
-                                });
                             }
                         };
                     vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
+                    directory({
+                        callback: function terminal_server_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {
+                            const status:completeStatus = {
+                                    countFile: countFile,
+                                    failures: hashFail.length,
+                                    percent: 100,
+                                    writtenSize: writtenSize
+                                },
+                                output:copyStatus = {
+                                    failures: hashFail,
+                                    fileList: dirItems,
+                                    message: copyMessage(status),
+                                    target: `local-${data.name.replace(/\\/g, "\\\\")}`
+                                };
+                            vars.ws.broadcast(JSON.stringify({
+                                "file-list-status": output
+                            }));
+                            output.target = `remote-${fileData.id}`;
+                            response(serverResponse, "application/json", JSON.stringify({
+                                "file-list-status": output
+                            }));
+                        },
+                        depth: 2,
+                        exclusions: [],
+                        logRecursion: logRecursion,
+                        mode: "read",
+                        path: data.name,
+                        symbolic: true
+                    });
                     cut();
                 },
                 // handler to write files if files are written in a single shot, otherwise files are streamed with writeStream
