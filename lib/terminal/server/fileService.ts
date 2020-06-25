@@ -50,7 +50,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     source: serverVars
                 });
             }
-            if (data.agentType === "user" && values[0] === "") {
+            if (data.agentType === "user" && data.agent === serverVars.hashUser && values[0] === "") {
                 localDevice = true;
             }
             return values;
