@@ -31,6 +31,7 @@ let logRecursion:boolean = true;
 const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
     // formats a string to convey file copy status
     const localDevice:boolean = (data.agent === serverVars.hashDevice),
+        // determines whether there needs to be additional routing for non-local devices of remote users
         remoteUsers:[string, string] = (function terminal_server_fileService_remoteUsers():[string, string] {
             const values:[string, string] = ["", ""],
                 perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
@@ -51,6 +52,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             }
             return values;
         }()),
+        // prepares file copy status messaging
         copyMessage = function (numbers:completeStatus):string {
             const filePlural:string = (numbers.countFile === 1)
                     ? ""
@@ -355,6 +357,18 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             directory(dirConfig);
             logRecursion = false;
         },
+        // provides an updated directory list for after copy/cut jobs are complete
+        finalDir = function terminal_server_fileService_finalStatus(callback:(dirItem) => void):void {
+            directory({
+                callback: callback,
+                depth: 2,
+                exclusions: [],
+                logRecursion: logRecursion,
+                mode: "read",
+                path: data.name,
+                symbolic: true
+            });
+        },
         // when copying files to a different location that location needs to request the files
         requestFiles = function terminal_server_fileService_requestFiles(fileData:remoteCopyListData):void {
             let writeActive:boolean = false,
@@ -391,7 +405,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                     log([<string>responseBody]);
                                 }, "Error requesting file removal for fs-cut.", "body");
                             } else {
-                                const dirCallback = function terminal_server_fileService_requestFiles_respond_dirCallback(dirItem:directoryList):void {
+                                finalDir(function terminal_server_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {
                                     const status:completeStatus = {
                                             countFile: countFile,
                                             failures: hashFail.length,
@@ -400,7 +414,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                         },
                                         output:copyStatus = {
                                             failures: hashFail,
-                                            fileList: dirItem,
+                                            fileList: dirItems,
                                             message: copyMessage(status),
                                             target: `local-${data.name.replace(/\\/g, "\\\\")}`
                                         };
@@ -411,15 +425,6 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                     response(serverResponse, "application/json", JSON.stringify({
                                         "file-list-status": output
                                     }));
-                                };
-                                directory({
-                                    callback: dirCallback,
-                                    depth: 2,
-                                    exclusions: [],
-                                    logRecursion: logRecursion,
-                                    mode: "read",
-                                    path: data.name,
-                                    symbolic: true
                                 });
                             }
                         };
@@ -1079,7 +1084,22 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         });
                     }
                 } else {
-                    response(serverResponse, "text/plain", "File system items removed.");
+                    //response(serverResponse, "text/plain", "File system items removed.");
+                    finalDir(function terminal_server_fileService_cutRemote_finalDir(dirItems:directoryList):void {
+                        const remote:fsUpdateRemote = {
+                            agent: data.agent,
+                            agentType: data.agentType,
+                            dirs: dirItems,
+                            fail: dirItems.failures,
+                            location: data.name
+                        };
+                        vars.ws.broadcast(JSON.stringify({
+                            "fs-update-local": dirItems
+                        }));
+                        response(serverResponse, "application/json", JSON.stringify({
+                            "fs-update-remote": remote
+                        }));
+                    });
                 }
             };
         if (watchTest === true) {
