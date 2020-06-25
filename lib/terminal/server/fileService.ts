@@ -30,9 +30,9 @@ import serverVars from "./serverVars.js";
 let logRecursion:boolean = true;
 const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
     // formats a string to convey file copy status
-    const localDevice:boolean = (data.agent === serverVars.hashDevice),
-        // determines whether there needs to be additional routing for non-local devices of remote users
-        remoteUsers:[string, string] = (function terminal_server_fileService_remoteUsers():[string, string] {
+    let localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device");
+    // determines whether there needs to be additional routing for non-local devices of remote users
+    const remoteUsers:[string, string] = (function terminal_server_fileService_remoteUsers():[string, string] {
             const values:[string, string] = ["", ""],
                 perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
                     if (agentNames.agentType === "device") {
@@ -49,6 +49,9 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     perAgent: perAgent,
                     source: serverVars
                 });
+            }
+            if (data.agentType === "user" && values[0] === "") {
+                localDevice = true;
             }
             return values;
         }()),

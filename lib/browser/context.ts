@@ -114,6 +114,9 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
                 modalResult:Element,
                 body:HTMLElement,
                 heading:HTMLElement;
+            if (data[0] === undefined) {
+                return;
+            }
             do {
                 textArea = document.createElement("textarea");
                 modalResult = document.getElementById(data[a].id),
