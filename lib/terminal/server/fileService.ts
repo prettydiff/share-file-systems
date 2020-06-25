@@ -402,9 +402,10 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                 data.name = JSON.stringify(types);
                                 data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
                                 httpRequest(function terminal_server_fileService_requestFiles_respond_cut_cutCall(responseBody:string|Buffer):void {
-                                    log([<string>responseBody]);
+                                    if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
+                                        vars.ws.broadcast(responseBody);
+                                    }
                                 }, "Error requesting file removal for fs-cut.", "body");
-                            } else {
                                 directory({
                                     callback: function terminal_server_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {
                                         const status:completeStatus = {
@@ -1092,7 +1093,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                 agentType: data.agentType,
                                 dirs: dirItems,
                                 fail: dirItems.failures,
-                                location: `remote-${data.watch}`
+                                location: data.watch
                             };
                             vars.ws.broadcast(JSON.stringify({
                                 "fs-update-local": dirItems
