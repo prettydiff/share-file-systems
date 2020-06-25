@@ -67,7 +67,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             ? context.type
             : (contextElement.innerHTML.indexOf("Base64") === 0)
                 ? "Base64"
-                : (contextElement.innerHTML.indexOf("Edit") === 0)
+                : (contextElement.innerHTML.indexOf("File as Text") > 0)
                     ? "Edit"
                     : "Hash",
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),

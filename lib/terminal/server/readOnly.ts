@@ -23,6 +23,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
             sIndex:number = shareKeys.length,
+            place:string,
             share:deviceShare,
             bestMatch:number = -1;
         if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
@@ -32,10 +33,13 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             do {
                 dIndex = dIndex - 1;
                 sIndex = shareKeys.length;
+                place = (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read")
+                    ? location[dIndex].slice(location[dIndex].indexOf(":") + 1)
+                    : location[dIndex];
                 do {
                     sIndex = sIndex - 1;
                     share = shares[shareKeys[sIndex]];
-                    if (location[dIndex].indexOf(share.name) === 0 || (windows === true && location[dIndex].toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
+                    if (place.indexOf(share.name) === 0 || (windows === true && place.toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
                         if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
                             bestMatch = sIndex;
                         }
