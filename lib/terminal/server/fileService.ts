@@ -57,10 +57,13 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
         }()),
         reverseAgents = function terminal_server_fileService():void {
             const agent:string = data.agent,
-                type:agentType = data.agentType;
+                type:agentType = data.agentType,
+                share:string = data.share;
             data.agent = data.copyAgent;
             data.agentType = data.copyType;
+            data.share = data.copyShare;
             data.copyAgent = agent;
+            data.copyShare = share;
             data.copyType = type;
         },
         // prepares file copy status messaging
@@ -951,12 +954,33 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                 const listData:remoteCopyList = {
                     callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
+                        const httpCall = function terminal_server_fileService_remoteListCallback_http():void {
+                                httpRequest(function terminal_server_fileService_remoteListCallback_http_request(responseBody:string|Buffer):void {
+                                    response(serverResponse, "application/json", responseBody);
+                                }, "Error sending list of files to remote for copy from local device.", "body");
+                            },
+                            hashCallback = function terminal_server_fileService_remoteListCallback_hash(hashOutput:hashOutput):void {
+                                data.copyAgent = serverVars.hashUser;
+                                data.copyShare = hashOutput.hash;
+                                data.copyType = "user";
+                                httpCall();
+                            };
                         reverseAgents();
                         data.action = <serviceType>`${data.action}-request`;
                         data.remoteWatch = JSON.stringify(listData);
-                        httpRequest(function terminal_server_fileService_remoteListCallback_http(responseBody:string|Buffer):void {
-                            response(serverResponse, "application/json", responseBody);
-                        }, "Error sending list of files to remote for copy from local device.", "body");
+                        if (data.agentType === "user") {
+                            // A hash sequence is required only if copying to a remote user because
+                            // * the remote user has to be allowed to bypass share limits of the file system
+                            // * this is because the remote user has to request the files from the local user
+                            // * and the local user's files can be outside of a designated share, which is off limits in all other cases
+                            hash({
+                                callback: hashCallback,
+                                directInput: true,
+                                source: serverVars.hashUser + serverVars.hashDevice
+                            });
+                        } else {
+                            httpCall();
+                        }
                     },
                     files: [],
                     id: data.id,
