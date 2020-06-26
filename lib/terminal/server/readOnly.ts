@@ -8,14 +8,15 @@ import serverVars from "./serverVars.js";
 
 const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, serverResponse:http.ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
-        location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file")
+        location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file" || data.action === "fs-cut-request" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut")))
             ? [data.name]
             : data.location,
-        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0);
+        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0),
+        userTest:boolean = (data.agentType === "user" || data.copyType === "user");
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.agentType !== "device" && data.agent !== serverVars.hashUser && remoteUserTest === false) {
-        const shares:deviceShares = (data.action === "fs-copy-file" && serverVars[data.copyType][data.copyAgent] !== undefined)
+    if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
+        const shares:deviceShares = ((data.action === "fs-copy-file" || data.action === "fs-cut-file") && serverVars[data.copyType][data.copyAgent] !== undefined)
                 ? serverVars[data.copyType][data.copyAgent].shares
                 : serverVars[data.agentType][data.agent].shares,
             shareKeys:string[] = Object.keys(shares),
@@ -52,6 +53,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
                         response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"readOnly"}`);
                         return;
                     }
+                    bestMatch = -1;
                 }
             } while (dIndex > 0);
         } else {
@@ -59,7 +61,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             return;
         }
     }
-    if (location.length > 0 || data.agent === serverVars.hashDevice || data.agent === serverVars.hashUser) {
+    if ((userTest === true && location.length > 0) || (userTest === false && data.agent === serverVars.hashDevice) || data.agent === serverVars.hashUser) {
         fileService(serverResponse, data);
     } else {
         response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
