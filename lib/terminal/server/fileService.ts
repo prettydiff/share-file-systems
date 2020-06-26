@@ -138,17 +138,16 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         ? (data.copyType === "device")
                             ? serverVars.hashDevice
                             : serverVars.hashUser
-                        : (data.action === "fs-copy-request" || data.action === "fs-cut-request")
-                            ? (data.agentType === "device")
-                                ? serverVars.hashDevice
-                                : serverVars.hashUser
-                            : data.agent,
+                        : data.agent,
                     agentType: (test === true && data.copyAgent !== "")
                         ? <agentType>data.copyAgent
                         : data.agentType,
                     copyAgent: (test === true)
                         ? data.agent
                         : data.copyAgent,
+                    copyShare: (test === true)
+                        ? data.share
+                        : data.copyShare,
                     copyType: (test === true)
                         ? data.agentType
                         : data.copyType,
@@ -161,7 +160,9 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         : (data.remoteWatch === undefined)
                             ? null
                             : data.remoteWatch,
-                    share: data.share,
+                    share: (test === true)
+                        ? data.copyShare
+                        : data.share,
                     watch: data.watch
                 },
                 httpConfig:httpConfiguration = {
@@ -736,6 +737,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
     }
     if (remoteUsers[1] !== "") {
         data.copyAgent = remoteUsers[1];
+        data.copyType = "device";
     }
     if (remoteUsers[0] !== "") {
         vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
