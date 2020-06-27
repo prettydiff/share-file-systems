@@ -158,6 +158,13 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     requestType: data.action,
                     response: serverResponse
                 };
+            if (data.agentType === "user" && data.copyType !== "user") {
+                data.copyAgent = serverVars.hashUser;
+                data.copyType = "user";
+            } else if (data.copyType === "user" && data.agentType !== "user") {
+                data.agent = serverVars.hashUser;
+                data.agentType = "user";
+            }
             vars.testLogger("fileService", "httpRequest", "An abstraction to the httpClient library for the fileService library.");
             httpClient(httpConfig);
         },
@@ -1328,9 +1335,8 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     response(serverResponse, "text/plain", message);
                 });
             }
-        };
-    {
-        const complete = function terminal_server_fileService_remoteUsers_complete(token:string):void {
+        },
+        deviceRoute = function terminal_server_fileService_deviceRoute(token:string):void {
             if (data.agentType === "user" && data.agent === serverVars.hashUser && remoteUsers[0] === "") {
                 localDevice = true;
             }
@@ -1344,31 +1350,31 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             remoteUsers[0] = token;
             tasks();
         };
-        if (data.watch === "remote" && data.agentType === "device" && data.agent !== serverVars.hashDevice && serverVars.device[data.agent] !== undefined) {
-            complete(data.agent);
-        } else if (data.watch === "remote") {
-            hashIdentity(data.share, complete);
-        } else if ((data.agentType === "user" && data.agent === serverVars.hashUser) || (data.copyType === "user" && data.copyAgent === serverVars.hashUser)) {
-            let token:string = "";
-            const perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
-                if (agentNames.agentType === "device") {
-                    if (serverVars.device[agentNames.agent].shares[data.share] !== undefined && agentNames.agent !== serverVars.hashDevice) {
-                        token = agentNames.agent;
-                    } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined && agentNames.agent !== serverVars.hashDevice) {
-                        remoteUsers[1] = agentNames.agent;
-                    }
+    if (data.watch === "remote" && data.agentType === "device" && data.agent !== serverVars.hashDevice && serverVars.device[data.agent] !== undefined) {
+        data.watch = "no";
+        deviceRoute(data.agent);
+    } else if (data.watch === "remote" && data.agent !== serverVars.hashDevice) {
+        hashIdentity(data.share, deviceRoute);
+    } else if ((data.agentType === "user" && data.agent === serverVars.hashUser) || (data.copyType === "user" && data.copyAgent === serverVars.hashUser)) {
+        let token:string = "";
+        const perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
+            if (agentNames.agentType === "device") {
+                if (serverVars.device[agentNames.agent].shares[data.share] !== undefined && agentNames.agent !== serverVars.hashDevice) {
+                    token = agentNames.agent;
+                } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined && agentNames.agent !== serverVars.hashDevice) {
+                    remoteUsers[1] = agentNames.agent;
                 }
-            };
-            agents({
-                countBy: "agent",
-                perAgent: perAgent,
-                source: serverVars
-            });
-            complete(token);
-        } else {
-            complete("");
-        }
-    };
+            }
+        };
+        agents({
+            countBy: "agent",
+            perAgent: perAgent,
+            source: serverVars
+        });
+        deviceRoute(token);
+    } else {
+        deviceRoute("");
+    }
 };
 
 export default fileService;
