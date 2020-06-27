@@ -630,7 +630,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     }
                     data.location = [fileData.list[a][0]];
                     data.remoteWatch = fileData.list[a][2];
-                    httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${data.agent}`, "object");
+                    httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${serverVars[data.agentType][data.agent].name}`, "object");
                     if (fileData.stream === false) {
                         a = a + 1;
                         if (a < listLength) {

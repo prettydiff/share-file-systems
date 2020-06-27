@@ -223,7 +223,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             left: event.clientX,
             read_only: agency[1],
             single: true,
-            title: `Details - ${agency[0]} - ${addresses.length} items`,
+            title: `Details - ${agency[2].slice(0, 1).toUpperCase() + agency[2].slice(1)}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -294,6 +294,14 @@ context.details = function local_context_details(event:MouseEvent):void {
             output.setAttribute("class", "fileDetailOutput");
             heading.innerHTML = `File System Details - ${commas(list.length)} items`;
             output.appendChild(heading);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Location";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = payload.dirs[0][0];
+            tr.appendChild(td);
+            tbody.appendChild(tr);
             tr = document.createElement("tr");
             td = document.createElement("th");
             td.innerHTML = "Total Size";
@@ -853,13 +861,14 @@ context.paste = function local_context_paste():void {
             ? {}
             : JSON.parse(clipboard),
         id:string = element.getAttribute("id"),
+        copyType:agentType = browser.data.modals[id].agentType,
         payload:fileService = {
             action   : <serviceType>`fs-${clipData.type}`,
             agent    : clipData.agent,
             agentType: clipData.agentType,
             copyAgent: browser.data.modals[id].agent,
             copyShare: browser.data.modals[id].share,
-            copyType : browser.data.modals[id].agentType,
+            copyType : copyType,
             depth    : 1,
             id       : id,
             location : clipData.data,
