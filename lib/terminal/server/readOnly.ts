@@ -8,7 +8,8 @@ import serverVars from "./serverVars.js";
 
 const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, serverResponse:http.ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
-        location:string[] = (data.action === "fs-copy-request" || data.action === "fs-copy-file" || data.action === "fs-cut-request" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut")))
+        copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
+        location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)
             ? [data.name]
             : data.location,
         remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0),
@@ -16,12 +17,12 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
     if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
-        const shares:deviceShares = ((data.action === "fs-copy-file" || data.action === "fs-cut-file") && serverVars[data.copyType][data.copyAgent] !== undefined)
+        const shares:deviceShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
                 ? serverVars[data.copyType][data.copyAgent].shares
                 : serverVars[data.agentType][data.agent].shares,
             shareKeys:string[] = Object.keys(shares),
             windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-            readOnly:string[] = ["fs-base64", "fs-close", "fs-copy", "fs-copy-list", "fs-copy-request", "fs-copy-self", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
+            readOnly:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
             sIndex:number = shareKeys.length,
             place:string,
