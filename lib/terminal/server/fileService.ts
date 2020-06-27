@@ -1344,7 +1344,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             remoteUsers[0] = token;
             tasks();
         };
-        if (data.agentType === "device" && data.agent !== serverVars.hashDevice && serverVars.device[data.agent] !== undefined) {
+        if (data.watch === "remote" && data.agentType === "device" && data.agent !== serverVars.hashDevice && serverVars.device[data.agent] !== undefined) {
             complete(data.agent);
         } else if (data.watch === "remote") {
             hashIdentity(data.share, complete);
