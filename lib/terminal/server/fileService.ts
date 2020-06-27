@@ -19,6 +19,7 @@ import prettyBytes from "../../common/prettyBytes.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
+import hashIdentity from "./hashIdentity.js";
 import httpClient from "./httpClient.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
@@ -1329,7 +1330,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
             }
         };
     {
-        const complete = function terminal_server_fileService_remoteUsers_complete():void {
+        const complete = function terminal_server_fileService_remoteUsers_complete(token:string):void {
             if (data.agentType === "user" && data.agent === serverVars.hashUser && remoteUsers[0] === "") {
                 localDevice = true;
             }
@@ -1340,36 +1341,19 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 data.copyAgent = remoteUsers[1];
                 data.copyType = "device";
             }
+            remoteUsers[0] = token;
             tasks();
         };
-        if (data.watch === "remote") {
-            const devices:string[] = Object.keys(serverVars.device),
-                hashCallback = function terminal_server_fileService_remoteUsers_hash(hashOutput:hashOutput):void {
-                    if (hashOutput.hash === data.share) {
-                        remoteUsers[0] = devices[length];
-                        complete();
-                    } else if (length > 0) {
-                        length = length - 1;
-                        hash({
-                            callback: terminal_server_fileService_remoteUsers_hash,
-                            directInput: true,
-                            source: serverVars.hashUser + devices[length]
-                        });
-                    } else {
-                        complete();
-                    }
-                };
-            let length:number = devices.length - 1;
-            hash({
-                callback: hashCallback,
-                directInput: true,
-                source: serverVars.hashUser + devices[length]
-            });
+        if (data.agentType === "device" && data.agent !== serverVars.hashDevice && serverVars.device[data.agent] !== undefined) {
+            complete(data.agent);
+        } else if (data.watch === "remote") {
+            hashIdentity(data.share, complete);
         } else if ((data.agentType === "user" && data.agent === serverVars.hashUser) || (data.copyType === "user" && data.copyAgent === serverVars.hashUser)) {
+            let token:string = "";
             const perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
                 if (agentNames.agentType === "device") {
                     if (serverVars.device[agentNames.agent].shares[data.share] !== undefined && agentNames.agent !== serverVars.hashDevice) {
-                        remoteUsers[0] = agentNames.agent;
+                        token = agentNames.agent;
                     } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined && agentNames.agent !== serverVars.hashDevice) {
                         remoteUsers[1] = agentNames.agent;
                     }
@@ -1380,9 +1364,9 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 perAgent: perAgent,
                 source: serverVars
             });
-            complete();
+            complete(token);
         } else {
-            complete();
+            complete("");
         }
     };
 };

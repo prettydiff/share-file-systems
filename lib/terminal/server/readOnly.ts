@@ -3,6 +3,7 @@
 import * as http from "http";
 
 import fileService from "./fileService.js";
+import hashIdentity from "./hashIdentity.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 
@@ -16,56 +17,68 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         userTest:boolean = (data.agentType === "user" || data.copyType === "user");
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
-        const shares:deviceShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
-                ? serverVars[data.copyType][data.copyAgent].shares
-                : serverVars[data.agentType][data.agent].shares,
-            shareKeys:string[] = Object.keys(shares),
-            windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-            readOnly:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
-        let dIndex:number = location.length,
-            sIndex:number = shareKeys.length,
-            place:string,
-            share:deviceShare,
-            bestMatch:number = -1;
-        if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-            readOnly.push("fs-copy-file");
-        }
-        if (sIndex > 0) {
-            do {
-                dIndex = dIndex - 1;
-                sIndex = shareKeys.length;
-                place = (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read")
-                    ? location[dIndex].slice(location[dIndex].indexOf(":") + 1)
-                    : location[dIndex];
+    if (data.watch === "remote") {
+        hashIdentity(data.share, function terminal_server_readOnly_hash(token:string):void {
+            if (token === "") {
+                response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
+            } else {
+                data.agent = token;
+                data.agentType = "device";
+                fileService(serverResponse, data);
+            }
+        });
+    } else {
+        if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
+            const shares:deviceShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
+                    ? serverVars[data.copyType][data.copyAgent].shares
+                    : serverVars[data.agentType][data.agent].shares,
+                shareKeys:string[] = Object.keys(shares),
+                windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
+                readOnly:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
+            let dIndex:number = location.length,
+                sIndex:number = shareKeys.length,
+                place:string,
+                share:deviceShare,
+                bestMatch:number = -1;
+            if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
+                readOnly.push("fs-copy-file");
+            }
+            if (sIndex > 0) {
                 do {
-                    sIndex = sIndex - 1;
-                    share = shares[shareKeys[sIndex]];
-                    if (place.indexOf(share.name) === 0 || (windows === true && place.toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
-                        if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
-                            bestMatch = sIndex;
+                    dIndex = dIndex - 1;
+                    sIndex = shareKeys.length;
+                    place = (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read")
+                        ? location[dIndex].slice(location[dIndex].indexOf(":") + 1)
+                        : location[dIndex];
+                    do {
+                        sIndex = sIndex - 1;
+                        share = shares[shareKeys[sIndex]];
+                        if (place.indexOf(share.name) === 0 || (windows === true && place.toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
+                            if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
+                                bestMatch = sIndex;
+                            }
                         }
+                    } while (sIndex > 0);
+                    if (bestMatch < 0) {
+                        location.splice(dIndex, 1);
+                    } else {
+                        if (shares[shareKeys[bestMatch]].readOnly === true && readOnly.indexOf(data.action) < 0) {
+                            response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"readOnly"}`);
+                            return;
+                        }
+                        bestMatch = -1;
                     }
-                } while (sIndex > 0);
-                if (bestMatch < 0) {
-                    location.splice(dIndex, 1);
-                } else {
-                    if (shares[shareKeys[bestMatch]].readOnly === true && readOnly.indexOf(data.action) < 0) {
-                        response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"readOnly"}`);
-                        return;
-                    }
-                    bestMatch = -1;
-                }
-            } while (dIndex > 0);
+                } while (dIndex > 0);
+            } else {
+                response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
+                return;
+            }
+        }
+        if ((userTest === true && location.length > 0) || (userTest === false && data.agent === serverVars.hashDevice) || data.agent === serverVars.hashUser) {
+            fileService(serverResponse, data);
         } else {
             response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
-            return;
         }
-    }
-    if ((userTest === true && location.length > 0) || (userTest === false && data.agent === serverVars.hashDevice) || data.agent === serverVars.hashUser) {
-        fileService(serverResponse, data);
-    } else {
-        response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
     }
 };
 

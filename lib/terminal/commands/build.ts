@@ -235,17 +235,19 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                     fileContents.push("This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.");
                                     fileContents.push("");
                                     do {
-                                        if (files[a].path === "documentation") {
-                                            extension = "md";
-                                        } else {
-                                            extension = "ts";
-                                        }
                                         if (a < 1 || files[a].path !== files[a - 1].path) {
                                             path = `* Directory *[../${files[a].path}](../${files[a].path})*`;
                                             fileContents.push(path);
                                         }
-                                        path = `   - **[../${files[a].path}/${files[a].name}.${extension}](../${files[a].path}/${files[a].name}.${extension})**`;
                                         b = files[a].path.length + files[a].name.length;
+                                        if (files[a].path === "documentation") {
+                                            extension = "md";
+                                            path = `   - **[${files[a].name}.${extension}](${files[a].name}.${extension})**`;
+                                            b = b - 17;
+                                        } else {
+                                            extension = "ts";
+                                            path = `   - **[../${files[a].path}/${files[a].name}.${extension}](../${files[a].path}/${files[a].name}.${extension})**`;
+                                        }
                                         if (b < master) {
                                             do {
                                                 path = `${path}  `;

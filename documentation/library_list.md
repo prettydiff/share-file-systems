@@ -4,17 +4,17 @@
 This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.
 
 * Directory *[../documentation](../documentation)*
-   - **[../documentation/api.md](../documentation/api.md)**                                                         - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts.
-   - **[../documentation/commands.md](../documentation/commands.md)**                                               - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
-   - **[../documentation/credits.md](../documentation/credits.md)**                                                 - A list of external source material not originally created within this project.
-   - **[../documentation/developer_guide.md](../documentation/developer_guide.md)**                                 - A quick overview of the technical aspects for jumping to the project with a goal of extending the code.
-   - **[../documentation/file_copy.md](../documentation/file_copy.md)**                                             - Notes on the flow control of file copy.
-   - **[../documentation/invitation.md](../documentation/invitation.md)**                                           - Notes on the flow control of the invitation process.
-   - **[../documentation/library_list.md](../documentation/library_list.md)**                                       - Automated list of all code and documentation files with brief descriptions.
-   - **[../documentation/linuxVM.md](../documentation/linuxVM.md)**                                                 - Notes about configuring Linux virtual machines in support of project development.
-   - **[../documentation/modal.md](../documentation/modal.md)**                                                     - Notes about modals and the graphic user interface that displays in the browser.
-   - **[../documentation/services.md](../documentation/services.md)**                                               - Notes and API details of supported services.
-   - **[../documentation/terminal_commands.md](../documentation/terminal_commands.md)**                             - Documentation using application commands from the terminal.
+   - **[api.md](api.md)**                                                                                           - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts.
+   - **[commands.md](commands.md)**                                                                                 - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
+   - **[credits.md](credits.md)**                                                                                   - A list of external source material not originally created within this project.
+   - **[developer_guide.md](developer_guide.md)**                                                                   - A quick overview of the technical aspects for jumping to the project with a goal of extending the code.
+   - **[file_copy.md](file_copy.md)**                                                                               - Notes on the flow control of file copy.
+   - **[invitation.md](invitation.md)**                                                                             - Notes on the flow control of the invitation process.
+   - **[library_list.md](library_list.md)**                                                                         - Automated list of all code and documentation files with brief descriptions.
+   - **[linuxVM.md](linuxVM.md)**                                                                                   - Notes about configuring Linux virtual machines in support of project development.
+   - **[modal.md](modal.md)**                                                                                       - Notes about modals and the graphic user interface that displays in the browser.
+   - **[services.md](services.md)**                                                                                 - Notes and API details of supported services.
+   - **[terminal_commands.md](terminal_commands.md)**                                                               - Documentation using application commands from the terminal.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/audio.ts](../lib/browser/audio.ts)**                                                         - A storage of audio samples encoded in Base64 with respective metadata.
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                     - A list of declared variables globally available to the browser instance of the application.
@@ -58,6 +58,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/createServer.ts](../lib/terminal/server/createServer.ts)**                           - This library launches the HTTP server and all supporting service utilities.
    - **[../lib/terminal/server/fileService.ts](../lib/terminal/server/fileService.ts)**                             - This library executes various file system related services and actions.
    - **[../lib/terminal/server/forbiddenUser.ts](../lib/terminal/server/forbiddenUser.ts)**                         - A single function for handling rejected HTTP responses associated with disallowed requests.
+   - **[../lib/terminal/server/hashIdentity.ts](../lib/terminal/server/hashIdentity.ts)**                           - Compares a security token to a generated hash to bypass typical file service security restrictions
    - **[../lib/terminal/server/heartbeat.ts](../lib/terminal/server/heartbeat.ts)**                                 - The code that manages sending and receiving user online status updates.
    - **[../lib/terminal/server/httpClient.ts](../lib/terminal/server/httpClient.ts)**                               - A library for handling all child HTTP requests.
    - **[../lib/terminal/server/invite.ts](../lib/terminal/server/invite.ts)**                                       - Manages the order of invitation related processes for traffic across the internet.
