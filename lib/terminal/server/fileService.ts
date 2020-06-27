@@ -1381,6 +1381,8 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 source: serverVars
             });
             complete();
+        } else {
+            complete();
         }
     };
 };
