@@ -32,30 +32,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
     // formats a string to convey file copy status
     let localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device");
     // determines whether there needs to be additional routing for non-local devices of remote users
-    const remoteUsers:[string, string] = (function terminal_server_fileService_remoteUsers():[string, string] {
-            const values:[string, string] = ["", ""],
-                perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
-                    if (agentNames.agentType === "device") {
-                        if (serverVars.device[agentNames.agent].shares[data.share] !== undefined && agentNames.agent !== serverVars.hashDevice) {
-                            values[0] = agentNames.agent;
-                        } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined && agentNames.agent !== serverVars.hashDevice) {
-                            values[1] = agentNames.agent;
-                        }
-                    }
-                };
-            if ((data.agentType === "user" && data.agent === serverVars.hashUser) || (data.copyType === "user" && data.copyAgent === serverVars.hashUser)) {
-                agents({
-                    countBy: "agent",
-                    perAgent: perAgent,
-                    source: serverVars
-                });
-            }
-            if (data.agentType === "user" && data.agent === serverVars.hashUser && values[0] === "") {
-                localDevice = true;
-            }
-            return values;
-        }()),
-        reverseAgents = function terminal_server_fileService():void {
+    const reverseAgents = function terminal_server_fileService():void {
             const agent:string = data.agent,
                 type:agentType = data.agentType,
                 share:string = data.share;
@@ -731,628 +708,681 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     };
                 copy(copyConfig);
             });
-        };
-    if (data.location[0] === "**root**" && localDevice === true) {
-        data.location[0] = vars.sep;
-    }
-    if (remoteUsers[1] !== "") {
-        data.copyAgent = remoteUsers[1];
-        data.copyType = "device";
-    }
-    if (remoteUsers[0] !== "") {
-        vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
-        data.agent = remoteUsers[0];
-        data.agentType = "device";
-        httpRequest(function terminal_server_fileService_removeUserRemoteDevice(responseBody:string|Buffer, headers:http.IncomingHttpHeaders):void {
-            if (headers.file_name !== undefined) {
-                serverResponse.setHeader("hash", headers.hash);
-                serverResponse.setHeader("file_name", headers.file_name);
-                serverResponse.setHeader("file_size", headers.file_size);
-                serverResponse.setHeader("cut_path", headers.cut_path);
-                serverResponse.setHeader("compression", headers.compression);
-            }
-            response(serverResponse, "application/json", responseBody);
-        }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
-    } else if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
-        vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
-        httpRequest(function terminal_server_fileService_genericHTTP(responseBody:string|Buffer):void {
-            response(serverResponse, "application/json", responseBody);
-        }, `Error requesting ${data.action} from remote.`, "body");
-    } else if (data.action === "fs-directory" || data.action === "fs-details") {
-        if (localDevice === true || (localDevice === false && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
-            const callback = function terminal_server_fileService_putCallback(result:directoryList):void {
-                    count = count + 1;
-                    if (result.length > 0) {
-                        failures = failures.concat(result.failures);
-                        output = output.concat(result);
+        },
+        remoteUsers:[string, string] = ["", ""],
+        tasks = function terminal_server_fileService_tasks():void {
+            if (remoteUsers[0] !== "") {
+                vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
+                data.agent = remoteUsers[0];
+                data.agentType = "device";
+                httpRequest(function terminal_server_fileService_tasks_removeUserRemoteDevice(responseBody:string|Buffer, headers:http.IncomingHttpHeaders):void {
+                    if (headers.file_name !== undefined) {
+                        serverResponse.setHeader("hash", headers.hash);
+                        serverResponse.setHeader("file_name", headers.file_name);
+                        serverResponse.setHeader("file_size", headers.file_size);
+                        serverResponse.setHeader("cut_path", headers.cut_path);
+                        serverResponse.setHeader("compression", headers.compression);
                     }
-                    if (count === pathLength) {
-                        const responseData:fsRemote = {
-                            dirs: "missing",
-                            fail:[],
-                            id: data.id
-                        };
-                        if (output.length < 1) {
-                            response(serverResponse, "application/json", JSON.stringify(responseData));
-                        } else {
-                            responseData.dirs = output;
-                            responseData.fail = failures;
-                            response(serverResponse, "application/json", JSON.stringify(responseData));
-                        }
-                        
-                        // please note
-                        // watch is ignored on all operations other than fs-directory
-                        // fs-directory will only read from the first value in data.location
-                        if (result.length > 0 && data.watch !== "no" && data.watch !== vars.projectPath) {
-                            const watchPath:string = result[0][0].replace(/\\/g, "\\\\");
-                            if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
-                                serverVars.watches[data.watch].close();
-                                delete serverVars.watches[data.watch];
-                            }
-                            if (serverVars.watches[watchPath] === undefined) {
-                                serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
-                                    recursive: (process.platform === "win32" || process.platform === "darwin")
-                                }, function terminal_server_fileService_putCallback_watch(eventType:string, fileName:string):void {
-                                    // throttling is necessary in the case of recursive watches in areas the OS frequently stores user settings
-                                    if (fileName !== null && fileName.split(vars.sep).length < 2) {
-                                        watchHandler(watchPath);
-                                    }
-                                });
-                            } else {
-                                serverVars.watches[watchPath].time = Date.now();
-                            }
-                        }
-                    }
-                },
-                windowsRoot = function terminal_server_fileService_windowsRoot():void {
-                    //cspell:disable
-                    vars.node.child("wmic logicaldisk get name", function terminal_server_fileService_windowsRoot(erw:Error, stdout:string, stderr:string):void {
-                    //cspell:enable
-                        if (erw !== null) {
-                            error([erw.toString()]);
-                        } else if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
-                            error([stderr]);
-                        }
-                        const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
-                            length:number = drives.length,
-                            date:Date = new Date(),
-                            driveList = function terminal_server_fileService_windowsRoot_driveList(result:directoryList):void {
-                                let b:number = 1;
-                                const resultLength:number = result.length,
-                                    masterIndex:number = masterList.length;
-                                if (resultLength > 0) {
-                                    do {
-                                        result[b][3] = masterIndex; 
-                                        b = b + 1;
-                                    } while (b < resultLength);
-                                    masterList = masterList.concat(result);
-                                }
-                                a = a + 1;
-                                if (a === length) {
-                                    callback(masterList);
-                                }
-                            };
-                        let masterList:directoryList = [["\\", "directory", "", 0, length, {
-                                dev: 0,
-                                ino: 0,
-                                mode: 0,
-                                nlink: 0,
-                                uid: 0,
-                                gid: 0,
-                                rdev: 0,
-                                size: 0,
-                                blksize: 0,
-                                blocks: 0,
-                                atimeMs: 0,
-                                mtimeMs: 0,
-                                ctimeMs: 0,
-                                birthtimeMs: 0,
-                                atime: date,
-                                mtime: date,
-                                ctime: date,
-                                birthtime: date,
-                                isBlockDevice: function terminal_server_create_windowsRoot_isBlockDevice():boolean {
-                                    return false;
-                                },
-                                isCharacterDevice: function terminal_server_create_windowsRoot_isCharacterDevice():boolean {
-                                    return false;
-                                },
-                                isDirectory: function terminal_server_create_windowsRoot_isDirectory():boolean {
-                                    return false;
-                                },
-                                isFIFO: function terminal_server_create_windowsRoot_isFIFO():boolean {
-                                    return false;
-                                },
-                                isFile: function terminal_server_create_windowsRoot_isFile():boolean {
-                                    return false;
-                                },
-                                isSocket: function terminal_server_create_windowsRoot_isSocket():boolean {
-                                    return false;
-                                },
-                                isSymbolicLink: function terminal_server_create_windowsRoot_isSymbolicLink():boolean {
-                                    return false;
-                                }
-                            }]],
-                            a:number = 0;
-                        drives.forEach(function terminal_server_fileService_windowsRoot_each(value:string) {
-                            const dirConfig:readDirectory = {
-                                callback: driveList,
-                                depth: 1,
-                                exclusions: [],
-                                logRecursion: logRecursion,
-                                mode: "read",
-                                path: `${value}\\`,
-                                symbolic: true
-                            };
-                            directory(dirConfig);
-                            logRecursion = false;
-                        });
-                    });
-                },
-                pathList:string[] = data.location,
-                pathLength:number = pathList.length;
-            let count:number = 0,
-                output:directoryList = [],
-                failures:string[] = [];
-            vars.testLogger("fileService", "fs-directory and watch", "Access local directory data and set watch or set watch for remote agent directory.");
-            pathList.forEach(function terminal_server_fileService_pathEach(value:string):void {
-                if (value === "\\" || value === "\\\\") {
-                    windowsRoot();
-                } else {
-                    vars.node.fs.stat(value, function terminal_server_fileService_pathEach_putStat(erp:nodeError):void {
-                        const dirConfig:readDirectory = {
-                            callback: callback,
-                            depth: data.depth,
-                            exclusions: [],
-                            logRecursion: logRecursion,
-                            mode: "read",
-                            path: value,
-                            symbolic: true
-                        };
-                        if (erp !== null) {
-                            error([erp.toString()]);
-                            callback([]);
-                            return;
-                        }
-                        if ((/^\w:$/).test(value) === true) {
-                            value = value + "\\";
-                        }
-                        directory(dirConfig);
-                        logRecursion = false;
-                    });
-                }
-            });
-        } else {
-            vars.testLogger("fileService", "fs-details remote", "Get directory data from a remote agent without setting a file system watch.");
-            // remote file server access
-            httpRequest(function terminal_server_fileService_remoteFileAccess(responseBody:string|Buffer):void {
-                if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
-                    vars.ws.broadcast(responseBody);
-                    response(serverResponse, "text/plain", "Terminal received file system response from remote.");
-                } else {
                     response(serverResponse, "application/json", responseBody);
-                }
-            }, `Error on reading from remote file system at agent ${data.agent}`, "body");
-        }
-    } else if (data.action === "fs-close") {
-        vars.testLogger("fileService", "fs-close", "Close a file system watch.");
-        if (serverVars.watches[data.location[0]] !== undefined) {
-            serverVars.watches[data.location[0]].close();
-            delete serverVars.watches[data.location[0]];
-        }
-        fileCallback(`Watcher ${data.location[0]} closed.`);
-    } else if (data.action === "fs-copy" || data.action === "fs-cut") {
-        vars.testLogger("fileService", "fs-copy", "All branches of file system copy");
-        if (localDevice === true) {
-            if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-                // * data.agent === local
-                // * data.copyAgent === local
-                vars.testLogger("fileService", "fs-copy copySameAgent", "Call copySameAgent if data.agent and data.copyAgent are the same agents.");
-                copySameAgent();
-            } else {
-                // copy from local to remote
-                // * data.agent === local
-                // * data.copyAgent === remote
-                // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
-                const listData:remoteCopyList = {
-                    callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
-                        const httpCall = function terminal_server_fileService_remoteListCallback_http():void {
-                                httpRequest(function terminal_server_fileService_remoteListCallback_http_request(responseBody:string|Buffer):void {
-                                    response(serverResponse, "application/json", responseBody);
-                                }, "Error sending list of files to remote for copy from local device.", "body");
-                            },
-                            hashCallback = function terminal_server_fileService_remoteListCallback_hash(hashOutput:hashOutput):void {
-                                data.copyAgent = serverVars.hashUser;
-                                data.copyShare = hashOutput.hash;
-                                data.copyType = "user";
-                                httpCall();
-                            };
-                        reverseAgents();
-                        data.action = <serviceType>`${data.action}-request`;
-                        data.remoteWatch = JSON.stringify(listData);
-                        if (data.agentType === "user") {
-                            // A hash sequence is required only if copying to a remote user because
-                            // * the remote user has to be allowed to bypass share limits of the file system
-                            // * this is because the remote user has to request the files from the local user
-                            // * and the local user's files can be outside of a designated share, which is off limits in all other cases
-                            hash({
-                                callback: hashCallback,
-                                directInput: true,
-                                source: serverVars.hashUser + serverVars.hashDevice
+                }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
+            } else if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
+                vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
+                httpRequest(function terminal_server_fileService_tasks_genericHTTP(responseBody:string|Buffer):void {
+                    response(serverResponse, "application/json", responseBody);
+                }, `Error requesting ${data.action} from remote.`, "body");
+            } else if (data.action === "fs-directory" || data.action === "fs-details") {
+                if (localDevice === true || (localDevice === false && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+                    const callback = function terminal_server_fileService_tasks_putCallback(result:directoryList):void {
+                            count = count + 1;
+                            if (result.length > 0) {
+                                failures = failures.concat(result.failures);
+                                output = output.concat(result);
+                            }
+                            if (count === pathLength) {
+                                const responseData:fsRemote = {
+                                    dirs: "missing",
+                                    fail:[],
+                                    id: data.id
+                                };
+                                if (output.length < 1) {
+                                    response(serverResponse, "application/json", JSON.stringify(responseData));
+                                } else {
+                                    responseData.dirs = output;
+                                    responseData.fail = failures;
+                                    response(serverResponse, "application/json", JSON.stringify(responseData));
+                                }
+                                
+                                // please note
+                                // watch is ignored on all operations other than fs-directory
+                                // fs-directory will only read from the first value in data.location
+                                if (result.length > 0 && data.watch !== "no" && data.watch !== vars.projectPath) {
+                                    const watchPath:string = result[0][0].replace(/\\/g, "\\\\");
+                                    if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
+                                        serverVars.watches[data.watch].close();
+                                        delete serverVars.watches[data.watch];
+                                    }
+                                    if (serverVars.watches[watchPath] === undefined) {
+                                        serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
+                                            recursive: (process.platform === "win32" || process.platform === "darwin")
+                                        }, function terminal_server_fileService_tasks_putCallback_watch(eventType:string, fileName:string):void {
+                                            // throttling is necessary in the case of recursive watches in areas the OS frequently stores user settings
+                                            if (fileName !== null && fileName.split(vars.sep).length < 2) {
+                                                watchHandler(watchPath);
+                                            }
+                                        });
+                                    } else {
+                                        serverVars.watches[watchPath].time = Date.now();
+                                    }
+                                }
+                            }
+                        },
+                        windowsRoot = function terminal_server_fileService_tasks_windowsRoot():void {
+                            //cspell:disable
+                            vars.node.child("wmic logicaldisk get name", function terminal_server_fileService_tasks_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                            //cspell:enable
+                                if (erw !== null) {
+                                    error([erw.toString()]);
+                                } else if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
+                                    error([stderr]);
+                                }
+                                const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
+                                    length:number = drives.length,
+                                    date:Date = new Date(),
+                                    driveList = function terminal_server_fileService_tasks_windowsRoot_driveList(result:directoryList):void {
+                                        let b:number = 1;
+                                        const resultLength:number = result.length,
+                                            masterIndex:number = masterList.length;
+                                        if (resultLength > 0) {
+                                            do {
+                                                result[b][3] = masterIndex; 
+                                                b = b + 1;
+                                            } while (b < resultLength);
+                                            masterList = masterList.concat(result);
+                                        }
+                                        a = a + 1;
+                                        if (a === length) {
+                                            callback(masterList);
+                                        }
+                                    };
+                                let masterList:directoryList = [["\\", "directory", "", 0, length, {
+                                        dev: 0,
+                                        ino: 0,
+                                        mode: 0,
+                                        nlink: 0,
+                                        uid: 0,
+                                        gid: 0,
+                                        rdev: 0,
+                                        size: 0,
+                                        blksize: 0,
+                                        blocks: 0,
+                                        atimeMs: 0,
+                                        mtimeMs: 0,
+                                        ctimeMs: 0,
+                                        birthtimeMs: 0,
+                                        atime: date,
+                                        mtime: date,
+                                        ctime: date,
+                                        birthtime: date,
+                                        isBlockDevice: function terminal_server_fileService_tasks_windowsRoot_isBlockDevice():boolean {
+                                            return false;
+                                        },
+                                        isCharacterDevice: function terminal_server_fileService_tasks_windowsRoot_isCharacterDevice():boolean {
+                                            return false;
+                                        },
+                                        isDirectory: function terminal_server_fileService_tasks_windowsRoot_isDirectory():boolean {
+                                            return false;
+                                        },
+                                        isFIFO: function terminal_server_fileService_tasks_windowsRoot_isFIFO():boolean {
+                                            return false;
+                                        },
+                                        isFile: function terminal_server_fileService_tasks_windowsRoot_isFile():boolean {
+                                            return false;
+                                        },
+                                        isSocket: function terminal_server_fileService_tasks_windowsRoot_isSocket():boolean {
+                                            return false;
+                                        },
+                                        isSymbolicLink: function terminal_server_fileService_tasks_windowsRoot_isSymbolicLink():boolean {
+                                            return false;
+                                        }
+                                    }]],
+                                    a:number = 0;
+                                drives.forEach(function terminal_server_fileService_tasks_windowsRoot_each(value:string) {
+                                    const dirConfig:readDirectory = {
+                                        callback: driveList,
+                                        depth: 1,
+                                        exclusions: [],
+                                        logRecursion: logRecursion,
+                                        mode: "read",
+                                        path: `${value}\\`,
+                                        symbolic: true
+                                    };
+                                    directory(dirConfig);
+                                    logRecursion = false;
+                                });
                             });
+                        },
+                        pathList:string[] = data.location,
+                        pathLength:number = pathList.length;
+                    let count:number = 0,
+                        output:directoryList = [],
+                        failures:string[] = [];
+                    vars.testLogger("fileService", "fs-directory and watch", "Access local directory data and set watch or set watch for remote agent directory.");
+                    pathList.forEach(function terminal_server_fileService_tasks_pathEach(value:string):void {
+                        if (value === "\\" || value === "\\\\") {
+                            windowsRoot();
                         } else {
-                            httpCall();
+                            vars.node.fs.stat(value, function terminal_server_fileService_tasks_pathEach_putStat(erp:nodeError):void {
+                                const dirConfig:readDirectory = {
+                                    callback: callback,
+                                    depth: data.depth,
+                                    exclusions: [],
+                                    logRecursion: logRecursion,
+                                    mode: "read",
+                                    path: value,
+                                    symbolic: true
+                                };
+                                if (erp !== null) {
+                                    error([erp.toString()]);
+                                    callback([]);
+                                    return;
+                                }
+                                if ((/^\w:$/).test(value) === true) {
+                                    value = value + "\\";
+                                }
+                                directory(dirConfig);
+                                logRecursion = false;
+                            });
                         }
+                    });
+                } else {
+                    vars.testLogger("fileService", "fs-details remote", "Get directory data from a remote agent without setting a file system watch.");
+                    // remote file server access
+                    httpRequest(function terminal_server_fileService_tasks_remoteFileAccess(responseBody:string|Buffer):void {
+                        if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
+                            vars.ws.broadcast(responseBody);
+                            response(serverResponse, "text/plain", "Terminal received file system response from remote.");
+                        } else {
+                            response(serverResponse, "application/json", responseBody);
+                        }
+                    }, `Error on reading from remote file system at agent ${data.agent}`, "body");
+                }
+            } else if (data.action === "fs-close") {
+                vars.testLogger("fileService", "fs-close", "Close a file system watch.");
+                if (serverVars.watches[data.location[0]] !== undefined) {
+                    serverVars.watches[data.location[0]].close();
+                    delete serverVars.watches[data.location[0]];
+                }
+                fileCallback(`Watcher ${data.location[0]} closed.`);
+            } else if (data.action === "fs-copy" || data.action === "fs-cut") {
+                vars.testLogger("fileService", "fs-copy", "All branches of file system copy");
+                if (localDevice === true) {
+                    if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
+                        // * data.agent === local
+                        // * data.copyAgent === local
+                        vars.testLogger("fileService", "fs-copy copySameAgent", "Call copySameAgent if data.agent and data.copyAgent are the same agents.");
+                        copySameAgent();
+                    } else {
+                        // copy from local to remote
+                        // * data.agent === local
+                        // * data.copyAgent === remote
+                        // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
+                        const listData:remoteCopyList = {
+                            callback: function terminal_server_fileService_tasks_remoteListCallback(listData:remoteCopyListData):void {
+                                const httpCall = function terminal_server_fileService_tasks_remoteListCallback_http():void {
+                                        httpRequest(function terminal_server_fileService_tasks_remoteListCallback_http_request(responseBody:string|Buffer):void {
+                                            response(serverResponse, "application/json", responseBody);
+                                        }, "Error sending list of files to remote for copy from local device.", "body");
+                                    },
+                                    hashCallback = function terminal_server_fileService_tasks_remoteListCallback_hash(hashOutput:hashOutput):void {
+                                        data.copyAgent = serverVars.hashUser;
+                                        data.copyShare = hashOutput.hash;
+                                        data.copyType = "user";
+                                        httpCall();
+                                    };
+                                reverseAgents();
+                                data.action = <serviceType>`${data.action}-request`;
+                                data.remoteWatch = JSON.stringify(listData);
+                                if (data.agentType === "user") {
+                                    // A hash sequence is required only if copying to a remote user because
+                                    // * the remote user has to be allowed to bypass share limits of the file system
+                                    // * this is because the remote user has to request the files from the local user
+                                    // * and the local user's files can be outside of a designated share, which is off limits in all other cases
+                                    hash({
+                                        callback: hashCallback,
+                                        directInput: true,
+                                        source: serverVars.hashUser + serverVars.hashDevice
+                                    });
+                                } else {
+                                    httpCall();
+                                }
+                            },
+                            files: [],
+                            id: data.id,
+                            index: 0,
+                            length: data.location.length
+                        };
+                        vars.testLogger("fileService", "fs-copy destination-not-local", "When the destination is not the local device call the remoteCopyList function to get a list of artifacts to request.");
+                        remoteCopyList(listData);
+                    }
+                } else if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
+                    // data.agent === remote
+                    // data.copyAgent === local
+                    vars.testLogger("fileService", "fs-copy origination-not-local", "When the files exist on the local device but are requested remotely then the remote agent must request the list of files to know what to request.");
+                    data.action = <serviceType>`${data.action}-list`;
+                    httpRequest(function terminal_server_fileService_tasks_httpCopy(responseBody:string|Buffer):void {
+                        requestFiles(JSON.parse(<string>responseBody));
+                    }, "Error copying from remote to local device", "body");
+                } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
+                    // * data.agent === sameRemoteAgent
+                    // * data.agent === sameRemoteAgent
+                    vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");
+                    data.action = <serviceType>`${data.action}-self`;
+                    httpRequest(function terminal_server_fileService_tasks_sameRemote(responseBody:string|Buffer):void {
+                        response(serverResponse, "application/json", responseBody);
+                    }, `Error copying files to and from agent ${data.agent}.`, "body");
+                } else {
+                    // * data.agent === remoteAgent
+                    // * data.copyAgent === differentRemoteAgent
+                    vars.testLogger("fileService", "fs-copy destination-origination-different", "When the origination and destination are different and neither is the local device the destination device must be told to start the destination-not-local operation and then respond back with status.");
+                    reverseAgents();
+                    data.action = <serviceType>`${data.action}-list-remote`;
+                    data.remoteWatch = serverVars.hashDevice;
+                    data.watch = "third party action";
+                    httpRequest(function terminal_server_fileService_tasks_httpRemoteRemote(responseBody:string|Buffer):void {
+                        //console.log("");
+                        //console.log("responseBody");
+                        //console.log(responseBody);
+                        //requestFiles(JSON.parse(<string>responseBody));
+                        log([<string>responseBody]);
+                    }, "Error copying from remote to local device", "body");
+                }
+            } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
+                // issue a fs-copy-list on an agent from a different agent
+                const agent:string = data.agent;
+                vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
+                reverseAgents();
+                data.action = <serviceType>`${data.action.replace("-remote", "")}`;
+                httpRequest(function terminal_server_fileService_tasks_httpCopyRemote(responseBody:string|Buffer):void {
+                    requestFiles(JSON.parse(<string>responseBody));
+                }, "Error copying from remote to local device", "body");
+            } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
+                // respond with a single file
+                // * generated internally from function requestFiles
+                // * fs-copy-list and fs-cut-list (copy from remote to local device)
+                // * fs-copy-request and fs-cut-request (copy from local device to remote)
+                const hash:Hash = vars.node.crypto.createHash(serverVars.hashType),
+                    hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
+                vars.testLogger("fileService", "fs-copy-file", "Respond to a file request with the file and its hash value.");
+                hashStream.pipe(hash);
+                hashStream.on("close", function terminal_server_fileService_tasks_fileRequest():void {
+                    const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]),
+                        compress:zlib.BrotliCompress = (serverVars.brotli > 0)
+                            ? vars.node.zlib.createBrotliCompress({
+                                params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: serverVars.brotli}
+                            })
+                            : null;
+                    serverResponse.setHeader("hash", hash.digest("hex"));
+                    serverResponse.setHeader("file_name", data.remoteWatch);
+                    serverResponse.setHeader("file_size", data.depth);
+                    serverResponse.setHeader("cut_path", data.location[0]);
+                    if (serverVars.brotli > 0) {
+                        serverResponse.setHeader("compression", "true");
+                    } else {
+                        serverResponse.setHeader("compression", "false");
+                    }
+                    serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
+                    if (serverVars.brotli > 0) {
+                        readStream.pipe(compress).pipe(serverResponse);
+                    } else {
+                        readStream.pipe(serverResponse);
+                    }
+                });
+                if (data.id.indexOf("|Copying ") > 0) {
+                    vars.ws.broadcast(JSON.stringify({
+                        "file-list-status": {
+                            failures: [],
+                            message: data.id.slice(data.id.indexOf("|") + 1),
+                            target: data.id.slice(0, data.id.indexOf("|"))
+                        }
+                    }));
+                }
+            } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
+                const listData:remoteCopyList = {
+                    callback: function terminal_server_fileService_tasks_remoteListCallback(listData:remoteCopyListData):void {
+                        response(serverResponse, "application/octet-stream", JSON.stringify(listData));
                     },
                     files: [],
                     id: data.id,
                     index: 0,
                     length: data.location.length
                 };
-                vars.testLogger("fileService", "fs-copy destination-not-local", "When the destination is not the local device call the remoteCopyList function to get a list of artifacts to request.");
+                vars.testLogger("fileService", "fs-copy-list", "Call the remoteCopyList function so that a remote agent knows what files to request.");
                 remoteCopyList(listData);
-            }
-        } else if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-            // data.agent === remote
-            // data.copyAgent === local
-            vars.testLogger("fileService", "fs-copy origination-not-local", "When the files exist on the local device but are requested remotely then the remote agent must request the list of files to know what to request.");
-            data.action = <serviceType>`${data.action}-list`;
-            httpRequest(function terminal_server_fileService_httpCopy(responseBody:string|Buffer):void {
-                requestFiles(JSON.parse(<string>responseBody));
-            }, "Error copying from remote to local device", "body");
-        } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
-            // * data.agent === sameRemoteAgent
-            // * data.agent === sameRemoteAgent
-            vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");
-            data.action = <serviceType>`${data.action}-self`;
-            httpRequest(function terminal_server_fileService_sameRemote(responseBody:string|Buffer):void {
-                response(serverResponse, "application/json", responseBody);
-            }, `Error copying files to and from agent ${data.agent}.`, "body");
-        } else {
-            // * data.agent === remoteAgent
-            // * data.copyAgent === differentRemoteAgent
-            vars.testLogger("fileService", "fs-copy destination-origination-different", "When the origination and destination are different and neither is the local device the destination device must be told to start the destination-not-local operation and then respond back with status.");
-            reverseAgents();
-            data.action = <serviceType>`${data.action}-list-remote`;
-            data.remoteWatch = serverVars.hashDevice;
-            data.watch = "third party action";
-            httpRequest(function terminal_server_fileService_httpRemoteRemote(responseBody:string|Buffer):void {
-                //console.log("");
-                //console.log("responseBody");
-                //console.log(responseBody);
-                //requestFiles(JSON.parse(<string>responseBody));
-                log([<string>responseBody]);
-            }, "Error copying from remote to local device", "body");
-        }
-    } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
-        // issue a fs-copy-list on an agent from a different agent
-        const agent:string = data.agent;
-        vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
-        reverseAgents();
-        data.action = <serviceType>`${data.action.replace("-remote", "")}`;
-        httpRequest(function terminal_server_fileService_httpCopyRemote(responseBody:string|Buffer):void {
-            requestFiles(JSON.parse(<string>responseBody));
-        }, "Error copying from remote to local device", "body");
-    } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
-        // respond with a single file
-        // * generated internally from function requestFiles
-        // * fs-copy-list and fs-cut-list (copy from remote to local device)
-        // * fs-copy-request and fs-cut-request (copy from local device to remote)
-        const hash:Hash = vars.node.crypto.createHash(serverVars.hashType),
-            hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
-        vars.testLogger("fileService", "fs-copy-file", "Respond to a file request with the file and its hash value.");
-        hashStream.pipe(hash);
-        hashStream.on("close", function terminal_server_fileService_fileRequest():void {
-            const readStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]),
-                compress:zlib.BrotliCompress = (serverVars.brotli > 0)
-                    ? vars.node.zlib.createBrotliCompress({
-                        params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: serverVars.brotli}
-                    })
-                    : null;
-            serverResponse.setHeader("hash", hash.digest("hex"));
-            serverResponse.setHeader("file_name", data.remoteWatch);
-            serverResponse.setHeader("file_size", data.depth);
-            serverResponse.setHeader("cut_path", data.location[0]);
-            if (serverVars.brotli > 0) {
-                serverResponse.setHeader("compression", "true");
-            } else {
-                serverResponse.setHeader("compression", "false");
-            }
-            serverResponse.writeHead(200, {"Content-Type": "application/octet-stream; charset=binary"});
-            if (serverVars.brotli > 0) {
-                readStream.pipe(compress).pipe(serverResponse);
-            } else {
-                readStream.pipe(serverResponse);
-            }
-        });
-        if (data.id.indexOf("|Copying ") > 0) {
-            vars.ws.broadcast(JSON.stringify({
-                "file-list-status": {
-                    failures: [],
-                    message: data.id.slice(data.id.indexOf("|") + 1),
-                    target: data.id.slice(0, data.id.indexOf("|"))
-                }
-            }));
-        }
-    } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
-        const listData:remoteCopyList = {
-            callback: function terminal_server_fileService_remoteListCallback(listData:remoteCopyListData):void {
-                response(serverResponse, "application/octet-stream", JSON.stringify(listData));
-            },
-            files: [],
-            id: data.id,
-            index: 0,
-            length: data.location.length
-        };
-        vars.testLogger("fileService", "fs-copy-list", "Call the remoteCopyList function so that a remote agent knows what files to request.");
-        remoteCopyList(listData);
-    } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
-        vars.testLogger("fileService", "fs-copy-request", "Calls the requestFiles function from a remote agent.");
-        requestFiles(JSON.parse(data.remoteWatch));
-    } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
-        vars.testLogger("fileService", "fs-copy-self", "Copies files from one location to another on the same local device as requested by a remote agent.");
-        copySameAgent();
-    } else if (data.action === "fs-cut-remove") {
-        let a:number = 0;
-        const length:number = data.location.length,
-            watchTest:boolean = (serverVars.watches[data.watch] !== undefined),
-            types:string[] = JSON.parse(data.name),
-            fsRemove = function terminal_server_fileService_cutRemove():void {
-                // recursive function to remove artifacts one by one so that there aren't collisions
-                if (a === length - 1 && watchTest === true) {
-                    serverVars.watches[data.watch] = vars.node.fs.watch(data.watch, {
-                        recursive: (process.platform === "win32" || process.platform === "darwin")
-                    }, function terminal_server_fileService_cutRemote_watch():void {
-                        watchHandler(data.watch);
-                    });
-                }
-                if (a < length) {
-                    if (types[a] === "file") {
-                        remove(data.location[a], terminal_server_fileService_cutRemove);
-                        a = a + 1;
-                    } else {
-                        vars.node.fs.readdir(data.location[a], function terminal_server_fileService_cutRemove_readdir(erd:nodeError, items:string[]):void {
-                            if (erd === null && items.length < 1) {
-                                remove(data.location[a], terminal_server_fileService_cutRemove);
+            } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
+                vars.testLogger("fileService", "fs-copy-request", "Calls the requestFiles function from a remote agent.");
+                reverseAgents();
+                data.watch = "remote";
+                requestFiles(JSON.parse(data.remoteWatch));
+            } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
+                vars.testLogger("fileService", "fs-copy-self", "Copies files from one location to another on the same local device as requested by a remote agent.");
+                copySameAgent();
+            } else if (data.action === "fs-cut-remove") {
+                let a:number = 0;
+                const length:number = data.location.length,
+                    watchTest:boolean = (serverVars.watches[data.watch] !== undefined),
+                    types:string[] = JSON.parse(data.name),
+                    fsRemove = function terminal_server_fileService_tasks_cutRemove():void {
+                        // recursive function to remove artifacts one by one so that there aren't collisions
+                        if (a === length - 1 && watchTest === true) {
+                            serverVars.watches[data.watch] = vars.node.fs.watch(data.watch, {
+                                recursive: (process.platform === "win32" || process.platform === "darwin")
+                            }, function terminal_server_fileService_tasks_cutRemote_watch():void {
+                                watchHandler(data.watch);
+                            });
+                        }
+                        if (a < length) {
+                            if (types[a] === "file") {
+                                remove(data.location[a], terminal_server_fileService_tasks_cutRemove);
                                 a = a + 1;
+                            } else {
+                                vars.node.fs.readdir(data.location[a], function terminal_server_fileService_tasks_cutRemove_readdir(erd:nodeError, items:string[]):void {
+                                    if (erd === null && items.length < 1) {
+                                        remove(data.location[a], terminal_server_fileService_tasks_cutRemove);
+                                        a = a + 1;
+                                    }
+                                });
                             }
-                        });
-                    }
-                } else {
-                    // update destination directory
-                    directory({
-                        callback: function terminal_server_fileService_cutRemote_finalDir(dirItems:directoryList):void {
-                            const remote:fsUpdateRemote = {
-                                agent: data.agent,
-                                agentType: data.agentType,
-                                dirs: dirItems,
-                                fail: dirItems.failures,
-                                location: data.watch
-                            };
-                            vars.ws.broadcast(JSON.stringify({
-                                "fs-update-local": dirItems
-                            }));
-                            response(serverResponse, "application/json", JSON.stringify({
-                                "fs-update-remote": remote
-                            }));
-                        },
-                        depth: 2,
-                        exclusions: [],
-                        logRecursion: logRecursion,
-                        mode: "read",
-                        path: data.watch,
-                        symbolic: true
-                    });
+                        } else {
+                            // update destination directory
+                            directory({
+                                callback: function terminal_server_fileService_tasks_cutRemote_finalDir(dirItems:directoryList):void {
+                                    const remote:fsUpdateRemote = {
+                                        agent: data.agent,
+                                        agentType: data.agentType,
+                                        dirs: dirItems,
+                                        fail: dirItems.failures,
+                                        location: data.watch
+                                    };
+                                    vars.ws.broadcast(JSON.stringify({
+                                        "fs-update-local": dirItems
+                                    }));
+                                    response(serverResponse, "application/json", JSON.stringify({
+                                        "fs-update-remote": remote
+                                    }));
+                                },
+                                depth: 2,
+                                exclusions: [],
+                                logRecursion: logRecursion,
+                                mode: "read",
+                                path: data.watch,
+                                symbolic: true
+                            });
+                        }
+                    };
+                if (watchTest === true) {
+                    serverVars.watches[data.watch].close();
                 }
-            };
-        if (watchTest === true) {
-            serverVars.watches[data.watch].close();
-        }
-        vars.testLogger("fileService", "fs-cut-remote", "Removes artifacts from the origination once all other operations are complete and integrity is verified.");
-        fsRemove();
-    } else if (data.action === "fs-destroy") {
-        let count:number = 0;
-        vars.testLogger("fileService", "fs-destroy", `Destroying: ${data.location}`);
-        data.location.forEach(function terminal_server_fileService_destroyEach(value:string):void {
-            if (serverVars.watches[value] !== undefined) {
-                serverVars.watches[value].close();
-                delete serverVars.watches[value];
-            }
-            remove(value, function terminal_server_fileService_destroyEach_remove():void {
-                count = count + 1;
-                if (count === data.location.length) {
-                    if (data.name === "") {
+                vars.testLogger("fileService", "fs-cut-remote", "Removes artifacts from the origination once all other operations are complete and integrity is verified.");
+                fsRemove();
+            } else if (data.action === "fs-destroy") {
+                let count:number = 0;
+                vars.testLogger("fileService", "fs-destroy", `Destroying: ${data.location}`);
+                data.location.forEach(function terminal_server_fileService_tasks_destroyEach(value:string):void {
+                    if (serverVars.watches[value] !== undefined) {
+                        serverVars.watches[value].close();
+                        delete serverVars.watches[value];
+                    }
+                    remove(value, function terminal_server_fileService_tasks_destroyEach_remove():void {
+                        count = count + 1;
+                        if (count === data.location.length) {
+                            if (data.name === "") {
+                                const agent:string = (data.copyAgent === "")
+                                        ? serverVars.hashDevice
+                                        : data.copyAgent,
+                                    type:agentType = (data.copyAgent === "")
+                                        ? "device"
+                                        : data.copyType;
+                                fileCallback(`Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);
+                            } else {
+                                directory({
+                                    callback: function terminal_server_fileService_tasks_destroyEach_remove_callback(directoryList:directoryList):void {
+                                        const responseData:fsRemote = {
+                                            dirs: directoryList,
+                                            fail: directoryList.failures,
+                                            id: data.id
+                                        };
+                                        response(serverResponse, "application/json", JSON.stringify(responseData));
+                                    },
+                                    depth: 2,
+                                    exclusions: [],
+                                    logRecursion: false,
+                                    mode: "read",
+                                    path: data.name,
+                                    symbolic: true
+                                });
+                            }
+                        }
+                    });
+                });
+            } else if (data.action === "fs-rename") {
+                const newPath:string[] = data.location[0].split(vars.sep);
+                vars.testLogger("fileService", "fs-rename", `Renames an existing file system artifact, ${data.name}`);
+                newPath.pop();
+                newPath.push(data.name);
+                vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_tasks_rename(erRename:Error):void {
+                    if (erRename === null) {
                         const agent:string = (data.copyAgent === "")
                                 ? serverVars.hashDevice
                                 : data.copyAgent,
                             type:agentType = (data.copyAgent === "")
                                 ? "device"
                                 : data.copyType;
-                        fileCallback(`Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);
+                        vars.testLogger("fileService", "rs-rename response", `An error upon renaming artifact: ${erRename}`);
+                        fileCallback(`Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);
                     } else {
-                        directory({
-                            callback: function terminal_server_fileService_destroyEach_remove_callback(directoryList:directoryList):void {
-                                const responseData:fsRemote = {
-                                    dirs: directoryList,
-                                    fail: directoryList.failures,
-                                    id: data.id
-                                };
-                                response(serverResponse, "application/json", JSON.stringify(responseData));
-                            },
-                            depth: 2,
-                            exclusions: [],
-                            logRecursion: false,
-                            mode: "read",
-                            path: data.name,
-                            symbolic: true
-                        });
+                        error([erRename.toString()]);
+                        log([erRename.toString()]);
+                        vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
+                        response(serverResponse, "text/plain", erRename.toString());
                     }
-                }
-            });
-        });
-    } else if (data.action === "fs-rename") {
-        const newPath:string[] = data.location[0].split(vars.sep);
-        vars.testLogger("fileService", "fs-rename", `Renames an existing file system artifact, ${data.name}`);
-        newPath.pop();
-        newPath.push(data.name);
-        vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_server_fileService_rename(erRename:Error):void {
-            if (erRename === null) {
-                const agent:string = (data.copyAgent === "")
-                        ? serverVars.hashDevice
-                        : data.copyAgent,
-                    type:agentType = (data.copyAgent === "")
-                        ? "device"
-                        : data.copyType;
-                vars.testLogger("fileService", "rs-rename response", `An error upon renaming artifact: ${erRename}`);
-                fileCallback(`Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);
-            } else {
-                error([erRename.toString()]);
-                log([erRename.toString()]);
-                vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
-                response(serverResponse, "text/plain", erRename.toString());
-            }
-        });
-    } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-        const length:number = data.location.length,
-            storage:stringDataList = [],
-            type:string = (data.action === "fs-read")
-                ? "base64"
-                : data.action.replace("fs-", ""),
-            callback = function terminal_server_fileService_callback(output:base64Output):void {
-                const stringData:stringData = {
-                    content: output[type],
-                    id: output.id,
-                    path: output.filePath
-                };
-                b = b + 1;
-                storage.push(stringData);
-                if (b === length) {
-                    vars.testLogger("fileService", "dataString callback", `Callback to action ${data.action} that writes an HTTP response.`);
-                    response(serverResponse, "application/json", JSON.stringify(storage));
-                }
-            },
-            fileReader = function terminal_server_fileService_fileReader(fileInput:base64Input):void {
-                vars.node.fs.readFile(fileInput.source, "utf8", function terminal_server_fileService_fileReader_read(readError:nodeError, fileData:string) {
-                    const inputConfig:base64Output = {
-                        base64: fileData,
-                        id: fileInput.id,
-                        filePath: fileInput.source
-                    };
-                    vars.testLogger("fileService", "fileReader", `Reading a file for action fs-read, ${input.source}`);
-                    if (readError !== null) {
-                        error([readError.toString()]);
-                        vars.ws.broadcast(JSON.stringify({
-                            error: readError
-                        }));
-                        return;
-                    }
-                    input.callback(inputConfig);
                 });
-            },
-            input:base64Input = {
-                callback: callback,
-                id: "",
-                source: ""
-            },
-            hashInput:hashInput = {
-                algorithm: serverVars.hashType,
-                callback: callback,
-                directInput: false,
-                id: "",
-                source: ""
-            };
-        let a:number = 0,
-            b:number = 0,
-            index:number;
-        vars.testLogger("fileService", "dataString", `Action ${data.action}`);
-        do {
-            if (data.action === "fs-base64") {
-                index = data.location[a].indexOf(":");
-                input.id = data.location[a].slice(0, index);
-                input.source = data.location[a].slice(index + 1);
-                base64(input);
-            } else if (data.action === "fs-hash") {
-                index = data.location[a].indexOf(":");
-                hashInput.id = data.location[a].slice(0, index);
-                hashInput.source = data.location[a].slice(index + 1);
-                hash(hashInput);
-            } else if (data.action === "fs-read") {
-                index = data.location[a].indexOf(":");
-                input.id = data.location[a].slice(0, index);
-                input.source = data.location[a].slice(index + 1);
-                fileReader(input);
-            }
-            a = a + 1;
-        } while (a < length);
-    } else if (data.action === "fs-new") {
-        const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
-                ? "\\"
-                : "/",
-            dirs = data.location[0].split(slash);
-        vars.testLogger("fileService", "fs-new", `Create a new item of type ${data.name}`);
-        dirs.pop();
-        if (data.name === "directory") {
-            mkdir(data.location[0], function terminal_server_fileService_newDirectory():void {
-                fileCallback(`${data.location[0]} created.`);
-                fsUpdateLocal(dirs.join(slash));
-            }, false);
-        } else if (data.name === "file") {
-            vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fileService_newFile(erNewFile:Error):void {
-                if (erNewFile === null) {
-                    fileCallback(`${data.location[0]} created.`);
-                    fsUpdateLocal(dirs.join(slash));
-                } else {
-                    error([erNewFile.toString()]);
-                    log([erNewFile.toString()]);
-                    response(serverResponse, "text/plain", erNewFile.toString());
+            } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
+                const length:number = data.location.length,
+                    storage:stringDataList = [],
+                    type:string = (data.action === "fs-read")
+                        ? "base64"
+                        : data.action.replace("fs-", ""),
+                    callback = function terminal_server_fileService_tasks_callback(output:base64Output):void {
+                        const stringData:stringData = {
+                            content: output[type],
+                            id: output.id,
+                            path: output.filePath
+                        };
+                        b = b + 1;
+                        storage.push(stringData);
+                        if (b === length) {
+                            vars.testLogger("fileService", "dataString callback", `Callback to action ${data.action} that writes an HTTP response.`);
+                            response(serverResponse, "application/json", JSON.stringify(storage));
+                        }
+                    },
+                    fileReader = function terminal_server_fileService_tasks_fileReader(fileInput:base64Input):void {
+                        vars.node.fs.readFile(fileInput.source, "utf8", function terminal_server_fileService_tasks_fileReader_read(readError:nodeError, fileData:string) {
+                            const inputConfig:base64Output = {
+                                base64: fileData,
+                                id: fileInput.id,
+                                filePath: fileInput.source
+                            };
+                            vars.testLogger("fileService", "fileReader", `Reading a file for action fs-read, ${input.source}`);
+                            if (readError !== null) {
+                                error([readError.toString()]);
+                                vars.ws.broadcast(JSON.stringify({
+                                    error: readError
+                                }));
+                                return;
+                            }
+                            input.callback(inputConfig);
+                        });
+                    },
+                    input:base64Input = {
+                        callback: callback,
+                        id: "",
+                        source: ""
+                    },
+                    hashInput:hashInput = {
+                        algorithm: serverVars.hashType,
+                        callback: callback,
+                        directInput: false,
+                        id: "",
+                        source: ""
+                    };
+                let a:number = 0,
+                    b:number = 0,
+                    index:number;
+                vars.testLogger("fileService", "dataString", `Action ${data.action}`);
+                do {
+                    if (data.action === "fs-base64") {
+                        index = data.location[a].indexOf(":");
+                        input.id = data.location[a].slice(0, index);
+                        input.source = data.location[a].slice(index + 1);
+                        base64(input);
+                    } else if (data.action === "fs-hash") {
+                        index = data.location[a].indexOf(":");
+                        hashInput.id = data.location[a].slice(0, index);
+                        hashInput.source = data.location[a].slice(index + 1);
+                        hash(hashInput);
+                    } else if (data.action === "fs-read") {
+                        index = data.location[a].indexOf(":");
+                        input.id = data.location[a].slice(0, index);
+                        input.source = data.location[a].slice(index + 1);
+                        fileReader(input);
+                    }
+                    a = a + 1;
+                } while (a < length);
+            } else if (data.action === "fs-new") {
+                const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
+                        ? "\\"
+                        : "/",
+                    dirs = data.location[0].split(slash);
+                vars.testLogger("fileService", "fs-new", `Create a new item of type ${data.name}`);
+                dirs.pop();
+                if (data.name === "directory") {
+                    mkdir(data.location[0], function terminal_server_fileService_tasks_newDirectory():void {
+                        fileCallback(`${data.location[0]} created.`);
+                        fsUpdateLocal(dirs.join(slash));
+                    }, false);
+                } else if (data.name === "file") {
+                    vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_server_fileService_tasks_newFile(erNewFile:Error):void {
+                        if (erNewFile === null) {
+                            fileCallback(`${data.location[0]} created.`);
+                            fsUpdateLocal(dirs.join(slash));
+                        } else {
+                            error([erNewFile.toString()]);
+                            log([erNewFile.toString()]);
+                            response(serverResponse, "text/plain", erNewFile.toString());
+                        }
+                    });
                 }
-            });
-        }
-    } else if (data.action === "fs-search") {
-        const callback = function terminal_server_fileService_searchCallback(result:directoryList):void {
-                const output:fsRemote = {
-                    dirs: result,
-                    fail: [],
-                    id: data.id
-                };
-                delete result.failures;
-                response(serverResponse, "application/json", JSON.stringify(output));
-            },
-            dirConfig:readDirectory = {
-                callback: callback,
-                depth: data.depth,
-                exclusions: [],
-                logRecursion: logRecursion,
-                mode: "search",
-                path: data.location[0],
-                search: data.name,
-                symbolic: true
-            };
-        vars.testLogger("fileService", "fs-search", `Performs a directory search operation on ${data.location[0]} of agent ${data.agent}`);
-        directory(dirConfig);
-        logRecursion = false;
-    } else if (data.action === "fs-write") {
-        vars.testLogger("fileService", "fs-write", "Writes or over-writes a file to disk.");
-        vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_write(erw:nodeError):void {
-            const agent:string = (data.copyAgent === "")
-                    ? serverVars.hashDevice
-                    : data.copyAgent,
-                type:agentType = (data.copyAgent === "")
-                    ? "device"
-                    : data.copyType;
-            let message:string = (type === "device" && agent === serverVars.hashDevice)
-                ? `File ${data.location[0]} saved to disk on local device.`
-                : `File ${data.location[0]} saved to disk on ${type} ${agent}.`;
-            if (erw !== null) {
-                error([erw.toString()]);
-                vars.ws.broadcast(JSON.stringify({
-                    error: erw
-                }));
-                message = `Error writing file: ${erw.toString()}`;
+            } else if (data.action === "fs-search") {
+                const callback = function terminal_server_fileService_tasks_searchCallback(result:directoryList):void {
+                        const output:fsRemote = {
+                            dirs: result,
+                            fail: [],
+                            id: data.id
+                        };
+                        delete result.failures;
+                        response(serverResponse, "application/json", JSON.stringify(output));
+                    },
+                    dirConfig:readDirectory = {
+                        callback: callback,
+                        depth: data.depth,
+                        exclusions: [],
+                        logRecursion: logRecursion,
+                        mode: "search",
+                        path: data.location[0],
+                        search: data.name,
+                        symbolic: true
+                    };
+                vars.testLogger("fileService", "fs-search", `Performs a directory search operation on ${data.location[0]} of agent ${data.agent}`);
+                directory(dirConfig);
+                logRecursion = false;
+            } else if (data.action === "fs-write") {
+                vars.testLogger("fileService", "fs-write", "Writes or over-writes a file to disk.");
+                vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_server_fileService_tasks_write(erw:nodeError):void {
+                    const agent:string = (data.copyAgent === "")
+                            ? serverVars.hashDevice
+                            : data.copyAgent,
+                        type:agentType = (data.copyAgent === "")
+                            ? "device"
+                            : data.copyType;
+                    let message:string = (type === "device" && agent === serverVars.hashDevice)
+                        ? `File ${data.location[0]} saved to disk on local device.`
+                        : `File ${data.location[0]} saved to disk on ${type} ${agent}.`;
+                    if (erw !== null) {
+                        error([erw.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: erw
+                        }));
+                        message = `Error writing file: ${erw.toString()}`;
+                    }
+                    response(serverResponse, "text/plain", message);
+                });
             }
-            response(serverResponse, "text/plain", message);
-        });
-    }
+        };
+    {
+        const complete = function terminal_server_fileService_remoteUsers_complete():void {
+            if (data.agentType === "user" && data.agent === serverVars.hashUser && remoteUsers[0] === "") {
+                localDevice = true;
+            }
+            if (data.location[0] === "**root**" && localDevice === true) {
+                data.location[0] = vars.sep;
+            }
+            if (remoteUsers[1] !== "") {
+                data.copyAgent = remoteUsers[1];
+                data.copyType = "device";
+            }
+            tasks();
+        };
+        if (data.watch === "remote") {
+            const devices:string[] = Object.keys(serverVars.device),
+                hashCallback = function terminal_server_fileService_remoteUsers_hash(hashOutput:hashOutput):void {
+                    if (hashOutput.hash === data.share) {
+                        remoteUsers[0] = devices[length];
+                        complete();
+                    } else if (length > 0) {
+                        length = length - 1;
+                        hash({
+                            callback: terminal_server_fileService_remoteUsers_hash,
+                            directInput: true,
+                            source: serverVars.hashUser + devices[length]
+                        });
+                    } else {
+                        complete();
+                    }
+                };
+            let length:number = devices.length - 1;
+            hash({
+                callback: hashCallback,
+                directInput: true,
+                source: serverVars.hashUser + devices[length]
+            });
+        } else if ((data.agentType === "user" && data.agent === serverVars.hashUser) || (data.copyType === "user" && data.copyAgent === serverVars.hashUser)) {
+            const perAgent = function terminal_server_fileService_remoteUsers_perAgent(agentNames:agentNames):void {
+                if (agentNames.agentType === "device") {
+                    if (serverVars.device[agentNames.agent].shares[data.share] !== undefined && agentNames.agent !== serverVars.hashDevice) {
+                        remoteUsers[0] = agentNames.agent;
+                    } else if (serverVars.device[agentNames.agent].shares[data.copyShare] !== undefined && agentNames.agent !== serverVars.hashDevice) {
+                        remoteUsers[1] = agentNames.agent;
+                    }
+                }
+            };
+            agents({
+                countBy: "agent",
+                perAgent: perAgent,
+                source: serverVars
+            });
+            complete();
+        }
+    };
 };
 
 export default fileService;
