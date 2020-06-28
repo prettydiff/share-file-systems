@@ -29,9 +29,9 @@ import serverVars from "./serverVars.js";
 // 2. If the variable is moved within the fileService library it will limit logging to one use per each test
 // 3. If the variable is reassigned to a value of 'false' it will eliminate "directory" logging for all tests regardless of scope
 let logRecursion:boolean = true;
-const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService, sameDevice:boolean):void {
+const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
     // formats a string to convey file copy status
-    let localDevice:boolean = (sameDevice === true || data.agent === serverVars.hashDevice && data.agentType === "device");
+    let localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device");
     // determines whether there needs to be additional routing for non-local devices of remote users
     const reverseAgents = function terminal_server_fileService_reverseAgents():void {
             const agent:string = data.agent,
@@ -978,6 +978,10 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     // data.copyAgent === local
                     vars.testLogger("fileService", "fs-copy origination-not-local", "When the files exist on the local device but are requested remotely then the remote agent must request the list of files to know what to request.");
                     data.action = <serviceType>`${data.action}-list`;
+                    if (data.agentType === "user") {
+                        data.copyAgent = serverVars.hashUser;
+                        data.copyType = "user";
+                    }
                     httpRequest(function terminal_server_fileService_tasks_httpCopy(responseBody:string|Buffer):void {
                         requestFiles(JSON.parse(<string>responseBody));
                     }, "Error copying from remote to local device", "body");
