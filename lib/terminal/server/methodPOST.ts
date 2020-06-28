@@ -51,6 +51,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                             hash(input);
                         },
                         input:hashInput = {
+                            algorithm: "sha3-512",
                             callback: callbackUser,
                             directInput: true,
                             source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
@@ -61,6 +62,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 hashShare = function terminal_server_post_end_hashShare():void {
                     const hashShare:hashShare = JSON.parse(body).hashShare,
                         input:hashInput = {
+                            algorithm: "sha3-512",
                             callback: function terminal_server_post_end_shareHash(hashData:hashOutput) {
                                 const outputBody:hashShare = JSON.parse(hashData.id).hashShare,
                                     hashResponse:hashShareResponse = {

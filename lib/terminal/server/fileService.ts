@@ -29,11 +29,11 @@ import serverVars from "./serverVars.js";
 // 2. If the variable is moved within the fileService library it will limit logging to one use per each test
 // 3. If the variable is reassigned to a value of 'false' it will eliminate "directory" logging for all tests regardless of scope
 let logRecursion:boolean = true;
-const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
+const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService, sameDevice:boolean):void {
     // formats a string to convey file copy status
-    let localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device");
+    let localDevice:boolean = (sameDevice === true || data.agent === serverVars.hashDevice && data.agentType === "device");
     // determines whether there needs to be additional routing for non-local devices of remote users
-    const reverseAgents = function terminal_server_fileService():void {
+    const reverseAgents = function terminal_server_fileService_reverseAgents():void {
             const agent:string = data.agent,
                 type:agentType = data.agentType,
                 share:string = data.share;
@@ -494,7 +494,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                             ? vars.node.zlib.createBrotliDecompress()
                             : null,
                         writeStream:fs.WriteStream = vars.node.fs.createWriteStream(filePath),
-                        hash:Hash = vars.node.crypto.createHash(serverVars.hashType),
+                        hash:Hash = vars.node.crypto.createHash("sha3-512"),
                         fileError = function terminal_server_fileService_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
                             hashFail.push(fileAddress);
                             error([message]);
@@ -562,7 +562,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         writeable:Writable = new Stream.Writable(),
                         responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd(file:Buffer):void {
                             const fileName:string = <string>fileResponse.headers.file_name,
-                                hash:Hash = vars.node.crypto.createHash(serverVars.hashType).update(file),
+                                hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
                                 hashString:string = hash.digest("hex");
                             vars.testLogger("fileService", "requestFiles fileRequestCallback responseEnd", "Handler for completely received HTTP response of requested artifact.");
                             if (hashString === fileResponse.headers.hash) {
@@ -956,6 +956,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                     // * this is because the remote user has to request the files from the local user
                                     // * and the local user's files can be outside of a designated share, which is off limits in all other cases
                                     hash({
+                                        algorithm: "sha3-512",
                                         callback: hashCallback,
                                         directInput: true,
                                         source: serverVars.hashUser + serverVars.hashDevice
@@ -1018,7 +1019,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 // * generated internally from function requestFiles
                 // * fs-copy-list and fs-cut-list (copy from remote to local device)
                 // * fs-copy-request and fs-cut-request (copy from local device to remote)
-                const hash:Hash = vars.node.crypto.createHash(serverVars.hashType),
+                const hash:Hash = vars.node.crypto.createHash("sha3-512"),
                     hashStream:fs.ReadStream = vars.node.fs.ReadStream(data.location[0]);
                 vars.testLogger("fileService", "fs-copy-file", "Respond to a file request with the file and its hash value.");
                 hashStream.pipe(hash);

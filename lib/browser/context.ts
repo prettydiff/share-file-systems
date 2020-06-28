@@ -863,18 +863,13 @@ context.paste = function local_context_paste():void {
         id:string = element.getAttribute("id"),
         copyAgent:string = browser.data.modals[id].agent,
         copyType:agentType = browser.data.modals[id].agentType,
-        userTest:boolean = (clipData.agentType === "user" && copyAgent === browser.data.hashDevice),
         payload:fileService = {
             action   : <serviceType>`fs-${clipData.type}`,
             agent    : clipData.agent,
             agentType: clipData.agentType,
-            copyAgent: (userTest === true)
-                ? browser.data.hashUser
-                : browser.data.modals[id].agent,
+            copyAgent: copyAgent,
             copyShare: browser.data.modals[id].share,
-            copyType : (userTest === true)
-                ? "user"
-                : copyType,
+            copyType : copyType,
             depth    : 1,
             id       : id,
             location : clipData.data,

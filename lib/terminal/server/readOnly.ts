@@ -24,9 +24,14 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             } else {
                 data.agent = token;
                 data.agentType = "device";
-                fileService(serverResponse, data);
+                fileService(serverResponse, data, false);
             }
         });
+    } else if (data.agentType === "user" && data.copyType === "device" && serverVars.device[data.copyAgent] !== undefined && (data.action === "fs-copy" || data.action === "fs-cut")) {
+        const localDevice:boolean = (data.copyAgent === serverVars.hashDevice);
+        data.copyAgent = serverVars.hashUser;
+        data.copyType = "user";
+        fileService(serverResponse, data, localDevice);
     } else {
         if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
             const shares:deviceShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
@@ -75,7 +80,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             }
         }
         if ((userTest === true && location.length > 0) || (userTest === false && data.agent === serverVars.hashDevice) || data.agent === serverVars.hashUser) {
-            fileService(serverResponse, data);
+            fileService(serverResponse, data, false);
         } else {
             response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
         }
