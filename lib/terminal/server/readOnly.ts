@@ -1,11 +1,13 @@
 
 /* lib/terminal/server/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
+import { Hash } from "crypto";
 import * as http from "http";
 
 import fileService from "./fileService.js";
 import hashIdentity from "./hashIdentity.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
+import vars from "../utilities/vars.js";
 
 const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, serverResponse:http.ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
@@ -28,8 +30,11 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             }
         });
     } else if (data.agentType === "user" && data.copyType === "device" && serverVars.device[data.copyAgent] !== undefined && (data.action === "fs-copy" || data.action === "fs-cut")) {
-        const localDevice:boolean = (data.copyAgent === serverVars.hashDevice);
+        const localDevice:boolean = (data.copyAgent === serverVars.hashDevice),
+            hash:Hash = vars.node.crypto.createHash("sha3-512");
+        hash.update(serverVars.hashUser + data.copyAgent);
         data.copyAgent = serverVars.hashUser;
+        data.copyShare = hash.digest("hex");
         data.copyType = "user";
         fileService(serverResponse, data, localDevice);
     } else {
