@@ -80,7 +80,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
         accepted = function terminal_server_invite_accepted(respond:string):void {
             const keyShares:string[] = Object.keys(data.shares),
                 devices:string[] = Object.keys(serverVars.device);
-            let payload:devices;
+            let payload:agents;
             devices.splice(0, 1);
             if (data.type === "device") {
                 let a:number = keyShares.length;

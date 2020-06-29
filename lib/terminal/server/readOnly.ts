@@ -37,7 +37,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
         fileService(serverResponse, data);
     } else {
         if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
-            const shares:deviceShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
+            const shares:agentShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
                     ? serverVars[data.copyType][data.copyAgent].shares
                     : serverVars[data.agentType][data.agent].shares,
                 shareKeys:string[] = Object.keys(shares),
@@ -46,7 +46,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             let dIndex:number = location.length,
                 sIndex:number = shareKeys.length,
                 place:string,
-                share:deviceShare,
+                share:agentShare,
                 bestMatch:number = -1;
             if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                 readOnly.push("fs-copy-file");

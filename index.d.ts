@@ -44,6 +44,12 @@ declare global {
         name: string;
         save: boolean;
     }
+    interface agent {
+        ip: string;
+        name: string;
+        port: number;
+        shares: agentShares;
+    }
     interface agentCounts {
         count: number;
         total: number;
@@ -60,14 +66,26 @@ declare global {
         device: string[];
         user: string[];
     }
+    interface agentList {
+        device: string[];
+        user: string[];
+    }
     interface agentNames {
         agent?: string;
         agentType: agentType;
         share?: string;
     }
     interface agents {
-        device: string[];
-        user: string[];
+        [key:string]: agent;
+    }
+    interface agentShare {
+        execute: boolean;
+        name: string;
+        readOnly: boolean;
+        type: shareType;
+    }
+    interface agentShares {
+        [key:string]: agentShare;
     }
     interface appName {
         command: string,
@@ -95,14 +113,14 @@ declare global {
     interface browser {
         content: HTMLElement;
         data: ui_data;
-        device: devices;
+        device: agents;
         loadTest: boolean;
         localNetwork: localNetwork;
         messages:messages;
         pageBody: Element;
         socket?: WebSocket;
         style: HTMLStyleElement;
-        user: devices;
+        user: agents;
     }
     interface clipboard {
         agent: string;
@@ -160,24 +178,6 @@ declare global {
         fileList?: directoryList;
         message: string;
         target: string;
-    }
-    interface device {
-        ip: string;
-        name: string;
-        port: number;
-        shares: deviceShares;
-    }
-    interface devices {
-        [key:string]: device;
-    }
-    interface deviceShare {
-        execute: boolean;
-        name: string;
-        readOnly: boolean;
-        type: shareType;
-    }
-    interface deviceShares {
-        [key:string]: deviceShare;
     }
     interface directoryList extends Array<directoryItem> {
         [index:number]: directoryItem;
@@ -284,7 +284,7 @@ declare global {
         agentTo: string;
         agentFrom: string;
         agentType: agentType;
-        shares: devices;
+        shares: agents;
         shareType: agentType;
         status: heartbeatStatus | agentDeletion;
     }
@@ -304,14 +304,14 @@ declare global {
     }
     interface heartbeatShare {
         distribution: string[];
-        payload: devices;
+        payload: agents;
         type: agentType;
     }
     interface heartbeatUpdate {
         agentFrom: "localhost-browser" | "localhost-terminal";
         broadcastList: heartbeatShare;
         response: ServerResponse;
-        shares: devices;
+        shares: agents;
         status: heartbeatStatus;
         type: agentType;
     }
@@ -341,7 +341,7 @@ declare global {
         message: string;
         modal: string;
         port: number;
-        shares: devices;
+        shares: agents;
         status: inviteStatus;
         type: agentType;
         userHash: string;
@@ -614,7 +614,7 @@ declare global {
     interface serverVars {
         addresses: [[string, string, string][], number];
         brotli: brotli;
-        device: devices;
+        device: agents;
         hashDevice: string;
         hashType: hash;
         hashUser: string;
@@ -624,7 +624,7 @@ declare global {
         status: heartbeatStatus;
         storage: string;
         timeStore: number;
-        user: devices;
+        user: agents;
         watches: {
             [key:string]: FSWatcher;
         };
@@ -645,7 +645,7 @@ declare global {
     }
     interface shareUpdate {
         user: string;
-        shares: deviceShares;
+        shares: agentShares;
     }
     interface SocketEvent extends Event {
         data: string;
@@ -655,7 +655,7 @@ declare global {
         stack: string[];
     }
     interface storage {
-        data: devices | messages | ui_data;
+        data: agents | messages | ui_data;
         response: ServerResponse;
         type: storageType;
     }
@@ -663,10 +663,10 @@ declare global {
         [key:string]: boolean;
     }
     interface storageItems {
-        device: devices;
+        device: agents;
         messages: messages;
         settings: ui_data;
-        user: devices;
+        user: agents;
     }
     interface stringData {
         content: string;
@@ -777,8 +777,8 @@ declare global {
         test: object | string;
     }
     interface testServiceShares {
-        local?: deviceShares;
-        remote?: deviceShares;
+        local?: agentShares;
+        remote?: agentShares;
     }
     interface testSimulationArray extends Array<testItem> {
         [index:number]: testItem;
@@ -829,7 +829,7 @@ declare global {
     interface testTemplateStorage extends testTemplate {
         command: {
             "storage": {
-                data: devices | messages | ui_data;
+                data: agents | messages | ui_data;
                 response: ServerResponse;
                 type: storageType;
             };
@@ -895,7 +895,7 @@ declare global {
     }
     interface userExchange {
         agent: string;
-        shares: deviceShares;
+        shares: agentShares;
         status: string;
         user: string;
     }

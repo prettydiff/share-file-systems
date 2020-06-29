@@ -1,7 +1,7 @@
 
 /* lib/common/agents - Traverses the list of agents, devices and users, and performs an action on each as dictated by a callback */
 const agents = function terminal_common_agents(config:agentsConfiguration):void {
-    const agentTypes:agents = {
+    const agentTypes:agentList = {
             device: Object.keys(config.source.device),
             user: Object.keys(config.source.user)
         },

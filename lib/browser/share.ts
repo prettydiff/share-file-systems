@@ -176,7 +176,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             const li:Element = document.createElement("li"),
                 button:HTMLElement = document.createElement("button"),
                 status:Element = document.createElement("strong"),
-                shareItem:deviceShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
+                shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                 shareType:string = shareItem.type;
             button.setAttribute("class", agentNames.agentType);
             button.innerHTML = shareItem.name;
@@ -270,7 +270,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
 share.context = function local_share_context():void {
     const element:Element = context.element,
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "share"),
-        deviceData:deviceShares = browser.device[addresses[0][2]].shares,
+        deviceData:agentShares = browser.device[addresses[0][2]].shares,
         shares:string[] = Object.keys(deviceData),
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
@@ -411,7 +411,7 @@ share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
             return boxAgent[0];
         }()),
         address:string = parent.getElementsByClassName("read-only-status")[0].previousSibling.textContent,
-        shares:deviceShares = browser.device[agent].shares,
+        shares:agentShares = browser.device[agent].shares,
         keys:string[] = Object.keys(shares),
         length:number = keys.length;
     let a:number = 0;
@@ -585,7 +585,7 @@ share.readOnly = function local_share_readOnly(event:MouseEvent):void {
         parent:Element = <Element>element.parentNode,
         agency:agency = util.getAgent(element),
         hash:string = parent.getAttribute("data-hash"),
-        item:deviceShare = browser.device[agency[0]].shares[hash];
+        item:agentShare = browser.device[agency[0]].shares[hash];
     if (agency[2] !== "device") {
         return;
     }
