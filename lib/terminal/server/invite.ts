@@ -15,8 +15,8 @@ import storage from "./storage.js";
 
 const invite = function terminal_server_invite(dataString:string, serverResponse:http.ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
-        inviteHttp = function local_server_invite_inviteHttp(ip:string, port:number):void {
-            const payload:string = (function local_server_invite_inviteHTTP_payload():string {
+        inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
+            const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
                     const ip:string = data.ip,
                         port:number = data.port;
                     let output:string = "";
@@ -77,7 +77,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
             vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);
             httpClient(httpConfig);
         },
-        accepted = function local_server_invite_accepted(respond:string):void {
+        accepted = function terminal_server_invite_accepted(respond:string):void {
             const keyShares:string[] = Object.keys(data.shares),
                 devices:string[] = Object.keys(serverVars.device);
             let payload:devices;
