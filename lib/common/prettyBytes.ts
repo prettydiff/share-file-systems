@@ -1,12 +1,12 @@
 
 /* lib/common/prettyBytes - Rounds data sizes to human readable powers of 1024. */
-const prettyBytes = function local_util_prettyBytes(an_integer:number):string {
+const prettyBytes = function terminal_common_prettyBytes(an_integer:number):string {
     //find the string length of input and divide into triplets
     let output:string = "",
         length:number  = an_integer
             .toString()
             .length;
-    const triples:number = (function local_util_prettyBytes_triples():number {
+    const triples:number = (function terminal_common_prettyBytes_triples():number {
             if (length < 22) {
                 return Math.floor((length - 1) / 3);
             }
@@ -14,7 +14,7 @@ const prettyBytes = function local_util_prettyBytes(an_integer:number):string {
             return 8;
         }()),
         //each triplet is worth an exponent of 1024 (2 ^ 10)
-        power:number   = (function local_util_prettyBytes_power():number {
+        power:number   = (function terminal_common_prettyBytes_power():number {
             let a = triples - 1,
                 b = 1024;
             if (triples === 0) {

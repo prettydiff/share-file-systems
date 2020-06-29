@@ -57,17 +57,21 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .inviteUser .error{color:#c33;font-weight:bold}
 .dark #spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
 
-/* users list */
-.dark #spaces #users{border-color:#666;color:#ccc}
-.dark #spaces #users h2{background:#333;border-color:#666}
-.dark #spaces #users button{background:#222;border-color:#666;color:#ccc}
-.dark #spaces #users button:hover{background:#444}
-.dark #spaces #users .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
-.dark #spaces #users .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
-.dark #spaces #users .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
-.dark #spaces #users span{background:#000;opacity:0.4}
-.dark #spaces #users #all-shares{background:#024;color:#6cf}
-.dark #spaces #users #all-shares:hover{background:#246}
+/* device/user list */
+.dark #spaces #agentList{border-color:#666;color:#ccc}
+.dark #spaces #agentList h2{background:#333;border-color:#666;box-shadow:0em 0.25em 0.25em #000}
+.dark #spaces #agentList button{background:#222;border-color:#666;color:#ccc}
+.dark #spaces #agentList button:hover{background:#444}
+.dark #spaces #agentList .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
+.dark #spaces #agentList .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
+.dark #spaces #agentList .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
+.dark #spaces #agentList span{background:#000;opacity:0.4}
+.dark #spaces #agentList .all-shares button,
+.dark #spaces #agentList .device-all-shares,
+.dark #spaces #agentList .user-all-shares{background:#024;color:#6cf}
+.dark #spaces #agentList .all-shares button:hover,
+.dark #spaces #agentList .device-all-shares:hover,
+.dark #spaces #agentList .user-all-shares:hover{background:#246}
 
 /* minimize tray at bottom */
 .dark #spaces #tray{background:#333;border-color:#444}
@@ -82,7 +86,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .header button,
 .dark #spaces .box .expansion,
 .dark #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em #000}
-.dark #spaces .userList .localhost button.make-read-only,
+.dark #spaces .agentList .agent button.make-read-only,
 .dark #spaces .box .buttons button.minimize{background:#421;border-color:#ca0;color:#ca0}
 .dark #spaces .box .buttons button.maximize{background:#024;border-color:#6cf;color:#6cf}
 .dark #spaces .box .buttons button.close{background:#300;border-color:#c33;color:#c33}
@@ -113,9 +117,9 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box input,
 .dark #spaces .box textarea{background:#111;border-color:#666;color:#ccc}
 .dark #spaces .box .body > textarea{background:#222;color:#ccc}
-.dark #spaces .userList .localhost button.grant-full-access,
+.dark #spaces .agentList .agent button.grant-full-access,
 .dark #spaces .box button.cancel,
-.dark #spaces .sharesDeleteList .checked,
+.dark #spaces .share-delete .checked,
 .dark #spaces .box .delete{background:#300;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}
 .dark #spaces #dragBox{background:#9cf;border-color:#69c}
 
@@ -131,17 +135,18 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces #system-errors span{color:#c33}
 
 /* share list */
-.dark #spaces .userList li.full-access{background:#112;border-color:#6cf}
-.dark #spaces .userList button{color:#6cf}
-.dark #spaces .userList .read-only-status{color:#999}
-.dark #spaces .userList .full-access .read-only-status{color:#666}
-.dark #spaces ul.userList li{border-color:#000}
-.dark #spaces div.userList li,
-.dark #spaces ul.userList li li{border-color:#ccc}
+.dark #spaces .agentList li.full-access{background:#112;border-color:#6cf}
+.dark #spaces .agentList button{color:#6cf}
+.dark #spaces .agentList .read-only-status{color:#999}
+.dark #spaces .agentList .full-access .read-only-status{color:#666}
+.dark #spaces ul.agentList li{border-color:#000}
+.dark #spaces div.agentList li,
+.dark #spaces ul.agentList li li{border-color:#ccc}
+.dark #spaces .agentList .file-system-root{background:#024;border-color:#6cf;color:#6cf}
 
 /* share delete */
-.dark #spaces .sharesDeleteList .checked{color:#c33}
-.dark #spaces .sharesDeleteList label{background:#333}
+.dark #spaces .share-delete .checked{color:#c33}
+.dark #spaces .share-delete label{background:#333}
 
 /* file navigator modal content */
 .dark #spaces .fileList li,

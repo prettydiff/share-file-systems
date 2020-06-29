@@ -18,7 +18,7 @@
 
 /* Context menu, right click */
 #spaces #contextMenu{border-color:#000}
-#spaces #contextMenu button{background:#ddd;border-color:#000}
+#spaces #contextMenu button{background:#ddd;border-color:#000;color:#222}
 #spaces #contextMenu button:hover{background:#eee;color:#00f}
 #spaces #contextMenu .destroy{background:#fdd;color:#c00}
 #spaces #contextMenu .destroy:hover{background:#fcc;color:#f00}
@@ -55,17 +55,21 @@
 #spaces .box .inviteUser .error{color:#c00;font-weight:bold}
 #spaces .box .inviteUser .accepted{color:#090;font-weight:bold}
 
-/* users list */
-#spaces #users{border-color:#000}
-#spaces #users h2{background:#ddd;border-color:#000}
-#spaces #users button{background:#eee;border-color:#000}
-#spaces #users button:hover{background:#fff}
-#spaces #users .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
-#spaces #users .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
-#spaces #users .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
-#spaces #users span{background:#000}
-#spaces #users #all-shares{background:#def;color:#00c}
-#spaces #users #all-shares:hover{background:#fff}
+/* device/user list */
+#spaces #agentList{border-color:#000}
+#spaces #agentList h2{background:#ddd;border-color:#000;box-shadow:0em 0.25em 0.25em #999}
+#spaces #agentList button{background:#eee;border-color:#000}
+#spaces #agentList button:hover{background:#fff}
+#spaces #agentList .status-active{color:#0f0;text-shadow:0 0 0.5em #060}
+#spaces #agentList .status-idle{color:#ee0;text-shadow:0 0 0.5em #660}
+#spaces #agentList .status-offline{color:#f66;text-shadow:0 0 0.5em #933}
+#spaces #agentList span{background:#000}
+#spaces #agentList .all-shares button,
+#spaces #agentList .device-all-shares,
+#spaces #agentList .user-all-shares{background:#def;color:#00c}
+#spaces #agentLIst .all-shares button:hover,
+#spaces #agentLIst .device-all-shares:hover,
+#spaces #agentList .user-all-shares:hover{background:#fff}
 
 /* minimize tray at bottom */
 #spaces #tray{background:#ddd;border-color:#666}
@@ -98,7 +102,7 @@
 #spaces .box .header .fileSearch input{border-color:#000}
 #spaces .fileList li input.error,
 #spaces .box .header .error{background:#fdd;color:#900}
-#spaces .userList .localhost button.grant-full-access,
+#spaces .agentList .agent button.grant-full-access,
 #spaces .box button.cancel{background:#fdd;border-color:#900;color:#900}
 #spaces .box button.confirm{background:#dfd;border-color:#060;color:#060}
 #spaces .box button.save{background:#ffc;border-color:#990;color:#770}
@@ -119,18 +123,19 @@
 #spaces #system-errors span{color:#c00}
 
 /* share list */
-#spaces .userList li.full-access{background:#eef;border-color:#99c}
-#spaces .userList button{color:#00f}
-#spaces .userList .localhost button.make-read-only{background:#ffc;border-color:#870;color:#870}
-#spaces .userList .read-only-status{color:#666}
-#spaces .userList .full-access .read-only-status{color:#556}
-#spaces ul.userList li{border-color:#000}
-#spaces div.userList li,
-#spaces ul.userList li li{border-color:#ccc}
+#spaces .agentList li.full-access{background:#eef;border-color:#99c}
+#spaces .agentList button{color:#00f}
+#spaces .agentList .agent button.make-read-only{background:#ffc;border-color:#870;color:#870}
+#spaces .agentList .read-only-status{color:#666}
+#spaces .agentList .full-access .read-only-status{color:#556}
+#spaces ul.agentList li{border-color:#000}
+#spaces div.agentList li,
+#spaces ul.agentList li li{border-color:#ccc}
+#spaces .agentList .file-system-root{background:#ddf;border-color:#009;color:#009}
 
 /* share delete */
-#spaces .sharesDeleteList label{background:#eee}
-#spaces .sharesDeleteList .checked{background:#fee;border-color:#900;color:#900}
+#spaces .share-delete label{background:#eee}
+#spaces .share-delete .checked{background:#fee;border-color:#900;color:#900}
 
 /* file navigator modal content */
 #spaces .fileList li,

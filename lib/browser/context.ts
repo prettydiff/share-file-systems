@@ -16,383 +16,432 @@ let clipboard:string = "";
 
 /* Handler for file system artifact copy */
 context.copy = function local_context_copy(event:MouseEvent):void {
-    let selected:[string, string][],
-        addresses:string[] = [],
-        box:HTMLElement,
-        element:HTMLElement = context.element,
-        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const addresses:string[] = [],
+        element:Element = (context.element.nodeName.toLowerCase() === "li")
+            ? context.element
+            : <Element>context.element.parentNode,
+        parent:Element = <Element>element.parentNode,
+        box:Element = parent.getAncestor("box", "class"),
+        contextElement:Element = <Element>event.srcElement || <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Copy") === 0)
                 ? "copy"
-                : "cut";
-    if (element.nodeName !== "li") {
-        element = <HTMLElement>element.parentNode;
-    }
-    box = util.getAncestor(<HTMLElement>element.parentNode, "box", "class");
-    selected = util.selectedAddresses(element, type);
+                : "cut",
+        selected:[string, shareType, string][] = util.selectedAddresses(element, type),
+        agency:agency = util.getAgent(box),
+        id:string = box.getAttribute("id"),
+        clipData:clipboard = {
+            agent: agency[0],
+            agentType: agency[2],
+            data: addresses,
+            id: id,
+            share: browser.data.modals[id].share,
+            type: type
+        },
+        clipStore:clipboard = (clipboard === "")
+            ? null
+            : JSON.parse(clipboard);
     if (selected.length < 1) {
         addresses.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
-        selected.forEach(function local_context_destroy_each(value:[string, string]):void {
+        selected.forEach(function local_context_destroy_each(value:[string, shareType, string]):void {
             addresses.push(value[0]);
         });
     }
-    if (clipboard !== "") {
-        const clipData:clipboard = JSON.parse(clipboard);
-        if (clipData.id !== box.getAttribute("id") || type !== "cut") {
-            util.selectNone(document.getElementById(clipData.id));
+    if (clipStore !== null) {
+        if (clipStore.id !== box.getAttribute("id") || type !== "cut") {
+            util.selectNone(document.getElementById(clipStore.id));
         }
     }
-    clipboard = JSON.stringify({
-        agent: util.getAgent(box)[0],
-        data: addresses,
-        id: box.getAttribute("id"),
-        type: type
-    });
+    clipboard = JSON.stringify(clipData);
     context.element = null;
     context.type = "";
 };
 
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent):void {
-    const element:HTMLElement = context.element,
-        contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = context.element,
+        contextElement:Element = <Element>event.srcElement || <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Base64") === 0)
                 ? "Base64"
-                : (contextElement.innerHTML.indexOf("Edit") === 0)
+                : (contextElement.innerHTML.indexOf("File as Text") > 0)
                     ? "Edit"
                     : "Hash",
-        addresses:[string, string][] = util.selectedAddresses(element, "fileEdit"),
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
+        box:Element = element.getAncestor("box", "class"),
         length:number = addresses.length,
-        agency:[string, boolean] = util.getAgent(box),
-        locations:string[] = [];
+        agency:agency = util.getAgent(box),
+        id:string = box.getAttribute("id"),
+        payloadNetwork:fileService = {
+            action: (type === "Edit")
+                ? "fs-read"
+                : <serviceType>`fs-${type.toLowerCase()}`,
+            agent: agency[0],
+            agentType: agency[2],
+            copyAgent: "",
+            copyType: "device",
+            depth: 1,
+            id: id,
+            location: [],
+            name: "",
+            share: browser.data.modals[id].share,
+            watch: "no"
+        },
+        payloadModal:ui_modal = {
+            agent: agency[0],
+            agentType: agency[2],
+            content: null,
+            height: 500,
+            inputs: (type === "Edit" && agency[1] === false)
+                ? ["close", "save"]
+                : ["close"],
+            left: 0,
+            read_only: agency[1],
+            single: false,
+            title: "",
+            top: 0,
+            type: "textPad",
+            width: 500
+        },
+        callback = function local_context_dataString_callback(resultString:string):void {
+            const data:stringDataList = JSON.parse(resultString),
+                length:number = data.length;
+            let a:number = 0,
+                textArea:HTMLTextAreaElement,
+                modalResult:Element,
+                body:HTMLElement,
+                heading:HTMLElement;
+            if (data[0] === undefined) {
+                return;
+            }
+            do {
+                textArea = document.createElement("textarea");
+                modalResult = document.getElementById(data[a].id),
+                body = <HTMLElement>modalResult.getElementsByClassName("body")[0];
+                textArea.onblur = modal.textSave;
+                heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
+                if (type === "Base64") {
+                    textArea.style.whiteSpace = "normal";
+                }
+                if (type === "Hash") {
+                    textArea.style.minHeight = "5em";
+                    body.style.height = "auto";
+                }
+                browser.data.modals[data[a].id].text_value = data[a].content;
+                textArea.value = data[a].content;
+                body.innerHTML = "";
+                body.appendChild(textArea);
+                body.style.overflow = "hidden";
+                heading.style.width = `${(body.clientWidth - 50) / 18}em`;
+                a = a + 1;
+            } while (a < length);
+            network.storage("settings");
+        };
     let a:number = 0,
-        delay:HTMLElement,
-        modalInstance:HTMLElement;
+        delay:Element,
+        modalInstance:Element;
     do {
         if (addresses[a][1] === "file") {
             delay = util.delay();
-            modalInstance = modal.create({
-                agent: agency[0],
-                content: delay,
-                height: 500,
-                inputs: (type === "Edit" && agency[1] === false)
-                    ? ["close", "save"]
-                    : ["close"],
-                left: event.clientX + (a * 10),
-                read_only: agency[1],
-                single: false,
-                title: `${type} - ${agency[0]} - ${addresses[a][0]}`,
-                top: (event.clientY - 60) + (a * 10),
-                type: "textPad",
-                width: 500
-            });
-            locations.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
+            payloadModal.content = delay;
+            payloadModal.left = event.clientX + (a * 10);
+            payloadModal.title = `${type} - ${browser[agency[2]][agency[0]].name} - ${addresses[a][0]}`;
+            payloadModal.top = (event.clientY - 60) + (a * 10);
+            modalInstance = modal.create(payloadModal);
+            payloadNetwork.location.push(`${modalInstance.getAttribute("id")}:${addresses[a][0]}`);
         }
         a = a + 1;
     } while (a < length);
-    network.fs({
-        action: (type === "Edit")
-            ? "fs-read"
-            : `fs-${type.toLowerCase()}`,
-        agent: agency[0],
-        copyAgent: "",
-        depth: 1,
-        id: box.getAttribute("id"),
-        location: locations,
-        name: "",
-        watch: "no"
-    }, function local_context_dataString_callback(resultString:string):void {
-        const data:stringDataList = JSON.parse(resultString),
-            length:number = data.length;
-        let a:number = 0,
-            textArea:HTMLTextAreaElement,
-            modalResult:HTMLElement,
-            body:HTMLElement,
-            heading:HTMLElement;
-        do {
-            textArea = document.createElement("textarea");
-            modalResult = document.getElementById(data[a].id),
-            body = <HTMLElement>modalResult.getElementsByClassName("body")[0];
-            textArea.onblur = modal.textSave;
-            heading = modalResult.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
-            if (type === "Base64") {
-                textArea.style.whiteSpace = "normal";
-            }
-            if (type === "Hash") {
-                textArea.style.minHeight = "5em";
-                body.style.height = "auto";
-            }
-            browser.data.modals[data[a].id].text_value = data[a].content;
-            textArea.value = data[a].content;
-            body.innerHTML = "";
-            body.appendChild(textArea);
-            body.style.overflow = "hidden";
-            heading.style.width = `${(body.clientWidth - 50) / 18}em`;
-            a = a + 1;
-        } while (a < length);
-        network.storage("settings");
-    });
+    network.fs(payloadNetwork, callback);
     context.element = null;
     context.type = "";
 };
 
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function local_context_destroy():void {
-    let element:HTMLElement = context.element,
-        selected:[string, string][],
-        addresses:string[] = [],
-        box:HTMLElement = util.getAncestor(element, "box", "class"); 
+    let element:Element = context.element,
+        selected:[string, shareType, string][],
+        box:Element = element.getAncestor("box", "class"),
+        agency:agency = util.getAgent(element),
+        id:string = box.getAttribute("id"),
+        payload:fileService = {
+            action: "fs-destroy",
+            agent: agency[0],
+            agentType: agency[2],
+            copyAgent: "",
+            copyType: "device",
+            depth: 1,
+            id: id,
+            location: [],
+            name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
+            share: browser.data.modals[id].share,
+            watch: "no"
+        },
+        callback = function local_context_destroy_callback(responseText:string):void {
+            const list:[Element, number, string] = fs.list(payload.name, JSON.parse(responseText)),
+                body:Element = box.getElementsByClassName("body")[0],
+                count:number = payload.location.length,
+                plural:string = (count === 1)
+                    ? ""
+                    : "s";
+            if (box.parentNode !== null) {
+                body.innerHTML = "";
+                body.appendChild(list[0]);
+                box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = `${payload.location.length} item${plural} deleted.`;
+            }
+        }; 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
     }
     selected = util.selectedAddresses(element, "destroy");
     if (selected.length < 1) {
-        addresses.push(element.getElementsByTagName("label")[0].innerHTML);
+        payload.location.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
-        selected.forEach(function local_context_destroy_each(value:[string, string]):void {
-            addresses.push(value[0]);
+        selected.forEach(function local_context_destroy_each(value:[string, shareType, string]):void {
+            payload.location.push(value[0]);
         });
     }
-    network.fs({
-        action: "fs-destroy",
-        agent: util.getAgent(element)[0],
-        copyAgent: "",
-        depth: 1,
-        id: box.getAttribute("id"),
-        location: addresses,
-        name: "",
-        watch: "no"
-    }, function local_context_destroy_callback():void {
-        // todo: log to systems list
-    });
+    network.fs(payload, callback);
     context.element = null;
 };
 
 /* Handler for details action of context menu */
 context.details = function local_context_details(event:MouseEvent):void {
-    const element:HTMLElement = context.element,
-        div:HTMLElement = util.delay(),
-        agency:[string, boolean] = util.getAgent(element),
-        addresses:[string, string][] = util.selectedAddresses(element, "details"),
-        modalInstance:HTMLElement = modal.create({
+    const element:Element = context.element,
+        div:Element = util.delay(),
+        agency:agency = util.getAgent(element),
+        addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
+        payloadModal:ui_modal = {
             agent: agency[0],
+            agentType: agency[2],
             content: div,
             height: 600,
             inputs: ["close"],
             left: event.clientX,
             read_only: agency[1],
             single: true,
-            title: `Details - ${agency[0]} - ${addresses.length} items`,
+            title: `Details - ${agency[2].slice(0, 1).toUpperCase() + agency[2].slice(1)}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
-        }),
+        },
+        modalInstance:Element = modal.create(payloadModal),
         id:string = modalInstance.getAttribute("id"),
-        addressList:string[] = (function local_context_details_addressList():string[] {
-            const output:string[] = [],
-                length:number = addresses.length;
-            let a:number = 0;
+        payloadNetwork:fileService = {
+            action: "fs-details",
+            agent: agency[0],
+            agentType: agency[2],
+            copyAgent: "",
+            copyType: "device",
+            depth: 0,
+            id: id,
+            location: (function local_context_details_addressList():string[] {
+                const output:string[] = [],
+                    length:number = addresses.length;
+                let a:number = 0;
+                do {
+                    output.push(addresses[a][0]);
+                    a = a + 1;
+                } while (a < length);
+                return output;
+            }()),
+            name: "",
+            share: browser.data.modals[id].share,
+            watch: "no"
+        },
+        callback = function local_context_details_callback(response:string):void {
+            const payload:fsRemote = JSON.parse(response),
+                list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
+                    ? []
+                    : payload.dirs,
+                fileList:directoryList = [],
+                body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
+                length:number = list.length,
+                details:fsDetails = {
+                    size: 0,
+                    files: 0,
+                    directories: 0,
+                    links: 0
+                },
+                output:Element = document.createElement("div");
+            let a:number = 0,
+                tr:Element,
+                td:HTMLElement,
+                stat:Stats,
+                heading:Element = document.createElement("h3"),
+                table:HTMLElement = document.createElement("table"),
+                tbody:Element = document.createElement("tbody"),
+                mTime:Date,
+                aTime:Date,
+                cTime:Date;
             do {
-                output.push(addresses[a][0]);
+                if (list[a][1] === "directory") {
+                    details.directories = details.directories + 1;
+                } else if (list[a][1] === "link") {
+                    details.links = details.links + 1;
+                } else {
+                    stat = <Stats>list[a][5];
+                    fileList.push(list[a]);
+                    details.files = details.files + 1;
+                    details.size = details.size + stat.size;
+                }
                 a = a + 1;
             } while (a < length);
-            return output;
-        }());
-    if (browser.loadTest === true) {
-        return;
-    }
-    network.fs({
-        action: "fs-details",
-        agent: agency[0],
-        copyAgent: "",
-        depth: 0,
-        id: id,
-        location: addressList,
-        name: "",
-        watch: "no"
-    }, function local_context_details_callback(response:string):void {
-        const payload:fsRemote = JSON.parse(response),
-            list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
-                ? []
-                : payload.dirs,
-            fileList:directoryList = [],
-            body:HTMLElement = <HTMLElement>document.getElementById(payload.id).getElementsByClassName("body")[0],
-            length:number = list.length,
-            details:fsDetails = {
-                size: 0,
-                files: 0,
-                directories: 0,
-                links: 0
-            },
-            output:HTMLElement = document.createElement("div");
-        let a:number = 0,
-            tr:HTMLElement,
-            td:HTMLElement,
-            stat:Stats,
-            heading:HTMLElement = document.createElement("h3"),
-            table:HTMLElement = document.createElement("table"),
-            tbody:HTMLElement = document.createElement("tbody"),
-            mTime:Date,
-            aTime:Date,
-            cTime:Date;
-        do {
-            if (list[a][1] === "directory") {
-                details.directories = details.directories + 1;
-            } else if (list[a][1] === "link") {
-                details.links = details.links + 1;
-            } else {
-                stat = <Stats>list[a][5];
-                fileList.push(list[a]);
-                details.files = details.files + 1;
-                details.size = details.size + stat.size;
-            }
-            a = a + 1;
-        } while (a < length);
-
-        output.setAttribute("class", "fileDetailOutput");
-        heading.innerHTML = `File System Details - ${commas(list.length)} items`;
-        output.appendChild(heading);
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Total Size";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        if (details.size > 1024) {
-            td.innerHTML = `${commas(details.size)} bytes (${prettyBytes(details.size)})`;
-        } else {
-            td.innerHTML = `${commas(details.size)} bytes`;
-        }
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        table.appendChild(tbody);
-        output.appendChild(table);
-
-        heading = document.createElement("h3");
-        heading.innerHTML = "Contains";
-        output.appendChild(heading);
-        td = document.createElement("p");
-        td.innerHTML = "Does not count read protected assets.";
-        output.appendChild(td);
-        table = document.createElement("table");
-        tbody = document.createElement("tbody");
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Files";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.innerHTML = commas(details.files);
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Directories";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.innerHTML = commas(details.directories);
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Symbolic Links";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.innerHTML = commas(details.links);
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        table.appendChild(tbody);
-        output.appendChild(table);
-
-        stat = <Stats>list[0][5];
-        mTime = new Date(stat.mtimeMs);
-        aTime = new Date(stat.atimeMs);
-        cTime = new Date(stat.ctimeMs);
-        heading = document.createElement("h3");
-        heading.innerHTML = "MAC";
-        output.appendChild(heading);
-        table = document.createElement("table");
-        tbody = document.createElement("tbody");
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Modified";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.innerHTML = util.dateFormat(mTime);
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Accessed";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.innerHTML = util.dateFormat(aTime);
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.innerHTML = "Created";
-        tr.appendChild(td);
-        td = document.createElement("td");
-        td.innerHTML = util.dateFormat(cTime);
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        table.appendChild(tbody);
-        output.appendChild(table);
-
-        if (list[0][1] === "directory" && details.files > 0) {
-            let button:HTMLElement = document.createElement("button"),
-                statA:Stats,
-                statB:Stats;
-            td = document.createElement("p");
-            heading = document.createElement("h3");
-            heading.innerHTML = "Display first 100 files by...";
+    
+            output.setAttribute("class", "fileDetailOutput");
+            heading.innerHTML = `File System Details - ${commas(list.length)} items`;
             output.appendChild(heading);
-            button.innerHTML = "Largest size";
-            fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
-                statA = <Stats>aa[5];
-                statB = <Stats>bb[5];
-                if (statA.size > statB.size) {
-                    return -1;
-                }
-                return 1;
-            });
-            button.nonce = JSON.stringify(fileList.slice(0, 100));
-            button.onclick = context.detailsList;
-            td.appendChild(button);
-            output.appendChild(td);
-            td = document.createElement("p"),
-            button = document.createElement("button");
-            button.innerHTML = "Recently changed";
-            fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
-                statA = <Stats>aa[5];
-                statB = <Stats>bb[5];
-                if (statA.mtimeMs > statB.mtimeMs) {
-                    return -1;
-                }
-                return 1;
-            });
-            button.nonce = JSON.stringify(fileList.slice(0, 100));
-            button.onclick = context.detailsList;
-            td.appendChild(button);
-            output.appendChild(td);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Location";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = payload.dirs[0][0];
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Total Size";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            if (details.size > 1024) {
+                td.innerHTML = `${commas(details.size)} bytes (${prettyBytes(details.size)})`;
+            } else {
+                td.innerHTML = `${commas(details.size)} bytes`;
+            }
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            table.appendChild(tbody);
+            output.appendChild(table);
+    
+            heading = document.createElement("h3");
+            heading.innerHTML = "Contains";
+            output.appendChild(heading);
             td = document.createElement("p");
-            td.style.display = "none";
+            td.innerHTML = "Does not count read protected assets.";
             output.appendChild(td);
             table = document.createElement("table");
             tbody = document.createElement("tbody");
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Files";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = commas(details.files);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Directories";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = commas(details.directories);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Symbolic Links";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = commas(details.links);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
             table.appendChild(tbody);
-            table.style.display = "none";
-            table.setAttribute("class", "detailFileList");
             output.appendChild(table);
-        }
-
-        body.innerHTML = "";
-        body.appendChild(output);
-    });
+    
+            stat = <Stats>list[0][5];
+            mTime = new Date(stat.mtimeMs);
+            aTime = new Date(stat.atimeMs);
+            cTime = new Date(stat.ctimeMs);
+            heading = document.createElement("h3");
+            heading.innerHTML = "MAC";
+            output.appendChild(heading);
+            table = document.createElement("table");
+            tbody = document.createElement("tbody");
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Modified";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = util.dateFormat(mTime);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Accessed";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = util.dateFormat(aTime);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            tr = document.createElement("tr");
+            td = document.createElement("th");
+            td.innerHTML = "Created";
+            tr.appendChild(td);
+            td = document.createElement("td");
+            td.innerHTML = util.dateFormat(cTime);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            table.appendChild(tbody);
+            output.appendChild(table);
+    
+            if (list[0][1] === "directory" && details.files > 0) {
+                let button:HTMLElement = document.createElement("button"),
+                    statA:Stats,
+                    statB:Stats;
+                td = document.createElement("p");
+                heading = document.createElement("h3");
+                heading.innerHTML = "Display first 100 files by...";
+                output.appendChild(heading);
+                button.innerHTML = "Largest size";
+                fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
+                    statA = <Stats>aa[5];
+                    statB = <Stats>bb[5];
+                    if (statA.size > statB.size) {
+                        return -1;
+                    }
+                    return 1;
+                });
+                button.nonce = JSON.stringify(fileList.slice(0, 100));
+                button.onclick = context.detailsList;
+                td.appendChild(button);
+                output.appendChild(td);
+                td = document.createElement("p"),
+                button = document.createElement("button");
+                button.innerHTML = "Recently changed";
+                fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
+                    statA = <Stats>aa[5];
+                    statB = <Stats>bb[5];
+                    if (statA.mtimeMs > statB.mtimeMs) {
+                        return -1;
+                    }
+                    return 1;
+                });
+                button.nonce = JSON.stringify(fileList.slice(0, 100));
+                button.onclick = context.detailsList;
+                td.appendChild(button);
+                output.appendChild(td);
+                td = document.createElement("p");
+                td.style.display = "none";
+                output.appendChild(td);
+                table = document.createElement("table");
+                tbody = document.createElement("tbody");
+                table.appendChild(tbody);
+                table.style.display = "none";
+                table.setAttribute("class", "detailFileList");
+                output.appendChild(table);
+            }
+    
+            body.innerHTML = "";
+            body.appendChild(output);
+        };
+    if (browser.loadTest === true) {
+        return;
+    }
+    network.fs(payloadNetwork, callback);
     util.selectNone(element);
     context.element = null;
 };
@@ -405,21 +454,21 @@ context.detailsList = function local_context_detailsList(event:MouseEvent) {
         title:string = (sortType === "size")
             ? "Largest"
             : "Most Recent",
-        parent:HTMLElement = <HTMLElement>element.parentNode,
+        parent:Element = <Element>element.parentNode,
         table:HTMLElement = (function local_context_details_refinement_table():HTMLElement {
-            let el:HTMLElement = parent;
+            let el:Element = parent;
             do {
-                el = <HTMLElement>el.nextSibling;
+                el = <Element>el.nextSibling;
             } while (el.nodeName.toLowerCase() !== "table");
-            return el;
+            return <HTMLElement>el;
         }()),
-        tbody:HTMLElement = <HTMLElement>table.firstChild,
+        tbody:Element = <Element>table.firstChild,
         p:HTMLElement = <HTMLElement>table.previousSibling,
         data:directoryList = JSON.parse(element.nonce),
         dataLength:number = data.length;
     let a:number = 0,
-        tr:HTMLElement,
-        td:HTMLElement,
+        tr:Element,
+        td:Element,
         stat:Stats;
     p.innerHTML = `Top ${dataLength} ${title} Files`;
     tbody.innerHTML = "";
@@ -451,79 +500,103 @@ context.element = null;
 
 /* Handler for creating new directories */
 context.fsNew = function local_context_fsNew(event:MouseEvent):void {
-    let item:HTMLElement,
-        box:HTMLElement,
-        path:string,
-        slash:"\\" | "/",
-        element:HTMLElement = context.element;
-    const contextElement:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        type:contextType = (context.type !== "")
-            ? context.type
-            : (contextElement.innerHTML.indexOf("New File") === 0)
-                ? "file"
-                : "directory",
-        field:HTMLInputElement = document.createElement("input"),
-        text:HTMLElement = document.createElement("label"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
             // 13 is enter
+            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
+                actionParent:Element = <Element>actionElement.parentNode;
             if (actionEvent.keyCode === 13) {
-                const value:string = field.value.replace(/(\s+|\.)$/, "");
-                if (value.replace(/\s+/, "") !== "") {
-                    field.value = value;
-                    text.innerHTML = path + value;
-                    network.fs({
+                const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
+                    parent:Element = <Element>actionElement.parentNode,
+                    id:string = parent.getAncestor("box", "class").getAttribute("id"),
+                    agency:agency = util.getAgent(actionElement),
+                    payload:fileService = {
                         action: "fs-new",
-                        agent: util.getAgent(element)[0],
+                        agent: agency[0],
+                        agentType: agency[2],
                         copyAgent: "",
+                        copyType: "device",
                         depth: 1,
-                        id: box.getAttribute("id"),
-                        location: [path + value],
-                        name: type,
+                        id: id,
+                        location: [actionElement.getAttribute("data-location") + value],
+                        name: actionElement.getAttribute("data-type"),
+                        share: browser.data.modals[id].share,
                         watch: "no"
-                    }, function local_context_fsNew_actionKeyboard_callback():void {
-                        // todo: log in systems log
-                    });
+                    },
+                    callback = function local_context_fsNew_actionKeyboard_callback():void {
+                        return;
+                    };
+                if (value.replace(/\s+/, "") !== "") {
+                    actionParent.innerHTML = payload.location[0];
+                    network.fs(payload, callback);
                 }
             } else {
                 // 27 is escape
                 if (actionEvent.keyCode === 27) {
-                    const input:HTMLElement = <HTMLElement>element.getElementsByTagName("input")[0];
-                    element.removeChild(item);
+                    const list:Element = actionElement.getAncestor("fileList", "class"),
+                        input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
+                    list.removeChild(actionParent.parentNode.parentNode);
                     input.focus();
                     return;
                 }
-                field.value = field.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
+                actionElement.value = actionElement.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
             }
         },
         actionBlur = function local_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
-            if (actionEvent.type === "blur" && field.value.replace(/\s+/, "") !== "") {
-                const value:string = field.value.replace(/(\s+|\.)$/, "");
+            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
+                value:string = actionElement.value.replace(/(\s+|\.)$/, "");
+            if (actionEvent.type === "blur" && value.replace(/\s+/, "") !== "") {
                 if (value.replace(/\s+/, "") !== "") {
-                    field.value = value;
-                    text.innerHTML = path + value;
-                    network.fs({
-                        action: "fs-new",
-                        agent: util.getAgent(element)[0],
-                        copyAgent: "",
-                        depth: 1,
-                        id: box.getAttribute("id"),
-                        location: [path + value],
-                        name: type,
-                        watch: "no"
-                    }, function local_context_fsNew_actionBlur_callback():void {
-                        // todo: log in systems log
-                    });
+                    const actionParent:Element = <Element>actionElement.parentNode,
+                        agency:agency = util.getAgent(actionElement),
+                        id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
+                        payload:fileService = {
+                            action: "fs-new",
+                            agent: agency[0],
+                            agentType: agency[2],
+                            copyAgent: "",
+                            copyType: "device",
+                            depth: 1,
+                            id: id,
+                            location: [actionElement.getAttribute("data-location") + value],
+                            name: actionElement.getAttribute("data-type"),
+                            share: browser.data.modals[id].share,
+                            watch: "no"
+                        },
+                        callback = function local_context_fsNew_actionBlur_callback():void {
+                            return;
+                        };
+                    actionParent.innerHTML = payload.location[0];
+                    network.fs(payload, callback);
                 }
             }
         },
-        build = function local_context_fsNew_build():HTMLElement {
+        build = function local_context_fsNew_build():void {
             const li:HTMLElement = document.createElement("li"),
                 label:HTMLLabelElement = document.createElement("label"),
-                input:HTMLInputElement = document.createElement("input");
-            let span:HTMLElement;
+                input:HTMLInputElement = document.createElement("input"),
+                field:HTMLInputElement = document.createElement("input"),
+                text:HTMLElement = document.createElement("label"),
+                parent:Element = <Element>context.element.parentNode,
+                box = parent.getAncestor("box", "class"),
+                type:contextType = (context.type !== "")
+                    ? context.type
+                    : (element.innerHTML.indexOf("New File") === 0)
+                        ? "file"
+                        : "directory";
+            let span:HTMLElement,
+                slash:"\\"|"/" = "/",
+                path:string = box.getElementsByTagName("input")[0].value;
             li.setAttribute("class", type);
             if (type === "directory") {
                 li.ondblclick = fs.directory;
+            }
+            path = box.getElementsByTagName("input")[0].value;
+            if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
+                slash = "\\";
+            }
+            if (path.charAt(path.length - 1) !== slash) {
+                path = path + slash;
             }
             input.type = "checkbox";
             input.checked = false;
@@ -536,6 +609,8 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             field.onkeyup = actionKeyboard;
             field.onblur = actionBlur;
             field.setAttribute("id", "newFileItem");
+            field.setAttribute("data-type", type);
+            field.setAttribute("data-location", path);
             text.appendChild(field);
             li.appendChild(text);
             span = document.createElement("span");
@@ -545,40 +620,30 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             li.oncontextmenu = context.menu;
             li.appendChild(label);
             li.onclick = fs.select;
-            return li;
+            context.element.appendChild(li);
+            field.focus();
         };
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
-    element = util.getAncestor(element, "fileList", "class");
-    box = util.getAncestor(<HTMLElement>element.parentNode, "box", "class");
-    path = box.getElementsByTagName("input")[0].value;
-    if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
-        slash = "\\";
-    }
-    if (path.charAt(path.length - 1) !== slash) {
-        path = path + slash;
-    }
-    item = build();
-    element.appendChild(item);
-    field.focus();
+    build();
     context.element = null;
     context.type = "";
 };
 
 /* Creates context menu */
 context.menu = function local_context_menu(event:MouseEvent):void {
-    const itemList:HTMLElement[] = [],
+    const itemList:Element[] = [],
         menu:HTMLElement = document.createElement("ul"),
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
             : "CTRL";
-    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    let element:Element = <Element>event.srcElement || <Element>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
-        parent:HTMLElement = <HTMLElement>element.parentNode,
-        item:HTMLElement,
+        parent:Element = <Element>element.parentNode,
+        item:Element,
         button:HTMLButtonElement,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
@@ -606,7 +671,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             destroy: function local_context_menu_destroy():void {
-                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
+                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -679,7 +744,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             rename: function local_context_menu_rename():void {
-                let input:HTMLInputElement = <HTMLInputElement>util.getAncestor(parent, "border", "class");
+                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
@@ -708,8 +773,8 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         return;
     }
     if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
-        element = <HTMLElement>element.parentNode;
-        parent = <HTMLElement>parent.parentNode;
+        element = <Element>element.parentNode;
+        parent = <Element>parent.parentNode;
         nodeName = element.nodeName.toLowerCase();
     }
     context.element = element;
@@ -726,7 +791,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         functions.paste();
     } else if (parent.getAttribute("class") === "fileList") {
         functions.details();
-        if (box.getAttribute("data-agent") === "localhost") {
+        if (box.getAttribute("data-agentType") === "device") {
             functions.share();
         }
         if (element.getAttribute("class").indexOf("file") === 0) {
@@ -790,23 +855,36 @@ context.menuRemove = function local_context_menuRemove():void {
 
 /* Prepare the network action to write files */
 context.paste = function local_context_paste():void {
-    let element:HTMLElement = util.getAncestor(context.element, "box", "class"),
-        destination:string,
-        clipData:clipboard = JSON.parse(clipboard);
-    destination = element.getElementsByTagName("input")[0].value;
-    network.fs({
-        action   : `fs-${clipData.type}`,
-        agent    : clipData.agent,
-        copyAgent: "",
-        depth    : 1,
-        id       : element.getAttribute("id"),
-        location : clipData.data,
-        name     : destination,
-        watch    : "no"
-    }, function local_context_paste_callback():void {
-        clipboard = "";
-        util.selectNone(document.getElementById(clipData.id));
-    });
+    const element:Element = context.element.getAncestor("box", "class"),
+        destination:string = element.getElementsByTagName("input")[0].value,
+        clipData:clipboard = (clipboard === "")
+            ? {}
+            : JSON.parse(clipboard),
+        id:string = element.getAttribute("id"),
+        copyAgent:string = browser.data.modals[id].agent,
+        copyType:agentType = browser.data.modals[id].agentType,
+        payload:fileService = {
+            action   : <serviceType>`fs-${clipData.type}`,
+            agent    : clipData.agent,
+            agentType: clipData.agentType,
+            copyAgent: copyAgent,
+            copyShare: browser.data.modals[id].share,
+            copyType : copyType,
+            depth    : 1,
+            id       : id,
+            location : clipData.data,
+            name     : destination,
+            share    : clipData.share,
+            watch    : "no"
+        },
+        callback = function local_context_paste_callback():void {
+            clipboard = "";
+            util.selectNone(document.getElementById(clipData.id));
+        };
+    if (clipboard === "") {
+        return;
+    }
+    network.fs(payload, callback);
     context.element = null;
 };
 

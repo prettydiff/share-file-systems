@@ -1,6 +1,6 @@
 
 /* lib/common/commas - Converts numbers into a string of comma separated triplets. */
-const commas = function terminal_commas(number:number):string {
+const commas = function terminal_common_commas(number:number):string {
     const str:string = String(number);
     let arr:string[] = [],
         a:number   = str.length;

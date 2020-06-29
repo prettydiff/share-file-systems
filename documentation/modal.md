@@ -1,3 +1,5 @@
+<!-- documentation/modal - Notes about modals and the graphic user interface that displays in the browser. -->
+
 # Share File Systems - Modals
 The modals are the central means of communicating specific content to the user in the browser.  They are designed to be fluid and flexible to visual users much like an OS graphic user interface without sacrificing keyboard access or accessibility.
 
@@ -13,23 +15,28 @@ The API is defined as a TypeScript interface.
 ```typescript
 interface ui_modal {
     agent: string;
-    content: HTMLElement;
-    focus?: HTMLElement;
-    history?: string[];
+    agentType: agentType;
+    content: Element;
+    focus?: Element;
     height?: number;
+    history?: string[];
     id?: string;
     inputs?: ui_input[];
     left?: number;
     move?: boolean;
     read_only: boolean;
     resize?: boolean;
+    search?: [string, string];
+    selection?: selection;
+    share?: string;
     single?: boolean;
     status?: modalStatus;
     status_bar?: boolean;
+    status_text?: string;
     text_event?: EventHandlerNonNull;
     text_placeholder?: string;
     text_value?: string;
-    time?: number;
+    timer?: number;
     title: string;
     top?: number;
     type: modalType;
@@ -39,8 +46,9 @@ interface ui_modal {
 ```
 
 * **agent** - The user/device the given modal is displaying content from.
+* **agentType** - Whether the modal's agent is of type *device* or *user*.
 * **content** - A DOM node containing the modal's content that is appended to the modal's content body.
-* **focus** - 
+* **focus** - The DOM element holding the current focus, similar to `document.activeElement` but can apply to elements that don't normally hold a focus.
 * **history** - File Navigator type modal's retain a history of prior locations. This is necessary for the *back* button's operation.
 * **height** - Determines the height of the modal.  The default is 400, which is 400 pixels.
 * **id** - The unique identifier for the given modal.  This usually created dynamically as the modal is created unless the modal already exists upon page load.
@@ -49,12 +57,17 @@ interface ui_modal {
 * **move** - Whether or not the modal can be moved by dragging onto the title bar.
 * **read_only** - Whether or not the modal is in read_only mode.  A read_only modal receives a different context menu with fewer buttons and rejects certain actions.
 * **resize** - Whether or not the modal can be resized.  If false the resize controls are not created for the modal.
+* **search** - A text fragment of something to search for, such as a searching a file system location only for a certain file extension.  The search field does not support wildcards like file system search in most operating systems.
+* **selection** - A list of selected items, such as selected file system items so that selection data is maintained even if the application is turned off.
+* **share** - If a modal is representative of a *share* that identifier is stored here.  This identity is necessary to ensure content shared by a user is accessible via the security model.
 * **single** - Whether only one instance of the given modal type may be available at a time or if many instances may be available.
-* **status_bar** - A text that appears along the bottom border of the modal that may dynamically receive status updates and output text data.
+* **status** - The display state of the modal which is: *normal*, *minimized*, *maximized*.
+* **status_bar** - Whether a modal should generate with a status bar area at the bottom.
+* **status_text** - The text last written to the status bar is stored as a property so that when the application is closed this aspect of state is restored.
 * **text_event** - The event to execute on the *keyup* event of input type *text*.
 * **text_placeholder** - The default place holder text that is to appear in input type *text*.
 * **text_value** - A default or stored value that should be populated in input type *text*, if present.
-* **time** - A numeric value representing milliseconds since Unix epoch 1 JAN 1970 as based upon local device clock. This is optionally supplied in case timed events or periodic delays are necessary.
+* **timer** - A numeric value representing milliseconds since Unix epoch 1 JAN 1970 as based upon local device clock. This is optionally supplied in case timed events or periodic delays are necessary.
 * **title** - The text will populate the modal's title bar.
 * **top** - The vertical placement of the modal as measured by the modal's top edge offset from the content area's top in pixels.
 * **type** - The types of modals available.  See the section below on *type modalType*.

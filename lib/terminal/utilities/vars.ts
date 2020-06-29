@@ -94,9 +94,44 @@ const vars:terminalVariables = {
             path  : path,
             zlib  : zlib
         },
-        projectPath: "",
+        projectPath: (function node_projectPath():string {
+            // this block normalizes node execution across operating systems and directory locations in the case that node could be executed as a component of a shell utility
+            const length:number = process.argv.length,
+                regNode:RegExp = new RegExp("((\\\\)|/)node(\\.exe)?$"),
+                regApp:RegExp = new RegExp("((\\\\)|/)js((\\\\)|/)application(\\.js)?$");
+            let a:number = 0,
+                projectPath:string = "",
+                nodeIndex:number = 0;
+            do {
+                if (regNode.test(process.argv[a]) === true) {
+                    nodeIndex = a;
+                } else if (regApp.test(process.argv[a]) === true) {
+                    projectPath = process.argv[a].replace(regApp, "");
+                }
+                a = a + 1;
+            } while (a < length);
+            process.argv = process.argv.slice(nodeIndex);
+            return projectPath;
+        }()),
         sep: "/",
         startTime: process.hrtime(),
+        testLogFlag: "",
+        testLogger: function node_testLogger(library:string, container:string, message:string):void {
+            if (vars.testLogFlag !== "") {
+                const contain:string = (container === "")
+                        ? ""
+                        : `(${vars.text.bold + container + vars.text.none}) `,
+                    lib:string = vars.text.green + library + vars.text.none,
+                    item:string = `   ${vars.text.angry}*${vars.text.none} ${lib}, ${contain + message.replace(/\s+$/, "")}`;
+                if (vars.testLogFlag === "simulation") {
+                    // eslint-disable-next-line
+                    console.log(`${vars.text.cyan}Log - ${vars.text.none + item}`);
+                } else if (vars.testLogFlag === "service") {
+                    vars.testLogStore.push(item);
+                }
+            }
+        },
+        testLogStore: [],
         text: {
             angry    : "\u001b[1m\u001b[31m",
             blue     : "\u001b[34m",
@@ -116,18 +151,7 @@ const vars:terminalVariables = {
         version: {
             command: "node js/application",
             date: "",
-            device: "",
-            identity_domain: "",
-            keys: {
-                device: {
-                    private: "",
-                    public: ""
-                },
-                user: {
-                    private: "",
-                    public: ""
-                }
-            },
+            hash: "",
             name: "Share File Systems",
             number: "",
             port: 80
@@ -136,7 +160,7 @@ const vars:terminalVariables = {
     };
 
 vars.sep = vars.node.path.sep;
-vars.projectPath = process.cwd() + vars.sep;
+vars.projectPath = vars.projectPath + vars.sep;
 vars.js = `${vars.projectPath}js${vars.sep}`;
 
 export default vars;

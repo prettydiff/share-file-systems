@@ -1,3 +1,5 @@
+<!-- documentation/file_copy - Notes on the flow control of file copy. -->
+
 # Share File Systems - File Copy Behavior
 
 The *Share File Systems* application allows one or more files, directories, or directory trees to be copied in these ways:

@@ -1,17 +1,12 @@
 
 /* lib/terminal/server/serverVars - A library of variables globally available for all server related tasks. */
 import { NetworkInterfaceInfo } from "os";
-import { Socket } from "net";
 
 import vars from "../utilities/vars.js";
 
-interface socketList {
-    [key:string]: Socket;
-}
-
-const socketList:socketList = {},
-    mac:string[] = [],
-    serverVars:serverVars = {
+let mac:string = "",
+    address:[[string, string, string][], number];
+const serverVars:serverVars = {
         addresses: (function terminal_server_addresses():[[string, string, string][], number] {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
                 store:[string, string, string][] = [],
@@ -21,22 +16,25 @@ const socketList:socketList = {},
                 b:number = 0,
                 ipv6:number,
                 ipv4:number,
-                interfaceLongest:number = 0;
+                interfaceLongest:number = 0,
+                mac6:string = "",
+                mac4:string = "";
             do {
                 if (interfaces[keys[a]][0].internal === false) { 
                     ipv4 = -1;
                     ipv6 = -1;
                     b = 0;
-                    mac.push(interfaces[keys[a]][0].mac);
                     do {
                         if (interfaces[keys[a]][b].address.indexOf("fe80") !== 0) {
                             if (interfaces[keys[a]][b].family === "IPv6") {
+                                mac6 = interfaces[keys[a]][b].mac;
                                 ipv6 = b;
                                 if (ipv4 > -1) {
                                     break;
                                 }
                             }
                             if (interfaces[keys[a]][b].family === "IPv4") {
+                                mac4 = interfaces[keys[a]][b].mac;
                                 ipv4 = b;
                                 if (ipv6 > -1) {
                                     break;
@@ -59,20 +57,30 @@ const socketList:socketList = {},
                 }
                 a = a + 1;
             } while (a < length);
+            mac = (mac6 !== "")
+                ? mac6
+                : mac4;
             if (store.length < 1) {
-                return [[["disconnected", "::1", "ipv6"], ["disconnected", "127.0.0.1", "ipv4"]], 0];
+                address = [[["disconnected", "::1", "ipv6"], ["disconnected", "127.0.0.1", "ipv4"]], 0];
+            } else {
+                address = [store, interfaceLongest];
             }
-            return [store, interfaceLongest];
+            return address;
         }()),
         brotli: 7,
-        hash: "sha3-512",
-        macList: mac,
-        name: "",
-        socketList: socketList,
-        socketReceiver: {},
-        status: "idle",
+        device: {},
+        hashDevice: "",
+        hashType: "sha3-512",
+        hashUser: "",
+        ipAddress: (address[0].length > 1)
+            ? address[0][1][1]
+            : address[0][0][1],
+        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
+        nameUser: "",
+        status: "active",
+        storage: `${vars.projectPath}storage`,
         timeStore: 0,
-        users: {},
+        user: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser
         wsPort: 0 // wsPort - web socket port for requests from node

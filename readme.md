@@ -1,15 +1,12 @@
 # Share File Systems
 
 ## Purpose
-The end state is to offer a cross-OS private one-to-many online relationship that shares media, messaging, and file system access with end-to-end encryption from the browser.
+The end state is to offer a cross-OS private one-to-many online point-to-point relationship that shares media, messaging, and file system access with end-to-end encryption from the browser.
 
 This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
-
-## Status
-This application is currently in early development in an largely experimental state, so use at your own risk.
 
 ## Build and execute
 ### First build
@@ -37,67 +34,73 @@ This application is currently in early development in an largely experimental st
 1. Open your favorite modern browser to http://localhost
    * You may need to make an exception in your local firewall for port 80, or which ever port you specify.
 
-### Configuration
-The application's configurations are stored in the file *version.json* including the service port. The default configuration will work properly for most users.
-
 ### Later builds
 1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.
 1. If a browser isn't already open to the application then open to http://localhost
 
-## A quick use guide
-1. The first time you open the application it will ask you to create a user name.
-1. Notice the "hamburger" menu icon in the top left corner of the application.  Click that to open the primary menu and select *File Navigator*.
-1. The File Navigator will allow a user to navigate their file system just like using their underlying operating system.  Select a couple of things you would like to share.  Right click on the select item(s) and choose *Share*.
-1. On the right side of the page is the user icons.  Click on the button labeled *All Shares* to see which items are shared.
-1. In the user list click on the button labeled *Invite User* to invite a user to access your shares.  At this time users are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default IP address is currently 80 but the default will change to 443 once the application upgrades to HTTPS.
-1. Once the invitation is accepted by the end user they can access your shares and you can access theirs.  To see their shares close the prior opened *All Shares* window and open a new such window by again clicking the button *All Shares*.
-1. At this time security restrictions are not in place so any shared file system resource allows access to the entire file system unrestricted.  This is great for testing and experimentation, but be careful because unrestricted means a user can rename, move, or delete your files and directories.
+## A quick user introduction
+1. The first time you open the application it will ask you to create a user name and device name.
+1. Notice the *hamburger* menu icon in the top left corner of the application.  Click that to open the primary menu and select *File Navigator*.
+1. The File Navigator will allow a person to navigate their file system just like using their underlying operating system.  Select a couple of things you would like to share.  Right click on the select item(s) and choose *Share*.
+1. On the right side of the page are the device and user icons.  Click on the button labeled *All Shares* to see which items are shared.  Nothing is shared by default.
+1. In the user list click on the button labeled *Add Device or Invite User* to add a personal device to access your shares.  At this time users and devices are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default IP address is currently 80 but the default will change to 443 once the application upgrades to HTTPS.
+1. Once a personal device is added you have complete unrestricted access to the device no differently using the application on your current computer.  Access control restrictions apply to users and not devices as a user represents one or more personal devices.  See the [security model](#security-model) for more information.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 
-## How this application works
-The application is based upon Node.js running a local web server as a client-side utility.  A web browser connects to that webserver as localhost.  The local service is just HTTP and a web socket connection.  Together the browser environment and Node.js application form a single application with limited network connectivity.  Network connections outside of the localhost environment are requested due to specified user interactions in the browser but are executed from the Node application.  This model ensures the application functions in a peer-to-peer model where external communications only exist away from the user experience limited to predefined application tasks.
+## Status, as of 0.0.18
+This application is currently in early development but is maturing rapidly.  The following list provides the current feature state:
 
-### Messaging Diagram
-This is a gross over-simplification of messaging exchange in the application:
+### Status Codes
+* **mature** - is production ready
+* **stable** - appears to work in most cases, but demands further testing
+* **experimental** - works in some cases, but is either defective or incomplete
+* **development** - is not proven to work and is in early stages of development
+* **absent** - a planned feature but not under development yet
 
-```
-Local Computer                                    | Remote Computer
- _________  -----HTTP----->  _________  --HTTP--> |  _________  --Web Socket-->  _________
-| browser | <-------------- | Node.js | <-------- | | Node.js |                 | Browser |
- _________                   _________            |  _________                   _________
-            <--Web Socket--             <--HTTP-- |             <-----HTTP-----
-                                        --------> |             -------------->
-```
+### Status List
+* Graphic User Interface - **mature**
+* File system display/interaction - **mature**
+* Terminal utilities - **mature**
+* Security model - **stable**
+* Agent invitation and sharing real time updates - **stable**
+* Heartbeat and status notifications updates in real time - **stable**
+* File system access via personal devices - **stable**
+* File system access via remote user - **development**
+* Remote execution - **absent**
+* Messaging/texting - **absent**
+* Device application list - **absent**
+* Test automation
+   - terminal/commands - **mature**
+   - services - **stable**
+   - browser/GUI - **absent**
+   - end-to-end tests - **absent**
 
-The shape of communication is roughly similar to email in that a client connects to a local server for routing guidance that then talks to a remote server for delivery to the end client.  The middle layers in this case execute application instructions instead of message routing.  Also unlike email presentation, transport, and message parsing are strictly separated at all layers.
+### Status Notes
+1. HTTP is used for all services at this time.  This has proven sufficient enough for heartbeat and invite services, but is proving to not be enough for file copy through the security model.  I will be investigating use of WebRTC.
+1. I will be begin work using WebWorkers paid with a listener to execute browser tests via DOM manipulation from a remote instruction list.
+1. If I can make browser test automation work as I hope I will need to extend it to support end-to-end tests.  Currently I am performing manual tests with a VM, which has a very high overhead.  I may investigate using a headless Linux VM running both Node and a browser if such a thing exists.
 
-Email's most visible thorn is SPAM, or unsolicited requests.  This application seeks to mitigate SPAM by operating through invitation only such that one user must invite another user before they can message or share.
+## Security Model
+### Terminology
+* agent - Generically describes any user or device.
+* device - An application instance running on a computer.
+* share - A limited area of access to a device exposed to other users.  A share will either be read only (default) or full control.
+* user - A group of one or more devices.
+
+### Security Description
+1. All devices, shares, and users have identity denoted by a SHA3-512 hash.  Collisions in this hash algorithm are unlikely, but to further ensure uniqueness device hashes are partially based upon the user hash, and share hashes are partially based upon the given device's hash.
+1. A user has full unrestricted access to all devices associated with that user identity.
+1. A user cannot see the device identities of another user's devices.  A user only sees another user's user hash and shares.
+1. A user can only see and access areas of devices designated as a share.
+1. If a share is set to read only other users may read from all and copy any areas within that segment of the file system tree, but may not create directories or write files.
+
+### Security Model Notes
+1. Since shares are associated with devices and devices are not identified to other users there must be some degree of application service routing to ensure access to a share on the proper device from which that share is formed.
+   1. In most cases access to a share from a remote user is a simple matter of running through the list of devices and associating share specified on the request to a same in the device data structure.
+   1. If a user wishes to copy files from another user into a location of a device that is not shared the security model must be circumvented without exposing device identities to external users.
 
 ## Developer Guide
 Please see the [developer guide](documentation/developer_guide.md).
-
-## Road map
-These are major efforts that need to be performed and are prioritized.
-
-### Phase 1: Complete Peer-to-Peer application
-1. Complete and test file system object copy from one computer to another using the GUI.
-1. Upgrade all communications from HTTP to HTTPS (default port 80 to 443).
-1. Harden the application's security model.
-   * Restrict HTTP GET requests to the localhost environment only.  Otherwise return HTTP status 403: Forbidden.
-   * Associate file system watches to the watching agent
-   * Restrict file system access above the specified share
-   * All file system shares, by default, should be read only to remote agents.
-   * Provide throttling for invitation messages, which are the only authorized form of external communication.
-1. Create a text message client and 'sticky note' utility for communicating with remote users.
-1. Key exchange and end-to-end encryption.
-
-### Phase 2: Create Tunneling Service
-Currently the application is using IP addresses for user identification and addressing.  This will not work if a given IP isn't routed, such as : 10.0.0.0, 172.12.0.0, 192.168.0.0 and link local IPv6 addresses.  To allow connectivity from any internet connected user a central service must be created offer HTTPS tunnels as a service that act similar to a VPN tunnel.  When two users tunnel to the central service the central service can route messaging and data between the two users.  Since the messaging will be encrypted via key exchange the central service only provides a tunnel without providing content or having access to end user content.
-
-1. Create a user ID system based upon SHA512 hashes: 128 character alpha-numeric character string.  This will allow users some limited amount of anonymity but will ensure
-1. Create a tunneling to the server, which can be as simple as a HTTP keep-alive from a central webserver.
-1. Routing messaging from one tunnel to the proper remote tunnel.
-1. Revert the client application to accept only service issued IDs instead of IP addresses
 
 ## This project needs help
 * I am especially weak at writing test automation that executes in the browser.  Any help writing test cases for a headless browser would be greatly appreciated.  I need this more than anything else.

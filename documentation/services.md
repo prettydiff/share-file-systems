@@ -1,15 +1,21 @@
+<!-- documentation/services - Notes and API details of supported services. -->
+
 # Services
 
 ## File System
-The file system service is called from *network.fs* and use **localService** TypeScript interface as their data type, which is defined as follows:
+The file system service is called from *network.fs* and use **fileService** TypeScript interface as their data type, which is defined as follows:
 
 * **action**: string, The service name to execute.
 * **agent**: string, The agent (user) where the action must be performed.
-* **copyAgent**: string. The agent of the destination for a *paste* action from *copy* or *cut* services.
+* **agentType**: "device"|"user", The relationship the destination agent has to the local device.
+* **copyAgent**: string, The agent of the destination for a *paste* action from *copy* or *cut* services.
+* **copyShare**: string, The share hash for the given destination modal.
+* **copyType**: "device"|"user", The agent type of the destination modal.
 * **depth**: number, This is only used by File System services to describe the number of recursive steps to walk in a directory tree. A value of **0** means full recursion and a value of **1** means no recursion. This is ignored unless the specified artifact is a directory.
 * **id**: The id attribute value of the target modal.  This is only used for non-local operations where content is requested from the network.
 * **location**: string[], A list of locations, such as a list of file system paths.
 * **name**: string, *fs-rename* uses this data as an artifact's new name. The *fs-move* and *fs-paste* services use this as the destination address.
+* **share**: string, The named share (hash) on which the file system is requested from. This property is ignored if the *agentType* is value *device*. User agents do not indicate on which device a share is sourced so the share itself must be specified so that all necessary traffic can be directed to that device.
 * **watch**: "no"|"yes"|string,
    - *"no"* - Do not initiate a file system watch for the given request.
    - *"yes"* - Initiate a new file system watch at the path specified in *location*.
@@ -22,12 +28,14 @@ All file system services begin with *fs-* in their name.  Output format of *dire
 {
    "fs": {
       "action"   : "fs-search",
-      "agent"    : "localhost",
+      "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+      "agentType": "device",
       "copyAgent": "",
       "depth"    : 0,
       "id"       : "fileNavigate-0.276615431234143121",
       "location" : ["e:\\mp3"],
       "name"     : ".m4a",
+      "share"    : "",
       "watch"    : "no"
    }
 }
@@ -82,7 +90,10 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - parameters
       * action   : **"fs-copy"**
       * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
       * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -93,8 +104,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-file"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -105,18 +119,26 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-list"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
       * name     : ""
       * watch    : "no"
 * **fs-copy-request**
-   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-copy* so that a remote requests files from localhost.
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-copy* so that a remote requests files from local device.
    - output     : void
    - parameters
       * action   : **"fs-copy-request"**
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * agent    : string
       * copyAgent: string
       * depth    : 1
@@ -129,8 +151,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-copy-self"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -141,8 +166,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -153,8 +181,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-file"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -165,8 +196,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-list"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -177,20 +211,26 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-remove"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
       * name     : string - *stringified list of values "file" or "directory" corresponding to data.location*
       * watch    : "no"
 * **fs-cut-request**
-   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut* so that a remote requests files from localhost.
+   - description: **An internal service only.  Do not call this from the user interface.**  Generated from the request of *fs-cut* so that a remote requests files from local device.
    - output     : void
    - parameters
       * action   : **"fs-cut-request"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -201,8 +241,11 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
    - output     : void
    - parameters
       * action   : **"fs-cut-self"**
-      * agent    : string
-      * copyAgent: string
+      * agent    : string, agent of origin
+      * agentType: string, whether the origin is a device or user
+      * copyAgent: string, agent of destination
+      * copyShare: string, share hash of the destination
+      * copyType : string, whether the destination is a device or user
       * depth    : 1
       * id       : string
       * location : string[]
@@ -218,7 +261,7 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
       * depth    : 1
       * id       : string
       * location : string[]
-      * name     : ""
+      * name     : string, the address of the containing file navigator modal (if any)
       * watch    : "no"
 * **fs-details**
    - description: Returns a fully recursive summary of a given file system artifact or directory tree.
@@ -322,7 +365,7 @@ In the following list the fs-base64, fs-hash, and fs-read services describe thei
 
 
 ## Data Storage
-State is saved in the local file system.  This allows for persistence of state whose availability extends across browsers and is irrespective of the computer's state.  Provided a transfer of the state files it also allows for a persistance of state across different computers.  Data storage services are executed from the file `lib/terminal/server/storage.ts`.  Updates to the localhost shares will send out an update to all users in the user list.  The storage files are written to the directory `storage` and the service names are identical to the file names but without the file extensions.
+State is saved in the local file system.  This allows for persistence of state whose availability extends across browsers and is irrespective of the computer's state.  Provided a transfer of the state files it also allows for a persistance of state across different computers.  Data storage services are executed from the file `lib/terminal/server/storage.ts`.  Updates to the local device shares will send out an update to all users in the user list.  The storage files are written to the directory `storage` and the service names are identical to the file names but without the file extensions.
 
 Currently supported names: *messages*, *settings*, *users*
 
@@ -330,6 +373,7 @@ Currently supported names: *messages*, *settings*, *users*
 Stores systems and utility messaging from the browser.  At this time only error messaging is populated.
 
 #### Messaging Example
+<!-- cspell:disable -->
 ```json
 {
    "messages": {
@@ -348,6 +392,7 @@ Stores systems and utility messaging from the browser.  At this time only error 
    }
 }
 ```
+<!-- cspell:enable -->
 
 #### Error Messaging
 The error messaging is an error message and a stack trace stored as an array.
@@ -362,10 +407,20 @@ Stores state of the GUI and content displayed in the browser
       "audio"     : true,
       "brotli"    : 7,
       "color"     : "default",
+      "colors"    : {
+         "device": {
+            "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60": ["fff", "eee"]
+         },
+         "user": {
+            "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": ["eee", "ddd"]
+         },
+      },
+      "deviceHash": "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
       "hash"      : "sha3-512",
       "modals"    : {
          "systems-modal": {
-            "agent"    : "localhost",
+            "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+            "agentType": "device",
             "content"  : {},
             "inputs"   : ["close", "maximize", "minimize"],
             "read_only": false,
@@ -381,7 +436,8 @@ Stores state of the GUI and content displayed in the browser
             "height"   : 400
          },
          "settings-modal": {
-            "agent"    : "localhost",
+            "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+            "agentType": "device",
             "content"  : {},
             "inputs"   : ["close"],
             "read_only": false,
@@ -397,7 +453,8 @@ Stores state of the GUI and content displayed in the browser
             "height"   : 400
          },
          "fileNavigate-0.684141281927165231": {
-            "agent"           : "localhost",
+            "agent"           : "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58",
+            "agentType"       : "user",
             "content"         : {},
             "inputs"          : ["close","maximize","minimize","text"],
             "read_only"       : false,
@@ -405,8 +462,8 @@ Stores state of the GUI and content displayed in the browser
             "status_bar"      : true,
             "status_text"     : "13 directories, 15 files, 0 links, 0 errors",
             "text_placeholder": "Optionally type a file system address here.",
-            "text_value"      : "C:\\Users\\austincheney\\share-file-systems",
-            "title"           : "<span class=\"icon-fileNavigator\">⌹</span> File Navigator - localhost",
+            "text_value"      : "C:\\Users\\username\\share-file-systems",
+            "title"           : "<span class=\"icon-fileNavigator\">⌹</span> File Navigator - Austin[Desktop]",
             "type"            : "fileNavigate",
             "width"           : 819,
             "zIndex"          : 3,
@@ -415,12 +472,13 @@ Stores state of the GUI and content displayed in the browser
             "top"             : 230,
             "height"          : 403,
             "status"          : "normal",
-            "history"         : ["C:\\Users\\austincheney\\share-file-systems"],
+            "history"         : ["C:\\Users\\username\\share-file-systems"],
             "search"          : ["",""]
          }
       },
       "modalTypes": ["systems","settings","fileNavigate","invite-request"],
-      "name"      : "Austin",
+      "nameDevice": "Old Desktop",
+      "nameUser"  : "Austin",
       "zIndex"    : 6
    },
    "send": true
@@ -434,10 +492,20 @@ Stores state of the GUI and content displayed in the browser
       "audio"     : "boolean, whether audio is executed in the browser GUI",
       "brotli"    : "number, sets the compression level for transferring artifacts over the network.  The default is 7",
       "color"     : "string, the name of an available color scheme",
+      "colors"    : {
+         "device": {
+            "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60": ["3 or 6 digit hex. this device's body/primary color", "3 or 6 digit hex. this device's heading/secondary color"]
+         },
+         "user"  : {
+            "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": ["3 or 6 digit hex. this user's body/primary color", "3 or 6 digit hex. this user's heading/secondary color"]
+         }
+      },
+      "deviceHash": "string, A unique identifier for only this specific local device",
       "hash"      : "string, the name of a supported hash function.  The fault is sha3-512.  See hash command documentation or the index.d.ts file for the list of supported hash functions.",
       "modals (list of populated modals by modal id)": {
          "systems-modal (id of the modal)": {
             "agent"           : "string, where the modal's content resides",
+            "agentType"       : "device/user. Device for a shared device of the local computer.  User for a remote user's data.",
             "content"         : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the modal's generated content",
             "focus"           : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the user's focus",
             "height"          : "number, the modal content's height in pixels.  The actual modal will be taller than this value due to heading and other features outside the modal's content body.",
@@ -466,60 +534,74 @@ Stores state of the GUI and content displayed in the browser
          }
       },
       "modalTypes": ["string array, the types of modals current populated"],
-      "name"      : "string, the username of the localhost user",
+      "nameDevice": "string, the human friendly name of this local device",
+      "nameUser"  : "string, the human friendly name of the local user",
       "zIndex"    : "number, the z-index value of the top most modal"
    },
    "send": true
 }
 ```
 
-### Users
-The users storage saves user profile data which comprises color scheme in the browser GUI and each users' share data.
+### Device/User
+The user and device storage follow an identical schema.
+* **device** - The device list saves network and share data between shared devices.  All shared devices are associated with a single user and that user has full unrestricted access to each device.  The share data isn't needed or used for data access by the owning user, but is used for provided any limited access by remote users.
+* **user** - The user list identifies shared users and their shares, if any.  Shares are uniquely identified by a hash, but that hash only has to be unique to the owning user.  For security the user's device data is not provided.  Since any given user may be sharing amongst multiple devices that user will negotiate access to the respective data on the respective device.
+* **share** - Each user/device may indicate 0 or more shares.  Each share is named by a hash that is computed by hashing the combined string of user hash, device hash, and share name.
+   - **execute** - boolean, not currently used.
+   - **name** - string, the name of the shared resource
+   - **readOnly** - boolean, whether the given resource is read only.  This restrict is ignored by devices of the same user.
+   - **type** - string, the type of resource shared
 
-#### Users Example
+#### User Example
 ```json
 {
-   "users": {
-      "localhost" : {
-         "color" : ["fff", "000"],
-         "shares": [
-            {
+   "user": {
+      "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3" : {
+         "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df5",
+         "name"  : "Tori",
+         "port"  : 80,
+         "shares": {
+            "75994bdcd0bdf3d69d043d904c45c14b0937ae2466b91b7b035c7aedf5cd99cf889eafafecd81bbc06a5cfbe075e9ec1888cb0f87c2392a451a31cd9d5737040": {
                "execute" : false,
                "name"    : "C:\\MP3\\_new",
                "readOnly": true,
                "type"    : "directory"
             }
-         ]
+         }
       },
-      "remoteUser": {
-         "color" : ["fff", "ddd"],
-         "shares": [
-            {
+      "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": {
+         "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df9",
+         "name"  : "Melissa",
+         "port"  : 80,
+         "shares": {
+            "1ac77231296c86e40f2bcfdefb2ab69926d7cfba916e10b154ff72be2b2f623bdd8fc769297277ffd7da941c492ff4e24a9a2323ef2ab9371259069c386d5421": {
                "execute" : false,
                "name"    : "D:\\movies",
                "readOnly": true,
                "type"    : "directory"
             }
-         ]
+         }
       }
    }
 }
 ```
 
-#### Users Schema
+#### User Schema
 ```json
 {
-   "users": {
-      "user name": {
-         "color" : ["string, primary color in RGB hex", "string, secondary color in RGB hex"],
-         "shares": [
-            {
+   "user": {
+      "user hash": {
+         "ip"    : "string, User's current IP address.",
+         "name"  : "string, Human friendly user name.",
+         "port"  : "number, Current network port for this application on the user's device.",
+         "shares": {
+            "share hash": {
                "execute" : "boolean, is this something that this executed like an application?",
                "name"    : "string, address of the shared artifact",
                "readOnly": "boolean, if true this artifact cannot be altered or removed by remote users",
                "type"    : "string, what type of artifact is it? (file, directory, symbolic link)"
             }
-         ]
+         }
       }
 ```
 
@@ -530,19 +612,24 @@ The users storage saves user profile data which comprises color scheme in the br
 The heartbeat is a beacon send out to other users about whether a user is active, idle, or offline.  The heartbeat executes every 15 seconds.  An *active* status means the user is actively using the application.  An *idle* status the user's application is online but the user is not actively using the application.  The application can still receive and respond to requests for data even when idle.  The *offline* status means the user's application if offline.
 
 The heartbeat makes use of two services:
-* **heartbeat** - The heartbeat is the regular interval status update as an HTTP request.
-* **heartbeat-update** - The heartbeat update is the HTTP response to a heartbeat request.  This allows the application to know if a user has gone offline or if they have changed status from offline to anything else.
+* **delete-agents** - A service to delete agents on the local device and notify agents that some agents are deleted.
+* **heartbeat-complete** - The completed round trip of the *heartbeat-update* service, the response is generated by the service *heartbeat*.  This service changes share data as necessary from the remote agents.
+* **heartbeat-delete-agents** - Instructions for remote agents to delete agents as generated by *delete-agents* service.
+* **heartbeat-status** - Provides the remote response for the *heartbeat-update* service.
+* **heartbeat-update** - The heartbeat-update service is called from various locations and serves two functions:
+   - Updates remote agents of whether the current agent is active, idle, or offline.
+   - Announces changes to shares.
 
 ### Heartbeat Process
 1. Heartbeat is initiated by the following factors:
    * a timed interval from the browser
    * if the current user status is *idle* and changes to *active*
-   * a change to localhost shares
+   * a change to local device shares
    * when the terminal application is running with the *server* command
 1. The *agent* property of the data is `localhost-browser` if it starts from the browser or `localhost-terminal` if it executes from the terminal application coming online
 1. The `serverVars.status` is updated to reflect the user's activity status in the browser.
-1. The *user* property is assigned the value of the username of the localhost as it would appear to remote users.
-1. If the share data reported by the browser does not match the shared data for localhost then the share data is updated in storage.
+1. The *user* property is assigned the value of the username of the local device as it would appear to remote devices/users.
+1. If the share data reported by the browser does not match the shared data for local device then the share data is updated in storage.
 1. Current users are looped through so that gets the heartbeat data and during each loop iteration the *agent* data property is provided the remote user name as the data property.
 1. Once each remote has responded an HTTP response will be sent to the browser if the heartbeat originated from the browser.
 1. If the heartbeat has a user name that is not `localhost-browser` or `localhost-terminal` it is converted to a *heartbeat-response* and this data is sent to the browser via web sockets.
@@ -553,8 +640,8 @@ The heartbeat makes use of two services:
 ### Heartbeat Example
 ```json
 {
-   "heartbeat": {
-      "agent"  : "remoteUser",
+   "heartbeat-complete": {
+      "agent"  : "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3",
       "shares" : [
          {
             "execute" : false,
@@ -564,7 +651,7 @@ The heartbeat makes use of two services:
          }
       ],
       "status" : "active",
-      "user"   : "localhost"
+      "user"   : "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58"
    }
 }
 ```
@@ -574,7 +661,7 @@ The heartbeat makes use of two services:
 {
    "heartbeat": {
       "agent" : "string, Name of local user at it appears to the remote users.",
-      "shares": "empty string or share object, This property is only populated for shares of the originating localhost when the heartbeat originates in the browser, and so if this is not an empty string the status property must have an 'active' value.",
+      "shares": "empty string or share object, This property is only populated for shares of the originating local device when the heartbeat originates in the browser, and so if this is not an empty string the status property must have an 'active' value.",
       "status": "string: active, idle, offline",
       "user"  : "empty string"
    }

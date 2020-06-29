@@ -1,15 +1,18 @@
-import browser from "./lib/browser/browser.js";
-import context from "./lib/browser/context.js";
-import fs from "./lib/browser/fs.js";
-import getNodesByType from "./lib/browser/getNodesByType.js";
-import invite from "./lib/browser/invite.js";
-import modal from "./lib/browser/modal.js";
-import network from "./lib/browser/network.js";
-import settings from "./lib/browser/settings.js";
-import share from "./lib/browser/share.js";
-import systems from "./lib/browser/systems.js";
-import util from "./lib/browser/util.js";
-import webSocket from "./lib/browser/webSocket.js";
+
+/* lib/browser/localhost - The file that is sourced into the index.html file and generates the default browser experience. */
+
+import browser from "./browser.js";
+import context from "./context.js";
+import fs from "./fs.js";
+import getNodesByType from "./dom.js";
+import invite from "./invite.js";
+import modal from "./modal.js";
+import network from "./network.js";
+import settings from "./settings.js";
+import share from "./share.js";
+import systems from "./systems.js";
+import util from "./util.js";
+import webSocket from "./webSocket.js";
 
 (function local():void {
 
@@ -29,26 +32,76 @@ import webSocket from "./lib/browser/webSocket.js";
             let storage:any,
                 a:number = 0,
                 cString:string = "",
-                localhost:HTMLElement = null,
+                localDevice:Element = null,
                 active:number = Date.now();
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
+                defaultModals = function local_restore_defaultModals():void {
+                    const payloadModal:ui_modal = {
+                        agent: browser.data.hashDevice,
+                        agentType: "device",
+                        content: null,
+                        read_only: false,
+                        single: true,
+                        status: "hidden",
+                        title: "",
+                        type: "systems"
+                    };
+
+                    // building logging utility (systems log)
+                    if (document.getElementById("systems-modal") === null) {
+                        payloadModal.content = systems.modalContent();
+                        payloadModal.inputs = ["close"];
+                        payloadModal.title = document.getElementById("systemLog").innerHTML;
+                        payloadModal.type = "systems";
+                        payloadModal.width = 800;
+                        modal.create(payloadModal);
+                        document.getElementById("systems-modal").style.display = "none";
+                    }
+                    // building settings modal
+                    if (document.getElementById("settings-modal") === null) {
+                        payloadModal.content = settings.modalContent();
+                        payloadModal.inputs = ["close"];
+                        payloadModal.title = document.getElementById("settings").innerHTML;
+                        payloadModal.type = "settings";
+                        delete payloadModal.width;
+                        modal.create(payloadModal);
+                        document.getElementById("settings-modal").style.display = "none";
+                    }
+                },
                 applyLogin = function local_restore_applyLogin():void {
-                    const login:HTMLElement = document.getElementById("login"),
+                    const login:Element = document.getElementById("login"),
                         button:HTMLButtonElement = login.getElementsByTagName("button")[0],
-                        input:HTMLInputElement = login.getElementsByTagName("input")[0],
+                        nameUser:HTMLInputElement = <HTMLInputElement>document.getElementById("login-user"),
+                        nameDevice:HTMLInputElement = <HTMLInputElement>document.getElementById("login-device"),
                         action = function local_restore_applyLogin_action():void {
-                            if (input.value.replace(/\s+/, "") === "") {
-                                input.focus();
+                            if (nameUser.value.replace(/\s+/, "") === "") {
+                                nameUser.focus();
+                            } else if (nameDevice.value.replace(/\s+/, "") === "") {
+                                nameDevice.focus();
                             } else {
-                                browser.data.name = input.value;
-                                share.addUser(`${input.value}@localhost`);
-                                browser.pageBody.removeAttribute("class");
-                                browser.loadTest = false;
-                                network.storage("settings");
-                                browser.loadTest = true;
-                                loadComplete();
+                                browser.data.nameUser = nameUser.value;
+                                browser.data.nameDevice = nameDevice.value;
+                                network.hashDevice(function local_restore_applyLogin_action_hash(hashes:hashUser) {
+                                    browser.data.hashDevice = hashes.device;
+                                    browser.data.hashUser = hashes.user;
+                                    browser.device[hashes.device] = {
+                                        ip: browser.localNetwork.ip,
+                                        name: nameDevice.value,
+                                        port: browser.localNetwork.httpPort,
+                                        shares: {}
+                                    };
+                                    share.addAgent({
+                                        hash: hashes.device,
+                                        name: nameDevice.value,
+                                        save: false,
+                                        type: "device"
+                                    });
+                                    browser.pageBody.removeAttribute("class");
+                                    network.storage("settings");
+                                    loadComplete();
+                                });
                             }
                         },
                         handlerKeyboard = function local_restore_applyLogin_button(event:KeyboardEvent):void {
@@ -59,35 +112,64 @@ import webSocket from "./lib/browser/webSocket.js";
                         handlerMouse = function local_restore_applyLogin_button():void {
                             action();
                         };
+                    defaultModals();
                     browser.pageBody.setAttribute("class", "login");
-                    document.getElementById("login-input").onkeyup = handlerKeyboard;
+                    nameUser.onkeyup = handlerKeyboard;
+                    nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {
                             const time:number = Date.now();
-                            if (time - active > idleTime && localhost !== null && browser.socket.readyState === 1) {
-                                localhost.setAttribute("class", "idle");
+                            if (time - active > idleTime && localDevice !== null && browser.socket.readyState === 1) {
+                                localDevice.setAttribute("class", "idle");
                                 network.heartbeat("idle", false);
                             }
                             setTimeout(local_restore_complete_idleness, idleTime);
                         },
-                        activate = function load_restore_complete_activate():void {
-                            if (localhost !== null) {
-                                const status:string = localhost.getAttribute("class");
+                        activate = function local_restore_complete_activate():void {
+                            if (localDevice !== null) {
+                                const status:string = localDevice.getAttribute("class");
                                 if (status !== "active" && browser.socket.readyState === 1) {
-                                    localhost.setAttribute("class", "active");
-                                    network.heartbeat("active", false);
+                                    const activeParent:Element = <Element>document.activeElement.parentNode;
+                                    localDevice.setAttribute("class", "active");
+
+                                    // share interactions will trigger a heartbeat from the terminal service
+                                    if (activeParent === null || activeParent.getAttribute("class") !== "share") {
+                                        network.heartbeat("active", false);
+                                    }
                                 }
                             }
                             active = Date.now();
+                        },
+                        shareAll = function local_restore_complete_shareAll(event:MouseEvent):void {
+                            const element:Element = <Element>event.srcElement || <Element>event.target,
+                                parent:Element = <Element>element.parentNode,
+                                classy:string = element.getAttribute("class");
+                            if (parent.getAttribute("class") === "all-shares") {
+                                share.modal("", "", null);
+                            } else if (classy === "device-all-shares") {
+                                share.modal("", "device", null);
+                            } else if (classy === "user-all-shares") {
+                                share.modal("", "user", null);
+                            }
                         },
                         login = function local_restore_complete_login(event:KeyboardEvent):void {
                             util.formKeys(event, util.login);
                         },
                         loginInputs:HTMLCollectionOf<HTMLElement> = document.getElementById("login").getElementsByTagName("input"),
-                        loginInputsLength:number = loginInputs.length;
+                        loginInputsLength:number = loginInputs.length,
+                        agentList:Element = document.getElementById("agentList"),
+                        allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
+                        allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
                     let a:number = 0;
+
+                    if (browser.data.hashDevice === "") {
+                        // Terminate load completion dependent upon creation of device hash
+                        return;
+                    }
+
+                    localDevice = document.getElementById(browser.data.hashDevice);
 
                     do {
                         loginInputs[a].onkeyup = login;
@@ -95,12 +177,14 @@ import webSocket from "./lib/browser/webSocket.js";
                     } while (a < loginInputsLength);
 
                     browser.socket = webSocket();
-                    setTimeout(idleness, idleTime);
+                    idleness();
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
                     document.getElementById("menuToggle").onclick = util.menu;
-                    document.getElementById("all-shares").onclick = share.modal;
+                    agentList.getElementsByTagName("button")[0].onclick = shareAll;
+                    allDevice.onclick = shareAll;
+                    allUser.onclick = shareAll;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
                     document.getElementById("user-delete").onclick = share.deleteList;
                     document.getElementById("user-invite").onclick = invite.start;
@@ -109,40 +193,13 @@ import webSocket from "./lib/browser/webSocket.js";
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
                     document.getElementById("settings").onclick = settings.modal;
-                    network.heartbeat("active", false);
+                    activate();
 
                     // watch for local idleness
                     document.onclick = activate;
-            
-                    // building logging utility (systems log)
-                    if (document.getElementById("systems-modal") === null) {
-                        modal.create({
-                            agent: "localhost",
-                            content: systems.modalContent(),
-                            inputs: ["close", "maximize", "minimize"],
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: document.getElementById("systemLog").innerHTML,
-                            type: "systems",
-                            width: 800
-                        });
-                        document.getElementById("systems-modal").style.display = "none";
-                    }
-            
-                    // building settings modal
-                    if (document.getElementById("settings-modal") === null) {
-                        modal.create({
-                            agent: "localhost",
-                            content: settings.modalContent(),
-                            inputs: ["close"],
-                            read_only: false,
-                            single: true,
-                            status: "hidden",
-                            title: document.getElementById("settings").innerHTML,
-                            type: "settings"
-                        });
-                        document.getElementById("settings-modal").style.display = "none";
+
+                    if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
+                        defaultModals();
                     }
 
                     // systems log messages
@@ -161,10 +218,11 @@ import webSocket from "./lib/browser/webSocket.js";
                         }
                         if (storage.messages.errors !== undefined && storage.messages.errors.length > 0) {
                             storage.messages.errors.forEach(function local_restore_errorsEach(value:messageListError):void {
-                                systems.message("errors", JSON.stringify({
+                                const error:messageError = {
                                     error:value[1],
                                     stack:value[2]
-                                }), value[0]);
+                                };
+                                systems.message("errors", JSON.stringify(error), value[0]);
                                 browser.messages.errors.push([value[0], value[1], value[2]]);
                             });
                         }
@@ -175,11 +233,11 @@ import webSocket from "./lib/browser/webSocket.js";
             do {
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("storage:") === 0) {
-                    if (cString === "storage:{\"settings\":{},\"messages\":{},\"users\":{}}") {
+                    if (cString.indexOf("\"device\":{}") > 0) {
                         applyLogin();
                     } else {
                         storage = JSON.parse(cString.replace("storage:", "").replace(/&amp;#x2d;/g, "&#x2d;").replace(/&#x2d;&#x2d;/g, "--"));
-                        if (Object.keys(storage.settings).length < 1) {
+                        if (storage.settings === undefined || Object.keys(storage.settings).length < 1) {
                             applyLogin();
                         } else {
                             const modalKeys:string[] = Object.keys(storage.settings.modals),
@@ -205,46 +263,65 @@ import webSocket from "./lib/browser/webSocket.js";
                                         } while (cc < modalKeys.length);
                                         loadComplete();
                                     }
+                                },
+                                restoreShares = function local_restore_restoreShares(type:agentType):void {
+                                    if (storage[type] === undefined) {
+                                        browser[type] = {};
+                                        return;
+                                    }
+                                    browser[type] = storage[type];
+                                    const list:string[] = Object.keys(storage[type]),
+                                        listLength:number = list.length;
+                                    let a:number = 0;
+                                    if (listLength > 0) {
+                                        do {
+                                            share.addAgent({
+                                                hash: list[a],
+                                                name: browser[type][list[a]].name,
+                                                save: false,
+                                                type: type
+                                            });
+                                            a = a + 1;
+                                        } while (a < listLength);
+                                    }
                                 };
                             let count:number = 0;
-                            browser.data.name = storage.settings.name;
-                            browser.users.localhost = storage.users.localhost
-                            share.addUser(`${storage.settings.name}@localhost`);
-                            localhost = document.getElementById("localhost");
-                            
-                            // restore shares
-                            {
-                                browser.users = storage.users;
-                                const users:string[] = Object.keys(storage.users),
-                                    userLength:number = users.length;
-                                let a:number = 0;
-                                if (userLength > 0) {
-                                    do {
-                                        if (users[a] !== "localhost") {
-                                            browser.users[users[a]] = storage.users[users[a]];
-                                            share.addUser(users[a]);
-                                        }
-                                        a = a + 1;
-                                    } while (a < userLength);
-                                }
-                            }
-                            
+                            browser.data.colors = storage.settings.colors;
+                            restoreShares("device");
+                            restoreShares("user");
+                            browser.data.nameUser = storage.settings.nameUser;
+                            browser.data.nameDevice = storage.settings.nameDevice;
+                            browser.data.hashDevice = storage.settings.hashDevice;
+                            browser.data.hashUser = storage.settings.hashUser;
+
                             if (modalKeys.length < 1) {
                                 loadComplete();
                             }
 
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
                                 if (storage.settings.modals[value].type === "fileNavigate") {
-                                    const agentStrings:string[] = storage.settings.modals[value].title.split(" - "),
-                                        agent:string = agentStrings[agentStrings.length - 1],
+                                    const agent:string = storage.settings.modals[value].agent,
+                                        payload:fileService = {
+                                            action: "fs-directory",
+                                            agent: agent,
+                                            agentType: storage.settings.modals[value].agentType,
+                                            copyAgent: "",
+                                            copyType: "device",
+                                            depth: 2,
+                                            id: value,
+                                            location: [storage.settings.modals[value].text_value],
+                                            name: "",
+                                            share: storage.settings.modals[value].share,
+                                            watch: "yes"
+                                        },
                                         selection = function local_restore_modalKeys_selection(id:string):void {
-                                            const box:HTMLElement = document.getElementById(id),
+                                            const box:Element = document.getElementById(id),
                                                 modalData:ui_modal = browser.data.modals[id],
                                                 keys:string[] = (modalData.selection === undefined)
                                                     ? []
                                                     : Object.keys(modalData.selection),
-                                                fileList:HTMLElement = <HTMLElement>box.getElementsByClassName("fileList")[0],
-                                                list:HTMLCollectionOf<HTMLElement> = (fileList === undefined)
+                                                fileList:Element = box.getElementsByClassName("fileList")[0],
+                                                list:HTMLCollectionOf<Element> = (fileList === undefined)
                                                     ? null
                                                     : fileList.getElementsByTagName("li"),
                                                 length:number = (list === null)
@@ -263,7 +340,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                                 } while (b < length);
                                             }
                                         },
-                                        callback = function local_restore_modalKeys_fsCallback(responseText:string, agent:string):void {
+                                        callback = function local_restore_modalKeys_fsCallback(responseText:string):void {
                                             // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
                                             const payload:fsRemote = (responseText === "")
                                                     ? {
@@ -271,9 +348,9 @@ import webSocket from "./lib/browser/webSocket.js";
                                                     }
                                                     : JSON.parse(responseText),
                                                 id:string = payload.id,
-                                                files:[HTMLElement, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
-                                                    ? (function local_restore_modalKeys_fsCallback_missing():[HTMLElement, number, string] {
-                                                        const p:HTMLElement = document.createElement("p");
+                                                files:[Element, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
+                                                    ? (function local_restore_modalKeys_fsCallback_missing():[Element, number, string] {
+                                                        const p:Element = document.createElement("p");
                                                         p.setAttribute("class", "error");
                                                         if (payload.dirs === "missing") {
                                                             p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
@@ -284,43 +361,24 @@ import webSocket from "./lib/browser/webSocket.js";
                                                         }
                                                         return [p, 0, ""];
                                                     }())
-                                                    : fs.list(storage.settings.modals[value].text_value, payload),
-                                                textValue:string = files[0].getAttribute("title");
+                                                    : fs.list(storage.settings.modals[value].text_value, payload);
                                             files[0].removeAttribute("title");
                                             if (responseText !== "") {
-                                                if (agent === "localhost") {
-                                                    callbackLocal(id, files, textValue);
-                                                } else {
-                                                    callbackRemote(id, files);
+                                                const fsModal:Element = document.getElementById(id);
+                                                if (fsModal === null) {
+                                                    return;
                                                 }
+                                                let body:Element = fsModal.getElementsByClassName("body")[0];
+                                                fs.listFail(files[1], fsModal);
+                                                body.innerHTML = "";
+                                                body.appendChild(files[0]);
+                                                selection(id);
+                                                fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                             }
-                                        },
-                                        callbackLocal = function local_restore_modalKeys_fsCallbackLocal(id:string, files:[HTMLElement, number, string], textValue:String):void {
-                                            storage.settings.modals[id].content = files[0];
-                                            storage.settings.modals[id].id = id;
-                                            storage.settings.modals[value].text_event = fs.text;
-                                            if (storage.settings.modals[id].text_value !== "\\" && storage.settings.modals[id].text_value !== "/") {
-                                                storage.settings.modals[id].text_value = textValue;
-                                            }
-                                            storage.settings.modals[id].text_event = fs.text;
-                                            const box:HTMLElement = modal.create(storage.settings.modals[id]);
-                                            fs.listFail(files[1], box);
-                                            selection(id);
-                                            z(value);
-                                            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
-                                        },
-                                        callbackRemote = function local_restore_modalKeys_fsCallbackRemote(id:string, files:[HTMLElement, number, string]):void {
-                                            const fsModal:HTMLElement = document.getElementById(id),
-                                                body:HTMLElement = <HTMLElement>fsModal.getElementsByClassName("body")[0];
-                                            fs.listFail(files[1], fsModal);
-                                            body.innerHTML = "";
-                                            body.appendChild(files[0]);
-                                            selection(id);
-                                            fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                         };
                                     if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
                                         let search:HTMLInputElement;
-                                        const delay:HTMLElement = util.delay();
+                                        const delay:Element = util.delay();
                                         storage.settings.modals[value].content = delay;
                                         storage.settings.modals[value].id = value;
                                         storage.settings.modals[value].text_event = fs.text;
@@ -330,34 +388,14 @@ import webSocket from "./lib/browser/webSocket.js";
                                             selection(value);
                                         });
                                         z(value);
-                                    } else if (agent === "localhost") {
-                                        network.fs({
-                                            action: "fs-directory",
-                                            agent: agent,
-                                            copyAgent: "",
-                                            depth: 2,
-                                            id: value,
-                                            location: [storage.settings.modals[value].text_value],
-                                            name: "",
-                                            watch: "yes"
-                                        }, callback, value);
                                     } else {
-                                        const delay:HTMLElement = util.delay();
+                                        const delay:Element = util.delay();
                                         storage.settings.modals[value].content = delay;
                                         storage.settings.modals[value].id = value;
                                         storage.settings.modals[value].text_event = fs.text;
                                         modal.create(storage.settings.modals[value]);
                                         z(value);
-                                        network.fs({
-                                            action: "fs-directory",
-                                            agent: agent,
-                                            copyAgent: "",
-                                            depth: 2,
-                                            id: value,
-                                            location: [storage.settings.modals[value].text_value],
-                                            name: "",
-                                            watch: "yes"
-                                        }, callback);
+                                        network.fs(payload, callback);
                                     }
                                 } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");
@@ -376,7 +414,7 @@ import webSocket from "./lib/browser/webSocket.js";
                                 } else if (storage.settings.modals[value].type === "systems") {
                                     storage.settings.modals[value].content = systems.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    const systemsModal:HTMLElement = document.getElementById("systems-modal");
+                                    const systemsModal:Element = document.getElementById("systems-modal");
                                     let button:HTMLButtonElement;
                                     if (storage.settings.modals[value].text_value === "status") {
                                         button = <HTMLButtonElement>systemsModal.getElementsByClassName("status")[0];
@@ -393,7 +431,10 @@ import webSocket from "./lib/browser/webSocket.js";
                                     }
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "shares") {
-                                    share.modal(null, storage.settings.modals[value].text_value, storage.settings.modals[value]);
+                                    const agentType:agentType|"" = (storage.settings.modals[value].title.indexOf("All Shares") > -1)
+                                        ? ""
+                                        : storage.settings.modals[value].agentType;
+                                    share.modal(storage.settings.modals[value].agent, agentType, storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "share_delete") {
                                     share.deleteList(null, storage.settings.modals[value]);
@@ -403,10 +444,10 @@ import webSocket from "./lib/browser/webSocket.js";
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "settings") {
                                     browser.data.brotli = storage.settings.brotli;
-                                    browser.data.hash = storage.settings.hash;
+                                    browser.data.hashType = storage.settings.hashType;
                                     storage.settings.modals[value].content = settings.modalContent();
                                     modal.create(storage.settings.modals[value]);
-                                    const settingsModal:HTMLElement = document.getElementById("settings-modal"),
+                                    const settingsModal:Element = document.getElementById("settings-modal"),
                                         inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
                                         length:number = inputs.length;
                                     let a:number = 0;

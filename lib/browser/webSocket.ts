@@ -8,42 +8,24 @@ import share from "./share.js";
 import systems from "./systems.js";
 import util from "./util.js";
 
-const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[0],
+const title:Element = document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
-    close = function local_socketClose():void {
-        title.setAttribute("class", "title offline");
-        title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
-        document.getElementById("localhost").setAttribute("class", "offline");
-    },
+    sock:WebSocketLocal = (function local_socket():WebSocketLocal {
+        // A minor security circumvention.
+        const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
+        // eslint-disable-next-line
+        WebSocket = null;
+        return socket;
+    }()),
     message = function local_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
         }
-        const deleteUser = function local_socketMessage_deleteUser():void {
-                const user:string = JSON.parse(event.data)["delete-user"],
-                    userList:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("li"),
-                    length:number = userList.length;
-                let a:number = 1;
-                delete browser.users[user];
-                do {
-                    if (userList[a].innerHTML.indexOf(user) > 0) {
-                        userList[a].parentNode.removeChild(userList[a]);
-                        break;
-                    }
-                    a = a + 1;
-                } while (a < length);
-                share.update(user, "deleted");
-            },
-            error = function local_socketMessage_error():void {
+        const error = function local_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
-                    modal:HTMLElement = document.getElementById("systems-modal"),
+                    modal:Element = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
-                    payload:string = (errorData.error !== undefined && errorData.stack !== undefined)
-                        ? JSON.stringify({
-                            error: errorData.error,
-                            stack: errorData.stack
-                        })
-                        : JSON.stringify(errorData);
+                    payload:string = JSON.stringify(errorData);
                 systems.message("errors", payload, "websocket");
                 if (modal.clientWidth > 0) {
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
@@ -59,10 +41,10 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     root = root + "\\";
                 }
                 do {
-                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === "localhost") {
-                        const box:HTMLElement = document.getElementById(modalKeys[a]),
-                            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-                            list:[HTMLElement, number, string] = fs.list(root, {
+                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.hashDevice) {
+                        const box:Element = document.getElementById(modalKeys[a]),
+                            body:Element = box.getElementsByClassName("body")[0],
+                            list:[Element, number, string] = fs.list(root, {
                                 dirs: fsData,
                                 fail: fsData.failures,
                                 id: modalKeys[a]
@@ -74,22 +56,28 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     a = a + 1;
                 } while (a < keyLength);
                 if (a === keyLength) {
-                    network.fs({
+                    const payload:fileService = {
                         action: "fs-close",
-                        agent: "localhost",
+                        agent: browser.data.hashDevice,
+                        agentType: "device",
                         copyAgent: "",
+                        copyType: "device",
                         depth: 1,
+                        id: "",
                         location: [root],
                         name: "",
+                        share: "",
                         watch: "no"
-                    }, function local_socketMessage_closeCallback():boolean {
+                    },
+                    callback = function local_socketMessage_closeCallback():boolean {
                         return true;
-                    });
+                    };
+                    network.fs(payload, callback);
                 }
             },
             fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
                 const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
-                    list:[HTMLElement, number, string] = fs.list(data.location, {
+                    list:[Element, number, string] = fs.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
                         fail: data.fail
@@ -98,18 +86,18 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     keyLength:number = modalKeys.length;
                 let a:number = 0,
                     modalAgent:string,
-                    body:HTMLElement,
-                    box:HTMLElement,
-                    status:HTMLElement;
+                    body:Element,
+                    box:Element,
+                    status:Element;
                 do {
                     modalAgent = browser.data.modals[modalKeys[a]].agent;
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
                         box = document.getElementById(browser.data.modals[modalKeys[a]].id);
                         if (box !== null) {
-                            body = <HTMLElement>box.getElementsByClassName("body")[0];
+                            body = box.getElementsByClassName("body")[0];
                             body.innerHTML = "";
                             body.appendChild(list[0]);
-                            status = <HTMLElement>box.getElementsByClassName("status-bar")[0];
+                            status = box.getElementsByClassName("status-bar")[0];
                             if (status !== undefined) {
                                 status.getElementsByTagName("p")[0].innerHTML = list[2];
                             }
@@ -118,37 +106,91 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                     a = a + 1;
                 } while (a < keyLength);
                 if (typeof data.status === "string") {
-                    util.fileListStatus(data.status);
+                    util.fileListStatus(JSON.parse(data.status));
+                }
+            },
+            heartbeatDelete = function local_socketMessage_heartbeatDelete():void {
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-delete-agents"];
+                if (heartbeat.agentType === "device") {
+                    const deletion:agentDeletion = <agentDeletion>heartbeat.status,
+                        removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
+                        devices:string[] = Object.keys(browser.device),
+                        users:string[] = Object.keys(browser.user);
+                    devices.forEach(function local_socketMessage_heartbeatDelete_deviceEach(value:string) {
+                        if (value !== browser.data.hashDevice && (removeSelf === true || deletion.device.indexOf(value) > -1)) {
+                            share.deleteAgent(value, "device");
+                        }
+                    });
+                    users.forEach(function local_socketMessage_heartbeatDelete_userEach(value:string) {
+                        if (removeSelf === true || deletion.user.indexOf(value) > -1) {
+                            share.deleteAgent(value, "user");
+                        }
+                    });
+                    share.update("");
+                } else if (heartbeat.agentType === "user") {
+                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
+                    share.update("");
+                }
+                network.storage("settings");
+            },
+            heartbeatStatus = function local_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
+                const button:Element = document.getElementById(heartbeat.agentFrom);
+                if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
+                    button.setAttribute("class", <heartbeatStatus>heartbeat.status);
                 }
             },
             heartbeat = function local_socketMessage_heartbeat():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-response"],
-                    buttons:HTMLCollectionOf<HTMLElement> = document.getElementById("users").getElementsByTagName("button"),
-                    length:number = buttons.length;
-                let a:number = 0;
-                if (browser.users[heartbeat.user] === undefined) {
-                    return;
-                }
-                do {
-                    if (buttons[a].innerHTML.indexOf(heartbeat.user) > -1) {
-                        buttons[a].setAttribute("class", heartbeat.status);
-                        break;
+                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-complete"];
+                if (heartbeat.status === "deleted") {
+                    share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
+                    share.update("");
+                    network.storage("settings");
+                } else {
+                    const keys:string[] = Object.keys(heartbeat.shares);
+                    heartbeatStatus(heartbeat);
+                    if (keys.length > 0) {
+                        if (heartbeat.shareType === "device") {
+                            const length:number = keys.length;
+                            let a:number = 0;
+                            do {
+                                if (browser.device[keys[a]] === undefined) {
+                                    browser.device[keys[a]] = heartbeat.shares[keys[a]];
+                                    share.addAgent({
+                                        hash: keys[a],
+                                        name: heartbeat.shares[keys[a]].name,
+                                        save: false,
+                                        type: "device"
+                                    });
+                                }
+                                a = a + 1;
+                            } while (a < length);
+                            browser.device[heartbeat.agentFrom] = heartbeat.shares[heartbeat.agentFrom];
+                        } else if (heartbeat.shareType === "user") {
+                            if (browser.user[keys[0]] === undefined) {
+                                browser.user[keys[0]] = heartbeat.shares[keys[0]];
+                                share.addAgent({
+                                    hash: keys[0],
+                                    name: heartbeat.shares[keys[0]].name,
+                                    save: false,
+                                    type: "user"
+                                });
+                            } else {
+                                browser.user[keys[0]].shares = heartbeat.shares[keys[0]].shares;
+                            }
+                        }
+                        share.update("");
                     }
-                    a = a + 1;
-                } while (a < length);
-                if (heartbeat.shares !== "" && (browser.users[heartbeat.user].shares.length !== heartbeat.shares.length || JSON.stringify(browser.users[heartbeat.user].shares) !== JSON.stringify(heartbeat.shares))) {
-                    share.update(heartbeat.user, heartbeat.shares);
                 }
             },
             invitation = function local_socketMessage_invite():void {
                 const inviteData:invite = JSON.parse(event.data)["invite-error"],
-                    modal:HTMLElement = <HTMLElement>document.getElementById(inviteData.modal);
+                    modal:Element = document.getElementById(inviteData.modal);
                 if (modal === null) {
                     return;
                 }
                 let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
                     content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                    p:HTMLElement = document.createElement("p");
+                    p:Element = document.createElement("p");
                 p.innerHTML = inviteData.message;
                 p.setAttribute("class", "error");
                 content.appendChild(p);
@@ -156,9 +198,7 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
                 content.style.display = "block";
                 footer.style.display = "block";
             };
-        if (event.data.indexOf("{\"delete-user\":") === 0) {
-            deleteUser();
-        } else if (event.data.indexOf("{\"error\":") === 0) {
+        if (event.data.indexOf("{\"error\":") === 0) {
             error();
         } else if (event.data.indexOf("{\"file-list-status\":") === 0) {
             util.fileListStatus(JSON.parse(event.data)["file-list-status"]);
@@ -166,34 +206,61 @@ const title:HTMLElement = <HTMLElement>document.getElementsByClassName("title")[
             fsUpdateLocal();
         } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
             fsUpdateRemote();
-        } else if (event.data.indexOf("{\"heartbeat-response\":") === 0) {
+        } else if (event.data.indexOf("{\"heartbeat-complete\":") === 0) {
             heartbeat();
+        } else if (event.data.indexOf("{\"heartbeat-status\":") === 0) {
+            heartbeatStatus(JSON.parse(event.data)["heartbeat-status"]);
+        } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
+            heartbeatDelete();
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {
-            invite.respond(event.data);
+            const invitation:invite = JSON.parse(event.data).invite;
+            if (invitation.action === "invite-complete") {
+                invite.complete(invitation);
+            } else {
+                invite.respond(invitation);
+            }
         } else if (event.data === "reload") {
             location.reload();
         }
     },
     open = function local_socketOpen():void {
-        document.getElementById("localhost").setAttribute("class", "active");
+        const device:Element = document.getElementById(browser.data.hashDevice);
+        if (device !== null) {
+            device.setAttribute("class", "active");
+        }
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
         title.setAttribute("class", "title");
+        document.getElementById(browser.data.hashDevice).setAttribute("class", "active");
     },
     webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = new WebSocket(`ws://localhost:${browser.localNetwork.wsPort}/`),
-            error = function local_socketError(this:WebSocket):any {
+        const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
+            error = function local_socketError():any {
+                const device:Element = document.getElementById(browser.data.hashDevice),
+                    agentList:Element = document.getElementById("agentList"),
+                    active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
+                let a:number = active.length,
+                    parent:Element;
+                do {
+                    a = a - 1;
+                    parent = <Element>active[a].parentNode;
+                    parent.setAttribute("class", "offline");
+                } while (a > 0);
+                title.setAttribute("class", "title offline");
+                title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+                if (device !== null) {
+                    device.setAttribute("class", "offline");
+                }
                 setTimeout(function local_socketError_timeout():void {
                     browser.socket = local_webSocket();
                 }, 5000);
             };
-        
+
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = message;
-        socket.onclose = close;
-        socket.onerror = error;
+        socket.onclose = error;
         return socket;
     };
 

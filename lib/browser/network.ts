@@ -9,6 +9,31 @@ const network:module_network = {},
     loc:string = location.href.split("?")[0];
 let messageTransmit:boolean = true;
 
+/* Send instructions to remove this local device/user from deleted remote agents */
+network.deleteAgents = function local_network_deleteAgents(deleted:agentDeletion):void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_fs_readyState():void {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    const error:messageError = {
+                        error: `XHR responded with ${xhr.status} when sending heartbeat`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    };
+                    systems.message("errors", JSON.stringify(error));
+                    network.storage("messages");
+                }
+            }
+        };
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "delete-agents");
+    xhr.send(JSON.stringify({
+        "delete-agents": deleted
+    }));
+};
+
 /* Accesses the file system */
 network.fs = function local_network_fs(configuration:fileService, callback:Function):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
@@ -16,18 +41,19 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 let text:string = xhr.responseText;
+                const error:messageError = {
+                    error: `XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
+                    stack: [new Error().stack.replace(/\s+$/, "")]
+                };
                 text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
                 if (xhr.status === 200 || xhr.status === 0) {
-                    if (text.indexOf("{\"fileListStatus\":") === 0) {
-                        util.fileListStatus(text);
+                    if (text.indexOf("{\"file-list-status\":") === 0) {
+                        util.fileListStatus(JSON.parse(text)["file-list-status"]);
                     } else {
                         callback(text, configuration.agent);
                     }
                 } else {
-                    systems.message("errors", JSON.stringify({
-                        error: `XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    systems.message("errors", JSON.stringify(error));
                     callback(text, configuration.agent);
                     network.storage("messages");
                 }
@@ -39,40 +65,105 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", configuration.action);
     xhr.send(JSON.stringify({
         fs: configuration
     }));
 };
 
-/* Provides active user status from across the network about every minute */
-network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, share:boolean):void {
+/* generate a share to describe a new share from the local device */
+network.hashDevice = function local_network_hashDevice(callback:Function):void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_hashDevice_callback():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    const error:messageError = {
+                        error: `XHR responded with ${xhr.status} when sending messages.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    };
+                    systems.message("errors", JSON.stringify(error));
+                } else {
+                    const hashes:hashUser = JSON.parse(xhr.responseText);
+                    callback(hashes);
+                }
+            }
+        },
+        hashes:hashUser = {
+            device: browser.data.nameDevice,
+            user: browser.data.nameUser
+        };
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "hashDevice");
+    xhr.send(JSON.stringify({hashDevice:hashes}));
+};
+
+/* generate a share to describe a new share from the local device */
+network.hashShare = function local_network_hashShare(configuration:hashShareConfiguration):void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_hashShare_callback():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    const error:messageError = {
+                        error: `XHR responded with ${xhr.status} when sending messages.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    };
+                    systems.message("errors", JSON.stringify(error));
+                } else {
+                    configuration.callback(xhr.responseText);
+                }
+            }
+        },
+        payload:hashShare = {
+            device: configuration.device,
+            share: configuration.share,
+            type: configuration.type
+        };
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "hashShare");
+    xhr.send(JSON.stringify({hashShare:payload}));
+};
+
+/* Provides active user status from across the network at regular intervals */
+network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, update:boolean):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_fs_readyState():void {
             if (xhr.readyState === 4) {
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending heartbeat`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                     network.storage("messages");
                 }
             }
         },
-        heartbeat:heartbeat = {
-            agent: "localhost-browser",
-            shares: (share === true)
-                ? browser.users.localhost.shares
-                : "",
-                status: status,
-            user: ""
+        heartbeat:heartbeatUpdate = {
+            agentFrom: "localhost-browser",
+            broadcastList: null,
+            response: null,
+            shares: (update === true)
+                ? browser.device
+                : {},
+            status: status,
+            type: "device"
         };
     
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "heartbeat-update");
     xhr.send(JSON.stringify({
-        heartbeat: heartbeat
+        "heartbeat-update": heartbeat
     }));
 };
 
@@ -85,10 +176,11 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
                 if (xhr.status === 200 || xhr.status === 0) {
                     // todo log invitation acceptance in system log
                 } else {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                     network.storage("messages");
                 }
             }
@@ -99,6 +191,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", configuration.action);
     xhr.send(JSON.stringify({
         invite: configuration
     }));
@@ -111,10 +204,11 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                 }
             }
         };
@@ -122,6 +216,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", inviteData.action);
     xhr.send(JSON.stringify({
         invite: inviteData
     }));
@@ -129,7 +224,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
 
 /* Writes configurations to file storage */
 network.storage = function local_network_storage(type:storageType):void {
-    if (browser.loadTest === true && ((messageTransmit === false && type === "messages") || type !== "messages")) {
+    if (browser.loadTest === true && type !== "settings" && ((messageTransmit === false && type === "messages") || type !== "messages")) {
         return;
     }
     messageTransmit = false;
@@ -138,22 +233,33 @@ network.storage = function local_network_storage(type:storageType):void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
                 if (xhr.status !== 200 && xhr.status !== 0) {
-                    systems.message("errors", JSON.stringify({
+                    const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
-                    }));
+                    };
+                    systems.message("errors", JSON.stringify(error));
                 }
             }
         },
-        payload:string = JSON.stringify({
-            [type]: (type === "settings")
+        storage:storage = {
+            data: (type === "settings")
                 ? browser.data
-                : browser[type]
+                : (type === "messages")
+                    ? browser.messages
+                    : (type === "device")
+                        ? browser.device
+                        : browser.user,
+            response: null,
+            type: type
+        },
+        payload:string = JSON.stringify({
+            storage: storage
         });
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", type);
     xhr.send(payload);
 };
 

@@ -1,13 +1,11 @@
+<!-- documentation/developer_guide - A quick overview of the technical aspects for jumping to the project with a goal of extending the code. -->
+
 # Share File Systems - Developer Guide
 
 ## Code Location
-All code for this application is located in 3 places:
-* localhost.ts - This is the file that is consumed by the browser and provides user interaction.
+All code for this application is located in 2 places:
 * application.ts - This is the Node.js application file.
 * lib - This directory contains all supporting code libraries
-   - lib/browser - All supporting libraries for the *localhost.ts* file.
-   - lib/terminal - All supporting libraries for the *application.ts* file.
-   - lib/terminal/server - All supporting libraries for actions via network interface as executed by *lib/terminal/server.ts*.
 
 ## Configuration
 I am not a fan of configuring software.  I consider preliminary software configurations necessary to execute an application a time wasting punishment from incompetent developers.  Well written software requires no preliminary configuration because flexibility is built into the application at run time.  The application's default configurations are stored in the `version.json` file.
@@ -45,12 +43,7 @@ interface versionKeyPair {
 * **port** - The application's default TCP port.  If this port is taken the application will instead use any randomly available port.
 
 ## Code Organization
-For simplicity the application is written in a purely functional manner and is broken down into library files using ES6 modules.  The libraries are organized as follows:
-* localhost.ts - The script file that is requested by the HTML file that runs in the browser.
-* application.ts - The code that Node.js executes.
-* lib/browser - Libraries that are called by `localhost.ts` for execution in the browser.
-* lib/terminal - Libraries that are called by `application.ts` for execution in Node.js.
-* lib/terminal/server - Libraries that are called by `lib/terminal/server.ts` for execution of services.
+For simplicity the application is written in a purely functional manner and is broken down into library files using ES6 modules.  For an explanation of the code libraries and code organization see [library_list.md](library_list.md).
 
 ## Code Style
 ### Standards
@@ -78,9 +71,11 @@ This application makes heavy use of functions and lexical scope.  OOP convention
 ## Test Automation
 At this time test automation is present only for the libraries in *lib/terminal* excluding *lib/terminal/server.ts*.
 
-* Execute test automation: `node js/application simulation`.
+* Execute command test simulations: `node js/application test_simulation`.
+* Execute supported services: `node js/application test_service`.
 * Execute code validation using ESLint: `node js/application lint`.
 * Execute all validation tasks: `node js/application test`.
+* To run the server using the test data, which is helpful for experimenting in the browser: `node js/application server test`.
 
 **Please note that linting requires installation of ESLint:** `npm install -g eslint`.
 

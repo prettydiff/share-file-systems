@@ -12,10 +12,10 @@ const modal:module_modal = {};
 
 /* Removes a modal from the DOM for garbage collection, except systems log is merely hidden */
 modal.close = function local_modal_close(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         keys:string[] = Object.keys(browser.data.modals),
         keyLength:number = keys.length,
-        box:HTMLElement = util.getAncestor(element, "box", "class");
+        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class");
     let id:string,
         type:string,
         a:number = 0,
@@ -45,8 +45,8 @@ modal.close = function local_modal_close(event:MouseEvent):void {
 
 /* Event handler for the modal's "Confirm" button */
 modal.confirm = function local_modal_confirm(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
         options = browser.data.modals[id];
 
@@ -59,13 +59,13 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
     } else if (options.type === "invite-accept") {
         invite.accept(box);
     } else if (options.type === "share_delete") {
-        share.deleteUser(box);
+        share.deleteAgentList(box);
     }
     modal.close(event);
 };
 
 /* Modal creation factory */
-modal.create = function local_modal_create(options:ui_modal):HTMLElement {
+modal.create = function local_modal_create(options:ui_modal):Element {
     let button:HTMLElement = document.createElement("button"),
         buttonCount:number = 0,
         section:HTMLElement = document.createElement("h2"),
@@ -79,7 +79,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
         box:HTMLElement = document.createElement("div"),
         body:HTMLElement = document.createElement("div"),
-        border:HTMLElement = document.createElement("div"),
+        border:Element = document.createElement("div"),
         modalCount:number = Object.keys(browser.data.modals).length;
     browser.data.zIndex = browser.data.zIndex + 1;
     if (options.zIndex === undefined) {
@@ -90,7 +90,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             const keys:string[] = Object.keys(browser.data.modals),
                 length:number = keys.length;
             let a:number = 0,
-                modalSingle:HTMLElement;
+                modalSingle:Element;
             do {
                 if (browser.data.modals[keys[a]].type === options.type) {
                     modalSingle = document.getElementById(keys[a]);
@@ -136,10 +136,14 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
     box.style.zIndex = browser.data.zIndex.toString();
     box.setAttribute("class", "box");
     if (options.agent === undefined) {
-        box.setAttribute("data-agent", "localhost");
+        box.setAttribute("data-agent", browser.data.hashDevice);
     } else {
         box.setAttribute("data-agent", options.agent);
     }
+    if (options.agentType === undefined) {
+        options.agentType = "device";
+    }
+    box.setAttribute("data-agentType", options.agentType);
     border.setAttribute("class", "border");
     body.setAttribute("class", "body");
     body.style.height = `${options.height / 10}em`;
@@ -193,8 +197,8 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         }
         border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0].style.width = `${(options.width - (buttonCount * 50)) / 18}em`;
         if (options.inputs.indexOf("text") > -1) {
-            const label:HTMLElement = document.createElement("label"),
-                span:HTMLElement = document.createElement("span");
+            const label:Element = document.createElement("label"),
+                span:Element = document.createElement("span");
             height = height + 3.5;
             span.innerHTML = "Text of file system address.";
             label.appendChild(span);
@@ -213,7 +217,7 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
                 input.value = options.text_value;
             }
             if (options.type === "fileNavigate") {
-                const searchLabel:HTMLElement = document.createElement("label"),
+                const searchLabel:Element = document.createElement("label"),
                     search:HTMLInputElement = document.createElement("input");
                 if (options.history === undefined) {
                     if (options.text_value === undefined) {
@@ -308,7 +312,11 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
             button = document.createElement("button");
             button.innerHTML = "🗙 Cancel";
             button.setAttribute("class", "cancel");
-            button.onclick = modal.close;
+            if (options.type === "invite-accept") {
+                button.onclick = invite.decline;
+            } else {
+                button.onclick = modal.close;
+            }
             extra.appendChild(button);
         }
         section.appendChild(extra);
@@ -380,35 +388,39 @@ modal.create = function local_modal_create(options:ui_modal):HTMLElement {
         }
         maximize.click();
     }
-    network.storage("settings");
+    if (browser.loadTest === false) {
+        network.storage("settings");
+    }
     return box;
 };
 
 /* Creates an import/export modal */
 modal.export = function local_modal_export(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
-        agency:[string, boolean] = (element === document.getElementById("export"))
-            ? ["localhost", false]
-            : util.getAgent(element);
+        agency:agency = (element === document.getElementById("export"))
+            ? [browser.data.hashDevice, false, "device"]
+            : util.getAgent(element),
+        payload:ui_modal = {
+            agent: agency[0],
+            agentType: "device",
+            content: textArea,
+            inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
+            read_only: agency[1],
+            single: true,
+            title: element.innerHTML,
+            type: "export"
+        };
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
-    modal.create({
-        agent: agency[0],
-        content: textArea,
-        inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
-        read_only: agency[1],
-        single: true,
-        title: element.innerHTML,
-        type: "export"
-    });
+    modal.create(payload);
 };
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
 modal.importSettings = function local_modal_importSettings(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         dataString:string = JSON.stringify(browser.data),
-        box:HTMLElement = util.getAncestor(element, "box", "class");
+        box:Element = element.getAncestor("box", "class");
     let textArea:HTMLTextAreaElement,
         button:HTMLButtonElement;
     textArea = box.getElementsByTagName("textarea")[0];
@@ -425,21 +437,21 @@ modal.importSettings = function local_modal_importSettings(event:MouseEvent):voi
 
 /* The given modal consumes the entire view port of the content area */
 modal.maximize = function local_modal_maximize(event:Event):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        contentArea:HTMLElement = document.getElementById("content-area"),
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        contentArea:Element = document.getElementById("content-area"),
+        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
         body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
-        title:HTMLElement = <HTMLElement>box.getElementsByTagName("h2")[0],
+        title:Element = box.getElementsByTagName("h2")[0],
         titleButton:HTMLElement = (title === undefined)
             ? undefined
             : title.getElementsByTagName("button")[0],
         status:HTMLElement = <HTMLElement>box.getElementsByClassName("status-bar")[0],
         statusBar:HTMLElement = <HTMLElement>status.getElementsByTagName("p")[0],
-        footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
-        footerButtons:HTMLElement = (footer === undefined)
+        footer:Element = box.getElementsByClassName("footer")[0],
+        footerButtons:Element = (footer === undefined)
             ? undefined
-            : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
+            : <Element>footer.getElementsByClassName("footer-buttons")[0],
         footerOffset:number = (footerButtons === undefined)
             ? 0
             : footerButtons.clientWidth,
@@ -470,7 +482,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         body.style.width = `${(contentArea.clientWidth - 20) / 10}em`;
         body.style.height = (function local_modal_maximize_maxHeight():string {
             let height:number = contentArea.clientHeight,
-                header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0];
+                header:Element = box.getElementsByClassName("header")[0];
             height = (height - title.clientHeight) - 27;
             if (footer !== undefined) {
                 height = height - footer.clientHeight;
@@ -494,12 +506,12 @@ modal.maximize = function local_modal_maximize(event:Event):void {
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
 modal.minimize = function local_modal_minimize(event:Event):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        border:HTMLElement = util.getAncestor(element, "border", "class"),
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        border:Element = element.getAncestor("border", "class"),
         box:HTMLElement = <HTMLElement>border.parentNode,
         id:string = box.getAttribute("id"),
         title:HTMLElement = <HTMLElement>border.getElementsByTagName("h2")[0].getElementsByTagName("button")[0];
-    let buttons:HTMLElement,
+    let buttons:Element,
         children:NodeListOf<ChildNode>,
         borders:number,
         child:HTMLElement,
@@ -510,7 +522,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
     title.onmousedown = modal.move;
     children = border.childNodes;
     if (browser.data.modals[id].status === "minimized") {
-        const li:HTMLElement = <HTMLElement>box.parentNode,
+        const li:Element = <Element>box.parentNode,
             body:HTMLElement = <HTMLElement>border.getElementsByClassName("body")[0];
         do {
             child = <HTMLElement>children[a];
@@ -527,7 +539,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
         box.style.left = `${browser.data.modals[id].left / 10}em`;
         body.style.width = `${browser.data.modals[id].width / 10}em`;
         body.style.height = `${browser.data.modals[id].height / 10}em`;
-        buttons = <HTMLElement>box.getElementsByClassName("buttons")[0];
+        buttons = box.getElementsByClassName("buttons")[0];
         borders = (border.getElementsByClassName("corner-tl").length > 0)
             ? 15
             : 0;
@@ -554,13 +566,13 @@ modal.minimize = function local_modal_minimize(event:Event):void {
 
 /* Drag and drop interaction for modals */
 modal.move = function local_modal_move(event:Event):void {
-    const x:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        heading:HTMLElement = <HTMLElement>x.parentNode,
-        box:HTMLElement        = <HTMLElement>heading.parentNode.parentNode,
+    const x:Element = <Element>event.srcElement || <Element>event.target,
+        heading:Element = <Element>x.parentNode,
+        box:HTMLElement = <HTMLElement>heading.parentNode.parentNode,
         settings:ui_modal = browser.data.modals[box.getAttribute("id")],
         border:HTMLElement = box.getElementsByTagName("div")[0],
         minifyTest:boolean = (box.parentNode.nodeName.toLowerCase() === "li"),
-        touch:boolean      = (event !== null && event.type === "touchstart"),
+        touch:boolean = (event !== null && event.type === "touchstart"),
         mouseEvent = <MouseEvent>event,
         touchEvent = <TouchEvent>event,
         mouseX = (touch === true)
@@ -658,8 +670,8 @@ modal.move = function local_modal_move(event:Event):void {
 modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
     let clientWidth:number  = 0,
         clientHeight:number = 0;
-    const node:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        parent:HTMLElement     = <HTMLElement>node.parentNode,
+    const node:Element = <Element>event.srcElement || <Element>event.target,
+        parent:Element     = <Element>node.parentNode,
         box:HTMLElement        = <HTMLElement>parent.parentNode,
         top:number = box.offsetTop,
         left:number = box.offsetLeft,
@@ -670,11 +682,11 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
         buttonPadding:number = (box.getElementsByClassName("buttons")[0] === undefined)
             ? 0
             : (box.getElementsByClassName("buttons")[0].getElementsByTagName("button").length * 5),
-        header:HTMLElement = <HTMLElement>box.getElementsByClassName("header")[0],
+        header:Element = <Element>box.getElementsByClassName("header")[0],
         headerHeight:number = (header === undefined)
             ? 0
             : (header.clientHeight / 10),
-        footer:HTMLElement = <HTMLElement>box.getElementsByClassName("footer")[0],
+        footer:Element = <Element>box.getElementsByClassName("footer")[0],
         message:HTMLElement = (footer === undefined)
             ? undefined
             : <HTMLElement>footer.getElementsByClassName("message")[0],
@@ -885,15 +897,25 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
 
 /* Creates a textPad modal */
 modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
         titleText:string = (typeof title === "string")
             ? title
             : element.innerHTML,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
-        agency:[string, boolean] = (element === document.getElementById("textPad"))
-            ? ["localhost", false]
-            : util.getAgent(element);
-    let box:HTMLElement;
+        agency:agency = (element === document.getElementById("textPad"))
+            ? [browser.data.hashDevice, false, "device"]
+            : util.getAgent(element),
+        payload:ui_modal = {
+            agent: agency[0],
+            agentType: "device",
+            content: textArea,
+            inputs: ["close", "maximize", "minimize"],
+            read_only: agency[1],
+            title: titleText,
+            type: "textPad",
+            width: 800
+        };
+    let box:Element;
     if (typeof value === "string") {
         textArea.value = value;
     }
@@ -901,22 +923,14 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
     if (titleText.indexOf("Base64 - ") === 0) {
         textArea.style.whiteSpace = "normal";
     }
-    box = modal.create({
-        agent: agency[0],
-        content: textArea,
-        inputs: ["close", "maximize", "minimize"],
-        read_only: agency[1],
-        title: titleText,
-        type: "textPad",
-        width: 800
-    });
+    box = modal.create(payload);
     box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
 };
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */
 modal.textSave = function local_modal_textSave(event:MouseEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
@@ -928,7 +942,7 @@ modal.textSave = function local_modal_textSave(event:MouseEvent):void {
 /* An idle delay is a good time to save written notes */
 modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
-        box:HTMLElement = util.getAncestor(element, "box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
@@ -941,13 +955,13 @@ modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
 }
 
 /* Manages z-index of modals and moves a modal to the top on interaction */
-modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:HTMLElement):void {
-    const element:HTMLElement = (elementInput === undefined)
-            ? <HTMLElement>event.srcElement || <HTMLElement>event.target
+modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:Element):void {
+    const element:Element = (elementInput === undefined)
+            ? <Element>event.srcElement || <Element>event.target
             : elementInput,
-        parent:HTMLElement = <HTMLElement>element.parentNode,
-        grandParent:HTMLElement = <HTMLElement>parent.parentNode;
-    let box:HTMLElement = util.getAncestor(element, "box", "class");
+        parent:Element = <Element>element.parentNode,
+        grandParent:Element = <Element>parent.parentNode;
+    let box:HTMLElement = <HTMLElement>element.getAncestor("box", "class");
     if ((parent.getAttribute("class") === "fileList" || grandParent.getAttribute("class") === "fileList") && event.shiftKey === true) {
         event.preventDefault();
     }

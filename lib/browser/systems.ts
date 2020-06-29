@@ -10,7 +10,7 @@ const systems:module_systems = {};
 /* Visually hide the systems modal */
 systems.close = function local_systems_close(event:MouseEvent):void {
     let box:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
-    box = util.getAncestor(box, "box", "class");
+    box = <HTMLElement>box.getAncestor("box", "class");
     if (box.getAttribute("class") === "box") {
         box.style.display = "none";
         // this must remain separated from modal identity as more than one thing users it
@@ -21,10 +21,10 @@ systems.close = function local_systems_close(event:MouseEvent):void {
 
 /* Show/hide of stack trace information for error messages in the system log */
 systems.expand = function local_systems_expand(event:MouseEvent):void {
-    const button:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        li:HTMLElement = <HTMLElement>button.parentNode,
+    const button:Element = <Element>event.srcElement || <Element>event.target,
+        li:Element = <Element>button.parentNode,
         ul:HTMLElement = li.getElementsByTagName("ul")[0],
-        modal:HTMLElement = document.getElementById("systems-modal"),
+        modal:Element = document.getElementById("systems-modal"),
         tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0];
     if (button.innerHTML.indexOf("+") === 0) {
         ul.style.display = "block";
@@ -41,11 +41,11 @@ systems.expand = function local_systems_expand(event:MouseEvent):void {
 /* Processes messages into the system log modal */
 systems.message = function local_systems_message(type:messageType, content:string, timeStore?:string):void {
     const dateString:string = util.dateFormat(new Date()),
-        li:HTMLElement = document.createElement("li"),
-        span:HTMLElement = document.createElement("span"),
+        li:Element = document.createElement("li"),
+        span:Element = document.createElement("span"),
         text:Text = document.createTextNode("");
-    let list:HTMLElement,
-        ul:HTMLElement;
+    let list:Element,
+        ul:Element;
     if (browser.loadTest === true) {
         span.innerHTML = timeStore;
     } else {
@@ -55,7 +55,7 @@ systems.message = function local_systems_message(type:messageType, content:strin
     if (type === "errors") {
         const messageContent:messageError = JSON.parse(content),
             button:HTMLButtonElement = document.createElement("button");
-        let stackItem:HTMLElement;
+        let stackItem:Element;
         ul = document.createElement("ul");
         ul.setAttribute("class", "stack");
         if (messageContent.stack === undefined) {
@@ -120,10 +120,10 @@ systems.modal = function local_systems_modal(event:MouseEvent):void {
 };
 
 /* Content of the systems log modal */
-systems.modalContent = function local_systems_modalContent():HTMLElement {
-    const systemsElement:HTMLElement = document.createElement("div");
-    let ul:HTMLElement = document.createElement("ul"),
-        li:HTMLElement = document.createElement("li"),
+systems.modalContent = function local_systems_modalContent():Element {
+    const systemsElement:Element = document.createElement("div");
+    let ul:Element = document.createElement("ul"),
+        li:Element = document.createElement("li"),
         button:HTMLButtonElement = document.createElement("button");
     ul.setAttribute("class", "tabs");
     button.innerHTML = "⎔ System";
@@ -163,8 +163,8 @@ systems.modalContent = function local_systems_modalContent():HTMLElement {
 
 /* Toggles tabs in the systems log modal */
 systems.tabs = function local_systems_tabs(event:MouseEvent):void {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        parent:HTMLElement = <HTMLElement>element.parentNode.parentNode,
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        parent:Element = <Element>element.parentNode.parentNode,
         className:string = element.getAttribute("class").replace(" active", "");
     if (className === "status") {
         element.setAttribute("class", "status active");

@@ -22,8 +22,9 @@
     <body>
         <div id="spaces">
             <div id="login">
-                <h1>Share File Systems <span class="application-version">version 0.0.16</span></h1>
-                <p><label for="login-input">Provide a Username</label> <input type="text" id="login-input"/></p>
+                <h1>Share File Systems <span class="application-version">version 0.0.18</span></h1>
+                <p><label for="login-user">Provide a Username</label> <input type="text" id="login-user"/></p>
+                <p><label for="login-device">Provide a Name for this Computer/Device</label> <input type="text" id="login-device"/></p>
                 <!--p><label>Provide a Username <input type="text"/></label></p>
                 <p><label>Name This Device <input type="text"/></label></p-->
                 <p><button>✓ Confirm</button></p>
@@ -41,7 +42,7 @@
             </div>
             <div class="title">
                 <button id="menuToggle">&#9776;<span>Application Menu</span></button>
-                <h1>Share File Systems <span class="application-version">version 0.0.16</span></h1>
+                <h1>Share File Systems <span class="application-version">version 0.0.18</span></h1>
                 <p>A tool for interactive collaboration.</p>
             </div>
             <div id="content-area">
@@ -50,16 +51,19 @@
                     <li><button id="systemLog"><span class="icon-systemLog">⌬</span> System Log</button></li>
                     <li><button id="textPad"><span class="icon-textPad">⍑</span> Text Pad</button></li>
                     <li><button id="export"><span class="icon-export">⎆</span> Import/Export Settings</button></li>
-                    <li><button id="user-invite"><span class="icon-invite">❤</span> Invite User or Personal Device</button></li>
-                    <li><button id="user-delete"><span class="icon-delete">☣</span> Delete Users</button></li>
+                    <li><button id="user-invite"><span class="icon-invite">❤</span> Add Device or Invite User</button></li>
+                    <li><button id="user-delete"><span class="icon-delete">☣</span> Delete Devices or Users</button></li>
                     <li><button id="settings"><span class="icon-settings">⚙</span> Settings</button></li>
                 </ul>
-                <div id="users"><h2>User List</h2><ul><li><button id="all-shares">⌘ All Shares</button></li></ul><span></span></div>
+                <div id="agentList">
+                    <p class="all-shares"><button>⌘ All Shares</button></p>
+                    <div id="device"><h2>Device List</h2><ul><li><button class="device-all-shares">🖳 All Device Shares</button></li></ul><span></span></div>
+                    <div id="user"><h2>User List</h2><ul><li><button class="user-all-shares">👤 All User Shares</button></li></ul><span></span></div>
+                </div>
                 <ul id="tray"><button id="minimize-all" title="Minimize all modals">⇊ <span>Minimize all modals</span></button></ul>
             </div>
         </div>
-        <!--storage:-->
         <!--network:-->
-        <script type="module" src="js/localhost.js"></script>
+        <script type="module" src="js/lib/browser/localhost.js"></script>
     </body>
 </html>

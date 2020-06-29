@@ -1,8 +1,11 @@
 
 /* lib/terminal/server/httpClient - A library for handling all child HTTP requests. */
-import * as http from "http";
+import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions} from "http";
+
+import agents from "../../common/agents.js";
 
 import forbiddenUser from "./forbiddenUser.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 import error from "../utilities/error.js";
@@ -10,26 +13,16 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 const httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
-    const ip:string = (function terminal_server_httpClient_ip():string {
-            if (vars.command.indexOf("test") === 0) {
-                return "::1";
-            }
-            let address:string = config.remoteName.slice(config.remoteName.lastIndexOf("@") + 1, config.remoteName.lastIndexOf(":"));
-            if (address.charAt(0) === "[") {
-                address = address.slice(1, address.length - 1);
-            }
-            return address;
-        }()),
-        port:number = (function terminal_server_httpClient_port():number {
-            let address:string = config.remoteName.slice(config.remoteName.lastIndexOf(":") + 1);
-            if (isNaN(Number(address)) === true) {
-                return 80;
-            }
-            return Number(address);
-        }()),
-        callback: Function = (config.callbackType === "object")
+    if (config.response === undefined) {
+        error([
+            "config.response of httpClient is undefined.",
+            JSON.stringify(config)
+        ]);
+        return;
+    }
+    const callback: Function = (config.callbackType === "object")
             ? config.callback
-            : function terminal_server_httpClient_callback(fsResponse:http.IncomingMessage):void {
+            : function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
                 const chunks:Buffer[] = [];
                 fsResponse.setEncoding("utf8");
                 fsResponse.on("data", function terminal_server_httpClient_data(chunk:Buffer):void {
@@ -40,44 +33,53 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                         ? Buffer.concat(chunks)
                         : chunks.join("");
                     if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), config.response);
+                        forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user", config.response);
                     } else {
-                        config.callback(body);
+                        config.callback(body, fsResponse.headers);
                     }
                 });
                 fsResponse.on("error", responseError);
             },
         requestError = (config.id === "heartbeat")
             ? function terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
-                config.requestError(errorMessage, config.remoteName);
+                agents({
+                    countBy: "agent",
+                    perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
+                        if (errorMessage.address === serverVars[agentNames.agentType][agentNames.agent].ip) {
+                            config.requestError(errorMessage, agentNames.agent, agentNames.agentType);
+                        }
+                    },
+                    source: serverVars
+                });
             }
             : (config.requestError === undefined)
                 ? function terminal_server_httpClient_requestError(errorMessage:nodeError):void {
-                    if (errorMessage.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                    const copyStatus:copyStatus = {
+                            failures: [],
+                            message: config.id.slice(config.id.indexOf("|") + 1),
+                            target: config.id.slice(0, config.id.indexOf("|"))
+                        },
+                        fsRemote:fsRemote = {
+                            dirs: "missing",
+                            fail: [],
+                            id: (config.id.indexOf("|Copying ") > 0)
+                                ? JSON.stringify({
+                                    "file-list-status": copyStatus
+                                })
+                                : config.id
+                        };
+                    if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                         log([config.errorMessage, errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
                             error: errorMessage
                         }));
                     }
-                    config.response.writeHead(500, {"Content-Type": "application/json; charset=utf-8"});
-                    config.response.write(JSON.stringify({
-                        id: (config.id.indexOf("|Copying ") > 0)
-                            ? {
-                                "file-list-status": {
-                                    failures: [],
-                                    message: config.id.slice(config.id.indexOf("|") + 1),
-                                    target: config.id.slice(0, config.id.indexOf("|"))
-                                }
-                            }
-                            : config.id,
-                        dirs: "missing"
-                    }));
-                    config.response.end();
+                    response(config.response, "application/json", JSON.stringify(fsRemote));
                 }
                 : config.requestError,
         responseError = (config.id === "heartbeat")
             ? function terminal_server_httpClient_responseErrorHeartbeat(errorMessage:nodeError):void {
-                config.requestError(errorMessage, config.remoteName);
+                config.requestError(errorMessage, config.remoteName, config.agentType);
             }
             : (config.responseError === undefined)
                 ? function terminal_server_httpClient_responseError(errorMessage:nodeError):void {
@@ -94,28 +96,36 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
                 : "",
-        headers:Object = (invite === "")
+        headers:OutgoingHttpHeaders = (invite === "")
             ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
-                "user-name": serverVars.name,
-                "remote-user": config.remoteName
+                "agent-hash": serverVars.hashUser,
+                "agent-name": serverVars.nameUser,
+                "agent-type": config.agentType,
+                "remote-user": config.remoteName,
+                "request-type": config.requestType
             }
             : {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(config.payload),
-                "user-name": serverVars.name,
+                "agent-hash": serverVars.hashUser,
+                "agent-name": serverVars.nameUser,
+                "agent-type": config.agentType,
                 "remote-user": config.remoteName,
+                "request-type": config.requestType,
                 "invite": invite
             },
-        fsRequest:http.ClientRequest = vars.node.http.request({
+        payload:RequestOptions = {
             headers: headers,
-            host: ip,
+            host: config.ip,
             method: "POST",
             path: "/",
-            port: port,
+            port: config.port,
             timeout: 1000
-        }, callback);
+        },
+        fsRequest:ClientRequest = vars.node.http.request(payload, callback);
+    vars.testLogger("httpClient", "", "An abstraction over node.http.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

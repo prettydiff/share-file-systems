@@ -1,6 +1,8 @@
 
-/* lib/terminal/test/simulation - A list of command related tests for run shell simulations against the supported commands. */
-import vars from "../utilities/vars.js";
+/* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
+
+import testEvaluation from "../application/evaluation.js";
+import vars from "../../utilities/vars.js";
 
 // tests structure
 // * artifact - the address of anything written to disk, so that it can be removed
@@ -31,9 +33,14 @@ const sep:string = vars.sep,
     },
     // the tsconfig.json file hash used in multiple tests
     hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
-    simulations:testItem[] = [
+    simulation:testSimulationArray = [
         {
-            command: "asdf",
+            command: "",
+            qualifier: "contains",
+            test: "To see all the supported features try:"
+        },
+        {
+            command: "anUnsupportedCommand",
             qualifier: "contains",
             test: ` is not a supported command`
         },
@@ -53,7 +60,9 @@ const sep:string = vars.sep,
             test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
         },
         {
+            //cspell:disable
             command: "base64 decode string:\"bXkgYmlnIHN0cmluZyBzYW1wbGU=\"",
+            //cspell:enable
             qualifier: "is",
             test: "my big string sample"
         },
@@ -70,7 +79,9 @@ const sep:string = vars.sep,
         {
             command: "base64 string:\"my big string sample\"",
             qualifier: "is",
+            //cspell:disable
             test: "bXkgYmlnIHN0cmluZyBzYW1wbGU="
+            //cspell:enable
         },
         {
             command: "comm version",
@@ -80,7 +91,7 @@ const sep:string = vars.sep,
         {
             command: "commands",
             qualifier: "contains",
-            test: `Commands are tested using the ${text.green}simulation${text.none} command.`
+            test: `Commands are tested using the ${text.green}test_simulation${text.none} command.`
         },
         {
             command: "commands base64",
@@ -106,12 +117,12 @@ const sep:string = vars.sep,
             artifact: `${projectPath}temp`,
             command: `copy ${projectPath}js ${projectPath}temp`,
             qualifier: "filesystem contains",
-            test: `temp${sep}js${sep}lib${sep}terminal${sep}test${sep}simulation.js`
+            test: `temp${sep}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`
         },
         {
             artifact: `${projectPath}temp`,
             command: `copy ${projectPath}js ${projectPath}temp 2`,
-            file: `${projectPath}temp${sep}js${sep}lib${sep}terminal${sep}test${sep}simulation.js`,
+            file: `${projectPath}temp${sep}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`,
             qualifier: "file contains",
             test: `import vars from "../utilities/vars.js";`
         },
@@ -128,7 +139,7 @@ const sep:string = vars.sep,
         {
             command: `directory ${projectPath}js`,
             qualifier: "contains",
-            test: `js${superSep}lib${superSep}terminal${superSep}test${superSep}simulation.js","file"`
+            test: `js${superSep}lib${superSep}terminal${superSep}test${superSep}samples${superSep}simulation.js","file"`
         },
         {
             command: `directory ${projectPath}js 2`,
@@ -138,7 +149,7 @@ const sep:string = vars.sep,
         {
             command: `directory ${projectPath}js ignore ["test"]`,
             qualifier: "not contains",
-            test: `js${superSep}test${superSep}simulation.js"`
+            test: `js${superSep}test${superSep}samples${superSep}simulation.js"`
         },
         {
             command: `directory ${projectPath}js list`,
@@ -166,14 +177,24 @@ const sep:string = vars.sep,
             test: "directory"
         },
         {
-            command: `directory typeof ${projectPath}js${sep}lib${sep}terminal${sep}test${sep}simulation.js`,
+            command: `directory typeof ${projectPath}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`,
             qualifier: "is",
             test: "file"
         },
         {
+            command: "get",
+            qualifier: "contains",
+            test: "The get command requires an address and that address must be in http/https scheme."
+        },
+        {
+            command: "get notAnAddress",
+            qualifier: "contains",
+            test: "The get command requires an address in http/https scheme."
+        },
+        {
             command: "get https://duckduckgo.com/",
             qualifier: "contains",
-            test: `DDG.page = new DDG.Pages.Home();`
+            test: "DDG.page = new DDG.Pages.Home();"
         },
         {
             command: "hash",
@@ -181,9 +202,9 @@ const sep:string = vars.sep,
             test: `Command ${text.cyan}hash${text.none} requires some form of address of something to analyze, ${text.angry}but no address is provided${text.none}.`
         },
         {
-            command: "hash asdf",
+            command: "hash anUnsupportedPath",
             qualifier: "contains",
-            test: `${sep}asdf${text.none} is not a file or directory.`
+            test: `${sep}anUnsupportedPath${text.none} is not a file or directory.`
         },
         {
             command: `hash ${projectPath}tsconfig.json`,
@@ -241,15 +262,81 @@ const sep:string = vars.sep,
             test: " seconds total time"
         },
         {
-            command: "version",
-            qualifier: "ends",
-            test: " seconds total time"
+            command: `lint .${sep}js${sep}application.js`,
+            qualifier: "contains",
+            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}js${sep}application.js${vars.text.none}`
+        },
+        {
+            command: `lint .${sep}js${sep}application.js`,
+            qualifier: "contains",
+            test: "of memory consumed"
+        },
+        {
+            command: `lint .${sep}lib`,
+            qualifier: "contains",
+            test: `No files matching the pattern "${vars.projectPath}lib" were found.`
+        },
+        {
+            command: `mkdir ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+            qualifier: "contains",
+            test: `Directory created at ${vars.text.cyan + vars.projectPath}lib${sep}terminal${sep}test${sep}testDir${vars.text.none}`
+        },
+        {
+            command: `remove ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+            qualifier: "contains",
+            test: `Share File Systems removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
+        },
+        {
+            command: `mkdir ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir`,
+            qualifier: "is",
+            test: ""
+        },
+        {
+            command: `remove ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir`,
+            qualifier: "is",
+            test: ""
+        },
+        {
+            command: "version 1",
+            qualifier: "contains",
+            test: `Version ${text.angry}`
         },
         {
             command: "version 2",
             qualifier: "begins",
-            test: `version[name] version ${text.angry}`
+            test: `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - Version${vars.text.none}`
+        },
+        {
+            command: "version 3",
+            qualifier: "contains",
+            test: `git Log ${vars.text.cyan}`
         }
     ];
+simulation.execute = function test_simulations_execute(config:testExecute):void {
+    const testArg:string = (vars.testLogFlag === "simulation")
+            ? " application_test_log_argument"
+            : "",
+        index:number = (config.list.length < 1)
+            ? config.index
+            : config.list[config.index];
+    vars.node.child(`${vars.version.command} ${simulation[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+        const test:string = (typeof simulation[index].test === "string")
+                ? <string>simulation[index].test
+                : JSON.stringify(simulation[index].test),
+            error:string = (errs === null)
+                ? ""
+                : errs.toString();
+        simulation[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
+        testEvaluation({
+            callback: config.complete,
+            fail: config.fail,
+            index: config.index,
+            list: config.list,
+            test: simulation[index],
+            testType: "simulation",
+            values: [stdout, error, stdError.toString()]
+        });
+    });
+};
 
-export default simulations;
+export default simulation;

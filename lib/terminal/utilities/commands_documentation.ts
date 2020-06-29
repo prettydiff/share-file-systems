@@ -50,7 +50,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} commands directory`,
-                defined: "Details the mentioned command with examples."
+                defined: "Details the mentioned command with examples, which in this case is the 'directory' command."
+            },
+            {
+                code: `${vars.version.command} commands all`,
+                defined: "Specifying 'all' will output verbose documentation and code examples for all supported commands."
             }
         ]
     },
@@ -158,11 +162,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} hash path/to/directory list`,
-                defined: "Returns a JSON string listing all scanned file system objects and each respective hash."
+                defined: "Returns a JSON string of an object where each file, in absolutely path, is a key name and its hash is the key's value."
             },
             {
-                code: `${vars.version.command} hash algorithm:sha3-512`,
-                defined: "Allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
+                code: `${vars.version.command} hash file/system/path algorithm:sha3-512`,
+                defined: "The algorithm argument allows a choice of hashing algorithm. Supported values: 'blake2d512', 'blake2s256', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'sha384', 'sha512', 'sha512-224', 'sha512-256', 'shake128', 'shake256'"
             }
         ]
     },
@@ -189,6 +193,13 @@ const commands_documentation = {
                 defined: "An ignore list is also accepted if there is a list wrapped in square braces following the word 'ignore'."
             }
         ]
+    },
+    mkdir: {
+        description: "Recursively creates a directory structure.  For example if 'my/new/path` were to be created but parent 'my' doesn't exist this command will create all three directories, but it will not alter or overwrite any artifacts already present. Relative paths are relative to the terminal's current working directory.",
+        example: [{
+            code: `${vars.version.command} mkdir my/path/to/create`,
+            defined: "This example would create directories as necessary to ensure the directory structure 'my/path/to/create' is available from the location relative to the terminal's current working directory."
+        }]
     },
     remove: {
         description: "Remove a file or directory tree from the local file system.",
@@ -221,29 +232,117 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} server browser`,
                 defined: "The 'browser' argument launches the default location in the user's default web browser."
+            },
+            {
+                code: `${vars.version.command} server test`,
+                defined: "The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data."
+            },
+            {
+                code: `${vars.version.command} server test browser 9000`,
+                defined: "An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             }
         ]
     },
     test: {
         description: "Builds the application and then runs all the test commands",
-        example: [{
-            code: `${vars.version.command} test`,
-            defined: "Runs all the tests in the test suite."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test`,
+                defined: "Runs all the tests in the test suite."
+            },
+            {
+                code: `${vars.version.command} test log`,
+                defined: "The log argument turns on verbose logging output with annotations."
+            }
+        ]
+    },
+    test_agent: {
+        description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
+        example: [
+            {
+                code: `${vars.version.command} test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
+                defined: "This will test a connection to the specified agent."
+            },
+            {
+                code: `${vars.version.command} test_agent list`,
+                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
+            },
+            {
+                code: `${vars.version.command} test_agent device`,
+                defined: "An argument of 'device' will test connectivity on each device agent."
+            },
+            {
+                code: `${vars.version.command} test_agent user`,
+                defined: "An argument of 'user' will test connectivity on each user agent."
+            },
+            {
+                code: `${vars.version.command} test_agent all`,
+                defined: "An argument of 'all' will run connectivity tests on all stored agents."
+            }
+        ]
     },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
-        example: [{
-            code: `${vars.version.command} test_service`,
-            defined: "Runs tests server utility."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test_service`,
+                defined: "Runs tests server utility."
+            },
+            {
+                code: `${vars.version.command} test_service fs:fs-copy`,
+                defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
+            },
+            {
+                code: `${vars.version.command} test_service log`,
+                defined: "The log argument turns on verbose logging output with annotations."
+            },
+            {
+                code: `${vars.version.command} test_service log log`,
+                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
+            },
+            {
+                code: `${vars.version.command} test_service log "Copy from Remote Device to different Remote Device"`,
+                defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
+            }
+        ]
     },
     test_simulation: {
         description: "Launches a test runner to execute the various commands of the services file.",
-        example: [{
-            code: `${vars.version.command} test_simulation`,
-            defined: "Runs tests against the commands offered by the services file."
-        }]
+        example: [
+            {
+                code: `${vars.version.command} test_simulation`,
+                defined: "Runs tests against the commands offered by the services file."
+            },
+            {
+                code: `${vars.version.command} test_simulation help`,
+                defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
+            },
+            {
+                code: `${vars.version.command} test_simulation log`,
+                defined: "The log argument turns on verbose logging output with annotations."
+            },
+            {
+                code: `${vars.version.command} test_simulation log log`,
+                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
+            },
+            {
+                code: `${vars.version.command} test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`,
+                defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
+            }
+        ]
+    },
+    update: {
+        description: "Pulls code from the git repository and then rebuilds the application.",
+        example: [
+            {
+                code: `${vars.version.command} update`,
+                defined: "Without specifying a branch name the application assumes a branch name of 'master'."
+            },
+            {
+                code: `${vars.version.command} update devices`,
+                defined: "The command with a branch name provided."
+            }
+        ]
     },
     version: {
         description: "Prints the current version number and date of prior modification to the console.",

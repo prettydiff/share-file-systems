@@ -1,3 +1,5 @@
+<!-- documentation/terminal_commands - Documentation using application commands from the terminal. -->
+
 # Share File Systems - Terminal Commands
 ON the terminal this application is a collection of independent utilities designed for portability and insertion into other applications.  These utilities are executed as commands.  Here is an example:
 ```
@@ -16,6 +18,6 @@ node js/application command server
 1. Write the necessary documentation into the `lib/terminal/commands_documentation.ts` file.
    * Simply conform to the data structure already provided and document each and every option and alternative execution in the list of examples.
    * Describe the difference and uniqueness of each listed example.
-1. Import the new utility into the `application.ts` file.  Also include the new utility in that files *library* object.
-1. Include tests in the `test/simulations.ts` file using the data structure provided.  If the current data structure is insufficient to test the new module then open a Github issue.
+1. Import the new utility into the `lib/terminal/utilities/commandList.ts` file.
+1. Include tests in the `test/samples/simulation.ts` and `test/samples/service.ts` files using the data structure provided.  If the current data structure is insufficient to test the new module then open a Github issue.
    * Tests should cover each optional feature, collisions of competing features, various permutations of similar features, and any previously resolved defects or regressions.

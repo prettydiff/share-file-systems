@@ -7,12 +7,19 @@ import vars from "../utilities/vars.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
-const forbiddenUser = function terminal_server_forbiddenUser(user:string, response:ServerResponse):void {
-    delete serverVars.users[user];
-    storage(JSON.stringify(serverVars.users).replace(/\}$/, ",\"send\":false}"), response, "users");
-    vars.ws.broadcast(JSON.stringify({
-        "delete-user": user
-    }));
+const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, agentType:agentType, serverResponse:ServerResponse):void {
+    vars.testLogger("forbiddenUser", "", "Messaging for connections from agents without a stored hash in the user or device lists.");
+    if (serverVars[agentType][agentName] !== undefined) {
+        delete serverVars[agentType][agentName];
+        storage({
+            data: serverVars[agentType],
+            response: serverResponse,
+            type: agentType
+        });
+        vars.ws.broadcast(JSON.stringify({
+            [`delete-${agentType}`]: agentName
+        }));
+    }
 };
 
 export default forbiddenUser;
