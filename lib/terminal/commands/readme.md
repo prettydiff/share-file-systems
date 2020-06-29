@@ -4,6 +4,7 @@ The terminal libraries that executable as either an included library or as a com
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
+* **[agents.ts](agents.ts)**                   - Writes agent data to the shell.
 * **[base64.ts](base64.ts)**                   - A command driven utility for performing base64 encoding/decoding.
 * **[build.ts](build.ts)**                     - The library that executes the build and test tasks.
 * **[commands.ts](commands.ts)**               - A command driven utility to list available commands and their respective documentation.

@@ -5,6 +5,7 @@ import { Server } from "net";
 
 declare global {
     type agency = [string, boolean, agentType];
+    type agentTextList = [agentType, string][];
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
     type color = [string, string];
@@ -62,9 +63,9 @@ declare global {
         perShare?: (agentNames:agentNames, counts:agentCounts) => void;
         source: browser | serverVars | storageItems;
     }
-    interface agentDeletion {
-        device: string[];
-        user: string[];
+    interface agentData {
+        device: agents;
+        user: agents;
     }
     interface agentList {
         device: string[];
@@ -286,10 +287,10 @@ declare global {
         agentType: agentType;
         shares: agents;
         shareType: agentType;
-        status: heartbeatStatus | agentDeletion;
+        status: heartbeatStatus | agentList;
     }
     interface heartbeatBroadcast {
-        deleted: agentDeletion;
+        deleted: agentList;
         list: heartbeatShare;
         requestType: "heartbeat-complete" | "heartbeat-delete-agents";
         response: ServerResponse;
@@ -297,7 +298,7 @@ declare global {
         status: heartbeatStatus;
     }
     interface heartbeatObject {
-        delete: (deleted:agentDeletion, serverResponse:ServerResponse) => void;
+        delete: (deleted:agentList, serverResponse:ServerResponse) => void;
         deleteResponse: (data:heartbeat, serverResponse:ServerResponse) => void;
         parse: (data:heartbeat, serverResponse:ServerResponse) => void;
         update: (data:heartbeatUpdate) => void;
@@ -458,7 +459,7 @@ declare global {
         zTop?: modalTop;
     }
     interface module_network {
-        deleteAgents?: (deleted:agentDeletion) => void;
+        deleteAgents?: (deleted:agentList) => void;
         fs?: (localService, callback:Function, id?:string) => void;
         hashDevice?: (callback:Function) => void;
         hashShare?: (configuration:hashShareConfiguration) => void;

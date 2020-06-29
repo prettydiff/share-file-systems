@@ -1,6 +1,7 @@
 
 /* lib/terminal/utilities/commandList - Groups all supported command functions into an object for single point of reference. */
 
+import agents from "../commands/agents.js";
 import base64 from "../commands/base64.js";
 import build from "../commands/build.js";
 import commands from "../commands/commands.js";
@@ -21,6 +22,7 @@ import update from "../commands/update.js";
 import version from "../commands/version.js";
 
 const commandList = {
+    agents: agents,
     base64: base64,
     build: build,
     commands: commands,

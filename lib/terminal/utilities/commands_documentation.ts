@@ -3,6 +3,31 @@
 import vars from "./vars.js";
 
 const commands_documentation = {
+    agents: {
+        description: "Lists agent data.",
+        example: [
+            {
+                code: `${vars.version.command} agents`,
+                defined: "Lists all agent data."
+            },
+            {
+                code: `${vars.version.command} agents device`,
+                defined: "Lists all device type agent data."
+            },
+            {
+                code: `${vars.version.command} agents user`,
+                defined: "Lists all user type agent data."
+            },
+            {
+                code: `${vars.version.command} agents "desktop computer"`,
+                defined: "Lists any agent whose names contain the search string"
+            },
+            {
+                code: `${vars.version.command} agents "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
+                defined: "Outputs data for the matching hash string, if any.  The hash must be composed of 128 characters only composed of only 0-9 and lower case a-f."
+            }
+        ]
+    },
     base64: {
         description: "Convert a file or string into a base64 encoding.",
         example: [

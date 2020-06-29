@@ -355,7 +355,7 @@ share.deleteAgent = function local_share_deleteAgent(agent:string, agentType:age
 share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void {
     const body:Element = box.getElementsByClassName("body")[0],
         list:HTMLCollectionOf<Element> = body.getElementsByTagName("li"),
-        deleted:agentDeletion = {
+        deleted:agentList = {
             device: [],
             user: []
         };

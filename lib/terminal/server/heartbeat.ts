@@ -256,7 +256,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
     },
     // This logic will push out heartbeat data
     heartbeat:heartbeatObject = {
-        delete: function terminal_server_heartbeatDelete(deleted:agentDeletion, serverResponse:ServerResponse):void {
+        delete: function terminal_server_heartbeatDelete(deleted:agentList, serverResponse:ServerResponse):void {
             broadcast({
                 deleted: deleted,
                 list: null,
@@ -270,7 +270,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
         },
         deleteResponse: function terminal_server_heartbeatDeleteResponse(data:heartbeat, serverResponse:ServerResponse):void {
             if (data.agentType === "device") {
-                const deleted:agentDeletion = <agentDeletion>data.status;
+                const deleted:agentList = <agentList>data.status;
                 if (deleted.device.indexOf(serverVars.hashDevice) > -1) {
                     // local device is in the deletion list, so all agents are deleted
                     removeByType(Object.keys(serverVars.device), "device");

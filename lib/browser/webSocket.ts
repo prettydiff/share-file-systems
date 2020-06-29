@@ -112,7 +112,7 @@ const title:Element = document.getElementsByClassName("title")[0],
             heartbeatDelete = function local_socketMessage_heartbeatDelete():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-delete-agents"];
                 if (heartbeat.agentType === "device") {
-                    const deletion:agentDeletion = <agentDeletion>heartbeat.status,
+                    const deletion:agentList = <agentList>heartbeat.status,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
                         devices:string[] = Object.keys(browser.device),
                         users:string[] = Object.keys(browser.user);
