@@ -878,8 +878,8 @@ declare global {
         resize?: boolean;
         search?: [string, string];
         selection?: selection;
-        single?: boolean;
         share?: string;
+        single?: boolean;
         status?: modalStatus;
         status_bar?: boolean;
         status_text?: string;

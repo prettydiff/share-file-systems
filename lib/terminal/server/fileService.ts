@@ -541,8 +541,8 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + fileData.list[a][3];
                             } else {
-                                log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
-                                fileError(`Hashes do not match for file ${fileName} from agent ${data.agent}`, filePath);
+                                log([`Hashes do not match for file ${fileName} from ${data.agentType} ${serverVars[data.agentType][data.agent].name}`]);
+                                fileError(`Hashes do not match for file ${fileName} from ${data.agentType} ${serverVars[data.agentType][data.agent].name}`, filePath);
                             }
                             a = a + 1;
                             if (a < listLength) {
@@ -559,10 +559,10 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 // the callback for each file request
                 fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
                     const fileChunks:Buffer[] = [],
+                        fileName:string = <string>fileResponse.headers.file_name,
                         writeable:Writable = new Stream.Writable(),
                         responseEnd = function terminal_server_fileService_requestFiles_fileRequestCallback_responseEnd(file:Buffer):void {
-                            const fileName:string = <string>fileResponse.headers.file_name,
-                                hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
+                            const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
                                 hashString:string = hash.digest("hex");
                             vars.testLogger("fileService", "requestFiles fileRequestCallback responseEnd", "Handler for completely received HTTP response of requested artifact.");
                             if (hashString === fileResponse.headers.hash) {
@@ -573,8 +573,8 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                                 }
                             } else {
                                 hashFail.push(fileName);
-                                log([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
-                                error([`Hashes do not match for file ${fileName} from agent ${data.agent}`]);
+                                log([`Hashes do not match for file ${fileName} ${data.agentType} ${serverVars[data.agentType][data.agent].name}`]);
+                                error([`Hashes do not match for file ${fileName} ${data.agentType} ${serverVars[data.agentType][data.agent].name}`]);
                                 if (countFile + countDir + hashFail.length === listLength) {
                                     respond();
                                 }
@@ -596,6 +596,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                         if (fileResponse.headers.compression === "true") {
                             vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
                                 if (errDecompress !== null) {
+                                    log([`Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`]);
                                     error([errDecompress.toString()]);
                                     return;
                                 }
@@ -992,7 +993,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     data.action = <serviceType>`${data.action}-self`;
                     httpRequest(function terminal_server_fileService_tasks_sameRemote(responseBody:string|Buffer):void {
                         response(serverResponse, "application/json", responseBody);
-                    }, `Error copying files to and from agent ${data.agent}.`, "body");
+                    }, `Error copying files to and ${data.agentType} ${serverVars[data.agentType][data.agent].name}.`, "body");
                 } else {
                     // * data.agent === remoteAgent
                     // * data.copyAgent === differentRemoteAgent
