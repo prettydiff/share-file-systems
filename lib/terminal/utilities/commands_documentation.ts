@@ -3,28 +3,53 @@
 import vars from "./vars.js";
 
 const commands_documentation = {
-    agents: {
+    agent_data: {
         description: "Lists agent data.",
         example: [
             {
-                code: `${vars.version.command} agents`,
+                code: `${vars.version.command} agent_data`,
                 defined: "Lists all agent data."
             },
             {
-                code: `${vars.version.command} agents device`,
+                code: `${vars.version.command} agent_data device`,
                 defined: "Lists all device type agent data."
             },
             {
-                code: `${vars.version.command} agents user`,
+                code: `${vars.version.command} agent_data user`,
                 defined: "Lists all user type agent data."
             },
             {
-                code: `${vars.version.command} agents "desktop computer"`,
+                code: `${vars.version.command} agent_data "desktop computer"`,
                 defined: "Lists any agent whose names contain the search string"
             },
             {
-                code: `${vars.version.command} agents "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
+                code: `${vars.version.command} agent_data "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
                 defined: "Outputs data for the matching hash string, if any.  The hash must be composed of 128 characters only composed of only 0-9 and lower case a-f."
+            }
+        ]
+    },
+    agent_online: {
+        description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
+        example: [
+            {
+                code: `${vars.version.command} agent_online a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
+                defined: "This will test a connection to the specified agent."
+            },
+            {
+                code: `${vars.version.command} agent_online list`,
+                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
+            },
+            {
+                code: `${vars.version.command} agent_online device`,
+                defined: "An argument of 'device' will test connectivity on each device agent."
+            },
+            {
+                code: `${vars.version.command} agent_online user`,
+                defined: "An argument of 'user' will test connectivity on each user agent."
+            },
+            {
+                code: `${vars.version.command} agent_online all`,
+                defined: "An argument of 'all' will run connectivity tests on all stored agents."
             }
         ]
     },
@@ -278,31 +303,6 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test log`,
                 defined: "The log argument turns on verbose logging output with annotations."
-            }
-        ]
-    },
-    test_agent: {
-        description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
-        example: [
-            {
-                code: `${vars.version.command} test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
-                defined: "This will test a connection to the specified agent."
-            },
-            {
-                code: `${vars.version.command} test_agent list`,
-                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
-            },
-            {
-                code: `${vars.version.command} test_agent device`,
-                defined: "An argument of 'device' will test connectivity on each device agent."
-            },
-            {
-                code: `${vars.version.command} test_agent user`,
-                defined: "An argument of 'user' will test connectivity on each user agent."
-            },
-            {
-                code: `${vars.version.command} test_agent all`,
-                defined: "An argument of 'all' will run connectivity tests on all stored agents."
             }
         ]
     },

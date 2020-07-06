@@ -468,6 +468,9 @@ declare global {
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
     }
+    interface module_remote {
+        event?: (nodeString:string, selector:selector, eventName:string) => void;
+    }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
         agentColor?: EventHandlerNonNull;

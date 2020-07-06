@@ -1,7 +1,8 @@
 
 /* lib/terminal/utilities/commandList - Groups all supported command functions into an object for single point of reference. */
 
-import agents from "../commands/agents.js";
+import agent_data from "../commands/agent_data.js";
+import agent_online from "../commands/agent_online.js";
 import base64 from "../commands/base64.js";
 import build from "../commands/build.js";
 import commands from "../commands/commands.js";
@@ -15,14 +16,14 @@ import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import server from "../commands/server.js";
 import test from "../commands/test.js";
-import test_agent from "../commands/test_agent.js";
 import test_service from "../commands/test_service.js";
 import test_simulation from "../commands/test_simulation.js";
 import update from "../commands/update.js";
 import version from "../commands/version.js";
 
 const commandList = {
-    agents: agents,
+    agent_data: agent_data,
+    agent_online: agent_online,
     base64: base64,
     build: build,
     commands: commands,
@@ -36,7 +37,6 @@ const commandList = {
     remove: remove,
     server: server,
     test: test,
-    test_agent: test_agent,
     test_service: test_service,
     test_simulation: test_simulation,
     update: update,
