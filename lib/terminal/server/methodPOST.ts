@@ -14,6 +14,7 @@ import readOnly from "./readOnly.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
+import browser from "../test/samples/browser.js";
 
 const methodPOST = function terminal_server_post(request:IncomingMessage, serverResponse:ServerResponse) {
     let body:string = "";
@@ -126,7 +127,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 invite(body, serverResponse);
             } else if (task === "test-browser") {
                 // * validate a browser test iteration
-
+                browser.result(JSON.parse(body)["test-browser"]);
             } else if (task === "test-browser-loaded") {
                 // * browser is ready to receive test samples
                 serverVars.testBrowserCallback();

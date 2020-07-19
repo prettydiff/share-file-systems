@@ -4,6 +4,7 @@ import browser from "./browser.js";
 import context from "./context.js";
 import systems from "./systems.js";
 import util from "./util.js";
+import remote from "./remote.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
@@ -264,7 +265,7 @@ network.storage = function local_network_storage(type:storageType):void {
 };
 
 /* Lets the service code know the browser is fully loaded and ready receive test samples. */
-network.testBrowserLoaded = function local_network_testBrowserLoaded():void {
+network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:boolean[]):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
@@ -277,17 +278,30 @@ network.testBrowserLoaded = function local_network_testBrowserLoaded():void {
                     systems.message("errors", JSON.stringify(error));
                 }
             }
-        };
+        },
+        data:testBrowserResult = (payload === undefined)
+            ? null
+            : {
+                index: remote.index,
+                payload: payload
+            };
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", "test-browser-loaded");
-    setTimeout(function local_network_testBrowserLoaded_delay():void {
+    if (payload === undefined) {
+        xhr.setRequestHeader("request-type", "test-browser-loaded");
+        setTimeout(function local_network_testBrowserLoaded_delay():void {
+            xhr.send(JSON.stringify({
+                "test-browser-loaded": {}
+            }));
+        }, 1000);
+    } else {
+        xhr.setRequestHeader("request-type", "test-browser");
         xhr.send(JSON.stringify({
-            "test-browser-loaded": {}
-        }))
-    }, 1000);
+            "test-browser": data
+        }));
+    }
 };
 
 export default network;

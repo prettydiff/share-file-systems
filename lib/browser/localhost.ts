@@ -101,7 +101,6 @@ import webSocket from "./webSocket.js";
                                         type: "device"
                                     });
                                     browser.pageBody.removeAttribute("class");
-                                    network.storage("settings");
                                     loadComplete();
                                 });
                             }
@@ -175,11 +174,6 @@ import webSocket from "./webSocket.js";
                         return;
                     }
 
-                    browser.loadTest = false;
-                    if (loginFlag === true) {
-                        browser.socket = webSocket();
-                    }
-
                     localDevice = document.getElementById(browser.data.hashDevice);
 
                     do {
@@ -232,6 +226,14 @@ import webSocket from "./webSocket.js";
                                 systems.message("errors", JSON.stringify(error), value[0]);
                                 browser.messages.errors.push([value[0], value[1], value[2]]);
                             });
+                        }
+                    }
+
+                    browser.loadTest = false;
+                    if (loginFlag === true) {
+                        browser.socket = webSocket();
+                        if (testBrowser === true) {
+                            network.testBrowserLoaded();
                         }
                     }
 

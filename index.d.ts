@@ -470,10 +470,13 @@ declare global {
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
-        testBrowserLoaded?: () => void;
+        testBrowserLoaded?: (payload?:boolean[]) => void;
     }
     interface module_remote {
         event?: (event:testBrowserItem) => void;
+        index?: number;
+        node?: (config:browserDOM[]) => Element;
+        test?: (config:testBrowserTest[]) => void;
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
@@ -765,6 +768,7 @@ declare global {
         [index:number]: testBrowserItem;
         execute?: () => void;
         iterate?: (index:number) => void;
+        result?: (item:testBrowserResult) => void;
         server?: httpServer;
     }
     interface testBrowserEvent {
@@ -774,12 +778,19 @@ declare global {
     }
     interface testBrowserItem {
         interaction: testBrowserEvent[];
+        index: number;
+        name: string;
         test: testBrowserTest[];
     }
+    interface testBrowserResult {
+        index: number;
+        payload: boolean[];
+    }
     interface testBrowserTest {
-        node: browserDOM;
-        property: string[];
-        value: string;
+        node: browserDOM[];
+        target: string[];
+        type: "attribute" | "property";
+        value: boolean | null | number | string;
     }
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;

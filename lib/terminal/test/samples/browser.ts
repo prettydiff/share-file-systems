@@ -41,11 +41,36 @@ browser.push({
             ]
         }
     ],
+    index: 0,
+    name: "Login form",
     test: [
+        // that a local user button is present and active
         {
-            node: ["getElementById", "", null],
-            property: ["style", "display"],
-            value: "block"
+            node: [
+                ["getElementById", "device", null],
+                ["getElementsByTagName", "button", 1]
+            ],
+            target: ["class"],
+            type: "attribute",
+            value: "active"
+        },
+        // that the login messaging is not visible
+        {
+            node: [
+                ["getElementById", "login", null]
+            ],
+            target: ["clientHeight"],
+            type: "property",
+            value: 0
+        },
+        // that class is removed from body
+        {
+            node: [
+                ["getElementsByTagName", "body", 0]
+            ],
+            target: ["class"],
+            type: "attribute",
+            value: null
         }
     ]
 });
@@ -58,11 +83,37 @@ browser.push({
             node: null
         }
     ],
+    index: 0,
+    name: "Refresh following login form completion",
+    // assert that login remains complete, login data is stored and written to page
     test: [
+        // that a local user button is present and active
         {
-            node: ["getElementById", "", null],
-            property: ["style", "display"],
-            value: "block"
+            node: [
+                ["getElementById", "device", null],
+                ["getElementsByTagName", "button", 1]
+            ],
+            target: ["class"],
+            type: "attribute",
+            value: "active"
+        },
+        // that the login messaging is not visible
+        {
+            node: [
+                ["getElementById", "login", null]
+            ],
+            target: ["clientHeight"],
+            type: "property",
+            value: 0
+        },
+        // that class is removed from body
+        {
+            node: [
+                ["getElementsByTagName", "body", 0]
+            ],
+            target: ["class"],
+            type: "attribute",
+            value: null
         }
     ]
 });
@@ -130,10 +181,15 @@ browser.execute = function test_browser_execute():void {
 
 browser.iterate = function test_browser_iterate(index:number):void {
     // not writing to storage
+    browser[index].index = index;
     const message:string = JSON.stringify({
         "test-browser": browser[index]
     });
     vars.ws.broadcast(message);
+};
+
+browser.result = function test_browser_result(item:testBrowserResult):void {
+    console.log(item);
 };
 
 export default browser;
