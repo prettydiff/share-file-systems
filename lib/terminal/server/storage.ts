@@ -10,22 +10,23 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 const storage = function terminal_server_storage(data:storage):void {
-    const location:string = serverVars.storage + vars.sep + data.type,
+    const location:string = serverVars.storage + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
+        testFlag:boolean = (vars.command !== "test_browser" && vars.command.indexOf("test") === 0),
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
-            if (vars.command.indexOf("test") === 0) {
+            if (testFlag === true) {
                 response(data.response, "text/plain", `${data.type} storage written with false response for testing.`);
             } else {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_renameNode(erName:Error) {
                     if (erName !== null) {
-                        error([erName.toString()]);
                         vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
                             if (erUnlink !== null) {
                                 error([erUnlink.toString()]);
                             }
                         });
                         response(data.response, "text/plain", erName.toString());
+                        error([erName.toString()]);
                         return;
                     }
                     response(data.response, "text/plain", `${data.type} written`);
@@ -62,7 +63,7 @@ const storage = function terminal_server_storage(data:storage):void {
         error(["Submitted a 'type' value of undefined to the storage utility."]);
         return;
     }
-    if (vars.command.indexOf("test") === 0) {
+    if (testFlag === true) {
         writeCallback(null);
     } else {
         vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);

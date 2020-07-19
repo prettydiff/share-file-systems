@@ -263,4 +263,31 @@ network.storage = function local_network_storage(type:storageType):void {
     xhr.send(payload);
 };
 
+/* Lets the service code know the browser is fully loaded and ready receive test samples. */
+network.testBrowserLoaded = function local_network_testBrowserLoaded():void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_messages_callback():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status !== 200 && xhr.status !== 0) {
+                    const error:messageError = {
+                        error: `XHR responded with ${xhr.status} when sending messages.`,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    };
+                    systems.message("errors", JSON.stringify(error));
+                }
+            }
+        };
+    xhr.onreadystatechange = readyState;
+    xhr.open("POST", loc, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("request-type", "test-browser-loaded");
+    setTimeout(function local_network_testBrowserLoaded_delay():void {
+        xhr.send(JSON.stringify({
+            "test-browser-loaded": {}
+        }))
+    }, 1000);
+};
+
 export default network;

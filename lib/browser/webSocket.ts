@@ -4,6 +4,7 @@ import browser from "./browser.js";
 import fs from "./fs.js";
 import invite from "./invite.js";
 import network from "./network.js";
+import remote from "./remote.js";
 import share from "./share.js";
 import systems from "./systems.js";
 import util from "./util.js";
@@ -221,8 +222,11 @@ const title:Element = document.getElementsByClassName("title")[0],
             } else {
                 invite.respond(invitation);
             }
+        } else if (event.data.indexOf("{\"test-browser\":") === 0) {
+            remote.event(JSON.parse(event.data)["test-browser"]);
         } else if (event.data === "reload") {
-            location.reload();
+            const uri:string = location.href;
+            location.replace(uri.replace("?test_browser", ""));
         }
     },
     open = function local_socketOpen():void {
@@ -232,7 +236,6 @@ const title:Element = document.getElementsByClassName("title")[0],
         }
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
         title.setAttribute("class", "title");
-        document.getElementById(browser.data.hashDevice).setAttribute("class", "active");
     },
     webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),

@@ -1012,7 +1012,6 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 }
             } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
                 // issue a fs-copy-list on an agent from a different agent
-                const agent:string = data.agent;
                 vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
                 reverseAgents();
                 data.action = <serviceType>`${data.action.replace("-remote", "")}`;

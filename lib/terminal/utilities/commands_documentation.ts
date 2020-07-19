@@ -306,6 +306,13 @@ const commands_documentation = {
             }
         ]
     },
+    test_browser: {
+        description: "Launches the 'server' command as a child process and then sends instructions to the browser to test interactivity.",
+        example: [{
+            code: `${vars.version.command} test_browser`,
+            defined: "Runs the browser interaction tests."
+        }]
+    },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
         example: [

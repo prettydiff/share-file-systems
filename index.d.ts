@@ -8,12 +8,15 @@ declare global {
     type agentTextList = [agentType, string][];
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
+    type browserDOM = [domMethod, string, number];
     type color = [string, string];
     type colorScheme = "dark" | "default";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
     type directoryMode = "hash" | "list" | "read" | "search";
+    type domMethod = "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getNodesByType" | "parentNode";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
+    type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keypress" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
     type httpBodyCallback = (body:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -30,7 +33,7 @@ declare global {
     type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage";
+    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage" | "test-browser" | "test-browser-loaded";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
@@ -467,9 +470,10 @@ declare global {
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
+        testBrowserLoaded?: () => void;
     }
     interface module_remote {
-        event?: (nodeString:string, selector:selector, eventName:string) => void;
+        event?: (event:testBrowserItem) => void;
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
@@ -601,9 +605,9 @@ declare global {
         [key:string]: string;
     }
     interface serverCallback {
-        callback:(output:serverOutput) => void;
         agent: string;
         agentType: agentType;
+        callback:(output:serverOutput) => void;
     }
     interface serverError {
         stack: string[];
@@ -627,6 +631,7 @@ declare global {
         nameUser: string;
         status: heartbeatStatus;
         storage: string;
+        testBrowserCallback?: () => void;
         timeStore: number;
         user: agents;
         watches: {
@@ -755,6 +760,26 @@ declare global {
         file?: string;
         qualifier: qualifier;
         test: string;
+    }
+    interface testBrowser extends Array<testBrowserItem> {
+        [index:number]: testBrowserItem;
+        execute?: () => void;
+        iterate?: (index:number) => void;
+        server?: httpServer;
+    }
+    interface testBrowserEvent {
+        event: eventName;
+        value?: string;
+        node: browserDOM[];
+    }
+    interface testBrowserItem {
+        interaction: testBrowserEvent[];
+        test: testBrowserTest[];
+    }
+    interface testBrowserTest {
+        node: browserDOM;
+        property: string[];
+        value: string;
     }
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;

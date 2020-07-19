@@ -78,7 +78,11 @@ const serverVars:serverVars = {
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
         status: "active",
-        storage: `${vars.projectPath}storage`,
+        storage: (vars.command === "test_browser")
+            ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
+            : (vars.command.indexOf("test") === 0)
+                ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
+                : `${vars.projectPath}storage${vars.sep}`,
         timeStore: 0,
         user: {},
         watches: {},

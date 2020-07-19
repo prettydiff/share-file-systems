@@ -33,10 +33,12 @@ import webSocket from "./webSocket.js";
                 a:number = 0,
                 cString:string = "",
                 localDevice:Element = null,
-                active:number = Date.now();
+                active:number = Date.now(),
+                loginFlag:boolean = false;
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
+                testBrowser:boolean = (location.href.indexOf("test_browser") > 0),
                 defaultModals = function local_restore_defaultModals():void {
                     const payloadModal:ui_modal = {
                         agent: browser.data.hashDevice,
@@ -117,6 +119,10 @@ import webSocket from "./webSocket.js";
                     nameUser.onkeyup = handlerKeyboard;
                     nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
+                    browser.socket = webSocket();
+                    if (testBrowser === true) {
+                        network.testBrowserLoaded();
+                    }
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {
@@ -169,15 +175,17 @@ import webSocket from "./webSocket.js";
                         return;
                     }
 
+                    browser.loadTest = false;
+                    if (loginFlag === true) {
+                        browser.socket = webSocket();
+                    }
+
                     localDevice = document.getElementById(browser.data.hashDevice);
 
                     do {
                         loginInputs[a].onkeyup = login;
                         a = a + 1;
                     } while (a < loginInputsLength);
-
-                    browser.socket = webSocket();
-                    idleness();
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
@@ -193,7 +201,6 @@ import webSocket from "./webSocket.js";
                     document.getElementById("textPad").onclick = modal.textPad;
                     document.getElementById("export").onclick = modal.export;
                     document.getElementById("settings").onclick = settings.modal;
-                    activate();
 
                     // watch for local idleness
                     document.onclick = activate;
@@ -228,7 +235,8 @@ import webSocket from "./webSocket.js";
                         }
                     }
 
-                    browser.loadTest = false;
+                    activate();
+                    idleness();
                 };
             do {
                 cString = comments[a].substringData(0, comments[a].length);
@@ -286,6 +294,7 @@ import webSocket from "./webSocket.js";
                                     }
                                 };
                             let count:number = 0;
+                            loginFlag = true;
                             browser.data.colors = storage.settings.colors;
                             restoreShares("device");
                             restoreShares("user");

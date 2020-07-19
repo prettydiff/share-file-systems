@@ -124,6 +124,12 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
             } else if (task === "invite") {
                 // * Handle all stages of invitation
                 invite(body, serverResponse);
+            } else if (task === "test-browser") {
+                // * validate a browser test iteration
+
+            } else if (task === "test-browser-loaded") {
+                // * browser is ready to receive test samples
+                serverVars.testBrowserCallback();
             }
         };
 

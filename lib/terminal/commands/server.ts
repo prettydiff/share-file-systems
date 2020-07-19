@@ -22,15 +22,17 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
     // * bypasses messaging users on server start up
     // * bypasses some security checks
     let portWeb:number,
-        portWS:number;
-    const browser:boolean = (function terminal_server_browserTest():boolean {
+        portWs:number;
+    const browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
+            serverVars.storage = (vars.command === "test_browser")
+                ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
+                : (vars.command.indexOf("test") === 0 || test > -1)
+                    ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
+                    : `${vars.projectPath}storage${vars.sep}`;
             if (test > -1) {
-                serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
-                process.argv.splice(test, 1);
-            } else if (vars.command.indexOf("test") === 0) {
-                serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storage`;
+               process.argv.splice(test, 1);
             }
             index = process.argv.indexOf("browser");
             if (index > -1) {
@@ -39,16 +41,40 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
             }
             return false;
         }()),
+        browser = function terminal_server_browser():void {
+            // open a browser from the command line
+            if (browserFlag === true) {
+                const keyword:string = (process.platform === "darwin")
+                        ? "open"
+                        : (process.platform === "win32")
+                            ? "start"
+                            : "xdg-open",
+                    browserCommand:string = `${keyword} http://localhost:${portWeb}/`;
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
+                    if (errs !== null) {
+                        error([errs.toString()]);
+                        return;
+                    }
+                    if (stdError !== "" && stdError.indexOf("The ESM module loader is experimental.") < 0) {
+                        error([stdError.toString()]);
+                        return;
+                    }
+                    log(["", "Launching default web browser..."]);
+                });
+            } else if (serverCallback !== undefined) {
+                serverCallback.callback({
+                    agent: serverCallback.agent,
+                    agentType: serverCallback.agentType,
+                    webPort: portWeb,
+                    wsPort: portWs
+                });
+            }
+        },
         port:number = (serverCallback === undefined)
             ? (isNaN(Number(process.argv[0])) === true)
                 ? vars.version.port
                 : Number(process.argv[0])
             : 0,
-        keyword:string = (process.platform === "darwin")
-            ? "open"
-            : (process.platform === "win32")
-                ? "start"
-                : "xdg-open",
         httpServer:httpServer = vars.node.http.createServer(createServer),
         serverError = function terminal_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
@@ -96,9 +122,13 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                     serverVars.wsPort = vars.ws.address().port;
 
                     // log the port information to the terminal
-                    output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.webPort + vars.text.none}`);
-                    output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + serverVars.wsPort + vars.text.none}`);
-                    output.push("Local IP addresses are:");
+                    output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
+                    output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
+                    if (serverVars.addresses[0].length === 1) {
+                        output.push("Local IP address is:");
+                    } else {
+                        output.push("Local IP addresses are:");
+                    }
 
                     serverVars.addresses[0].forEach(localAddresses);
                     output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
@@ -114,6 +144,7 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                     output.push("");
                     log.title("Local Server");
                     log(output, true);
+                    browser();
                 },
                 readComplete = function terminal_server_start_readComplete(storageData:storageItems) {
                     serverVars.brotli = storageData.settings.brotli;
@@ -146,15 +177,12 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                             }
                         });
                     };
+                    portWs = vars.ws._server.address().port;
+                    serverVars.wsPort = portWs;
                     if (serverCallback === undefined) {
                         readStorage(readComplete);
                     } else {
-                        serverCallback.callback({
-                            agent: serverCallback.agent,
-                            agentType: serverCallback.agentType,
-                            webPort: portWeb,
-                            wsPort: portWS
-                        });
+                        browser();
                     }
                 },
                 listen = function terminal_server_start_listen():void {
@@ -197,21 +225,6 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
     }
 
     start();
-
-    // open a browser from the command line
-    if (browser === true) {
-        vars.node.child(`${keyword} http://localhost:${port}/`, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
-            if (errs !== null) {
-                error([errs.toString()]);
-                return;
-            }
-            if (stdError !== "" && stdError.indexOf("The ESM module loader is experimental.") < 0) {
-                error([stdError.toString()]);
-                return;
-            }
-            log(["", "Launching default web browser..."]);
-        });
-    }
     return httpServer;
 };
 

@@ -30,8 +30,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             }
         });
     } else if (data.agentType === "user" && data.copyType === "device" && serverVars.device[data.copyAgent] !== undefined && (data.action === "fs-copy" || data.action === "fs-cut")) {
-        const localDevice:boolean = (data.copyAgent === serverVars.hashDevice),
-            hash:Hash = vars.node.crypto.createHash("sha3-512");
+        const hash:Hash = vars.node.crypto.createHash("sha3-512");
         hash.update(serverVars.hashUser + data.copyAgent);
         data.copyShare = hash.digest("hex");
         fileService(serverResponse, data);

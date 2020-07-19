@@ -195,6 +195,13 @@ Builds the application and then runs all the test commands
 1. `node js/application test log`
    - The log argument turns on verbose logging output with annotations.
 
+## test_browser
+Launches the 'server' command as a child process and then sends instructions to the browser to test interactivity.
+
+### Examples
+1. `node js/application test_browser`
+   - Runs the browser interaction tests.
+
 ## test_service
 Launches the 'server' command as a child process to issue HTTP requests against it and test the results
 

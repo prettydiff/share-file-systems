@@ -2,6 +2,7 @@
 /* lib/terminal/commands/agent_data - Writes agent data to the shell. */
 
 import log from "../utilities/log.js";
+import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const agent_data = function terminal_agentData():void {
@@ -84,7 +85,7 @@ const agent_data = function terminal_agentData():void {
                     typeList("user");
                     log(text, true);
                 } else if ((/^[0-9a-f]{128}$/).test(type) === true && type.length === 128) {
-                    const selectiveAgent = function terminal_agentData_output_selectiveAgent(agentType:agentType, list:boolean):void {
+                    const selectiveAgent = function terminal_agentData_output_selectiveAgent(agentType:agentType):void {
                         const shares:agentShares = agents[agentType][type].shares,
                             shareNames:string[] = Object.keys(shares),
                             shareLength:number = shareNames.length;
@@ -111,9 +112,9 @@ const agent_data = function terminal_agentData():void {
                     };
                     log.title("Agent Details by Hash ID");
                     if (agents.device[type] !== undefined) {
-                        selectiveAgent("device", false);
+                        selectiveAgent("device");
                     } else if (agents.user[type] !== undefined) {
-                        selectiveAgent("user", false);
+                        selectiveAgent("user");
                     } else {
                         log([`${vars.text.angry}No agents presents with that hash ID.${vars.text.none}`], true);
                     }
@@ -184,12 +185,12 @@ const agent_data = function terminal_agentData():void {
         };
     vars.verbose = true;
     if (lists === "device" || lists === "") {
-        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}device.json`, "utf8", deviceCallback);
+        vars.node.fs.readFile(`${serverVars.storage}device.json`, "utf8", deviceCallback);
     } else {
         readFlag[0] = true;
     }
     if (lists === "user" || lists === "") {
-        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}user.json`, "utf8", userCallback);
+        vars.node.fs.readFile(`${serverVars.storage}user.json`, "utf8", userCallback);
     } else {
         readFlag[1] = true;
     }

@@ -5,12 +5,21 @@ The end state is to offer a cross-OS private one-to-many online point-to-point r
 
 This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
+## Features
+* Works the same on Windows, Linux, and Mac OSX.
+* A Windows like graphic user interface in just a few functions that are easy to extend and customize.
+* Application saves state on each user interaction, which allows application to resume without disruption when a browser closes and allows real time testing cross-browser.
+* Recursive file system display with file system details.
+* A robust security model.
+* File integrity checks via SHA3-512 hash.
+* A variety of tools available via terminal commands.
+
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
 ## Build and execute
 ### First build
-1. Install [Node.js](https://nodejs.org), at least version **13.2.0**, using default options.
+1. Install [Node.js](https://nodejs.org), at least version **14.1.0**, using default options.
 1. Clone the application from Github.
    * `git clone https://github.com/prettydiff/share-file-systems.git`
 1. Move into the directory.
@@ -28,9 +37,11 @@ This application seeks to be inherently private which disallows information broa
       - Choose option **Y**
 1. Execute the application. The restart command first builds the application and then enables services.
    * `npm restart`
+   <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps:
       - `sudo apt-get install libcap2-bin`
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
+   <!-- cspell:enable-->
 1. Open your favorite modern browser to http://localhost
    * You may need to make an exception in your local firewall for port 80, or which ever port you specify.
 

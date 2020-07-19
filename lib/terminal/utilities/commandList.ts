@@ -16,6 +16,7 @@ import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import server from "../commands/server.js";
 import test from "../commands/test.js";
+import test_browser from "../commands/test_browser.js";
 import test_service from "../commands/test_service.js";
 import test_simulation from "../commands/test_simulation.js";
 import update from "../commands/update.js";
@@ -37,6 +38,7 @@ const commandList = {
     remove: remove,
     server: server,
     test: test,
+    test_browser: test_browser,
     test_service: test_service,
     test_simulation: test_simulation,
     update: update,
