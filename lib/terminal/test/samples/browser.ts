@@ -134,6 +134,7 @@ browser.push({
     name: "Display the primary menu",
     test: [
         {
+            // primary menu is visible
             node: [
                 ["getElementById", "menu", null]
             ],
@@ -156,6 +157,7 @@ browser.push({
     name: "Launch 'File Navigator' modal from primary menu",
     test: [
         {
+            // third modal in page is a file navigation modal
             node: [
                 ["getElementsByClassName", "box", 2]
             ],
@@ -163,6 +165,100 @@ browser.push({
             target: ["id"],
             type: "attribute",
             value: "fileNavigate-"
+        },
+        {
+            // that file navigation modal contains an address bar
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ],
+            qualifier: "is",
+            target: ["placeholder"],
+            type: "attribute",
+            value: "Optionally type a file system address here."
+        },
+        {
+            // the file navigate modal contains a search field
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 1]
+            ],
+            qualifier: "is",
+            target: ["placeholder"],
+            type: "attribute",
+            value: "⌕ Search"
+        },
+        {
+            // the file navigate modal contains a status bar
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "status-bar", 0]
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "<p>"
+        },
+        {
+            // the file navigate modal displays file system results with a directory
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "directory"
+        },
+        {
+            // that directory contains an expansion button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "expansion"
+        },
+        {
+            // that file navigator modal contains a back button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "header", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "backDirectory"
+        },
+        {
+            // that file navigator modal contains a reload button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "header", 0],
+                ["getElementsByTagName", "button", 1]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "reloadDirectory"
+        },
+        {
+            // that file navigator modal contains a parent navigation button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "header", 0],
+                ["getElementsByTagName", "button", 2]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "parentDirectory"
         }
     ]
 });
@@ -188,6 +284,48 @@ browser.push({
         }
     ]
 });
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 0]
+            ]
+        }
+    ],
+    name: "Directory expansion",
+    test: [
+        {
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "span", 0]
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Expand this folder"
+        },
+        {
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "span", 1]
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "directory"
+        }
+    ]
+});
 
 browser.execute = function test_browser_execute():void {
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
@@ -204,7 +342,9 @@ browser.execute = function test_browser_execute():void {
                     : (process.platform === "win32")
                         ? "start"
                         : "xdg-open",
-                browserCommand:string = `${keyword} http://localhost:${serverVars.webPort}/?test_browser`;
+                    browserCommand:string = (process.argv[0] === "no_close")
+                        ? `${keyword} http://localhost:${serverVars.webPort}/?test_browser_no_close`
+                        : `${keyword} http://localhost:${serverVars.webPort}/?test_browser`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function test_browser_execute_readdir_launch_serviceCallback_browser(errs:nodeError):void {
                     if (errs !== null) {
                         log([errs.toString()]);

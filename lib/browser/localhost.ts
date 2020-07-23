@@ -39,7 +39,7 @@ import webSocket from "./webSocket.js";
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
-                testBrowser:boolean = (location.href.indexOf("test_browser") > 0),
+                testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
                 defaultModals = function local_restore_defaultModals():void {
                     const payloadModal:ui_modal = {
                         agent: browser.data.hashDevice,

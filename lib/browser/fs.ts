@@ -386,7 +386,9 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
         a = a + 1;
     } while (a < length);
     count[0] = count[0] - 1;
-    status = `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
+    status = (location === "\\")
+        ? `${count[0]} ${plural("drive", list.length)}`
+        : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
     local.sort(function local_fs_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {

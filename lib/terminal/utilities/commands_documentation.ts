@@ -307,11 +307,17 @@ const commands_documentation = {
         ]
     },
     test_browser: {
-        description: "Launches the 'server' command as a child process and then sends instructions to the browser to test interactivity.",
-        example: [{
-            code: `${vars.version.command} test_browser`,
-            defined: "Runs the browser interaction tests."
-        }]
+        description: "Launches the 'server' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
+        example: [
+            {
+                code: `${vars.version.command} test_browser`,
+                defined: "Runs the browser interaction tests."
+            },
+            {
+                code: `${vars.version.command} test_browser no_close`,
+                defined: "Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection."
+            }
+        ]
     },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
