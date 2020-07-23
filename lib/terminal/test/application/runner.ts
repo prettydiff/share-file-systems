@@ -2,7 +2,6 @@
 /* lib/terminal/test/application/runner - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library. */
 
 import log from "../../utilities/log.js";
-import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
 import service from "../samples/service.js";

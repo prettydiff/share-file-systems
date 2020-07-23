@@ -8,6 +8,7 @@ import getNodesByType from "./dom.js";
 import invite from "./invite.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import remote from "./remote.js";
 import settings from "./settings.js";
 import share from "./share.js";
 import systems from "./systems.js";
@@ -181,6 +182,13 @@ import webSocket from "./webSocket.js";
                         a = a + 1;
                     } while (a < loginInputsLength);
 
+                    // watch for local idleness
+                    document.onclick = activate;
+
+                    if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
+                        defaultModals();
+                    }
+
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
                     document.getElementById("menuToggle").onclick = util.menu;
@@ -188,20 +196,20 @@ import webSocket from "./webSocket.js";
                     allDevice.onclick = shareAll;
                     allUser.onclick = shareAll;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
-                    document.getElementById("user-delete").onclick = share.deleteList;
-                    document.getElementById("user-invite").onclick = invite.start;
-                    document.getElementById("systemLog").onclick = systems.modal;
-                    document.getElementById("fileNavigator").onclick = fs.navigate;
-                    document.getElementById("textPad").onclick = modal.textPad;
-                    document.getElementById("export").onclick = modal.export;
-                    document.getElementById("settings").onclick = settings.modal;
-
-                    // watch for local idleness
-                    document.onclick = activate;
-
-                    if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
-                        defaultModals();
-                    }
+                    browser.menu.export.onclick = modal.export;
+                    browser.menu.fileNavigator.onclick = fs.navigate;
+                    browser.menu.settings.onclick = settings.modal;
+                    browser.menu.systemLog.onclick = systems.modal;
+                    browser.menu.textPad.onclick = modal.textPad;
+                    browser.menu["user-delete"].onclick = share.deleteList;
+                    browser.menu["user-invite"].onclick = invite.start;
+                    browser.menu.export.onblur = util.menuBlur;
+                    browser.menu.fileNavigator.onblur = util.menuBlur;
+                    browser.menu.settings.onblur = util.menuBlur;
+                    browser.menu.systemLog.onblur = util.menuBlur;
+                    browser.menu.textPad.onblur = util.menuBlur;
+                    browser.menu["user-delete"].onblur = util.menuBlur;
+                    browser.menu["user-invite"].onblur = util.menuBlur;
 
                     // systems log messages
                     if (storage !== undefined && storage.messages !== undefined) {
@@ -232,17 +240,20 @@ import webSocket from "./webSocket.js";
                     browser.loadTest = false;
                     if (loginFlag === true) {
                         browser.socket = webSocket();
-                        if (testBrowser === true) {
-                            network.testBrowserLoaded();
-                        }
                     }
 
                     activate();
                     idleness();
+
+                    if (browser.testBrowser !== null && browser.testBrowser.interaction[0].event === "refresh") {
+                        remote.test(browser.testBrowser.test, browser.testBrowser.index);
+                    }
                 };
             do {
                 cString = comments[a].substringData(0, comments[a].length);
-                if (cString.indexOf("storage:") === 0) {
+                if (cString.indexOf("testBrowser:") === 0) {
+                    browser.testBrowser = JSON.parse(cString.replace("testBrowser:", ""));
+                } else if (cString.indexOf("storage:") === 0) {
                     if (cString.indexOf("\"device\":{}") > 0) {
                         applyLogin();
                     } else {
@@ -298,12 +309,12 @@ import webSocket from "./webSocket.js";
                             let count:number = 0;
                             loginFlag = true;
                             browser.data.colors = storage.settings.colors;
-                            restoreShares("device");
-                            restoreShares("user");
                             browser.data.nameUser = storage.settings.nameUser;
                             browser.data.nameDevice = storage.settings.nameDevice;
                             browser.data.hashDevice = storage.settings.hashDevice;
                             browser.data.hashUser = storage.settings.hashUser;
+                            restoreShares("device");
+                            restoreShares("user");
 
                             if (modalKeys.length < 1) {
                                 loadComplete();

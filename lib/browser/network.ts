@@ -265,7 +265,7 @@ network.storage = function local_network_storage(type:storageType):void {
 };
 
 /* Lets the service code know the browser is fully loaded and ready receive test samples. */
-network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:boolean[]):void {
+network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[boolean, string][], index:number):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
@@ -282,7 +282,7 @@ network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:boo
         data:testBrowserResult = (payload === undefined)
             ? null
             : {
-                index: remote.index,
+                index: index,
                 payload: payload
             };
     xhr.onreadystatechange = readyState;

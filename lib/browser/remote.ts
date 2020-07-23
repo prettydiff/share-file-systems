@@ -11,7 +11,6 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
         element:Element,
         config:testBrowserEvent;
     const eventLength:number = testItem.interaction.length;
-    remote.index = testItem.index;
     do {
         config = testItem.interaction[a];
         if (config.event === "refresh") {
@@ -30,11 +29,9 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
         a = a + 1;
     } while (a < eventLength);
     setTimeout(function local_remote_testEvent_delay(){
-        remote.test(testItem.test);
+        remote.test(testItem.test, testItem.index);
     }, 500);
 };
-
-remote.index = -1;
 
 // gather a DOM node using instructions from a data structure
 remote.node = function local_remote_node(config:browserDOM[]):Element {
@@ -57,53 +54,68 @@ remote.node = function local_remote_node(config:browserDOM[]):Element {
 };
 
 //process all cases of a test scenario for a given test item
-remote.test = function local_remote_test(config:testBrowserTest[]):void {
+remote.test = function local_remote_test(config:testBrowserTest[], index:number):void {
     let a:number = 0,
-        b:number = 0,
-        element:Element,
-        pLength:number,
-        property:Object;
-    const result:boolean[] = [],
-        length:number = config.length;
+        element:Element;
+    const result:[boolean, string][] = [],
+        length:number = config.length,
+        attribution = function local_remote_test_attribution():void {
+            const stringify = function local_remote_test_attribution_raw(input:primitive):string {
+                    return (typeof input === "string")
+                        ? `"${input.replace(/"/g, "\\\"")}"`
+                        : String(input);
+                },
+                getProperty = function local_remote_test_attribution_getProperty():primitive {
+                    const pLength = config[a].target.length - 1,
+                        property = function local_remote_test_attribution_getProperty_property():primitive {
+                            let b:number = 1,
+                                property:Object = element[config[a].target[0]];
+                            if (pLength > 1) {
+                                do {
+                                    property = property[config[a].target[b]];
+                                    b = b + 1;
+                                } while (b < pLength);
+                            }
+                            return property[config[a].target[b]];
+                        };
+                    return (config[a].type === "attribute")
+                        ? element.getAttribute(config[a].target[0])
+                        : (pLength < 1)
+                            ? element[config[a].target[0]]
+                            : property();
+                },
+                rawValue:primitive = getProperty(),
+                qualifier:qualifier = config[a].qualifier,
+                configString:string = <string>config[a].value,
+                index:number = (typeof rawValue === "string" && typeof configString === "string")
+                    ? rawValue.indexOf(configString)
+                    : -1;
+            if (qualifier === "begins" && index === 0) {
+                result.push([true, ""]);
+            } else if (qualifier === "contains" && index > -1) {
+                result.push([true, ""]);
+            } else if (qualifier === "ends" && typeof rawValue === "string" && typeof configString === "string" && index === rawValue.length - configString.length) {
+                result.push([true, ""]);
+            } else if (qualifier === "is" && rawValue === configString) {
+                result.push([true, ""]);
+            } else if (qualifier === "not" && rawValue !== configString) {
+                result.push([true, ""]);
+            } else if (qualifier === "not contains" && typeof rawValue === "string" && typeof configString === "string" && index < 0) {
+                result.push([true, ""]);
+            } else {
+                result.push([false, stringify(rawValue)]);
+            }
+        };
     do {
         element = remote.node(config[a].node);
         if (element === null) {
-            result.push(false);
-        } else if (config[a].type === "attribute") {
-            if (config[a].value === element.getAttribute(config[a].target[0])) {
-                result.push(true);
-            } else {
-                result.push(false);
-            }
-        } else if (config[a].type === "property") {
-            pLength = config[a].target.length - 1;
-            if (pLength < 1) {
-                // only one property
-                if (config[a].value === element[config[a].target[0]]) {
-                    result.push(true);
-                } else {
-                    result.push(false);
-                }
-            } else {
-                // many properties
-                property = element[config[a].target[0]];
-                b = 1;
-                if (pLength > 1) {
-                    do {
-                        property = property[config[a].target[b]];
-                        b = b + 1;
-                    } while (b < pLength);
-                }
-                if (config[a].value === property[config[a].target[b]] === true) {
-                    result.push(true);
-                } else {
-                    result.push(false);
-                }
-            }
+            result.push([false, null]);
+        } else {
+            attribution();
         }
         a = a + 1;
     } while (a < length);
-    network.testBrowserLoaded(result);
+    network.testBrowserLoaded(result, index);
 }
 
 

@@ -11,6 +11,7 @@ declare global {
     type browserDOM = [domMethod, string, number];
     type color = [string, string];
     type colorScheme = "dark" | "default";
+    type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
     type directoryMode = "hash" | "list" | "read" | "search";
     type domMethod = "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getNodesByType" | "parentNode";
@@ -29,15 +30,16 @@ declare global {
     type messageType = "errors" | "status" | "users";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
     type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
-    type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
-    type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
+    type primitive = boolean | null | number | string | undefined;
+    type qualifier = "begins" | "contains" | "ends" | "is" | "not" | "not contains";
+    type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | qualifier;
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage" | "test-browser" | "test-browser-loaded";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
-    type testListType = "service" | "simulation";
+    type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
@@ -121,9 +123,19 @@ declare global {
         loadTest: boolean;
         localNetwork: localNetwork;
         messages:messages;
+        menu: {
+            export: HTMLElement;
+            fileNavigator: HTMLElement;
+            systemLog: HTMLElement;
+            settings: HTMLElement;
+            textPad: HTMLElement;
+            "user-delete": HTMLElement;
+            "user-invite": HTMLElement;
+        };
         pageBody: Element;
         socket?: WebSocket;
         style: HTMLStyleElement;
+        testBrowser: testBrowserItem;
         user: agents;
     }
     interface clipboard {
@@ -470,13 +482,13 @@ declare global {
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
-        testBrowserLoaded?: (payload?:boolean[]) => void;
+        testBrowserLoaded?: (payload?:[boolean, string][], index?:number) => void;
     }
     interface module_remote {
         event?: (event:testBrowserItem) => void;
         index?: number;
         node?: (config:browserDOM[]) => Element;
-        test?: (config:testBrowserTest[]) => void;
+        test?: (config:testBrowserTest[], index:number) => void;
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
@@ -526,6 +538,7 @@ declare global {
         keys?: (event:KeyboardEvent) => void;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
+        menuBlur?: EventHandlerNonNull;
         minimizeAll?: EventHandlerNonNull;
         minimizeAllFlag?: boolean;
         selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
@@ -634,6 +647,7 @@ declare global {
         nameUser: string;
         status: heartbeatStatus;
         storage: string;
+        testBrowser?: string;
         testBrowserCallback?: () => void;
         timeStore: number;
         user: agents;
@@ -736,6 +750,35 @@ declare global {
         status: "bad" | "good";
         type: "request" | "response";
     }
+    interface testBrowser extends Array<testBrowserItem> {
+        [index:number]: testBrowserItem;
+        execute?: () => void;
+        iterate?: (index:number) => void;
+        result?: (item:testBrowserResult) => void;
+        server?: httpServer;
+    }
+    interface testBrowserEvent {
+        event: eventName;
+        value?: string;
+        node: browserDOM[];
+    }
+    interface testBrowserItem {
+        interaction: testBrowserEvent[];
+        index?: number;
+        name: string;
+        test: testBrowserTest[];
+    }
+    interface testBrowserResult {
+        index: number;
+        payload: [boolean, string][];
+    }
+    interface testBrowserTest {
+        node: browserDOM[];
+        qualifier: qualifier;
+        target: string[];
+        type: "attribute" | "property";
+        value: boolean | null | number | string;
+    }
     interface testComplete {
         callback: Function;
         fail: number;
@@ -761,36 +804,8 @@ declare global {
         artifact?: string;
         command: string;
         file?: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: string;
-    }
-    interface testBrowser extends Array<testBrowserItem> {
-        [index:number]: testBrowserItem;
-        execute?: () => void;
-        iterate?: (index:number) => void;
-        result?: (item:testBrowserResult) => void;
-        server?: httpServer;
-    }
-    interface testBrowserEvent {
-        event: eventName;
-        value?: string;
-        node: browserDOM[];
-    }
-    interface testBrowserItem {
-        interaction: testBrowserEvent[];
-        index: number;
-        name: string;
-        test: testBrowserTest[];
-    }
-    interface testBrowserResult {
-        index: number;
-        payload: boolean[];
-    }
-    interface testBrowserTest {
-        node: browserDOM[];
-        target: string[];
-        type: "attribute" | "property";
-        value: boolean | null | number | string;
     }
     interface testServiceArray extends Array<testServiceInstance> {
         [index:number]: testServiceInstance;
@@ -812,7 +827,7 @@ declare global {
         command: any;
         file?: string;
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         shares?: testServiceShares;
         test: object | string;
     }
@@ -832,7 +847,7 @@ declare global {
             [key: string]: any;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: string;
     }
     interface testTemplateFileService {
@@ -840,7 +855,7 @@ declare global {
             "fs": fileService;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: testServiceFileTarget;
     }
     interface testTemplateHeartbeatComplete {
@@ -848,7 +863,7 @@ declare global {
             "heartbeat-complete": heartbeat;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: {
             "heartbeat-status": heartbeat;
         };
@@ -858,7 +873,7 @@ declare global {
             "heartbeat-update": heartbeatUpdate;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: string;
     }
     interface testTemplateInvite extends testTemplate {

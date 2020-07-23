@@ -2,6 +2,7 @@
 /* lib/terminal/test/samples/browser - A list of tests that execute in the web browser. */
 
 import error from "../../utilities/error.js";
+import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import server from "../../commands/server.js";
 import serverVars from "../../server/serverVars.js";
@@ -41,7 +42,6 @@ browser.push({
             ]
         }
     ],
-    index: 0,
     name: "Login form",
     test: [
         // that a local user button is present and active
@@ -50,6 +50,7 @@ browser.push({
                 ["getElementById", "device", null],
                 ["getElementsByTagName", "button", 1]
             ],
+            qualifier: "is",
             target: ["class"],
             type: "attribute",
             value: "active"
@@ -59,6 +60,7 @@ browser.push({
             node: [
                 ["getElementById", "login", null]
             ],
+            qualifier: "is",
             target: ["clientHeight"],
             type: "property",
             value: 0
@@ -68,6 +70,7 @@ browser.push({
             node: [
                 ["getElementsByTagName", "body", 0]
             ],
+            qualifier: "is",
             target: ["class"],
             type: "attribute",
             value: null
@@ -83,7 +86,6 @@ browser.push({
             node: null
         }
     ],
-    index: 0,
     name: "Refresh following login form completion",
     // assert that login remains complete, login data is stored and written to page
     test: [
@@ -93,6 +95,7 @@ browser.push({
                 ["getElementById", "device", null],
                 ["getElementsByTagName", "button", 1]
             ],
+            qualifier: "is",
             target: ["class"],
             type: "attribute",
             value: "active"
@@ -102,6 +105,7 @@ browser.push({
             node: [
                 ["getElementById", "login", null]
             ],
+            qualifier: "is",
             target: ["clientHeight"],
             type: "property",
             value: 0
@@ -111,20 +115,79 @@ browser.push({
             node: [
                 ["getElementsByTagName", "body", 0]
             ],
+            qualifier: "is",
             target: ["class"],
             type: "attribute",
             value: null
         }
     ]
 });
-    /*{
-        event: "click",
-        node: [["getElementById", "menuToggle", null]]
-    },
-    {
-        event: "click",
-        node: [["getElementById", "fileNavigator", null]]
-    }*/
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementById", "menuToggle", null]
+            ]
+        }
+    ],
+    name: "Display the primary menu",
+    test: [
+        {
+            node: [
+                ["getElementById", "menu", null]
+            ],
+            qualifier: "is",
+            target: ["style", "display"],
+            type: "property",
+            value: "block"
+        }
+    ]
+});
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementById", "fileNavigator", null]
+            ]
+        }
+    ],
+    name: "Launch 'File Navigator' modal from primary menu",
+    test: [
+        {
+            node: [
+                ["getElementsByClassName", "box", 2]
+            ],
+            qualifier: "begins",
+            target: ["id"],
+            type: "attribute",
+            value: "fileNavigate-"
+        }
+    ]
+});
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementById", "menuToggle", null]
+            ]
+        }
+    ],
+    name: "Close menu",
+    test: [
+        {
+            node: [
+                ["getElementById", "menu", null]
+            ],
+            qualifier: "is",
+            target: ["style", "display"],
+            type: "property",
+            value: "none"
+        }
+    ]
+});
 
 browser.execute = function test_browser_execute():void {
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
@@ -182,14 +245,146 @@ browser.execute = function test_browser_execute():void {
 browser.iterate = function test_browser_iterate(index:number):void {
     // not writing to storage
     browser[index].index = index;
+    serverVars.testBrowser = JSON.stringify(browser[index]);
     const message:string = JSON.stringify({
         "test-browser": browser[index]
     });
-    vars.ws.broadcast(message);
+    // delay is necessary to prevent a race condition
+    // * about 1 in 10 times this will fail following event "refresh"
+    // * because serverVars.testBrowser is not updated to methodGET library fast enough
+    setTimeout(function test_browser_iterate_delay():void {
+        vars.ws.broadcast(message);
+    }, 25);
 };
 
 browser.result = function test_browser_result(item:testBrowserResult):void {
-    console.log(item);
+    let a:number = 0,
+        falseFlag:boolean = false;
+    const length:number = item.payload.length,
+        completion = function test_browser_result_completion(pass:boolean):void {
+            const plural:string = (browser.length === 1)
+                ? ""
+                : "s";
+            vars.verbose = true;
+            if (pass === true) {
+                const passPlural:string = (item.index === 1)
+                    ? ""
+                    : "s";
+                log([`${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${item.index} test${passPlural}.`], true);
+                vars.ws.broadcast(JSON.stringify({
+                    "test-browser-close": {}
+                }));
+                process.exit(0);
+                return;
+            }
+            log([`${vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + item.index + vars.text.none}: "${vars.text.cyan + browser[item.index - 1].name + vars.text.none}" out of ${browser.length} total test${plural}.`], true);
+            vars.ws.broadcast(JSON.stringify({
+                "test-browser-close": {}
+            }));
+            process.exit(1);
+        },
+        summary = function test_browser_result_summary(pass:boolean):string {
+            const text:string = ` browser test ${item.index}: ${vars.text.none + browser[item.index - 1].name}`,
+                resultString:string = (pass === true)
+                    ? `${vars.text.green}Passed`
+                    : `${vars.text.angry}Failed`;
+            return humanTime(false) + resultString + text;
+        },
+        testString = function test_browser_result_testString(pass:boolean, browserIndex:number, testIndex:number):string {
+            const valueStore:primitive = browser[browserIndex].test[testIndex].value,
+                valueType:string = typeof valueStore,
+                value = (valueStore === null)
+                    ? "null"
+                    : (valueType === "string")
+                        ? `"${valueStore}"`
+                        : valueStore.toString(),
+                buildNode = function test_Browser_result_buildNode():string {
+                    let b:number = 0;
+                    const node:browserDOM[] = browser[browserIndex].test[testIndex].node,
+                        property:string[] = browser[browserIndex].test[testIndex].target,
+                        nodeLength:number = node.length,
+                        propertyLength:number = property.length,
+                        output:string[] = ["document"];
+                    do {
+                        output.push(".");
+                        output.push(node[b][0]);
+                        output.push("(");
+                        output.push(node[b][1]);
+                        output.push(")");
+                        if (node[b][2] !== null) {
+                            output.push("[");
+                            output.push(node[b][2].toString());
+                            output.push("]");
+                        }
+                        b = b + 1;
+                    } while (b < nodeLength);
+                    if (browser[browserIndex].test[testIndex].type === "attribute") {
+                        output.push(".");
+                        output.push("getAttribute(\"");
+                        output.push(browser[browserIndex].test[testIndex].target[0]);
+                        output.push("\")");
+                    } else if (browser[browserIndex].test[testIndex].type === "property") {
+                        b = 0;
+                        do {
+                            output.push(".");
+                            output.push(browser[browserIndex].test[testIndex].target[b]);
+                            b = b + 1;
+                        } while (b < propertyLength);
+                    }
+                    return output.join("");
+                },
+                star:string = `   ${vars.text.angry}*${vars.text.none} `,
+                resultString:string = (pass === true)
+                    ? `${vars.text.green}Passed:`
+                    : `${vars.text.angry}Failed:`,
+                qualifier:string = (browser[browserIndex].test[testIndex].qualifier === "begins")
+                    ? (pass === true)
+                        ? "begins with"
+                        : `${vars.text.angry}does not begin with${vars.text.none}`
+                    : (browser[browserIndex].test[testIndex].qualifier === "contains")
+                        ? (pass === true)
+                            ? "contains"
+                            : `${vars.text.angry}does not contain${vars.text.none}`
+                        : (browser[browserIndex].test[testIndex].qualifier === "ends")
+                            ? (pass === true)
+                                ? "ends with"
+                                : `${vars.text.angry}does not end with${vars.text.none}`
+                            : (browser[browserIndex].test[testIndex].qualifier === "is")
+                                ? (pass === true)
+                                    ? "is"
+                                    : `${vars.text.angry}is not${vars.text.none}`
+                                : (browser[browserIndex].test[testIndex].qualifier === "not")
+                                    ? (pass === true)
+                                        ? "is not"
+                                        : `${vars.text.angry}is${vars.text.none}`
+                                    : (pass === true)
+                                        ? "does not contain"
+                                        : `${vars.text.angry}contains${vars.text.none}`,
+                nodeString = `${vars.text.none} ${buildNode()} ${qualifier} ${value}`;
+            return star + resultString + nodeString;
+        },
+        failure:string[] = [];
+    item.index = item.index + 1;
+    do {
+        failure.push(testString((item.payload[a][0] === true), item.index - 1, a));
+        if (item.payload[a][0] === false) {
+            falseFlag = true;
+            failure.push(`     Actual value: ${vars.text.cyan + item.payload[a][1] + vars.text.none}`);
+        }
+        a = a + 1;
+    } while (a < length);
+    if (falseFlag === true) {
+        failure.splice(0, 0, summary(false));
+        log(failure);
+        completion(false);
+        return;
+    }
+    log([summary(true)]);
+    if (item.index < browser.length) {
+        browser.iterate(item.index);
+    } else {
+        completion(true);
+    }
 };
 
 export default browser;

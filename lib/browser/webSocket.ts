@@ -222,11 +222,12 @@ const title:Element = document.getElementsByClassName("title")[0],
             } else {
                 invite.respond(invitation);
             }
-        } else if (event.data.indexOf("{\"test-browser\":") === 0) {
+        } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
             remote.event(JSON.parse(event.data)["test-browser"]);
+        } else if (event.data.indexOf("{\"test-browser-close\":") === 0 && location.href.indexOf("?test_browser") > 0) {
+            window.close();
         } else if (event.data === "reload") {
-            const uri:string = location.href;
-            location.replace(uri.replace("?test_browser", ""));
+            location.reload();
         }
     },
     open = function local_socketOpen():void {

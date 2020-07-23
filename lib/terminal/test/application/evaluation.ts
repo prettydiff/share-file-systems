@@ -72,7 +72,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                         log([`${humanTime(false) + vars.text.green}Passed ${output.testType} ${output.index + 1}: ${vars.text.none + name}`]);
                     } else if (messages[0].indexOf("fail - ") === 0) {
                         output.fail = output.fail + 1;
-                        log([`${humanTime(false) + vars.text.angry}Fail ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
+                        log([`${humanTime(false) + vars.text.angry}Failed ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
                                 ? <string>output.test.test
