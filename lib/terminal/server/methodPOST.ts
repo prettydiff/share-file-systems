@@ -127,7 +127,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 invite(body, serverResponse);
             } else if (task === "test-browser") {
                 // * validate a browser test iteration
-                browser.result(JSON.parse(body)["test-browser"]);
+                browser.result(JSON.parse(body)["test-browser"], serverResponse);
             } else if (task === "test-browser-loaded") {
                 // * browser is ready to receive test samples
                 serverVars.testBrowserCallback();

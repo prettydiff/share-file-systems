@@ -125,9 +125,11 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
         vars.ws.broadcast("reload");
     } else {
         const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
-                vars.ws.broadcast(JSON.stringify({
-                    "fs-update-local": result
-                }));
+                if (vars.command !== "test_browser") {
+                    vars.ws.broadcast(JSON.stringify({
+                        "fs-update-local": result
+                    }));
+                }
             },
             dirConfig:readDirectory = {
                 callback: fsUpdateCallback,

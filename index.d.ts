@@ -754,7 +754,7 @@ declare global {
         [index:number]: testBrowserItem;
         execute?: () => void;
         iterate?: (index:number) => void;
-        result?: (item:testBrowserResult) => void;
+        result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
     }
     interface testBrowserEvent {

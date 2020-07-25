@@ -46,7 +46,11 @@ remote.node = function local_remote_node(config:browserDOM[]):Element {
         } else if (node[2] === null) {
             element = element[node[0]](node[1]);
         } else {
-            element = element[node[0]](node[1])[node[2]];
+            if (node[2] < 0 && element[node[0]](node[1]) !== null && element[node[0]](node[1]).length > 0) {
+                element = element[node[0]](node[1])[element[node[0]](node[1]).length - 1];
+            } else {
+                element = element[node[0]](node[1])[node[2]];
+            }
         }
         a = a + 1;
     } while (a < nodeLength);

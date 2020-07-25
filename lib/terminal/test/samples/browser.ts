@@ -1,6 +1,8 @@
 
 /* lib/terminal/test/samples/browser - A list of tests that execute in the web browser. */
 
+import { ServerResponse } from "http";
+
 import error from "../../utilities/error.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
@@ -8,6 +10,7 @@ import server from "../../commands/server.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 import remove from "../../commands/remove.js";
+import response from "../../server/response.js";
 
 const browser:testBrowser = [];
 
@@ -299,6 +302,7 @@ browser.push({
     name: "Directory expansion",
     test: [
         {
+            // the first child list item of the expanded directory thus contains its own expansion button
             node: [
                 ["getElementsByClassName", "box", 2],
                 ["getElementsByClassName", "body", 0],
@@ -311,6 +315,7 @@ browser.push({
             type: "property",
             value: "Expand this folder"
         },
+        // the first child list of the expanded directory is itself a directory
         {
             node: [
                 ["getElementsByClassName", "box", 2],
@@ -323,6 +328,113 @@ browser.push({
             target: ["innerHTML"],
             type: "property",
             value: "directory"
+        }
+    ]
+});
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ]
+        },
+        {
+            event: "setValue",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ],
+            value: vars.projectPath
+        },
+        {
+            event: "blur",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ]
+        }
+    ],
+    name: "Change file navigator file system location",
+    test: [
+        {
+            // the first file system item is .git
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["innerHTML"],
+            type: "property",
+            value: ".git"
+        },
+        {
+            // the last file system item is version.json
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", -1],
+                ["getElementsByTagName", "label", 0]
+            ],
+            qualifier: "ends",
+            target: ["innerHTML"],
+            type: "property",
+            value: "version.json"
+        }
+    ]
+});
+browser.push({
+    interaction: [
+        {
+            event: "dblclick",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+            ]
+        }
+    ],
+    name: "Double click into a directory",
+    test: [
+        {
+            // the file navigator modal address is now at .git
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ],
+            qualifier: "ends",
+            target: ["value"],
+            type: "property",
+            value: ".git"
+        }
+    ]
+});
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "header", 0],
+                ["getElementsByTagName", "button", 2]
+            ]
+        }
+    ],
+    name: "Click the parent directory button",
+    test: [
+        {
+            // the file navigator modal address is now at .git
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ],
+            qualifier: "ends",
+            target: ["value"],
+            type: "property",
+            value: "share-file-systems"
         }
     ]
 });
@@ -394,34 +506,44 @@ browser.iterate = function test_browser_iterate(index:number):void {
     // * because serverVars.testBrowser is not updated to methodGET library fast enough
     setTimeout(function test_browser_iterate_delay():void {
         vars.ws.broadcast(message);
-    }, 25);
+    }, 50);
 };
 
-browser.result = function test_browser_result(item:testBrowserResult):void {
+browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
     let a:number = 0,
         falseFlag:boolean = false;
     const length:number = item.payload.length,
         completion = function test_browser_result_completion(pass:boolean):void {
             const plural:string = (browser.length === 1)
-                ? ""
-                : "s";
+                    ? ""
+                    : "s",
+                totalTests:number = (function test_browser_result_completion_total():number {
+                    let aa:number = browser.length,
+                        bb:number = 0;
+                    do {
+                        aa = aa - 1;
+                        bb = bb + browser[aa].test.length;
+                    } while (aa > 0);
+                    return bb;
+                }()),
+                exit = function test_browser_result_completion_exit(type:number, message:string):void {
+                    vars.ws.broadcast(JSON.stringify({
+                        "test-browser-close": {}
+                    }));
+                    log([message], true);
+                    setTimeout(function test_browser_result_completion_exit_delay() {
+                        process.exit(type);
+                    }, 25);
+                };
             vars.verbose = true;
             if (pass === true) {
                 const passPlural:string = (item.index === 1)
                     ? ""
                     : "s";
-                log([`${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${item.index} test${passPlural}.`], true);
-                vars.ws.broadcast(JSON.stringify({
-                    "test-browser-close": {}
-                }));
-                process.exit(0);
+                exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} tests from ${item.index} test campaign${passPlural}.`);
                 return;
             }
-            log([`${vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + item.index + vars.text.none}: "${vars.text.cyan + browser[item.index - 1].name + vars.text.none}" out of ${browser.length} total test${plural}.`], true);
-            vars.ws.broadcast(JSON.stringify({
-                "test-browser-close": {}
-            }));
-            process.exit(1);
+            exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + item.index + vars.text.none}: "${vars.text.cyan + browser[item.index - 1].name + vars.text.none}" out of ${browser.length} total campaign${plural} and ${totalTests} tests.`);
         },
         summary = function test_browser_result_summary(pass:boolean):string {
             const text:string = ` browser test ${item.index}: ${vars.text.none + browser[item.index - 1].name}`,
@@ -504,6 +626,7 @@ browser.result = function test_browser_result(item:testBrowserResult):void {
             return star + resultString + nodeString;
         },
         failure:string[] = [];
+    response(serverResponse, "text/plain", `Processing browser test ${item.index}: ${browser[item.index].name}`);
     item.index = item.index + 1;
     do {
         failure.push(testString((item.payload[a][0] === true), item.index - 1, a));

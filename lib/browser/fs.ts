@@ -35,7 +35,6 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         body:Element = li.getAncestor("body", "class"),
         box:Element = <Element>body.parentNode.parentNode,
         input:HTMLInputElement = box.getElementsByTagName("input")[0],
-        watchValue:string = input.value,
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
@@ -59,7 +58,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
             location: [path],
             name: "",
             share: browser.data.modals[id].share,
-            watch: watchValue
+            watch: path
         };
     event.preventDefault();
     input.value = path;

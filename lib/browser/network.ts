@@ -4,7 +4,6 @@ import browser from "./browser.js";
 import context from "./context.js";
 import systems from "./systems.js";
 import util from "./util.js";
-import remote from "./remote.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
@@ -270,7 +269,10 @@ network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[bo
         readyState = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
                 messageTransmit = true;
-                if (xhr.status !== 200 && xhr.status !== 0) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    // eslint-disable-next-line
+                    console.log(xhr.responseText);
+                } else {
                     const error:messageError = {
                         error: `XHR responded with ${xhr.status} when sending messages.`,
                         stack: [new Error().stack.replace(/\s+$/, "")]
