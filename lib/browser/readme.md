@@ -7,7 +7,7 @@ These library files are imported into *localhost.js* and executed in the browser
 * **[audio.ts](audio.ts)**         - A storage of audio samples encoded in Base64 with respective metadata.
 * **[browser.ts](browser.ts)**     - A list of declared variables globally available to the browser instance of the application.
 * **[context.ts](context.ts)**     - A collection of event handlers associated with the right click context menu.
-* **[dom.ts](dom.ts)**             - Extensions to the DOM to provide navigational function not present from the standard methods
+* **[dom.ts](dom.ts)**             - Extensions to the DOM to provide navigational functionality not present from the standard methods
 * **[fs.ts](fs.ts)**               - A collection of utilities for handling file system related tasks in the browser.
 * **[invite.ts](invite.ts)**       - A collection of utilities for processing invitation related tasks.
 * **[localhost.ts](localhost.ts)** - The file that is sourced into the index.html file and generates the default browser experience.

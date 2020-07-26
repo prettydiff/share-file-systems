@@ -206,8 +206,9 @@ declare global {
         path: string;
     }
     interface Document {
-        getNodesByType: Function;
         getElementsByAttribute: Function;
+        getModalsByType: Function;
+        getNodesByType: Function;
     }
     interface Element {
         getAncestor: (identifier:string, selector:selector) => Element;
