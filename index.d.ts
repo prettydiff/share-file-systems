@@ -483,6 +483,7 @@ declare global {
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
         testBrowserLoaded?: (payload?:[boolean, string][], index?:number) => void;
+        xhr?: (config:networkConfig) => void;
     }
     interface module_remote {
         event?: (event:testBrowserItem) => void;
@@ -554,6 +555,13 @@ declare global {
     }
     interface navigate extends EventHandlerNonNull {
         (Event:Event, config?: navConfig): void;
+    }
+    interface networkConfig {
+        callback: (responseText:string) => void;
+        error: string;
+        halt: boolean;
+        payload: string;
+        type: string;
     }
     interface nodeCopyParams {
         callback: Function;
