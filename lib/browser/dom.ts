@@ -148,7 +148,7 @@ const dom = function local_dom():void {
         // getModalsByType - Returns a list of modals matching a given modal type
         // * The optional type argument indicates what type of modals to return
         // * The default type value is "all" or undefined which returns all modals
-        getModalsByType = function local_dom_getModalsByType(type?:modalType|"all"):Node[] {
+        getModalsByModalType = function local_dom_getModalsByModalType(type?:modalType|"all"):Node[] {
             const keys:string[] = Object.keys(browser.data.modals),
                 length:number = keys.length,
                 output:Node[] = [];
@@ -176,7 +176,7 @@ const dom = function local_dom():void {
     // Create a document method
     document.getElementsByAttribute          = getElementsByAttribute;
     document.getNodesByType                  = getNodesByType;
-    document.getModalsByType                 = getModalsByType;
+    document.getModalsByModalType            = getModalsByModalType;
 
     // Ensure dynamically created elements get these methods too
     Element.prototype.getAncestor            = getAncestor;

@@ -14,7 +14,7 @@ declare global {
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
     type directoryMode = "hash" | "list" | "read" | "search";
-    type domMethod = "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getNodesByType" | "parentNode";
+    type domMethod = "childNodes" | "firstChild" | "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getModalsByModalType" | "getNodesByType" | "lsatChild" | "parentNode";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
     type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keypress" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
@@ -207,7 +207,7 @@ declare global {
     }
     interface Document {
         getElementsByAttribute: Function;
-        getModalsByType: Function;
+        getModalsByModalType: Function;
         getNodesByType: Function;
     }
     interface Element {
@@ -488,9 +488,13 @@ declare global {
         xhr?: (config:networkConfig) => void;
     }
     interface module_remote {
+        delay?: (config:testBrowserItem) => void;
+        evaluate?: (config:testBrowserTest) => [boolean, string];
         event?: (event:testBrowserItem) => void;
+        getProperty?: (config:testBrowserTest) => primitive;
         index?: number;
         node?: (config:browserDOM[]) => Element;
+        stringify?: (primitive:primitive) => string;
         test?: (config:testBrowserTest[], index:number) => void;
     }
     interface module_settings {
@@ -773,8 +777,9 @@ declare global {
         node: browserDOM[];
     }
     interface testBrowserItem {
-        interaction: testBrowserEvent[];
+        delay?: testBrowserTest;
         index?: number;
+        interaction: testBrowserEvent[];
         name: string;
         test: testBrowserTest[];
     }
