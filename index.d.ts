@@ -471,6 +471,7 @@ declare global {
         textPad?: textPad;
         textSave?: EventHandlerNonNull;
         textTimer?: EventHandlerNonNull;
+        unMinimize?: EventHandlerNonNull;
         zTop?: modalTop;
     }
     interface module_network {

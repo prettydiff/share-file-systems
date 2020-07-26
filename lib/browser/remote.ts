@@ -71,21 +71,28 @@ remote.test = function local_remote_test(config:testBrowserTest[], index:number)
                 },
                 getProperty = function local_remote_test_attribution_getProperty():primitive {
                     const pLength = config[a].target.length - 1,
+                        method = function local_remote_test_attribution_getProperty_method(prop:Object, name:string):primitive {
+                            if (name.slice(name.length - 2) === "()") {
+                                name = name.slice(0, name.length - 2);
+                                return prop[name]();
+                            }
+                            return prop[name];
+                        },
                         property = function local_remote_test_attribution_getProperty_property():primitive {
                             let b:number = 1,
-                                property:Object = element[config[a].target[0]];
+                                item:Object = method(element, config[a].target[0]);
                             if (pLength > 1) {
                                 do {
-                                    property = property[config[a].target[b]];
+                                    item = method(item, config[a].target[b]);
                                     b = b + 1;
                                 } while (b < pLength);
                             }
-                            return property[config[a].target[b]];
+                            return method(item, config[a].target[b]);
                         };
                     return (config[a].type === "attribute")
                         ? element.getAttribute(config[a].target[0])
                         : (pLength < 1)
-                            ? element[config[a].target[0]]
+                            ? method(element, config[a].target[0])
                             : property();
                 },
                 rawValue:primitive = getProperty(),

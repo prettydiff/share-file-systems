@@ -24,6 +24,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
 
 /* Accesses the file system */
 network.fs = function local_network_fs(configuration:fileService, callback:Function):void {
+    context.menuRemove();
     network.xhr({
         callback: function local_network_fs_callback(responseText:string) {
             responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
@@ -156,14 +157,10 @@ network.storage = function local_network_storage(type:storageType):void {
 
 /* Lets the service code know the browser is fully loaded and ready receive test samples. */
 network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[boolean, string][], index:number):void {
-    const callback = function local_network_messages_callback(responseText:string):void {
-            // eslint-disable-next-line
-            console.log(responseText);
-        };
-    if (payload === undefined) {
+   if (payload === undefined) {
         setTimeout(function local_network_testBrowserLoaded_delay():void {
             network.xhr({
-                callback: callback,
+                callback: null,
                 error: null,
                 halt: false,
                 payload: JSON.stringify({
@@ -174,7 +171,7 @@ network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[bo
         }, 1000);
     } else {
         network.xhr({
-            callback: callback,
+            callback: null,
             error: null,
             halt: false,
             payload: JSON.stringify({
@@ -188,7 +185,7 @@ network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[bo
     }
 };
 
-// the backbone of this library
+/* the backbone of this library, all transmissions from the browser occur here */
 network.xhr = function local_network_xhr(config:networkConfig):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_messages_callback():void {
@@ -206,7 +203,10 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                         stack: [new Error().stack.replace(/\s+$/, "")]
                     };
                     systems.message("errors", JSON.stringify(error));
-                    if (config.type !== "messages") {
+                    if (config.type.indexOf("fs-") === 0) {
+                        config.callback(xhr.responseText);
+                        network.storage("messages");
+                    } else if (config.type !== "messages") {
                         network.storage("messages");
                     }
                 }

@@ -125,6 +125,8 @@ browser.push({
         }
     ]
 });
+
+// access the primary menu
 browser.push({
     interaction: [
         {
@@ -148,6 +150,8 @@ browser.push({
         }
     ]
 });
+
+// open a file navigator modal
 browser.push({
     interaction: [
         {
@@ -262,9 +266,47 @@ browser.push({
             target: ["class"],
             type: "attribute",
             value: "parentDirectory"
+        },
+        {
+            // that file navigator modal contains a minimize button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "minimize"
+        },
+        {
+            // that file navigator modal contains a maximize button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 1]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "maximize"
+        },
+        {
+            // that file navigator modal contains a close button
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 2]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "close"
         }
     ]
 });
+
+// close the primary menu
 browser.push({
     interaction: [
         {
@@ -287,6 +329,8 @@ browser.push({
         }
     ]
 });
+
+// expand a directory
 browser.push({
     interaction: [
         {
@@ -331,6 +375,8 @@ browser.push({
         }
     ]
 });
+
+// change the file system address by typing a new value
 browser.push({
     interaction: [
         {
@@ -386,6 +432,8 @@ browser.push({
         }
     ]
 });
+
+// double click into a child directory
 browser.push({
     interaction: [
         {
@@ -412,6 +460,8 @@ browser.push({
         }
     ]
 });
+
+// use the parent directory button of the file navigator modal
 browser.push({
     interaction: [
         {
@@ -426,7 +476,7 @@ browser.push({
     name: "Click the parent directory button",
     test: [
         {
-            // the file navigator modal address is now at .git
+            // the file navigator modal address is now at share-file-systems
             node: [
                 ["getElementsByClassName", "box", 2],
                 ["getElementsByTagName", "input", 0]
@@ -435,6 +485,83 @@ browser.push({
             target: ["value"],
             type: "property",
             value: "share-file-systems"
+        }
+    ]
+});
+
+// use the back button of the file navigator modal
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "header", 0],
+                ["getElementsByTagName", "button", 0]
+            ]
+        }
+    ],
+    name: "Click the back button of a file navigator modal",
+    test: [
+        {
+            // the file navigator modal address returned back to .git
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByTagName", "input", 0]
+            ],
+            qualifier: "ends",
+            target: ["value"],
+            type: "property",
+            value: ".git"
+        }
+    ]
+});
+
+// use the minimize button to minimize a modal
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementsByClassName", "box", 2],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 0]
+            ]
+        }
+    ],
+    name: "Click the minimize button of a file navigator modal",
+    test: [
+        {
+            // the file navigator modal is 11.5em when minimized
+            node: [
+                ["getElementsByClassName", "box", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "width"],
+            type: "property",
+            value: "11.5em"
+        },
+        {
+            // the modal body is display none
+            node: [
+                ["getElementsByClassName", "box", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "display"],
+            type: "property",
+            value: "none"
+        },
+        {
+            // the file navigator modal is reduced to the tray
+            node: [
+                ["getElementsByClassName", "box", 0]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "li"
         }
     ]
 });
@@ -570,9 +697,9 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     do {
                         output.push(".");
                         output.push(node[b][0]);
-                        output.push("(");
+                        output.push("(\"");
                         output.push(node[b][1]);
-                        output.push(")");
+                        output.push("\")");
                         if (node[b][2] !== null) {
                             output.push("[");
                             output.push(node[b][2].toString());

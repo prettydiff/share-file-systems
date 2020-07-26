@@ -127,6 +127,7 @@ modal.create = function local_modal_create(options:ui_modal):Element {
     }
     button.onmousedown = modal.move;
     button.ontouchstart = modal.move;
+    button.onclick = modal.unMinimize;
     button.onblur  = function local_modal_create_blur():void {
         button.onclick = null;
     };
@@ -645,8 +646,10 @@ modal.move = function local_modal_move(event:Event):void {
         boxTop:number     = box.offsetTop,
         max:number        = browser.content.clientHeight;
     if (minifyTest === true) {
-        const button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
-        button.click();
+        if (touch === true) {
+            const button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+            button.click();
+        }
         return;
     }
     if (browser.data.modals[box.getAttribute("id")].status === "maximized") {
@@ -953,6 +956,16 @@ modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
         network.storage("settings");
     }, 15000);
 }
+
+/* Restore a minimized modal to its prior size and location */
+modal.unMinimize = function local_modal_unMinimize(event:MouseEvent):void {
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
+        button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+    if (box.parentNode.nodeName.toLowerCase() === "li") {
+        button.click();
+    }
+};
 
 /* Manages z-index of modals and moves a modal to the top on interaction */
 modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:Element):void {
