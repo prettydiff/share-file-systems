@@ -713,6 +713,271 @@ browser.push({
     ]
 });
 
+// maximize the modal
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 1]
+            ]
+        }
+    ],
+    name: "Maximize a modal",
+    test: [
+        {
+            // the modal is at the top of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "top"],
+            type: "property",
+            value: "0em"
+        },
+        {
+            // the modal is at the left of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "left"],
+            type: "property",
+            value: "0em"
+        },
+        {
+            // the file navigator modal is a different size
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "not",
+            target: ["style", "width"],
+            type: "property",
+            value: "80em"
+        }
+    ]
+});
+
+// refresh the page and verify the modal is still maximized
+browser.push({
+    interaction: [
+        {
+            event: "refresh",
+            node: null
+        }
+    ],
+    name: "Refresh following file navigation maximize",
+    test: [
+        {
+            // the modal is at the top of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "top"],
+            type: "property",
+            value: "0em"
+        },
+        {
+            // the modal is at the left of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "left"],
+            type: "property",
+            value: "0em"
+        },
+        {
+            // the file navigator modal is a different size
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "not",
+            target: ["style", "width"],
+            type: "property",
+            value: "80em"
+        }
+    ]
+});
+
+// restore a maximized modal
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 1]
+            ]
+        }
+    ],
+    name: "Restore a maximized modal to its prior size and location",
+    test: [
+        {
+            // the modal is at the top of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "top"],
+            type: "property",
+            value: "22em"
+        },
+        {
+            // the modal is at the left of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "left"],
+            type: "property",
+            value: "22em"
+        },
+        {
+            // the file navigator modal is a different size
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "width"],
+            type: "property",
+            value: "80em"
+        }
+    ]
+});
+
+// display context menu
+browser.push({
+    interaction: [
+        {
+            event: "contextmenu",
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0]
+            ]
+        }
+    ],
+    name: "Display file system context menu (right click)",
+    test: [
+        {
+            // the context menu is visible
+            node: [
+                ["getElementById", "contextMenu", null]
+            ],
+            qualifier: "is",
+            target: ["style", "display"],
+            type: "property",
+            value: ""
+        },
+        {
+            // there is a details button
+            node: [
+                ["getElementById", "contextMenu", null],
+                ["getElementsByTagName", "li", 0]
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "CTRL + ALT + T"
+        }
+    ]
+});
+
+// display details
+browser.push({
+    delay: {
+        // the modal loads and content populates
+        node: [
+            ["getModalsByModalType", "details", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "h3", 0]
+        ],
+        qualifier: "begins",
+        target: ["innerHTML"],
+        type: "property",
+        value: "File System Details - "
+    },
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getElementById", "contextMenu", null],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 0]
+            ]
+        }
+    ],
+    name: "Active file system details",
+    test: [
+        {
+            // text of the first button
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Largest size"
+        },
+        {
+            // text of the second button
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "button", 1]
+            ],
+            qualifier: "is",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Recently changed"
+        },
+        {
+            // model does not have a maximize button
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "buttons", 0]
+            ],
+            qualifier: "not contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Maximize"
+        },
+        {
+            // model does not have a minimize button
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "buttons", 0]
+            ],
+            qualifier: "not contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Minimize"
+        },
+        {
+            // model does have a close button
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "buttons", 0]
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Close"
+        }
+    ]
+});
+
+
 browser.execute = function test_browser_execute():void {
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
     vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function test_browser_execute_readdir(dErr:nodeError, files:string[]):void {
@@ -893,17 +1158,25 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                             ? (pass === true)
                                 ? "ends with"
                                 : `${vars.text.angry}does not end with${vars.text.none}`
-                            : (config.qualifier === "is")
+                            : (config.qualifier === "greater")
                                 ? (pass === true)
-                                    ? "is"
-                                    : `${vars.text.angry}is not${vars.text.none}`
-                                : (config.qualifier === "not")
+                                    ? "is greater than"
+                                    : `${vars.text.angry}is not greater than${vars.text.none}`
+                                : (config.qualifier === "is")
                                     ? (pass === true)
-                                        ? "is not"
-                                        : `${vars.text.angry}is${vars.text.none}`
-                                    : (pass === true)
-                                        ? "does not contain"
-                                        : `${vars.text.angry}contains${vars.text.none}`,
+                                        ? "is"
+                                        : `${vars.text.angry}is not${vars.text.none}`
+                                    : (config.qualifier === "lesser")
+                                        ? (pass === true)
+                                            ? "is less than"
+                                            : `${vars.text.angry}is not less than${vars.text.none}`
+                                        : (config.qualifier === "not")
+                                            ? (pass === true)
+                                                ? "is not"
+                                                : `${vars.text.angry}is${vars.text.none}`
+                                            : (pass === true)
+                                                ? "does not contain"
+                                                : `${vars.text.angry}contains${vars.text.none}`,
                 nodeString = `${vars.text.none} ${buildNode()} ${qualifier} ${value}`;
             return star + resultString + nodeString;
         },

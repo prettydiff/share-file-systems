@@ -15,6 +15,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[modal.md](modal.md)**                                                                                       - Notes about modals and the graphic user interface that displays in the browser.
    - **[services.md](services.md)**                                                                                 - Notes and API details of supported services.
    - **[terminal_commands.md](terminal_commands.md)**                                                               - Documentation using application commands from the terminal.
+   - **[test_browser.md](test_browser.md)**                                                                         - How this application achieves test automation.
 * Directory *[../lib/browser](../lib/browser)*
    - **[../lib/browser/audio.ts](../lib/browser/audio.ts)**                                                         - A storage of audio samples encoded in Base64 with respective metadata.
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                     - A list of declared variables globally available to the browser instance of the application.

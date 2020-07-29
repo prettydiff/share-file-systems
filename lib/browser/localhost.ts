@@ -244,7 +244,7 @@ import webSocket from "./webSocket.js";
 
                     activate();
                     idleness();
-console.log(browser.testBrowser);
+
                     if (browser.testBrowser !== null && browser.testBrowser.interaction[0].event === "refresh") {
                         remote.test(browser.testBrowser.test, browser.testBrowser.index);
                     }

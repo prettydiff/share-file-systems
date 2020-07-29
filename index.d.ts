@@ -31,7 +31,7 @@ declare global {
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
     type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
     type primitive = boolean | null | number | string | undefined;
-    type qualifier = "begins" | "contains" | "ends" | "is" | "not" | "not contains";
+    type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | qualifier;
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";

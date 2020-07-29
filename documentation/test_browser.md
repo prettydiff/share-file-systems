@@ -108,7 +108,9 @@ browser.push({
    * *begins* - This value says to evaluate the returned value as a string with the provided value present starting at index 0 of the returned value.
    * *contains* - This value says to evaluate the returned value as a string with the provided value present at any position of the returned string.
    * *ends* - This value says to evaluate the returned value as a string with the provided value present at the end of the returned value.
+   * *greater* - That the returned value is a number and greater than provided value which is also a number.
    * *is* - The provided value exactly matches the returned value.
+   * *lesser* - That the returned value is a number and less than provided value which is also a number.
    * *not* - The provided value does not exactly match the returned value.
    * *not contains* - The returned value is a string and the provided value is not present at any location of the returned value.
 * **target** - A string array specifying an attribute the properties to call on a given DOM node.  For example requesting a CSS value on a node: `node.style.display` would be provided as `["style", "display"]`.

@@ -45,7 +45,13 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
     if (qualifier === "ends" && typeof rawValue === "string" && typeof configString === "string" && index === rawValue.length - configString.length) {
         return [true, ""];
     }
+    if (qualifier === "greater" && typeof rawValue === "number" && typeof config.value === "number" && rawValue > config.value) {
+        return [true, ""];
+    }
     if (qualifier === "is" && rawValue === configString) {
+        return [true, ""];
+    }
+    if (qualifier === "lesser" && typeof rawValue === "number" && typeof config.value === "number" && rawValue < config.value) {
         return [true, ""];
     }
     if (qualifier === "not" && rawValue !== configString) {
