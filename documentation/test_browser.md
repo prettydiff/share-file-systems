@@ -124,4 +124,18 @@ In the browser any event can be arbitrarily created using the method *document.c
 
 Once the event executes in the browser the delay is evaluated as the first test of the current test campaign.  The delay will either fulfill or will timeout.  Timed out delay will send failure messaging to the service where a fulfilled delay will move forward to test evaluation.  Once all tests are evaluated a data structure is returned to the service indicating which tests passed and which failed.
 
-Once the service has determined all tests have passed or the current test campaign has a failure a final message is sent to the browser to close the current browser tab.  That's all there is to it.s
+Once the service has determined all tests have passed or the current test campaign has a failure a final message is sent to the browser to close the current browser tab.  That's all there is to it.
+
+## Timed delays
+The test runner eliminates timed delays between test scenarios thanks to the *delay* object provided in each test object, but internally there are a few timed delays.
+
+### Delay iterations
+On the browser side when executing the *delay* logic provided by the test object the application logic defaults to polling at a rate of 50ms for 40 iterations after which the test is marked as a failure due to delay time out.  These numbers can be customized in the *remote.delay* method in the `lib/browser/remote.ts` file.
+
+### Test iterations
+On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/samples/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.testBrowser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
+
+If the prior test is a refresh event that default 25ms delay is increased to 500ms.  That increased delay is necessary to ensure the browser has enough time to complete a page refresh and request the page code before the delay elapses otherwise the methodGET.ts library will be a test ahead of what the browser expects and the browser thus receives the wrong test code to evaluate upon completing a page refresh.
+
+### Completion of all tests
+Once a test campaign reports failure or all tests are complete there is a final timed delay.  The instruction within this last delay sends the instruction to kill the current executing process.  Immediately prior to the delay there is an instruction sent to the browser to close the browser window.  It takes longer to execute a network transmission instruction than it does to kill a process in the operating system, so a delay is necessary to ensure the network instruction is sent before the process is killed.
