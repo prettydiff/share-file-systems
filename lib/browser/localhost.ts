@@ -119,10 +119,10 @@ import webSocket from "./webSocket.js";
                     nameUser.onkeyup = handlerKeyboard;
                     nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
-                    browser.socket = webSocket();
                     if (testBrowser === true) {
                         network.testBrowserLoaded();
                     }
+                    browser.socket = webSocket();
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {

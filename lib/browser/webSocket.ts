@@ -230,35 +230,39 @@ const title:Element = document.getElementsByClassName("title")[0],
             location.reload();
         }
     },
-    open = function local_socketOpen():void {
-        const device:Element = document.getElementById(browser.data.hashDevice);
+    open = function local_socketOpen(qqq):void {console.log("websocket open");console.log(new Error().stack);console.log(qqq);
+        const device:Element = (browser.data.hashDevice === "")
+            ? null
+            : document.getElementById(browser.data.hashDevice);
         if (device !== null) {
             device.setAttribute("class", "active");
         }
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
         title.setAttribute("class", "title");
     },
-    webSocket = function local_webSocket():WebSocket {
+    webSocket = function local_webSocket():WebSocket {console.log("websocket launch");console.log(new Error().stack);
         const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
-            error = function local_socketError():any {
-                const device:Element = document.getElementById(browser.data.hashDevice),
+            error = function local_socketError(qqq):any {console.log(qqq);
+                const device:Element = (browser.data.hashDevice === "")
+                        ? null
+                        : document.getElementById(browser.data.hashDevice),
                     agentList:Element = document.getElementById("agentList"),
                     active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
                 let a:number = active.length,
                     parent:Element;
-                do {
-                    a = a - 1;
-                    parent = <Element>active[a].parentNode;
-                    parent.setAttribute("class", "offline");
-                } while (a > 0);
+                if (a > 0) {
+                    do {
+                        a = a - 1;
+                        parent = <Element>active[a].parentNode;
+                        parent.setAttribute("class", "offline");
+                    } while (a > 0);
+                }
                 title.setAttribute("class", "title offline");
                 title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }
-                setTimeout(function local_socketError_timeout():void {
-                    browser.socket = local_webSocket();
-                }, 5000);
+                browser.socket = local_webSocket();
             };
 
         /* Handle Web Socket responses */

@@ -1,8 +1,6 @@
-# lib/browser Code Files
-These library files are imported into *localhost.js* and executed in the browser.
 
-## Files
-<!-- Do not edit below this line.  Contents dynamically populated. -->
+
+* **[audio.ts](audio.ts)**      
 
 * **[audio.ts](audio.ts)**         - A storage of audio samples encoded in Base64 with respective metadata.
 * **[browser.ts](browser.ts)**     - A list of declared variables globally available to the browser instance of the application.

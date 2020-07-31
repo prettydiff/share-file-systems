@@ -989,20 +989,33 @@ browser.execute = function test_browser_execute():void {
         const browserLaunch = function test_browser_execute_readdir_launch():void {
             const serviceCallback = function test_browser_execute_readdir_launch_serviceCallback():void {
                 const keyword:string = (process.platform === "darwin")
-                    ? "open"
-                    : (process.platform === "win32")
-                        ? "start"
-                        : "xdg-open",
-                    browserCommand:string = (process.argv[0] === "no_close")
-                        ? `${keyword} http://localhost:${serverVars.webPort}/?test_browser_no_close`
-                        : `${keyword} http://localhost:${serverVars.webPort}/?test_browser`;
+                        ? "open"
+                        : (process.platform === "win32")
+                            ? "start"
+                            : "xdg-open",
+                    closeIndex:number = process.argv.indexOf("no_close"),
+                    path:string = (closeIndex < 0)
+                        ? `http://localhost:${serverVars.webPort}/?test_browser`
+                        : (function test_browser_execute_readdir_launch_serviceCallback_noClose():string {
+                            process.argv.splice(closeIndex, 1);
+                            return `http://localhost:${serverVars.webPort}/?test_browser_no_close`;
+                        }()),
+                    binary:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
+                        ? (process.platform === "win32")
+                            // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
+                            ? ` ${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`
+                            : ` "${process.argv[0]}"`
+                        : "",
+                    browserCommand:string = `${keyword + binary} ${path}`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function test_browser_execute_readdir_launch_serviceCallback_browser(errs:nodeError):void {
                     if (errs !== null) {
                         log([errs.toString()]);
                         error([errs.toString()]);
                         return;
                     }
-                    serverVars.testBrowserCallback = function test_browser_execute_readdir_launch_serviceCallback_browser_testBrowserCallback():void {
+                    serverVars.testBrowserCallback = function test_browser_execute_readdir_launch_serviceCallback_browser_testBrowserCallback(serverResponse:ServerResponse):void {
+                        log([`${humanTime(false)}browser loaded...`]);
+                        response(serverResponse, "text/plain", "Preparing to send browser test 0.");
                         browser.iterate(0);
                     };
                 });

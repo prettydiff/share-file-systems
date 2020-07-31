@@ -316,6 +316,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test_browser no_close`,
                 defined: "Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection."
+            },
+            {
+                code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
+                defined: "By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary."
             }
         ]
     },

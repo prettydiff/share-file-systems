@@ -203,6 +203,8 @@ Launches the 'server' command as a child process, launches the default browser t
    - Runs the browser interaction tests.
 1. `node js/application test_browser no_close`
    - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
+1. `node js/application test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
+   - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 
 ## test_service
 Launches the 'server' command as a child process to issue HTTP requests against it and test the results

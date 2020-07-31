@@ -662,7 +662,7 @@ declare global {
         status: heartbeatStatus;
         storage: string;
         testBrowser?: string;
-        testBrowserCallback?: () => void;
+        testBrowserCallback?: (serverResponse:ServerResponse) => void;
         timeStore: number;
         user: agents;
         watches: {
