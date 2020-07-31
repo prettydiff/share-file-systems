@@ -77,6 +77,10 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
             location.reload();
         } else {
             element = remote.node(config.node);
+            if (element === null) {
+                remote.test(testItem.test, testItem.index);
+                return;
+            }
             if (config.event === "setValue") {
                 htmlElement = <HTMLInputElement>element;
                 htmlElement.value = config.value;

@@ -915,7 +915,7 @@ browser.push({
             ]
         }
     ],
-    name: "Active file system details",
+    name: "Activate file system details",
     test: [
         {
             // text of the first button
@@ -973,6 +973,45 @@ browser.push({
             target: ["innerHTML"],
             type: "property",
             value: "Close"
+        },
+        {
+            // model does not contain NaN
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "table", 2]
+            ],
+            qualifier: "not contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "NaN"
+        }
+    ]
+});
+
+// close details
+browser.push({
+    interaction: [
+        {
+            event: "click",
+            node: [
+                ["getModalsByModalType", "details", 0],
+                ["getElementsByClassName", "buttons", 0],
+                ["getElementsByTagName", "button", 0]
+            ]
+        }
+    ],
+    name: "Close the details modal",
+    test: [
+        {
+            // text of the first button
+            node: [
+                ["getModalsByModalType", "details", 0]
+            ],
+            qualifier: "is",
+            target: ["innerHTML"],
+            type: "property",
+            value: null
         }
     ]
 });
@@ -1073,6 +1112,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     ? ""
                     : "s",
                 totalTests:number = (function test_browser_result_completion_total():number {
+                    // gathers a total count of tests
                     let aa:number = browser.length,
                         bb:number = 0;
                     do {
@@ -1110,14 +1150,14 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     : `${vars.text.angry}Failed`;
             return humanTime(false) + resultString + text;
         },
-        testString = function test_browser_result_testString(pass:boolean, browserIndex:number, config:testBrowserTest):string {
+        testString = function test_browser_result_testString(pass:boolean, config:testBrowserTest):string {
             const valueStore:primitive = config.value,
                 valueType:string = typeof valueStore,
                 value = (valueStore === null)
                     ? "null"
                     : (valueType === "string")
                         ? `"${valueStore}"`
-                        : valueStore.toString(),
+                        : String(valueStore),
                 buildNode = function test_Browser_result_buildNode():string {
                     let b:number = 0;
                     const node:browserDOM[] = config.node,
@@ -1197,11 +1237,11 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
     response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${browser[item.index].name}`);
     if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
         falseFlag = true;
-        failure.push(testString((item.payload[1][0] === true), item.index, browser[item.index].delay));
+        failure.push(testString((item.payload[1][0] === true), browser[item.index].delay));
         failure.push(`     Actual value: ${vars.text.cyan + item.payload[1][1] + vars.text.none}`);
     } else {
         do {
-            failure.push(testString((item.payload[a][0] === true), item.index, browser[item.index].test[a]));
+            failure.push(testString((item.payload[a][0] === true), browser[item.index].test[a]));
             if (item.payload[a][0] === false) {
                 falseFlag = true;
                 failure.push(`     Actual value: ${vars.text.cyan + item.payload[a][1] + vars.text.none}`);

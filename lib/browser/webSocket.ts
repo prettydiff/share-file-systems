@@ -230,7 +230,7 @@ const title:Element = document.getElementsByClassName("title")[0],
             location.reload();
         }
     },
-    open = function local_socketOpen(qqq):void {console.log("websocket open");console.log(new Error().stack);console.log(qqq);
+    open = function local_socketOpen():void {
         const device:Element = (browser.data.hashDevice === "")
             ? null
             : document.getElementById(browser.data.hashDevice);
@@ -240,9 +240,9 @@ const title:Element = document.getElementsByClassName("title")[0],
         title.getElementsByTagName("h1")[0].innerHTML = titleText;
         title.setAttribute("class", "title");
     },
-    webSocket = function local_webSocket():WebSocket {console.log("websocket launch");console.log(new Error().stack);
+    webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
-            error = function local_socketError(qqq):any {console.log(qqq);
+            error = function local_socketError():any {
                 const device:Element = (browser.data.hashDevice === "")
                         ? null
                         : document.getElementById(browser.data.hashDevice),
