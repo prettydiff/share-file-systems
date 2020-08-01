@@ -10,19 +10,19 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
     const delay:number = 50,
         maxTries:number = 40,
         delayFunction = function local_remote_delay_timeout():void {
-        if (remote.evaluate(config.delay)[0] === true) {
-            return remote.test(config.test, config.index);
-        }
-        a = a + 1;
-        if (a === maxTries) {
-            network.testBrowserLoaded([
-                [false, "delay timeout"],
-                [false, remote.stringify(remote.getProperty(config.delay))]
-            ], config.index);
-            return;
-        }
-        setTimeout(local_remote_delay_timeout, delay);
-    };
+            if (remote.evaluate(config.delay)[0] === true) {
+                return remote.test(config.test, config.index);
+            }
+            a = a + 1;
+            if (a === maxTries) {
+                network.testBrowserLoaded([
+                    [false, "delay timeout"],
+                    [false, remote.stringify(remote.getProperty(config.delay))]
+                ], config.index);
+                return;
+            }
+            setTimeout(local_remote_delay_timeout, delay);
+        };
     // eslint-disable-next-line
     console.log(`Executing delay on test: ${config.name}`);
     setTimeout(delayFunction, delay);
@@ -94,9 +94,9 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
     } while (a < eventLength);
     if (testItem.delay === undefined) {
         remote.test(testItem.test, testItem.index);
-    } else {
-        remote.delay(testItem);
+        return;
     }
+    remote.delay(testItem);
 };
 
 // get the value of the specified property/attribute

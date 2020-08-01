@@ -310,6 +310,15 @@ browser.push({
 
 // close the primary menu
 browser.push({
+    delay: {
+        node: [
+            ["getElementById", "menu", null]
+        ],
+        qualifier: "is",
+        target: ["clientHeight"],
+        type: "property",
+        value: 0
+    },
     interaction: [
         {
             event: "click",

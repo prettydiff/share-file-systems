@@ -143,6 +143,7 @@ const directory = function terminal_directory(args:readDirectory):void {
             }()),
             list:directoryList = [],
             fileList:string[] = [],
+            test:boolean = (vars.command.indexOf("test") === 0 && vars.command !== "test_browser"),
             method:string = (args.symbolic === true)
                 ? "lstat"
                 : "stat",
@@ -206,7 +207,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                     }
                                 } else {
                                     const index:number = list.length,
-                                        status:"stat"|Stats = (vars.command.indexOf("test") === 0)
+                                        status:"stat"|Stats = (test === true)
                                             ? "stat"
                                             : stat;
                                     if (args.mode === "list") {
@@ -252,7 +253,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                     args.callback(fileList.sort());
                                 }
                             } else {
-                                const status:"stat"|Stats = (vars.command.indexOf("test") === 0)
+                                const status:"stat"|Stats = (test === true)
                                     ? "stat"
                                     : stat;
                                 if (vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) > -1) {
