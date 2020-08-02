@@ -156,7 +156,7 @@ network.storage = function local_network_storage(type:storageType):void {
 };
 
 /* Lets the service code know the browser is fully loaded and ready receive test samples. */
-network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[boolean, string][], index:number):void {
+network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[boolean, string, string][], index:number):void {
    if (payload === undefined) {
         network.xhr({
             callback: null,

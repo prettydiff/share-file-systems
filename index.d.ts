@@ -484,16 +484,16 @@ declare global {
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
-        testBrowserLoaded?: (payload?:[boolean, string][], index?:number) => void;
+        testBrowserLoaded?: (payload?:[boolean, string, string][], index?:number) => void;
         xhr?: (config:networkConfig) => void;
     }
     interface module_remote {
         delay?: (config:testBrowserItem) => void;
-        evaluate?: (config:testBrowserTest) => [boolean, string];
+        evaluate?: (config:testBrowserTest) => [boolean, string, string];
         event?: (event:testBrowserItem) => void;
         getProperty?: (config:testBrowserTest) => primitive;
         index?: number;
-        node?: (config:browserDOM[]) => Element;
+        node?: (config:testBrowserTest|browserDOM[]) => Element;
         stringify?: (primitive:primitive) => string;
         test?: (config:testBrowserTest[], index:number) => void;
     }
@@ -785,10 +785,11 @@ declare global {
     }
     interface testBrowserResult {
         index: number;
-        payload: [boolean, string][];
+        payload: [boolean, string, string][];
     }
     interface testBrowserTest {
         node: browserDOM[];
+        nodeString?: string;
         qualifier: qualifier;
         target: string[];
         type: "attribute" | "element" | "property";

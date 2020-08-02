@@ -16,8 +16,8 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
             a = a + 1;
             if (a === maxTries) {
                 network.testBrowserLoaded([
-                    [false, "delay timeout"],
-                    [false, remote.stringify(remote.getProperty(config.delay))]
+                    [false, "delay timeout", config.delay.nodeString],
+                    [false, remote.stringify(remote.getProperty(config.delay)), config.delay.nodeString]
                 ], config.index);
                 return;
             }
@@ -29,9 +29,9 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
 };
 
 // determine whether a given test item is pass or fail
-remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolean, string] {
+remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolean, string, string] {
     const rawValue:primitive|Element = (config.type === "element")
-            ? remote.node(config.node)
+            ? remote.node(config)
             : remote.getProperty(config),
         qualifier:qualifier = config.qualifier,
         configString:string = <string>config.value,
@@ -39,33 +39,33 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
             ? rawValue.indexOf(configString)
             : -1;
     if (qualifier === "begins" && index === 0) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "contains" && index > -1) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "ends" && typeof rawValue === "string" && typeof configString === "string" && index === rawValue.length - configString.length) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "greater" && typeof rawValue === "number" && typeof config.value === "number" && rawValue > config.value) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "is" && rawValue === configString) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "lesser" && typeof rawValue === "number" && typeof config.value === "number" && rawValue < config.value) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "not" && rawValue !== configString) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (qualifier === "not contains" && typeof rawValue === "string" && typeof configString === "string" && index < 0) {
-        return [true, ""];
+        return [true, "", config.nodeString];
     }
     if (config.type === "element") {
-        return [false, "element"];
+        return [false, "element", config.nodeString];
     }
-    return [false, remote.stringify(<primitive>rawValue)];
+    return [false, remote.stringify(<primitive>rawValue), config.nodeString];
 };
 
 // process a single event instance
@@ -106,7 +106,7 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
 
 // get the value of the specified property/attribute
 remote.getProperty = function local_remote_getProperty(config:testBrowserTest):primitive {
-    const element:Element = remote.node(config.node),
+    const element:Element = remote.node(config),
         pLength = config.target.length - 1,
         method = function local_remote_getProperty_method(prop:Object, name:string):primitive {
             if (name.slice(name.length - 2) === "()") {
@@ -140,29 +140,57 @@ remote.getProperty = function local_remote_getProperty(config:testBrowserTest):p
 };
 
 // gather a DOM node using instructions from a data structure
-remote.node = function local_remote_node(config:browserDOM[]):Element {
+remote.node = function local_remote_node(config:testBrowserTest|browserDOM[]):Element {
     let element:Element|Document = document,
         node:[domMethod, string, number],
         a:number = 0;
-    const nodeLength:number = config.length;
+    const eventList:browserDOM[] = <browserDOM[]>config,
+        configList:testBrowserTest = <testBrowserTest>config,
+        nodeList:browserDOM[] = (typeof eventList.length === "number")
+            ? eventList
+            : configList.node,
+        nodeLength:number = nodeList.length,
+        str:string[] = ["document"];
     do {
-        node = config[a];
+        node = nodeList[a];
         if (node[1] === "") {
             element = element[node[0]];
+            str.push(".");
+            str.push(node[0]);
         } else if (node[2] === null) {
             element = element[node[0]](node[1]);
+            str.push(".");
+            str.push(node[0]);
+            str.push("(\"");
+            str.push(node[1]);
+            str.push("\")");
         } else {
+            str.push(".");
+            str.push(node[0]);
+            str.push("(\"");
+            str.push(node[1]);
+            str.push("\")");
+            str.push("[");
             if (node[2] < 0 && element[node[0]](node[1]) !== null && element[node[0]](node[1]).length > 0) {
                 element = element[node[0]](node[1])[element[node[0]](node[1]).length - 1];
+                str.push(String(element[node[0]](node[1]).length - 1));
             } else {
                 element = element[node[0]](node[1])[node[2]];
+                str.push(String(node[2]));
             }
+            str.push("]");
         }
         if (element === null || element === undefined) {
+            if (typeof eventList !== "number") {
+                configList.nodeString = str.join("");
+            }
             return null;
         }
         a = a + 1;
     } while (a < nodeLength);
+    if (typeof eventList !== "number") {
+        configList.nodeString = str.join("");
+    }
     return <Element>element;
 };
 
@@ -176,7 +204,7 @@ remote.stringify = function local_remote_raw(primitive:primitive):string {
 //process all cases of a test scenario for a given test item
 remote.test = function local_remote_test(config:testBrowserTest[], index:number):void {
     let a:number = 0;
-    const result:[boolean, string][] = [],
+    const result:[boolean, string, string][] = [],
         length:number = config.length;
     do {
         result.push(remote.evaluate(config[a]));

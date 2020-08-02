@@ -1256,6 +1256,44 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     : `${vars.text.angry}Failed`;
             return humanTime(false) + resultString + text;
         },
+        buildNode = function test_Browser_result_buildNode(config:testBrowserTest, elementOnly:boolean):string {
+            let b:number = 0;
+            const node:browserDOM[] = config.node,
+                property:string[] = config.target,
+                nodeLength:number = node.length,
+                propertyLength:number = property.length,
+                output:string[] = ["document"];
+            do {
+                output.push(".");
+                output.push(node[b][0]);
+                output.push("(\"");
+                output.push(node[b][1]);
+                output.push("\")");
+                if (node[b][2] !== null) {
+                    output.push("[");
+                    output.push(node[b][2].toString());
+                    output.push("]");
+                }
+                b = b + 1;
+            } while (b < nodeLength);
+            if (config.type === "element" || elementOnly === true) {
+                return output.join("");
+            }
+            if (config.type === "attribute") {
+                output.push(".");
+                output.push("getAttribute(\"");
+                output.push(config.target[0]);
+                output.push("\")");
+            } else if (config.type === "property") {
+                b = 0;
+                do {
+                    output.push(".");
+                    output.push(config.target[b]);
+                    b = b + 1;
+                } while (b < propertyLength);
+            }
+            return output.join("");
+        },
         testString = function test_browser_result_testString(pass:boolean, config:testBrowserTest):string {
             const valueStore:primitive = config.value,
                 valueType:string = typeof valueStore,
@@ -1264,44 +1302,6 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     : (valueType === "string")
                         ? `"${valueStore}"`
                         : String(valueStore),
-                buildNode = function test_Browser_result_buildNode():string {
-                    let b:number = 0;
-                    const node:browserDOM[] = config.node,
-                        property:string[] = config.target,
-                        nodeLength:number = node.length,
-                        propertyLength:number = property.length,
-                        output:string[] = ["document"];
-                    do {
-                        output.push(".");
-                        output.push(node[b][0]);
-                        output.push("(\"");
-                        output.push(node[b][1]);
-                        output.push("\")");
-                        if (node[b][2] !== null) {
-                            output.push("[");
-                            output.push(node[b][2].toString());
-                            output.push("]");
-                        }
-                        b = b + 1;
-                    } while (b < nodeLength);
-                    if (config.type === "element") {
-                        return output.join("");
-                    }
-                    if (config.type === "attribute") {
-                        output.push(".");
-                        output.push("getAttribute(\"");
-                        output.push(config.target[0]);
-                        output.push("\")");
-                    } else if (config.type === "property") {
-                        b = 0;
-                        do {
-                            output.push(".");
-                            output.push(config.target[b]);
-                            b = b + 1;
-                        } while (b < propertyLength);
-                    }
-                    return output.join("");
-                },
                 star:string = `   ${vars.text.angry}*${vars.text.none} `,
                 resultString:string = (pass === true)
                     ? `${vars.text.green}Passed:`
@@ -1339,21 +1339,28 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                                             : (pass === true)
                                                 ? "does not contain"
                                                 : `${vars.text.angry}contains${vars.text.none}`,
-                nodeString = `${vars.text.none} ${buildNode()} ${qualifier} ${value}`;
+                nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value}`;
             return star + resultString + nodeString;
+        },
+        failureMessage = function test_Browser_result_failureMessage(index:number):void {
+            if (item.payload[index][2] === buildNode(browser[item.index].test[index], true)) {
+                failure.push(`     Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
+            } else {
+                failure.push(`     DOM node is null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+            }
         },
         failure:string[] = [];
     response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${browser[item.index].name}`);
     if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
-        falseFlag = true;
         failure.push(testString((item.payload[1][0] === true), browser[item.index].delay));
-        failure.push(`     Actual value: ${vars.text.cyan + item.payload[1][1] + vars.text.none}`);
+        failureMessage(1);
+        falseFlag = true;
     } else {
         do {
             failure.push(testString((item.payload[a][0] === true), browser[item.index].test[a]));
             if (item.payload[a][0] === false) {
+                failureMessage(a);
                 falseFlag = true;
-                failure.push(`     Actual value: ${vars.text.cyan + item.payload[a][1] + vars.text.none}`);
             }
             a = a + 1;
         } while (a < length);
