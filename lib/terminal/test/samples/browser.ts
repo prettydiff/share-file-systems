@@ -1025,6 +1025,91 @@ browser.push({
     ]
 });
 
+// create two shares and open local device shares
+browser.push({
+    delay: {
+        // text of the first button
+        node: [
+            ["getModalsByModalType", "shares", 0]
+        ],
+        qualifier: "not",
+        target: [],
+        type: "element",
+        value: null
+    },
+    interaction: [
+        // creating first share
+        {
+            event: "contextmenu",
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0]
+            ]
+        },
+        {
+            event: "click",
+            node: [
+                ["getElementById", "contextMenu", null],
+                ["getElementsByTagName", "li", 1],
+                ["getElementsByTagName", "button", 0]
+            ]
+        },
+        // creating second share
+        {
+            event: "contextmenu",
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 1]
+            ]
+        },
+        {
+            event: "click",
+            node: [
+                ["getElementById", "contextMenu", null],
+                ["getElementsByTagName", "li", 1],
+                ["getElementsByTagName", "button", 0]
+            ]
+        },
+        // opening local device shares
+        {
+            event: "click",
+            node: [
+                ["getElementById", "device", null],
+                ["getElementsByTagName", "li", 1],
+                ["getElementsByTagName", "button", 0]
+            ]
+        }
+    ],
+    name: "Create two shares and open local device shares",
+    test: [
+        {
+            // text of the first button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByTagName", "body", 0],
+                ["getElementsByTagName", "h3", 0]
+            ],
+            qualifier: "begins",
+            target: ["innerHTML"],
+            type: "property",
+            value: "Shares for device Primary Device"
+        },
+        {
+            // text of the first button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByTagName", "body", 0],
+                ["getElementsByTagName", "li", null]
+            ],
+            qualifier: "is",
+            target: ["length"],
+            type: "property",
+            value: 2
+        }
+    ]
+});
 
 browser.execute = function test_browser_execute():void {
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
@@ -1187,6 +1272,9 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                         }
                         b = b + 1;
                     } while (b < nodeLength);
+                    if (config.type === "element") {
+                        return output.join("");
+                    }
                     if (config.type === "attribute") {
                         output.push(".");
                         output.push("getAttribute(\"");

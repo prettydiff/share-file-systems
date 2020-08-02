@@ -791,7 +791,7 @@ declare global {
         node: browserDOM[];
         qualifier: qualifier;
         target: string[];
-        type: "attribute" | "property";
+        type: "attribute" | "element" | "property";
         value: boolean | null | number | string;
     }
     interface testComplete {

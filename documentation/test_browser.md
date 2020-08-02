@@ -136,7 +136,7 @@ browser.push({
    * *not* - The provided value does not exactly match the returned value.
    * *not contains* - The returned value is a string and the provided value is not present at any location of the returned value.
 * **target** - A string array specifying an attribute the properties to call on a given DOM node.  For example requesting a CSS value on a node: `node.style.display` would be provided as `["style", "display"]`.
-* **property** - Whether the target value is an object property or a DOM element attribute.
+* **property** - Whether the target value is an object property on the target DOM element, a DOM element attribute, or the DOM element node itself.
 * **value** - The provided value to evaluate against the returned value.
 
 ## Timed delays

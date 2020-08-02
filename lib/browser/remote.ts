@@ -30,7 +30,9 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
 
 // determine whether a given test item is pass or fail
 remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolean, string] {
-    const rawValue:primitive = remote.getProperty(config),
+    const rawValue:primitive|Element = (config.type === "element")
+            ? remote.node(config.node)
+            : remote.getProperty(config),
         qualifier:qualifier = config.qualifier,
         configString:string = <string>config.value,
         index:number = (typeof rawValue === "string" && typeof configString === "string")
@@ -60,7 +62,10 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
     if (qualifier === "not contains" && typeof rawValue === "string" && typeof configString === "string" && index < 0) {
         return [true, ""];
     }
-    return [false, remote.stringify(rawValue)];
+    if (config.type === "element") {
+        return [false, "element"];
+    }
+    return [false, remote.stringify(<primitive>rawValue)];
 };
 
 // process a single event instance
