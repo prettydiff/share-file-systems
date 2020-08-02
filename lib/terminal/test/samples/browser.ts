@@ -1119,6 +1119,107 @@ browser.push({
             target: ["class"],
             type: "attribute",
             value: "file-system-root"
+        },
+        {
+            // get text of the first share button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 0],
+                ["getNodesByType", "text_node", 1]
+            ],
+            qualifier: "is",
+            target: ["textContent"],
+            type: "property",
+            value: "Delete this share"
+        },
+        {
+            // get text of the second share button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 1],
+                ["getNodesByType", "text_node", 1]
+            ],
+            qualifier: "is",
+            target: ["textContent"],
+            type: "property",
+            value: "(Read Only)"
+        },
+        {
+            // get text of the third share button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 2],
+                ["getNodesByType", "text_node", 0]
+            ],
+            qualifier: "is",
+            target: ["textContent"],
+            type: "property",
+            value: "Grant Full Access"
+        }
+    ]
+});
+
+// convert a read only share to a full access share
+browser.push({
+    interaction: [
+        // creating first share
+        {
+            event: "click",
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 2]
+            ]
+        }
+    ],
+    name: "Convert read only share to full access share",
+    test: [
+        {
+            // get text of the second share button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 1],
+                ["getNodesByType", "text_node", 1]
+            ],
+            qualifier: "is",
+            target: ["textContent"],
+            type: "property",
+            value: "(Full Access)"
+        },
+        {
+            // get text of the third share button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 2],
+                ["getNodesByType", "text_node", 0]
+            ],
+            qualifier: "is",
+            target: ["textContent"],
+            type: "property",
+            value: "Make Read Only"
+        },
+        {
+            // get share class
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "li", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "device full-access"
         }
     ]
 });
