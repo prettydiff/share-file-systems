@@ -1028,7 +1028,7 @@ browser.push({
 // create two shares and open local device shares
 browser.push({
     delay: {
-        // text of the first button
+        // is the share modal present?
         node: [
             ["getModalsByModalType", "shares", 0]
         ],
@@ -1085,10 +1085,10 @@ browser.push({
     name: "Create two shares and open local device shares",
     test: [
         {
-            // text of the first button
+            // text of the subheading
             node: [
                 ["getModalsByModalType", "shares", 0],
-                ["getElementsByTagName", "body", 0],
+                ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "h3", 0]
             ],
             qualifier: "begins",
@@ -1097,16 +1097,28 @@ browser.push({
             value: "Shares for device Primary Device"
         },
         {
-            // text of the first button
+            // two shares are populated
             node: [
                 ["getModalsByModalType", "shares", 0],
-                ["getElementsByTagName", "body", 0],
+                ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "li", null]
             ],
             qualifier: "is",
             target: ["length"],
             type: "property",
             value: 2
+        },
+        {
+            // class name of the first button
+            node: [
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "agentList", 0],
+                ["getElementsByTagName", "button", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "file-system-root"
         }
     ]
 });
