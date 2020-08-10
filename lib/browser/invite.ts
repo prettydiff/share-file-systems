@@ -223,7 +223,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
             }
             if (port === undefined || port.replace(/^\s+$/, "") === "") {
                 port = "";
-                portNumber = 80;
+                portNumber = 443;
             } else {
                 portNumber = Number(port);
                 if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {

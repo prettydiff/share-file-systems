@@ -6,5 +6,7 @@ js/localhost.js
 js/tsconfig.*
 node_modules
 storage/*.json
+storage/*.pem
 lib/terminal/test/storageBrowser/*.json
+lib/terminal/test/storageBrowser/*.pem
 version.json

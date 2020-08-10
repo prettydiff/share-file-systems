@@ -174,7 +174,7 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 
 ### Examples
 1. `node js/application server`
-   - Launches the server on default port 80 and web sockets on port 81.
+   - Launches the server on default port 443 and web sockets on port 444.
 1. `node js/application server 8080`
    - If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port.
 1. `node js/application server 0`

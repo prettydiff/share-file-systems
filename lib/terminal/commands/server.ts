@@ -1,6 +1,9 @@
 
 /* lib/terminal/commands/server - A command driven HTTP server for running the terminal instance of the application. */
+import { IncomingMessage } from "http";
 import { AddressInfo } from "net";
+import { Duplex } from "stream";
+
 import WebSocket from "../../../ws-es6/index.js";
 
 import error from "../utilities/error.js";
@@ -16,13 +19,23 @@ import serverWatch from "../server/serverWatch.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const server = function terminal_server(serverCallback:serverCallback):httpServer {
+const server = function terminal_server(serverCallback:serverCallback):void {
     // at this time the serverCallback argument is only used by test automation and so its availability
     // * locks the server to address ::1 (loopback)
     // * bypasses messaging users on server start up
     // * bypasses some security checks
     let portWeb:number,
-        portWs:number;
+        portWs:number,
+        https:certificate = {
+            certificate: {
+                cert: "",
+                key: ""
+            },
+            flag: {
+                cert: false,
+                key: false
+            }
+        };
     const browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -41,15 +54,22 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
             }
             return false;
         }()),
-        browser = function terminal_server_browser():void {
+        browser = function terminal_server_browser(httpServer:httpServer):void {
             // open a browser from the command line
+            serverCallback.callback({
+                agent: serverCallback.agent,
+                agentType: serverCallback.agentType,
+                server: httpServer,
+                webPort: portWeb,
+                wsPort: portWs
+            });
             if (browserFlag === true) {
                 const keyword:string = (process.platform === "darwin")
                         ? "open"
                         : (process.platform === "win32")
                             ? "start"
                             : "xdg-open",
-                    browserCommand:string = `${keyword} http://localhost:${portWeb}/`;
+                    browserCommand:string = `${keyword} https://localhost:${portWeb}/`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
                     if (errs !== null) {
                         error([errs.toString()]);
@@ -61,21 +81,55 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                     }
                     log(["", "Launching default web browser..."]);
                 });
-            } else if (serverCallback !== undefined) {
-                serverCallback.callback({
-                    agent: serverCallback.agent,
-                    agentType: serverCallback.agentType,
-                    webPort: portWeb,
-                    wsPort: portWs
-                });
             }
         },
-        port:number = (serverCallback === undefined)
-            ? (isNaN(Number(process.argv[0])) === true)
+        service = function terminal_server_service():void {
+            if (https.flag.cert === true && https.flag.key === true) {
+                if (https.certificate.cert === "" || https.certificate.key === "") {
+                    // cspell:disable
+                    vars.node.child("openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj \"/C=US/ST=Texas/L=Fort Worth/O=Share File Systems/OU=Org/CN=sharefile.systems\"", {
+                        cwd: serverVars.storage
+                    }, function terminal_server_service_child(erChild:Error):void {
+                        //cspell:enable
+                        if (erChild === null) {
+                            https.flag.cert = false;
+                            https.flag.key = false;
+                            httpsRead("cert");
+                            httpsRead("key");
+                            return;
+                        }
+                        log([erChild.toString()]);
+                    });
+                } else {
+                    start(vars.node.https.createServer(https.certificate, createServer));
+                }
+            }
+        },
+        httpsRead = function terminal_server_httpsRead(certType:certKey):void {
+            vars.node.fs.readFile(`${serverVars.storage + certType}.pem`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+                https.flag[certType] = true;
+                if (fileError === null) {
+                    https.certificate[certType] = fileData;
+                }
+                service();
+            });
+        },
+        httpsFile = function terminal_server_httpsFile(certType:certKey):void {
+            vars.node.fs.stat(`${serverVars.storage + certType}.pem`, function terminal_server_httpsFile_stat(statError:nodeError):void {
+                if (statError === null) {
+                    httpsRead(certType);
+                } else {
+                    https.flag[certType] = true;
+                    service();
+                }
+            });
+        },
+        port:number = (vars.command === "test_service" || vars.command === "test")
+            ? 0
+            : (isNaN(Number(process.argv[0])) === true)
                 ? vars.version.port
-                : Number(process.argv[0])
-            : 0,
-        httpServer:httpServer = vars.node.http.createServer(createServer),
+                : Number(process.argv[0]),
+        //httpServer:httpServer = vars.node.https.createServer(createServer),
         serverError = function terminal_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
@@ -88,10 +142,10 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
             }
             return;
         },
-        start = function terminal_server_start() {
+        start = function terminal_server_start(httpServer:httpServer) {
             const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
                     const output:string[] = [],
-                        webPort:string = (serverVars.webPort === 80)
+                        webPort:string = (serverVars.webPort === 443)
                             ? ""
                             : `:${serverVars.webPort}`,
                         localAddresses = function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
@@ -120,31 +174,33 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
+                    if (vars.command.indexOf("test") !== 0) {
 
-                    // log the port information to the terminal
-                    output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
-                    output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
-                    if (serverVars.addresses[0].length === 1) {
-                        output.push("Local IP address is:");
-                    } else {
-                        output.push("Local IP addresses are:");
-                    }
-
-                    serverVars.addresses[0].forEach(localAddresses);
-                    output.push(`Address for web browser: ${vars.text.bold + vars.text.green}http://localhost${webPort + vars.text.none}`);
-                    output.push("");
-                    output.push(`Address for service: ${vars.text.bold + vars.text.green + serverVars.ipAddress + webPort + vars.text.none}`);
-                    if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
-                        if (serverVars.addresses[0][0][2] === "ipv4") {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green + serverVars.addresses[0][0][1] + vars.text.none}`);
+                        // log the port information to the terminal
+                        output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
+                        output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
+                        if (serverVars.addresses[0].length === 1) {
+                            output.push("Local IP address is:");
                         } else {
-                            output.push(`or                 : ${vars.text.bold + vars.text.green}[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                            output.push("Local IP addresses are:");
                         }
+    
+                        serverVars.addresses[0].forEach(localAddresses);
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green}https://localhost${webPort + vars.text.none}`);
+                        output.push("");
+                        output.push(`Address for service: ${vars.text.bold + vars.text.green}https://${serverVars.ipAddress + webPort + vars.text.none}`);
+                        if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
+                            if (serverVars.addresses[0][0][2] === "ipv4") {
+                                output.push(`or                 : ${vars.text.bold + vars.text.green}https://${serverVars.addresses[0][0][1] + vars.text.none}`);
+                            } else {
+                                output.push(`or                 : ${vars.text.bold + vars.text.green}https://[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                            }
+                        }
+                        output.push("");
+                        log.title("Local Server");
+                        log(output, true);
                     }
-                    output.push("");
-                    log.title("Local Server");
-                    log(output, true);
-                    browser();
+                    browser(httpServer);
                 },
                 readComplete = function terminal_server_start_readComplete(storageData:storageItems) {
                     serverVars.brotli = storageData.settings.brotli;
@@ -165,42 +221,42 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
                             type: "device"
                         };
                         logOutput(storageData);
+                        browser(httpServer);
                         heartbeat.update(hbConfig);
                     }
                 },
-                socketCallback = function terminal_server_start_socketCallback():void {
-                    // creates a broadcast utility where all listening clients get a web socket message
-                    vars.ws.broadcast = function terminal_server_start_socketCallback_socketBroadcast(data:string):void {
-                        vars.ws.clients.forEach(function terminal_server_start_socketCallback_socketBroadcast_clients(client):void {
-                            if (client.readyState === WebSocket.OPEN) {
-                                client.send(data);
-                            }
-                        });
-                    };
-                    portWs = vars.ws._server.address().port;
-                    serverVars.wsPort = portWs;
-                    if (serverCallback === undefined) {
-                        readStorage(readComplete);
-                    } else {
-                        browser();
-                    }
-                },
                 listen = function terminal_server_start_listen():void {
-                    const serverAddress:AddressInfo = <AddressInfo>httpServer.address();
+                    const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
+                        wsServer:httpServer = vars.node.https.createServer(https.certificate, function terminal_server_start_listen_wsListener():void {
+                            return;
+                        });
                     serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
                         : serverVars.webPort + 1;
-    
+
                     httpServer.port = serverAddress.port;
                     portWeb = serverAddress.port;
-    
-                    vars.ws = new WebSocket.Server({
+                    wsServer.listen({
                         host: (serverVars.addresses[0].length > 1)
                             ? "::"
                             : "127.0.0.1",
                         port: serverVars.wsPort
-                    }, socketCallback);
+                    }, function terminal_server_start_listen_wsListen():void {
+                        vars.ws = new WebSocket.Server({
+                            server: wsServer
+                        });
+                        vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
+                            vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
+                                if (client.readyState === WebSocket.OPEN) {
+                                    client.send(data);
+                                }
+                            });
+                        };
+                        portWs = vars.ws._server.address().port;
+                        serverVars.wsPort = portWs;
+                        readStorage(readComplete);
+                    });
                 };
 
             if (process.cwd() !== vars.projectPath) {
@@ -223,9 +279,15 @@ const server = function terminal_server(serverCallback:serverCallback):httpServe
         error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);
         return;
     }
-
-    start();
-    return httpServer;
+    if (serverCallback === undefined) {
+        serverCallback = {
+            agent: "",
+            agentType: "device",
+            callback: function terminal_server_falseCallback():void {}
+        };
+    }
+    httpsFile("cert");
+    httpsFile("key");
 };
 
 export default server;

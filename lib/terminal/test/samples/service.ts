@@ -1,7 +1,8 @@
 
 /* lib/terminal/test/samples/service - A list of service related tests. */
 
-import * as http from "http";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
+import * as https from "https";
 
 import agents from "../../../common/agents.js";
 import remove from "../../commands/remove.js";
@@ -875,7 +876,7 @@ service.populate = function test_services_populate():void {
                     [serverVars.hashDevice]: {
                         ip: loopback,
                         name: "local device name",
-                        port: 80,
+                        port: 443,
                         shares: {
                             [serverVars.hashDevice]: {
                                 execute: false,
@@ -978,7 +979,7 @@ service.populate = function test_services_populate():void {
                     [serverVars.hashDevice]: {
                         ip: loopback,
                         name: "remote user name",
-                        port: 80,
+                        port: 443,
                         shares: {
                             [serverVars.hashDevice]: {
                                 execute: false,
@@ -1007,7 +1008,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1029,7 +1030,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1051,7 +1052,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1073,7 +1074,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "accepted",
                 type: "device",
@@ -1095,7 +1096,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1117,7 +1118,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "declined",
                 type: "device",
@@ -1139,7 +1140,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "accepted",
                 type: "device",
@@ -1161,7 +1162,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1343,12 +1344,13 @@ service.addServers = function test_services_addServers(callback:Function):void {
                     const serverCallback = function test_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
                         serverVars[output.agentType][output.agent].port = output.webPort;
                         serverVars[output.agentType][output.agent].ip = loopback;
+                        service.serverRemote[agentNames.agentType][agentNames.agent] = output.server;
                         if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
                             serverVars.wsPort = output.wsPort;
                         }
                         complete(counts);
                     };
-                    service.serverRemote[agentNames.agentType][agentNames.agent] = server({
+                    server({
                         agent: agentNames.agent,
                         agentType: agentNames.agentType,
                         callback: serverCallback
@@ -1410,6 +1412,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
     removal();
 };
 service.execute = function test_services_execute(config:testExecute):void {
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     const index:number = (config.list.length < 1)
             ? config.index
             : config.list[config.index],
@@ -1437,7 +1440,7 @@ service.execute = function test_services_execute(config:testExecute):void {
         name:string = (testItem.name === undefined)
             ? command
             : testItem.name,
-        header:http.OutgoingHttpHeaders = (agent === serverVars.hashDevice || agent === undefined)
+        header:OutgoingHttpHeaders = (agent === serverVars.hashDevice || agent === undefined)
             ? {
                 "content-type": "application/x-www-form-urlencoded",
                 "content-length": Buffer.byteLength(command),
@@ -1454,7 +1457,7 @@ service.execute = function test_services_execute(config:testExecute):void {
                 "agent-type": "user",
                 "remote-user": "localUser"
             },
-        payload:http.RequestOptions = {
+        payload:RequestOptions = {
             headers: header,
             host: loopback,
             method: "POST",
@@ -1477,7 +1480,7 @@ service.execute = function test_services_execute(config:testExecute):void {
                 values: [message, "", ""]
             });
         },
-        requestCallback = function test_service_callback(response:http.IncomingMessage):void {
+        requestCallback = function test_service_callback(response:IncomingMessage):void {
             const chunks:string[] = [];
             response.on("data", function test_service_callback_data(chunk:string):void {
                 chunks.push(chunk);
@@ -1492,7 +1495,7 @@ service.execute = function test_services_execute(config:testExecute):void {
                 }, 25);
             });
         },
-        request:http.ClientRequest = http.request(payload, requestCallback);
+        request:ClientRequest = https.request(payload, requestCallback);
     request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });

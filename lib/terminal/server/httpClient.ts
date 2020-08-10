@@ -20,6 +20,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
         ]);
         return;
     }
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     const callback: Function = (config.callbackType === "object")
             ? config.callback
             : function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {
@@ -124,8 +125,8 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             port: config.port,
             timeout: 1000
         },
-        fsRequest:ClientRequest = vars.node.http.request(payload, callback);
-    vars.testLogger("httpClient", "", "An abstraction over node.http.request in support of this application's data requirements.");
+        fsRequest:ClientRequest = vars.node.https.request(payload, callback);
+    vars.testLogger("httpClient", "", "An abstraction over node.https.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

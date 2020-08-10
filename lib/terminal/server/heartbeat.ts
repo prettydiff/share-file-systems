@@ -75,7 +75,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
                 id: "heartbeat",
                 ip: "",
                 payload: "",
-                port: 80,
+                port: 443,
                 remoteName: "",
                 requestError: errorHandler,
                 requestType: config.requestType,

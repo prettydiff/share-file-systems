@@ -142,7 +142,7 @@ const agent_online = function terminal_agentOnline():void {
                             httpError.toString()
                         ], (count === total - 1));
                     },
-                    request:ClientRequest = vars.node.http.request(payload, callback);
+                    request:ClientRequest = vars.node.https.request(payload, callback);
                 request.on("error", requestError);
                 request.write(requestBody);
                 request.end();
@@ -182,6 +182,7 @@ const agent_online = function terminal_agentOnline():void {
             }
             log.title("Agent test for Single Agent");
             total = 1;
+            process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
             requestWrapper(type, arg);
         }
     });

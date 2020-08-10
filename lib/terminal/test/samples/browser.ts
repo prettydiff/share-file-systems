@@ -1233,26 +1233,39 @@ browser.execute = function test_browser_execute():void {
             return;
         }
         const browserLaunch = function test_browser_execute_readdir_launch():void {
-            const serviceCallback = function test_browser_execute_readdir_launch_serviceCallback():void {
+            const serviceCallback = function test_browser_execute_readdir_launch_serviceCallback(output:serverOutput):void {
                 const keyword:string = (process.platform === "darwin")
                         ? "open"
                         : (process.platform === "win32")
                             ? "start"
                             : "xdg-open",
                     closeIndex:number = process.argv.indexOf("no_close"),
+                    port:string = (serverVars.webPort === 443)
+                        ? ""
+                        : `:${String(serverVars.webPort)}`,
                     path:string = (closeIndex < 0)
-                        ? `http://localhost:${serverVars.webPort}/?test_browser`
+                        ? `https://localhost${port}/?test_browser`
                         : (function test_browser_execute_readdir_launch_serviceCallback_noClose():string {
                             process.argv.splice(closeIndex, 1);
-                            return `http://localhost:${serverVars.webPort}/?test_browser_no_close`;
+                            return `https://localhost${port}/?test_browser_no_close`;
                         }()),
                     binary:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
-                        ? (process.platform === "win32")
-                            // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
-                            ? ` ${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`
-                            : ` "${process.argv[0]}"`
+                        ? (function test_browser_execute_readdir_launch_serviceCall_binary():string {
+                            if (process.platform === "win32") {
+                                // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
+                                process.argv.forEach(function test_browser_execute_readdir_launch_serviceCall_binary_eachWin32(value:string, index:number, array:string[]) {
+                                    array[index] = ` ${value.replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
+                                });
+                            } else {
+                                process.argv.forEach(function test_browser_execute_readdir_launch_serviceCall_binary_each(value:string, index:number, array:string[]) {
+                                    array[index] = ` "${value}"`;
+                                });
+                            }
+                            return process.argv.join(" ");
+                        }())
                         : "",
                     browserCommand:string = `${keyword + binary} ${path}`;
+                browser.server = output.server;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function test_browser_execute_readdir_launch_serviceCallback_browser(errs:nodeError):void {
                     if (errs !== null) {
                         log([errs.toString()]);
@@ -1266,7 +1279,7 @@ browser.execute = function test_browser_execute():void {
                     };
                 });
             };
-            browser.server = server({
+            server({
                 agent: "",
                 agentType: "device",
                 callback: serviceCallback
@@ -1279,7 +1292,7 @@ browser.execute = function test_browser_execute():void {
         } else {
             do {
                 length = length - 1;
-                if (files[length].indexOf(".json") > 0) {
+                if (files[length].indexOf(".json") > 0 || files[length].indexOf(".pem") > 0) {
                     remove(serverVars.storage + files[length], function test_browser_execute_readdir_remove():void {
                         flags = flags - 1;
                         if (flags === 1) {

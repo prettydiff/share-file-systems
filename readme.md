@@ -42,19 +42,19 @@ This application seeks to be inherently private which disallows information broa
       - `sudo apt-get install libcap2-bin`
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
    <!-- cspell:enable-->
-1. Open your favorite modern browser to http://localhost
-   * You may need to make an exception in your local firewall for port 80, or which ever port you specify.
+1. Open your favorite modern browser to https://localhost
+   * You may need to make an exception in your local firewall for port 443, or which ever port you specify.
 
 ### Later builds
 1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.
-1. If a browser isn't already open to the application then open to http://localhost
+1. If a browser isn't already open to the application then open to https://localhost
 
 ## A quick user introduction
 1. The first time you open the application it will ask you to create a user name and device name.
 1. Notice the *hamburger* menu icon in the top left corner of the application.  Click that to open the primary menu and select *File Navigator*.
 1. The File Navigator will allow a person to navigate their file system just like using their underlying operating system.  Select a couple of things you would like to share.  Right click on the select item(s) and choose *Share*.
 1. On the right side of the page are the device and user icons.  Click on the button labeled *All Shares* to see which items are shared.  Nothing is shared by default.
-1. In the user list click on the button labeled *Add Device or Invite User* to add a personal device to access your shares.  At this time users and devices are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default IP address is currently 80 but the default will change to 443 once the application upgrades to HTTPS.
+1. In the user list click on the button labeled *Add Device or Invite User* to add a personal device to access your shares.  At this time users and devices are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default port is 443.
 1. Once a personal device is added you have complete unrestricted access to the device no differently using the application on your current computer.  Access control restrictions apply to users and not devices as a user represents one or more personal devices.  See the [security model](#security-model) for more information.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 

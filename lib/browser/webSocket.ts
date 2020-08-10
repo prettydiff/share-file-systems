@@ -241,8 +241,8 @@ const title:Element = document.getElementsByClassName("title")[0],
         title.setAttribute("class", "title");
     },
     webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
-            error = function local_socketError():any {
+        const socket:WebSocket = new sock(`wss://localhost:${browser.localNetwork.wsPort}/`),
+            close = function local_socketClose():void {
                 const device:Element = (browser.data.hashDevice === "")
                         ? null
                         : document.getElementById(browser.data.hashDevice),
@@ -263,12 +263,17 @@ const title:Element = document.getElementsByClassName("title")[0],
                     device.setAttribute("class", "offline");
                 }
                 browser.socket = local_webSocket();
+            },
+            error = function local_socketError(message):void {
+                // eslint-disable-next-line
+                console.log(message);
             };
 
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = message;
-        socket.onclose = error;
+        socket.onclose = close;
+        socket.onerror = error;
         return socket;
     };
 

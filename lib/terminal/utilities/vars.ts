@@ -154,7 +154,7 @@ const vars:terminalVariables = {
             hash: "",
             name: "Share File Systems",
             number: "",
-            port: 80
+            port: 443
         },
         ws: ""
     };

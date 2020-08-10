@@ -9,6 +9,7 @@ declare global {
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
     type browserDOM = [domMethod, string, number];
+    type certKey = "cert" | "key";
     type color = [string, string];
     type colorScheme = "dark" | "default";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
@@ -137,6 +138,16 @@ declare global {
         style: HTMLStyleElement;
         testBrowser: testBrowserItem;
         user: agents;
+    }
+    interface certificate {
+        certificate: {
+            cert: string;
+            key: string;
+        };
+        flag: {
+            cert: boolean;
+            key: boolean;
+        };
     }
     interface clipboard {
         agent: string;
@@ -646,6 +657,7 @@ declare global {
     interface serverOutput {
         agent: string;
         agentType: agentType;
+        server: httpServer;
         webPort: number;
         wsPort: number;
     }
