@@ -20,7 +20,6 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
         ]);
         return;
     }
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     const callback: Function = (config.callbackType === "object")
             ? config.callback
             : function terminal_server_httpClient_callback(fsResponse:IncomingMessage):void {

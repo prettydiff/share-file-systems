@@ -9,7 +9,7 @@ declare global {
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
     type browserDOM = [domMethod, string, number];
-    type certKey = "cert" | "key";
+    type certKey = "crt" | "key";
     type color = [string, string];
     type colorScheme = "dark" | "default";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
@@ -145,9 +145,18 @@ declare global {
             key: string;
         };
         flag: {
-            cert: boolean;
+            crt: boolean;
             key: boolean;
         };
+    }
+    interface certificate_remove {
+        ca: certificate_remove_item;
+        root: certificate_remove_item;
+    }
+    interface certificate_remove_item {
+        command: string;
+        flag: boolean;
+        logs: string[];
     }
     interface clipboard {
         agent: string;
@@ -664,6 +673,8 @@ declare global {
     interface serverVars {
         addresses: [[string, string, string][], number];
         brotli: brotli;
+        certName: string;
+        certPath: string;
         device: agents;
         hashDevice: string;
         hashType: hash;

@@ -66,7 +66,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
         if (length > 1) {
             do {
                 length = length - 1;
-                if (fileList[length].indexOf(".json") === fileList[length].length - 5) {
+                if (fileList[length].length > 5 && fileList[length].indexOf(".json") === fileList[length].length - 5) {
                     flag[fileList[length].replace(".json", "")] = false;
                     read(fileList[length]);
                 }

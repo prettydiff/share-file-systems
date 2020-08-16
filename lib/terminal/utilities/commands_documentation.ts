@@ -91,6 +91,28 @@ const commands_documentation = {
             }
         ]
     },
+    certificate_create: {
+        description: "Creates an HTTPS certificate and saves it in the local \"certificate\" directory.",
+        example: [
+            {
+                code: `${vars.version.command} certificate_create`,
+                defined: "By default a certificate authority (CA) certificate is created."
+            },
+            {
+                code: `${vars.version.command} certificate_create self-signed`,
+                defined: "The \"self-signed\" argument instead creates a self-signed certificate."
+            }
+        ]
+    },
+    certificate_remove: {
+        description: "Removes an HTTPS certificate created by this application.",
+        example: [
+            {
+                code: `${vars.version.command} certificate_remove`,
+                defined: "Removes the certificate."
+            }
+        ]
+    },
     commands: {
         description: "List all supported commands to the console or examples of a specific command.",
         example: [

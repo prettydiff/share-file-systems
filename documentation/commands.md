@@ -58,6 +58,22 @@ Rebuilds the application.
 1. `node js/application build local`
    - The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules.
 
+## certificate_create
+Creates an HTTPS certificate and saves it in the local "certificate" directory.
+
+### Examples
+1. `node js/application certificate_create`
+   - By default a certificate authority (CA) certificate is created.
+1. `node js/application certificate_create self-signed`
+   - The "self-signed" argument instead creates a self-signed certificate.
+
+## certificate_remove
+Removes an HTTPS certificate created by this application.
+
+### Examples
+1. `node js/application certificate_remove`
+   - Removes the certificate.
+
 ## commands
 List all supported commands to the console or examples of a specific command.
 

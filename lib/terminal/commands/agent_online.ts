@@ -182,7 +182,6 @@ const agent_online = function terminal_agentOnline():void {
             }
             log.title("Agent test for Single Agent");
             total = 1;
-            process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
             requestWrapper(type, arg);
         }
     });

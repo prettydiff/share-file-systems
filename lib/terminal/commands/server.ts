@@ -1,16 +1,15 @@
 
 /* lib/terminal/commands/server - A command driven HTTP server for running the terminal instance of the application. */
-import { IncomingMessage } from "http";
 import { AddressInfo } from "net";
-import { Duplex } from "stream";
 
 import WebSocket from "../../../ws-es6/index.js";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
-
-import vars from "../utilities/vars.js";
 import readStorage from "../utilities/readStorage.js";
+import vars from "../utilities/vars.js";
+
+import certificate_create from "./certificate_create.js";
 
 import createServer from "../server/createServer.js";
 import heartbeat from "../server/heartbeat.js";
@@ -32,10 +31,11 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 key: ""
             },
             flag: {
-                cert: false,
+                crt: false,
                 key: false
             }
-        };
+        },
+        certLogs:string[] = null;
     const browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -84,38 +84,35 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
         },
         service = function terminal_server_service():void {
-            if (https.flag.cert === true && https.flag.key === true) {
+            if (https.flag.crt === true && https.flag.key === true) {
                 if (https.certificate.cert === "" || https.certificate.key === "") {
-                    // cspell:disable
-                    vars.node.child("openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj \"/C=US/ST=Texas/L=Fort Worth/O=Share File Systems/OU=Org/CN=sharefile.systems\"", {
-                        cwd: serverVars.storage
-                    }, function terminal_server_service_child(erChild:Error):void {
-                        //cspell:enable
-                        if (erChild === null) {
-                            https.flag.cert = false;
-                            https.flag.key = false;
-                            httpsRead("cert");
-                            httpsRead("key");
-                            return;
-                        }
-                        log([erChild.toString()]);
-                    });
+                    certificate_create(function terminal_server_service_callback(logs:string[]):void {
+                        https.flag.crt = false;
+                        https.flag.key = false;
+                        httpsRead("crt");
+                        httpsRead("key");
+                        certLogs = logs;
+                    }, false);
                 } else {
                     start(vars.node.https.createServer(https.certificate, createServer));
                 }
             }
         },
         httpsRead = function terminal_server_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(`${serverVars.storage + certType}.pem`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+            vars.node.fs.readFile(serverVars.certPath + certType, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
-                    https.certificate[certType] = fileData;
+                    if (certType === "crt") {
+                        https.certificate.cert = fileData;
+                    } else {
+                        https.certificate[certType] = fileData;
+                    }
                 }
                 service();
             });
         },
         httpsFile = function terminal_server_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(`${serverVars.storage + certType}.pem`, function terminal_server_httpsFile_stat(statError:nodeError):void {
+            vars.node.fs.stat(serverVars.certPath + certType, function terminal_server_httpsFile_stat(statError:nodeError):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {
@@ -195,6 +192,11 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             } else {
                                 output.push(`or                 : ${vars.text.bold + vars.text.green}https://[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
                             }
+                        }
+                        if (certLogs !== null) {
+                            certLogs.forEach(function terminal_server_start_logger_certLogs(value:string):void {
+                                output.push(value);
+                            });
                         }
                         output.push("");
                         log.title("Local Server");
@@ -286,7 +288,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             callback: function terminal_server_falseCallback():void {}
         };
     }
-    httpsFile("cert");
+    httpsFile("crt");
     httpsFile("key");
 };
 
