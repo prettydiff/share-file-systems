@@ -24,10 +24,7 @@ const certificate_remove = function terminal_certificateRemove():void {
                 callback = function terminal_certificateRemove_readdir_removeCallback():void {
                     status = status + 1;
                     if (status === total) {
-                        const logs:string[] = [
-                            `${vars.text.underline}Certificate deleted!${vars.text.none}`,
-                            ""
-                        ];
+                        const logs:string[] = [];
                         if (process.platform === "win32") {
                             // cspell:disable
                             const certDelete:certificate_remove = {
@@ -53,11 +50,12 @@ const certificate_remove = function terminal_certificateRemove():void {
                                                         logs.push(value);
                                                     };
                                                 if (certDelete.ca.logs.length + certDelete.root.logs.length === 0) {
+                                                    logs.push("No trusted certificates to remove from Windows.");
                                                     vars.verbose = true;
                                                     log(logs, true);
                                                     return;
                                                 }
-                                                logs.push(`To remove the trusted certificate${plural} this application stored in your OS open an administrative terminal and execute:`);
+                                                logs.push(`To remove this application's trusted certificate${plural} stored in Windows open an administrative terminal and execute:`);
                                                 certDelete.ca.logs.forEach(logsEach);
                                                 certDelete.root.logs.forEach(logsEach);
                                                 vars.verbose = true;
@@ -82,6 +80,8 @@ const certificate_remove = function terminal_certificateRemove():void {
                                             if (certDelete.ca.flag === true && certDelete.root.flag === true) {
                                                 complete();
                                             }
+                                        } else if (certDelete.ca.flag === true && certDelete.root.flag === true) {
+                                            complete();
                                         }
                                     } else {
                                         log([erRoot.toString()]);
@@ -104,9 +104,11 @@ const certificate_remove = function terminal_certificateRemove():void {
             total = fileList.length;
             if (total > 0) {
                 fileList.forEach(function terminal_certificateRemove_readdir_each(file:string):void {
+                    log([`${vars.text.angry}*${vars.text.none} Removing file ${file}`]);
                     remove(`${vars.projectPath}certificate${vars.sep + file}`, callback);
                 });
             } else {
+                log(["No certificate files to remove."]);
                 total = 1;
                 callback();
             }

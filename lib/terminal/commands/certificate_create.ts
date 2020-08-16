@@ -27,8 +27,7 @@ const certificate_create = function terminal_certificateCreate(callback:(logs:st
                     } else {
                         const logs:string[] = [
                             `${vars.text.underline}Certificate created!${vars.text.none}`,
-                            "",
-                            "To trust the new certificate open an administrative shell and execute:"
+                            ""
                         ];
                         if (process.platform === "win32") {
                             logs.push("To trust the new certificate open an administrative shell and execute:");
@@ -36,11 +35,12 @@ const certificate_create = function terminal_certificateCreate(callback:(logs:st
                             if (selfSigned === true) {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${serverVars.certPath}crt"${vars.text.none}`);
                             } else {
+                                logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${vars.projectPath}certificate${vars.sep}ca.crt"${vars.text.none}`);
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${serverVars.certPath}crt"${vars.text.none}`);
                             }
                             // cspell:enable
                         } else {
-                            logs.push("To trust the new certificate open a shell and use this command:");
+                            logs.push("To trust the new certificate use this command:");
                             // cspell:disable
                             logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor "${serverVars.certPath}crt"${vars.text.none}`);
                             // cspell:enable
