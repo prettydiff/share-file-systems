@@ -78,7 +78,7 @@ Creates an HTTPS certificate and saves it in the local "certificate" directory.
    - The file name of the authority certificate and supporting files. The default value is "ca" if no name is provided. This is not used on self signed certificates
 1. `node js/application certificate ca-domain:"localhost-ca"`
    - Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to "localhost-ca". This argument is ignored for self signed certificates or if mode is remove.
-1. `node js/application certificate self-signed`
+1. `node js/application certificate self-sign`
    - The "self-signed" argument instead creates a self-signed certificate.
 
 ## commands

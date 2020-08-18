@@ -127,7 +127,7 @@ const commands_documentation = {
                 defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"localhost-ca\". This argument is ignored for self signed certificates or if mode is remove."
             },
             {
-                code: `${vars.version.command} certificate self-signed`,
+                code: `${vars.version.command} certificate self-sign`,
                 defined: "The \"self-signed\" argument instead creates a self-signed certificate."
             }
         ]

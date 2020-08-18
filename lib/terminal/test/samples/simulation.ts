@@ -84,6 +84,67 @@ const sep:string = vars.sep,
             //cspell:enable
         },
         {
+            artifact: `${projectPath}test`,
+            command: "certificate test \"contains ca.crt\"",
+            qualifier: "filesystem contains",
+            test: `${projectPath}test${sep}ca.crt`
+        },
+        {
+            artifact: `${projectPath}test`,
+            command: "certificate test \"contains certificate.crt\"",
+            qualifier: "filesystem contains",
+            test: `${projectPath}test${sep}certificate.crt`
+        },
+        {
+            artifact: `${projectPath}test`,
+            command: "certificate test name:\"xyz\"",
+            qualifier: "filesystem contains",
+            test: `${projectPath}test${sep}xyz.crt`
+        },
+        {
+            artifact: `${projectPath}test`,
+            command: "certificate test ca-name:\"abc\"",
+            qualifier: "filesystem contains",
+            test: `${projectPath}test${sep}abc.crt`
+        },
+        {
+            command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "contains",
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
+        },
+        {
+            command: "certificate test self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "contains",
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}`
+        },
+        {
+            command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "contains",
+            test: `${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}abc.crt\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}abc.key\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}abc.srl\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}xyz.crt\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}xyz.csr\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}xyz.key\n\n${vars.text.underline}Certificate removed!${vars.text.none}\nApplication mode: ${vars.text.cyan}remove${vars.text.none}\nRemoved from:     ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}\n\nNo trusted certificates to remove from Windows.`
+        },
+        {
+            command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "contains",
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
+        },
+        {
+            artifact: `${projectPath}test`,
+            command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "filesystem not contains",
+            test: "abc.crt"
+        },
+        {
+            command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "contains",
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
+        },
+        {
+            artifact: `${projectPath}test`,
+            command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
+            qualifier: "filesystem not contains",
+            test: "xyz.crt"
+        },
+        {
             command: "comm version",
             qualifier: "contains",
             test: "Prints the current version number and date to the shell."
@@ -264,7 +325,7 @@ const sep:string = vars.sep,
         {
             command: `lint .${sep}js${sep}application.js`,
             qualifier: "contains",
-            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + vars.projectPath}js${sep}application.js${vars.text.none}`
+            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + projectPath}js${sep}application.js${vars.text.none}`
         },
         {
             command: `lint .${sep}js${sep}application.js`,
@@ -274,25 +335,25 @@ const sep:string = vars.sep,
         {
             command: `lint .${sep}lib`,
             qualifier: "contains",
-            test: `No files matching the pattern "${vars.projectPath}lib" were found.`
+            test: `No files matching the pattern "${projectPath}lib" were found.`
         },
         {
-            command: `mkdir ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+            command: `mkdir ${projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
             qualifier: "contains",
-            test: `Directory created at ${vars.text.cyan + vars.projectPath}lib${sep}terminal${sep}test${sep}testDir${vars.text.none}`
+            test: `Directory created at ${vars.text.cyan + projectPath}lib${sep}terminal${sep}test${sep}testDir${vars.text.none}`
         },
         {
-            command: `remove ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+            command: `remove ${projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
             qualifier: "contains",
             test: `Share File Systems removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
         },
         {
-            command: `mkdir ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir`,
+            command: `mkdir ${projectPath}lib${sep}terminal${sep}test${sep}testDir`,
             qualifier: "is",
             test: ""
         },
         {
-            command: `remove ${vars.projectPath}lib${sep}terminal${sep}test${sep}testDir`,
+            command: `remove ${projectPath}lib${sep}terminal${sep}test${sep}testDir`,
             qualifier: "is",
             test: ""
         },

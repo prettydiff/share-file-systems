@@ -24,7 +24,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 logs.push(`Domain:           ${vars.text.cyan + config.domain + vars.text.none}`);
                 logs.push(`Organization:     ${vars.text.cyan + config.organization + vars.text.none}`);
                 logs.push(`Self Signed:      ${vars.text.cyan + config.selfSign + vars.text.none}`);
-                if (config.selfSign === false) {
+                if (config.selfSign === false || config.mode === "remove") {
                     logs.push(`Authority name:   ${vars.text.cyan + config.caName + vars.text.none}`);
                     logs.push(`Authority domain: ${vars.text.cyan + config.caDomain + vars.text.none}`);
                 }
@@ -212,7 +212,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
         if (index > 0) {
             do {
                 index = index - 1;
-                if (process.argv[index] === "self-signed") {
+                if (process.argv[index] === "self-sign") {
                     indexes.push(index);
                     config.selfSign = true;
                 } else if (process.argv[index].toLowerCase() === "remove") {
@@ -233,7 +233,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     }
                 } else if (process.argv[index].indexOf("ca-domain:") === 0) {
                     indexes.push(index);
-                    config.caDomain = process.argv[index].replace("domain:", "");
+                    config.caDomain = process.argv[index].replace("ca-domain:", "");
                     if ((config.caDomain.charAt(0) === "\"" || config.caDomain.charAt(0) === "\"") && config.caDomain.charAt(config.caDomain.length - 1) === config.caDomain.charAt(0)) {
                         config.caDomain = config.caDomain.slice(1, config.caDomain.length - 1);
                     }

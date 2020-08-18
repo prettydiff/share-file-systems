@@ -215,15 +215,21 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
             output.test.test = vars.node.path.resolve(test);
             vars.node.fs.stat(test, function test_testEvaluation_filesystem(ers:Error) {
                 if (ers !== null) {
-                    if (output.test.qualifier === "filesystem contains" && ers.toString().indexOf("ENOENT") > -1) {
-                        increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
-                        return;
+                    if (ers.toString().indexOf("ENOENT") > -1) {
+                        if (output.test.qualifier === "filesystem contains") {
+                            increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
+                            return;
+                        }
+                        if (output.test.qualifier === "filesystem not contains") {
+                            increment(["", "", testLog]);
+                            return;
+                        }
                     }
                     increment([`fail - ${ers}`, "", testLog]);
                     return;
                 }
                 if (output.test.qualifier === "filesystem not contains") {
-                    increment([`${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
+                    increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
                     return;
                 }
                 increment(["", "", testLog]);
