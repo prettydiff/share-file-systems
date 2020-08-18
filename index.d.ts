@@ -149,6 +149,17 @@ declare global {
             key: boolean;
         };
     }
+    interface certificate_input {
+        caDomain: string;
+        callback: (logs:string[]) => void;
+        caName: string;
+        domain: string;
+        location: string;
+        mode: "create" | "remove";
+        name: string;
+        organization: string;
+        selfSign: boolean;
+    }
     interface certificate_remove {
         ca: certificate_remove_item;
         root: certificate_remove_item;
@@ -673,8 +684,6 @@ declare global {
     interface serverVars {
         addresses: [[string, string, string][], number];
         brotli: brotli;
-        certName: string;
-        certPath: string;
         device: agents;
         hashDevice: string;
         hashType: hash;

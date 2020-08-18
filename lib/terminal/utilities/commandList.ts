@@ -5,8 +5,7 @@ import agent_data from "../commands/agent_data.js";
 import agent_online from "../commands/agent_online.js";
 import base64 from "../commands/base64.js";
 import build from "../commands/build.js";
-import certificate_create from "../commands/certificate_create.js";
-import certificate_remove from "../commands/certificate_remove.js";
+import certificate from "../commands/certificate.js";
 import commands from "../commands/commands.js";
 import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
@@ -29,8 +28,7 @@ const commandList = {
     agent_online: agent_online,
     base64: base64,
     build: build,
-    certificate_create: certificate_create,
-    certificate_remove: certificate_remove,
+    certificate: certificate,
     commands: commands,
     copy: copy,
     directory: directory,

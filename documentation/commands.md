@@ -58,21 +58,28 @@ Rebuilds the application.
 1. `node js/application build local`
    - The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules.
 
-## certificate_create
+## certificate
 Creates an HTTPS certificate and saves it in the local "certificate" directory.
 
 ### Examples
-1. `node js/application certificate_create`
+1. `node js/application certificate`
    - By default a certificate authority (CA) certificate is created.
-1. `node js/application certificate_create self-signed`
+1. `node js/application certificate /file/path/to/save`
+   - Provide a file system path of where to save certificates. If no path is provided the default location is "C:\Users\PrettyDiff\share-file-systems\certificate". If the file path is relative it will be relative to the current working directory.
+1. `node js/application certificate remove /file/path/to/delete`
+   - The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "C:\Users\PrettyDiff\share-file-systems\certificate".
+1. `node js/application certificate name:"certificate"`
+   - The file name of the certificate and supporting files. The default value if "certificate" is no name is provided.
+1. `node js/application certificate domain:"localhost"`
+   - Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to "localhost". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
+1. `node js/application certificate organization:"localhost"`
+   - Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to "localhost". This argument is required in remove mode on Windows as certificates with a matching org value will be removed.
+1. `node js/application certificate ca-name:"certificate"`
+   - The file name of the authority certificate and supporting files. The default value is "ca" if no name is provided. This is not used on self signed certificates
+1. `node js/application certificate ca-domain:"localhost-ca"`
+   - Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to "localhost-ca". This argument is ignored for self signed certificates or if mode is remove.
+1. `node js/application certificate self-signed`
    - The "self-signed" argument instead creates a self-signed certificate.
-
-## certificate_remove
-Removes an HTTPS certificate created by this application.
-
-### Examples
-1. `node js/application certificate_remove`
-   - Removes the certificate.
 
 ## commands
 List all supported commands to the console or examples of a specific command.

@@ -9,7 +9,7 @@ import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import vars from "../utilities/vars.js";
 
-import certificate_create from "./certificate_create.js";
+import certificate from "./certificate.js";
 
 import createServer from "../server/createServer.js";
 import heartbeat from "../server/heartbeat.js";
@@ -86,20 +86,30 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         service = function terminal_server_service():void {
             if (https.flag.crt === true && https.flag.key === true) {
                 if (https.certificate.cert === "" || https.certificate.key === "") {
-                    certificate_create(function terminal_server_service_callback(logs:string[]):void {
-                        https.flag.crt = false;
-                        https.flag.key = false;
-                        httpsRead("crt");
-                        httpsRead("key");
-                        certLogs = logs;
-                    }, false);
+                    certificate({
+                        caDomain: "localhost-ca",
+                        callback: function terminal_server_service_callback(logs:string[]):void {
+                            https.flag.crt = false;
+                            https.flag.key = false;
+                            httpsRead("crt");
+                            httpsRead("key");
+                            certLogs = logs;
+                        },
+                        caName: "ca",
+                        domain: "localhost",
+                        organization: "localhost",
+                        location: "",
+                        mode: "create",
+                        name: "certificate",
+                        selfSign: false
+                    });
                 } else {
                     start(vars.node.https.createServer(https.certificate, createServer));
                 }
             }
         },
         httpsRead = function terminal_server_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(serverVars.certPath + certType, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+            vars.node.fs.readFile(`${vars.projectPath}certificate${vars.sep + certType}`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -112,7 +122,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             });
         },
         httpsFile = function terminal_server_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(serverVars.certPath + certType, function terminal_server_httpsFile_stat(statError:nodeError):void {
+            vars.node.fs.stat(`${vars.projectPath}certificate${vars.sep + certType}`, function terminal_server_httpsFile_stat(statError:nodeError):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {

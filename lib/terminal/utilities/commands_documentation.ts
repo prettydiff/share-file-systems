@@ -91,25 +91,44 @@ const commands_documentation = {
             }
         ]
     },
-    certificate_create: {
+    certificate: {
         description: "Creates an HTTPS certificate and saves it in the local \"certificate\" directory.",
         example: [
             {
-                code: `${vars.version.command} certificate_create`,
+                code: `${vars.version.command} certificate`,
                 defined: "By default a certificate authority (CA) certificate is created."
             },
             {
-                code: `${vars.version.command} certificate_create self-signed`,
-                defined: "The \"self-signed\" argument instead creates a self-signed certificate."
-            }
-        ]
-    },
-    certificate_remove: {
-        description: "Removes an HTTPS certificate created by this application.",
-        example: [
+                code: `${vars.version.command} certificate /file/path/to/save`,
+                defined: `Provide a file system path of where to save certificates. If no path is provided the default location is "${vars.projectPath}certificate". If the file path is relative it will be relative to the current working directory.`
+            },
             {
-                code: `${vars.version.command} certificate_remove`,
-                defined: "Removes the certificate."
+                code: `${vars.version.command} certificate remove /file/path/to/delete`,
+                defined: `The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "${vars.projectPath}certificate".`
+            },
+            {
+                code: `${vars.version.command} certificate name:"certificate"`,
+                defined: "The file name of the certificate and supporting files. The default value if \"certificate\" is no name is provided."
+            },
+            {
+                code: `${vars.version.command} certificate domain:"localhost"`,
+                defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"localhost\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+            },
+            {
+                code: `${vars.version.command} certificate organization:"localhost"`,
+                defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"localhost\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
+            },
+            {
+                code: `${vars.version.command} certificate ca-name:"certificate"`,
+                defined: "The file name of the authority certificate and supporting files. The default value is \"ca\" if no name is provided. This is not used on self signed certificates"
+            },
+            {
+                code: `${vars.version.command} certificate ca-domain:"localhost-ca"`,
+                defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"localhost-ca\". This argument is ignored for self signed certificates or if mode is remove."
+            },
+            {
+                code: `${vars.version.command} certificate self-signed`,
+                defined: "The \"self-signed\" argument instead creates a self-signed certificate."
             }
         ]
     },

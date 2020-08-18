@@ -42,8 +42,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                       - A connectivity tester to shared remote agents.
    - **[../lib/terminal/commands/base64.ts](../lib/terminal/commands/base64.ts)**                                   - A command driven utility for performing base64 encoding/decoding.
    - **[../lib/terminal/commands/build.ts](../lib/terminal/commands/build.ts)**                                     - The library that executes the build and test tasks.
-   - **[../lib/terminal/commands/certificate_create.ts](../lib/terminal/commands/certificate_create.ts)**           - A command driven utility for creating an HTTPS certificate.
-   - **[../lib/terminal/commands/certificate_remove.ts](../lib/terminal/commands/certificate_remove.ts)**           - Removes an HTTPS certificate created by this application.
+   - **[../lib/terminal/commands/certificate.ts](../lib/terminal/commands/certificate.ts)**                         - A command driven utility for creating an HTTPS certificate.
    - **[../lib/terminal/commands/commands.ts](../lib/terminal/commands/commands.ts)**                               - A command driven utility to list available commands and their respective documentation.
    - **[../lib/terminal/commands/copy.ts](../lib/terminal/commands/copy.ts)**                                       - A command driven utility to perform bit by bit file artifact copy.
    - **[../lib/terminal/commands/directory.ts](../lib/terminal/commands/directory.ts)**                             - A command driven utility to walk the file system and return a data structure.

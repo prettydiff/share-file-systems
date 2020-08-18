@@ -6,8 +6,7 @@ import vars from "../utilities/vars.js";
 
 let mac:string = "",
     address:[[string, string, string][], number];
-const certificate_name:string = "certificate",
-    serverVars:serverVars = {
+const serverVars:serverVars = {
         addresses: (function terminal_server_addresses():[[string, string, string][], number] {
             const interfaces:NetworkInterfaceInfo = vars.node.os.networkInterfaces(),
                 store:[string, string, string][] = [],
@@ -69,9 +68,6 @@ const certificate_name:string = "certificate",
             return address;
         }()),
         brotli: 7,
-        certName: certificate_name,
-        // eslint-disable-next-line
-        certPath: `${vars.projectPath}certificate${vars.sep + certificate_name}.`,
         device: {},
         hashDevice: "",
         hashType: "sha3-512",
