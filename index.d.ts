@@ -798,7 +798,8 @@ declare global {
     }
     interface testBrowser extends Array<testBrowserItem> {
         [index:number]: testBrowserItem;
-        execute?: () => void;
+        demo?: boolean;
+        execute?: (demo:boolean) => void;
         iterate?: (index:number) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;

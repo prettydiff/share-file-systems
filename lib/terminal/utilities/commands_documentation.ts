@@ -112,11 +112,11 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} certificate domain:"localhost"`,
-                defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"localhost\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+                defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
             },
             {
                 code: `${vars.version.command} certificate organization:"localhost"`,
-                defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"localhost\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
+                defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
             },
             {
                 code: `${vars.version.command} certificate ca-name:"certificate"`,
@@ -124,7 +124,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} certificate ca-domain:"localhost-ca"`,
-                defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"localhost-ca\". This argument is ignored for self signed certificates or if mode is remove."
+                defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"share-file-ca\". This argument is ignored for self signed certificates or if mode is remove."
             },
             {
                 code: `${vars.version.command} certificate self-sign`,
@@ -357,6 +357,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test_browser no_close`,
                 defined: "Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection."
+            },
+            {
+                code: `${vars.version.command} test_browser demo`,
+                defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
             },
             {
                 code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,

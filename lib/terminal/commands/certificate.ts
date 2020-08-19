@@ -196,19 +196,21 @@ const certificate = function terminal_certificate(config:certificate_input):void
             orgTest:boolean = false;
 
         config = {
-            caDomain: "localhost-ca",
+            caDomain: "share-files-ca",
             callback: function terminal_certificate_callback(logs:string[]):void {
                 vars.verbose = true;
                 log(logs, true);
             },
-            caName: "ca",
-            domain: "localhost",
+            caName: "share-files-ca",
+            domain: "share-files",
             location: "",
             mode: "create",
-            name: "certificate",
-            organization: "localhost",
+            name: "share-files",
+            organization: "share-files",
             selfSign: false
         };
+
+        // apply configuration values from terminal arguments
         if (index > 0) {
             do {
                 index = index - 1;

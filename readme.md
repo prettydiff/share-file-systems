@@ -26,7 +26,7 @@ This application seeks to be inherently private which disallows information broa
    * `cd share-file-systems`
 1. Globally install TypeScript.
    * `npm install -g typescript`
-1. Locally install the TypeScript node types.
+1. Locally install the TypeScript node type definitions.
    * `npm install`
 1. Compile to JavaScript.
    * `tsc --pretty`
@@ -35,18 +35,27 @@ This application seeks to be inherently private which disallows information broa
    * If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
       - `Set-ExecutionPolicy RemoteSigned`
       - Choose option **Y**
-1. Execute the application. The restart command first builds the application and then enables services.
-   * `npm restart`
+1. Build the application.
+   * `node js/application build`
+1. Execute the application. If the required HTTPS certificates are missing they will be created, but the one or two on screen instructions must be followed to ensure those certificates are trusted by your operating system.
+   * `node js/application server`
    <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps:
       - `sudo apt-get install libcap2-bin`
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
    <!-- cspell:enable-->
 1. Open your favorite modern browser to https://localhost
-   * You may need to make an exception in your local firewall for port 443, or which ever port you specify.
+   * If this doesn't work make an exception in your local firewall for port 443, or which ever port you specify.
+
+### Execute automated demo (opens your default browser)
+1. `node js/application test_browser demo`
+
+### Remove the generated certificates
+1. `node js/application certificate remove`
+1. Follow the on screen instruction to remove the certificates from your operating system's trust store.
 
 ### Later builds
-1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.
+1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
 1. If a browser isn't already open to the application then open to https://localhost
 
 ## A quick user introduction

@@ -1224,7 +1224,10 @@ browser.push({
     ]
 });
 
-browser.execute = function test_browser_execute():void {
+browser.demo = false;
+
+browser.execute = function test_browser_execute(demo:boolean):void {
+    browser.demo = demo;
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
     vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function test_browser_execute_readdir(dErr:nodeError, files:string[]):void {
         if (dErr !== null) {
@@ -1312,7 +1315,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
     const message:string = JSON.stringify({
             "test-browser": browser[index]
         }),
-        delay:number = (index > 0 && browser[index - 1].interaction[0].event === "refresh")
+        delay:number = (browser.demo === true || (index > 0 && browser[index - 1].interaction[0].event === "refresh"))
             ? 500
             : 25;
     // delay is necessary to prevent a race condition
