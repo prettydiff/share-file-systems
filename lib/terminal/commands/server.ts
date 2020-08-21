@@ -27,7 +27,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         portWs:number,
         https:certificate = {
             certificate: {
-                cert: "",
+                crt: "",
                 key: ""
             },
             flag: {
@@ -36,7 +36,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
         },
         certLogs:string[] = null;
-    const browserFlag:boolean = (function terminal_server_browserTest():boolean {
+    const certLocation:string = `${vars.projectPath}certificate${vars.sep}`,
+        certName:string = "share-file",
+        browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
             serverVars.storage = (vars.command === "test_browser")
@@ -54,7 +56,6 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
             return false;
         }()),
-        certName:string = "share-files",
         browser = function terminal_server_browser(httpServer:httpServer):void {
             // open a browser from the command line
             serverCallback.callback({
@@ -86,9 +87,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         },
         service = function terminal_server_service():void {
             if (https.flag.crt === true && https.flag.key === true) {
-                if (https.certificate.cert === "" || https.certificate.key === "") {
+                if (https.certificate.crt === "" || https.certificate.key === "") {
                     certificate({
-                        caDomain: "share-files-ca",
+                        caDomain: "share-file-ca",
                         callback: function terminal_server_service_callback(logs:string[]):void {
                             https.flag.crt = false;
                             https.flag.key = false;
@@ -96,10 +97,10 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             httpsRead("key");
                             certLogs = logs;
                         },
-                        caName: "share-files-ca",
-                        domain: "share-files",
-                        organization: "share-files",
-                        location: "",
+                        caName: "share-file-ca",
+                        domain: "share-file",
+                        organization: "share-file",
+                        location: certLocation,
                         mode: "create",
                         name: certName,
                         selfSign: false
@@ -110,20 +111,16 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
         },
         httpsRead = function terminal_server_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(`${vars.projectPath}certificate${vars.sep + certName}.${certType}`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
-                    if (certType === "crt") {
-                        https.certificate.cert = fileData;
-                    } else {
-                        https.certificate[certType] = fileData;
-                    }
+                    https.certificate[certType] = fileData;
                 }
                 service();
             });
         },
         httpsFile = function terminal_server_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(`${vars.projectPath}certificate${vars.sep + certName}.${certType}`, function terminal_server_httpsFile_stat(statError:nodeError):void {
+            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_server_httpsFile_stat(statError:nodeError):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {

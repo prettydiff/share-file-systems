@@ -56,7 +56,7 @@ This application seeks to be inherently private which disallows information broa
 
 ### Later builds
 1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
-1. If a browser isn't already open to the application then open to https://localhost
+1. If a browser isn't already open to the application then open it to https://localhost
 
 ## A quick user introduction
 1. The first time you open the application it will ask you to create a user name and device name.

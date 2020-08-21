@@ -230,19 +230,19 @@ const title:Element = document.getElementsByClassName("title")[0],
             location.reload();
         }
     },
-    open = function local_socketOpen():void {
-        const device:Element = (browser.data.hashDevice === "")
-            ? null
-            : document.getElementById(browser.data.hashDevice);
-        if (device !== null) {
-            device.setAttribute("class", "active");
-        }
-        title.getElementsByTagName("h1")[0].innerHTML = titleText;
-        title.setAttribute("class", "title");
-    },
     webSocket = function local_webSocket():WebSocket {
         const socket:WebSocket = new sock(`wss://localhost:${browser.localNetwork.wsPort}/`),
-            close = function local_socketClose():void {
+            open = function local_webSocket_socketOpen():void {
+                const device:Element = (browser.data.hashDevice === "")
+                    ? null
+                    : document.getElementById(browser.data.hashDevice);
+                if (device !== null) {
+                    device.setAttribute("class", "active");
+                }
+                title.getElementsByTagName("h1")[0].innerHTML = titleText;
+                title.setAttribute("class", "title");
+            },
+            close = function local_webSocket_socketClose():void {
                 const device:Element = (browser.data.hashDevice === "")
                         ? null
                         : document.getElementById(browser.data.hashDevice),
@@ -264,7 +264,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 }
                 browser.socket = local_webSocket();
             },
-            error = function local_socketError(message):void {
+            error = function local_webSocket_socketError(message):void {
                 // eslint-disable-next-line
                 console.log(message);
             };

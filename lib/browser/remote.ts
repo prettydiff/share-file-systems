@@ -5,10 +5,12 @@ import network from "./network.js";
 
 const remote:module_remote = {};
 
+remote.index = -1;
+
 remote.delay = function local_remote_delay(config:testBrowserItem):void {
     let a:number = 0;
     const delay:number = 50,
-        maxTries:number = 40,
+        maxTries:number = 200,
         delayFunction = function local_remote_delay_timeout():void {
             if (remote.evaluate(config.delay)[0] === true) {
                 return remote.test(config.test, config.index);
@@ -24,7 +26,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
             setTimeout(local_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
-    console.log(`Executing delay on test: ${config.name}`);
+    console.log(`Executing delay on test index ${config.index}: ${config.name}`);
     setTimeout(delayFunction, delay);
 };
 
@@ -76,32 +78,35 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
         htmlElement:HTMLInputElement,
         action:Event;
     const eventLength:number = testItem.interaction.length;
-    do {
-        config = testItem.interaction[a];
-        if (config.event === "refresh") {
-            location.reload();
-        } else {
-            element = remote.node(config.node);
-            if (element === null) {
-                remote.test(testItem.test, testItem.index);
-                return;
-            }
-            if (config.event === "setValue") {
-                htmlElement = <HTMLInputElement>element;
-                htmlElement.value = config.value;
+    if (remote.index < testItem.index) {
+        remote.index = testItem.index;
+        do {
+            config = testItem.interaction[a];
+            if (config.event === "refresh") {
+                location.reload();
             } else {
-                action = document.createEvent("Event");
-                action.initEvent(config.event, false, true);
-                element.dispatchEvent(action);
+                element = remote.node(config.node);
+                if (element === null) {
+                    remote.test(testItem.test, testItem.index);
+                    return;
+                }
+                if (config.event === "setValue") {
+                    htmlElement = <HTMLInputElement>element;
+                    htmlElement.value = config.value;
+                } else {
+                    action = document.createEvent("Event");
+                    action.initEvent(config.event, false, true);
+                    element.dispatchEvent(action);
+                }
             }
+            a = a + 1;
+        } while (a < eventLength);
+        if (testItem.delay === undefined) {
+            remote.test(testItem.test, testItem.index);
+        } else {
+            remote.delay(testItem);
         }
-        a = a + 1;
-    } while (a < eventLength);
-    if (testItem.delay === undefined) {
-        remote.test(testItem.test, testItem.index);
-        return;
     }
-    remote.delay(testItem);
 };
 
 // get the value of the specified property/attribute

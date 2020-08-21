@@ -71,13 +71,13 @@ Creates an HTTPS certificate and saves it in the local "certificate" directory.
 1. `node js/application certificate name:"certificate"`
    - The file name of the certificate and supporting files. The default value if "certificate" is no name is provided.
 1. `node js/application certificate domain:"localhost"`
-   - Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to "localhost". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
+   - Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed.
 1. `node js/application certificate organization:"localhost"`
-   - Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to "localhost". This argument is required in remove mode on Windows as certificates with a matching org value will be removed.
+   - Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to "share-file". This argument is required in remove mode on Windows as certificates with a matching org value will be removed.
 1. `node js/application certificate ca-name:"certificate"`
    - The file name of the authority certificate and supporting files. The default value is "ca" if no name is provided. This is not used on self signed certificates
 1. `node js/application certificate ca-domain:"localhost-ca"`
-   - Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to "localhost-ca". This argument is ignored for self signed certificates or if mode is remove.
+   - Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to "share-file-ca". This argument is ignored for self signed certificates or if mode is remove.
 1. `node js/application certificate self-sign`
    - The "self-signed" argument instead creates a self-signed certificate.
 
@@ -226,6 +226,8 @@ Launches the 'server' command as a child process, launches the default browser t
    - Runs the browser interaction tests.
 1. `node js/application test_browser no_close`
    - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
+1. `node js/application test_browser demo`
+   - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
 1. `node js/application test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 

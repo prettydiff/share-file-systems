@@ -26,7 +26,9 @@ const storage = function terminal_server_storage(data:storage):void {
                             }
                         });
                         response(data.response, "text/plain", erName.toString());
-                        error([erName.toString()]);
+                        if (vars.command.indexOf("test") < 0) {
+                            error([erName.toString()]);
+                        }
                         return;
                     }
                     response(data.response, "text/plain", `${data.type} written`);

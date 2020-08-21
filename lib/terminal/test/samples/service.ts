@@ -1407,7 +1407,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                 remove(value, removeCallback);
             });
         };
-    serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storageService`;
+    serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
     readStorage(storageComplete);
     removal();
 };

@@ -74,13 +74,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
         },
         readdir = function terminal_certificate_readdir(err:nodeError, fileList:string[]):void {
             if (err === null) {
-                const ignore = function terminal_certificate_readdir_ignore(value:string):void {
-                        const index = fileList.indexOf(value);
-                        if (index > -1) {
-                            fileList.splice(index, 1);
-                        }
-                    },
-                    killList:string[] = [`${config.caName}.crt`, `${config.caName}.key`, `${config.caName}.srl`, `${config.name}.crt`, `${config.name}.csr`, `${config.name}.key`],
+                const killList:string[] = [`${config.caName}.crt`, `${config.caName}.key`, `${config.caName}.srl`, `${config.name}.crt`, `${config.name}.csr`, `${config.name}.key`],
                     callback = function terminal_certificate_readdir_removeCallback():void {
                         status = status + 1;
                         if (total === 0 || status === total) {
@@ -196,17 +190,17 @@ const certificate = function terminal_certificate(config:certificate_input):void
             orgTest:boolean = false;
 
         config = {
-            caDomain: "share-files-ca",
+            caDomain: "share-file-ca",
             callback: function terminal_certificate_callback(logs:string[]):void {
                 vars.verbose = true;
                 log(logs, true);
             },
-            caName: "share-files-ca",
-            domain: "share-files",
+            caName: "share-file-ca",
+            domain: "share-file",
             location: "",
             mode: "create",
-            name: "share-files",
-            organization: "share-files",
+            name: "share-file",
+            organization: "share-file",
             selfSign: false
         };
 
@@ -268,8 +262,8 @@ const certificate = function terminal_certificate(config:certificate_input):void
         } else {
             config.location = `${vars.projectPath}certificate`;
         }
-        if (orgTest === false && config.selfSign === false) {
-            config.organization = "localhost-ca";
+        if (orgTest === false) {
+            config.organization = "share-file";
         }
     } else if (config.location === "") {
         config.location = `${vars.projectPath}certificate`;
@@ -283,7 +277,9 @@ const certificate = function terminal_certificate(config:certificate_input):void
     if (config.mode === "create") {
         vars.node.fs.stat(config.location, function terminal_certificate_createStat(stat:nodeError):void {
             const create = function terminal_certificate_createStat_create():void {
-                log.title("Certificate Create");
+                if (fromCommand === true) {
+                    log.title("Certificate Create");
+                }
                 // cspell:disable
                 if (config.selfSign === true) {
                     commands.push(`openssl genpkey -algorithm RSA -out ${config.name}.key`);
@@ -308,7 +304,9 @@ const certificate = function terminal_certificate(config:certificate_input):void
             }
         });
     } else {
-        log.title("Certificate Remove");
+        if (fromCommand === true) {
+            log.title("Certificate Remove");
+        }
         vars.node.fs.readdir(config.location, readdir);
     }
 };

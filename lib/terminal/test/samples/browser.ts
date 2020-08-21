@@ -1225,6 +1225,7 @@ browser.push({
 });
 
 browser.demo = false;
+browser.index = -1;
 
 browser.execute = function test_browser_execute(demo:boolean):void {
     browser.demo = demo;
@@ -1467,34 +1468,38 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             }
         },
         failure:string[] = [];
+
     response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${browser[item.index].name}`);
-    if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
-        failure.push(testString((item.payload[1][0] === true), browser[item.index].delay));
-        failureMessage(1);
-        falseFlag = true;
-    } else {
-        do {
-            failure.push(testString((item.payload[a][0] === true), browser[item.index].test[a]));
-            if (item.payload[a][0] === false) {
-                failureMessage(a);
-                falseFlag = true;
-            }
-            a = a + 1;
-        } while (a < length);
-    }
+    if (browser.index < item.index) {
+        browser.index = item.index;
+        if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
+            failure.push(testString((item.payload[1][0] === true), browser[item.index].delay));
+            failureMessage(1);
+            falseFlag = true;
+        } else {
+            do {
+                failure.push(testString((item.payload[a][0] === true), browser[item.index].test[a]));
+                if (item.payload[a][0] === false) {
+                    failureMessage(a);
+                    falseFlag = true;
+                }
+                a = a + 1;
+            } while (a < length);
+        }
 
 
-    if (falseFlag === true) {
-        failure.splice(0, 0, summary(false));
-        log(failure);
-        completion(false);
-        return;
-    }
-    log([summary(true)]);
-    if (item.index + 1 < browser.length) {
-        browser.iterate(item.index + 1);
-    } else {
-        completion(true);
+        if (falseFlag === true) {
+            failure.splice(0, 0, summary(false));
+            log(failure);
+            completion(false);
+            return;
+        }
+        log([summary(true)]);
+        if (item.index + 1 < browser.length) {
+            browser.iterate(item.index + 1);
+        } else {
+            completion(true);
+        }
     }
 };
 
