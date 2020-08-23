@@ -141,7 +141,7 @@ declare global {
     }
     interface certificate {
         certificate: {
-            crt: string;
+            cert: string;
             key: string;
         };
         flag: {
@@ -799,8 +799,8 @@ declare global {
     interface testBrowser extends Array<testBrowserItem> {
         [index:number]: testBrowserItem;
         demo?: boolean;
-        index?: number;
         execute?: (demo:boolean) => void;
+        index?: number;
         iterate?: (index:number) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;

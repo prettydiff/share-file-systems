@@ -108,7 +108,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} certificate name:"certificate"`,
-                defined: "The file name of the certificate and supporting files. The default value if \"certificate\" is no name is provided."
+                defined: "The file name of the certificate and supporting files. The default value is \"share-file\" if no name is provided."
             },
             {
                 code: `${vars.version.command} certificate domain:"localhost"`,
@@ -120,7 +120,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} certificate ca-name:"certificate"`,
-                defined: "The file name of the authority certificate and supporting files. The default value is \"ca\" if no name is provided. This is not used on self signed certificates"
+                defined: "The file name of the authority certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. This is not used on self signed certificates"
             },
             {
                 code: `${vars.version.command} certificate ca-domain:"localhost-ca"`,

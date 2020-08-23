@@ -27,7 +27,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         portWs:number,
         https:certificate = {
             certificate: {
-                crt: "",
+                cert: "",
                 key: ""
             },
             flag: {
@@ -37,7 +37,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         },
         certLogs:string[] = null;
     const certLocation:string = `${vars.projectPath}certificate${vars.sep}`,
-        certName:string = "certificate",
+        certName:string = "share-file",
         browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -90,9 +90,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         },
         service = function terminal_server_service():void {
             if (https.flag.crt === true && https.flag.key === true) {
-                if (https.certificate.crt === "" || https.certificate.key === "") {
+                if (https.certificate.cert === "" || https.certificate.key === "") {
                     certificate({
-                        caDomain: "localhost-ca",
+                        caDomain: "share-file-ca",
                         callback: function terminal_server_service_callback(logs:string[]):void {
                             https.flag.crt = false;
                             https.flag.key = false;
@@ -100,12 +100,12 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             httpsRead("key");
                             certLogs = logs;
                         },
-                        caName: "ca",
-                        domain: "localhost",
-                        location: certLocation,
+                        caName: "share-file-ca",
+                        domain: "share-file",
+                        location: "",
                         mode: "create",
                         name: certName,
-                        organization: "localhost-ca",
+                        organization: "share-file",
                         selfSign: false
                     });
                 } else {
@@ -117,7 +117,11 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
-                    https.certificate[certType] = fileData;
+                    if (certType === "crt") {
+                        https.certificate.cert = fileData;
+                    } else {
+                        https.certificate[certType] = fileData;
+                    }
                 }
                 service();
             });

@@ -201,17 +201,17 @@ const certificate = function terminal_certificate(config:certificate_input):void
             orgTest:boolean = false;
 
         config = {
-            caDomain: "localhost-ca",
+            caDomain: "share-file-ca",
             callback: function terminal_certificate_callback(logs:string[]):void {
                 vars.verbose = true;
                 log(logs, true);
             },
-            caName: "ca",
-            domain: "localhost",
+            caName: "share-file-ca",
+            domain: "share-file",
             location: "",
             mode: "create",
-            name: "certificate",
-            organization: "localhost",
+            name: "share-file",
+            organization: "share-file",
             selfSign: false
         };
 
@@ -274,7 +274,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
             config.location = `${vars.projectPath}certificate`;
         }
         if (orgTest === false && config.selfSign === false) {
-            config.organization = "localhost-ca";
+            config.organization = "share-file-ca";
         }
     } else if (config.location === "") {
         config.location = `${vars.projectPath}certificate`;
