@@ -294,19 +294,21 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         ? ["selfSign", config.name, config.domain]
                         : ["ca", config.caName, config.caDomain],
                     confPath:string = `${vars.projectPath}certificate${vars.sep + mode[0]}.cnf -extensions x509_ext`,
-                    key:string = `openssl genpkey -algorithm RSA -out ${config.name}.key`,
+                    key = function terminal_certificate_createState_create_key(type:"name"|"caName"):string {
+                        return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
+                    },
                     cert:string = `openssl req -x509 -key ${mode[1]}.key -days 9999 -out ${mode[1]}.crt -subj \"/CN=${mode[2]}/O=${config.organization}\"`;
                 if (fromCommand === true) {
                     log.title("Certificate Create");
                 }
                 // cspell:disable
                 if (config.selfSign === true) {
-                    commands.push(key);
+                    commands.push(key("name"));
                     commands.push(`${cert} -config ${confPath}`);
                 } else {
-                    commands.push(`openssl genpkey -algorithm RSA -out ${config.caName}.key`);
+                    commands.push(key("caName"));
                     commands.push(cert);
-                    commands.push(key);
+                    commands.push(key("name"));
                     commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj \"/CN=${config.domain}/O=${config.organization}\"`);
                     commands.push(`openssl x509 -req -in ${config.name}.csr -days 9999 -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
                 }
