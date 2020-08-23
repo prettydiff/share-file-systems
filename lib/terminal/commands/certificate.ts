@@ -31,6 +31,29 @@ const certificate = function terminal_certificate(config:certificate_input):void
             }
             logs.push("");
         },
+        posix = function terminal_certification_posix(logs:string[]):void {
+            const name:string = (config.selfSign === true)
+                    ? config.name
+                    : config.caName,
+                removes:[string, string] = (config.mode === "remove")
+                    ? [" --remove", " || true"]
+                    : ["", ""];
+            if (config.mode === "remove") {
+                if (fromCommand === true) {
+                    logs.push("To remove this application's trusted certificate from your OS execute:");
+                } else {
+                    logs.push("To remove this application's trusted certificate from your OS open a shell and execute:");
+                }
+            } else {
+                if (fromCommand === true) {
+                    logs.push("To trust the new certificate use this command:");
+                } else {
+                    logs.push("To trust the new certificate open a shell and use this command:");
+                }
+            }
+            logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
+            config.callback(logs);
+        },
         // cspell:enable
         crypto = function terminal_certificate_crypto():void {
             vars.node.child(commands[index], {
@@ -42,6 +65,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         terminal_certificate_crypto();
                     } else {
                         const logs:string[] = [
+                            "",
                             `${vars.text.underline}Certificate created!${vars.text.none}`
                         ];
                         logConfig(logs);
@@ -55,17 +79,10 @@ const certificate = function terminal_certificate(config:certificate_input):void
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
                             }
                             // cspell:enable
+                            config.callback(logs);
                         } else {
-                            if (fromCommand === true) {
-                                logs.push("To trust the new certificate use this command:");
-                            } else {
-                                logs.push("To trust the new certificate open a shell and use this command:");
-                            }
-                            // cspell:disable
-                            logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
-                            // cspell:enable
+                            posix(logs);
                         }
-                        config.callback(logs);
                     }
                     return;
                 }
@@ -151,13 +168,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                                 vars.node.child(certDelete.ca.command, childBody);
                                 vars.node.child(certDelete.root.command, childBody);
                             } else {
-                                if (fromCommand === true) {
-                                    logs.push("To remove this application's trusted certificate from your OS execute:");
-                                } else {
-                                    logs.push("To remove this application's trusted certificate from your OS open a shell and execute:");
-                                }
-                                logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor --remove "${config.location + vars.sep + config.name}.crt"${vars.text.none} || true`);
-                                config.callback(logs);
+                                posix(logs);
                             }
                         }
                     };
@@ -186,21 +197,20 @@ const certificate = function terminal_certificate(config:certificate_input):void
     if (fromCommand === true) {
         const indexes:number[] = [];
         let indexLength:number,
-            index:number = process.argv.length,
-            orgTest:boolean = false;
+            index:number = process.argv.length;
 
         config = {
-            caDomain: "share-file-ca",
+            caDomain: "localhost",
             callback: function terminal_certificate_callback(logs:string[]):void {
                 vars.verbose = true;
                 log(logs, true);
             },
-            caName: "share-file-ca",
-            domain: "share-file",
+            caName: "localhost-ca",
+            domain: "localhost",
             location: "",
             mode: "create",
-            name: "share-file",
-            organization: "share-file",
+            name: "localhost",
+            organization: "localhost-ca",
             selfSign: false
         };
 
@@ -221,7 +231,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         config.domain = config.domain.slice(1, config.domain.length - 1);
                     }
                 } else if (process.argv[index].indexOf("organization:") === 0) {
-                    orgTest = true;
                     indexes.push(index);
                     config.organization = process.argv[index].replace("organization:", "");
                     if ((config.organization.charAt(0) === "\"" || config.organization.charAt(0) === "\"") && config.organization.charAt(config.organization.length - 1) === config.organization.charAt(0)) {
@@ -262,12 +271,11 @@ const certificate = function terminal_certificate(config:certificate_input):void
         } else {
             config.location = `${vars.projectPath}certificate`;
         }
-        if (orgTest === false) {
-            config.organization = "share-file";
-        }
     } else if (config.location === "") {
         config.location = `${vars.projectPath}certificate`;
     }
+
+    config.location = config.location.replace(/(\/|\\)$/, "")
 
     // convert relative path to absolute from shell current working directory
     if ((process.platform === "win32" && (/^\w:\\/).test(config.location) === false) || (process.platform !== "win32" && config.location.charAt(0) !== "/")) {
@@ -276,24 +284,32 @@ const certificate = function terminal_certificate(config:certificate_input):void
     
     if (config.mode === "create") {
         vars.node.fs.stat(config.location, function terminal_certificate_createStat(stat:nodeError):void {
-            const create = function terminal_certificate_createStat_create():void {
-                if (fromCommand === true) {
-                    log.title("Certificate Create");
-                }
-                // cspell:disable
-                if (config.selfSign === true) {
-                    commands.push(`openssl genpkey -algorithm RSA -out ${config.name}.key`);
-                    commands.push(`openssl req -x509 -key ${config.name}.key -out ${config.name}.crt -subj \"/CN=${config.domain}/O=${config.organization}\" -config ${vars.projectPath}certificate${vars.sep}selfSign.cnf -extensions x509_ext`);
-                } else {
-                    commands.push(`openssl genpkey -algorithm RSA -out ${config.caName}.key`);
-                    commands.push(`openssl req -x509 -key ${config.caName}.key -out ${config.caName}.crt -subj \"/CN=${config.caDomain}/O=${config.organization}\"`);
-                    commands.push(`openssl genpkey -algorithm RSA -out ${config.name}.key`);
-                    commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj \"/CN=${config.domain}/O=${config.organization}\"`);
-                    commands.push(`openssl x509 -req -in ${config.name}.csr -days 9999 -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${vars.projectPath}certificate${vars.sep}ca.cnf -extensions x509_ext`);
-                }
-                // cspell:enable
-                crypto();
-            };
+            const certPath:string = `${vars.projectPath}certificate${vars.sep}`,
+                create = function terminal_certificate_createStat_create():void {
+                    if (fromCommand === true) {
+                        log.title("Certificate Create");
+                    }
+                    // cspell:disable
+                    if (config.selfSign === true) {
+                        commands.push(`openssl genpkey -algorithm RSA -out ${config.name}.key`);
+                        commands.push(`openssl req -x509 -key ${config.name}.key -days 9999 -out ${config.name}.crt -subj \"/CN=${config.domain}/O=${config.organization}\" -config ${certPath}selfSign.cnf -extensions x509_ext`);
+                    } else {
+                        commands.push(`openssl genpkey -algorithm RSA -out ca.key`);
+                        commands.push(`openssl req -x509 -key ca.key -days 9999 -out ca.crt -subj \"/CN=localhost-ca/O=localhost-ca\"`);
+                        commands.push(`openssl genpkey -algorithm RSA -out localhost.key`);
+                        commands.push(`openssl req -new -key localhost.key -out localhost.csr -subj \"/CN=localhost/O=localhost-ca\"`);
+                        commands.push(`openssl x509 -req -in localhost.csr -days 9999 -out localhost.crt -CA ca.crt -CAkey ca.key -CAcreateserial -extfile ${certPath}ca.cnf -extensions x509_ext`);
+
+                        /*
+openssl genpkey -algorithm RSA -out ca.key
+openssl req -x509 -key ca.key -out ca.crt -subj "/CN=localhost-ca/O=localhost-ca"
+openssl genpkey -algorithm RSA -out localhost.key
+openssl req -new -key localhost.key -out localhost.csr -subj "/CN=localhost/O=localhost-ca"
+openssl x509 -req -in localhost.csr -days 365 -out localhost.crt -CA ca.crt -CAkey ca.key -CAcreateserial -extfile */
+                    }
+                    // cspell:enable
+                    crypto();
+                };
             if (stat === null) {
                 create();
             } else if (stat.code === "ENOENT") {

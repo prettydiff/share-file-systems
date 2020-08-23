@@ -37,7 +37,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         },
         certLogs:string[] = null;
     const certLocation:string = `${vars.projectPath}certificate${vars.sep}`,
-        certName:string = "share-file",
+        certName:string = "localhost",
         browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -71,7 +71,10 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         : (process.platform === "win32")
                             ? "start"
                             : "xdg-open",
-                    browserCommand:string = `${keyword} https://localhost:${portWeb}/`;
+                    port:string = (portWeb === 443)
+                        ? ""
+                        : `:${portWeb}`,
+                    browserCommand:string = `${keyword} https://localhost${port}/`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
                     if (errs !== null) {
                         error([errs.toString()]);
@@ -89,7 +92,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             if (https.flag.crt === true && https.flag.key === true) {
                 if (https.certificate.crt === "" || https.certificate.key === "") {
                     certificate({
-                        caDomain: "share-file-ca",
+                        caDomain: "localhost",
                         callback: function terminal_server_service_callback(logs:string[]):void {
                             https.flag.crt = false;
                             https.flag.key = false;
@@ -97,9 +100,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             httpsRead("key");
                             certLogs = logs;
                         },
-                        caName: "share-file-ca",
-                        domain: "share-file",
-                        organization: "share-file",
+                        caName: "ca",
+                        domain: "localhost",
+                        organization: "localhost-ca",
                         location: certLocation,
                         mode: "create",
                         name: certName,

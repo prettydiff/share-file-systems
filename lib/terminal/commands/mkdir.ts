@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 
 // makes specified directory structures in the local file system
 const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRecursion:boolean):void {
-    const testLog = (logRecursion !== undefined && logRecursion === true)
+    const testLog = (logRecursion === true)
         ? {
             callback: true,
             callback_mkdir: true,
