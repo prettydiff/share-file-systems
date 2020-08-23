@@ -37,7 +37,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         },
         certLogs:string[] = null;
     const certLocation:string = `${vars.projectPath}certificate${vars.sep}`,
-        certName:string = "localhost",
+        certName:string = "certificate",
         browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -92,7 +92,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             if (https.flag.crt === true && https.flag.key === true) {
                 if (https.certificate.crt === "" || https.certificate.key === "") {
                     certificate({
-                        caDomain: "localhost",
+                        caDomain: "localhost-ca",
                         callback: function terminal_server_service_callback(logs:string[]):void {
                             https.flag.crt = false;
                             https.flag.key = false;
@@ -102,10 +102,10 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         },
                         caName: "ca",
                         domain: "localhost",
-                        organization: "localhost-ca",
                         location: certLocation,
                         mode: "create",
                         name: certName,
+                        organization: "localhost-ca",
                         selfSign: false
                     });
                 } else {

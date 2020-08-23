@@ -197,20 +197,21 @@ const certificate = function terminal_certificate(config:certificate_input):void
     if (fromCommand === true) {
         const indexes:number[] = [];
         let indexLength:number,
-            index:number = process.argv.length;
+            index:number = process.argv.length,
+            orgTest:boolean = false;
 
         config = {
-            caDomain: "localhost",
+            caDomain: "localhost-ca",
             callback: function terminal_certificate_callback(logs:string[]):void {
                 vars.verbose = true;
                 log(logs, true);
             },
-            caName: "localhost-ca",
+            caName: "ca",
             domain: "localhost",
             location: "",
             mode: "create",
-            name: "localhost",
-            organization: "localhost-ca",
+            name: "certificate",
+            organization: "localhost",
             selfSign: false
         };
 
@@ -231,6 +232,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         config.domain = config.domain.slice(1, config.domain.length - 1);
                     }
                 } else if (process.argv[index].indexOf("organization:") === 0) {
+                    orgTest = true;
                     indexes.push(index);
                     config.organization = process.argv[index].replace("organization:", "");
                     if ((config.organization.charAt(0) === "\"" || config.organization.charAt(0) === "\"") && config.organization.charAt(config.organization.length - 1) === config.organization.charAt(0)) {
@@ -271,11 +273,14 @@ const certificate = function terminal_certificate(config:certificate_input):void
         } else {
             config.location = `${vars.projectPath}certificate`;
         }
+        if (orgTest === false && config.selfSign === false) {
+            config.organization = "localhost-ca";
+        }
     } else if (config.location === "") {
         config.location = `${vars.projectPath}certificate`;
     }
 
-    config.location = config.location.replace(/(\/|\\)$/, "")
+    config.location = config.location.replace(/(\/|\\)$/, "");
 
     // convert relative path to absolute from shell current working directory
     if ((process.platform === "win32" && (/^\w:\\/).test(config.location) === false) || (process.platform !== "win32" && config.location.charAt(0) !== "/")) {
@@ -284,32 +289,30 @@ const certificate = function terminal_certificate(config:certificate_input):void
     
     if (config.mode === "create") {
         vars.node.fs.stat(config.location, function terminal_certificate_createStat(stat:nodeError):void {
-            const certPath:string = `${vars.projectPath}certificate${vars.sep}`,
-                create = function terminal_certificate_createStat_create():void {
-                    if (fromCommand === true) {
-                        log.title("Certificate Create");
-                    }
-                    // cspell:disable
-                    if (config.selfSign === true) {
-                        commands.push(`openssl genpkey -algorithm RSA -out ${config.name}.key`);
-                        commands.push(`openssl req -x509 -key ${config.name}.key -days 9999 -out ${config.name}.crt -subj \"/CN=${config.domain}/O=${config.organization}\" -config ${certPath}selfSign.cnf -extensions x509_ext`);
-                    } else {
-                        commands.push(`openssl genpkey -algorithm RSA -out ca.key`);
-                        commands.push(`openssl req -x509 -key ca.key -days 9999 -out ca.crt -subj \"/CN=localhost-ca/O=localhost-ca\"`);
-                        commands.push(`openssl genpkey -algorithm RSA -out localhost.key`);
-                        commands.push(`openssl req -new -key localhost.key -out localhost.csr -subj \"/CN=localhost/O=localhost-ca\"`);
-                        commands.push(`openssl x509 -req -in localhost.csr -days 9999 -out localhost.crt -CA ca.crt -CAkey ca.key -CAcreateserial -extfile ${certPath}ca.cnf -extensions x509_ext`);
-
-                        /*
-openssl genpkey -algorithm RSA -out ca.key
-openssl req -x509 -key ca.key -out ca.crt -subj "/CN=localhost-ca/O=localhost-ca"
-openssl genpkey -algorithm RSA -out localhost.key
-openssl req -new -key localhost.key -out localhost.csr -subj "/CN=localhost/O=localhost-ca"
-openssl x509 -req -in localhost.csr -days 365 -out localhost.crt -CA ca.crt -CAkey ca.key -CAcreateserial -extfile */
-                    }
-                    // cspell:enable
-                    crypto();
-                };
+            const create = function terminal_certificate_createStat_create():void {
+                const mode:[string, string, string] = (config.selfSign === true)
+                        ? ["selfSign", config.name, config.domain]
+                        : ["ca", config.caName, config.caDomain],
+                    confPath:string = `${vars.projectPath}certificate${vars.sep + mode[0]}.cnf -extensions x509_ext`,
+                    key:string = `openssl genpkey -algorithm RSA -out ${config.name}.key`,
+                    cert:string = `openssl req -x509 -key ${mode[1]}.key -days 9999 -out ${mode[1]}.crt -subj \"/CN=${mode[2]}/O=${config.organization}\"`;
+                if (fromCommand === true) {
+                    log.title("Certificate Create");
+                }
+                // cspell:disable
+                if (config.selfSign === true) {
+                    commands.push(key);
+                    commands.push(`${cert} -config ${confPath}`);
+                } else {
+                    commands.push(`openssl genpkey -algorithm RSA -out ${config.caName}.key`);
+                    commands.push(cert);
+                    commands.push(key);
+                    commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj \"/CN=${config.domain}/O=${config.organization}\"`);
+                    commands.push(`openssl x509 -req -in ${config.name}.csr -days 9999 -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
+                }
+                // cspell:enable
+                crypto();
+            };
             if (stat === null) {
                 create();
             } else if (stat.code === "ENOENT") {
