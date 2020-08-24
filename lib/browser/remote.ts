@@ -90,7 +90,11 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                     remote.test(testItem.test, testItem.index);
                     return;
                 }
-                if (config.event === "setValue") {
+                if (config.event === "move") {
+                    htmlElement = <HTMLInputElement>element;
+                    htmlElement.style.top = `${config.coords[0]}em`;
+                    htmlElement.style.left = `${config.coords[1]}em`;
+                } else if (config.event === "setValue") {
                     htmlElement = <HTMLInputElement>element;
                     htmlElement.value = config.value;
                 } else {

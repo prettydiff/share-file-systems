@@ -1170,6 +1170,13 @@ browser.push({
     interaction: [
         // creating first share
         {
+            coords: [75, 5],
+            event: "move",
+            node: [
+                ["getModalsByModalType", "shares", 0]
+            ]
+        },
+        {
             event: "click",
             node: [
                 ["getModalsByModalType", "shares", 0],
@@ -1315,15 +1322,41 @@ browser.iterate = function test_browser_iterate(index:number):void {
     const message:string = JSON.stringify({
             "test-browser": browser[index]
         }),
+        logs:string[] = [
+            `Test campaign ${index + 1} malformed: ${vars.text.angry + browser[index].name + vars.text.none}`,
+            ""
+        ],
+        validate = function test_browser_iterate():boolean {
+            let a:number = 0;
+            const length:number = browser[index].interaction.length;
+            do {
+                if (browser[index].interaction[a].event === "setValue" && browser[index].interaction[a].value === undefined) {
+                    logs.push(`   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry}value${vars.text.none} property.`);
+                } else if (browser[index].interaction[a].event === "move" && browser[index].interaction[a].coords === undefined) {
+                    logs.push(`   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}move${vars.text.none} but no ${vars.text.angry}coords${vars.text.none} property.`);
+                }
+                a = a + 1;
+            } while (a < length);
+            if (logs.length < 3) {
+                return true;
+            }
+            return false;
+        },
         delay:number = (browser.args.demo === true || (index > 0 && browser[index - 1].interaction[0].event === "refresh"))
             ? 500
             : 25;
     // delay is necessary to prevent a race condition
     // * about 1 in 10 times this will fail following event "refresh"
     // * because serverVars.testBrowser is not updated to methodGET library fast enough
-    setTimeout(function test_browser_iterate_delay():void {
-        vars.ws.broadcast(message);
-    }, delay);
+    if (validate() === true) {
+        setTimeout(function test_browser_iterate_delay():void {
+            vars.ws.broadcast(message);
+        }, delay);
+    } else {
+        vars.verbose = true;
+        log(logs, true);
+        process.exit(1);
+    }
 };
 
 browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {

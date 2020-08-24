@@ -15,11 +15,16 @@ For options associated with any command please see the command documentation:
 ## How this works
 All tests are specified outside the browser.  The code outside the browser determines which tests to execute in which order.  This library sends a given test campaign to the default browser and waits for the test evaluation before sending the next test.  Executing tests in serial order, as opposed to in parallel, is slower but is necessary because often later tests are dependent upon a state dictated by prior tests.
 
-In the browser any event can be arbitrarily created using the method `document.createEvent`.  The event is then executed upon a specified DOM element.  Even mouse movement can be created in this way, **unfortunately there is not a convention available to arbitrarily execute cursor movement using code automation so those mouse movement events cannot be executed for evaluation.**  Mouse movement can be faked though by imposing a *mousedown* event on the target area and then arbitrarily dictating coordinates to dynamically modified CSS properties in question, and finally executing a *mouseup* event.  This is not an accurate test of mouse movement but may allow some limited testing of other concerns dependent upon mouse movement.
+In the browser any event can be arbitrarily created using the method `document.createEvent`.  The event is then executed upon a specified DOM element.  Even mouse movement can be created in this way, **unfortunately there is not a convention available from the browsers to arbitrarily execute cursor movement using code automation so those mouse movement events cannot be executed for evaluation in visually meaningful way.**
 
 Once the event executes in the browser the delay, if present, is evaluated as the first test of the current test campaign.  The delay will either fulfill or will timeout.  Timed out delay will send failure messaging to the service where a fulfilled delay will move forward to test evaluation.  Once all tests are evaluated a data structure is returned to the service indicating which tests passed and which failed.
 
 Once the service has determined all tests have passed or the current test campaign has a failure a final message is sent to the browser to close the current browser tab.  That's all there is to it.
+
+### Mouse movement
+Mouse movement can be faked though by imposing a *mousedown* event on the target area and then arbitrarily dictating coordinates to dynamically modified CSS properties in question, and finally executing a *mouseup* event.  This is not an accurate test of mouse movement but may allow some limited testing of other concerns dependent upon mouse movement.
+
+For Convenience a **move** event is supported.  A test interaction whose event is *move* requires use of a *coords* property.  The coords property takes an array of two numbers.  The first number represents a top offset and the second number represents a left offset.  The values are arbitrarily assigned to the target node's CSS properties *top* and *left*, respectively, using the CSS dimension **em**.
 
 ## Code location
 The necessary code is almost exclusively located in two files:
