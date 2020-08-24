@@ -1252,7 +1252,7 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
                         : `:${String(serverVars.webPort)}`,
                     path:string = `https://localhost${port}/?test_browser`,
                     // execute a browser by file path to the browser binary
-                    binary:string = (process.argv.length > -1 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
+                    binary:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                         ? (function test_browser_execute_readdir_launch_serviceCall_binary():string {
                             if (process.platform === "win32") {
                                 // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths

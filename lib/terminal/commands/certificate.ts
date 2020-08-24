@@ -297,7 +297,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     key = function terminal_certificate_createState_create_key(type:"name"|"caName"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },
-                    cert:string = `openssl req -x509 -key ${mode[1]}.key -days 9999 -out ${mode[1]}.crt -subj \"/CN=${mode[2]}/O=${config.organization}\"`;
+                    cert:string = `openssl req -x509 -key ${mode[1]}.key -days 9999 -out ${mode[1]}.crt -subj "/CN=${mode[2]}/O=${config.organization}"`;
                 if (fromCommand === true) {
                     log.title("Certificate Create");
                 }
@@ -309,7 +309,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     commands.push(key("caName"));
                     commands.push(cert);
                     commands.push(key("name"));
-                    commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj \"/CN=${config.domain}/O=${config.organization}\"`);
+                    commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
                     commands.push(`openssl x509 -req -in ${config.name}.csr -days 9999 -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
                 }
                 // cspell:enable
