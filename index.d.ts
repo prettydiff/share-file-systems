@@ -798,12 +798,16 @@ declare global {
     }
     interface testBrowser extends Array<testBrowserItem> {
         [index:number]: testBrowserItem;
-        demo?: boolean;
-        execute?: (demo:boolean) => void;
+        args?: testBrowserArgs;
+        execute?: (args:testBrowserArgs) => void;
         index?: number;
         iterate?: (index:number) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
+    }
+    interface testBrowserArgs {
+        demo: boolean;
+        noClose: boolean;
     }
     interface testBrowserEvent {
         event: eventName;

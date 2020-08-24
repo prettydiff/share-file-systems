@@ -1224,11 +1224,15 @@ browser.push({
     ]
 });
 
-browser.demo = false;
+browser.args = {
+    demo: false,
+    noClose: false
+};
 browser.index = -1;
 
-browser.execute = function test_browser_execute(demo:boolean):void {
-    browser.demo = demo;
+browser.execute = function test_browser_execute(args:testBrowserArgs):void {
+    browser.args.demo = args.demo;
+    browser.args.noClose = args.noClose;
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
     vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function test_browser_execute_readdir(dErr:nodeError, files:string[]):void {
         if (dErr !== null) {
@@ -1243,17 +1247,12 @@ browser.execute = function test_browser_execute(demo:boolean):void {
                         : (process.platform === "win32")
                             ? "start"
                             : "xdg-open",
-                    closeIndex:number = process.argv.indexOf("no_close"),
                     port:string = (serverVars.webPort === 443)
                         ? ""
                         : `:${String(serverVars.webPort)}`,
-                    path:string = (closeIndex < 0)
-                        ? `https://localhost${port}/?test_browser`
-                        : (function test_browser_execute_readdir_launch_serviceCallback_noClose():string {
-                            process.argv.splice(closeIndex, 1);
-                            return `https://localhost${port}/?test_browser_no_close`;
-                        }()),
-                    binary:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
+                    path:string = `https://localhost${port}/?test_browser`,
+                    // execute a browser by file path to the browser binary
+                    binary:string = (process.argv.length > -1 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                         ? (function test_browser_execute_readdir_launch_serviceCall_binary():string {
                             if (process.platform === "win32") {
                                 // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
@@ -1316,7 +1315,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
     const message:string = JSON.stringify({
             "test-browser": browser[index]
         }),
-        delay:number = (browser.demo === true || (index > 0 && browser[index - 1].interaction[0].event === "refresh"))
+        delay:number = (browser.args.demo === true || (index > 0 && browser[index - 1].interaction[0].event === "refresh"))
             ? 500
             : 25;
     // delay is necessary to prevent a race condition
@@ -1349,9 +1348,11 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     return bb + 1;
                 }()),
                 exit = function test_browser_result_completion_exit(type:number, message:string):void {
-                    vars.ws.broadcast(JSON.stringify({
-                        "test-browser-close": {}
-                    }));
+                    if (browser.args.demo === false && browser.args.noClose === false) {
+                        vars.ws.broadcast(JSON.stringify({
+                            "test-browser-close": {}
+                        }));
+                    }
                     log([message], true);
                     setTimeout(function test_browser_result_completion_exit_delay() {
                         process.exit(type);
