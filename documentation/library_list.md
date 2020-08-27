@@ -75,12 +75,15 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/serverWatch.ts](../lib/terminal/server/serverWatch.ts)**                             - A library that establishes a file system watch respective to the application itself.
    - **[../lib/terminal/server/storage.ts](../lib/terminal/server/storage.ts)**                                     - A library for writing data to storage.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
+   - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                 - The functions necessary to run browser test automation.
    - **[../lib/terminal/test/application/complete.ts](../lib/terminal/test/application/complete.ts)**               - Final messaging for a completed test type.
    - **[../lib/terminal/test/application/evaluation.ts](../lib/terminal/test/application/evaluation.ts)**           - Evaluate a given test item and report appropriate failure messaging.
    - **[../lib/terminal/test/application/runner.ts](../lib/terminal/test/application/runner.ts)**                   - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library.
+   - **[../lib/terminal/test/application/service.ts](../lib/terminal/test/application/service.ts)**                 - A list of service test related utilities.
 * Directory *[../lib/terminal/test/samples](../lib/terminal/test/samples)*
    - **[../lib/terminal/test/samples/browser.ts](../lib/terminal/test/samples/browser.ts)**                         - A list of tests that execute in the web browser.
-   - **[../lib/terminal/test/samples/service.ts](../lib/terminal/test/samples/service.ts)**                         - A list of service related tests.
+   - **[../lib/terminal/test/samples/service.ts](../lib/terminal/test/samples/service.ts)**                         - A list of service tests.
+   - **[../lib/terminal/test/samples/simulation.ts](../lib/terminal/test/samples/simulation.ts)**                   - A list of command related tests for running shell simulations against the supported commands.
    - **[../lib/terminal/test/samples/simulation.ts](../lib/terminal/test/samples/simulation.ts)**                   - A list of command related tests for running shell simulations against the supported commands.
 * Directory *[../lib/terminal/utilities](../lib/terminal/utilities)*
    - **[../lib/terminal/utilities/commandList.ts](../lib/terminal/utilities/commandList.ts)**                       - Groups all supported command functions into an object for single point of reference.

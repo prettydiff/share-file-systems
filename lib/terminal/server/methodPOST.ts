@@ -14,7 +14,7 @@ import readOnly from "./readOnly.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
-import browser from "../test/samples/browser.js";
+import browser from "../test/application/browser.js";
 
 const methodPOST = function terminal_server_post(request:IncomingMessage, serverResponse:ServerResponse) {
     let body:string = "";

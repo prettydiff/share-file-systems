@@ -7,8 +7,8 @@ import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
-import service from "../samples/service.js";
-import simulation from "../samples/simulation.js";
+import service from "../application/service.js";
+import simulation from "../application/simulation.js";
 
 import testComplete from "./complete.js";
 
@@ -41,7 +41,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                     : command,
                 interval = function test_testEvaluation_increment_interval():void {
                     const total:number = (output.list.length < 1)
-                        ? list[output.testType].length
+                        ? list[output.testType].tests.length
                         : output.list.length;
                     output.index = output.index + 1;
                     if (output.index < total) {

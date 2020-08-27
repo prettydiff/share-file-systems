@@ -33,7 +33,7 @@ const sep:string = vars.sep,
     },
     // the tsconfig.json file hash used in multiple tests
     hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
-    simulation:testSimulationArray = [
+    simulation:testItem[] = [
         {
             command: "",
             qualifier: "contains",
@@ -85,15 +85,15 @@ const sep:string = vars.sep,
         },
         {
             artifact: `${projectPath}test`,
-            command: "certificate test \"contains ca.crt\"",
+            command: "certificate test \"contains share-file-ca.crt\"",
             qualifier: "filesystem contains",
-            test: `${projectPath}test${sep}ca.crt`
+            test: `${projectPath}test${sep}share-file-ca.crt`
         },
         {
             artifact: `${projectPath}test`,
-            command: "certificate test \"contains certificate.crt\"",
+            command: "certificate test \"contains share-file.crt\"",
             qualifier: "filesystem contains",
-            test: `${projectPath}test${sep}certificate.crt`
+            test: `${projectPath}test${sep}share-file.crt`
         },
         {
             artifact: `${projectPath}test`,
@@ -373,31 +373,5 @@ const sep:string = vars.sep,
             test: `git Log ${vars.text.cyan}`
         }
     ];
-simulation.execute = function test_simulations_execute(config:testExecute):void {
-    const testArg:string = (vars.testLogFlag === "simulation")
-            ? " application_test_log_argument"
-            : "",
-        index:number = (config.list.length < 1)
-            ? config.index
-            : config.list[config.index];
-    vars.node.child(`${vars.version.command} ${simulation[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
-        const test:string = (typeof simulation[index].test === "string")
-                ? <string>simulation[index].test
-                : JSON.stringify(simulation[index].test),
-            error:string = (errs === null)
-                ? ""
-                : errs.toString();
-        simulation[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
-        testEvaluation({
-            callback: config.complete,
-            fail: config.fail,
-            index: config.index,
-            list: config.list,
-            test: simulation[index],
-            testType: "simulation",
-            values: [stdout, error, stdError.toString()]
-        });
-    });
-};
 
 export default simulation;

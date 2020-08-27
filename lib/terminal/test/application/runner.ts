@@ -4,8 +4,8 @@
 import log from "../../utilities/log.js";
 import vars from "../../utilities/vars.js";
 
-import service from "../samples/service.js";
-import simulation from "../samples/simulation.js";
+import service from "../application/service.js";
+import simulation from "../application/simulation.js";
 
 // runs various tests of different types
 const list:testTypeCollection = {

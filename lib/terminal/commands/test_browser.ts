@@ -1,7 +1,7 @@
 
 /* lib/terminal/commands/test_browser - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result. */
 
-import browser from "../test/samples/browser.js";
+import browser from "../test/application/browser.js";
 import log from "../utilities/log.js";
 
 const test_browser = function terminal_testBrowser():void {

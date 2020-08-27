@@ -109,6 +109,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         selfSign: false
                     });
                 } else {
+                    // this is where the server is invoked
                     start(vars.node.https.createServer(https.certificate, createServer));
                 }
             }

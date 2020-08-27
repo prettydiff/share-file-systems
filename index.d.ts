@@ -796,11 +796,11 @@ declare global {
         status: "bad" | "good";
         type: "request" | "response";
     }
-    interface testBrowser extends Array<testBrowserItem> {
+    interface testBrowserApplication {
         [index:number]: testBrowserItem;
-        args?: testBrowserArgs;
+        args: testBrowserArgs;
         execute?: (args:testBrowserArgs) => void;
-        index?: number;
+        index: number;
         iterate?: (index:number) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
@@ -862,8 +862,7 @@ declare global {
         qualifier: qualifierFile;
         test: string;
     }
-    interface testServiceArray extends Array<testServiceInstance> {
-        [index:number]: testServiceInstance;
+    interface testServiceApplication {
         addServers?: (callback:Function) => void;
         execute?: (config:testExecute) => void;
         killServers?: (complete:testComplete) => void;
@@ -876,6 +875,7 @@ declare global {
                 [key:string]: httpServer;
             };
         };
+        tests?: testServiceInstance[];
     }
     interface testServiceInstance {
         artifact?: string;
@@ -890,9 +890,9 @@ declare global {
         local?: agentShares;
         remote?: agentShares;
     }
-    interface testSimulationArray extends Array<testItem> {
-        [index:number]: testItem;
+    interface testSimulationApplication {
         execute?: (config:testExecute) => void;
+        tests: testItem[]
     }
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;
@@ -951,8 +951,8 @@ declare global {
         };
     }
     interface testTypeCollection {
-        service: testServiceArray;
-        simulation: testSimulationArray;
+        service: testServiceApplication;
+        simulation: testSimulationApplication;
     }
     interface textPad extends EventHandlerNonNull {
         (Event:Event, value?:string, title?:string): void;
