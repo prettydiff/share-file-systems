@@ -31,7 +31,12 @@ const projectPath:string = vars.projectPath,
         : "127.0.0.1",
 
     // start test list
-    service:testServiceApplication = {};
+    service:testServiceApplication = {
+        serverRemote: {
+            device: {},
+            user: {}
+        }
+    };
 
 service.addServers = function test_services_addServers(callback:Function):void {
     const flags = {
@@ -77,11 +82,6 @@ service.addServers = function test_services_addServers(callback:Function):void {
             serverVars.nameUser = storageData.settings.nameUser;
             serverVars.device = storageData.device;
             serverVars.user = storageData.user;
-
-            service.serverRemote = {
-                device: {},
-                user: {}
-            };
 
             flags.storage = true;
             if (flags.removal === true) {
@@ -167,7 +167,7 @@ service.execute = function test_services_execute(config:testExecute):void {
             },
         payload:RequestOptions = {
             headers: header,
-            host: "localhost",
+            host: loopback,
             method: "POST",
             path: "/",
             port: (keyword === "invite")

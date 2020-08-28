@@ -868,7 +868,7 @@ declare global {
         execute?: (config:testExecute) => void;
         killServers?: (complete:testComplete) => void;
         populate?:() => void;
-        serverRemote?: {
+        serverRemote: {
             device: {
                 [key:string]: httpServer;
             };

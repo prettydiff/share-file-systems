@@ -20,7 +20,7 @@ const readOnly = function terminal_server_readOnly(request:IncomingMessage, serv
         devices:string[] = Object.keys(serverVars.device);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.watch === "remote") {
+    if (data.watch === "remote" && data.action !== "fs-copy-file" && data.action !== "fs-cut-file") {
         hashIdentity(data.share, function terminal_server_readOnly_hash(token:string):void {
             if (token === "") {
                 response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);

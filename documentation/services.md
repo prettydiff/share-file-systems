@@ -762,7 +762,12 @@ The invitation *status* property will feature one of these values:
          ["storage.txt", "file", "", 0, 0, "stat"]
       ],
       "location": "storage",
-      "status"  : "test payload"
+      "status"  : {
+         "failures": [],
+         "fileList": [],
+         "message": "Copy complete. 3 files written at size 6kb (5,765 bytes) with 0 integrity failures.",
+         "target": "remote-fileNavigator-0.5964026774904047121"
+      }
    }
 }
 ```
@@ -774,7 +779,15 @@ The invitation *status* property will feature one of these values:
       "agent"   : "string, who to send the update to",
       "dirs"    : ["array of directory item data structure starting from the address in the location property"],
       "location": "string, the file system address that is modified",
-      "status"  : "string, status text for a modal's status bar"
+      "status"  : "copyStatus"
    }
+}
+
+// copyStatus
+{
+   "failures": "string array, a list of any transmission failures",
+   "fileList": ["directory item array", "optional"],
+   "message": "string, a text summary for the user",
+   "target": "string, an identify of the browser modal that is receiving the copied items"
 }
 ```

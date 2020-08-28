@@ -100,7 +100,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"agentType\":\"device\",\"dirs\":[["
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -111,7 +111,7 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -127,7 +127,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         }
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -138,23 +138,17 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Local to Remote Device",
-        qualifier: "is",
-        test: {
-            "file-list-status": {
-                failures: [],
-                message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                target: "remote-test-ID"
-            }
-        }
+        qualifier: "contains",
+        test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"",
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -165,20 +159,14 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Remote Device to Local",
-        qualifier: "is",
-        test: {
-            "file-list-status": {
-                failures: [],
-                message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                target: "remote-test-ID"
-            }
-        }
+        qualifier: "contains",
+        test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\""
     });
     /*service.push(<testTemplateFileService>{
         command: {
@@ -207,7 +195,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         }
     });*/
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -218,7 +206,7 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -228,7 +216,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         test: "fs-update-remote"
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -239,17 +227,17 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Remote Device to Same Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}storage","directory"`
+        test: `["${windowsPath}lib${windowsSep}storage","directory"`
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -260,7 +248,7 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -835,16 +823,16 @@ const serviceTests = function test_services():testServiceInstance[] {
                 agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 dirs: [
-                    [`${projectPath}storage${sep}storage.txt`, "file", "", 0, 0, "stat"]
+                    [`${projectPath}lib${sep}storage${sep}storage.txt`, "file", "", 0, 0, "stat"]
                 ],
                 fail: [],
-                location: `${projectPath}storage`,
+                location: `${projectPath}lib${sep}storage`,
                 status: {}
             }
         },
         name: "fs-update-remote, Local",
         qualifier: "is",
-        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}storage","status":"test payload"}} at XXXX `
+        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}lib${windowsSep}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}lib${windowsSep}storage","status":{}}} at XXXX `
     });
     service.push(<testTemplateStorage>{
         command: {

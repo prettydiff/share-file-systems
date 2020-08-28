@@ -177,12 +177,14 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         };
                     let a:number = 0;
 
-                    serverVars.device = storageData.device;
-                    serverVars.hashDevice = storageData.settings.hashDevice;
-                    serverVars.user = storageData.user;
-                    if (serverVars.device[serverVars.hashDevice] !== undefined) {
-                        serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
-                        serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
+                    if (vars.command !== "test_service") {
+                        serverVars.device = storageData.device;
+                        serverVars.hashDevice = storageData.settings.hashDevice;
+                        serverVars.user = storageData.user;
+                        if (serverVars.device[serverVars.hashDevice] !== undefined) {
+                            serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
+                            serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
+                        }
                     }
 
                     // discover the web socket port in case its a random port
@@ -239,7 +241,6 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             type: "device"
                         };
                         logOutput(storageData);
-                        browser(httpServer);
                         heartbeat.update(hbConfig);
                     }
                 },
