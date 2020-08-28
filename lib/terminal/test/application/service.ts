@@ -1,7 +1,8 @@
 
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
-import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, request, RequestOptions } from "http";
+import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
+import { request } from "https";
 
 import agents from "../../../common/agents.js";
 import remove from "../../commands/remove.js";
@@ -99,7 +100,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                     `${projectPath}serviceRemote`,
                     `${projectPath}serviceTestRemote.json`,
                     `${projectPath}serviceRemote.json`,
-                    `${projectPath}storage${sep}version.json`
+                    `${projectPath}lib${sep}storage${sep}version.json`
                 ],
                 removeCallback = function test_services_addServers_removal_removeCallback():void {
                     count = count + 1;
@@ -114,6 +115,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                 remove(value, removeCallback);
             });
         };
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
     readStorage(storageComplete);
     removal();
@@ -165,7 +167,7 @@ service.execute = function test_services_execute(config:testExecute):void {
             },
         payload:RequestOptions = {
             headers: header,
-            host: loopback,
+            host: "localhost",
             method: "POST",
             path: "/",
             port: (keyword === "invite")

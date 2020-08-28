@@ -153,6 +153,7 @@ declare global {
         caDomain: string;
         callback: (logs:string[]) => void;
         caName: string;
+        days: number;
         domain: string;
         location: string;
         mode: "create" | "remove";

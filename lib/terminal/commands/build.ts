@@ -224,7 +224,11 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                 },
                                 write = function terminal_build_configurations_read_remove():void {
                                     if (Array.isArray(config[keys[a]]) === true) {
-                                        config[keys[a]] = config[keys[a]].join(vars.node.os.EOL);
+                                        if (config[keys[a]].length === 1) {
+                                            config[keys[a]] = config[keys[a]][0];
+                                        } else {
+                                            config[keys[a]] = config[keys[a]].join(vars.node.os.EOL);
+                                        }
                                     } else {
                                         config[keys[a]] = JSON.stringify(config[keys[a]]);
                                     }

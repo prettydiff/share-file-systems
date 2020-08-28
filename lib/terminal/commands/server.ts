@@ -101,6 +101,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             certLogs = logs;
                         },
                         caName: "share-file-ca",
+                        days: 16384,
                         domain: "share-file",
                         location: certLocation,
                         mode: "create",
@@ -142,7 +143,6 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             : (isNaN(Number(process.argv[0])) === true)
                 ? vars.version.port
                 : Number(process.argv[0]),
-        //httpServer:httpServer = vars.node.https.createServer(createServer),
         serverError = function terminal_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {

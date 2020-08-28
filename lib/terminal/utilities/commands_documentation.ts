@@ -127,6 +127,10 @@ const commands_documentation = {
                 defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"share-file-ca\". This argument is ignored for self signed certificates or if mode is remove."
             },
             {
+                code: `${vars.version.command} certificate days:365`,
+                defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
+            },
+            {
                 code: `${vars.version.command} certificate self-sign`,
                 defined: "The \"self-signed\" argument instead creates a self-signed certificate."
             }

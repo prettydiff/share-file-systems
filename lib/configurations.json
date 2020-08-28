@@ -1,5 +1,7 @@
 {
-    ".eslintignore": "/**/ws-es6",
+    ".eslintignore": [
+        "/**/ws-es6"
+    ],
     ".eslintrc.json": {
         "env": {
             "browser": true,
@@ -74,24 +76,21 @@
         }
     },
     ".gitignore": [
-        ".eslintignore",
-        ".eslintrc.json",
-        ".gitignore",
-        ".vscode",
-        "lib/certificate/*.*",
-        "!lib/certificate/ca.cnf",
-        "!lib/certificate/readme.md",
-        "!lib/certificate/selfSign.cnf",
-        "js/lib",
-        "js/test",
-        "js/application.js",
-        "js/localhost.js",
-        "js/tsconfig.*",
-        "lib/terminal/test/storageBrowser/*.json",
-        "node_modules",
-        "package-lock.json",
-        "storage/*.json",
-        "version.json"
+        "/.eslintignore",
+        "/.eslintrc.json",
+        "/.gitignore",
+        "/.vscode",
+        "/js/**",
+        "!/js/ws-es6",
+        "/lib/certificate/*.*",
+        "!/lib/certificate/ca.cnf",
+        "!/lib/certificate/readme.md",
+        "!/lib/certificate/selfSign.cnf",
+        "/lib/storage/*.json",
+        "/lib/terminal/test/storageBrowser/*.json",
+        "/node_modules",
+        "/package-lock.json",
+        "/version.json"
     ],
     "package-lock.json": {
         "name": "share-file-systems",

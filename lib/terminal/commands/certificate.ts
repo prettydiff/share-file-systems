@@ -207,6 +207,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 log(logs, true);
             },
             caName: "share-file-ca",
+            days: 16384,
             domain: "share-file",
             location: "",
             mode: "create",
@@ -256,6 +257,11 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     if ((config.caName.charAt(0) === "\"" || config.caName.charAt(0) === "\"") && config.caName.charAt(config.caName.length - 1) === config.caName.charAt(0)) {
                         config.caName = config.caName.slice(1, config.caName.length - 1);
                     }
+                } else if (process.argv[index].indexOf("days:") === 0) {
+                    indexes.push(index);
+                    if (isNaN(Number(process.argv[index].replace("days:", ""))) === false) {
+                        config.days = Number(process.argv[index].replace("days:", ""));
+                    }
                 }
             } while (index > 0);
         }
@@ -297,7 +303,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     key = function terminal_certificate_createState_create_key(type:"name"|"caName"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },
-                    cert:string = `openssl req -x509 -key ${mode[1]}.key -days 9999 -out ${mode[1]}.crt -subj "/CN=${mode[2]}/O=${config.organization}"`;
+                    cert:string = `openssl req -x509 -key ${mode[1]}.key -days ${config.days} -out ${mode[1]}.crt -subj "/CN=${mode[2]}/O=${config.organization}"`;
                 if (fromCommand === true) {
                     log.title("Certificate Create");
                 }
@@ -310,7 +316,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     commands.push(cert);
                     commands.push(key("name"));
                     commands.push(`openssl req -new -key ${config.name}.key -out ${config.name}.csr -subj "/CN=${config.domain}/O=${config.organization}"`);
-                    commands.push(`openssl x509 -req -in ${config.name}.csr -days 9999 -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
+                    commands.push(`openssl x509 -req -in ${config.name}.csr -days ${config.days} -out ${config.name}.crt -CA ${config.caName}.crt -CAkey ${config.caName}.key -CAcreateserial -extfile ${confPath}`);
                 }
                 // cspell:enable
                 crypto();
