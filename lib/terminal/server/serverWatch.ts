@@ -56,7 +56,7 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
             }
             return false;
         };
-    if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0 || filename.indexOf(".git") === 0) {
+    if (filename === null || ignore(filename) === true || filename.indexOf(`lib${vars.sep}storage`) === 0 || filename.indexOf(".git") === 0) {
         return;
     }
     vars.testLogger("serverWatch", "", "Establishing watch for application components to refresh the page or compile updated code.");

@@ -36,7 +36,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
         },
         certLogs:string[] = null;
-    const certLocation:string = `${vars.projectPath}certificate${vars.sep}`,
+    const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
         browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
@@ -45,7 +45,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
                 : (vars.command.indexOf("test") === 0 || test > -1)
                     ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
-                    : `${vars.projectPath}storage${vars.sep}`;
+                    : `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
             if (test > -1) {
                process.argv.splice(test, 1);
             }

@@ -271,13 +271,13 @@ const certificate = function terminal_certificate(config:certificate_input):void
         if (process.argv.length > 0) {
             config.location = process.argv[0];
         } else {
-            config.location = `${vars.projectPath}certificate`;
+            config.location = `${vars.projectPath}lib${vars.sep}certificate`;
         }
         if (orgTest === false && config.selfSign === false) {
             config.organization = "share-file-ca";
         }
     } else if (config.location === "") {
-        config.location = `${vars.projectPath}certificate`;
+        config.location = `${vars.projectPath}lib${vars.sep}certificate`;
     }
 
     config.location = config.location.replace(/(\/|\\)$/, "");
@@ -293,7 +293,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]
                         : ["ca", config.caName, config.caDomain],
-                    confPath:string = `${vars.projectPath}certificate${vars.sep + mode[0]}.cnf -extensions x509_ext`,
+                    confPath:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep + mode[0]}.cnf -extensions x509_ext`,
                     key = function terminal_certificate_createState_create_key(type:"name"|"caName"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },

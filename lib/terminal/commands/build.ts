@@ -134,7 +134,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                 // clearStorage removes temporary storage files that should have been removed, but weren't
                 clearStorage: function terminal_build_clearStorage():void {
                     heading("Removing unnecessary temporary files");
-                    vars.node.fs.readdir(`${vars.projectPath}storage`, function terminal_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
+                    vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}storage`, function terminal_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
                         if (erd !== null) {
                             error([erd.toString()]);
                             return;
@@ -147,7 +147,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                         do {
                             if (tempTest.test(dirList[a]) === true) {
                                 start = start + 1;
-                                vars.node.fs.unlink(`${vars.projectPath}storage${vars.sep + dirList[a]}`, function terminal_build_clearStorage_dir_unlink(eru:nodeError):void {
+                                vars.node.fs.unlink(`${vars.projectPath}lib${vars.sep}storage${vars.sep + dirList[a]}`, function terminal_build_clearStorage_dir_unlink(eru:nodeError):void {
                                     if (eru !== null) {
                                         error([erd.toString()]);
                                         return;

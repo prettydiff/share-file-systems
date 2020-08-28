@@ -191,7 +191,7 @@ const serviceTests = function test_services():testServiceInstance[] {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}version.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
