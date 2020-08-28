@@ -102,7 +102,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         },
                         caName: "share-file-ca",
                         domain: "share-file",
-                        location: "",
+                        location: certLocation,
                         mode: "create",
                         name: certName,
                         organization: "share-file",

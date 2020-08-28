@@ -68,7 +68,6 @@ service.addServers = function test_services_addServers(callback:Function):void {
             });
         },
         storageComplete = function test_services_addServers_storageComplete(storageData:storageItems):void {
-
             serverVars.brotli = storageData.settings.brotli;
             serverVars.hashDevice = storageData.settings.hashDevice;
             serverVars.hashType = storageData.settings.hashType;
@@ -88,6 +87,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                 servers();
             }
         },
+        // remove any trash left behind from a prior test
         removal = function test_services_addServers_removal():void {
             let count:number = 0;
             const list:string[] = [
