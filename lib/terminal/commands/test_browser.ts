@@ -3,6 +3,7 @@
 
 import browser from "../test/application/browser.js";
 import log from "../utilities/log.js";
+import vars from "../utilities/vars.js";
 
 const test_browser = function terminal_testBrowser():void {
     const splice = function terminal_testBrowser_splice(arg:string):boolean {
@@ -24,7 +25,7 @@ const test_browser = function terminal_testBrowser():void {
 // * need to define secondary devices/browsers that process different instructions
 //     - the secondary systems must store data in a temporary location and transmit settings back to the primary
 // * need to remove or reset temporary files before running test samples
-    log.title("Browser Tests");
+    log.title("Browser Tests", true);
     browser.execute(args);
 };
 

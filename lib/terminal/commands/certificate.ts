@@ -45,9 +45,9 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 }
             } else {
                 if (fromCommand === true) {
-                    logs.push("To trust the new certificate use this command:");
+                    logs.push("1. To trust the new certificate use this command:");
                 } else {
-                    logs.push("To trust the new certificate open a shell and use this command:");
+                    logs.push("1. To trust the new certificate open a shell and use this command:");
                 }
             }
             logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
@@ -67,7 +67,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         ];
                         logConfig(logs);
                         if (process.platform === "win32") {
-                            logs.push(`${vars.text.underline}To trust the new certificate open an administrative shell and execute:${vars.text.none}`);
+                            logs.push(`${vars.text.underline}1. To trust the new certificate open an administrative shell and execute:${vars.text.none}`);
                             // cspell:disable
                             if (config.selfSign === true) {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
@@ -79,11 +79,16 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         } else {
                             posix(logs);
                         }
+
                         // Firefox
                         logs.push("");
-                        logs.push(`${vars.text.underline}To enable in Firefox${vars.text.none}`);
-                        logs.push(`${vars.text.angry}1.${vars.text.none} open Firefox to address: ${vars.text.cyan}about:config${vars.text.none}`);
-                        logs.push(`${vars.text.angry}2.${vars.text.none} change key ${vars.text.cyan}security.enterprise_roots.enabled${vars.text.none} to value ${vars.text.bold + vars.text.green}true${vars.text.none}`);
+                        logs.push(`${vars.text.underline}2. To enable in Firefox perform these steps as well:${vars.text.none}`);
+                        logs.push(`   ${vars.text.angry}1.${vars.text.none} open Firefox to address: ${vars.text.cyan}about:config${vars.text.none}`);
+                        logs.push(`   ${vars.text.angry}2.${vars.text.none} change key ${vars.text.cyan}security.enterprise_roots.enabled${vars.text.none} to value ${vars.text.bold + vars.text.green}true${vars.text.none}`);
+
+                        // browser restart
+                        logs.push("");
+                        logs.push(`${vars.text.underline}3. Restart any currently open browsers.${vars.text.none}`);
                         config.callback(logs);
                     }
                     return;

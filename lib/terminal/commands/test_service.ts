@@ -43,7 +43,7 @@ const test_service = function terminal_testService():void {
                         total: filterLength
                     });
                 } else {
-                    log.title("Run Selected Tests");
+                    log.title("Run Selected Tests", true);
                     service.execute({
                         complete: completeCallback,
                         fail: 0,
@@ -54,7 +54,7 @@ const test_service = function terminal_testService():void {
             };
         service.addServers(addCallback);
     } else {
-        log.title("Run All Service Tests");
+        log.title("Run All Service Tests", true);
         testListRunner("service", completeCallback);
     }
 };
