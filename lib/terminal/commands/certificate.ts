@@ -8,7 +8,6 @@ import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
 const certificate = function terminal_certificate(config:certificate_input):void {
-    // cspell:disable
     let index:number = 0;
     const fromCommand:boolean = (vars.command === "certificate"),
         commands:string[] = [],
@@ -52,9 +51,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 }
             }
             logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
-            config.callback(logs);
         },
-        // cspell:enable
         crypto = function terminal_certificate_crypto():void {
             vars.node.child(commands[index], {
                 cwd: config.location
@@ -70,7 +67,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                         ];
                         logConfig(logs);
                         if (process.platform === "win32") {
-                            logs.push("To trust the new certificate open an administrative shell and execute:");
+                            logs.push(`${vars.text.underline}To trust the new certificate open an administrative shell and execute:${vars.text.none}`);
                             // cspell:disable
                             if (config.selfSign === true) {
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise root "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
@@ -79,10 +76,15 @@ const certificate = function terminal_certificate(config:certificate_input):void
                                 logs.push(`${vars.text.green + vars.text.bold}certutil.exe -addstore -enterprise ca "${config.location + vars.sep + config.name}.crt"${vars.text.none}`);
                             }
                             // cspell:enable
-                            config.callback(logs);
                         } else {
                             posix(logs);
                         }
+                        // Firefox
+                        logs.push("");
+                        logs.push(`${vars.text.underline}To enable in Firefox${vars.text.none}`);
+                        logs.push(`${vars.text.angry}1.${vars.text.none} open Firefox to address: ${vars.text.cyan}about:config${vars.text.none}`);
+                        logs.push(`${vars.text.angry}2.${vars.text.none} change key ${vars.text.cyan}security.enterprise_roots.enabled${vars.text.none} to value ${vars.text.bold + vars.text.green}true${vars.text.none}`);
+                        config.callback(logs);
                     }
                     return;
                 }
