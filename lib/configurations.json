@@ -87,7 +87,8 @@
         "!/lib/certificate/readme.md",
         "!/lib/certificate/selfSign.cnf",
         "/lib/storage/*.json",
-        "/lib/terminal/test/storageBrowser/*.json",
+        "/lib/terminal/test/storageBrowser/**",
+        "!/lib/terminal/test/storageBrowser/storage.txt",
         "/node_modules",
         "/package-lock.json",
         "/version.json"

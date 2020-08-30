@@ -1409,6 +1409,140 @@ const browser:testBrowserItem[] = [
                 value: "expansion"
             }
         ]
+    },
+
+    // change the file system address in second file navigator
+    {
+        delay: {
+            // the file navigator modal is created
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "ul", 0]
+            ],
+            qualifier: "is",
+            target: ["class"],
+            type: "attribute",
+            value: "fileList"
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser`
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            }
+        ],
+        name: "Change file navigator file system location to storageBrowser",
+        test: [
+            {
+                // the first file system item is .git
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "storage.txt"
+            }
+        ]
+    },
+
+    // find new directory button
+    {
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            }
+        ],
+        name: "Find the new directory button from the context menu",
+        test: [
+            {
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "New Directory"
+            }
+        ]
+    },
+
+    // evoke new directory with an empty field
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "not",
+            target: [],
+            type: "element",
+            value: null
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new directory field",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "directory"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
     }
 ];
 

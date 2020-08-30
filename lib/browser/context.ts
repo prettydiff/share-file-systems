@@ -535,7 +535,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 if (actionEvent.keyCode === 27) {
                     const list:Element = actionElement.getAncestor("fileList", "class"),
                         input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
-                    list.removeChild(actionParent.parentNode.parentNode);
+                    list.removeChild(actionParent.parentNode);
                     input.focus();
                     return;
                 }
@@ -545,8 +545,13 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
         actionBlur = function local_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
             const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
-            if (actionEvent.type === "blur" && value.replace(/\s+/, "") !== "") {
-                if (value.replace(/\s+/, "") !== "") {
+            if (actionEvent.type === "blur") {
+                if (value.replace(/\s+/, "") === "") {
+                    const list:Element = actionElement.getAncestor("fileList", "class"),
+                        input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
+                    list.removeChild(actionElement.parentNode.parentNode);
+                    input.focus();
+                } else {
                     const actionParent:Element = <Element>actionElement.parentNode,
                         agency:agency = util.getAgent(actionElement),
                         id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
@@ -620,7 +625,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             li.oncontextmenu = context.menu;
             li.appendChild(label);
             li.onclick = fs.select;
-            context.element.appendChild(li);
+            context.element.parentNode.appendChild(li);
             field.focus();
         };
     if (document.getElementById("newFileItem") !== null) {
@@ -638,12 +643,14 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
             : "CTRL";
-    let element:Element = <Element>event.srcElement || <Element>event.target,
+    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
         parent:Element = <Element>element.parentNode,
         item:Element,
         button:HTMLButtonElement,
-        box:Element = element.getAncestor("box", "class"),
+        clientX:number,
+        clientY:number,
+        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
@@ -773,7 +780,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         return;
     }
     if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
-        element = <Element>element.parentNode;
+        element = <HTMLElement>element.parentNode;
         parent = <Element>parent.parentNode;
         nodeName = element.nodeName.toLowerCase();
     }
@@ -813,21 +820,33 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         }
     }
 
+    // this accounts for events artificially created during test automation
+    if (event.clientY === undefined || event.clientX === undefined) {
+        const body:HTMLElement = <HTMLElement>element.getAncestor("body", "class");
+        clientX = element.offsetLeft + body.offsetLeft + box.offsetLeft + 50;
+        clientY = element.offsetTop + body.offsetTop + box.offsetTop + 65;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+
     // menu display position
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
     // vertical
-    if (browser.content.clientHeight < ((itemList.length * 45) + 1) + event.clientY) {
-        reverse = true;
-        menu.style.top = `${(event.clientY - ((itemList.length * 57) + 1)) / 10}em`;
+    if (browser.content.clientHeight < ((itemList.length * 45) + 1) + clientY) {
+        if (event.clientY !== undefined) {
+            reverse = true;
+        }
+        menu.style.top = `${(clientY - ((itemList.length * 57) + 1)) / 10}em`;
     } else {
-        menu.style.top = `${(event.clientY - 50) / 10}em`;
+        menu.style.top = `${(clientY - 50) / 10}em`;
     }
     // horizontal
-    if (browser.content.clientWidth < (200 + event.clientX)) {
+    if (browser.content.clientWidth < (200 + clientX)) {
         reverse = true;
-        menu.style.left = `${(event.clientX - 200) / 10}em`;
+        menu.style.left = `${(clientX - 200) / 10}em`;
     } else {
-        menu.style.left = `${event.clientX / 10}em`;
+        menu.style.left = `${clientX / 10}em`;
     }
 
     // button order
@@ -848,8 +867,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
 
 /* Destroys a context menu */
 context.menuRemove = function local_context_menuRemove():void {
-    if (document.getElementById("contextMenu") !== null) {
-        browser.content.removeChild(document.getElementById("contextMenu"));
+    const menu:Element = document.getElementById("contextMenu");
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
     }
 };
 

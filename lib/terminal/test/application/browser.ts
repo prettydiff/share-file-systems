@@ -187,7 +187,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + item.index + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total campaign${plural} and ${totalTests} tests.`);
         },
         summary = function test_browser_result_summary(pass:boolean):string {
-            const text:string = ` browser test ${item.index}: ${vars.text.none + tests[item.index].name}`,
+            const text:string = ` browser test ${item.index + 1}: ${vars.text.none + tests[item.index].name}`,
                 resultString:string = (pass === true)
                     ? `${vars.text.green}Passed`
                     : `${vars.text.angry}Failed`;

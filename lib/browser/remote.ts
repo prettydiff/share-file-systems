@@ -26,7 +26,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
             setTimeout(local_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
-    console.log(`Executing delay on test index ${config.index}: ${config.name}`);
+    console.log(`Executing delay on test campaign ${config.index}: ${config.name}`);
     setTimeout(delayFunction, delay);
 };
 
