@@ -855,6 +855,16 @@ const browser:testBrowserItem[] = [
 
     // display context menu
     {
+        delay: {
+            // the context menu is visible
+            node: [
+                ["getElementById", "contextMenu", null]
+            ],
+            qualifier: "not",
+            target: [],
+            type: "element",
+            value: null
+        },
         interaction: [
             {
                 event: "contextmenu",
@@ -1414,16 +1424,16 @@ const browser:testBrowserItem[] = [
     // change the file system address in second file navigator
     {
         delay: {
-            // the file navigator modal is created
+            // the first file system item is .git
             node: [
                 ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "body", 0],
                 ["getElementsByTagName", "ul", 0]
             ],
-            qualifier: "is",
-            target: ["class"],
-            type: "attribute",
-            value: "fileList"
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "storage.txt"
         },
         interaction: [
             {
@@ -1455,13 +1465,12 @@ const browser:testBrowserItem[] = [
                 // the first file system item is .git
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0]
+                    ["getElementsByClassName", "status-bar", 0]
                 ],
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "storage.txt"
+                value: "0 errors"
             }
         ]
     },
@@ -1510,7 +1519,8 @@ const browser:testBrowserItem[] = [
                 event: "contextmenu",
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
-                    ["getElementsByClassName", "body", 0]
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
                 ]
             },
             {
@@ -1541,6 +1551,107 @@ const browser:testBrowserItem[] = [
                 target: ["value"],
                 type: "property",
                 value: ""
+            }
+        ]
+    },
+
+    // blur the newFileItem field
+    {
+        interaction: [
+            {
+                event: "blur",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ]
+            }
+        ],
+        name: "Blur new directory field",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
+            }
+        ]
+    },
+
+    // evoke new directory with an empty field again
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "not",
+            target: [],
+            type: "element",
+            value: null
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new directory field",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "directory"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // blur the newFileItem field
+    {
+        interaction: [
+            {
+                event: "keydown",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "Escape"
+            }
+        ],
+        name: "Press ESC key on new directory field",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
             }
         ]
     }

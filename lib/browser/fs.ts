@@ -708,7 +708,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
         action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
-            if (action.type === "blur" || (action.type === "keyup" && action.keyCode === 13)) {
+            if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
                 if (dir + input.value === text) {
                     label.innerHTML = text;
@@ -734,7 +734,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                     network.fs(payload, callback);
                 }
             } else if (action.type === "keyup") {
-                if (action.keyCode === 27) {
+                if (action.key === "Enter") {
                     const input:HTMLElement = li.getElementsByTagName("input")[0];
                     label.innerHTML = text;
                     input.focus();
@@ -815,7 +815,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
     const element:HTMLInputElement = (searchElement === undefined)
         ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
         : searchElement;
-    if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+    if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
         const box:Element = element.getAncestor("box", "class"),
             body:Element = box.getElementsByClassName("body")[0],
             addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
@@ -1065,7 +1065,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     box = <Element>parent.parentNode;
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
-    if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+    if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
         const agency:agency = util.getAgent(box),
             payload:fileService = {
                 action: "fs-directory",

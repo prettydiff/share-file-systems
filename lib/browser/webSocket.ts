@@ -223,6 +223,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 invite.respond(invitation);
             }
         } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
+            testDelay = false;
             remote.event(JSON.parse(event.data)["test-browser"]);
         } else if (event.data.indexOf("{\"test-browser-close\":") === 0 && location.href.indexOf("?test_browser") > 0) {
             window.close();
@@ -230,7 +231,7 @@ const title:Element = document.getElementsByClassName("title")[0],
             location.reload();
         }
     },
-    webSocket = function local_webSocket():WebSocket {
+    webSocket = function local_webSocket(testPageLoad:boolean):WebSocket {
         const socket:WebSocket = new sock(`wss://localhost:${browser.localNetwork.wsPort}/`),
             open = function local_webSocket_socketOpen():void {
                 const device:Element = (browser.data.hashDevice === "")
@@ -262,7 +263,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }
-                browser.socket = local_webSocket();
+                browser.socket = local_webSocket(false);
             },
             error = function local_webSocket_socketError(message):void {
                 // eslint-disable-next-line
@@ -274,7 +275,17 @@ const title:Element = document.getElementsByClassName("title")[0],
         socket.onmessage = message;
         socket.onclose = close;
         socket.onerror = error;
+        if (testPageLoad === true) {
+            network.testBrowserLoaded();
+            testDelay = true;
+            setTimeout(function local_webSocket_testDelay():void {
+                if (testDelay === true) {
+                    location.reload();
+                }
+            }, 1000);
+        }
         return socket;
     };
+let testDelay:boolean = false;
 
 export default webSocket;

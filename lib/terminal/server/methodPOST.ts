@@ -130,7 +130,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 browser.result(JSON.parse(body)["test-browser"], serverResponse);
             } else if (task === "test-browser-loaded") {
                 // * browser is ready to receive test samples
-                serverVars.testBrowserCallback(serverResponse);
+                browser.reload(serverResponse);
             }
         };
 

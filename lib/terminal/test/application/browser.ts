@@ -19,7 +19,8 @@ const browser:testBrowserApplication = {
         demo: false,
         noClose: false
     },
-    index: -1
+    index: -1,
+    loadMessage: false
 };
 
 browser.execute = function test_browser_execute(args:testBrowserArgs):void {
@@ -65,11 +66,6 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
                         error([errs.toString()]);
                         return;
                     }
-                    serverVars.testBrowserCallback = function test_browser_execute_readdir_launch_serviceCallback_browser_testBrowserCallback(serverResponse:ServerResponse):void {
-                        log([`${humanTime(false)}browser loaded...`]);
-                        response(serverResponse, "text/plain", "Preparing to send browser test 0.");
-                        browser.iterate(0);
-                    };
                 });
             };
             server({
@@ -113,12 +109,15 @@ browser.iterate = function test_browser_iterate(index:number):void {
         // determine if non-interactive events have required matching data properties
         validate = function test_browser_iterate():boolean {
             let a:number = 0;
-            const length:number = tests[index].interaction.length;
+            const length:number = tests[index].interaction.length,
+                eventName = function test_browser_iterate(property):string {
+                    return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
+                };
             do {
-                if (tests[index].interaction[a].event === "setValue" && tests[index].interaction[a].value === undefined) {
-                    logs.push(`   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry}value${vars.text.none} property.`);
+                if ((tests[index].interaction[a].event === "setValue" || tests[index].interaction[a].event === "keydown" || tests[index].interaction[a].event === "keyup") && tests[index].interaction[a].value === undefined) {
+                    logs.push(eventName("value"));
                 } else if (tests[index].interaction[a].event === "move" && tests[index].interaction[a].coords === undefined) {
-                    logs.push(`   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}move${vars.text.none} but no ${vars.text.angry}coords${vars.text.none} property.`);
+                    logs.push(eventName("coords"));
                 }
                 a = a + 1;
             } while (a < length);
@@ -127,7 +126,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
             }
             return false;
         },
-        delay:number = (browser.args.demo === true || (index > 0 && tests[index - 1].interaction[0].event === "refresh"))
+        delay:number = (browser.args.demo === true)
             ? 500
             : 25;
     // delay is necessary to prevent a race condition
@@ -142,6 +141,15 @@ browser.iterate = function test_browser_iterate(index:number):void {
         log(logs, true);
         process.exit(1);
     }
+};
+
+browser.reload = function test_browser_reload(serverResponse:ServerResponse):void {
+    if (browser.loadMessage === false) {
+        log([`${humanTime(false)}browser loaded...`]);
+        browser.loadMessage = true;
+    }
+    response(serverResponse, "text/plain", "Preparing to send browser test 0.");
+    browser.iterate(browser.index + 1);
 };
 
 browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
@@ -184,7 +192,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} tests from ${item.index} test campaign${passPlural}.`);
                 return;
             }
-            exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + item.index + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total campaign${plural} and ${totalTests} tests.`);
+            exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total campaign${plural} and ${totalTests} tests.`);
         },
         summary = function test_browser_result_summary(pass:boolean):string {
             const text:string = ` browser test ${item.index + 1}: ${vars.text.none + tests[item.index].name}`,
@@ -315,7 +323,9 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
         }
         log([summary(true)]);
         if (item.index + 1 < tests.length) {
-            browser.iterate(item.index + 1);
+            if (tests[browser.index].interaction[0].event !== "refresh") {
+                browser.iterate(item.index + 1);
+            }
         } else {
             completion(true);
         }

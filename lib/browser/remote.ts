@@ -76,7 +76,10 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
         element:Element,
         config:testBrowserEvent,
         htmlElement:HTMLInputElement,
-        action:Event;
+        action:Event,
+        alt:boolean = false,
+        ctrl:boolean = false,
+        shift:boolean = false;
     const eventLength:number = testItem.interaction.length;
     if (remote.index < testItem.index) {
         remote.index = testItem.index;
@@ -98,7 +101,36 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                     htmlElement = <HTMLInputElement>element;
                     htmlElement.value = config.value;
                 } else {
-                    action = document.createEvent("Event");
+                    if (config.event === "keydown" || config.event === "keyup") {
+                        if (config.value === "Alt") {
+                            if (config.event === "keydown") {
+                                alt = true;
+                            } else {
+                                alt = false;
+                            }
+                        } else if (config.value === "Control") {
+                            if (config.event === "keydown") {
+                                ctrl = true;
+                            } else {
+                                ctrl = false;
+                            }
+                        } else if (config.value === "Shift") {
+                            if (config.event === "keydown") {
+                                shift = true;
+                            } else {
+                                shift = false;
+                            }
+                        } else {
+                            action = new KeyboardEvent(config.event, {
+                                key: config.value,
+                                altKey: alt,
+                                ctrlKey: ctrl,
+                                shiftKey: shift
+                            });
+                        }
+                    } else {
+                        action = document.createEvent("Event");
+                    }
                     action.initEvent(config.event, false, true);
                     element.dispatchEvent(action);
                 }

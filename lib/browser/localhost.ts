@@ -107,7 +107,7 @@ import webSocket from "./webSocket.js";
                             }
                         },
                         handlerKeyboard = function local_restore_applyLogin_button(event:KeyboardEvent):void {
-                            if (event.keyCode === 13) {
+                            if (event.key === "Enter") {
                                 action();
                             }
                         },
@@ -119,10 +119,7 @@ import webSocket from "./webSocket.js";
                     nameUser.onkeyup = handlerKeyboard;
                     nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
-                    if (testBrowser === true) {
-                        network.testBrowserLoaded();
-                    }
-                    browser.socket = webSocket();
+                    browser.socket = webSocket(testBrowser);
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {
@@ -239,7 +236,7 @@ import webSocket from "./webSocket.js";
 
                     browser.loadTest = false;
                     if (loginFlag === true) {
-                        browser.socket = webSocket();
+                        browser.socket = webSocket(testBrowser);
                     }
 
                     activate();

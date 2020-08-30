@@ -164,7 +164,7 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
         parent:Element = <Element>element.parentNode,
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
-    if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
+    if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
         if (value !== "" && (isNaN(numb) === true || numb < 1024 || numb > 65535)) {
             element.style.color = "#f00";
             element.style.borderColor = "#f00";

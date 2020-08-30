@@ -501,11 +501,18 @@ context.element = null;
 /* Handler for creating new directories */
 context.fsNew = function local_context_fsNew(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
+        cancel = function local_context_fsNew_cancel(actionElement:Element):void {
+            const list:Element = actionElement.getAncestor("fileList", "class"),
+                input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
+            if (actionElement.parentNode.parentNode.parentNode === list) {
+                list.removeChild(actionElement.parentNode.parentNode);
+            }
+            input.focus();
+        },
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
-            // 13 is enter
             const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
                 actionParent:Element = <Element>actionElement.parentNode;
-            if (actionEvent.keyCode === 13) {
+            if (actionEvent.key === "Enter") {
                 const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
                     parent:Element = <Element>actionElement.parentNode,
                     id:string = parent.getAncestor("box", "class").getAttribute("id"),
@@ -531,12 +538,8 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                     network.fs(payload, callback);
                 }
             } else {
-                // 27 is escape
-                if (actionEvent.keyCode === 27) {
-                    const list:Element = actionElement.getAncestor("fileList", "class"),
-                        input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
-                    list.removeChild(actionParent.parentNode);
-                    input.focus();
+                if (actionEvent.key === "Escape") {
+                    cancel(actionElement);
                     return;
                 }
                 actionElement.value = actionElement.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
@@ -547,10 +550,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
             if (actionEvent.type === "blur") {
                 if (value.replace(/\s+/, "") === "") {
-                    const list:Element = actionElement.getAncestor("fileList", "class"),
-                        input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
-                    list.removeChild(actionElement.parentNode.parentNode);
-                    input.focus();
+                    cancel(actionElement);
                 } else {
                     const actionParent:Element = <Element>actionElement.parentNode,
                         agency:agency = util.getAgent(actionElement),
@@ -582,16 +582,26 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 input:HTMLInputElement = document.createElement("input"),
                 field:HTMLInputElement = document.createElement("input"),
                 text:HTMLElement = document.createElement("label"),
-                parent:Element = <Element>context.element.parentNode,
-                box = parent.getAncestor("box", "class"),
+                parent:Element = (context.element === null)
+                    ? null
+                    : <Element>context.element.parentNode,
+                box = (parent === null)
+                    ? null
+                    : parent.getAncestor("box", "class"),
                 type:contextType = (context.type !== "")
                     ? context.type
                     : (element.innerHTML.indexOf("New File") === 0)
                         ? "file"
                         : "directory";
+
+            if (parent === null) {
+                return;
+            }
+
             let span:HTMLElement,
                 slash:"\\"|"/" = "/",
                 path:string = box.getElementsByTagName("input")[0].value;
+
             li.setAttribute("class", type);
             if (type === "directory") {
                 li.ondblclick = fs.directory;
@@ -625,7 +635,11 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             li.oncontextmenu = context.menu;
             li.appendChild(label);
             li.onclick = fs.select;
-            context.element.parentNode.appendChild(li);
+            if (context.element.nodeName.toLowerCase() === "ul") {
+                context.element.appendChild(li);
+            } else {
+                context.element.parentNode.appendChild(li);
+            }
             field.focus();
         };
     if (document.getElementById("newFileItem") !== null) {
@@ -789,6 +803,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     event.preventDefault();
     event.stopPropagation();
     menu.setAttribute("id", "contextMenu");
+    menu.onclick = context.menuRemove;
     if (element.getAttribute("class") === "fileList") {
         if (readOnly === true) {
             return;

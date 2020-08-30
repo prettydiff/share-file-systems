@@ -18,7 +18,7 @@ declare global {
     type domMethod = "childNodes" | "firstChild" | "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getModalsByModalType" | "getNodesByType" | "lsatChild" | "parentNode";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
-    type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keypress" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
+    type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
     type httpBodyCallback = (body:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -695,7 +695,6 @@ declare global {
         status: heartbeatStatus;
         storage: string;
         testBrowser?: string;
-        testBrowserCallback?: (serverResponse:ServerResponse) => void;
         timeStore: number;
         user: agents;
         watches: {
@@ -803,6 +802,8 @@ declare global {
         execute?: (args:testBrowserArgs) => void;
         index: number;
         iterate?: (index:number) => void;
+        loadMessage: boolean;
+        reload?: (serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
     }
