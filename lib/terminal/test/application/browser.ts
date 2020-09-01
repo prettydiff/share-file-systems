@@ -19,8 +19,7 @@ const browser:testBrowserApplication = {
         demo: false,
         noClose: false
     },
-    index: -1,
-    loadMessage: false
+    index: -1
 };
 
 browser.execute = function test_browser_execute(args:testBrowserArgs):void {
@@ -76,6 +75,8 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
         };
         let length:number = files.length,
             flags:number = length;
+        tests[0].index = 0;
+        serverVars.testBrowser = JSON.stringify(tests[0]);
         if (length === 1) {
             browserLaunch();
         } else {
@@ -126,7 +127,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
             }
             return false;
         },
-        delay:number = (browser.args.demo === true)
+        delay:number = (browser.args.demo === true || tests[index].interaction[0].event === "refresh")
             ? 500
             : 25;
     // delay is necessary to prevent a race condition
@@ -135,21 +136,17 @@ browser.iterate = function test_browser_iterate(index:number):void {
     if (validate() === true) {
         setTimeout(function test_browser_iterate_delay():void {
             vars.ws.broadcast(message);
+            if (tests[index].interaction[0].event === "refresh") {
+                const refresh:number = index + 1;
+                tests[refresh].index = refresh;
+                serverVars.testBrowser = JSON.stringify(tests[refresh]);
+            }
         }, delay);
     } else {
         vars.verbose = true;
         log(logs, true);
         process.exit(1);
     }
-};
-
-browser.reload = function test_browser_reload(serverResponse:ServerResponse):void {
-    if (browser.loadMessage === false) {
-        log([`${humanTime(false)}browser loaded...`]);
-        browser.loadMessage = true;
-    }
-    response(serverResponse, "text/plain", "Preparing to send browser test 0.");
-    browser.iterate(browser.index + 1);
 };
 
 browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
@@ -301,7 +298,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
         browser.index = item.index;
         if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
             failure.push(testString((item.payload[1][0] === true), tests[item.index].delay));
-            failureMessage(1);
+            failureMessage(a);
             falseFlag = true;
         } else {
             do {

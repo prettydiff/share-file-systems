@@ -352,7 +352,7 @@ const browser:testBrowserItem[] = [
                 event: "click",
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "button", 0]
                 ]
@@ -454,7 +454,7 @@ const browser:testBrowserItem[] = [
             // the file navigator modal address is now at .git
             node: [
                 ["getModalsByModalType", "fileNavigate", 0],
-                ["getElementsByClassName", "body", 0],
+                ["getElementsByClassName", "fileList", 0],
                 ["getElementsByTagName", "li", 0],
                 ["getElementsByTagName", "label", 0]
             ],
@@ -667,6 +667,17 @@ const browser:testBrowserItem[] = [
 
     // restore the modal to normal size and location
     {
+        delay: {
+            // the modal body is display none
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0],
+                ["getElementsByClassName", "body", 0]
+            ],
+            qualifier: "is",
+            target: ["style", "display"],
+            type: "property",
+            value: "block"
+        },
         interaction: [
             {
                 event: "click",
@@ -688,17 +699,6 @@ const browser:testBrowserItem[] = [
                 target: ["style", "width"],
                 type: "property",
                 value: "11.5em"
-            },
-            {
-                // the modal body is display none
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0]
-                ],
-                qualifier: "is",
-                target: ["style", "display"],
-                type: "property",
-                value: "block"
             },
             {
                 // the file navigator modal is reduced to the tray
@@ -860,10 +860,10 @@ const browser:testBrowserItem[] = [
             node: [
                 ["getElementById", "contextMenu", null]
             ],
-            qualifier: "not",
-            target: [],
-            type: "element",
-            value: null
+            qualifier: "greater",
+            target: ["clientHeight"],
+            type: "property",
+            value: 2
         },
         interaction: [
             {
@@ -908,12 +908,12 @@ const browser:testBrowserItem[] = [
             node: [
                 ["getModalsByModalType", "details", 0],
                 ["getElementsByClassName", "body", 0],
-                ["getElementsByTagName", "h3", 0]
+                ["getElementsByTagName", "button", 1]
             ],
-            qualifier: "begins",
+            qualifier: "is",
             target: ["innerHTML"],
             type: "property",
-            value: "File System Details - "
+            value: "Recently changed"
         },
         interaction: [
             {
@@ -1029,14 +1029,16 @@ const browser:testBrowserItem[] = [
     // create two shares and open local device shares
     {
         delay: {
-            // is the share modal present?
+            // two shares are populated
             node: [
-                ["getModalsByModalType", "shares", 0]
+                ["getModalsByModalType", "shares", 0],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", null]
             ],
-            qualifier: "not",
-            target: [],
-            type: "element",
-            value: null
+            qualifier: "is",
+            target: ["length"],
+            type: "property",
+            value: 2
         },
         interaction: [
             // creating first share
@@ -1096,18 +1098,6 @@ const browser:testBrowserItem[] = [
                 target: ["innerHTML"],
                 type: "property",
                 value: "Shares for device Primary Device"
-            },
-            {
-                // two shares are populated
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 2
             },
             {
                 // class name of the first button
@@ -1264,12 +1254,14 @@ const browser:testBrowserItem[] = [
             node: [
                 ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "body", 0],
-                ["getElementsByTagName", "ul", 0]
+                ["getElementsByTagName", "ul", 0],
+                ["getElementsByTagName", "li", 0],
+                ["getElementsByTagName", "button", 0]
             ],
             qualifier: "is",
-            target: ["class"],
+            target: ["title"],
             type: "attribute",
-            value: "fileList"
+            value: "Expand this folder"
         },
         interaction: [
             {
@@ -1424,7 +1416,7 @@ const browser:testBrowserItem[] = [
     // change the file system address in second file navigator
     {
         delay: {
-            // the first file system item is .git
+            // the file navigator modal is created
             node: [
                 ["getModalsByModalType", "fileNavigate", 1],
                 ["getElementsByClassName", "body", 0],
@@ -1477,6 +1469,15 @@ const browser:testBrowserItem[] = [
 
     // find new directory button
     {
+        delay: {
+            node: [
+                ["getElementById", "contextMenu", null]
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: "New Directory"
+        },
         interaction: [
             {
                 event: "contextmenu",
@@ -1509,10 +1510,10 @@ const browser:testBrowserItem[] = [
             node: [
                 ["getElementById", "newFileItem", null]
             ],
-            qualifier: "not",
-            target: [],
-            type: "element",
-            value: null
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
         },
         interaction: [
             {
@@ -1534,15 +1535,6 @@ const browser:testBrowserItem[] = [
         ],
         name: "Evoke new directory field",
         test: [
-            {
-                node: [
-                    ["getElementById", "newFileItem", null]
-                ],
-                qualifier: "is",
-                target: ["data-type"],
-                type: "attribute",
-                value: "directory"
-            },
             {
                 node: [
                     ["getElementById", "newFileItem", null]
@@ -1585,10 +1577,10 @@ const browser:testBrowserItem[] = [
             node: [
                 ["getElementById", "newFileItem", null]
             ],
-            qualifier: "not",
-            target: [],
-            type: "element",
-            value: null
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
         },
         interaction: [
             {
@@ -1608,7 +1600,7 @@ const browser:testBrowserItem[] = [
                 ]
             }
         ],
-        name: "Evoke new directory field",
+        name: "Evoke new directory field second time",
         test: [
             {
                 node: [
@@ -1631,8 +1623,18 @@ const browser:testBrowserItem[] = [
         ]
     },
 
-    // blur the newFileItem field
+    // escape from the newFileItem field
     {
+        delay: 
+        {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: [],
+            type: "element",
+            value: null
+        },
         interaction: [
             {
                 event: "keydown",
@@ -1645,13 +1647,16 @@ const browser:testBrowserItem[] = [
         name: "Press ESC key on new directory field",
         test: [
             {
+                // the file navigator modal is created
                 node: [
-                    ["getElementById", "newFileItem", null]
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0]
                 ],
-                qualifier: "is",
-                target: [],
-                type: "element",
-                value: null
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "storage.txt"
             }
         ]
     }

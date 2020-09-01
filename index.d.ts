@@ -36,7 +36,7 @@ declare global {
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | qualifier;
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage" | "test-browser" | "test-browser-loaded";
+    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage" | "test-browser";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
@@ -802,8 +802,6 @@ declare global {
         execute?: (args:testBrowserArgs) => void;
         index: number;
         iterate?: (index:number) => void;
-        loadMessage: boolean;
-        reload?: (serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
     }

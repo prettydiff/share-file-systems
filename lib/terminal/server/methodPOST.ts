@@ -128,9 +128,6 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
             } else if (task === "test-browser") {
                 // * validate a browser test iteration
                 browser.result(JSON.parse(body)["test-browser"], serverResponse);
-            } else if (task === "test-browser-loaded") {
-                // * browser is ready to receive test samples
-                browser.reload(serverResponse);
             }
         };
 

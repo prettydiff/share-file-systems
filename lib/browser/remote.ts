@@ -13,7 +13,8 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
         maxTries:number = 200,
         delayFunction = function local_remote_delay_timeout():void {
             if (remote.evaluate(config.delay)[0] === true) {
-                return remote.test(config.test, config.index);
+                remote.test(config.test, config.index);
+                return;
             }
             a = a + 1;
             if (a === maxTries) {
@@ -27,7 +28,15 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
         };
     // eslint-disable-next-line
     console.log(`Executing delay on test campaign ${config.index}: ${config.name}`);
-    setTimeout(delayFunction, delay);
+    if (config.delay === undefined) {
+        remote.test(config.test, config.index);
+    } else {
+        if (config.interaction[0].event === "refresh") {
+            setTimeout(delayFunction, 1000);
+        } else {
+            setTimeout(delayFunction, delay);
+        }
+    }
 };
 
 // determine whether a given test item is pass or fail
@@ -137,11 +146,7 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
             }
             a = a + 1;
         } while (a < eventLength);
-        if (testItem.delay === undefined) {
-            remote.test(testItem.test, testItem.index);
-        } else {
-            remote.delay(testItem);
-        }
+        remote.delay(testItem);
     }
 };
 

@@ -35,11 +35,18 @@ import webSocket from "./webSocket.js";
                 cString:string = "",
                 localDevice:Element = null,
                 active:number = Date.now(),
+                testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
                 loginFlag:boolean = false;
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
-                testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
+                testBrowserLoad = function local_restore_testBrowserLoad():void {
+                    if (testBrowser === true && browser.testBrowser !== null) {
+                        setTimeout(function local_restore_testBrowserLoad_delay():void {
+                            remote.event(browser.testBrowser);
+                        }, 500);
+                    }
+                },
                 defaultModals = function local_restore_defaultModals():void {
                     const payloadModal:ui_modal = {
                         agent: browser.data.hashDevice,
@@ -106,12 +113,12 @@ import webSocket from "./webSocket.js";
                                 });
                             }
                         },
-                        handlerKeyboard = function local_restore_applyLogin_button(event:KeyboardEvent):void {
+                        handlerKeyboard = function local_restore_applyLogin_handleKeyboard(event:KeyboardEvent):void {
                             if (event.key === "Enter") {
                                 action();
                             }
                         },
-                        handlerMouse = function local_restore_applyLogin_button():void {
+                        handlerMouse = function local_restore_applyLogin_handleMouse():void {
                             action();
                         };
                     defaultModals();
@@ -119,7 +126,9 @@ import webSocket from "./webSocket.js";
                     nameUser.onkeyup = handlerKeyboard;
                     nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
-                    browser.socket = webSocket(testBrowser);
+                    browser.socket = webSocket(function local_restore_applyLogin_socket():void {
+                        testBrowserLoad();
+                    });
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {
@@ -235,15 +244,16 @@ import webSocket from "./webSocket.js";
                     }
 
                     browser.loadTest = false;
+
                     if (loginFlag === true) {
-                        browser.socket = webSocket(testBrowser);
-                    }
-
-                    activate();
-                    idleness();
-
-                    if (browser.testBrowser !== null && browser.testBrowser.interaction[0].event === "refresh") {
-                        remote.test(browser.testBrowser.test, browser.testBrowser.index);
+                        browser.socket = webSocket(function local_restore_applyLogin_socket():void {
+                            activate();
+                            idleness();
+                            testBrowserLoad();
+                        });
+                    } else {
+                        activate();
+                        idleness();
                     }
                 };
             do {
