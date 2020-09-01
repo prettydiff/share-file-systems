@@ -297,12 +297,11 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
     if (browser.index < item.index) {
         browser.index = item.index;
         if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
-            failure.push(testString((item.payload[1][0] === true), tests[item.index].delay));
-            failureMessage(a);
+            failure.push(testString(item.payload[1][0], tests[item.index].delay));
             falseFlag = true;
         } else {
             do {
-                failure.push(testString((item.payload[a][0] === true), tests[item.index].test[a]));
+                failure.push(testString(item.payload[a][0], tests[item.index].test[a]));
                 if (item.payload[a][0] === false) {
                     failureMessage(a);
                     falseFlag = true;

@@ -521,6 +521,7 @@ declare global {
     }
     interface module_remote {
         delay?: (config:testBrowserItem) => void;
+        error?: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate?: (config:testBrowserTest) => [boolean, string, string];
         event?: (event:testBrowserItem) => void;
         getProperty?: (config:testBrowserTest) => primitive;

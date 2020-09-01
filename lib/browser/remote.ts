@@ -20,7 +20,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
             if (a === maxTries) {
                 network.testBrowserLoaded([
                     [false, "delay timeout", config.delay.nodeString],
-                    [false, remote.stringify(remote.getProperty(config.delay)), config.delay.nodeString]
+                    remote.evaluate(config.delay)
                 ], config.index);
                 return;
             }
@@ -37,6 +37,11 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
             setTimeout(delayFunction, delay);
         }
     }
+};
+
+// report javascript errors as test failures
+remote.error = function local_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
+    network.testBrowserLoaded([[false, `Error: ${line}:${col} ${source}\n${message}\n${error.stack}`, "error"]], remote.index);
 };
 
 // determine whether a given test item is pass or fail
@@ -172,15 +177,18 @@ remote.getProperty = function local_remote_getProperty(config:testBrowserTest):p
             }
             return method(item, config.target[b]);
         };
+    if (config.type === "element") {
+        return false;
+    }
     if (element === null) {
         return null;
     }
-    if (element === undefined) {
+    if (element === undefined || pLength < 0) {
         return undefined;
     }
     return (config.type === "attribute")
         ? element.getAttribute(config.target[0])
-        : (pLength < 1)
+        : (pLength === 0)
             ? method(element, config.target[0])
             : property();
 };
