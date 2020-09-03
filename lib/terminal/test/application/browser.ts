@@ -153,6 +153,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
     let a:number = 0,
         falseFlag:boolean = false;
     const length:number = item.payload.length,
+        delay:boolean = (tests[item.index].test.length === 0),
         completion = function test_browser_result_completion(pass:boolean):void {
             const plural:string = (tests.length === 1)
                     ? ""
@@ -285,10 +286,22 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             return star + resultString + nodeString;
         },
         failureMessage = function test_Browser_result_failureMessage(index:number):void {
-            if (item.payload[index][2] === buildNode(tests[item.index].test[index], true)) {
-                failure.push(`     Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
+            if (item.payload[index][2] === "error") {
+                let error:string = item.payload[index][1]
+                    .replace("{\"file\":"   , `{\n    \"${vars.text.cyan}file${vars.text.none}\"   :`)
+                    .replace(",\"column\":" , `,\n    \"${vars.text.cyan}column${vars.text.none}\" :`)
+                    .replace(",\"line\":"   , `,\n    \"${vars.text.cyan}line${vars.text.none}\"   :`)
+                    .replace(",\"message\":", `,\n    \"${vars.text.cyan}message${vars.text.none}\":`)
+                    .replace(",\"stack\":"  , `,\n    \"${vars.text.cyan}stack${vars.text.none}\"  :`)
+                    .replace(/\\n/g, "\n    ")
+                    .replace(/\}$/, "\n}");
+                failure.push(`    ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
+            } else if ((delay === false && item.payload[index][2] === buildNode(tests[item.index].test[index], true)) || (delay === true && item.payload[index][2] === buildNode(tests[item.index].delay, true))) {
+                failure.push(`    Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
+            } else if ((delay === false && tests[item.index].test[index].value === null) || (delay === true && tests[item.index].delay.value === null)) {
+                failure.push(`    DOM node is not null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             } else {
-                failure.push(`     DOM node is null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+                failure.push(`    DOM node is null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             }
         },
         failure:string[] = [];
@@ -299,6 +312,12 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
         if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
             failure.push(testString(item.payload[1][0], tests[item.index].delay));
             falseFlag = true;
+        } else if (delay === true) {
+            failure.push(testString(item.payload[a][0], tests[item.index].delay));
+            if (item.payload[a][0] === false) {
+                failureMessage(a);
+                falseFlag = true;
+            }
         } else {
             do {
                 failure.push(testString(item.payload[a][0], tests[item.index].test[a]));
@@ -309,7 +328,6 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 a = a + 1;
             } while (a < length);
         }
-
 
         if (falseFlag === true) {
             failure.splice(0, 0, summary(false));

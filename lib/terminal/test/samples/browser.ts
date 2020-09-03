@@ -1549,6 +1549,15 @@ const browser:testBrowserItem[] = [
 
     // blur the newFileItem field
     {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: [],
+            type: "element",
+            value: null
+        },
         interaction: [
             {
                 event: "blur",
@@ -1558,17 +1567,7 @@ const browser:testBrowserItem[] = [
             }
         ],
         name: "Blur new directory field",
-        test: [
-            {
-                node: [
-                    ["getElementById", "newFileItem", null]
-                ],
-                qualifier: "is",
-                target: [],
-                type: "element",
-                value: null
-            }
-        ]
+        test: []
     },
 
     // evoke new directory with an empty field again
@@ -1637,7 +1636,7 @@ const browser:testBrowserItem[] = [
         },
         interaction: [
             {
-                event: "keydown",
+                event: "keyup",
                 node: [
                     ["getElementById", "newFileItem", null]
                 ],
@@ -1645,6 +1644,162 @@ const browser:testBrowserItem[] = [
             }
         ],
         name: "Press ESC key on new directory field",
+        test: [
+            {
+                // the file navigator modal is created
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "storage.txt"
+            }
+        ]
+    },
+
+    // evoke new file with an empty field
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 6],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new file field",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // blur the newFileItem field, file
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: [],
+            type: "element",
+            value: null
+        },
+        interaction: [
+            {
+                event: "blur",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ]
+            }
+        ],
+        name: "Blur new file field",
+        test: []
+    },
+
+    // evoke new file with an empty field again
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 6],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new file field second time",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "file"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // escape from the newFileItem field, file
+    {
+        delay: 
+        {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: [],
+            type: "element",
+            value: null
+        },
+        interaction: [
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "Escape"
+            }
+        ],
+        name: "Press ESC key on new file field",
         test: [
             {
                 // the file navigator modal is created

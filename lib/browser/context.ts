@@ -504,10 +504,12 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
         cancel = function local_context_fsNew_cancel(actionElement:Element):void {
             const list:Element = actionElement.getAncestor("fileList", "class"),
                 input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
-            if (actionElement.parentNode.parentNode.parentNode === list) {
-                list.removeChild(actionElement.parentNode.parentNode);
-            }
-            input.focus();
+            setTimeout(function local_context_fsNew_cancel_delay():void {
+                if (actionElement.parentNode.parentNode.parentNode === list) {
+                    list.removeChild(actionElement.parentNode.parentNode);
+                    input.focus();
+                }
+            }, 10);
         },
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
             const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,

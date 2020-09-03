@@ -1,6 +1,7 @@
 
 /* lib/browser/remote - A collection of instructions to allow event execute from outside the browser, like a remote control. */
 
+import browser from "./browser.js";
 import network from "./network.js";
 
 const remote:module_remote = {};
@@ -12,8 +13,13 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
     const delay:number = 50,
         maxTries:number = 200,
         delayFunction = function local_remote_delay_timeout():void {
-            if (remote.evaluate(config.delay)[0] === true) {
-                remote.test(config.test, config.index);
+            const testResult:[boolean, string, string] = remote.evaluate(config.delay);
+            if (testResult[0] === true) {
+                if (config.test.length > 0) {
+                    remote.test(config.test, config.index);
+                } else {
+                    network.testBrowserLoaded([testResult], config.index);
+                }
                 return;
             }
             a = a + 1;
@@ -41,7 +47,13 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
 
 // report javascript errors as test failures
 remote.error = function local_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
-    network.testBrowserLoaded([[false, `Error: ${line}:${col} ${source}\n${message}\n${error.stack}`, "error"]], remote.index);
+    network.testBrowserLoaded([[false, JSON.stringify({
+        file: source,
+        column: col,
+        line: line,
+        message: message,
+        stack: error.stack
+    }), "error"]], remote.index);
 };
 
 // determine whether a given test item is pass or fail
@@ -87,7 +99,7 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
 // process a single event instance
 remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
     let a:number = 0,
-        element:Element,
+        element:HTMLElement,
         config:testBrowserEvent,
         htmlElement:HTMLInputElement,
         action:Event,
@@ -97,12 +109,13 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
     const eventLength:number = testItem.interaction.length;
     if (remote.index < testItem.index) {
         remote.index = testItem.index;
+        browser.testBrowser = testItem;
         do {
             config = testItem.interaction[a];
             if (config.event === "refresh") {
                 location.reload();
             } else {
-                element = remote.node(config.node);
+                element = <HTMLElement>remote.node(config.node);
                 if (element === null) {
                     remote.test(testItem.test, testItem.index);
                     return;
@@ -116,6 +129,9 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                     htmlElement.value = config.value;
                 } else {
                     if (config.event === "keydown" || config.event === "keyup") {
+                        let tabIndex:number = element.tabIndex;
+                        element.tabIndex = 0;
+                        element.dispatchEvent(new Event("focus"));
                         if (config.value === "Alt") {
                             if (config.event === "keydown") {
                                 alt = true;
@@ -142,11 +158,13 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                                 shiftKey: shift
                             });
                         }
+                        element.dispatchEvent(action);
+                        element.tabIndex = tabIndex;
                     } else {
                         action = document.createEvent("Event");
+                        action.initEvent(config.event, false, true);
+                        element.dispatchEvent(action);
                     }
-                    action.initEvent(config.event, false, true);
-                    element.dispatchEvent(action);
                 }
             }
             a = a + 1;
@@ -260,11 +278,13 @@ remote.test = function local_remote_test(config:testBrowserTest[], index:number)
     let a:number = 0;
     const result:[boolean, string, string][] = [],
         length:number = config.length;
-    do {
-        result.push(remote.evaluate(config[a]));
-        a = a + 1;
-    } while (a < length);
-    network.testBrowserLoaded(result, index);
+    if (length > 0) {
+        do {
+            result.push(remote.evaluate(config[a]));
+            a = a + 1;
+        } while (a < length);
+        network.testBrowserLoaded(result, index);
+    }
 };
 
 
