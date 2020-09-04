@@ -807,6 +807,16 @@ const browser:testBrowserItem[] = [
 
     // restore a maximized modal
     {
+        delay: {
+            // the modal is at the top of the content area
+            node: [
+                ["getModalsByModalType", "fileNavigate", 0]
+            ],
+            qualifier: "is",
+            target: ["clientLeft"],
+            type: "property",
+            value: 0
+        },
         interaction: [
             {
                 event: "click",
@@ -1504,7 +1514,7 @@ const browser:testBrowserItem[] = [
         ]
     },
 
-    // evoke new directory with an empty field
+    // evoke new directory with an empty field, first time
     {
         delay: {
             node: [
@@ -1547,7 +1557,7 @@ const browser:testBrowserItem[] = [
         ]
     },
 
-    // blur the newFileItem field
+    // blur the newFileItem field, directory
     {
         delay: {
             node: [
@@ -1570,7 +1580,7 @@ const browser:testBrowserItem[] = [
         test: []
     },
 
-    // evoke new directory with an empty field again
+    // evoke new directory with an empty field, second time
     {
         delay: {
             node: [
@@ -1622,7 +1632,7 @@ const browser:testBrowserItem[] = [
         ]
     },
 
-    // escape from the newFileItem field
+    // escape from the newFileItem field, directory
     {
         delay: 
         {
@@ -1660,6 +1670,219 @@ const browser:testBrowserItem[] = [
         ]
     },
 
+    // evoke new directory with an empty field, third time
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new directory field third time",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "directory"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // create new directory with 'Enter' key
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 0]
+
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: `${vars.sep}_newDirectory-1`
+        },
+        interaction: [
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "_newDirectory-1"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "Enter"
+            }
+        ],
+        name: "Create a new directory with 'Enter' key",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                qualifier: "contains",
+                target: ["class"],
+                type: "attribute",
+                value: "directory"
+            }
+        ]
+    },
+
+    // evoke new directory with an empty field, fourth time
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new directory field fourth time",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "directory"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // create new directory with blur event
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 1]
+
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: `${vars.sep}_newDirectory-2`
+        },
+        interaction: [
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "_newDirectory-2"
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ]
+            }
+        ],
+        name: "Create a new directory with blur event",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 1]
+                ],
+                qualifier: "contains",
+                target: ["class"],
+                type: "attribute",
+                value: "directory"
+            }
+        ]
+    },
+
     // evoke new file with an empty field
     {
         delay: {
@@ -1684,7 +1907,7 @@ const browser:testBrowserItem[] = [
                 event: "click",
                 node: [
                     ["getElementById", "contextMenu", null],
-                    ["getElementsByTagName", "li", 6],
+                    ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "button", 0]
                 ]
             }
@@ -1726,7 +1949,7 @@ const browser:testBrowserItem[] = [
         test: []
     },
 
-    // evoke new file with an empty field again
+    // evoke new file with an empty field, second time
     {
         delay: {
             node: [
@@ -1750,7 +1973,7 @@ const browser:testBrowserItem[] = [
                 event: "click",
                 node: [
                     ["getElementById", "contextMenu", null],
-                    ["getElementsByTagName", "li", 6],
+                    ["getElementsByTagName", "li", 3],
                     ["getElementsByTagName", "button", 0]
                 ]
             }
@@ -1812,6 +2035,219 @@ const browser:testBrowserItem[] = [
                 target: ["innerHTML"],
                 type: "property",
                 value: "storage.txt"
+            }
+        ]
+    },
+
+    // evoke new file with an empty field, third time
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new file field third time",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "file"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // create new file with 'Enter' key
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 2]
+
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: `${vars.sep}_newFile-1`
+        },
+        interaction: [
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "_newFile-1"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "Enter"
+            }
+        ],
+        name: "Create a new file with 'Enter' key",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 2]
+                ],
+                qualifier: "contains",
+                target: ["class"],
+                type: "attribute",
+                value: "file"
+            }
+        ]
+    },
+
+    // evoke new file with an empty field, fourth time
+    {
+        delay: {
+            node: [
+                ["getElementById", "newFileItem", null]
+            ],
+            qualifier: "is",
+            target: ["parentNode", "nodeName", "toLowerCase()"],
+            type: "property",
+            value: "label"
+        },
+        interaction: [
+            {
+                event: "contextmenu",
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 0]
+                ]
+            },
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "button", 0]
+                ]
+            }
+        ],
+        name: "Evoke new file field fourth time",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["data-type"],
+                type: "attribute",
+                value: "file"
+            },
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: ["value"],
+                type: "property",
+                value: ""
+            }
+        ]
+    },
+
+    // create new file with blur event
+    {
+        delay: {
+            node: [
+                ["getModalsByModalType", "fileNavigate", 1],
+                ["getElementsByClassName", "body", 0],
+                ["getElementsByTagName", "li", 3]
+
+            ],
+            qualifier: "contains",
+            target: ["innerHTML"],
+            type: "property",
+            value: `${vars.sep}_newFile-2`
+        },
+        interaction: [
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                value: "_newFile-2"
+            },
+            {
+                event: "blur",
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ]
+            }
+        ],
+        name: "Create a new file with blur event",
+        test: [
+            {
+                node: [
+                    ["getElementById", "newFileItem", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
+            },
+            {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", 3]
+                ],
+                qualifier: "contains",
+                target: ["class"],
+                type: "attribute",
+                value: "file"
             }
         ]
     }

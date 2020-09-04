@@ -277,19 +277,21 @@ context.details = function local_context_details(event:MouseEvent):void {
                 mTime:Date,
                 aTime:Date,
                 cTime:Date;
-            do {
-                if (list[a][1] === "directory") {
-                    details.directories = details.directories + 1;
-                } else if (list[a][1] === "link") {
-                    details.links = details.links + 1;
-                } else {
-                    stat = <Stats>list[a][5];
-                    fileList.push(list[a]);
-                    details.files = details.files + 1;
-                    details.size = details.size + stat.size;
-                }
-                a = a + 1;
-            } while (a < length);
+            if (length > 0) {
+                do {
+                    if (list[a][1] === "directory") {
+                        details.directories = details.directories + 1;
+                    } else if (list[a][1] === "link") {
+                        details.links = details.links + 1;
+                    } else {
+                        stat = <Stats>list[a][5];
+                        fileList.push(list[a]);
+                        details.files = details.files + 1;
+                        details.size = details.size + stat.size;
+                    }
+                    a = a + 1;
+                } while (a < length);
+            }
     
             output.setAttribute("class", "fileDetailOutput");
             heading.innerHTML = `File System Details - ${commas(list.length)} items`;
@@ -850,17 +852,24 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     // menu display position
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
     // vertical
-    if (browser.content.clientHeight < ((itemList.length * 45) + 1) + clientY) {
-        if (event.clientY !== undefined) {
+    if (browser.content.clientHeight < ((itemList.length * 57) + 1) + clientY) {
+        const offset:number = (function local_context_menu_verticalOffset():number {
+            // modify position of the menu when performing test automation
+            if (event.clientY === undefined) {
+                return -25;
+            }
             reverse = true;
-        }
-        menu.style.top = `${(clientY - ((itemList.length * 57) + 1)) / 10}em`;
+            return 1;
+        }());
+        menu.style.top = `${(clientY - ((itemList.length * 57) + offset)) / 10}em`;
     } else {
         menu.style.top = `${(clientY - 50) / 10}em`;
     }
     // horizontal
     if (browser.content.clientWidth < (200 + clientX)) {
-        reverse = true;
+        if (event.clientX !== undefined) {
+            reverse = true;
+        }
         menu.style.left = `${(clientX - 200) / 10}em`;
     } else {
         menu.style.left = `${clientX / 10}em`;

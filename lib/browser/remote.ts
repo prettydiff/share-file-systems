@@ -46,6 +46,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
 };
 
 // report javascript errors as test failures
+// eslint-disable-next-line
 remote.error = function local_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
     network.testBrowserLoaded([[false, JSON.stringify({
         file: source,
@@ -113,7 +114,12 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
         do {
             config = testItem.interaction[a];
             if (config.event === "refresh") {
-                location.reload();
+                if (a === 0) {
+                    location.reload();
+                } else {
+                    remote.error("The event 'refresh' was provided not as the first event of a campaign", "", 0, 0, null);
+                    return;
+                }
             } else {
                 element = <HTMLElement>remote.node(config.node);
                 if (element === null) {

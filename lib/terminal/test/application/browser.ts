@@ -82,7 +82,7 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
         } else {
             do {
                 length = length - 1;
-                if (files[length].indexOf(".json") > 0 || files[length].indexOf(".pem") > 0) {
+                if (files[length] !== "storage.txt") {
                     remove(serverVars.storage + files[length], function test_browser_execute_readdir_remove():void {
                         flags = flags - 1;
                         if (flags === 1) {
@@ -288,11 +288,11 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
         failureMessage = function test_Browser_result_failureMessage(index:number):void {
             if (item.payload[index][2] === "error") {
                 let error:string = item.payload[index][1]
-                    .replace("{\"file\":"   , `{\n    \"${vars.text.cyan}file${vars.text.none}\"   :`)
-                    .replace(",\"column\":" , `,\n    \"${vars.text.cyan}column${vars.text.none}\" :`)
-                    .replace(",\"line\":"   , `,\n    \"${vars.text.cyan}line${vars.text.none}\"   :`)
-                    .replace(",\"message\":", `,\n    \"${vars.text.cyan}message${vars.text.none}\":`)
-                    .replace(",\"stack\":"  , `,\n    \"${vars.text.cyan}stack${vars.text.none}\"  :`)
+                    .replace("{\"file\":"   , `{\n    "${vars.text.cyan}file${vars.text.none}"   :`)
+                    .replace(",\"column\":" , `,\n    "${vars.text.cyan}column${vars.text.none}" :`)
+                    .replace(",\"line\":"   , `,\n    "${vars.text.cyan}line${vars.text.none}"   :`)
+                    .replace(",\"message\":", `,\n    "${vars.text.cyan}message${vars.text.none}":`)
+                    .replace(",\"stack\":"  , `,\n    "${vars.text.cyan}stack${vars.text.none}"  :`)
                     .replace(/\\n/g, "\n    ")
                     .replace(/\}$/, "\n}");
                 failure.push(`    ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);

@@ -57,6 +57,20 @@ The test definitions follow the custom TypeScript interface *testBrowserItem*:
         name: string;
         test: testBrowserTest[];
     }
+    interface testBrowserEvent {
+        coords?: [number, number];
+        event: eventName;
+        node: browserDOM[];
+        value?: string;
+    }
+    interface testBrowserTest {
+        node: browserDOM[];
+        nodeString?: string;
+        qualifier: qualifier;
+        target: string[];
+        type: "attribute" | "element" | "property";
+        value: boolean | null | number | string;
+    }
 ```
 
 An example test campaign:
@@ -128,9 +142,10 @@ browser.push({
 * **name** - A string describing what a given test campaign is evaluating.
 * **test** - An array of tests to evaluate.  While the delay provides an optional test item this test array is mandatory and must have at least one test item.
 
-### Data components, child
-* **event** - A string event name to execute in the browser.
+### Data components, tests/delay and interaction
 * **node** - The node array is used in the delay, test array items, and interaction.  This specifies where in the page a given event or evaluation occurs.  This is an array of child arrays where each child array stores a DOM method, a value for that method, and an index for returned node lists.  If the index value isn't needed, such as with *getElementById* method, a value of null is sufficient.  Any negative number value will instruct the browser code to gather the last item in the returned node list.
+
+### Data components, tests/delay only
 * **qualifier** - This determines the means of evaluation and currently supports these values:
    * *begins* - This value says to evaluate the returned value as a string with the provided value present starting at index 0 of the returned value.
    * *contains* - This value says to evaluate the returned value as a string with the provided value present at any position of the returned string.
@@ -143,6 +158,14 @@ browser.push({
 * **target** - A string array specifying an attribute the properties to call on a given DOM node.  For example requesting a CSS value on a node: `node.style.display` would be provided as `["style", "display"]`.
 * **type** - Whether the target value is an object property on the target DOM element, a DOM element attribute, or the DOM element node itself.
 * **value** - The provided value to evaluate against the returned value.
+
+### Data components, interaction only
+* **coords** - An array of two integers that are required for use in an interaction when the event of that interaction is *move*.
+* **event** - A string event name to execute in the browser.
+* **value** - Required for use in an interaction when that interaction's event is: *keydown*, *keyup*, or *setValue*.  In the case of *setValue* any string is accepted.  In the case of keyboard events any single character will be accepted or predefined names of keyboard functions: [https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values)
+
+## Refresh event
+In the case of test campaign that needs to refresh the page there must be only one interaction whose event is **refresh**.  If the first interaction is *refresh* all other interactions will be ignored.  If there are multiple interactions and one is *refresh* but not the first one the test will fail with an error.
 
 ## Timed delays
 The test runner eliminates timed delays between test scenarios thanks to the *delay* object provided in each test object, but internally there are a few timed delays.
