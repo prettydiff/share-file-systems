@@ -470,6 +470,7 @@ share.deleteList = function local_share_deleteList(event:MouseEvent, configurati
         configuration.type = "share_delete";
         modal.create(configuration);
     }
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Creates the HTML content of the share_delete type modal. */

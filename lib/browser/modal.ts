@@ -415,6 +415,7 @@ modal.export = function local_modal_export(event:MouseEvent):void {
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create(payload);
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
@@ -928,6 +929,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
     }
     box = modal.create(payload);
     box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */

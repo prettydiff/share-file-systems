@@ -643,6 +643,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         box:Element = modal.create(payloadModal);
     payloadNetwork.id = box.getAttribute("id");
     network.fs(payloadNetwork, callback);
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Request file system information of the parent directory */

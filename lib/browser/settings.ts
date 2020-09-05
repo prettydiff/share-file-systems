@@ -225,6 +225,7 @@ settings.modal = function local_settings_modal(event:MouseEvent):void {
         settings.style.display = "block";
     }
     data.status = "normal";
+    document.getElementById("menu").style.display = "none";
 };
 
 /* The content of the settings modal */

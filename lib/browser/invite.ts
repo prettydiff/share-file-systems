@@ -447,6 +447,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
         settings.content = inviteElement;
         modal.create(settings);
     }
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
