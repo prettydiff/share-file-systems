@@ -12,39 +12,12 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
     
 const createServer = function terminal_server_create(request:IncomingMessage, serverResponse:ServerResponse):void {
-    const host:string = (function terminal_server_create_host():string {
-            const addresses:[string, string, string][] = serverVars.addresses[0],
-                length:number = addresses.length;
-            let a:number = 0,
-                name:string = request.headers.host;
-            if (name === undefined) {
-                return;
-            }
-            if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
-                return "localhost";
-            }
-            if (name.indexOf(":") > 0) {
-                name = name.slice(0, name.lastIndexOf(":"));
-            }
-            if (name.charAt(0) === "[") {
-                name = name.slice(1, name.length - 1);
-            }
-            if (name === "::1" || name === "127.0.0.1") {
-                return "localhost";
-            }
-            do {
-                if (addresses[a][1] === name) {
-                    return "localhost";
-                }
-                a = a + 1;
-            } while (a < length);
-            return request.headers.host;
-        }()),
+    const local:boolean = (request.headers[":authority"] === "localhost"),
         postTest = function terminal_server_create_postTest():boolean {
             if (
-                request.method === "POST" && (
-                    host === "localhost" || (
-                        host !== "localhost" && (
+                request.headers[":method"] === "POST" && (
+                    local === true || (
+                        local === false && (
                             serverVars.user[<string>request.headers["agent-name"]] !== undefined ||
                             request.headers.invite === "invite-request" ||
                             request.headers.invite === "invite-complete"
@@ -57,11 +30,9 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
             return false;
         },
         // eslint-disable-next-line
-        requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
+        requestType:string = (request.headers[":method"] === "GET") ? `GET ${request.headers[":path"]}` : <string>request.headers["request-type"];
     //console.log(requestType+" "+host+" "+postTest());
-    if (host === "") {
-        response(serverResponse, "text/plain", `ForbiddenAccess: unknown user`);
-    } else  if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
+    if (request.headers[":method"] === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
         if (request.headers["agent-type"] === "device") {
             serverResponse.setHeader("agent-hash", serverVars.hashDevice);
             serverResponse.setHeader("agent-type", "device");
@@ -70,7 +41,7 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
             serverResponse.setHeader("agent-type", "user");
         }
         response(serverResponse, "text/plain", `response from ${serverVars.hashDevice}`);
-    } else if (request.method === "GET" && host === "localhost") {
+    } else if (request.headers[":method"] === "GET" && local === true) {
         methodGET(request, serverResponse);
     } else if (postTest() === true) {
         methodPOST(request, serverResponse);

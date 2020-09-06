@@ -111,7 +111,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                     });
                 } else {
                     // this is where the server is invoked
-                    start(vars.node.https.createServer(https.certificate, createServer));
+                    start(vars.node.http2.createSecureServer(https.certificate, createServer));
                 }
             }
         },

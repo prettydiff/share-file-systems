@@ -69,7 +69,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                                 : config.id
                         };
                     if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
-                        log([config.errorMessage, errorMessage.toString()]);
+                        //log([config.errorMessage, errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
                             error: errorMessage
                         }));

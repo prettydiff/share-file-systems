@@ -773,6 +773,7 @@ declare global {
             fs    : any;
             http  : any;
             https : any;
+            http2 : any;
             net   : any;
             os    : any;
             path  : any;

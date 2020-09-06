@@ -11,11 +11,12 @@ import vars from "../utilities/vars.js";
 
 const readOnly = function terminal_server_readOnly(request:IncomingMessage, serverResponse:ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
+        local:boolean = (request.headers[":authority"] === "localhost"),
         copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)
             ? [data.name]
             : data.location,
-        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0),
+        remoteUserTest:boolean = (local === true && data.agent.indexOf("remoteUser") === 0),
         userTest:boolean = (data.agentType === "user" || data.copyType === "user"),
         devices:string[] = Object.keys(serverVars.device);
 
