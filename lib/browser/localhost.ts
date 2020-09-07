@@ -174,7 +174,9 @@ import webSocket from "./webSocket.js";
                         loginInputsLength:number = loginInputs.length,
                         agentList:Element = document.getElementById("agentList"),
                         allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
-                        allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
+                        allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0],
+                        buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button"),
+                        buttonsLength:number = buttons.length;
                     let a:number = 0;
 
                     if (browser.data.hashDevice === "") {
@@ -210,13 +212,12 @@ import webSocket from "./webSocket.js";
                     browser.menu.textPad.onclick = modal.textPad;
                     browser.menu["user-delete"].onclick = share.deleteList;
                     browser.menu["user-invite"].onclick = invite.start;
-                    browser.menu.export.onblur = util.menuBlur;
-                    browser.menu.fileNavigator.onblur = util.menuBlur;
-                    browser.menu.settings.onblur = util.menuBlur;
-                    browser.menu.systemLog.onblur = util.menuBlur;
-                    browser.menu.textPad.onblur = util.menuBlur;
-                    browser.menu["user-delete"].onblur = util.menuBlur;
-                    browser.menu["user-invite"].onblur = util.menuBlur;
+                    a = 0;
+                    do {
+                        buttons[a].onblur = util.menuBlur;
+                        a = a + 1;
+                    } while (a < buttonsLength);
+                    
 
                     // systems log messages
                     if (storage !== undefined && storage.messages !== undefined) {
@@ -260,7 +261,15 @@ import webSocket from "./webSocket.js";
             do {
                 cString = comments[a].substringData(0, comments[a].length);
                 if (cString.indexOf("testBrowser:") === 0) {
-                    browser.testBrowser = JSON.parse(cString.replace("testBrowser:", ""));
+                    const test:string = cString.replace("testBrowser:", "");
+                    if (test === "refresh-complete-close" || test === "refresh-complete") {
+                        if (test === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
+                            window.close();
+                        }
+                        return;
+                    } else {
+                        browser.testBrowser = JSON.parse(cString.replace("testBrowser:", ""));
+                    }
                 } else if (cString.indexOf("storage:") === 0) {
                     if (cString.indexOf("\"device\":{}") > 0) {
                         applyLogin();

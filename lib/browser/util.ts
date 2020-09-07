@@ -654,7 +654,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:Element, 
         return output;
     }
     output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
-    if (type === "cut") {
+    if (itemList[a] !== undefined && type === "cut") {
         element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
         dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
     }

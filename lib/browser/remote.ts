@@ -37,11 +37,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
     if (config.delay === undefined) {
         remote.test(config.test, config.index);
     } else {
-        if (config.interaction[0].event === "refresh") {
-            setTimeout(delayFunction, 1000);
-        } else {
-            setTimeout(delayFunction, delay);
-        }
+        setTimeout(delayFunction, delay);
     }
 };
 

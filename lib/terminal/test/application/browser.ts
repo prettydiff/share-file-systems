@@ -108,10 +108,10 @@ browser.iterate = function test_browser_iterate(index:number):void {
         ],
 
         // determine if non-interactive events have required matching data properties
-        validate = function test_browser_iterate():boolean {
+        validate = function test_browser_iterate_validate():boolean {
             let a:number = 0;
             const length:number = tests[index].interaction.length,
-                eventName = function test_browser_iterate(property):string {
+                eventName = function test_browser_iterate_validate_eventName(property):string {
                     return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                 };
             do {
@@ -135,11 +135,24 @@ browser.iterate = function test_browser_iterate(index:number):void {
     // * because serverVars.testBrowser is not updated to methodGET library fast enough
     if (validate() === true) {
         setTimeout(function test_browser_iterate_delay():void {
+            const refresh:number = index + 1;
             vars.ws.broadcast(message);
             if (tests[index].interaction[0].event === "refresh") {
-                const refresh:number = index + 1;
-                tests[refresh].index = refresh;
-                serverVars.testBrowser = JSON.stringify(tests[refresh]);
+                if (tests[index].delay !== undefined) {
+                    vars.verbose = true;
+                    logs.push(    `Test is a refresh test, but it must not contain a ${vars.text.angry}delay${vars.text.none} property.`);
+                    log(logs, true);
+                    process.exit(1);
+                    return;
+                }
+                if (refresh < tests.length) {
+                    tests[refresh].index = refresh;
+                    serverVars.testBrowser = JSON.stringify(tests[refresh]);
+                } else if (browser.args.noClose === true) {
+                    serverVars.testBrowser = "refresh-complete";
+                } else {
+                    serverVars.testBrowser = "refresh-complete-close";
+                }
             }
         }, delay);
     } else {
@@ -187,7 +200,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 const passPlural:string = (item.index === 1)
                     ? ""
                     : "s";
-                exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} tests from ${item.index} test campaign${passPlural}.`);
+                exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} tests from ${item.index + 1} test campaign${passPlural}.`);
                 return;
             }
             exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total campaign${plural} and ${totalTests} tests.`);

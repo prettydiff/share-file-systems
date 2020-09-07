@@ -165,7 +165,7 @@ browser.push({
 * **value** - Required for use in an interaction when that interaction's event is: *keydown*, *keyup*, or *setValue*.  In the case of *setValue* any string is accepted.  In the case of keyboard events any single character will be accepted or predefined names of keyboard functions: [https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values)
 
 ## Refresh event
-In the case of test campaign that needs to refresh the page there must be only one interaction whose event is **refresh**.  If the first interaction is *refresh* all other interactions will be ignored.  If there are multiple interactions and one is *refresh* but not the first one the test will fail with an error.
+In the case of test campaign that needs to refresh the page there must be only one interaction whose event is **refresh**.  If the first interaction is *refresh* all other interactions will be ignored.  If there are multiple interactions and one is *refresh* but not the first one the test will fail with an error.  Refresh tests also do not get a *delay* property, which will also throw an error.
 
 ## Timed delays
 The test runner eliminates timed delays between test scenarios thanks to the *delay* object provided in each test object, but internally there are a few timed delays.

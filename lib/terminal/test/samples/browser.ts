@@ -97,17 +97,6 @@ const mainMenu:testBrowserItem = {
 
         // refresh the page and test that a user populates and there is no login
         {
-            delay: {
-                // that a local user button is present and active
-                node: [
-                    ["getElementById", "device", null],
-                    ["getElementsByTagName", "button", 1]
-                ],
-                qualifier: "is",
-                target: ["class"],
-                type: "attribute",
-                value: "active"
-            },
             interaction: [
                 {
                     event: "refresh",
@@ -117,6 +106,17 @@ const mainMenu:testBrowserItem = {
             name: "Refresh following login form completion",
             // assert that login remains complete, login data is stored and written to page
             test: [
+                {
+                    // that a local user button is present and active
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "active"
+                },
                 {
                     // that the login messaging is not visible
                     node: [
@@ -2198,7 +2198,141 @@ const mainMenu:testBrowserItem = {
             ]
         },
         
-        mainMenu
+        mainMenu,
+
+        // open text pad
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "textPad", 0],
+                    ["getElementsByClassName", "body", 0],
+                ],
+                qualifier: "is",
+                target: ["firstChild", "nodeName", "toLowerCase()"],
+                type: "property",
+                value: "textarea"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "menu", null],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Open text pad",
+            test: [
+                {
+                    // that file navigator modal contains a minimize button
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "minimize"
+                },
+                {
+                    // that file navigator modal contains a maximize button
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "maximize"
+                },
+                {
+                    // that file navigator modal contains a close button
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "close"
+                }
+            ]
+        },
+
+        // modify text pad value
+        {
+            interaction: [
+                {
+                    event: "focus",
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    value: "God bless kittens"
+                },
+                {
+                    event: "blur",
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ]
+                }
+            ],
+            name: "Modify text pad value",
+            test: [
+                {
+                    // that file navigator modal contains a minimize button
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["value"],
+                    type: "property",
+                    value: "God bless kittens"
+                }
+            ]
+        },
+
+        // refresh and test text pad value
+        {
+            interaction: [
+                {
+                    event: "refresh",
+                    node: null
+                }
+            ],
+            name: "Refresh following use of text pad",
+            test: [
+                {
+                    // that file navigator modal contains a minimize button
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["value"],
+                    type: "property",
+                    value: "God bless kittens"
+                }
+            ]
+        }
     ];
 
 export default browser;
