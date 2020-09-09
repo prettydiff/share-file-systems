@@ -13,10 +13,10 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
 
 const methodGET = function terminal_server_get(request:IncomingMessage, serverResponse:ServerResponse):void {
-    let quest:number = request.headers[":path"].indexOf("?"),
+    let quest:number = request.url.indexOf("?"),
         uri:string = (quest > 0)
-            ? <string>request.headers[":path"].slice(0, quest)
-            : <string>request.headers[":path"];
+            ? request.url.slice(0, quest)
+            : request.url;
     const localPath:string = (uri === "/")
             ? `${vars.projectPath}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
@@ -30,7 +30,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                 //cspell:enable
                 `<h1>${vars.version.name}</h1><div class="section">insertMe</div></body></html>`
             ].join("");
-        if (request.headers[":path"].indexOf("favicon.ico") < 0 && request.headers[":path"].indexOf("images/apple") < 0) {
+        if (request.url.indexOf("favicon.ico") < 0 && request.url.indexOf("images/apple") < 0) {
             if (ers !== null) {
                 if (ers.code === "ENOENT") {
                     log([`${vars.text.angry}404${vars.text.none} for ${uri}`]);
@@ -73,6 +73,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                                                 ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                                 : "";
                                         serverResponse.setHeader("content-security-policy", csp);
+                                        serverResponse.setHeader("connection", "keep-alive");
                                         // cspell:disable
                                         serverResponse.setHeader("X-FRAME-OPTIONS", "sameorigin");
                                         // cspell:enable

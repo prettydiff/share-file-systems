@@ -43,7 +43,7 @@ import webSocket from "./webSocket.js";
                 testBrowserLoad = function local_restore_testBrowserLoad():void {
                     if (testBrowser === true && browser.testBrowser !== null) {
                         window.onerror = remote.error;
-                        setTimeout(function local_restore_testBrowserLoad_delay():void {
+                        setTimeout(function local_restore_testBrowserLoad_delay():void {console.log(browser.testBrowser.index);
                             remote.event(browser.testBrowser);
                         }, 500);
                     }
@@ -217,7 +217,6 @@ import webSocket from "./webSocket.js";
                         buttons[a].onblur = util.menuBlur;
                         a = a + 1;
                     } while (a < buttonsLength);
-                    
 
                     // systems log messages
                     if (storage !== undefined && storage.messages !== undefined) {
@@ -264,6 +263,7 @@ import webSocket from "./webSocket.js";
                     const test:string = cString.replace("testBrowser:", "");
                     if (test === "refresh-complete-close" || test === "refresh-complete") {
                         if (test === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
+                            console.log(test);
                             window.close();
                         }
                         return;

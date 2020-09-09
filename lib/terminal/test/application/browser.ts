@@ -114,6 +114,10 @@ browser.iterate = function test_browser_iterate(index:number):void {
                 eventName = function test_browser_iterate_validate_eventName(property):string {
                     return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                 };
+            if (tests[index].delay === undefined && tests[index].test.length < 1) {
+                logs.push("Test campaign does not contain a delay test or test instances in its test array.");
+                return false;
+            }
             do {
                 if ((tests[index].interaction[a].event === "setValue" || tests[index].interaction[a].event === "keydown" || tests[index].interaction[a].event === "keyup") && tests[index].interaction[a].value === undefined) {
                     logs.push(eventName("value"));
@@ -313,8 +317,10 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 failure.push(`    Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
             } else if ((delay === false && tests[item.index].test[index].value === null) || (delay === true && tests[item.index].delay.value === null)) {
                 failure.push(`    DOM node is not null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+            } else if ((delay === false && tests[item.index].test[index].value === undefined) || (delay === true && tests[item.index].delay.value === undefined)) {
+                failure.push(`    DOM node is not undefined: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             } else {
-                failure.push(`    DOM node is null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+                failure.push(`    DOM node is ${item.payload[index][1]}: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             }
         },
         failure:string[] = [];

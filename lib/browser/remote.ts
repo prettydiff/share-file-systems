@@ -59,33 +59,38 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
             ? remote.node(config)
             : remote.getProperty(config),
         qualifier:qualifier = config.qualifier,
-        configString:string = <string>config.value,
-        index:number = (typeof rawValue === "string" && typeof configString === "string")
-            ? rawValue.indexOf(configString)
-            : -1;
-    if (qualifier === "begins" && index === 0) {
-        return [true, "", config.nodeString];
-    }
-    if (qualifier === "contains" && index > -1) {
-        return [true, "", config.nodeString];
-    }
-    if (qualifier === "ends" && typeof rawValue === "string" && typeof configString === "string" && index === rawValue.length - configString.length) {
-        return [true, "", config.nodeString];
-    }
-    if (qualifier === "greater" && typeof rawValue === "number" && typeof config.value === "number" && rawValue > config.value) {
-        return [true, "", config.nodeString];
-    }
+        configString:string = <string>config.value;
     if (qualifier === "is" && rawValue === configString) {
-        return [true, "", config.nodeString];
-    }
-    if (qualifier === "lesser" && typeof rawValue === "number" && typeof config.value === "number" && rawValue < config.value) {
         return [true, "", config.nodeString];
     }
     if (qualifier === "not" && rawValue !== configString) {
         return [true, "", config.nodeString];
     }
-    if (qualifier === "not contains" && typeof rawValue === "string" && typeof configString === "string" && index < 0) {
-        return [true, "", config.nodeString];
+    if (typeof rawValue !== typeof configString) {
+        return [false, remote.stringify(<primitive>rawValue), config.nodeString];
+    }
+    if (typeof rawValue === "string") {
+        const index:number = rawValue.indexOf(configString);
+        if (qualifier === "begins" && index === 0) {
+            return [true, "", config.nodeString];
+        }
+        if (qualifier === "contains" && index > -1) {
+            return [true, "", config.nodeString];
+        }
+        if (qualifier === "ends" && index === rawValue.length - configString.length) {
+            return [true, "", config.nodeString];
+        }
+        if (qualifier === "not contains" && index < 0) {
+            return [true, "", config.nodeString];
+        }
+    }
+    if (typeof rawValue === "number") {
+        if (qualifier === "greater" && rawValue > config.value) {
+            return [true, "", config.nodeString];
+        }
+        if (qualifier === "lesser" && rawValue < config.value) {
+            return [true, "", config.nodeString];
+        }
     }
     if (config.type === "element") {
         return [false, "element", config.nodeString];
@@ -118,7 +123,7 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                 }
             } else {
                 element = <HTMLElement>remote.node(config.node);
-                if (element === null) {
+                if (element === null || element === undefined) {
                     remote.test(testItem.test, testItem.index);
                     return;
                 }
@@ -257,6 +262,9 @@ remote.node = function local_remote_node(config:testBrowserTest|browserDOM[]):El
         if (element === null || element === undefined) {
             if (typeof eventList !== "number") {
                 configList.nodeString = str.join("");
+            }
+            if (element === undefined) {
+                return undefined;
             }
             return null;
         }

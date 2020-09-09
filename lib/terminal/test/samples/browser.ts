@@ -834,14 +834,15 @@ const mainMenu:testBrowserItem = {
         // display context menu
         {
             delay: {
-                // the context menu is visible
+                // there is a details button
                 node: [
-                    ["getElementById", "contextMenu", null]
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 0]
                 ],
-                qualifier: "greater",
-                target: ["clientHeight"],
+                qualifier: "contains",
+                target: ["innerHTML"],
                 type: "property",
-                value: 2
+                value: "CTRL + ALT + T"
             },
             interaction: [
                 {
@@ -860,21 +861,20 @@ const mainMenu:testBrowserItem = {
                     node: [
                         ["getElementById", "contextMenu", null]
                     ],
+                    qualifier: "greater",
+                    target: ["clientHeight"],
+                    type: "property",
+                    value: 2
+                },
+                {
+                    // the context menu is visible
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ],
                     qualifier: "is",
                     target: ["style", "display"],
                     type: "property",
                     value: ""
-                },
-                {
-                    // there is a details button
-                    node: [
-                        ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 0]
-                    ],
-                    qualifier: "contains",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "CTRL + ALT + T"
                 }
             ]
         },
@@ -999,7 +999,7 @@ const mainMenu:testBrowserItem = {
                     qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: null
+                    value: undefined
                 }
             ]
         },
