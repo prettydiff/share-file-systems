@@ -2504,6 +2504,183 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: 524
                 }
             ]
+        },
+
+        // test history after refresh
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "fileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "version.json"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "backDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Step back in history of file navigator",
+            test: []
+        },
+
+        // open context menu on project js directory
+        {
+            delay: {
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 2
+            },
+            interaction: [
+                {
+                    event: "contextmenu",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5]
+                    ]
+                }
+            ],
+            name: "Open context menu on project js directory",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5],
+                        ["getElementsByTagName", "label", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "js"
+                }
+            ]
+        },
+
+        // copy directory using context menu
+        {
+            delay: {
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "is",
+                target: [],
+                type: "element",
+                value: null
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ]
+                }
+            ],
+            name: "Copy js directory using the context menu",
+            test: []
+        },
+
+        // open context menu to paste
+        {
+            delay: {
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 2
+            },
+            interaction: [
+                {
+                    event: "contextmenu",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "fileList", 0]
+                    ]
+                }
+            ],
+            name: "Open context menu to paste",
+            test: []
+        },
+
+        // paste from context menu
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "ends",
+                target: ["innerHTML"],
+                type: "property",
+                value: "js"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ]
+                }
+            ],
+            name: "Paste from context menu",
+            test: [
+                {
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ],
+                    qualifier: "is",
+                    target: [],
+                    type: "element",
+                    value: null
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "begins",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory"
+                }
+            ]
         }
     ];
 

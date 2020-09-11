@@ -7,6 +7,7 @@ Execute test automation in the browser using just JavaScript and without depende
 * [Demonstration using this application](#demonstration-using-this-application)
 * [How this works](#how-this-works)
    * [Mouse movement](#mouse-movement)
+   * [Event bubbling](#event-bubbling)
 * [Page refresh events](#page-refresh-events)
    * [Refresh event](#refresh-event)
    * [Refresh-Interaction event](#refresh-interaction-event)
@@ -51,6 +52,18 @@ Once the service has determined all tests have passed or the current test campai
 Mouse movement can be faked though by imposing a *mousedown* event on the target area and then arbitrarily dictating coordinates to dynamically modified CSS properties in question, and finally executing a *mouseup* event.  This is not an accurate test of mouse movement but may allow some limited testing of other concerns dependent upon mouse movement.
 
 For Convenience a **move** event is supported.  A test interaction whose event is *move* requires use of a *coords* property.  The coords property takes an array of two numbers.  The first number represents a top offset and the second number represents a left offset.  The values are arbitrarily assigned to the target node's CSS properties *top* and *left*, respectively, using the CSS dimension **em**.
+
+### Event bubbling
+Event bubbling is turned off for events created by the tests.  This is intentional such that developers can be specifically aware that intended event targets listen for an event as expected, as opposed to indirect action due to a listener higher in the DOM tree.  That level of precision differs from real world application where bubbling is almost always present by default.
+
+If bubbling behavior is required for a test to trigger an action one of two solutions are available:
+
+* Additionally specify an event to action on the ancestor element.
+* Modify the default test behavior to allow bubbling.  Open file `lib/browser/remote.ts`, change the following line of code and then rebuild the application:
+
+```typescript
+action.initEvent(config.event, false, true); // change that second argument from false to true
+```
 
 ---
 

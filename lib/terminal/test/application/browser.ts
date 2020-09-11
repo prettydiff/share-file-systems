@@ -198,11 +198,13 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                         vars.ws.broadcast(JSON.stringify({
                             "test-browser-close": {}
                         }));
-                    }
-                    setTimeout(function test_browser_result_completion_exit_delay():void {
+                        setTimeout(function test_browser_result_completion_exit_delay():void {
+                            log([message], true);
+                            process.exit(type);
+                        }, delay);
+                    } else {
                         log([message], true);
-                        process.exit(type);
-                    }, delay);
+                    }
                 };
             vars.verbose = true;
             if (pass === true) {
