@@ -3,6 +3,30 @@
 # Share File Systems - Browser Test Automation
 Execute test automation in the browser using just JavaScript and without dependencies.
 
+## Contents
+* [Demonstration using this application](#demonstration-using-this-application)
+* [How this works](#how-this-works)
+   * [Mouse movement](#mouse-movement)
+* [Page refresh events](#page-refresh-events)
+   * [Refresh event](#refresh-event)
+   * [Refresh-Interaction event](#refresh-interaction-event)
+* [String values](#string-values)
+   * [Backslash](#backslash)
+* [Timed Delays](#timed-delays)
+   * [Delay iterations](#delay-iterations)
+   * [Test iterations](#test-iterations)
+   * [Completion of all tests](#completion-of-all-tests)
+* [Code location](#code-location)
+* [Data structures](#data-structures)
+   * [Data components, primary](#data-components-primary)
+   * [Data components, tests/delay and interaction](#data-components-testsdelay-and-interaction)
+   * [Data components, tests/delay only](#data-components-testsdelay-only)
+   * [Data components, interaction only](#data-components-interaction-only)
+* [A note about Firefox](#a-note-about-firefox)
+* [Security considerations](#security-considerations)
+
+---
+
 ## Demonstration using this application
 From the terminal use this command to run the browser test automation:
 
@@ -11,6 +35,8 @@ From the terminal use this command to run the browser test automation:
 For options associated with any command please see the command documentation:
 
 `node js/application commands test_browser`
+
+---
 
 ## How this works
 All tests are specified outside the browser.  The code outside the browser determines which tests to execute in which order.  This library sends a given test campaign to the default browser and waits for the test evaluation before sending the next test.  Executing tests in serial order, as opposed to in parallel, is slower but is necessary because often later tests are dependent upon a state dictated by prior tests.
@@ -26,6 +52,66 @@ Mouse movement can be faked though by imposing a *mousedown* event on the target
 
 For Convenience a **move** event is supported.  A test interaction whose event is *move* requires use of a *coords* property.  The coords property takes an array of two numbers.  The first number represents a top offset and the second number represents a left offset.  The values are arbitrarily assigned to the target node's CSS properties *top* and *left*, respectively, using the CSS dimension **em**.
 
+---
+
+## Page Refresh events
+### Refresh event
+In the case of a test campaign that needs to refresh the page use the **refresh**.  These limitations apply to the use of *refresh* event:
+
+* The *refresh* must be the only event of the given test campaign.
+* Refresh tests must not contain a *delay* property.
+
+### Refresh-Interaction event
+Some interactions in a page may trigger a page refresh.  In this case a page is refreshed due to specified test events, but not the *refresh* event intentionally called by a test campaign.  To account for a page refresh use the *refresh-interaction* event which instructs the code to not evaluate tests until after a page is refreshed.
+
+---
+
+## String values
+### Backslash
+In JavaScript and JSON the backslash character has syntax value as an escape character or an encoding character such that the character following a backslash is escaped from all meaning and interpreted as a string, for example: `"\""`.  In this example there are three quote characters, but the middle one is escaped by the backslash so that it is a literal printable character while the first and third quotes are syntax characters.
+
+The backlash character is also the file system separator in Windows.  These two completely unrelated meanings for that character often results in problems.
+
+Every time a string is interpreted in JavaScript backslashes are interpreted for their syntax quality of character escapes.  That means the earlier example becomes `"""` before printing the string the user as `"`.  If a backslash must be retained and printed the user then it and the quote character must be escaped: `"\\\""`.  A backslash is escaped by another backslash and the quote character continues to be escaped by a backslash so that the user reads: `\"`.
+
+Backslashes are sacrificed to syntax every time a string in interpreted.  That is problematic in that it will change the value of the string.  In cases that changed value could result in a string that says something very different.  If the string is interpreted by a parser, such as conversion to JSON, it will likely result in broken syntax that breaks an application.
+
+Bottom line: **for strings that contain backslashes and are not immediately and terminally assigned to a DOM property, such an input element's value property, a test author must be aware of that string's chain of custody to know how many times a backslash must be escaped.**
+
+### Identity
+Many aspects of identity, regardless of what they represent, are dynamically created.  Because they are often dynamic it is important to avoid including features of identity in test strings.  Instead provide, where possible, the means to create the identity value.
+
+Sometimes it isn't feasible to include identity recreation without breaking an application.  In this case it makes more sense to perform string replacement such that a generic token representing an identity value is specified in the test string and replaced by a value in memory as the test event occurs in the browser.  This requires two steps:
+
+* Create a unique enough value to represent the identity value of concern.
+* Add that unique value as a *replace* method to the **stringReplace** function of the `lib/browser/remote.ts` file.  See this code example where a key *string-replace-hash-hashDevice* is provided in the test string for replacement by a dynamically created hash string:
+
+```typescript
+stringReplace = function local_remote_testEvent_stringReplace(str:string):string {
+    return str
+        .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
+        .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
+}
+```
+
+---
+
+## Timed delays
+The test runner eliminates timed delays between test scenarios thanks to the *delay* object provided in each test object, but internally there are a few timed delays.
+
+### Delay iterations
+On the browser side when executing the *delay* logic provided by the test object the application logic defaults to polling at a rate of 50ms for 40 iterations after which the test is marked as a failure due to delay time out.  These numbers can be customized in the *remote.delay* method in the `lib/browser/remote.ts` file.
+
+### Test iterations
+On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/samples/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.testBrowser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
+
+If the prior test is a refresh event that default 25ms delay is increased to 500ms.  That increased delay is necessary to ensure the browser has enough time to complete a page refresh and request the page code before the delay elapses otherwise the methodGET.ts library will be a test ahead of what the browser expects and the browser thus receives the wrong test code to evaluate upon completing a page refresh.
+
+### Completion of all tests
+Once a test campaign reports failure or all tests are complete there is a final timed delay.  The instruction within this last delay sends the instruction to kill the current executing process.  Immediately prior to the delay there is an instruction sent to the browser to close the browser window.  It takes longer to execute a network transmission instruction than it does to kill a process in the operating system, so a delay is necessary to ensure the network instruction is sent before the process is killed.
+
+---
+
 ## Code location
 The necessary code is almost exclusively located in two files:
 
@@ -36,15 +122,7 @@ All test evaluation occurs in the remote.ts file, which almost exclusively consi
 
 Those two files are sufficient for executing and messaging all tests except those that require a page refresh.  In order to sufficiently communicate test instructions to the browser that survive a page refresh a given test campaign is stored in the *serverVars* object and communicated to the page as comment by the `lib/terminal/server/methodGET.ts` library.  The page receives this instruction on HTML request and executes the given refresh test from a single instruction in `lib/browser/localhost.ts`.
 
-## Security considerations
-The ability to extensively automate user interaction with times precision through access to all aspects of a web page is powerful.  Such a technique can be used to build automated bots that traverse e-commerce shopping pages, screen scape data typically hidden from automation, or screen script private and person user data.  A few conventions should be considered in order to prevent malicious use of browser automation:
-
-* If possible do not include the *remote.ts* library code in a page unless under a dedicated test exercise from the server.
-* If the prior safeguard is not feasible then at least hide access to *remote.ts* library code to a flag.  This application uses a URL query string segment which sets a different data storage location so that user data never intermingles with event automation.
-* Browser refresh tests should be separated from other tests and execute under an additional flag as an additional safeguard.
-
-## A Note About Firefox
-If Firefox is your default or preferred browser it may not execute test automation properly.  Firefox tends to slow down in execution performance over time.  This may not be obvious to normal usage but this performance fatigue can break test automation, which attempts to execute instructions as fast as instructions allow.  To mitigate this problem delete your archived user profiles.  See this link for more information: [https://support.mozilla.org/en-US/questions/1229621](https://support.mozilla.org/en-US/questions/1229621)
+---
 
 ## Data structure
 The test definitions follow the custom TypeScript interface *testBrowserItem*:
@@ -164,19 +242,16 @@ browser.push({
 * **event** - A string event name to execute in the browser.
 * **value** - Required for use in an interaction when that interaction's event is: *keydown*, *keyup*, or *setValue*.  In the case of *setValue* any string is accepted.  In the case of keyboard events any single character will be accepted or predefined names of keyboard functions: [https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values)
 
-## Refresh event
-In the case of test campaign that needs to refresh the page there must be only one interaction whose event is **refresh**.  If the first interaction is *refresh* all other interactions will be ignored.  If there are multiple interactions and one is *refresh* but not the first one the test will fail with an error.  Refresh tests also do not get a *delay* property, which will also throw an error.
+---
 
-## Timed delays
-The test runner eliminates timed delays between test scenarios thanks to the *delay* object provided in each test object, but internally there are a few timed delays.
+## A note about Firefox
+If Firefox is your default or preferred browser it may not execute test automation properly.  Firefox tends to slow down in execution performance over time.  This may not be obvious to normal usage but this performance fatigue can break test automation, which attempts to execute instructions as fast as instructions allow.  To mitigate this problem delete your archived user profiles.  See this link for more information: [https://support.mozilla.org/en-US/questions/1229621](https://support.mozilla.org/en-US/questions/1229621)
 
-### Delay iterations
-On the browser side when executing the *delay* logic provided by the test object the application logic defaults to polling at a rate of 50ms for 40 iterations after which the test is marked as a failure due to delay time out.  These numbers can be customized in the *remote.delay* method in the `lib/browser/remote.ts` file.
+---
 
-### Test iterations
-On the terminal side in the *browser.iterate* method within the file `lib/terminal/test/samples/browser.ts` there is a timed delay between the logging of one test and sending the next one to the browser.  The default delay is 25ms which is enough time to ensure the current test object is stored in the `serverVars.testBrowser` property for access else where.  The only place that needs access to the test definition is the `lib/terminal/server/methodGET.ts` library which can make the test available to the page as an HTML comment.  That is necessary only when evaluating a browser refresh event to ensure the test logic is available within the page after the page loads without any request outside the browser.
+## Security considerations
+The ability to extensively automate user interaction with times precision through access to all aspects of a web page is powerful.  Such a technique can be used to build automated bots that traverse e-commerce shopping pages, screen scape data typically hidden from automation, or screen script private and person user data.  A few conventions should be considered in order to prevent malicious use of browser automation:
 
-If the prior test is a refresh event that default 25ms delay is increased to 500ms.  That increased delay is necessary to ensure the browser has enough time to complete a page refresh and request the page code before the delay elapses otherwise the methodGET.ts library will be a test ahead of what the browser expects and the browser thus receives the wrong test code to evaluate upon completing a page refresh.
-
-### Completion of all tests
-Once a test campaign reports failure or all tests are complete there is a final timed delay.  The instruction within this last delay sends the instruction to kill the current executing process.  Immediately prior to the delay there is an instruction sent to the browser to close the browser window.  It takes longer to execute a network transmission instruction than it does to kill a process in the operating system, so a delay is necessary to ensure the network instruction is sent before the process is killed.
+* If possible do not include the *remote.ts* library code in a page unless under a dedicated test exercise from the server.
+* If the prior safeguard is not feasible then at least hide access to *remote.ts* library code to a flag.  This application uses a URL query string segment which sets a different data storage location so that user data never intermingles with event automation.
+* Browser refresh tests should be separated from other tests and execute under an additional flag as an additional safeguard.

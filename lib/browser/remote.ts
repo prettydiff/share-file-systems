@@ -49,14 +49,16 @@ remote.error = function local_remote_error(message:string, source:string, line:n
         column: col,
         line: line,
         message: message,
-        stack: error.stack
+        stack: (error === null)
+            ? null
+            : error.stack
     }), "error"]], remote.index);
 };
 
 // determine whether a given test item is pass or fail
 remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolean, string, string] {
     const rawValue:primitive|Element = (config.type === "element")
-            ? remote.node(config)
+            ? remote.node(config.node, config)
             : remote.getProperty(config),
         qualifier:qualifier = config.qualifier,
         configString:string = <string>config.value;
@@ -99,7 +101,7 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
 };
 
 // process a single event instance
-remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
+remote.event = function local_remote_testEvent(testItem:testBrowserItem, pageLoad:boolean):void {
     let a:number = 0,
         element:HTMLElement,
         config:testBrowserEvent,
@@ -107,11 +109,29 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
         action:Event,
         alt:boolean = false,
         ctrl:boolean = false,
-        shift:boolean = false;
+        shift:boolean = false,
+        refresh:boolean = false,
+        stringReplace = function local_remote_testEvent_stringReplace(str:string):string {
+            return str
+                .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
+                .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
+        };
     const eventLength:number = testItem.interaction.length;
     if (remote.index < testItem.index) {
         remote.index = testItem.index;
         browser.testBrowser = testItem;
+        do {
+            if (testItem.interaction[a].event === "refresh-interaction") {
+                if (pageLoad === true) {
+                    remote.delay(testItem);
+                    return;
+                }
+                refresh = true;
+            }
+            a = a + 1;
+        } while (a < eventLength);
+
+        a = 0;
         do {
             config = testItem.interaction[a];
             if (config.event === "refresh") {
@@ -121,8 +141,8 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                     remote.error("The event 'refresh' was provided not as the first event of a campaign", "", 0, 0, null);
                     return;
                 }
-            } else {
-                element = <HTMLElement>remote.node(config.node);
+            } else if (testItem.interaction[a].event !== "refresh-interaction") {
+                element = <HTMLElement>remote.node(config.node, null);
                 if (element === null || element === undefined) {
                     remote.test(testItem.test, testItem.index);
                     return;
@@ -133,7 +153,7 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
                     htmlElement.style.left = `${config.coords[1]}em`;
                 } else if (config.event === "setValue") {
                     htmlElement = <HTMLInputElement>element;
-                    htmlElement.value = config.value;
+                    htmlElement.value = stringReplace(config.value);
                 } else {
                     if (config.event === "keydown" || config.event === "keyup") {
                         let tabIndex:number = element.tabIndex;
@@ -176,13 +196,15 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem):void {
             }
             a = a + 1;
         } while (a < eventLength);
-        remote.delay(testItem);
+        if (refresh === false) {
+            remote.delay(testItem);
+        }
     }
 };
 
 // get the value of the specified property/attribute
 remote.getProperty = function local_remote_getProperty(config:testBrowserTest):primitive {
-    const element:Element = remote.node(config),
+    const element:Element = remote.node(config.node, config),
         pLength = config.target.length - 1,
         method = function local_remote_getProperty_method(prop:Object, name:string):primitive {
             if (name.slice(name.length - 2) === "()") {
@@ -219,19 +241,14 @@ remote.getProperty = function local_remote_getProperty(config:testBrowserTest):p
 };
 
 // gather a DOM node using instructions from a data structure
-remote.node = function local_remote_node(config:testBrowserTest|browserDOM[]):Element {
+remote.node = function local_remote_node(dom:browserDOM[], test:testBrowserTest):Element {
     let element:Element|Document = document,
         node:[domMethod, string, number],
         a:number = 0;
-    const eventList:browserDOM[] = <browserDOM[]>config,
-        configList:testBrowserTest = <testBrowserTest>config,
-        nodeList:browserDOM[] = (typeof eventList.length === "number")
-            ? eventList
-            : configList.node,
-        nodeLength:number = nodeList.length,
+    const nodeLength:number = dom.length,
         str:string[] = ["document"];
     do {
-        node = nodeList[a];
+        node = dom[a];
         if (node[1] === "") {
             element = element[node[0]];
             str.push(".");
@@ -260,8 +277,8 @@ remote.node = function local_remote_node(config:testBrowserTest|browserDOM[]):El
             str.push("]");
         }
         if (element === null || element === undefined) {
-            if (typeof eventList !== "number") {
-                configList.nodeString = str.join("");
+            if (test !== null) {
+                test.nodeString = str.join("");
             }
             if (element === undefined) {
                 return undefined;
@@ -270,8 +287,8 @@ remote.node = function local_remote_node(config:testBrowserTest|browserDOM[]):El
         }
         a = a + 1;
     } while (a < nodeLength);
-    if (typeof eventList !== "number") {
-        configList.nodeString = str.join("");
+    if (test !== null) {
+        test.nodeString = str.join("");
     }
     return <Element>element;
 };

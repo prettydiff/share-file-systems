@@ -3,7 +3,9 @@
 
 import vars from "../../utilities/vars.js";
 
-const mainMenu:testBrowserItem = {
+const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
+    windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
+    mainMenu:testBrowserItem = {
         interaction: [
             {
                 event: "click",
@@ -2330,6 +2332,176 @@ const mainMenu:testBrowserItem = {
                     target: ["value"],
                     type: "property",
                     value: "God bless kittens"
+                }
+            ]
+        },
+        
+        mainMenu,
+
+        // open export modal
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "export", 0],
+                    ["getElementsByClassName", "body", 0],
+                ],
+                qualifier: "is",
+                target: ["firstChild", "nodeName", "toLowerCase()"],
+                type: "property",
+                value: "textarea"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "menu", null],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Open export modal",
+            test: [
+                {
+                    // that file navigator modal contains a minimize button
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "minimize"
+                },
+                {
+                    // that file navigator modal contains a maximize button
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "maximize"
+                },
+                {
+                    // that file navigator modal contains a close button
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "close"
+                },
+                {
+                    // that file navigator modal contains a confirm button
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "footer", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "confirm"
+                },
+                {
+                    // that file navigator modal contains a cancel button
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "footer", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "cancel"
+                },
+                {
+                    // test the text value
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    qualifier: "begins",
+                    target: ["value"],
+                    type: "property",
+                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"`
+                },
+                {
+                    // test the text value
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: `","left":250,"top":250,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","systems","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":6}`
+                }
+            ]
+        },
+
+        // modify export modal value
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1]
+                ],
+                qualifier: "is",
+                target: ["offsetLeft"],
+                type: "property",
+                value: 67
+            },
+            interaction: [
+                {
+                    event: "setValue",
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"string-replace-hash-hashDevice":["fff","eee"]},"user":{}},"hashDevice":"string-replace-hash-hashDevice","hashType":"sha3-512","hashUser":"string-replace-hash-hashUser","modals":{"settings-modal":{"agent":"","agentType":"device","content":{},"read_only":false,"single":true,"status":"hidden","title":"<span class=\\"icon-settings\\">⚙</span> Settings","type":"settings","inputs":["close"],"zIndex":1,"id":"settings-modal","left":200,"top":200,"height":400,"width":565},"systems-modal":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"read_only":false,"single":true,"status":"hidden","title":"<span class=\\"icon-systemLog\\">⌬</span> System Log","type":"systems","inputs":["close"],"width":800,"zIndex":2,"id":"systems-modal","left":210,"top":210,"height":400},"fileNavigate-0.399721304278451331":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${windowsPath}.git","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":16,"id":"fileNavigate-0.399721304278451331","left":893,"top":524,"height":400,"status":"normal","history":["${windowsSep}","${windowsPath}","${windowsPath}.git"],"search":["",""]},"shares-0.566106401484579841":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"text_value":"🖳 Shares for device - Primary Device","title":"🖳 Shares for device - Primary Device","type":"shares","width":800,"zIndex":14,"id":"shares-0.566106401484579841","left":860,"top":65,"height":400,"status":"normal"},"fileNavigate-0.505560485994826251":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${windowsPath}lib${windowsSep}terminal${windowsSep}test${windowsSep}storageBrowser","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":10,"id":"fileNavigate-0.505560485994826251","left":67,"top":36,"height":400,"status":"normal","history":["${windowsSep}","${windowsPath}lib${windowsSep}terminal${windowsSep}test${windowsSep}storageBrowser"],"search":["",""]},"textPad-0.881811492258500361":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"title":"<span class=\\"icon-textPad\\">⍑</span> Text Pad","type":"textPad","width":800,"zIndex":12,"id":"textPad-0.881811492258500361","left":67,"top":568,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","systems","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":16}`
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "export", 0],
+                        ["getElementsByClassName", "footer", 0],
+                        ["getElementsByClassName", "confirm", 0]
+                    ]
+                },
+                {
+                    event: "refresh-interaction",
+                    node: []
+                }
+            ],
+            name: "Modify export modal value",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["offsetLeft"],
+                    type: "property",
+                    value: 893
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["offsetTop"],
+                    type: "property",
+                    value: 524
                 }
             ]
         }

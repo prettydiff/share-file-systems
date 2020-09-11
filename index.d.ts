@@ -18,7 +18,7 @@ declare global {
     type domMethod = "childNodes" | "firstChild" | "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getModalsByModalType" | "getNodesByType" | "lsatChild" | "parentNode";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
-    type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
+    type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "refresh-interaction" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
     type httpBodyCallback = (body:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -523,10 +523,10 @@ declare global {
         delay?: (config:testBrowserItem) => void;
         error?: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate?: (config:testBrowserTest) => [boolean, string, string];
-        event?: (event:testBrowserItem) => void;
+        event?: (event:testBrowserItem, pageLoad:boolean) => void;
         getProperty?: (config:testBrowserTest) => primitive;
         index?: number;
-        node?: (config:testBrowserTest|browserDOM[]) => Element;
+        node?: (dom:browserDOM[], test:testBrowserTest) => Element;
         stringify?: (primitive:primitive) => string;
         test?: (config:testBrowserTest[], index:number) => void;
     }

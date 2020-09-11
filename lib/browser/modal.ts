@@ -422,14 +422,12 @@ modal.export = function local_modal_export(event:MouseEvent):void {
 modal.importSettings = function local_modal_importSettings(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         dataString:string = JSON.stringify(browser.data),
-        box:Element = element.getAncestor("box", "class");
-    let textArea:HTMLTextAreaElement,
-        button:HTMLButtonElement;
-    textArea = box.getElementsByTagName("textarea")[0];
+        box:Element = element.getAncestor("box", "class"),
+        button:HTMLButtonElement = <HTMLButtonElement>document.getElementsByClassName("cancel")[0],
+        textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
     if (textArea.value !== dataString) {
         browser.data = JSON.parse(textArea.value);
     }
-    button = <HTMLButtonElement>document.getElementsByClassName("cancel")[0];
     button.click();
     if (textArea.value !== dataString) {
         network.storage("settings");

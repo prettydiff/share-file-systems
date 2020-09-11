@@ -43,8 +43,8 @@ import webSocket from "./webSocket.js";
                 testBrowserLoad = function local_restore_testBrowserLoad():void {
                     if (testBrowser === true && browser.testBrowser !== null) {
                         window.onerror = remote.error;
-                        setTimeout(function local_restore_testBrowserLoad_delay():void {console.log(browser.testBrowser.index);
-                            remote.event(browser.testBrowser);
+                        setTimeout(function local_restore_testBrowserLoad_delay():void {
+                            remote.event(browser.testBrowser, true);
                         }, 500);
                     }
                 },
