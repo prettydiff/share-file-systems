@@ -2630,18 +2630,6 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
 
         // paste from context menu
         {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["innerHTML"],
-                type: "property",
-                value: "js"
-            },
             interaction: [
                 {
                     event: "click",
@@ -2659,6 +2647,43 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Paste from context menu",
+            test: [
+                {
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ],
+                    qualifier: "is",
+                    target: [],
+                    type: "element",
+                    value: null
+                }
+            ]
+        },
+
+        // update file list
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "ends",
+                target: ["innerHTML"],
+                type: "property",
+                value: "js"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Update file list",
             test: [
                 {
                     node: [

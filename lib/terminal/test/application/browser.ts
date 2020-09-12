@@ -309,7 +309,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value}`;
             return star + resultString + nodeString;
         },
-        failureMessage = function test_Browser_result_failureMessage(index:number):void {
+        failureMessage = function test_Browser_result_failureMessage(index:number):void {console.log(delay);console.log(item.payload);console.log(buildNode(tests[item.index].delay, true));
             if (item.payload[index][2] === "error") {
                 let error:string = item.payload[index][1]
                     .replace("{\"file\":"   , `{\n    "${vars.text.cyan}file${vars.text.none}"   :`)
@@ -319,15 +319,15 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     .replace(",\"stack\":"  , `,\n    "${vars.text.cyan}stack${vars.text.none}"  :`)
                     .replace(/\\n/g, "\n    ")
                     .replace(/\}$/, "\n}");
-                failure.push(`    ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
+                failure.push(`     ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
             } else if ((delay === false && item.payload[index][2] === buildNode(tests[item.index].test[index], true)) || (delay === true && item.payload[index][2] === buildNode(tests[item.index].delay, true))) {
-                failure.push(`    Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
+                failure.push(`     Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
             } else if ((delay === false && tests[item.index].test[index].value === null) || (delay === true && tests[item.index].delay.value === null)) {
-                failure.push(`    DOM node is not null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+                failure.push(`     DOM node is not null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             } else if ((delay === false && tests[item.index].test[index].value === undefined) || (delay === true && tests[item.index].delay.value === undefined)) {
-                failure.push(`    DOM node is not undefined: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+                failure.push(`     DOM node is not undefined: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             } else {
-                failure.push(`    DOM node is ${item.payload[index][1]}: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
+                failure.push(`     DOM node is ${item.payload[index][1]}: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             }
         },
         failure:string[] = [];
@@ -336,7 +336,15 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
     if (browser.index < item.index) {
         browser.index = item.index;
         if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {
-            failure.push(testString(item.payload[1][0], tests[item.index].delay));
+            failure.push(testString(false, tests[item.index].delay));
+            if (tests[item.index].delay.type === "element") {
+                const qualifier:string = (tests[item.index].delay.qualifier === "not")
+                    ? " not"
+                    : "";
+                failure.push(`     DOM node is${qualifier} ${tests[item.index].delay.value}: ${vars.text.cyan + item.payload[1][1] + vars.text.none}`);
+            } else {
+                failure.push(`     Actual value: ${vars.text.cyan + item.payload[1][1] + vars.text.none}`);
+            }
             falseFlag = true;
         } else if (delay === true) {
             failure.push(testString(item.payload[a][0], tests[item.index].delay));

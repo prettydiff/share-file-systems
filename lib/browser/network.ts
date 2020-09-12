@@ -1,7 +1,6 @@
 
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
 import browser from "./browser.js";
-import context from "./context.js";
 import systems from "./systems.js";
 import util from "./util.js";
 
@@ -24,7 +23,6 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
 
 /* Accesses the file system */
 network.fs = function local_network_fs(configuration:fileService, callback:Function):void {
-    context.menuRemove();
     network.xhr({
         callback: function local_network_fs_callback(responseText:string) {
             responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");

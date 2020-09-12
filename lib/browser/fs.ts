@@ -580,37 +580,37 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             ? "(Read Only) "
             : "",
         callback:Function = function local_fs_navigate_callback(responseText:string):void {
-                if (responseText === "") {
-                    return;
-                }
-                const payload:fsRemote = JSON.parse(responseText),
-                    box:Element = document.getElementById(payload.id),
-                    replaceAddress:boolean = (location === "**root**");
-                if (box === null) {
-                    return;
-                }
-                let loc:string = (replaceAddress === true)
-                        ? payload.dirs[0][0]
-                        : location,
-                body:Element = box.getElementsByClassName("body")[0],
-                    files:Element = (payload.dirs === "missing")
-                        ? (function local_fs_navigate_callback_missing():Element {
-                            const p:Element = document.createElement("p");
-                            p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
-                            p.setAttribute("class", "error");
-                            return p;
-                        }())
-                        : fs.list(loc, payload)[0];
-                if (replaceAddress === true) {
-                    const modal:ui_modal = browser.data.modals[payload.id];
-                    box.getElementsByTagName("input")[0].value = loc;
-                    modal.text_value = loc;
-                    modal.history[modal.history.length - 1] = loc;
-                    network.storage("settings");
-                }
-                body.innerHTML = "";
-                body.appendChild(files);
-            },
+            if (responseText === "") {
+                return;
+            }
+            const payload:fsRemote = JSON.parse(responseText),
+                box:Element = document.getElementById(payload.id),
+                replaceAddress:boolean = (location === "**root**");
+            if (box === null) {
+                return;
+            }
+            let loc:string = (replaceAddress === true)
+                    ? payload.dirs[0][0]
+                    : location,
+            body:Element = box.getElementsByClassName("body")[0],
+                files:Element = (payload.dirs === "missing")
+                    ? (function local_fs_navigate_callback_missing():Element {
+                        const p:Element = document.createElement("p");
+                        p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
+                        p.setAttribute("class", "error");
+                        return p;
+                    }())
+                    : fs.list(loc, payload)[0];
+            if (replaceAddress === true) {
+                const modal:ui_modal = browser.data.modals[payload.id];
+                box.getElementsByTagName("input")[0].value = loc;
+                modal.text_value = loc;
+                modal.history[modal.history.length - 1] = loc;
+                network.storage("settings");
+            }
+            body.innerHTML = "";
+            body.appendChild(files);
+        },
         payloadNetwork:fileService = {
             action: "fs-directory",
             agent: agentName,
@@ -814,12 +814,17 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 /* Search for file system artifacts from a modal's current location */
 fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
     const element:HTMLInputElement = (searchElement === undefined)
-        ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
-        : searchElement;
-    if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
+            ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
+            : searchElement,
+        addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling;
+    if (event !== null && event.type === "blur") {
+        const searchParent:HTMLElement = <HTMLElement>element.parentNode;
+        searchParent.style.width = "12.5%";
+        addressLabel.style.width = "87.5%";
+    }
+    if (element.value.replace(/\s+/, "") !== "" && (event === null || (event.type === "keyup" && event.key === "Enter"))) {
         const box:Element = element.getAncestor("box", "class"),
             body:Element = box.getElementsByClassName("body")[0],
-            addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
             address:string = addressLabel.getElementsByTagName("input")[0].value,
             statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
@@ -894,11 +899,6 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                     }
                 }
             };
-        if (event !== null && event.type === "blur") {
-            const searchParent:HTMLElement = <HTMLElement>element.parentNode;
-            searchParent.style.width = "12.5%";
-            addressLabel.style.width = "87.5%";
-        }
         if (event === null || browser.data.modals[id].search.join("") !== address + value) {
             body.innerHTML = "";
             body.append(util.delay());

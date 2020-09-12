@@ -21,6 +21,9 @@ import webSocket from "./webSocket.js";
     window.onresize = util.fixHeight;
     browser.style.type = "text/css";
     document.getElementsByTagName("head")[0].appendChild(browser.style);
+    document.getElementById("menuToggle").onclick = function local_restore_fullScreen():void {
+        document.getElementById("spaces").requestFullscreen();
+    };
 
     /* Restore state and assign events */
     (function local_load():void {
@@ -263,7 +266,6 @@ import webSocket from "./webSocket.js";
                     const test:string = cString.replace("testBrowser:", "");
                     if (test === "refresh-complete-close" || test === "refresh-complete") {
                         if (test === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
-                            console.log(test);
                             window.close();
                         }
                         return;
