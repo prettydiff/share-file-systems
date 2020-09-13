@@ -3,28 +3,53 @@
 import vars from "./vars.js";
 
 const commands_documentation = {
-    agents: {
+    agent_data: {
         description: "Lists agent data.",
         example: [
             {
-                code: `${vars.version.command} agents`,
+                code: `${vars.version.command} agent_data`,
                 defined: "Lists all agent data."
             },
             {
-                code: `${vars.version.command} agents device`,
+                code: `${vars.version.command} agent_data device`,
                 defined: "Lists all device type agent data."
             },
             {
-                code: `${vars.version.command} agents user`,
+                code: `${vars.version.command} agent_data user`,
                 defined: "Lists all user type agent data."
             },
             {
-                code: `${vars.version.command} agents "desktop computer"`,
+                code: `${vars.version.command} agent_data "desktop computer"`,
                 defined: "Lists any agent whose names contain the search string"
             },
             {
-                code: `${vars.version.command} agents "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
+                code: `${vars.version.command} agent_data "16f07e8ed7225f07912da48e0d51308e8fbf9dafc89d8accaa58abc1da8a2832a046082bfc2534eb4933a00bd673019cb90437c8a94cc0d0adaf9cff40c5083b"`,
                 defined: "Outputs data for the matching hash string, if any.  The hash must be composed of 128 characters only composed of only 0-9 and lower case a-f."
+            }
+        ]
+    },
+    agent_online: {
+        description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
+        example: [
+            {
+                code: `${vars.version.command} agent_online a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
+                defined: "This will test a connection to the specified agent."
+            },
+            {
+                code: `${vars.version.command} agent_online list`,
+                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
+            },
+            {
+                code: `${vars.version.command} agent_online device`,
+                defined: "An argument of 'device' will test connectivity on each device agent."
+            },
+            {
+                code: `${vars.version.command} agent_online user`,
+                defined: "An argument of 'user' will test connectivity on each user agent."
+            },
+            {
+                code: `${vars.version.command} agent_online all`,
+                defined: "An argument of 'all' will run connectivity tests on all stored agents."
             }
         ]
     },
@@ -63,6 +88,51 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} build local`,
                 defined: "The default behavior assumes TypeScript is installed globally. Use the 'local' argument if TypeScript is locally installed in node_modules."
+            }
+        ]
+    },
+    certificate: {
+        description: "Creates an HTTPS certificate and saves it in the local \"certificate\" directory.",
+        example: [
+            {
+                code: `${vars.version.command} certificate`,
+                defined: "By default a certificate authority (CA) certificate is created."
+            },
+            {
+                code: `${vars.version.command} certificate /file/path/to/save`,
+                defined: `Provide a file system path of where to save certificates. If no path is provided the default location is "${vars.projectPath}lib${vars.sep}certificate". If the file path is relative it will be relative to the current working directory.`
+            },
+            {
+                code: `${vars.version.command} certificate remove /file/path/to/delete`,
+                defined: `The default mode is to create a certificate. Providing the "remove" argument deletes the certificate in the given location. The location is optional and if not provided defaults to: "${vars.projectPath}lib${vars.sep}certificate".`
+            },
+            {
+                code: `${vars.version.command} certificate name:"certificate"`,
+                defined: "The file name of the certificate and supporting files. The default value is \"share-file\" if no name is provided."
+            },
+            {
+                code: `${vars.version.command} certificate domain:"localhost"`,
+                defined: "Specify a certificate domain by providing an argument beginning 'domain:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as only certificates with a matching domain will be removed."
+            },
+            {
+                code: `${vars.version.command} certificate organization:"localhost"`,
+                defined: "Specify a certificate org value by providing an argument beginning 'organization:'. This is optional in create mode and defaults to \"share-file\". This argument is required in remove mode on Windows as certificates with a matching org value will be removed."
+            },
+            {
+                code: `${vars.version.command} certificate ca-name:"certificate"`,
+                defined: "The file name of the authority certificate and supporting files. The default value is \"share-file-ca\" if no name is provided. This is not used on self signed certificates"
+            },
+            {
+                code: `${vars.version.command} certificate ca-domain:"localhost-ca"`,
+                defined: "Specify a certificate authority domain by providing an argument beginning 'domain:'. This is optional and defaults to \"share-file-ca\". This argument is ignored for self signed certificates or if mode is remove."
+            },
+            {
+                code: `${vars.version.command} certificate days:365`,
+                defined: "Specify the number of days until the certificate expires. The value must be an integer. The default value is 16384."
+            },
+            {
+                code: `${vars.version.command} certificate self-sign`,
+                defined: "The \"self-signed\" argument instead creates a self-signed certificate."
             }
         ]
     },
@@ -281,28 +351,24 @@ const commands_documentation = {
             }
         ]
     },
-    test_agent: {
-        description: "Allows testing connectivity to remote agents.  Think of this as an alternative to ping where specified port, address, and protocol are tested for the agents specified.",
+    test_browser: {
+        description: "Launches the 'server' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
         example: [
             {
-                code: `${vars.version.command} test_agent a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e`,
-                defined: "This will test a connection to the specified agent."
+                code: `${vars.version.command} test_browser`,
+                defined: "Runs the browser interaction tests."
             },
             {
-                code: `${vars.version.command} test_agent list`,
-                defined: "Specifying the parameter 'list' will output a list of all agent hashes, names, and IP addresses by agent type."
+                code: `${vars.version.command} test_browser no_close`,
+                defined: "Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection."
             },
             {
-                code: `${vars.version.command} test_agent device`,
-                defined: "An argument of 'device' will test connectivity on each device agent."
+                code: `${vars.version.command} test_browser demo`,
+                defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
             },
             {
-                code: `${vars.version.command} test_agent user`,
-                defined: "An argument of 'user' will test connectivity on each user agent."
-            },
-            {
-                code: `${vars.version.command} test_agent all`,
-                defined: "An argument of 'all' will run connectivity tests on all stored agents."
+                code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
+                defined: "By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary."
             }
         ]
     },

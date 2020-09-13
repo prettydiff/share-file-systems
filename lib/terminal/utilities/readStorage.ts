@@ -52,7 +52,7 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
                 callback(storage);
             },
             read = function terminal_utilities_readStorage_readdir_read(fileName:string):void {
-                vars.node.fs.readFile(serverVars.storage + vars.sep + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:nodeError, fileData:string):void {
+                vars.node.fs.readFile(serverVars.storage + fileName, "utf8", function terminal_utilities_readStorage_readdir_read_readFile(err:nodeError, fileData:string):void {
                     if (err !== null) {
                         error([err.toString()]);
                         return;
@@ -66,14 +66,13 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
         if (length > 1) {
             do {
                 length = length - 1;
-                if (fileList[length].indexOf(".json") === fileList[length].length - 5) {
+                if (fileList[length].length > 5 && fileList[length].indexOf(".json") === fileList[length].length - 5) {
                     flag[fileList[length].replace(".json", "")] = false;
                     read(fileList[length]);
                 }
             } while (length > 0);
-        } else {
-            complete();
         }
+        complete();
     });
 };
 

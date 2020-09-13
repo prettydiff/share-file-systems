@@ -28,6 +28,15 @@ const browser:browser = {
         str = str.slice(0, str.indexOf("-->"));
         return JSON.parse(str);
     }()),
+    menu: {
+        export: document.getElementById("export"),
+        fileNavigator: document.getElementById("fileNavigator"),
+        settings: document.getElementById("settings"),
+        systemLog: document.getElementById("systemLog"),
+        textPad: document.getElementById("textPad"),
+        "user-delete": document.getElementById("user-delete"),
+        "user-invite": document.getElementById("user-invite")
+    },
     messages: {
         status: [],
         users: [],
@@ -35,6 +44,7 @@ const browser:browser = {
     },
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),
+    testBrowser: null,
     user: {}
 };
 

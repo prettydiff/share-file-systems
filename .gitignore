@@ -1,9 +1,0 @@
-.vscode
-js/lib
-js/test
-js/application.js
-js/localhost.js
-js/tsconfig.*
-node_modules
-storage/*.json
-version.json

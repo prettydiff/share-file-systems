@@ -564,14 +564,25 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
 util.menu = function local_util_menu():void {
     const menu:HTMLElement = document.getElementById("menu"),
         move = function local_util_menu_move(event:MouseEvent):void {
-            const menu:HTMLElement = document.getElementById("menu");
             if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
                 menu.style.display = "none";
                 document.onmousemove = null;
             }
         };
-    menu.style.display = "block";
+    if (menu.style.display !== "block") {
+        menu.style.display = "block";
+    } else {
+        menu.style.display = "none";
+    }
     document.onmousemove = move;
+};
+
+util.menuBlur = function local_util_menuBlur():void {
+    const active:Element = document.activeElement,
+        menu:HTMLElement = document.getElementById("menu");
+    if (active.parentNode.parentNode !== menu) {
+        menu.style.display = "none";
+    }
 };
 
 /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
@@ -643,7 +654,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:Element, 
         return output;
     }
     output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
-    if (type === "cut") {
+    if (itemList[a] !== undefined && type === "cut") {
         element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
         dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
     }

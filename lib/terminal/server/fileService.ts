@@ -2,7 +2,7 @@
 /* lib/terminal/server/fileService - This library executes various file system related services and actions. */
 import { Hash } from "crypto";
 import * as fs from "fs";
-import * as http from "http";
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { Stream, Writable } from "stream";
 import * as zlib from "zlib";
 
@@ -29,7 +29,7 @@ import serverVars from "./serverVars.js";
 // 2. If the variable is moved within the fileService library it will limit logging to one use per each test
 // 3. If the variable is reassigned to a value of 'false' it will eliminate "directory" logging for all tests regardless of scope
 let logRecursion:boolean = true;
-const fileService = function terminal_server_fileService(serverResponse:http.ServerResponse, data:fileService):void {
+const fileService = function terminal_server_fileService(serverResponse:ServerResponse, data:fileService):void {
     // formats a string to convey file copy status
     let localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device");
     // determines whether there needs to be additional routing for non-local devices of remote users
@@ -487,7 +487,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     });
                 },
                 // stream handler if files are streamed, otherwise files are written in a single shot using writeFile
-                writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:http.IncomingMessage):void {
+                writeStream = function terminal_server_fileService_requestFiles_writeStream(fileResponse:IncomingMessage):void {
                     const fileName:string = <string>fileResponse.headers.file_name,
                         filePath:string = data.name + vars.sep + fileName,
                         decompress:zlib.BrotliDecompress = (fileResponse.headers.compression === "true")
@@ -557,7 +557,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                     });
                 },
                 // the callback for each file request
-                fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:http.IncomingMessage):void {
+                fileRequestCallback = function terminal_server_fileService_requestFiles_fileRequestCallback(fileResponse:IncomingMessage):void {
                     const fileChunks:Buffer[] = [],
                         fileName:string = <string>fileResponse.headers.file_name,
                         writeable:Writable = new Stream.Writable(),
@@ -724,7 +724,7 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
                 data.agent = remoteUsers[0];
                 data.agentType = "device";
-                httpRequest(function terminal_server_fileService_tasks_removeUserRemoteDevice(responseBody:string|Buffer, headers:http.IncomingHttpHeaders):void {
+                httpRequest(function terminal_server_fileService_tasks_removeUserRemoteDevice(responseBody:string|Buffer, headers:IncomingHttpHeaders):void {
                     if (headers.file_name !== undefined) {
                         serverResponse.setHeader("hash", headers.hash);
                         serverResponse.setHeader("file_name", headers.file_name);
@@ -1012,7 +1012,6 @@ const fileService = function terminal_server_fileService(serverResponse:http.Ser
                 }
             } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
                 // issue a fs-copy-list on an agent from a different agent
-                const agent:string = data.agent;
                 vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
                 reverseAgents();
                 data.action = <serviceType>`${data.action.replace("-remote", "")}`;

@@ -1,4 +1,8 @@
 
+/* lib/browser/dom - Extensions to the DOM to provide navigational functionality not present from the standard methods */
+
+import browser from "./browser.js";
+
 /* lib/browser/dom - Extensions to the DOM to provide navigational function not present from the standard methods */
 const dom = function local_dom():void {
     // getAncestor - A method to walk up the DOM towards the documentElement.
@@ -141,6 +145,22 @@ const dom = function local_dom():void {
                 return output;
             }());
         },
+        // getModalsByType - Returns a list of modals matching a given modal type
+        // * The optional type argument indicates what type of modals to return
+        // * The default type value is "all" or undefined which returns all modals
+        getModalsByModalType = function local_dom_getModalsByModalType(type?:modalType|"all"):Node[] {
+            const keys:string[] = Object.keys(browser.data.modals),
+                length:number = keys.length,
+                output:Node[] = [];
+            let a:number = 0;
+            do {
+                if (type === undefined || type === null || type === "all" || browser.data.modals[keys[a]].type === type) {
+                    output.push(document.getElementById(keys[a]));
+                }
+                a = a + 1;
+            } while (a < length);
+            return output;
+        },
         disallowed = function local_dom_disallowed():void {
             // eslint-disable-next-line
             new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
@@ -154,8 +174,9 @@ const dom = function local_dom():void {
         };
 
     // Create a document method
-    document.getElementsByAttribute = getElementsByAttribute;
-    document.getNodesByType         = getNodesByType;
+    document.getElementsByAttribute          = getElementsByAttribute;
+    document.getNodesByType                  = getNodesByType;
+    document.getModalsByModalType            = getModalsByModalType;
 
     // Ensure dynamically created elements get these methods too
     Element.prototype.getAncestor            = getAncestor;

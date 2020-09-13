@@ -8,12 +8,17 @@ declare global {
     type agentTextList = [agentType, string][];
     type agentType = "device" | "user";
     type brotli = 0|1|2|3|4|5|6|7|8|9|10|11;
+    type browserDOM = [domMethod, string, number];
+    type certKey = "crt" | "key";
     type color = [string, string];
     type colorScheme = "dark" | "default";
+    type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
     type directoryMode = "hash" | "list" | "read" | "search";
+    type domMethod = "childNodes" | "firstChild" | "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getModalsByModalType" | "getNodesByType" | "lsatChild" | "parentNode";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
+    type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "refresh-interaction" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
     type httpBodyCallback = (body:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -26,15 +31,16 @@ declare global {
     type messageType = "errors" | "status" | "users";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
     type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
-    type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
-    type qualifier = "begins" | "contains" | "ends" | "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | "is" | "not" | "not contains";
+    type primitive = boolean | null | number | string | undefined;
+    type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
+    type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | qualifier;
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage";
+    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage" | "test-browser";
     type serviceType = serviceFS | "invite-status" | "messages" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "messages" | "settings" | "user";
-    type testListType = "service" | "simulation";
+    type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
@@ -118,10 +124,51 @@ declare global {
         loadTest: boolean;
         localNetwork: localNetwork;
         messages:messages;
+        menu: {
+            export: HTMLElement;
+            fileNavigator: HTMLElement;
+            systemLog: HTMLElement;
+            settings: HTMLElement;
+            textPad: HTMLElement;
+            "user-delete": HTMLElement;
+            "user-invite": HTMLElement;
+        };
         pageBody: Element;
         socket?: WebSocket;
         style: HTMLStyleElement;
+        testBrowser: testBrowserItem;
         user: agents;
+    }
+    interface certificate {
+        certificate: {
+            cert: string;
+            key: string;
+        };
+        flag: {
+            crt: boolean;
+            key: boolean;
+        };
+    }
+    interface certificate_input {
+        caDomain: string;
+        callback: (logs:string[]) => void;
+        caName: string;
+        days: number;
+        domain: string;
+        location: string;
+        mode: "create" | "remove";
+        name: string;
+        organization: string;
+        selfSign: boolean;
+    }
+    interface certificate_remove {
+        ca: certificate_remove_item;
+        root: certificate_remove_item;
+    }
+    interface certificate_remove_item {
+        command: string;
+        flag: boolean;
+        logs: string[];
     }
     interface clipboard {
         agent: string;
@@ -191,8 +238,9 @@ declare global {
         path: string;
     }
     interface Document {
-        getNodesByType: Function;
         getElementsByAttribute: Function;
+        getModalsByModalType: Function;
+        getNodesByType: Function;
     }
     interface Element {
         getAncestor: (identifier:string, selector:selector) => Element;
@@ -403,13 +451,12 @@ declare global {
         dataString?: EventHandlerNonNull;
         destroy?: EventHandlerNonNull;
         details?: context;
-        detailsList?: EventHandlerNonNull;
-        element?: Element;
+        element: Element;
         fsNew?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         menuRemove?: () => void;
         paste?: EventHandlerNonNull;
-        type?: contextType;
+        type: contextType;
     }
     interface module_fs {
         back?: EventHandlerNonNull;
@@ -456,6 +503,7 @@ declare global {
         textPad?: textPad;
         textSave?: EventHandlerNonNull;
         textTimer?: EventHandlerNonNull;
+        unMinimize?: EventHandlerNonNull;
         zTop?: modalTop;
     }
     interface module_network {
@@ -467,6 +515,19 @@ declare global {
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
         storage?: (type:storageType) => void;
+        testBrowserLoaded?: (payload?:[boolean, string, string][], index?:number) => void;
+        xhr?: (config:networkConfig) => void;
+    }
+    interface module_remote {
+        delay?: (config:testBrowserItem) => void;
+        error?: (message:string, source:string, line:number, col:number, error:Error) => void;
+        evaluate?: (config:testBrowserTest) => [boolean, string, string];
+        event?: (event:testBrowserItem, pageLoad:boolean) => void;
+        getProperty?: (config:testBrowserTest) => primitive;
+        index: number;
+        node?: (dom:browserDOM[], test:testBrowserTest) => Element;
+        stringify?: (primitive:primitive) => string;
+        test?: (config:testBrowserTest[], index:number) => void;
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
@@ -516,6 +577,7 @@ declare global {
         keys?: (event:KeyboardEvent) => void;
         login?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
+        menuBlur?: EventHandlerNonNull;
         minimizeAll?: EventHandlerNonNull;
         minimizeAllFlag?: boolean;
         selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
@@ -531,6 +593,13 @@ declare global {
     }
     interface navigate extends EventHandlerNonNull {
         (Event:Event, config?: navConfig): void;
+    }
+    interface networkConfig {
+        callback: (responseText:string) => void;
+        error: string;
+        halt: boolean;
+        payload: string;
+        type: string;
     }
     interface nodeCopyParams {
         callback: Function;
@@ -598,9 +667,9 @@ declare global {
         [key:string]: string;
     }
     interface serverCallback {
-        callback:(output:serverOutput) => void;
         agent: string;
         agentType: agentType;
+        callback:(output:serverOutput) => void;
     }
     interface serverError {
         stack: string[];
@@ -609,6 +678,7 @@ declare global {
     interface serverOutput {
         agent: string;
         agentType: agentType;
+        server: httpServer;
         webPort: number;
         wsPort: number;
     }
@@ -624,6 +694,7 @@ declare global {
         nameUser: string;
         status: heartbeatStatus;
         storage: string;
+        testBrowser?: string;
         timeStore: number;
         user: agents;
         watches: {
@@ -701,6 +772,7 @@ declare global {
             fs    : any;
             http  : any;
             https : any;
+            http2 : any;
             net   : any;
             os    : any;
             path  : any;
@@ -724,6 +796,44 @@ declare global {
         agentType: agentType;
         status: "bad" | "good";
         type: "request" | "response";
+    }
+    interface testBrowserApplication {
+        [index:number]: testBrowserItem;
+        args: testBrowserArgs;
+        execute?: (args:testBrowserArgs) => void;
+        index: number;
+        iterate?: (index:number) => void;
+        result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
+        server?: httpServer;
+    }
+    interface testBrowserArgs {
+        demo: boolean;
+        noClose: boolean;
+    }
+    interface testBrowserEvent {
+        coords?: [number, number];
+        event: eventName;
+        node: browserDOM[];
+        value?: string;
+    }
+    interface testBrowserItem {
+        delay?: testBrowserTest;
+        index?: number;
+        interaction: testBrowserEvent[];
+        name: string;
+        test: testBrowserTest[];
+    }
+    interface testBrowserResult {
+        index: number;
+        payload: [boolean, string, string][];
+    }
+    interface testBrowserTest {
+        node: browserDOM[];
+        nodeString?: string;
+        qualifier: qualifier;
+        target: string[];
+        type: "attribute" | "element" | "property";
+        value: boolean | null | number | string;
     }
     interface testComplete {
         callback: Function;
@@ -750,16 +860,15 @@ declare global {
         artifact?: string;
         command: string;
         file?: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: string;
     }
-    interface testServiceArray extends Array<testServiceInstance> {
-        [index:number]: testServiceInstance;
+    interface testServiceApplication {
         addServers?: (callback:Function) => void;
         execute?: (config:testExecute) => void;
         killServers?: (complete:testComplete) => void;
         populate?:() => void;
-        serverRemote?: {
+        serverRemote: {
             device: {
                 [key:string]: httpServer;
             };
@@ -767,13 +876,14 @@ declare global {
                 [key:string]: httpServer;
             };
         };
+        tests?: testServiceInstance[];
     }
     interface testServiceInstance {
         artifact?: string;
         command: any;
         file?: string;
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         shares?: testServiceShares;
         test: object | string;
     }
@@ -781,9 +891,9 @@ declare global {
         local?: agentShares;
         remote?: agentShares;
     }
-    interface testSimulationArray extends Array<testItem> {
-        [index:number]: testItem;
+    interface testSimulationApplication {
         execute?: (config:testExecute) => void;
+        tests: testItem[]
     }
     interface testTemplateCopyStatus {
         "file-list-status": copyStatus;
@@ -793,7 +903,7 @@ declare global {
             [key: string]: any;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: string;
     }
     interface testTemplateFileService {
@@ -801,7 +911,7 @@ declare global {
             "fs": fileService;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: testServiceFileTarget;
     }
     interface testTemplateHeartbeatComplete {
@@ -809,7 +919,7 @@ declare global {
             "heartbeat-complete": heartbeat;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: {
             "heartbeat-status": heartbeat;
         };
@@ -819,7 +929,7 @@ declare global {
             "heartbeat-update": heartbeatUpdate;
         };
         name: string;
-        qualifier: qualifier;
+        qualifier: qualifierFile;
         test: string;
     }
     interface testTemplateInvite extends testTemplate {
@@ -842,8 +952,8 @@ declare global {
         };
     }
     interface testTypeCollection {
-        service: testServiceArray;
-        simulation: testSimulationArray;
+        service: testServiceApplication;
+        simulation: testSimulationApplication;
     }
     interface textPad extends EventHandlerNonNull {
         (Event:Event, value?:string, title?:string): void;

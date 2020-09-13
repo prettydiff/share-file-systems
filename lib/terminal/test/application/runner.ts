@@ -2,11 +2,10 @@
 /* lib/terminal/test/application/runner - A test runner that loops through test items in serial, executes those test items, and passes the result message to the evaluation library. */
 
 import log from "../../utilities/log.js";
-import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
-import service from "../samples/service.js";
-import simulation from "../samples/simulation.js";
+import service from "../application/service.js";
+import simulation from "../application/simulation.js";
 
 // runs various tests of different types
 const list:testTypeCollection = {

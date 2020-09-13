@@ -1,10 +1,11 @@
 
-/* lib/terminal/commands/agents - Writes agent data to the shell. */
+/* lib/terminal/commands/agent_data - Writes agent data to the shell. */
 
 import log from "../utilities/log.js";
+import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const agents = function terminal_agents():void {
+const agent_data = function terminal_agentData():void {
     const type:string = (process.argv[0] === "device" || process.argv[0] === "devices" || process.argv[0] === "user" || process.argv[0] === "users")
             ? process.argv[0].replace(/s$/, "")
             : (process.argv[0] === undefined || process.argv[0] === null)
@@ -18,9 +19,9 @@ const agents = function terminal_agents():void {
             user: {}
         },
         readFlag:[boolean, boolean] = [false, false],
-        output = function terminal_agents_output():void {
+        output = function terminal_agentData_output():void {
             const text:string[] = [],
-                typeList = function terminal_agents_output_typeList(input:agentType):void{
+                typeList = function terminal_agentData_output_typeList(input:agentType):void{
                     const keys:string[] = Object.keys(agents[input]),
                         length:number = keys.length,
                         output:agentTextList = [];
@@ -35,7 +36,7 @@ const agents = function terminal_agents():void {
                         text.push(`${vars.text.angry}* No agents of type ${input}.${vars.text.none}`);
                     }
                 },
-                list = function terminal_agents_output_list(keys:agentTextList, perType:boolean):void {
+                list = function terminal_agentData_output_list(keys:agentTextList, perType:boolean):void {
                     const length:number = keys.length;
                     let a:number = 0,
                         b:number = 0,
@@ -84,7 +85,7 @@ const agents = function terminal_agents():void {
                     typeList("user");
                     log(text, true);
                 } else if ((/^[0-9a-f]{128}$/).test(type) === true && type.length === 128) {
-                    const selectiveAgent = function terminal_agents_output_selectiveAgent(agentType:agentType, list:boolean):void {
+                    const selectiveAgent = function terminal_agentData_output_selectiveAgent(agentType:agentType):void {
                         const shares:agentShares = agents[agentType][type].shares,
                             shareNames:string[] = Object.keys(shares),
                             shareLength:number = shareNames.length;
@@ -111,9 +112,9 @@ const agents = function terminal_agents():void {
                     };
                     log.title("Agent Details by Hash ID");
                     if (agents.device[type] !== undefined) {
-                        selectiveAgent("device", false);
+                        selectiveAgent("device");
                     } else if (agents.user[type] !== undefined) {
-                        selectiveAgent("user", false);
+                        selectiveAgent("user");
                     } else {
                         log([`${vars.text.angry}No agents presents with that hash ID.${vars.text.none}`], true);
                     }
@@ -158,7 +159,7 @@ const agents = function terminal_agents():void {
                 log(text, true);
             }
         },
-        deviceCallback = function terminal_agents_deviceCallback(readErr:nodeError, fileData:string):void {
+        deviceCallback = function terminal_agentData_deviceCallback(readErr:nodeError, fileData:string):void {
             if (readErr !== null && readErr.code !== "ENOENT") {
                 log([readErr.toString()]);
                 process.exit(0);
@@ -170,7 +171,7 @@ const agents = function terminal_agents():void {
                 output();
             }
         },
-        userCallback = function terminal_agents_userCallback(readErr:nodeError, fileData:string):void {
+        userCallback = function terminal_agentData_userCallback(readErr:nodeError, fileData:string):void {
             if (readErr !== null && readErr.code !== "ENOENT") {
                 log([readErr.toString()]);
                 process.exit(0);
@@ -184,15 +185,15 @@ const agents = function terminal_agents():void {
         };
     vars.verbose = true;
     if (lists === "device" || lists === "") {
-        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}device.json`, "utf8", deviceCallback);
+        vars.node.fs.readFile(`${serverVars.storage}device.json`, "utf8", deviceCallback);
     } else {
         readFlag[0] = true;
     }
     if (lists === "user" || lists === "") {
-        vars.node.fs.readFile(`${vars.projectPath}storage${vars.sep}user.json`, "utf8", userCallback);
+        vars.node.fs.readFile(`${serverVars.storage}user.json`, "utf8", userCallback);
     } else {
         readFlag[1] = true;
     }
 };
 
-export default agents;
+export default agent_data;

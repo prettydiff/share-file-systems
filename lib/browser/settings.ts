@@ -62,7 +62,7 @@ settings.agentColor = function local_settings_modal(event:KeyboardEvent):void {
         color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
         parent:Element = <Element>element.parentNode;
     if (colorTest.test(color) === true) {
-        if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
+        if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
             const item:Element = <Element>parent.parentNode,
                 ancestor:Element = element.getAncestor("ul", "tag"),
                 type:agentType = <agentType>ancestor.getAttribute("class").split("-")[0],
@@ -225,6 +225,7 @@ settings.modal = function local_settings_modal(event:MouseEvent):void {
         settings.style.display = "block";
     }
     data.status = "normal";
+    document.getElementById("menu").style.display = "none";
 };
 
 /* The content of the settings modal */
@@ -418,7 +419,7 @@ settings.styleText = function local_settings_styleText(input:styleText):void {
 /* Settings compression level */
 settings.text = function local_settings_text(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
-    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.keyCode === 13))) {
+    if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.key === "Enter"))) {
         const numb:number = Number(element.value),
             parent:Element = <Element>element.parentNode,
             parentText:string = parent.innerHTML.toLowerCase();

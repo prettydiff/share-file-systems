@@ -2,7 +2,7 @@
 /* lib/terminal/commands/test_service - A command driven wrapper for the service tests, which test the various services used by the application. */
 
 import log from "../utilities/log.js";
-import service from "../test/samples/service.js";
+import service from "../test/application/service.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
@@ -26,9 +26,9 @@ const test_service = function terminal_testService():void {
                     filterLength:number = 0,
                     fail:number = 0;
                 const filter:number[] = [],
-                    length:number = service.length;
+                    length:number = service.tests.length;
                 do {
-                    if (service[a].name.indexOf(process.argv[0]) > -1) {
+                    if (service.tests[a].name.indexOf(process.argv[0]) > -1) {
                         filter.push(a);
                     }
                     a = a + 1;
@@ -43,7 +43,7 @@ const test_service = function terminal_testService():void {
                         total: filterLength
                     });
                 } else {
-                    log.title("Run Selected Tests");
+                    log.title("Run Selected Tests", true);
                     service.execute({
                         complete: completeCallback,
                         fail: 0,
@@ -54,7 +54,7 @@ const test_service = function terminal_testService():void {
             };
         service.addServers(addCallback);
     } else {
-        log.title("Run All Service Tests");
+        log.title("Run All Service Tests", true);
         testListRunner("service", completeCallback);
     }
 };

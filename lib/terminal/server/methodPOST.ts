@@ -14,6 +14,7 @@ import readOnly from "./readOnly.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
+import browser from "../test/application/browser.js";
 
 const methodPOST = function terminal_server_post(request:IncomingMessage, serverResponse:ServerResponse) {
     let body:string = "";
@@ -124,6 +125,9 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
             } else if (task === "invite") {
                 // * Handle all stages of invitation
                 invite(body, serverResponse);
+            } else if (task === "test-browser") {
+                // * validate a browser test iteration
+                browser.result(JSON.parse(body)["test-browser"], serverResponse);
             }
         };
 

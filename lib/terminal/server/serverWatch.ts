@@ -15,9 +15,65 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
             const list = filename.split(".");
             return list[list.length - 1];
         }()),
-        time = function terminal_server_watch_time(message:string):number {
+        ignore   = function terminal_server_watch_ignore(input:string|null):boolean {
+            if (input.indexOf(".git") === 0) {
+                return true;
+            }
+            if (input.indexOf("node_modules") === 0) {
+                return true;
+            }
+            if (input.indexOf("js") === 0) {
+                return true;
+            }
+            return false;
+        };
+    if (filename === null || ignore(filename) === true || filename.indexOf(`lib${vars.sep}storage`) === 0 || filename.indexOf(".git") === 0) {
+        return;
+    }
+    vars.testLogger("serverWatch", "", "Establishing watch for application components to refresh the page or compile updated code.");
+    if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
+        const time = function terminal_server_watch_time(message:string, build:boolean):void {
             const date:Date = new Date(),
-                dateArray:string[] = [];
+                dateArray:string[] = [],
+                output:string[] = [],
+                duration = function terminal_server_watch_duration():void {
+                    let hours:number = 0,
+                        minutes:number = 0,
+                        seconds:number = 0,
+                        span:number = date.valueOf() - serverVars.timeStore,
+                        list:string[] = [];
+                    if (span > 3600000) {
+                        hours = Math.floor(span / 3600000);
+                        span = span - (hours * 3600000);
+                    }
+                    list.push(hours.toString());
+                    if (list[0].length < 2) {
+                        list[0] = `0${list[0]}`;
+                    }
+                    if (span > 60000) {
+                        minutes = Math.floor(span / 60000);
+                        span = span - (minutes * 60000);
+                    }
+                    list.push(minutes.toString());
+                    if (list[1].length < 2) {
+                        list[1] = `0${list[1]}`;
+                    }
+                    if (span > 1000) {
+                        seconds = Math.floor(span / 1000);
+                        span = span - (seconds * 1000);
+                    }
+                    list.push(seconds.toString());
+                    if (list[2].length < 2) {
+                        list[2] = `0${list[2]}`;
+                    }
+                    list.push(span.toString());
+                    if (list[3].length < 3) {
+                        do {
+                            list[3] = `0${list[3]}`;
+                        } while (list[3].length < 3);
+                    }
+                    output.push(`[${vars.text.bold + vars.text.purple + list.join(":") + vars.text.none}] Total compile time.\u0007`);
+                };
             let hours:string = String(date.getHours()),
                 minutes:string = String(date.getMinutes()),
                 seconds:string = String(date.getSeconds()),
@@ -40,68 +96,15 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
             dateArray.push(minutes);
             dateArray.push(seconds);
             dateArray.push(milliSeconds);
-            log([`[${vars.text.cyan + dateArray.join(":") + vars.text.none}] ${message}`]);
+            output.push(`[${vars.text.cyan + dateArray.join(":") + vars.text.none}] ${message}`);
+            if (build === true) {
+                duration();
+            }
+            log(output);
             serverVars.timeStore = date.valueOf();
-            return serverVars.timeStore;
-        },
-        ignore   = function terminal_server_watch_ignore(input:string|null):boolean {
-            if (input.indexOf(".git") === 0) {
-                return true;
-            }
-            if (input.indexOf("node_modules") === 0) {
-                return true;
-            }
-            if (input.indexOf("js") === 0) {
-                return true;
-            }
-            return false;
         };
-    if (filename === null || ignore(filename) === true || filename.indexOf("storage") === 0 || filename.indexOf(".git") === 0) {
-        return;
-    }
-    vars.testLogger("serverWatch", "", "Establishing watch for application components to refresh the page or compile updated code.");
-    if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
-        let start:number,
-            compile:number,
-            duration = function terminal_server_watch_duration(length:number):void {
-                let hours:number = 0,
-                    minutes:number = 0,
-                    seconds:number = 0,
-                    list:string[] = [];
-                if (length > 3600000) {
-                    hours = Math.floor(length / 3600000);
-                    length = length - (hours * 3600000);
-                }
-                list.push(hours.toString());
-                if (list[0].length < 2) {
-                    list[0] = `0${list[0]}`;
-                }
-                if (length > 60000) {
-                    minutes = Math.floor(length / 60000);
-                    length = length - (minutes * 60000);
-                }
-                list.push(minutes.toString());
-                if (list[1].length < 2) {
-                    list[1] = `0${list[1]}`;
-                }
-                if (length > 1000) {
-                    seconds = Math.floor(length / 1000);
-                    length = length - (seconds * 1000);
-                }
-                list.push(seconds.toString());
-                if (list[2].length < 2) {
-                    list[2] = `0${list[2]}`;
-                }
-                list.push(length.toString());
-                if (list[3].length < 3) {
-                    do {
-                        list[3] = `0${list[3]}`;
-                    } while (list[3].length < 3);
-                }
-                log([`[${vars.text.bold + vars.text.purple + list.join(":") + vars.text.none}] Total compile time.\u0007`]);
-            };
         log([""]);
-        start = time(`Compiling for ${vars.text.green + filename + vars.text.none}`);
+        time(`Compiling for ${vars.text.green + filename + vars.text.none}`, false);
         vars.node.child(`${vars.version.command} build incremental`, {
             cwd: vars.projectPath
         }, function terminal_server_watch_child(err:Error, stdout:string, stderr:string):void {
@@ -116,8 +119,7 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
                 return;
             }
             log([stdout]);
-            compile = time("TypeScript Compiled") - start;
-            duration(compile);
+            time("TypeScript Compiled", true);
             vars.ws.broadcast("reload");
             return;
         });
@@ -125,9 +127,11 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
         vars.ws.broadcast("reload");
     } else {
         const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
-                vars.ws.broadcast(JSON.stringify({
-                    "fs-update-local": result
-                }));
+                if (vars.command !== "test_browser") {
+                    vars.ws.broadcast(JSON.stringify({
+                        "fs-update-local": result
+                    }));
+                }
             },
             dirConfig:readDirectory = {
                 callback: fsUpdateCallback,

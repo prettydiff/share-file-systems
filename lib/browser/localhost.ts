@@ -8,6 +8,7 @@ import getNodesByType from "./dom.js";
 import invite from "./invite.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import remote from "./remote.js";
 import settings from "./settings.js";
 import share from "./share.js";
 import systems from "./systems.js";
@@ -20,6 +21,9 @@ import webSocket from "./webSocket.js";
     window.onresize = util.fixHeight;
     browser.style.type = "text/css";
     document.getElementsByTagName("head")[0].appendChild(browser.style);
+    document.getElementById("menuToggle").onclick = function local_restore_fullScreen():void {
+        document.getElementById("spaces").requestFullscreen();
+    };
 
     /* Restore state and assign events */
     (function local_load():void {
@@ -33,10 +37,20 @@ import webSocket from "./webSocket.js";
                 a:number = 0,
                 cString:string = "",
                 localDevice:Element = null,
-                active:number = Date.now();
+                active:number = Date.now(),
+                testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
+                loginFlag:boolean = false;
             const comments:Comment[] = document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
+                testBrowserLoad = function local_restore_testBrowserLoad():void {
+                    if (testBrowser === true && browser.testBrowser !== null) {
+                        window.onerror = remote.error;
+                        setTimeout(function local_restore_testBrowserLoad_delay():void {
+                            remote.event(browser.testBrowser, true);
+                        }, 500);
+                    }
+                },
                 defaultModals = function local_restore_defaultModals():void {
                     const payloadModal:ui_modal = {
                         agent: browser.data.hashDevice,
@@ -99,17 +113,16 @@ import webSocket from "./webSocket.js";
                                         type: "device"
                                     });
                                     browser.pageBody.removeAttribute("class");
-                                    network.storage("settings");
                                     loadComplete();
                                 });
                             }
                         },
-                        handlerKeyboard = function local_restore_applyLogin_button(event:KeyboardEvent):void {
-                            if (event.keyCode === 13) {
+                        handlerKeyboard = function local_restore_applyLogin_handleKeyboard(event:KeyboardEvent):void {
+                            if (event.key === "Enter") {
                                 action();
                             }
                         },
-                        handlerMouse = function local_restore_applyLogin_button():void {
+                        handlerMouse = function local_restore_applyLogin_handleMouse():void {
                             action();
                         };
                     defaultModals();
@@ -117,6 +130,9 @@ import webSocket from "./webSocket.js";
                     nameUser.onkeyup = handlerKeyboard;
                     nameDevice.onkeyup = handlerKeyboard;
                     button.onclick = handlerMouse;
+                    browser.socket = webSocket(function local_restore_applyLogin_socket():void {
+                        testBrowserLoad();
+                    });
                 },
                 loadComplete = function local_restore_complete():void {
                     const idleness = function local_restore_complete_idleness():void {
@@ -161,7 +177,9 @@ import webSocket from "./webSocket.js";
                         loginInputsLength:number = loginInputs.length,
                         agentList:Element = document.getElementById("agentList"),
                         allDevice:HTMLElement = <HTMLElement>agentList.getElementsByClassName("device-all-shares")[0],
-                        allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0];
+                        allUser:HTMLElement = <HTMLElement>agentList.getElementsByClassName("user-all-shares")[0],
+                        buttons:HTMLCollectionOf<HTMLButtonElement> = document.getElementById("menu").getElementsByTagName("button"),
+                        buttonsLength:number = buttons.length;
                     let a:number = 0;
 
                     if (browser.data.hashDevice === "") {
@@ -176,8 +194,12 @@ import webSocket from "./webSocket.js";
                         a = a + 1;
                     } while (a < loginInputsLength);
 
-                    browser.socket = webSocket();
-                    idleness();
+                    // watch for local idleness
+                    document.onclick = activate;
+
+                    if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
+                        defaultModals();
+                    }
 
                     // assign key default events
                     browser.content.onclick = context.menuRemove;
@@ -186,21 +208,18 @@ import webSocket from "./webSocket.js";
                     allDevice.onclick = shareAll;
                     allUser.onclick = shareAll;
                     document.getElementById("minimize-all").onclick = util.minimizeAll;
-                    document.getElementById("user-delete").onclick = share.deleteList;
-                    document.getElementById("user-invite").onclick = invite.start;
-                    document.getElementById("systemLog").onclick = systems.modal;
-                    document.getElementById("fileNavigator").onclick = fs.navigate;
-                    document.getElementById("textPad").onclick = modal.textPad;
-                    document.getElementById("export").onclick = modal.export;
-                    document.getElementById("settings").onclick = settings.modal;
-                    activate();
-
-                    // watch for local idleness
-                    document.onclick = activate;
-
-                    if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
-                        defaultModals();
-                    }
+                    browser.menu.export.onclick = modal.export;
+                    browser.menu.fileNavigator.onclick = fs.navigate;
+                    browser.menu.settings.onclick = settings.modal;
+                    browser.menu.systemLog.onclick = systems.modal;
+                    browser.menu.textPad.onclick = modal.textPad;
+                    browser.menu["user-delete"].onclick = share.deleteList;
+                    browser.menu["user-invite"].onclick = invite.start;
+                    a = 0;
+                    do {
+                        buttons[a].onblur = util.menuBlur;
+                        a = a + 1;
+                    } while (a < buttonsLength);
 
                     // systems log messages
                     if (storage !== undefined && storage.messages !== undefined) {
@@ -229,10 +248,31 @@ import webSocket from "./webSocket.js";
                     }
 
                     browser.loadTest = false;
+
+                    if (loginFlag === true) {
+                        browser.socket = webSocket(function local_restore_applyLogin_socket():void {
+                            activate();
+                            idleness();
+                            testBrowserLoad();
+                        });
+                    } else {
+                        activate();
+                        idleness();
+                    }
                 };
             do {
                 cString = comments[a].substringData(0, comments[a].length);
-                if (cString.indexOf("storage:") === 0) {
+                if (cString.indexOf("testBrowser:") === 0) {
+                    const test:string = cString.replace("testBrowser:", "");
+                    if (test === "refresh-complete-close" || test === "refresh-complete") {
+                        if (test === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
+                            window.close();
+                        }
+                        return;
+                    } else {
+                        browser.testBrowser = JSON.parse(cString.replace("testBrowser:", ""));
+                    }
+                } else if (cString.indexOf("storage:") === 0) {
                     if (cString.indexOf("\"device\":{}") > 0) {
                         applyLogin();
                     } else {
@@ -286,13 +326,14 @@ import webSocket from "./webSocket.js";
                                     }
                                 };
                             let count:number = 0;
+                            loginFlag = true;
                             browser.data.colors = storage.settings.colors;
-                            restoreShares("device");
-                            restoreShares("user");
                             browser.data.nameUser = storage.settings.nameUser;
                             browser.data.nameDevice = storage.settings.nameDevice;
                             browser.data.hashDevice = storage.settings.hashDevice;
                             browser.data.hashUser = storage.settings.hashUser;
+                            restoreShares("device");
+                            restoreShares("user");
 
                             if (modalKeys.length < 1) {
                                 loadComplete();

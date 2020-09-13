@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
-import { Stats } from "fs";
+import { Stats, write } from "fs";
 
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
@@ -11,6 +11,7 @@ import lint from "./lint.js";
 import log from "../utilities/log.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
+import remove from "./remove.js";
 
 // build/test system
 const build = function terminal_build(test:boolean, callback:Function):void {
@@ -18,6 +19,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
             sectionTime:[number, number] = [0, 0];
         const order = {
                 build: [
+                    "configurations",
                     "clearStorage",
                     "commands",
                     "libReadme",
@@ -132,7 +134,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                 // clearStorage removes temporary storage files that should have been removed, but weren't
                 clearStorage: function terminal_build_clearStorage():void {
                     heading("Removing unnecessary temporary files");
-                    vars.node.fs.readdir(`${vars.projectPath}storage`, function terminal_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
+                    vars.node.fs.readdir(`${vars.projectPath}lib${vars.sep}storage`, function terminal_build_clearStorage_dir(erd:nodeError, dirList:string[]) {
                         if (erd !== null) {
                             error([erd.toString()]);
                             return;
@@ -145,7 +147,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                         do {
                             if (tempTest.test(dirList[a]) === true) {
                                 start = start + 1;
-                                vars.node.fs.unlink(`${vars.projectPath}storage${vars.sep + dirList[a]}`, function terminal_build_clearStorage_dir_unlink(eru:nodeError):void {
+                                vars.node.fs.unlink(`${vars.projectPath}lib${vars.sep}storage${vars.sep + dirList[a]}`, function terminal_build_clearStorage_dir_unlink(eru:nodeError):void {
                                     if (eru !== null) {
                                         error([erd.toString()]);
                                         return;
@@ -193,11 +195,61 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                         output.push("");
                     });
                     vars.node.fs.writeFile(filePath, output.join("\n"), "utf8", function terminal_build_commands_write(err:nodeError):void {
-                        if (err !== null) {
-                            error([err.toString()]);
+                        if (err === null) {
+                            next(`File ${filePath} successfully written.`);
                             return;
                         }
-                        next(`File ${filePath} successfully written.`);
+                        error([err.toString()]);
+                    });
+                },
+                // writes configuration data to files
+                configurations: function terminal_build_configurations():void {
+                    heading("Write Configuration Files");
+                    vars.node.fs.readFile(`${vars.projectPath}lib${vars.sep}configurations.json`, "utf8", function terminal_build_configurations_read(err:nodeError, fileData:string) {
+                        if (err === null) {
+                            const config:any = JSON.parse(fileData),
+                                keys:string[] = Object.keys(config),
+                                length:number = keys.length,
+                                writeCallback = function terminal_build_configurations_read_remove(wErr:nodeError):void {
+                                    if (wErr === null) {
+                                        a = a + 1;
+                                        if (a === length) {
+                                            next("Configuration files written!");
+                                        } else {
+                                            write();
+                                        }
+                                        return;
+                                    }
+                                    error([wErr.toString()]);
+                                },
+                                write = function terminal_build_configurations_read_remove():void {
+                                    if (Array.isArray(config[keys[a]]) === true) {
+                                        if (config[keys[a]].length === 1) {
+                                            config[keys[a]] = config[keys[a]][0];
+                                        } else {
+                                            config[keys[a]] = config[keys[a]].join(vars.node.os.EOL);
+                                        }
+                                    } else {
+                                        config[keys[a]] = JSON.stringify(config[keys[a]]);
+                                    }
+                                    vars.node.fs.writeFile(vars.projectPath + keys[a], config[keys[a]], "utf8", writeCallback);
+                                },
+                                removeCallback = function terminal_build_configurations_read_remove():void {
+                                    count = count + 1;
+                                    if (count === length) {
+                                        a = 0;
+                                        write();
+                                    }
+                                };
+                            let a:number = length,
+                                count:number = 0;
+                            do {
+                                a = a - 1;
+                                remove(vars.projectPath + keys[a], removeCallback);
+                            } while (a > 0);
+                            return;
+                        }
+                        error([err.toString()]);
                     });
                 },
                 // libReadme builds out the readme file that indexes code files in the current directory
@@ -433,7 +485,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                     directory(dirConfig);
                 },
                 // phase lint is merely a call to the lint library
-                lint     : function terminal_build_lint():void {
+                lint: function terminal_build_lint():void {
                     heading("Linting");
                     lint(testsCallback);
                 },

@@ -15,3 +15,4 @@ These markdown files comprise the project's current informal notes and formal re
 * **[modal.md](modal.md)**                         - Notes about modals and the graphic user interface that displays in the browser.
 * **[services.md](services.md)**                   - Notes and API details of supported services.
 * **[terminal_commands.md](terminal_commands.md)** - Documentation using application commands from the terminal.
+* **[test_browser.md](test_browser.md)**           - How this application achieves test automation.

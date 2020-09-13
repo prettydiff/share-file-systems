@@ -11,7 +11,10 @@ import util from "./util.js";
 import commas from "../common/commas.js";
 import prettyBytes from "../common/prettyBytes.js";
 
-const context:module_context = {};
+const context:module_context = {
+    element: null,
+    type: ""
+};
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
@@ -277,19 +280,21 @@ context.details = function local_context_details(event:MouseEvent):void {
                 mTime:Date,
                 aTime:Date,
                 cTime:Date;
-            do {
-                if (list[a][1] === "directory") {
-                    details.directories = details.directories + 1;
-                } else if (list[a][1] === "link") {
-                    details.links = details.links + 1;
-                } else {
-                    stat = <Stats>list[a][5];
-                    fileList.push(list[a]);
-                    details.files = details.files + 1;
-                    details.size = details.size + stat.size;
-                }
-                a = a + 1;
-            } while (a < length);
+            if (length > 0) {
+                do {
+                    if (list[a][1] === "directory") {
+                        details.directories = details.directories + 1;
+                    } else if (list[a][1] === "link") {
+                        details.links = details.links + 1;
+                    } else {
+                        stat = <Stats>list[a][5];
+                        fileList.push(list[a]);
+                        details.files = details.files + 1;
+                        details.size = details.size + stat.size;
+                    }
+                    a = a + 1;
+                } while (a < length);
+            }
     
             output.setAttribute("class", "fileDetailOutput");
             heading.innerHTML = `File System Details - ${commas(list.length)} items`;
@@ -394,39 +399,141 @@ context.details = function local_context_details(event:MouseEvent):void {
                     statB:Stats;
                 td = document.createElement("p");
                 heading = document.createElement("h3");
-                heading.innerHTML = "Display first 100 files by...";
+                heading.innerHTML = "List files";
                 output.appendChild(heading);
-                button.innerHTML = "Largest size";
-                fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
-                    statA = <Stats>aa[5];
-                    statB = <Stats>bb[5];
-                    if (statA.size > statB.size) {
-                        return -1;
-                    }
-                    return 1;
-                });
-                button.nonce = JSON.stringify(fileList.slice(0, 100));
-                button.onclick = context.detailsList;
+
+                // largest files
+                button.innerHTML = "List 100 largest files";
+                button.onclick = function local_context_details_callback_largest(event:MouseEvent):void {
+                    fileList.sort(function local_context_details_callback_largest_sort(aa:directoryItem, bb:directoryItem):number {
+                        statA = <Stats>aa[5];
+                        statB = <Stats>bb[5];
+                        if (statA.size > statB.size) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                        grandParent:Element = <Element>element.parentNode.parentNode,
+                        table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
+                        p:HTMLElement = <HTMLElement>table.previousSibling,
+                        tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
+                        dataLength:number = Math.min(fileList.length, 100);
+                    let aa:number = 0,
+                        row:HTMLElement,
+                        cell:HTMLElement,
+                        stat:Stats;
+                    p.innerHTML = `${dataLength} largest files`;
+                    tbody.innerHTML = "";
+                    do {
+                        stat = <Stats>fileList[aa][5];
+                        row = document.createElement("tr");
+                        cell = document.createElement("th");
+                        cell.setAttribute("class", "file");
+                        cell.innerHTML = fileList[aa][0];
+                        row.appendChild(cell);
+                        cell = document.createElement("td");
+                        cell.innerHTML = commas(stat.size);
+                        row.appendChild(cell);
+                        cell = document.createElement("td");
+                        cell.innerHTML = prettyBytes(stat.size);
+                        row.appendChild(cell);
+                        tableBody.appendChild(row);
+                        aa = aa + 1;
+                    } while (aa < dataLength);
+                    table.style.display = "block";
+                    p.style.display = "block";
+                };
                 td.appendChild(button);
                 output.appendChild(td);
+
+                // most recent files
                 td = document.createElement("p"),
                 button = document.createElement("button");
-                button.innerHTML = "Recently changed";
-                fileList.sort(function local_context_details_refinement_sortTime(aa:directoryItem, bb:directoryItem):number {
-                    statA = <Stats>aa[5];
-                    statB = <Stats>bb[5];
-                    if (statA.mtimeMs > statB.mtimeMs) {
-                        return -1;
-                    }
-                    return 1;
-                });
-                button.nonce = JSON.stringify(fileList.slice(0, 100));
-                button.onclick = context.detailsList;
+                button.innerHTML = "List 100 most recently changed files";
+                button.onclick = function local_context_details_callback_recent(event:MouseEvent):void {
+                    fileList.sort(function local_context_details_callback_recent_sort(aa:directoryItem, bb:directoryItem):number {
+                        statA = <Stats>aa[5];
+                        statB = <Stats>bb[5];
+                        if (statA.mtimeMs > statB.mtimeMs) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                        grandParent:Element = <Element>element.parentNode.parentNode,
+                        table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
+                        p:HTMLElement = <HTMLElement>table.previousSibling,
+                        tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
+                        dataLength:number = Math.min(fileList.length, 100);
+                    let aa:number = 0,
+                        row:HTMLElement,
+                        cell:HTMLElement,
+                        stat:Stats;
+                    p.innerHTML = `${dataLength} most recently changed files`;
+                    tbody.innerHTML = "";
+                    do {
+                        stat = <Stats>fileList[aa][5];
+                        row = document.createElement("tr");
+                        cell = document.createElement("th");
+                        cell.setAttribute("class", "file");
+                        cell.innerHTML = fileList[aa][0];
+                        row.appendChild(cell);
+                        cell = document.createElement("td");
+                        cell.innerHTML = util.dateFormat(new Date(stat.mtimeMs));
+                        row.appendChild(cell);
+                        tableBody.appendChild(row);
+                        aa = aa + 1;
+                    } while (aa < dataLength);
+                    table.style.display = "block";
+                    p.style.display = "block";
+                };
                 td.appendChild(button);
                 output.appendChild(td);
+
+                // all files
+                td = document.createElement("p");
+                button = document.createElement("button");
+                button.innerHTML = "List all files alphabetically";
+                button.onclick = function local_context_details_callback_allFiles(event:MouseEvent):void {
+                    fileList.sort(function local_context_details_callback_allFiles_sort(aa:directoryItem, bb:directoryItem):number {
+                        if (aa[0] < bb[0]) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                        grandParent:Element = <Element>element.parentNode.parentNode,
+                        table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
+                        p:HTMLElement = <HTMLElement>table.previousSibling,
+                        tableBody:HTMLElement = table.getElementsByTagName("tbody")[0],
+                        dataLength:number = fileList.length;
+                    let aa:number = 0,
+                        row:HTMLElement,
+                        cell:HTMLElement;
+                    p.innerHTML = `All ${commas(dataLength)} files sorted alphabetically`;
+                    tbody.innerHTML = "";
+                    do {
+                        row = document.createElement("tr");
+                        cell = document.createElement("th");
+                        cell.setAttribute("class", "file");
+                        cell.innerHTML = fileList[aa][0];
+                        row.appendChild(cell);
+                        tableBody.appendChild(row);
+                        aa = aa + 1;
+                    } while (aa < dataLength);
+                    table.style.display = "block";
+                    p.style.display = "block";
+                };
+                td.appendChild(button);
+                output.appendChild(td);
+
+                // subject paragraph
                 td = document.createElement("p");
                 td.style.display = "none";
                 output.appendChild(td);
+
+                // table
                 table = document.createElement("table");
                 tbody = document.createElement("tbody");
                 table.appendChild(tbody);
@@ -446,66 +553,23 @@ context.details = function local_context_details(event:MouseEvent):void {
     context.element = null;
 };
 
-context.detailsList = function local_context_detailsList(event:MouseEvent) {
-    const element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        sortType:"size"|"time" = (element.innerHTML === "Largest size")
-            ? "size"
-            : "time",
-        title:string = (sortType === "size")
-            ? "Largest"
-            : "Most Recent",
-        parent:Element = <Element>element.parentNode,
-        table:HTMLElement = (function local_context_details_refinement_table():HTMLElement {
-            let el:Element = parent;
-            do {
-                el = <Element>el.nextSibling;
-            } while (el.nodeName.toLowerCase() !== "table");
-            return <HTMLElement>el;
-        }()),
-        tbody:Element = <Element>table.firstChild,
-        p:HTMLElement = <HTMLElement>table.previousSibling,
-        data:directoryList = JSON.parse(element.nonce),
-        dataLength:number = data.length;
-    let a:number = 0,
-        tr:Element,
-        td:Element,
-        stat:Stats;
-    p.innerHTML = `Top ${dataLength} ${title} Files`;
-    tbody.innerHTML = "";
-    do {
-        tr = document.createElement("tr");
-        td = document.createElement("th");
-        td.setAttribute("class", "file");
-        td.innerHTML = data[a][0];
-        tr.appendChild(td);
-        td = document.createElement("td");
-        stat = <Stats>data[a][5];
-        if (sortType === "size") {
-            td.innerHTML = commas(stat.size);
-            tr.appendChild(td);
-            td = document.createElement("td");
-            td.innerHTML = prettyBytes(stat.size);
-        } else {
-            td.innerHTML = util.dateFormat(new Date(stat.mtimeMs));
-        }
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        a = a + 1;
-    } while (a < dataLength);
-    table.style.display = "block";
-    p.style.display = "block";
-};
-
-context.element = null;
-
 /* Handler for creating new directories */
 context.fsNew = function local_context_fsNew(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
+        cancel = function local_context_fsNew_cancel(actionElement:Element):void {
+            const list:Element = actionElement.getAncestor("fileList", "class"),
+                input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
+            setTimeout(function local_context_fsNew_cancel_delay():void {
+                if (actionElement.parentNode.parentNode.parentNode === list) {
+                    list.removeChild(actionElement.parentNode.parentNode);
+                    input.focus();
+                }
+            }, 10);
+        },
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
-            // 13 is enter
             const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
                 actionParent:Element = <Element>actionElement.parentNode;
-            if (actionEvent.keyCode === 13) {
+            if (actionEvent.key === "Enter") {
                 const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
                     parent:Element = <Element>actionElement.parentNode,
                     id:string = parent.getAncestor("box", "class").getAttribute("id"),
@@ -531,12 +595,8 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                     network.fs(payload, callback);
                 }
             } else {
-                // 27 is escape
-                if (actionEvent.keyCode === 27) {
-                    const list:Element = actionElement.getAncestor("fileList", "class"),
-                        input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
-                    list.removeChild(actionParent.parentNode.parentNode);
-                    input.focus();
+                if (actionEvent.key === "Escape") {
+                    cancel(actionElement);
                     return;
                 }
                 actionElement.value = actionElement.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
@@ -545,8 +605,10 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
         actionBlur = function local_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
             const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
-            if (actionEvent.type === "blur" && value.replace(/\s+/, "") !== "") {
-                if (value.replace(/\s+/, "") !== "") {
+            if (actionEvent.type === "blur") {
+                if (value.replace(/\s+/, "") === "") {
+                    cancel(actionElement);
+                } else {
                     const actionParent:Element = <Element>actionElement.parentNode,
                         agency:agency = util.getAgent(actionElement),
                         id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
@@ -577,16 +639,26 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 input:HTMLInputElement = document.createElement("input"),
                 field:HTMLInputElement = document.createElement("input"),
                 text:HTMLElement = document.createElement("label"),
-                parent:Element = <Element>context.element.parentNode,
-                box = parent.getAncestor("box", "class"),
+                parent:Element = (context.element === null)
+                    ? null
+                    : <Element>context.element.parentNode,
+                box = (parent === null)
+                    ? null
+                    : parent.getAncestor("box", "class"),
                 type:contextType = (context.type !== "")
                     ? context.type
                     : (element.innerHTML.indexOf("New File") === 0)
                         ? "file"
                         : "directory";
+
+            if (parent === null) {
+                return;
+            }
+
             let span:HTMLElement,
                 slash:"\\"|"/" = "/",
                 path:string = box.getElementsByTagName("input")[0].value;
+
             li.setAttribute("class", type);
             if (type === "directory") {
                 li.ondblclick = fs.directory;
@@ -620,7 +692,11 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             li.oncontextmenu = context.menu;
             li.appendChild(label);
             li.onclick = fs.select;
-            context.element.appendChild(li);
+            if (context.element.nodeName.toLowerCase() === "ul") {
+                context.element.appendChild(li);
+            } else {
+                context.element.parentNode.appendChild(li);
+            }
             field.focus();
         };
     if (document.getElementById("newFileItem") !== null) {
@@ -638,12 +714,14 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
             : "CTRL";
-    let element:Element = <Element>event.srcElement || <Element>event.target,
+    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
         parent:Element = <Element>element.parentNode,
         item:Element,
         button:HTMLButtonElement,
-        box:Element = element.getAncestor("box", "class"),
+        clientX:number,
+        clientY:number,
+        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
@@ -773,7 +851,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         return;
     }
     if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
-        element = <Element>element.parentNode;
+        element = <HTMLElement>element.parentNode;
         parent = <Element>parent.parentNode;
         nodeName = element.nodeName.toLowerCase();
     }
@@ -782,6 +860,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     event.preventDefault();
     event.stopPropagation();
     menu.setAttribute("id", "contextMenu");
+    menu.onclick = context.menuRemove;
     if (element.getAttribute("class") === "fileList") {
         if (readOnly === true) {
             return;
@@ -813,21 +892,40 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         }
     }
 
+    // this accounts for events artificially created during test automation
+    if (event.clientY === undefined || event.clientX === undefined) {
+        const body:HTMLElement = <HTMLElement>element.getAncestor("body", "class");
+        clientX = element.offsetLeft + body.offsetLeft + box.offsetLeft + 50;
+        clientY = element.offsetTop + body.offsetTop + box.offsetTop + 65;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+
     // menu display position
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
     // vertical
-    if (browser.content.clientHeight < ((itemList.length * 45) + 1) + event.clientY) {
-        reverse = true;
-        menu.style.top = `${(event.clientY - ((itemList.length * 57) + 1)) / 10}em`;
+    if (browser.content.clientHeight < ((itemList.length * 57) + 1) + clientY) {
+        const offset:number = (function local_context_menu_verticalOffset():number {
+            // modify position of the menu when performing test automation
+            if (event.clientY === undefined) {
+                return -25;
+            }
+            reverse = true;
+            return 1;
+        }());
+        menu.style.top = `${(clientY - ((itemList.length * 57) + offset)) / 10}em`;
     } else {
-        menu.style.top = `${(event.clientY - 50) / 10}em`;
+        menu.style.top = `${(clientY - 50) / 10}em`;
     }
     // horizontal
-    if (browser.content.clientWidth < (200 + event.clientX)) {
-        reverse = true;
-        menu.style.left = `${(event.clientX - 200) / 10}em`;
+    if (browser.content.clientWidth < (200 + clientX)) {
+        if (event.clientX !== undefined) {
+            reverse = true;
+        }
+        menu.style.left = `${(clientX - 200) / 10}em`;
     } else {
-        menu.style.left = `${event.clientX / 10}em`;
+        menu.style.left = `${clientX / 10}em`;
     }
 
     // button order
@@ -848,8 +946,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
 
 /* Destroys a context menu */
 context.menuRemove = function local_context_menuRemove():void {
-    if (document.getElementById("contextMenu") !== null) {
-        browser.content.removeChild(document.getElementById("contextMenu"));
+    const menu:Element = document.getElementById("contextMenu");
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
     }
 };
 

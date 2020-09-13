@@ -1,7 +1,7 @@
 
 /* lib/terminal/server/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
 import { Hash } from "crypto";
-import * as http from "http";
+import { IncomingMessage, ServerResponse } from "http";
 
 import fileService from "./fileService.js";
 import hashIdentity from "./hashIdentity.js";
@@ -9,17 +9,19 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
-const readOnly = function terminal_server_readOnly(request:http.IncomingMessage, serverResponse:http.ServerResponse, dataString:string):void {
+const readOnly = function terminal_server_readOnly(request:IncomingMessage, serverResponse:ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
+        local:boolean = (request.headers[":authority"] === "localhost"),
         copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)
             ? [data.name]
             : data.location,
         remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0),
-        userTest:boolean = (data.agentType === "user" || data.copyType === "user");
+        userTest:boolean = (data.agentType === "user" || data.copyType === "user"),
+        devices:string[] = Object.keys(serverVars.device);
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.watch === "remote") {
+    if (data.watch === "remote" && data.action !== "fs-copy-file" && data.action !== "fs-cut-file") {
         hashIdentity(data.share, function terminal_server_readOnly_hash(token:string):void {
             if (token === "") {
                 response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
@@ -30,8 +32,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
             }
         });
     } else if (data.agentType === "user" && data.copyType === "device" && serverVars.device[data.copyAgent] !== undefined && (data.action === "fs-copy" || data.action === "fs-cut")) {
-        const localDevice:boolean = (data.copyAgent === serverVars.hashDevice),
-            hash:Hash = vars.node.crypto.createHash("sha3-512");
+        const hash:Hash = vars.node.crypto.createHash("sha3-512");
         hash.update(serverVars.hashUser + data.copyAgent);
         data.copyShare = hash.digest("hex");
         fileService(serverResponse, data);
@@ -82,7 +83,7 @@ const readOnly = function terminal_server_readOnly(request:http.IncomingMessage,
                 return;
             }
         }
-        if ((userTest === true && location.length > 0) || (userTest === false && data.agent === serverVars.hashDevice) || data.agent === serverVars.hashUser) {
+        if ((userTest === true && location.length > 0) || (userTest === false && devices.indexOf(data.agent) > -1) || data.agent === serverVars.hashUser) {
             fileService(serverResponse, data);
         } else {
             response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);

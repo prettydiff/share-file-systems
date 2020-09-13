@@ -66,9 +66,12 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                             type:string = "";
                         const pageState = function terminal_server_get_readCallback_pageState(pageType:string):void {
                                 const appliedData = function terminal_server_get_readCallback_pageState_appliedData(storageData:storageItems):void {
-                                        const dataString:string = (typeof data === "string")
-                                            ? data.replace("<!--network:-->", `<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
-                                            : "";
+                                        const testBrowser:string = (vars.command === "test_browser" && serverVars.testBrowser !== undefined)
+                                                ? `<!--testBrowser:${serverVars.testBrowser}-->`
+                                                : "",
+                                            dataString:string = (typeof data === "string")
+                                                ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
+                                                : "";
                                         serverResponse.setHeader("content-security-policy", csp);
                                         serverResponse.setHeader("connection", "keep-alive");
                                         // cspell:disable
@@ -79,7 +82,9 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                                 tool = true;
                                 readStorage(appliedData);
                             },
-                            csp:string = `default-src 'self'; font-src 'self' data:;style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'`;
+                            // cspell:disable
+                            csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' wss://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
+                            // cspell:enable
                         vars.testLogger("methodGET", "readCallback", "After reading the requested file now to make decisions about what to do with it.");
                         if (localPath.indexOf(".js") === localPath.length - 3) {
                             type = "application/javascript";

@@ -4,5 +4,7 @@ The files that contain test samples and any sample type specific utilities.
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[service.ts](service.ts)**       - A list of service related tests.
+* **[browser.ts](browser.ts)**       - A list of tests that execute in the web browser.
+* **[service.ts](service.ts)**       - A list of service tests.
+* **[simulation.ts](simulation.ts)** - A list of command related tests for running shell simulations against the supported commands.
 * **[simulation.ts](simulation.ts)** - A list of command related tests for running shell simulations against the supported commands.

@@ -164,7 +164,7 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
         parent:Element = <Element>element.parentNode,
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
-    if (event.type === "blur" || (event.type === "keyup" && event.keyCode === 13)) {
+    if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
         if (value !== "" && (isNaN(numb) === true || numb < 1024 || numb > 65535)) {
             element.style.color = "#f00";
             element.style.borderColor = "#f00";
@@ -223,7 +223,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
             }
             if (port === undefined || port.replace(/^\s+$/, "") === "") {
                 port = "";
-                portNumber = 80;
+                portNumber = 443;
             } else {
                 portNumber = Number(port);
                 if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {
@@ -447,6 +447,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
         settings.content = inviteElement;
         modal.create(settings);
     }
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */

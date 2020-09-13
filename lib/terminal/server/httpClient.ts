@@ -69,7 +69,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
                                 : config.id
                         };
                     if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && errorMessage.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
-                        log([config.errorMessage, errorMessage.toString()]);
+                        //log([config.errorMessage, errorMessage.toString()]);
                         vars.ws.broadcast(JSON.stringify({
                             error: errorMessage
                         }));
@@ -124,8 +124,8 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             port: config.port,
             timeout: 1000
         },
-        fsRequest:ClientRequest = vars.node.http.request(payload, callback);
-    vars.testLogger("httpClient", "", "An abstraction over node.http.request in support of this application's data requirements.");
+        fsRequest:ClientRequest = vars.node.https.request(payload, callback);
+    vars.testLogger("httpClient", "", "An abstraction over node.https.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

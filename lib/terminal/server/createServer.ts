@@ -80,7 +80,7 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
             if (postTest() === true) {
                 methodPOST(request, serverResponse);
             } else {
-                vars.node.fs.stat(`${vars.projectPath}storage${vars.sep}user.json`, function terminal_server_create_delay_userStat(err:nodeError):void {
+                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_create_delay_userStat(err:nodeError):void {
                     if (err === null) {
                         forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"], serverResponse);
                     }

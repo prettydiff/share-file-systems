@@ -7,8 +7,8 @@ import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
-import service from "../samples/service.js";
-import simulation from "../samples/simulation.js";
+import service from "../application/service.js";
+import simulation from "../application/simulation.js";
 
 import testComplete from "./complete.js";
 
@@ -41,7 +41,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                     : command,
                 interval = function test_testEvaluation_increment_interval():void {
                     const total:number = (output.list.length < 1)
-                        ? list[output.testType].length
+                        ? list[output.testType].tests.length
                         : output.list.length;
                     output.index = output.index + 1;
                     if (output.index < total) {
@@ -72,7 +72,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                         log([`${humanTime(false) + vars.text.green}Passed ${output.testType} ${output.index + 1}: ${vars.text.none + name}`]);
                     } else if (messages[0].indexOf("fail - ") === 0) {
                         output.fail = output.fail + 1;
-                        log([`${humanTime(false) + vars.text.angry}Fail ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
+                        log([`${humanTime(false) + vars.text.angry}Failed ${output.testType} ${output.index + 1}: ${vars.text.none + name} ${vars.text.angry + messages[0].replace("fail - ", "") + vars.text.none}`]);
                         if (messages[1] !== "") {
                             const test:string = (typeof output.test.test === "string")
                                 ? <string>output.test.test
@@ -215,15 +215,21 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
             output.test.test = vars.node.path.resolve(test);
             vars.node.fs.stat(test, function test_testEvaluation_filesystem(ers:Error) {
                 if (ers !== null) {
-                    if (output.test.qualifier === "filesystem contains" && ers.toString().indexOf("ENOENT") > -1) {
-                        increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
-                        return;
+                    if (ers.toString().indexOf("ENOENT") > -1) {
+                        if (output.test.qualifier === "filesystem contains") {
+                            increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} does not see this address in the local file system: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
+                            return;
+                        }
+                        if (output.test.qualifier === "filesystem not contains") {
+                            increment(["", "", testLog]);
+                            return;
+                        }
                     }
                     increment([`fail - ${ers}`, "", testLog]);
                     return;
                 }
                 if (output.test.qualifier === "filesystem not contains") {
-                    increment([`${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
+                    increment([`fail - ${capital} test ${vars.text.angry + name + vars.text.none} sees the following address in the local file system, but shouldn't: ${vars.text.cyan + output.test.test + vars.text.none}`, "", testLog]);
                     return;
                 }
                 increment(["", "", testLog]);

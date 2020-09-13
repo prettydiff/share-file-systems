@@ -5,6 +5,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as http from "http";
 import * as https from "https";
+import * as http2 from "http2";
 import * as net from "net";
 import * as os from "os";
 import * as path from "path";
@@ -89,6 +90,7 @@ const vars:terminalVariables = {
             fs    : fs,
             http  : http,
             https : https,
+            http2 : http2,
             net   : net,
             os    : os,
             path  : path,
@@ -154,7 +156,7 @@ const vars:terminalVariables = {
             hash: "",
             name: "Share File Systems",
             number: "",
-            port: 80
+            port: 443
         },
         ws: ""
     };

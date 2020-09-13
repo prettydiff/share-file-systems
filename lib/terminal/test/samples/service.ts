@@ -1,42 +1,20 @@
 
-/* lib/terminal/test/samples/service - A list of service related tests. */
+/* lib/terminal/test/samples/service - A list of service tests. */
 
-import * as http from "http";
-
-import agents from "../../../common/agents.js";
-import remove from "../../commands/remove.js";
-import readStorage from "../../utilities/readStorage.js";
-import server from "../../commands/server.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
-import testComplete from "../application/complete.js";
-import testEvaluation from "../application/evaluation.js";
-
-// tests structure
-// * artifact - the address of anything written to disk, so that it can be removed
-// * command - the command to execute minus the `node js/services` part
-// * file - a file system address to open
-// * name - a short label to describe the test
-// * qualifier - how to test, see simulationItem in index.d.ts for appropriate values
-// * share - optional object containing share data to test against
-// * test - the value to compare against
-
-const projectPath:string = vars.projectPath,
-    sep:string = vars.sep,
-    windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
-    windowsSep:string = sep.replace(/\\/g, "\\\\"),
-    loopback:string = (serverVars.addresses[0].length > 1)
-        ? "::"
-        : "127.0.0.1",
-    hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
-
-    // start test list
-    service:testServiceArray = [
-        // todo: fs - readonly tests
-        // todo: user tests
-    ];
-service.populate = function test_services_populate():void {
+const serviceTests = function test_services():testServiceInstance[] {
+    const service:testServiceInstance[] = [],
+        projectPath:string = vars.projectPath,
+        sep:string = vars.sep,
+        windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
+        windowsSep:string = sep.replace(/\\/g, "\\\\"),
+        hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
+        loopback:string = (serverVars.addresses[0].length > 1)
+            ? "::"
+            : "127.0.0.1";
+    
     service.push(<testTemplateFileService>{
         command: {
             fs: {
@@ -122,7 +100,7 @@ service.populate = function test_services_populate():void {
         test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"agentType\":\"device\",\"dirs\":[["
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -133,7 +111,7 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -149,7 +127,7 @@ service.populate = function test_services_populate():void {
         }
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -160,23 +138,17 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Local to Remote Device",
-        qualifier: "is",
-        test: {
-            "file-list-status": {
-                failures: [],
-                message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                target: "remote-test-ID"
-            }
-        }
+        qualifier: "contains",
+        test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"",
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -187,20 +159,14 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Remote Device to Local",
-        qualifier: "is",
-        test: {
-            "file-list-status": {
-                failures: [],
-                message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                target: "remote-test-ID"
-            }
-        }
+        qualifier: "contains",
+        test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\""
     });
     /*service.push(<testTemplateFileService>{
         command: {
@@ -213,7 +179,7 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}version.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -229,7 +195,7 @@ service.populate = function test_services_populate():void {
         }
     });*/
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -240,7 +206,7 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -250,7 +216,7 @@ service.populate = function test_services_populate():void {
         test: "fs-update-remote"
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -261,17 +227,17 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Remote Device to Same Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}storage","directory"`
+        test: `["${windowsPath}lib${windowsSep}storage","directory"`
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}storage${sep}tsconfig.json`,
+        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
         command: {
             fs: {
                 action: "fs-copy",
@@ -282,7 +248,7 @@ service.populate = function test_services_populate():void {
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}storage`,
+                name: `${projectPath}lib${sep}storage`,
                 share: "",
                 watch: "no"
             }
@@ -857,16 +823,16 @@ service.populate = function test_services_populate():void {
                 agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 dirs: [
-                    [`${projectPath}storage${sep}storage.txt`, "file", "", 0, 0, "stat"]
+                    [`${projectPath}lib${sep}storage${sep}storage.txt`, "file", "", 0, 0, "stat"]
                 ],
                 fail: [],
-                location: `${projectPath}storage`,
+                location: `${projectPath}lib${sep}storage`,
                 status: {}
             }
         },
         name: "fs-update-remote, Local",
         qualifier: "is",
-        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}storage","status":"test payload"}} at XXXX `
+        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}lib${windowsSep}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}lib${windowsSep}storage","status":{}}} at XXXX `
     });
     service.push(<testTemplateStorage>{
         command: {
@@ -875,7 +841,7 @@ service.populate = function test_services_populate():void {
                     [serverVars.hashDevice]: {
                         ip: loopback,
                         name: "local device name",
-                        port: 80,
+                        port: 443,
                         shares: {
                             [serverVars.hashDevice]: {
                                 execute: false,
@@ -978,7 +944,7 @@ service.populate = function test_services_populate():void {
                     [serverVars.hashDevice]: {
                         ip: loopback,
                         name: "remote user name",
-                        port: 80,
+                        port: 443,
                         shares: {
                             [serverVars.hashDevice]: {
                                 execute: false,
@@ -1007,7 +973,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1029,7 +995,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1051,7 +1017,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1073,7 +1039,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "accepted",
                 type: "device",
@@ -1095,7 +1061,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1117,7 +1083,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "declined",
                 type: "device",
@@ -1139,7 +1105,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "accepted",
                 type: "device",
@@ -1161,7 +1127,7 @@ service.populate = function test_services_populate():void {
                 name: serverVars.device[serverVars.hashDevice].name,
                 ip: loopback,
                 modal: "test-modal",
-                port: 80,
+                port: 443,
                 shares: serverVars.device,
                 status: "invited",
                 type: "device",
@@ -1323,197 +1289,7 @@ service.populate = function test_services_populate():void {
             }
         }
     });
-};
-service.addServers = function test_services_addServers(callback:Function):void {
-    const flags = {
-            removal: false,
-            storage: false
-        },
-        servers = function test_services_addServers_servers():void {
-            const complete = function test_services_addServers_servers_complete(counts:agentCounts):void {
-                counts.count = counts.count + 1;
-                if (counts.count === counts.total) {
-                    callback();
-                }
-            };
-            agents({
-                complete: complete,
-                countBy: "agent",
-                perAgent: function test_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-                    const serverCallback = function test_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
-                        serverVars[output.agentType][output.agent].port = output.webPort;
-                        serverVars[output.agentType][output.agent].ip = loopback;
-                        if (output.agentType === "device" && output.agent === serverVars.hashDevice) {
-                            serverVars.wsPort = output.wsPort;
-                        }
-                        complete(counts);
-                    };
-                    service.serverRemote[agentNames.agentType][agentNames.agent] = server({
-                        agent: agentNames.agent,
-                        agentType: agentNames.agentType,
-                        callback: serverCallback
-                    });
-                },
-                source: serverVars
-            });
-        },
-        storageComplete = function test_services_addServers_storageComplete(storageData:storageItems):void {
-
-            serverVars.brotli = storageData.settings.brotli;
-            serverVars.hashDevice = storageData.settings.hashDevice;
-            serverVars.hashType = storageData.settings.hashType;
-            serverVars.hashUser = storageData.settings.hashUser;
-            serverVars.nameDevice = storageData.settings.nameDevice;
-            serverVars.nameUser = storageData.settings.nameUser;
-            serverVars.device = storageData.device;
-            serverVars.user = storageData.user;
-
-            service.serverRemote = {
-                device: {},
-                user: {}
-            };
-
-            service.populate();
-            flags.storage = true;
-            if (flags.removal === true) {
-                servers();
-            }
-        },
-        removal = function test_services_addServers_removal():void {
-            let count:number = 0;
-            const list:string[] = [
-                    `${projectPath}serviceTestLocal`,
-                    `${projectPath}serviceLocal`,
-                    `${projectPath}serviceTestLocal.json`,
-                    `${projectPath}serviceLocal.json`,
-                    `${projectPath}serviceTestRemote`,
-                    `${projectPath}serviceRemote`,
-                    `${projectPath}serviceTestRemote.json`,
-                    `${projectPath}serviceRemote.json`,
-                    `${projectPath}storage${sep}version.json`
-                ],
-                removeCallback = function test_services_addServers_removal_removeCallback():void {
-                    count = count + 1;
-                    if (count === list.length) {
-                        flags.removal = true;
-                        if (flags.storage === true) {
-                            servers();
-                        }
-                    }
-                };
-            list.forEach(function test_services_addServers_removal_each(value:string):void {
-                remove(value, removeCallback);
-            });
-        };
-    serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storage`;
-    readStorage(storageComplete);
-    removal();
-};
-service.execute = function test_services_execute(config:testExecute):void {
-    const index:number = (config.list.length < 1)
-            ? config.index
-            : config.list[config.index],
-        testItem:testServiceInstance = service[index],
-        keyword:string = (function test_services_execute_keyword():string {
-            const words:string[] = Object.keys(testItem.command);
-            return words[0];
-        }()),
-        agent:string = testItem.command[keyword].agent,
-        command:string = (function test_services_execute_command():string {
-            if (keyword === "invite") {
-                if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
-                    if (testItem.command.invite.type === "device") {
-                        testItem.command.invite.port = service.serverRemote.device["a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e"].port;
-                    } else {
-                        // add user hash here once created
-                        testItem.command.invite.port = service.serverRemote.user[""].port;
-                    }
-                } else {
-                    testItem.command.invite.port = serverVars.device[serverVars.hashDevice].port;
-                }
-            }
-            return JSON.stringify(testItem.command);
-        }()),
-        name:string = (testItem.name === undefined)
-            ? command
-            : testItem.name,
-        header:http.OutgoingHttpHeaders = (agent === serverVars.hashDevice || agent === undefined)
-            ? {
-                "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(command),
-                "agent-name": "localUser",
-                "agent-type": "device",
-                "remote-user": (testItem.command[keyword].copyAgent !== undefined && testItem.command[keyword].copyAgent !== "" && testItem.command[keyword].copyAgent !== serverVars.hashDevice)
-                    ? testItem.command[keyword].copyAgent
-                    : "localUser"
-            }
-            : {
-                "content-type": "application/x-www-form-urlencoded",
-                "content-length": Buffer.byteLength(command),
-                "agent-name": testItem.command[keyword].agent,
-                "agent-type": "user",
-                "remote-user": "localUser"
-            },
-        payload:http.RequestOptions = {
-            headers: header,
-            host: loopback,
-            method: "POST",
-            path: "/",
-            port: (keyword === "invite")
-                ? testItem.command.invite.port
-                : (keyword === "heartbeat" || testItem.command[keyword].agent === undefined)
-                    ? serverVars.device[serverVars.hashDevice].port
-                    : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
-            timeout: 1000
-        },
-        evaluator = function test_service_execute_evaluator(message:string):void {
-            testEvaluation({
-                callback: config.complete,
-                fail: config.fail,
-                index: config.index,
-                list: config.list,
-                test: <testItem>service[index],
-                testType: "service",
-                values: [message, "", ""]
-            });
-        },
-        requestCallback = function test_service_callback(response:http.IncomingMessage):void {
-            const chunks:string[] = [];
-            response.on("data", function test_service_callback_data(chunk:string):void {
-                chunks.push(chunk);
-            });
-            response.on("end", function test_service_callback_end():void {
-                // A delay is built into the server to eliminate a race condition between service execution and data writing.
-                // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
-                // * The delay here is the HTTP round trip plus 10ms.
-                setTimeout(function test_service_callback_end_delay():void {
-                    request.end();
-                    evaluator(chunks.join(""));
-                }, 25);
-            });
-        },
-        request:http.ClientRequest = http.request(payload, requestCallback);
-    request.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
-        evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
-    });
-    request.write(command);
-};
-service.killServers = function test_services_killServers(complete:testComplete):void {
-    const agentComplete = function test_services_killServers_complete(counts:agentCounts):void {
-        counts.count = counts.count + 1;
-        if (counts.count === counts.total) {
-            testComplete(complete);
-        }
-    };
-    agents({
-        complete: agentComplete,
-        countBy: "agent",
-        perAgent: function test_services_killServers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-            service.serverRemote[agentNames.agentType][agentNames.agent].close();
-            agentComplete(counts);
-        },
-        source: serverVars
-    });
+    return service;
 };
 
-export default service;
+export default serviceTests;

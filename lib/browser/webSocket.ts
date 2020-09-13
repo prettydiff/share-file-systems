@@ -4,6 +4,7 @@ import browser from "./browser.js";
 import fs from "./fs.js";
 import invite from "./invite.js";
 import network from "./network.js";
+import remote from "./remote.js";
 import share from "./share.js";
 import systems from "./systems.js";
 import util from "./util.js";
@@ -221,46 +222,61 @@ const title:Element = document.getElementsByClassName("title")[0],
             } else {
                 invite.respond(invitation);
             }
+        } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
+            remote.event(JSON.parse(event.data)["test-browser"], false);
+        } else if (event.data.indexOf("{\"test-browser-close\":") === 0 && location.href.indexOf("?test_browser") > 0) {
+            window.close();
         } else if (event.data === "reload") {
             location.reload();
         }
     },
-    open = function local_socketOpen():void {
-        const device:Element = document.getElementById(browser.data.hashDevice);
-        if (device !== null) {
-            device.setAttribute("class", "active");
-        }
-        title.getElementsByTagName("h1")[0].innerHTML = titleText;
-        title.setAttribute("class", "title");
-        document.getElementById(browser.data.hashDevice).setAttribute("class", "active");
-    },
-    webSocket = function local_webSocket():WebSocket {
-        const socket:WebSocket = new sock(`ws://localhost:${browser.localNetwork.wsPort}/`),
-            error = function local_socketError():any {
-                const device:Element = document.getElementById(browser.data.hashDevice),
+    webSocket = function local_webSocket(callback:() => void):WebSocket {
+        const socket:WebSocket = new sock(`wss://localhost:${browser.localNetwork.wsPort}/`),
+            open = function local_webSocket_socketOpen():void {
+                const device:Element = (browser.data.hashDevice === "")
+                    ? null
+                    : document.getElementById(browser.data.hashDevice);
+                if (device !== null) {
+                    device.setAttribute("class", "active");
+                }
+                title.getElementsByTagName("h1")[0].innerHTML = titleText;
+                title.setAttribute("class", "title");
+            },
+            close = function local_webSocket_socketClose():void {
+                const device:Element = (browser.data.hashDevice === "")
+                        ? null
+                        : document.getElementById(browser.data.hashDevice),
                     agentList:Element = document.getElementById("agentList"),
                     active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
                 let a:number = active.length,
                     parent:Element;
-                do {
-                    a = a - 1;
-                    parent = <Element>active[a].parentNode;
-                    parent.setAttribute("class", "offline");
-                } while (a > 0);
+                if (a > 0) {
+                    do {
+                        a = a - 1;
+                        parent = <Element>active[a].parentNode;
+                        parent.setAttribute("class", "offline");
+                    } while (a > 0);
+                }
                 title.setAttribute("class", "title offline");
                 title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }
-                setTimeout(function local_socketError_timeout():void {
-                    browser.socket = local_webSocket();
-                }, 5000);
+                browser.socket = local_webSocket(function local_webSocket_callback():void {
+                    return;
+                });
+            },
+            error = function local_webSocket_socketError(message):void {
+                // eslint-disable-next-line
+                console.log(message);
             };
 
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = message;
-        socket.onclose = error;
+        socket.onclose = close;
+        socket.onerror = error;
+        callback();
         return socket;
     };
 

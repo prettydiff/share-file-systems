@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/get - A command driven utility to fetch resources from across the internet via HTTP method GET. */
-import * as http from "http";
+import { IncomingMessage } from "http";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -36,7 +36,7 @@ const get = function terminal_get(address:string, callback:Function|null):void {
             return;
         }
         // both http and https are used here as the scheme variable
-        vars.node[scheme].get(address, function terminal_get_callback(res:http.IncomingMessage) {
+        vars.node[scheme].get(address, function terminal_get_callback(res:IncomingMessage) {
             vars.testLogger("get", "callback", `requesting address ${address}`);
             res.on("data", function terminal_get_callback_data(chunk:string):void {
                 file = file + chunk;

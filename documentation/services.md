@@ -559,7 +559,7 @@ The user and device storage follow an identical schema.
       "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3" : {
          "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df5",
          "name"  : "Tori",
-         "port"  : 80,
+         "port"  : 443,
          "shares": {
             "75994bdcd0bdf3d69d043d904c45c14b0937ae2466b91b7b035c7aedf5cd99cf889eafafecd81bbc06a5cfbe075e9ec1888cb0f87c2392a451a31cd9d5737040": {
                "execute" : false,
@@ -572,7 +572,7 @@ The user and device storage follow an identical schema.
       "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": {
          "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df9",
          "name"  : "Melissa",
-         "port"  : 80,
+         "port"  : 443,
          "shares": {
             "1ac77231296c86e40f2bcfdefb2ab69926d7cfba916e10b154ff72be2b2f623bdd8fc769297277ffd7da941c492ff4e24a9a2323ef2ab9371259069c386d5421": {
                "execute" : false,
@@ -686,7 +686,7 @@ The invitation process is how the application processes a request to add another
       "message"   : "Hello",
       "modal"     : "invite-request-0.929743434347059471",
       "name"      : "Austin",
-      "port"      : 80,
+      "port"      : 443,
       "shares"    : [
          {
             "execute" : false,
@@ -762,7 +762,12 @@ The invitation *status* property will feature one of these values:
          ["storage.txt", "file", "", 0, 0, "stat"]
       ],
       "location": "storage",
-      "status"  : "test payload"
+      "status"  : {
+         "failures": [],
+         "fileList": [],
+         "message": "Copy complete. 3 files written at size 6kb (5,765 bytes) with 0 integrity failures.",
+         "target": "remote-fileNavigator-0.5964026774904047121"
+      }
    }
 }
 ```
@@ -774,7 +779,15 @@ The invitation *status* property will feature one of these values:
       "agent"   : "string, who to send the update to",
       "dirs"    : ["array of directory item data structure starting from the address in the location property"],
       "location": "string, the file system address that is modified",
-      "status"  : "string, status text for a modal's status bar"
+      "status"  : "copyStatus"
    }
+}
+
+// copyStatus
+{
+   "failures": "string array, a list of any transmission failures",
+   "fileList": ["directory item array", "optional"],
+   "message": "string, a text summary for the user",
+   "target": "string, an identify of the browser modal that is receiving the copied items"
 }
 ```

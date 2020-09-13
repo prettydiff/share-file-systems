@@ -31,8 +31,21 @@ const log = function terminal_log(output:string[], end?:boolean):void {
     }
 };
 
-log.title = function terminal_log_title(message:string) {
-    log(["", `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - ${message + vars.text.none}`, "", ""]);
+log.title = function terminal_log_title(message:string, certificate?:boolean):void {
+    const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - ${message + vars.text.none}`;
+    if (certificate === true) {
+        log([
+            "",
+            formatted,
+            "These tests require a trusted localhost certificate.",
+            `If a certificate is not locally trusted run the ${vars.text.green}certificate${vars.text.none} command for more guidance:`,
+            `${vars.text.cyan + vars.version.command} certificate${vars.text.none}`,
+            "",
+            ""
+        ]);
+        return;
+    }
+    log(["", formatted, "", ""]);
 };
 
 export default log;

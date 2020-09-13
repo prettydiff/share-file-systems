@@ -117,6 +117,7 @@ systems.modal = function local_systems_modal(event:MouseEvent):void {
         }
         data.status = "normal";
     }
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Content of the systems log modal */

@@ -35,7 +35,6 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         body:Element = li.getAncestor("body", "class"),
         box:Element = <Element>body.parentNode.parentNode,
         input:HTMLInputElement = box.getElementsByTagName("input")[0],
-        watchValue:string = input.value,
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
@@ -59,7 +58,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
             location: [path],
             name: "",
             share: browser.data.modals[id].share,
-            watch: watchValue
+            watch: path
         };
     event.preventDefault();
     input.value = path;
@@ -386,7 +385,9 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
         a = a + 1;
     } while (a < length);
     count[0] = count[0] - 1;
-    status = `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
+    status = (location === "\\")
+        ? `${count[0]} ${plural("drive", list.length)}`
+        : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
     local.sort(function local_fs_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {
@@ -579,37 +580,37 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             ? "(Read Only) "
             : "",
         callback:Function = function local_fs_navigate_callback(responseText:string):void {
-                if (responseText === "") {
-                    return;
-                }
-                const payload:fsRemote = JSON.parse(responseText),
-                    box:Element = document.getElementById(payload.id),
-                    replaceAddress:boolean = (location === "**root**");
-                if (box === null) {
-                    return;
-                }
-                let loc:string = (replaceAddress === true)
-                        ? payload.dirs[0][0]
-                        : location,
-                body:Element = box.getElementsByClassName("body")[0],
-                    files:Element = (payload.dirs === "missing")
-                        ? (function local_fs_navigate_callback_missing():Element {
-                            const p:Element = document.createElement("p");
-                            p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
-                            p.setAttribute("class", "error");
-                            return p;
-                        }())
-                        : fs.list(loc, payload)[0];
-                if (replaceAddress === true) {
-                    const modal:ui_modal = browser.data.modals[payload.id];
-                    box.getElementsByTagName("input")[0].value = loc;
-                    modal.text_value = loc;
-                    modal.history[modal.history.length - 1] = loc;
-                    network.storage("settings");
-                }
-                body.innerHTML = "";
-                body.appendChild(files);
-            },
+            if (responseText === "") {
+                return;
+            }
+            const payload:fsRemote = JSON.parse(responseText),
+                box:Element = document.getElementById(payload.id),
+                replaceAddress:boolean = (location === "**root**");
+            if (box === null) {
+                return;
+            }
+            let loc:string = (replaceAddress === true)
+                    ? payload.dirs[0][0]
+                    : location,
+            body:Element = box.getElementsByClassName("body")[0],
+                files:Element = (payload.dirs === "missing")
+                    ? (function local_fs_navigate_callback_missing():Element {
+                        const p:Element = document.createElement("p");
+                        p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
+                        p.setAttribute("class", "error");
+                        return p;
+                    }())
+                    : fs.list(loc, payload)[0];
+            if (replaceAddress === true) {
+                const modal:ui_modal = browser.data.modals[payload.id];
+                box.getElementsByTagName("input")[0].value = loc;
+                modal.text_value = loc;
+                modal.history[modal.history.length - 1] = loc;
+                network.storage("settings");
+            }
+            body.innerHTML = "";
+            body.appendChild(files);
+        },
         payloadNetwork:fileService = {
             action: "fs-directory",
             agent: agentName,
@@ -642,6 +643,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         box:Element = modal.create(payloadModal);
     payloadNetwork.id = box.getAttribute("id");
     network.fs(payloadNetwork, callback);
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Request file system information of the parent directory */
@@ -707,7 +709,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
         action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
-            if (action.type === "blur" || (action.type === "keyup" && action.keyCode === 13)) {
+            if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
                 if (dir + input.value === text) {
                     label.innerHTML = text;
@@ -733,7 +735,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                     network.fs(payload, callback);
                 }
             } else if (action.type === "keyup") {
-                if (action.keyCode === 27) {
+                if (action.key === "Enter") {
                     const input:HTMLElement = li.getElementsByTagName("input")[0];
                     label.innerHTML = text;
                     input.focus();
@@ -812,12 +814,17 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 /* Search for file system artifacts from a modal's current location */
 fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
     const element:HTMLInputElement = (searchElement === undefined)
-        ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
-        : searchElement;
-    if (element.value.replace(/\s+/, "") !== "" && (event === null || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+            ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
+            : searchElement,
+        addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling;
+    if (event !== null && event.type === "blur") {
+        const searchParent:HTMLElement = <HTMLElement>element.parentNode;
+        searchParent.style.width = "12.5%";
+        addressLabel.style.width = "87.5%";
+    }
+    if (element.value.replace(/\s+/, "") !== "" && (event === null || (event.type === "keyup" && event.key === "Enter"))) {
         const box:Element = element.getAncestor("box", "class"),
             body:Element = box.getElementsByClassName("body")[0],
-            addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling,
             address:string = addressLabel.getElementsByTagName("input")[0].value,
             statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
@@ -892,11 +899,6 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                     }
                 }
             };
-        if (event !== null && event.type === "blur") {
-            const searchParent:HTMLElement = <HTMLElement>element.parentNode;
-            searchParent.style.width = "12.5%";
-            addressLabel.style.width = "87.5%";
-        }
         if (event === null || browser.data.modals[id].search.join("") !== address + value) {
             body.innerHTML = "";
             body.append(util.delay());
@@ -1064,7 +1066,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
     box = <Element>parent.parentNode;
     id = box.getAttribute("id");
     parent = parent.getElementsByTagName("div")[0];
-    if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.keyCode === 13))) {
+    if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
         const agency:agency = util.getAgent(box),
             payload:fileService = {
                 action: "fs-directory",

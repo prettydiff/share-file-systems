@@ -2,7 +2,7 @@
 /* lib/terminal/commands/test_simulation - A command driven wrapper for running simulation tests of supported terminal commands. */
 
 import log from "../utilities/log.js";
-import simulation from "../test/samples/simulation.js";
+import simulation from "../test/application/simulation.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
@@ -22,11 +22,11 @@ const test_simulation = function terminal_testSimulation():void {
     }
     if (typeof process.argv[0] === "string") {
         const filter:number[] = [],
-            length:number = simulation.length;
+            length:number = simulation.tests.length;
         let a:number = 0,
             filterLength:number = 0;
         do {
-            if (simulation[a].command.indexOf(process.argv[0]) > -1) {
+            if (simulation.tests[a].command.indexOf(process.argv[0]) > -1) {
                 filter.push(a);
             }
             a = a + 1;

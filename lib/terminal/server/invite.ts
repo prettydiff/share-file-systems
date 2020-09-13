@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
-import * as http from "http";
+import { ServerResponse } from "http";
 
 import deviceShare from "../../common/deviceShare.js";
 
@@ -13,7 +13,7 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
-const invite = function terminal_server_invite(dataString:string, serverResponse:http.ServerResponse):void {
+const invite = function terminal_server_invite(dataString:string, serverResponse:ServerResponse):void {
     const data:invite = JSON.parse(dataString).invite,
         inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
             const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {

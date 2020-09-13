@@ -1,7 +1,6 @@
 
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
 import browser from "./browser.js";
-import context from "./context.js";
 import systems from "./systems.js";
 import util from "./util.js";
 
@@ -11,142 +10,74 @@ let messageTransmit:boolean = true;
 
 /* Send instructions to remove this local device/user from deleted remote agents */
 network.deleteAgents = function local_network_deleteAgents(deleted:agentList):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_fs_readyState():void {
-            if (xhr.readyState === 4) {
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when sending heartbeat`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                    network.storage("messages");
-                }
-            }
-        };
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", "delete-agents");
-    xhr.send(JSON.stringify({
-        "delete-agents": deleted
-    }));
+    network.xhr({
+        callback: null,
+        error: null,
+        halt: false,
+        payload: JSON.stringify({
+            "delete-agents": deleted
+        }),
+        type: "delete-agents"
+    });
 };
 
 /* Accesses the file system */
 network.fs = function local_network_fs(configuration:fileService, callback:Function):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_fs_readyState():void {
-            if (xhr.readyState === 4) {
-                messageTransmit = true;
-                let text:string = xhr.responseText;
-                const error:messageError = {
-                    error: `XHR responded with ${xhr.status} when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-                    stack: [new Error().stack.replace(/\s+$/, "")]
-                };
-                text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-                if (xhr.status === 200 || xhr.status === 0) {
-                    if (text.indexOf("{\"file-list-status\":") === 0) {
-                        util.fileListStatus(JSON.parse(text)["file-list-status"]);
-                    } else {
-                        callback(text, configuration.agent);
-                    }
-                } else {
-                    systems.message("errors", JSON.stringify(error));
-                    callback(text, configuration.agent);
-                    network.storage("messages");
-                }
+    network.xhr({
+        callback: function local_network_fs_callback(responseText:string) {
+            responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
+            if (responseText.indexOf("{\"file-list-status\":") === 0) {
+                util.fileListStatus(JSON.parse(responseText)["file-list-status"]);
+            } else {
+                callback(responseText, configuration.agent);
             }
-        };
-    messageTransmit = false;
-    context.menuRemove();
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", configuration.action);
-    xhr.send(JSON.stringify({
-        fs: configuration
-    }));
+        },
+        error: `Transmission error when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
+        halt: true,
+        payload: JSON.stringify({
+            fs: configuration
+        }),
+        type: configuration.action
+    });
 };
 
 /* generate a share to describe a new share from the local device */
 network.hashDevice = function local_network_hashDevice(callback:Function):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_hashDevice_callback():void {
-            if (xhr.readyState === 4) {
-                messageTransmit = true;
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when sending messages.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                } else {
-                    const hashes:hashUser = JSON.parse(xhr.responseText);
-                    callback(hashes);
-                }
-            }
-        },
-        hashes:hashUser = {
+    const hashes:hashUser = {
             device: browser.data.nameDevice,
             user: browser.data.nameUser
         };
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", "hashDevice");
-    xhr.send(JSON.stringify({hashDevice:hashes}));
+    network.xhr({
+        callback: function local_network_hashDevice_callback(responseText:string) {
+            const hashes:hashUser = JSON.parse(responseText);
+            callback(hashes);
+        },
+        error: null,
+        halt: false,
+        payload: JSON.stringify({hashDevice:hashes}),
+        type: "hashDevice"
+    });
 };
 
 /* generate a share to describe a new share from the local device */
 network.hashShare = function local_network_hashShare(configuration:hashShareConfiguration):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_hashShare_callback():void {
-            if (xhr.readyState === 4) {
-                messageTransmit = true;
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when sending messages.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                } else {
-                    configuration.callback(xhr.responseText);
-                }
-            }
-        },
-        payload:hashShare = {
+    const payload:hashShare = {
             device: configuration.device,
             share: configuration.share,
             type: configuration.type
         };
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", "hashShare");
-    xhr.send(JSON.stringify({hashShare:payload}));
+    network.xhr({
+        callback: configuration.callback,
+        error: null,
+        halt: false,
+        payload: JSON.stringify({hashShare:payload}),
+        type: "hashShare"
+    });
 };
 
 /* Provides active user status from across the network at regular intervals */
 network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, update:boolean):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_fs_readyState():void {
-            if (xhr.readyState === 4) {
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when sending heartbeat`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                    network.storage("messages");
-                }
-            }
-        },
-        heartbeat:heartbeatUpdate = {
+    const heartbeat:heartbeatUpdate = {
             agentFrom: "localhost-browser",
             broadcastList: null,
             response: null,
@@ -156,70 +87,41 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
             status: status,
             type: "device"
         };
-    
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", "heartbeat-update");
-    xhr.send(JSON.stringify({
-        "heartbeat-update": heartbeat
-    }));
+    network.xhr({
+        callback: null,
+        error: null,
+        halt: false,
+        payload: JSON.stringify({
+            "heartbeat-update": heartbeat
+        }),
+        type: "heartbeat-update"
+    });
 };
 
 /* Confirmed response to a user invitation */
 network.inviteAccept = function local_network_invitationAcceptance(configuration:invite):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_fs_readyState():void {
-            if (xhr.readyState === 4) {
-                messageTransmit = true;
-                if (xhr.status === 200 || xhr.status === 0) {
-                    // todo log invitation acceptance in system log
-                } else {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                    network.storage("messages");
-                }
-            }
-        };
-    messageTransmit = false;
-    context.menuRemove();
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", configuration.action);
-    xhr.send(JSON.stringify({
-        invite: configuration
-    }));
+    network.xhr({
+        callback: null,
+        error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
+        halt: true,
+        payload: JSON.stringify({
+            invite: configuration
+        }),
+        type: configuration.action
+    });
 };
 
 /* Invite other users */
 network.inviteRequest = function local_network_invite(inviteData:invite):void {
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_messages_callback():void {
-            if (xhr.readyState === 4) {
-                messageTransmit = true;
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when sending messages related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                }
-            }
-        };
-    xhr.onreadystatechange = readyState;
-    xhr.open("POST", loc, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", inviteData.action);
-    xhr.send(JSON.stringify({
-        invite: inviteData
-    }));
+    network.xhr({
+        callback: null,
+        error: `Transmission error related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
+        halt: false,
+        payload: JSON.stringify({
+            invite: inviteData
+        }),
+        type: inviteData.action
+    });
 };
 
 /* Writes configurations to file storage */
@@ -228,20 +130,7 @@ network.storage = function local_network_storage(type:storageType):void {
         return;
     }
     messageTransmit = false;
-    const xhr:XMLHttpRequest = new XMLHttpRequest(),
-        readyState = function local_network_messages_callback():void {
-            if (xhr.readyState === 4) {
-                messageTransmit = true;
-                if (xhr.status !== 200 && xhr.status !== 0) {
-                    const error:messageError = {
-                        error: `XHR responded with ${xhr.status} when sending messages.`,
-                        stack: [new Error().stack.replace(/\s+$/, "")]
-                    };
-                    systems.message("errors", JSON.stringify(error));
-                }
-            }
-        },
-        storage:storage = {
+    const storage:storage = {
             data: (type === "settings")
                 ? browser.data
                 : (type === "messages")
@@ -255,12 +144,68 @@ network.storage = function local_network_storage(type:storageType):void {
         payload:string = JSON.stringify({
             storage: storage
         });
+    network.xhr({
+        callback: null,
+        error: null,
+        halt: false,
+        payload: payload,
+        type: type
+    });
+};
+
+/* Lets the service code know the browser is fully loaded and ready receive test samples. */
+network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[boolean, string, string][], index:number):void {
+    network.xhr({
+        callback: null,
+        error: null,
+        halt: false,
+        payload: JSON.stringify({
+            "test-browser": {
+                index: index,
+                payload: payload
+            }
+        }),
+        type: "test-browser"
+    });
+};
+
+/* the backbone of this library, all transmissions from the browser occur here */
+network.xhr = function local_network_xhr(config:networkConfig):void {
+    const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        readyState = function local_network_messages_callback():void {
+            if (xhr.readyState === 4) {
+                messageTransmit = true;
+                if (xhr.status === 200 || xhr.status === 0) {
+                    if (config.callback !== null) {
+                        config.callback(xhr.responseText);
+                    }
+                } else {
+                    const error:messageError = {
+                        error: (config.error === null)
+                            ? `XHR responded with ${xhr.status} when sending messages of type ${config.type}.`
+                            : config.error,
+                        stack: [new Error().stack.replace(/\s+$/, "")]
+                    };
+                    systems.message("errors", JSON.stringify(error));
+                    if (config.type.indexOf("fs-") === 0) {
+                        config.callback(xhr.responseText);
+                        network.storage("messages");
+                    } else if (config.type !== "messages") {
+                        network.storage("messages");
+                    }
+                }
+            }
+        };
+    if (config.halt === true) {
+        messageTransmit = false;
+    }
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.setRequestHeader("request-type", type);
-    xhr.send(payload);
+    xhr.setRequestHeader("request-type", config.type);
+    xhr.send(config.payload);
+
 };
 
 export default network;

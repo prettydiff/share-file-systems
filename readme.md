@@ -5,19 +5,28 @@ The end state is to offer a cross-OS private one-to-many online point-to-point r
 
 This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
+## Features
+* Works the same on Windows, Linux, and Mac OSX.
+* A Windows like graphic user interface in just a few functions that are easy to extend and customize.
+* Application saves state on each user interaction, which allows application to resume without disruption when a browser closes and allows real time testing cross-browser.
+* Recursive file system display with file system details.
+* A robust security model.
+* File integrity checks via SHA3-512 hash.
+* A variety of tools available via terminal commands.
+
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
 ## Build and execute
 ### First build
-1. Install [Node.js](https://nodejs.org), at least version **13.2.0**, using default options.
+1. Install [Node.js](https://nodejs.org), at least version **14.1.0**, using default options.
 1. Clone the application from Github.
    * `git clone https://github.com/prettydiff/share-file-systems.git`
 1. Move into the directory.
    * `cd share-file-systems`
 1. Globally install TypeScript.
    * `npm install -g typescript`
-1. Locally install the TypeScript node types.
+1. Locally install the TypeScript node type definitions.
    * `npm install`
 1. Compile to JavaScript.
    * `tsc --pretty`
@@ -26,24 +35,35 @@ This application seeks to be inherently private which disallows information broa
    * If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
       - `Set-ExecutionPolicy RemoteSigned`
       - Choose option **Y**
-1. Execute the application. The restart command first builds the application and then enables services.
-   * `npm restart`
+1. Build the application.
+   * `node js/application build`
+1. Execute the application. If the required HTTPS certificates are missing they will be created, but the one or two on screen instructions must be followed to ensure those certificates are trusted by your operating system.
+   * `node js/application server`
+   <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps:
       - `sudo apt-get install libcap2-bin`
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
-1. Open your favorite modern browser to http://localhost
-   * You may need to make an exception in your local firewall for port 80, or which ever port you specify.
+   <!-- cspell:enable-->
+1. Open your favorite modern browser to https://localhost
+   * If this doesn't work make an exception in your local firewall for port 443, or which ever port you specify.
+
+### Execute automated demo (opens your default browser)
+1. `node js/application test_browser demo`
+
+### Remove the generated certificates
+1. `node js/application certificate remove`
+1. Follow the on screen instruction to remove the certificates from your operating system's trust store.
 
 ### Later builds
-1. `npm restart` command contains the build and starts services so this is all you need even if you make code changes.
-1. If a browser isn't already open to the application then open to http://localhost
+1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
+1. If a browser isn't already open to the application then open it to https://localhost
 
 ## A quick user introduction
 1. The first time you open the application it will ask you to create a user name and device name.
 1. Notice the *hamburger* menu icon in the top left corner of the application.  Click that to open the primary menu and select *File Navigator*.
 1. The File Navigator will allow a person to navigate their file system just like using their underlying operating system.  Select a couple of things you would like to share.  Right click on the select item(s) and choose *Share*.
 1. On the right side of the page are the device and user icons.  Click on the button labeled *All Shares* to see which items are shared.  Nothing is shared by default.
-1. In the user list click on the button labeled *Add Device or Invite User* to add a personal device to access your shares.  At this time users and devices are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default IP address is currently 80 but the default will change to 443 once the application upgrades to HTTPS.
+1. In the user list click on the button labeled *Add Device or Invite User* to add a personal device to access your shares.  At this time users and devices are found across the network by IP address and port so the destination must have this application running and you must be able to access that IP address directly.  The default port is 443.
 1. Once a personal device is added you have complete unrestricted access to the device no differently using the application on your current computer.  Access control restrictions apply to users and not devices as a user represents one or more personal devices.  See the [security model](#security-model) for more information.
 1. At the time of this update I am currently finishing up copy/cut of files to and from different users, but it isn't ready just yet.  It sounds pretty simple to copy/paste by HTTP to write a file via stream across an HTTP response.  Allowing users access to a Windows-like file system explorer means a user can easily select a group or files and/or directories to copy at once which is a bit more complex.
 

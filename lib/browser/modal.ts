@@ -127,6 +127,7 @@ modal.create = function local_modal_create(options:ui_modal):Element {
     }
     button.onmousedown = modal.move;
     button.ontouchstart = modal.move;
+    button.onclick = modal.unMinimize;
     button.onblur  = function local_modal_create_blur():void {
         button.onclick = null;
     };
@@ -414,20 +415,19 @@ modal.export = function local_modal_export(event:MouseEvent):void {
     textArea.onblur = modal.textSave;
     textArea.value = JSON.stringify(browser.data);
     modal.create(payload);
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
 modal.importSettings = function local_modal_importSettings(event:MouseEvent):void {
     const element:Element = <Element>event.srcElement || <Element>event.target,
         dataString:string = JSON.stringify(browser.data),
-        box:Element = element.getAncestor("box", "class");
-    let textArea:HTMLTextAreaElement,
-        button:HTMLButtonElement;
-    textArea = box.getElementsByTagName("textarea")[0];
+        box:Element = element.getAncestor("box", "class"),
+        button:HTMLButtonElement = <HTMLButtonElement>document.getElementsByClassName("cancel")[0],
+        textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
     if (textArea.value !== dataString) {
         browser.data = JSON.parse(textArea.value);
     }
-    button = <HTMLButtonElement>document.getElementsByClassName("cancel")[0];
     button.click();
     if (textArea.value !== dataString) {
         network.storage("settings");
@@ -645,8 +645,10 @@ modal.move = function local_modal_move(event:Event):void {
         boxTop:number     = box.offsetTop,
         max:number        = browser.content.clientHeight;
     if (minifyTest === true) {
-        const button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
-        button.click();
+        if (touch === true) {
+            const button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+            button.click();
+        }
         return;
     }
     if (browser.data.modals[box.getAttribute("id")].status === "maximized") {
@@ -925,6 +927,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
     }
     box = modal.create(payload);
     box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].onkeyup = modal.textTimer;
+    document.getElementById("menu").style.display = "none";
 };
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */
@@ -953,6 +956,16 @@ modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
         network.storage("settings");
     }, 15000);
 }
+
+/* Restore a minimized modal to its prior size and location */
+modal.unMinimize = function local_modal_unMinimize(event:MouseEvent):void {
+    const element:Element = <Element>event.srcElement || <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
+        button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+    if (box.parentNode.nodeName.toLowerCase() === "li") {
+        button.click();
+    }
+};
 
 /* Manages z-index of modals and moves a modal to the top on interaction */
 modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:Element):void {
