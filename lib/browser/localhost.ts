@@ -21,9 +21,6 @@ import webSocket from "./webSocket.js";
     window.onresize = util.fixHeight;
     browser.style.type = "text/css";
     document.getElementsByTagName("head")[0].appendChild(browser.style);
-    document.getElementById("menuToggle").onclick = function local_restore_fullScreen():void {
-        document.getElementById("spaces").requestFullscreen();
-    };
 
     /* Restore state and assign events */
     (function local_load():void {
@@ -269,7 +266,7 @@ import webSocket from "./webSocket.js";
                             window.close();
                         }
                         return;
-                    } else {
+                    } else if (cString !== "testBrowser:null") {
                         browser.testBrowser = JSON.parse(cString.replace("testBrowser:", ""));
                     }
                 } else if (cString.indexOf("storage:") === 0) {

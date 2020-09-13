@@ -205,6 +205,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     } else {
                         log([message], true);
                         browser.index = -1;
+                        serverVars.testBrowser = null;
                     }
                 };
             vars.verbose = true;
@@ -346,6 +347,10 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             } else {
                 failure.push(`     Actual value: ${vars.text.cyan + item.payload[1][1] + vars.text.none}`);
             }
+            falseFlag = true;
+        } else if (item.payload[0][0] === false && item.payload[0][1].indexOf("event error ") === 0) {
+            failure.push(`${vars.text.angry}Failed: event node is ${item.payload[0][1].replace("event error ", "")}`);
+            failure.push(`     Specified event node is: ${vars.text.cyan + item.payload[0][2] + vars.text.none}`);
             falseFlag = true;
         } else if (delay === true) {
             failure.push(testString(item.payload[a][0], tests[item.index].delay));

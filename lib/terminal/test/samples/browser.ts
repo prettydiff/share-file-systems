@@ -884,16 +884,16 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         // display details
         {
             delay: {
-                // the modal loads and content populates
+                // text of the first button
                 node: [
                     ["getModalsByModalType", "details", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "button", 1]
+                    ["getElementsByTagName", "button", 0]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Recently changed"
+                value: "List 100 largest files"
             },
             interaction: [
                 {
@@ -908,18 +908,6 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             name: "Activate file system details",
             test: [
                 {
-                    // text of the first button
-                    node: [
-                        ["getModalsByModalType", "details", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "Largest size"
-                },
-                {
                     // text of the second button
                     node: [
                         ["getModalsByModalType", "details", 0],
@@ -929,7 +917,19 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Recently changed"
+                    value: "List 100 most recently changed files"
+                },
+                {
+                    // text of the third button
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "List all files alphabetically"
                 },
                 {
                     // model does not have a maximize button
@@ -977,6 +977,99 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "NaN"
                 }
             ]
+        },
+
+        // display file list by file size
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "details", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "detailFileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "pre-rebase.sample"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Display file list by file size",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "detailFileList", 0]
+                    ],
+                    qualifier: "contains",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "4,898"
+                }
+            ]
+        },
+
+        // display file list by file modification
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "details", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "detailFileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["previousSibling", "innerHTML"],
+                type: "property",
+                value: "11 most recently changed files"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ]
+                }
+            ],
+            name: "Display file list by modification date",
+            test: []
+        },
+
+        // display file list all files
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "details", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "detailFileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["previousSibling", "innerHTML"],
+                type: "property",
+                value: "All 11 files sorted alphabetically"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ]
+                }
+            ],
+            name: "Display file list all files",
+            test: []
         },
 
         // close details

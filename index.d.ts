@@ -525,7 +525,7 @@ declare global {
         event?: (event:testBrowserItem, pageLoad:boolean) => void;
         getProperty?: (config:testBrowserTest) => primitive;
         index: number;
-        node?: (dom:browserDOM[], test:testBrowserTest) => Element;
+        node?: (dom:testBrowserDOM) => Element;
         stringify?: (primitive:primitive) => string;
         test?: (config:testBrowserTest[], index:number) => void;
     }
@@ -810,10 +810,13 @@ declare global {
         demo: boolean;
         noClose: boolean;
     }
+    interface testBrowserDOM extends Array<browserDOM> {
+        nodeString?: string;
+    }
     interface testBrowserEvent {
         coords?: [number, number];
         event: eventName;
-        node: browserDOM[];
+        node: testBrowserDOM;
         value?: string;
     }
     interface testBrowserItem {
@@ -828,8 +831,7 @@ declare global {
         payload: [boolean, string, string][];
     }
     interface testBrowserTest {
-        node: browserDOM[];
-        nodeString?: string;
+        node: testBrowserDOM;
         qualifier: qualifier;
         target: string[];
         type: "attribute" | "element" | "property";
