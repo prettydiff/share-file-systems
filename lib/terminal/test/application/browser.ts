@@ -204,6 +204,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                         }, delay);
                     } else {
                         log([message], true);
+                        browser.index = -1;
                     }
                 };
             vars.verbose = true;
@@ -309,7 +310,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value}`;
             return star + resultString + nodeString;
         },
-        failureMessage = function test_Browser_result_failureMessage(index:number):void {console.log(delay);console.log(item.payload);console.log(buildNode(tests[item.index].delay, true));
+        failureMessage = function test_Browser_result_failureMessage(index:number):void {
             if (item.payload[index][2] === "error") {
                 let error:string = item.payload[index][1]
                     .replace("{\"file\":"   , `{\n    "${vars.text.cyan}file${vars.text.none}"   :`)

@@ -4,9 +4,9 @@
 import browser from "./browser.js";
 import network from "./network.js";
 
-const remote:module_remote = {};
-
-remote.index = -1;
+const remote:module_remote = {
+    index: -1
+};
 
 remote.delay = function local_remote_delay(config:testBrowserItem):void {
     let a:number = 0;
@@ -79,7 +79,7 @@ remote.evaluate = function local_remote_evaluate(config:testBrowserTest):[boolea
         if (qualifier === "contains" && index > -1) {
             return [true, "", config.nodeString];
         }
-        if (qualifier === "ends" && index === rawValue.length - configString.length) {
+        if (qualifier === "ends" && rawValue.slice(rawValue.length - configString.length) === configString) {
             return [true, "", config.nodeString];
         }
         if (qualifier === "not contains" && index < 0) {

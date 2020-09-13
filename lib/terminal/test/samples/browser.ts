@@ -2630,6 +2630,17 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
 
         // paste from context menu
         {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Copy complete."
+            },
             interaction: [
                 {
                     event: "click",
@@ -2667,12 +2678,12 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
-                    ["getElementsByTagName", "label", 0]
+                    ["getElementsByTagName", "span", 1]
                 ],
-                qualifier: "ends",
+                qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "js"
+                value: "directory - 4 items"
             },
             interaction: [
                 {
@@ -2704,6 +2715,64 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     target: ["class"],
                     type: "attribute",
                     value: "directory"
+                }
+            ]
+        },
+
+        // expand copied directory
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "ul", 0],
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "span", 1]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "directory - 2 items"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Expand copied directory",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "ul", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "fileList"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "ul", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "label", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "lib"
                 }
             ]
         }

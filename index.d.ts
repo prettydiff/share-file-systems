@@ -525,7 +525,7 @@ declare global {
         evaluate?: (config:testBrowserTest) => [boolean, string, string];
         event?: (event:testBrowserItem, pageLoad:boolean) => void;
         getProperty?: (config:testBrowserTest) => primitive;
-        index?: number;
+        index: number;
         node?: (dom:browserDOM[], test:testBrowserTest) => Element;
         stringify?: (primitive:primitive) => string;
         test?: (config:testBrowserTest[], index:number) => void;

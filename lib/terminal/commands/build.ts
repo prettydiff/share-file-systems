@@ -220,7 +220,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                         }
                                         return;
                                     }
-                                    error([err.toString()]);
+                                    error([wErr.toString()]);
                                 },
                                 write = function terminal_build_configurations_read_remove():void {
                                     if (Array.isArray(config[keys[a]]) === true) {
