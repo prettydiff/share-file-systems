@@ -451,13 +451,12 @@ declare global {
         dataString?: EventHandlerNonNull;
         destroy?: EventHandlerNonNull;
         details?: context;
-        detailsList?: EventHandlerNonNull;
-        element?: Element;
+        element: Element;
         fsNew?: EventHandlerNonNull;
         menu?: EventHandlerNonNull;
         menuRemove?: () => void;
         paste?: EventHandlerNonNull;
-        type?: contextType;
+        type: contextType;
     }
     interface module_fs {
         back?: EventHandlerNonNull;
