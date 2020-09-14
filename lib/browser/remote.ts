@@ -5,7 +5,10 @@ import browser from "./browser.js";
 import network from "./network.js";
 
 const remote:module_remote = {
-    index: -1
+    index: -1,
+    keyAlt: false,
+    keyControl: false,
+    keyShift: false
 };
 
 remote.delay = function local_remote_delay(config:testBrowserItem):void {
@@ -107,9 +110,6 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem, pageLoa
         config:testBrowserEvent,
         htmlElement:HTMLInputElement,
         action:Event,
-        alt:boolean = false,
-        ctrl:boolean = false,
-        shift:boolean = false,
         refresh:boolean = false,
         stringReplace = function local_remote_testEvent_stringReplace(str:string):string {
             return str
@@ -159,37 +159,44 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem, pageLoa
                     htmlElement.value = stringReplace(config.value);
                 } else {
                     if (config.event === "keydown" || config.event === "keyup") {
-                        let tabIndex:number = element.tabIndex;
-                        element.tabIndex = 0;
-                        element.dispatchEvent(new Event("focus"));
                         if (config.value === "Alt") {
                             if (config.event === "keydown") {
-                                alt = true;
+                                remote.keyAlt = true;
                             } else {
-                                alt = false;
+                                remote.keyAlt = false;
                             }
                         } else if (config.value === "Control") {
                             if (config.event === "keydown") {
-                                ctrl = true;
+                                remote.keyControl = true;
                             } else {
-                                ctrl = false;
+                                remote.keyControl = false;
                             }
                         } else if (config.value === "Shift") {
                             if (config.event === "keydown") {
-                                shift = true;
+                                remote.keyShift = true;
                             } else {
-                                shift = false;
+                                remote.keyShift = false;
                             }
                         } else {
+                            const tabIndex:number = element.tabIndex;
                             action = new KeyboardEvent(config.event, {
                                 key: config.value,
-                                altKey: alt,
-                                ctrlKey: ctrl,
-                                shiftKey: shift
+                                altKey: remote.keyAlt,
+                                ctrlKey: remote.keyControl,
+                                shiftKey: remote.keyShift
                             });
+                            element.tabIndex = 0;
+                            element.dispatchEvent(new Event("focus"));
+                            element.dispatchEvent(action);
+                            element.tabIndex = tabIndex;
                         }
+                    } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
+                        action = new MouseEvent(config.event, {
+                            altKey: remote.keyAlt,
+                            ctrlKey: remote.keyControl,
+                            shiftKey: remote.keyShift
+                        });
                         element.dispatchEvent(action);
-                        element.tabIndex = tabIndex;
                     } else {
                         action = document.createEvent("Event");
                         action.initEvent(config.event, false, true);

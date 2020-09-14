@@ -28,6 +28,27 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             }
         ]
     },
+    showContextMenu = function test_browser_showContextMenu(node:testBrowserDOM, test:testBrowserTest[]):testBrowserItem {
+        return {
+            delay: {
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 2
+            },
+            interaction: [
+                {
+                    event: "contextmenu",
+                    node: node
+                }
+            ],
+            name: "Show context menu on copied directory",
+            test: test
+        };
+    },
     browser:testBrowserItem[] = [
 
         // complete the login
@@ -834,52 +855,32 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // display context menu
-        {
-            delay: {
-                // there is a details button
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "li", 0]
+        ], [
+            {
+                // the context menu is visible
                 node: [
-                    ["getElementById", "contextMenu", null],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementById", "contextMenu", null]
                 ],
-                qualifier: "contains",
-                target: ["innerHTML"],
+                qualifier: "greater",
+                target: ["clientHeight"],
                 type: "property",
-                value: "CTRL + ALT + T"
+                value: 2
             },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ]
-                }
-            ],
-            name: "Display file system context menu (right click)",
-            test: [
-                {
-                    // the context menu is visible
-                    node: [
-                        ["getElementById", "contextMenu", null]
-                    ],
-                    qualifier: "greater",
-                    target: ["clientHeight"],
-                    type: "property",
-                    value: 2
-                },
-                {
-                    // the context menu is visible
-                    node: [
-                        ["getElementById", "contextMenu", null]
-                    ],
-                    qualifier: "is",
-                    target: ["style", "display"],
-                    type: "property",
-                    value: ""
-                }
-            ]
-        },
+            {
+                // the context menu is visible
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "is",
+                target: ["style", "display"],
+                type: "property",
+                value: ""
+            }
+        ]),
 
         // display details
         {
@@ -1519,41 +1520,23 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // find new directory button
-        {
-            delay: {
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "li", 0]
+        ], [
+            {
                 node: [
-                    ["getElementById", "contextMenu", null]
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "button", 0]
                 ],
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
                 value: "New Directory"
-            },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ]
-                }
-            ],
-            name: "Find the new directory button from the context menu",
-            test: [
-                {
-                    node: [
-                        ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 5],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "contains",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "New Directory"
-                }
-            ]
-        },
+            }
+        ]),
 
         // evoke new directory with an empty field, first time
         {
@@ -2626,44 +2609,26 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // open context menu on project js directory
-        {
-            delay: {
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByTagName", "li", 5]
+        ], [
+            {
                 node: [
-                    ["getElementById", "contextMenu", null]
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "label", 0]
                 ],
-                qualifier: "greater",
-                target: ["clientHeight"],
+                qualifier: "ends",
+                target: ["innerHTML"],
                 type: "property",
-                value: 2
-            },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5]
-                    ]
-                }
-            ],
-            name: "Open context menu on project js directory",
-            test: [
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5],
-                        ["getElementsByTagName", "label", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "js"
-                }
-            ]
-        },
+                value: "js"
+            }
+        ]),
 
         // copy directory using context menu
         {
@@ -2697,29 +2662,11 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // open context menu to paste
-        {
-            delay: {
-                node: [
-                    ["getElementById", "contextMenu", null]
-                ],
-                qualifier: "greater",
-                target: ["clientHeight"],
-                type: "property",
-                value: 2
-            },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "fileList", 0]
-                    ]
-                }
-            ],
-            name: "Open context menu to paste",
-            test: []
-        },
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByClassName", "fileList", 0]
+        ], []),
 
         // paste from context menu
         {
@@ -2866,6 +2813,141 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     target: ["innerHTML"],
                     type: "property",
                     value: "lib"
+                }
+            ]
+        },
+
+        // show context menu on copied directory
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByTagName", "li", 2]
+        ], []),
+
+        // delete js directory using context menu
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "1 item deleted."
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 8],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Delete js directory using context menu",
+            test: []
+        },
+
+        // refresh file navigator contents
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Refresh the file navigator file list",
+            test: []
+        },
+
+        // select js directory
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 5]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory selected"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5]
+                    ]
+                }
+            ],
+            name: "Select js directory",
+            test: []
+        },
+
+        // select additional directory
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 4]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory selected"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ]
+                }
+            ],
+            name: "Select additional directory",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory selected"
                 }
             ]
         }

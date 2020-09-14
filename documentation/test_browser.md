@@ -6,6 +6,7 @@ Execute test automation in the browser using just JavaScript and without depende
 ## Contents
 * [Demonstration using this application](#demonstration-using-this-application)
 * [How this works](#how-this-works)
+   * [Preserve the test scenario](#preserve-the-test-scenario)
    * [Mouse movement](#mouse-movement)
    * [Event bubbling](#event-bubbling)
 * [Page refresh events](#page-refresh-events)
@@ -47,6 +48,9 @@ In the browser any event can be arbitrarily created using the method `document.c
 Once the event executes in the browser the delay, if present, is evaluated as the first test of the current test campaign.  The delay will either fulfill or will timeout.  Timed out delay will send failure messaging to the service where a fulfilled delay will move forward to test evaluation.  Once all tests are evaluated a data structure is returned to the service indicating which tests passed and which failed.
 
 Once the service has determined all tests have passed or the current test campaign has a failure a final message is sent to the browser to close the current browser tab.  That's all there is to it.
+
+### Preserve the test scenario
+By default once the test completes, whether pass or fail, the service terminals and the created browser tab closes.  Sometimes it is helpful to keep the test service running and the browser tab open so that a user can continuing experimenting manually.  This is possible using the *no_close* argument: `node js/application test_browser no_close`.  Since this option keeps browser tabs open from prior tests it is strongly advised to close these tabs before running subsequent tests to reduce the potential of interference from any signals emitted by those prior browser tabs.
 
 ### Mouse movement
 Mouse movement can be faked though by imposing a *mousedown* event on the target area and then arbitrarily dictating coordinates to dynamically modified CSS properties in question, and finally executing a *mouseup* event.  This is not an accurate test of mouse movement but may allow some limited testing of other concerns dependent upon mouse movement.

@@ -525,6 +525,9 @@ declare global {
         event?: (event:testBrowserItem, pageLoad:boolean) => void;
         getProperty?: (config:testBrowserTest) => primitive;
         index: number;
+        keyAlt: boolean;
+        keyControl: boolean;
+        keyShift: boolean;
         node?: (dom:testBrowserDOM) => Element;
         stringify?: (primitive:primitive) => string;
         test?: (config:testBrowserTest[], index:number) => void;

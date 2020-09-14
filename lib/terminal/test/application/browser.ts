@@ -14,6 +14,7 @@ import response from "../../server/response.js";
 
 import tests from "../samples/browser.js";
 
+let finished:boolean = false;
 const browser:testBrowserApplication = {
     args: {
         demo: false,
@@ -97,6 +98,9 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
 
 browser.iterate = function test_browser_iterate(index:number):void {
     // not writing to storage
+    if (finished === true) {
+        return;
+    }
     tests[index].index = index;
     serverVars.testBrowser = JSON.stringify(tests[index]);
     const message:string = JSON.stringify({
@@ -167,6 +171,9 @@ browser.iterate = function test_browser_iterate(index:number):void {
 };
 
 browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
+    if (finished === true) {
+        return;
+    }
     let a:number = 0,
         falseFlag:boolean = false;
     const length:number = item.payload.length,
@@ -189,11 +196,15 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     return bb + 1;
                 }()),
                 exit = function test_browser_result_completion_exit(type:number, message:string):void {
+                    if (finished === true) {
+                        return;
+                    }
                     const close:boolean = (browser.args.demo === false && browser.args.noClose === false),
                         // delay is extended for end of test if last event is refresh, so that the server has time to respond before exist
                         delay:number = (close === false && type === 0 && tests[browser.index].interaction[0].event === "refresh")
                             ? 1000
                             : 50;
+                    finished = true;
                     if (close === true) {
                         vars.ws.broadcast(JSON.stringify({
                             "test-browser-close": {}
