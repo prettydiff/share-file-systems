@@ -2934,6 +2934,15 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 4]
                     ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
                 }
             ],
             name: "Select additional directory",
@@ -2948,6 +2957,281 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     target: ["class"],
                     type: "attribute",
                     value: "directory selected"
+                }
+            ]
+        },
+
+        // add two selected directories to the clipboard
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 4]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Add two selected directories to the clipboard",
+            test: []
+        },
+
+        // paste directories into different file navigator
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Copy complete."
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                }
+            ],
+            name: "Paste two directories into different file navigator",
+            test: []
+        },
+
+        // update file list
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "span", 1]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "directory - 13 items"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Update file list",
+            test: [
+                {
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ],
+                    qualifier: "is",
+                    target: [],
+                    type: "element",
+                    value: null
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "begins",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory"
+                }
+            ]
+        },
+
+        // select the two pasted directories
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 3]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory lastType selected"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Select the two pasted directories",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory selected"
+                }
+            ]
+        },
+
+        // delete the two selected directories using the keyboard shortcut
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "2 items deleted."
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Delete"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Delete"
+                }
+            ],
+            name: "Delete the two selected directories using the keyboard shortcut",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file"
                 }
             ]
         }
