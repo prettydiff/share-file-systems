@@ -118,11 +118,14 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             }
             let id:string = "";
             const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
-                    const addressList:[string, shareType, string][] = util.selectedAddresses(<Element>list.firstChild, list.getAttribute("data-state")),
-                        output:string[] = [];
-                    addressList.forEach(function local_fs_drag_drop_addresses_each(value:[string, shareType, string]) {
-                        output.push(value[0]);
-                    });
+                    const output:string[] = [],
+                        children:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
+                        len:number = children.length;
+                    let a:number = 0;
+                    do {
+                        output.push(children[a].getElementsByTagName("label")[0].innerHTML);
+                        a = a + 1;
+                    } while (a < len);
                     return output;
                 }()),
                 touchDrop:TouchEvent = (touch === true)
