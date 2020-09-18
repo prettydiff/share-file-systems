@@ -3479,6 +3479,85 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "active"
                 }
             ]
+        },
+
+        // select all with keyboard shortcut and cut
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 1]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file cut"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "a"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "a"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "x"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "x"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Select all with keyboard shortcut and cut files with keyboard",
+            test: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file cut"
+                }
+            ]
         }
     ];
 
