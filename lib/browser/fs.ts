@@ -31,7 +31,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
-            : <Element>element.parentNode,
+            : <Element>element.getAncestor("li", "tag"),
         body:Element = li.getAncestor("body", "class"),
         box:Element = <Element>body.parentNode.parentNode,
         input:HTMLInputElement = box.getElementsByTagName("input")[0],

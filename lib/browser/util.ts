@@ -481,6 +481,10 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
+    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && element.getAttribute("class") === "directory selected" && util.selectedAddresses(element, "directory").length === 1) {
+        fs.directory(event);
+        return;
+    }
     event.preventDefault();
     if (element.nodeName.toLowerCase() !== "ul") {
         event.stopPropagation();

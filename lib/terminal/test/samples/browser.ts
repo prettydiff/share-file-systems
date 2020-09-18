@@ -3345,6 +3345,140 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "file cut"
                 }
             ]
+        },
+
+        // navigate to a child directory using keyboard
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 0
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            name: "Navigate to a child directory using keyboard",
+            test: []
+        },
+
+        // paste cut files using keyboard
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Copy complete. 2 files written"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Paste cut files using keyboard",
+            test: []
+        },
+
+        // update modal file contents
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 2
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Update modal file contents to show pasted files",
+            test: [
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "active"
+                }
+            ]
         }
     ];
 
