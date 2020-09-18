@@ -713,16 +713,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         menu:HTMLElement = document.createElement("ul"),
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
-            : "CTRL";
-    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
-        nodeName:string = element.nodeName.toLowerCase(),
-        parent:Element = <Element>element.parentNode,
-        item:Element,
-        button:HTMLButtonElement,
-        clientX:number,
-        clientY:number,
-        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
-        readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
+            : "CTRL",
         functions:contextFunctions = {
             base64: function local_context_menu_base64():void {
                 item = document.createElement("li");
@@ -843,7 +834,16 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             }
-        },
+        };
+    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+        nodeName:string = element.nodeName.toLowerCase(),
+        parent:Element = <Element>element.parentNode,
+        item:Element,
+        button:HTMLButtonElement,
+        clientX:number,
+        clientY:number,
+        box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
+        readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         reverse:boolean = false,
         a:number = 0;
     event.stopPropagation();
@@ -911,7 +911,9 @@ context.menu = function local_context_menu(event:MouseEvent):void {
             if (event.clientY === undefined) {
                 return -25;
             }
-            reverse = true;
+            if (location.href.indexOf("?test_browser") < 0) {
+                reverse = true;
+            }
             return 1;
         }());
         menu.style.top = `${(clientY - ((itemList.length * 57) + offset)) / 10}em`;
@@ -920,7 +922,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     }
     // horizontal
     if (browser.content.clientWidth < (200 + clientX)) {
-        if (event.clientX !== undefined) {
+        if (event.clientX !== undefined && location.href.indexOf("?test_browser") < 0) {
             reverse = true;
         }
         menu.style.left = `${(clientX - 200) / 10}em`;
