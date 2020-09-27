@@ -512,6 +512,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                 cwd: vars.projectPath
                             }, function terminal_build_typescript_callback(err:Error, stdout:string, stderr:string):void {
                                 const control:string = "\u001b[91m";
+                                log([stdout]);
                                 if (stdout !== "" && stdout.indexOf(` ${control}error${vars.text.none} `) > -1) {
                                     error([`${vars.text.red}TypeScript reported warnings.${vars.text.none}`, stdout]);
                                     return;

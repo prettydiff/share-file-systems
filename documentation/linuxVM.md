@@ -12,6 +12,9 @@ It is necessary to run Linux and without additional hardware at the time of this
    1. Others, you might need to search if after all these steps it still doesn't work.
 1. Open Powershell as an administrator and run this command: <!-- cspell:disable -->`bcdedit /set hypervisorlaunchtype off`<!-- cspell:enable --> and then close this Powershell instance.  This step does not require a restart and is the gap between enabling hardware virtualization from the bios and allowing Virtual Box access to that hardware feature.
 
+## Local VM password
+**share1234**
+
 ## Clone a VM
 ### Hostname
 On a relatively clean Linux box there are only two places that need updating to change the hostname.
@@ -38,8 +41,25 @@ The IP address shouldn't need to be changed, because the host assigns the addres
 1. <!-- cspell:disable --> `ifconfig` <!-- cspell:enable --> - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
 2. <!-- cspell:disable --> `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` <!-- cspell:enable --> where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the <!-- cspell:disable -->netmask<!-- cspell:enable -->.
 
-## Local VM password
-**share1234**
+## Start up script
+### rc.local
+`sudo vim /etc/rc.local`
+
+```
+~/startup.sh || exit 1
+exit 0
+```
+
+### startup.sh
+```
+cd share-file-systems
+git checkout master
+git pull origin master
+git checkout browser
+git pull origin browser
+
+node js/application build
+```
 
 ## Microphone
 I had the wonderful experience of my Ubuntu guest stealing access of the microphone away from the Windows host.  This was not an Ubuntu problem but rather a Virtual Box and Windows problem.  Here are the steps to solve this problem.

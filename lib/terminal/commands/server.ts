@@ -35,9 +35,21 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 key: false
             }
         },
+        portString:string = "",
         certLogs:string[] = null;
     const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
+        insecure:boolean = (serverVars.secure === false)
+            ? true
+            : (function terminal_server_insecure():boolean {
+                const index:number = process.argv.indexOf("insecure");
+                if (index < 0) {
+                    return false;
+                }
+                serverVars.secure = false;
+                process.argv.splice(index, 1);
+                return true;
+            }()),
         browserFlag:boolean = (function terminal_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -56,6 +68,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
             return false;
         }()),
+        scheme:string = (insecure === true)
+            ? "http"
+            : "https",
         browser = function terminal_server_browser(httpServer:httpServer):void {
             // open a browser from the command line
             serverCallback.callback({
@@ -71,10 +86,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         : (process.platform === "win32")
                             ? "start"
                             : "xdg-open",
-                    port:string = (portWeb === 443)
-                        ? ""
-                        : `:${portWeb}`,
-                    browserCommand:string = `${keyword} https://localhost${port}/`;
+                    browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
                     if (errs !== null) {
                         error([errs.toString()]);
@@ -141,7 +153,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         port:number = (vars.command === "test_service" || vars.command === "test")
             ? 0
             : (isNaN(Number(process.argv[0])) === true)
-                ? vars.version.port
+                ? (insecure === true && vars.version.port === 443)
+                    ? 80
+                    : vars.version.port
                 : Number(process.argv[0]),
         serverError = function terminal_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
@@ -151,16 +165,13 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                     error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
                 }
             } else if (errorMessage.code !== "ETIMEDOUT") {
-                error([`${error}`]);
+                error([`${errorMessage}`]);
             }
             return;
         },
         start = function terminal_server_start(httpServer:httpServer) {
             const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
                     const output:string[] = [],
-                        webPort:string = (serverVars.webPort === 443)
-                            ? ""
-                            : `:${serverVars.webPort}`,
                         localAddresses = function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
                             a = value[0].length;
                             if (a < serverVars.addresses[1]) {
@@ -201,14 +212,13 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         }
     
                         serverVars.addresses[0].forEach(localAddresses);
-                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green}https://localhost${webPort + vars.text.none}`);
-                        output.push("");
-                        output.push(`Address for service: ${vars.text.bold + vars.text.green}https://${serverVars.ipAddress + webPort + vars.text.none}`);
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
+                        output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${serverVars.ipAddress + portString + vars.text.none}`);
                         if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
                             if (serverVars.addresses[0][0][2] === "ipv4") {
-                                output.push(`or                 : ${vars.text.bold + vars.text.green}https://${serverVars.addresses[0][0][1] + vars.text.none}`);
+                                output.push(`or                 : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses[0][0][1] + vars.text.none}`);
                             } else {
-                                output.push(`or                 : ${vars.text.bold + vars.text.green}https://[${serverVars.addresses[0][0][1]}]${webPort + vars.text.none}`);
+                                output.push(`or                 : ${vars.text.bold + vars.text.green+ scheme}://[${serverVars.addresses[0][0][1]}]${portString + vars.text.none}`);
                             }
                         }
                         if (certLogs !== null) {
@@ -246,9 +256,13 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 },
                 listen = function terminal_server_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
-                        wsServer:httpServer = vars.node.https.createServer(https.certificate, function terminal_server_start_listen_wsListener():void {
-                            return;
-                        });
+                        wsServer:httpServer = (insecure === true)
+                            ? vars.node.http.createServer(function terminal_server_start_listen_wsListenerInsecure():void {
+                                return;
+                            })
+                            : vars.node.https.createServer(https.certificate, function terminal_server_start_listen_wsListener():void {
+                                return;
+                            });
                     serverVars.webPort = serverAddress.port;
                     serverVars.wsPort = (port === 0)
                         ? 0
@@ -256,6 +270,9 @@ const server = function terminal_server(serverCallback:serverCallback):void {
 
                     httpServer.port = serverAddress.port;
                     portWeb = serverAddress.port;
+                    portString = ((portWeb === 443 && insecure === false) || (portWeb === 80 && insecure === true))
+                        ? ""
+                        : `:${portWeb}`;
                     wsServer.listen({
                         host: (serverVars.addresses[0].length > 1)
                             ? "::"
@@ -305,8 +322,12 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             callback: function terminal_server_falseCallback():void {}
         };
     }
-    httpsFile("crt");
-    httpsFile("key");
+    if (insecure === true) {
+        start(vars.node.http.createServer(createServer));
+    } else {
+        httpsFile("crt");
+        httpsFile("key");
+    }
 };
 
 export default server;

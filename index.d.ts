@@ -695,6 +695,7 @@ declare global {
         ipAddress: string;
         nameDevice: string;
         nameUser: string;
+        secure: boolean;
         status: heartbeatStatus;
         storage: string;
         testBrowser?: string;
@@ -827,7 +828,7 @@ declare global {
         index?: number;
         interaction: testBrowserEvent[];
         name: string;
-        test: testBrowserTest[];
+        unit: testBrowserTest[];
     }
     interface testBrowserResult {
         index: number;

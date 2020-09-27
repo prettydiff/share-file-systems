@@ -231,7 +231,10 @@ const title:Element = document.getElementsByClassName("title")[0],
         }
     },
     webSocket = function local_webSocket(callback:() => void):WebSocket {
-        const socket:WebSocket = new sock(`wss://localhost:${browser.localNetwork.wsPort}/`),
+        const scheme:string = (location.protocol === "http:")
+                ? ""
+                : "s",
+            socket:WebSocket = new sock(`ws${scheme}://localhost:${browser.localNetwork.wsPort}/`),
             open = function local_webSocket_socketOpen():void {
                 const device:Element = (browser.data.hashDevice === "")
                     ? null

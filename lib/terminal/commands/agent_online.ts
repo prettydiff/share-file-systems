@@ -7,6 +7,7 @@ import agents from "../../common/agents.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
+import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const agent_online = function terminal_agentOnline():void {
@@ -142,7 +143,10 @@ const agent_online = function terminal_agentOnline():void {
                             httpError.toString()
                         ], (count === total - 1));
                     },
-                    request:ClientRequest = vars.node.https.request(payload, callback);
+                    scheme:string = (serverVars.secure === true)
+                        ? "https"
+                        : "http",
+                    request:ClientRequest = vars.node[scheme].request(payload, callback);
                 request.on("error", requestError);
                 request.write(requestBody);
                 request.end();

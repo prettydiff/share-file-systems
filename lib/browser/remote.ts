@@ -18,8 +18,8 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
         delayFunction = function local_remote_delay_timeout():void {
             const testResult:[boolean, string, string] = remote.evaluate(config.delay);
             if (testResult[0] === true) {
-                if (config.test.length > 0) {
-                    remote.test(config.test, config.index);
+                if (config.unit.length > 0) {
+                    remote.test(config.unit, config.index);
                 } else {
                     network.testBrowserLoaded([testResult], config.index);
                 }
@@ -38,7 +38,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
     // eslint-disable-next-line
     console.log(`Executing delay on test campaign ${config.index}: ${config.name}`);
     if (config.delay === undefined) {
-        remote.test(config.test, config.index);
+        remote.test(config.unit, config.index);
     } else {
         setTimeout(delayFunction, delay);
     }
