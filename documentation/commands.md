@@ -110,7 +110,7 @@ Copy files or directories from one location to another on the local file system.
    - Exclusions are relative to the source directory.
 
 ## directory
-Traverses a directory in the local file system and generates a list.
+Traverses a directory in the local file system and generates a list.  If a source is not provided the current working directory is used.
 
 ### Examples
 1. `node js/application directory source:"my/directory/path"`

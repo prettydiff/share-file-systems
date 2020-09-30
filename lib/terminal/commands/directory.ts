@@ -62,6 +62,10 @@ const directory = function terminal_directory(args:readDirectory):void {
                 return false;
             }()),
             startPath:string = (function terminal_directory_startPath():string {
+                const resolved = function terminal_directory_startPath_resolved(input:string):string {
+                    const resolvedValue:string = vars.node.path.resolve(input);
+                    return resolvedValue;
+                };
                 if (vars.command === "directory") {
                     let len:number = process.argv.length,
                         a:number = 0;
@@ -153,17 +157,17 @@ const directory = function terminal_directory(args:readDirectory):void {
                     };
                     vars.testLogger("directory", "startPath", `determine the start point and set default configuration if executing using the 'directory' command from the terminal. Mode: ${args.mode}`);
                     if (process.argv.length < 1) {
-                        return vars.cwd;
+                        return resolved(vars.cwd);
                     }
                     do {
                         if (process.argv[a].indexOf("source:") === 0) {
-                            return vars.node.path.resolve(process.argv[a].replace(/source:("|')?/, "").replace(/("|')$/, ""));
+                            return resolved(process.argv[a].replace(/source:("|')?/, "").replace(/("|')$/, ""));
                         }
                         a = a + 1;
                     } while (a < len);
-                    return vars.node.path.resolve(process.argv[0]);
+                    return resolved(process.argv[0]);
                 }
-                return vars.node.path.resolve(args.path);
+                return resolved(args.path);
             }()),
             list:directoryList = [],
             fileList:string[] = [],
@@ -177,6 +181,9 @@ const directory = function terminal_directory(args:readDirectory):void {
                     index:number = 0;
                 dirList.pop();
                 dirPath = dirList.join(vars.sep);
+                if (dirList.length === 1 && (/^\w:$/).test(dirPath) === true) {
+                    dirPath = dirPath + "\\";
+                }
                 if (dirPath === "") {
                     dirPath = vars.sep;
                 }
@@ -208,6 +215,21 @@ const directory = function terminal_directory(args:readDirectory):void {
                     }
                 }
             },
+            begin = function terminal_directory_begin():void {
+                if (vars.command === "directory") {
+                    if (vars.verbose === true) {
+                        log.title("Directory");
+                    }
+                    if (args.mode === "search") {
+                        args.search = search;
+                    }
+                }
+                list.failures = [];
+                if (args.depth === undefined) {
+                    args.depth = 0;
+                }
+                statWrapper(startPath, 0);
+            },
             statWrapper = function terminal_directory_wrapper(filePath:string, parent:number):void {
                 vars.node.fs[method](filePath, function terminal_directory_wrapper_stat(er:Error, stat:Stats):void {
                     const relPath:string = (relative === true)
@@ -222,15 +244,10 @@ const directory = function terminal_directory(args:readDirectory):void {
                             vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
                                 if (erd !== null) {
                                     list.failures.push(item);
-                                    if (vars.command === "server") {
-                                        if (dirs > 0) {
-                                            dirCounter(item);
-                                        } else {
-                                            args.callback(fileList.sort());
-                                        }
+                                    if (dirs > 0) {
+                                        dirCounter(item);
                                     } else {
-                                        error([erd.toString()]);
-                                        return;
+                                        args.callback(fileList.sort());
                                     }
                                 } else {
                                     const index:number = list.length,
@@ -241,7 +258,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                             ? item.replace(startPath + vars.sep, "")
                                             : item;
                                     if (args.mode === "list") {
-                                        fileList.push(item);
+                                        fileList.push(relItem);
                                     } else {
                                         if (args.mode === "search") {
                                             const names:string[] = filePath.split(vars.sep);
@@ -261,7 +278,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                         dirs = dirs + 1;
                                     }
                                     files.forEach(function terminal_directory_wrapper_stat_dir_readDir_each(value:string):void {
-                                        if (item  === vars.sep) {
+                                        if (item === vars.sep || (item === startPath && (/^\w:\\$/).test(startPath) === true)) {
                                             terminal_directory_wrapper(item + value, index);
                                         } else {
                                             terminal_directory_wrapper(item + vars.sep + value, index);
@@ -363,7 +380,10 @@ const directory = function terminal_directory(args:readDirectory):void {
                             log(["directory"]);
                             return;
                         }
-                        if (((args.depth < 1 || filePath.replace(startPath + vars.sep, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startPath + vars.sep, "")) < 0) {
+                        const item:string = ((/^\w:\\$/).test(startPath) === true)
+                            ? startPath
+                            : startPath + vars.sep;
+                        if (((args.depth < 1 || filePath.replace(item, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(item, "")) < 0) {
                             dirTest = true;
                             dir(filePath);
                         } else {
@@ -403,19 +423,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                     }
                 });
             };
-        if (vars.command === "directory") {
-            if (vars.verbose === true) {
-                log.title("Directory");
-            }
-            if (args.mode === "search") {
-                args.search = search;
-            }
-        }
-        list.failures = [];
-        if (args.depth === undefined) {
-            args.depth = 0;
-        }
-        statWrapper(startPath, 0);
+        begin();
     };
 
 export default directory;
