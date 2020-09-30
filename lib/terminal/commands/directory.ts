@@ -42,6 +42,14 @@ const directory = function terminal_directory(args:readDirectory):void {
                     dir: false,
                     populate: false
                 },
+            relative:boolean = (function terminal_directory_relative():boolean {
+                const relIndex:number = process.argv.indexOf("relative");
+                if (relIndex < 0) {
+                    return false;
+                }
+                process.argv.splice(relIndex, 1);
+                return true;
+            }()),
             type:boolean = (function terminal_directory_typeof():boolean {
                 const typeIndex:number = process.argv.indexOf("typeof");
                 if (args !== undefined && args.logRecursion === true) {
@@ -186,7 +194,10 @@ const directory = function terminal_directory(args:readDirectory):void {
             },
             statWrapper = function terminal_directory_wrapper(filePath:string, parent:number):void {
                 vars.node.fs[method](filePath, function terminal_directory_wrapper_stat(er:Error, stat:Stats):void {
-                    const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
+                    const relPath:string = (relative === true)
+                            ? filePath.replace(startPath + vars.sep, "")
+                            : filePath,
+                        angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
                             if (logTest.dir === true) {
                                 logTest.dir = false;
@@ -209,17 +220,20 @@ const directory = function terminal_directory(args:readDirectory):void {
                                     const index:number = list.length,
                                         status:"stat"|Stats = (test === true)
                                             ? "stat"
-                                            : stat;
+                                            : stat,
+                                        relItem:string = (relative === true)
+                                            ? item.replace(startPath + vars.sep, "")
+                                            : item;
                                     if (args.mode === "list") {
                                         fileList.push(item);
                                     } else {
                                         if (args.mode === "search") {
                                             const names:string[] = filePath.split(vars.sep);
                                             if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                                list.push([filePath, "directory", "", parent, files.length, status]);
+                                                list.push([relPath, "directory", "", parent, files.length, status]);
                                             }
                                         } else {
-                                            list.push([item, "directory", "", parent, files.length, status]);
+                                            list.push([relItem, "directory", "", parent, files.length, status]);
                                         }
                                     }
                                     if (files.length < 1) {
@@ -265,7 +279,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                 } else if (args.mode === "search") {
                                     const names:string[] = filePath.split(vars.sep);
                                     if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                        list.push([filePath, type, "", parent, 0, status]);
+                                        list.push([relPath, type, "", parent, 0, status]);
                                     }
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -273,7 +287,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                         args.callback(list);
                                     }
                                 } else if (args.mode === "list") {
-                                    fileList.push(filePath);
+                                    fileList.push(relPath);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
@@ -282,7 +296,10 @@ const directory = function terminal_directory(args:readDirectory):void {
                                 } else if (args.mode === "hash") {
                                     const hashInput:hashInput = {
                                         callback: function terminal_directory_wrapper_stat_populate_hashCallback(output:hashOutput):void {
-                                            list.push([output.filePath, "file", output.hash, output.parent, 0, output.stat]);
+                                            const hashRel:string = (relative === true)
+                                                ? output.filePath.replace(startPath, "")
+                                                : output.filePath;
+                                            list.push([hashRel, "file", output.hash, output.parent, 0, output.stat]);
                                             if (dirs > 0) {
                                                 dirCounter(filePath);
                                             } else {
@@ -296,7 +313,7 @@ const directory = function terminal_directory(args:readDirectory):void {
                                     };
                                     hash(hashInput);
                                 } else {
-                                    list.push([filePath, type, "", parent, 0, status]);
+                                    list.push([relPath, type, "", parent, 0, status]);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {

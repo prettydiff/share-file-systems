@@ -165,9 +165,8 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                     error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
                 }
             } else if (errorMessage.code !== "ETIMEDOUT") {
-                error([`${errorMessage}`]);
+                error([errorMessage.toString()]);
             }
-            return;
         },
         start = function terminal_server_start(httpServer:httpServer) {
             const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
@@ -272,10 +271,12 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && insecure === false) || (portWeb === 80 && insecure === true))
                         ? ""
-                        : `:${portWeb}`;
+                        : (serverVars.addresses[0].length > 1)
+                            ? `[${portWeb}]`
+                            :`:${portWeb}`;
                     wsServer.listen({
                         host: (serverVars.addresses[0].length > 1)
-                            ? "::"
+                            ? "::1"
                             : "127.0.0.1",
                         port: serverVars.wsPort
                     }, function terminal_server_start_listen_wsListen():void {
@@ -307,7 +308,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             httpServer.listen({
                 port: port,
                 host: (serverVars.addresses[0].length > 1)
-                    ? "::"
+                    ? "::1"
                     : "127.0.0.1"
             }, listen);
         };

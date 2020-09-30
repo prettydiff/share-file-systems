@@ -216,6 +216,10 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} directory source:"my/directory/path" search:"any string"`,
                 defined: "Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied."
+            },
+            {
+                code: `${vars.version.command} directory source:"my/directory/path" relative`,
+                defined: "The relative argument provide relative paths from the source path instead of absolute paths."
             }
         ]
     },
