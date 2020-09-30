@@ -115,8 +115,6 @@ Traverses a directory in the local file system and generates a list.
 ### Examples
 1. `node js/application directory source:"my/directory/path"`
    - Returns an array where each index is an array of [absolute path, type, parent index, file count, stat]. Type can refer to 'file', 'directory', or 'link' for symbolic links.  The parent index identify which index in the array is the objects containing directory and the file count is the number of objects a directory type object contains.
-1. `node js/application directory source:"my/directory/path" shallow`
-   - Does not traverse child directories.
 1. `node js/application directory source:"my/directory/path" depth:9`
    - The depth of child directories to traverse. The default value of 0 applies full recursion.
 1. `node js/application directory source:"my/directory/path" symbolic`
@@ -131,6 +129,8 @@ Traverses a directory in the local file system and generates a list.
    - Returns an array of strings where each index is an absolute path.
 1. `node js/application directory source:"my/directory/path" search:"any string"`
    - Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied.
+1. `node js/application directory source:"my/directory/path" relative`
+   - The relative argument provide relative paths from the source path instead of absolute paths.
 
 ## get
 Retrieve a resource via an absolute URI.

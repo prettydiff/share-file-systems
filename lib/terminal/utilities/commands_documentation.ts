@@ -179,15 +179,11 @@ const commands_documentation = {
         ]
     },
     directory: {
-        description: "Traverses a directory in the local file system and generates a list.",
+        description: "Traverses a directory in the local file system and generates a list.  If a source is not provided the current working directory is used.",
         example: [
             {
                 code: `${vars.version.command} directory source:"my/directory/path"`,
                 defined: "Returns an array where each index is an array of [absolute path, type, parent index, file count, stat]. Type can refer to 'file', 'directory', or 'link' for symbolic links.  The parent index identify which index in the array is the objects containing directory and the file count is the number of objects a directory type object contains."
-            },
-            {
-                code: `${vars.version.command} directory source:"my/directory/path" shallow`,
-                defined: "Does not traverse child directories."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" depth:9`,

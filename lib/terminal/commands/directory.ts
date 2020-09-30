@@ -63,8 +63,8 @@ const directory = function terminal_directory(args:readDirectory):void {
             }()),
             startPath:string = (function terminal_directory_startPath():string {
                 if (vars.command === "directory") {
-                    const len:number = process.argv.length;
-                    let a:number = 0;
+                    let len:number = process.argv.length,
+                        a:number = 0;
                     args = {
                         callback: function terminal_directory_startPath_callback(result:string[]|directoryList) {
                             const output:string[] = [];
@@ -81,7 +81,10 @@ const directory = function terminal_directory(args:readDirectory):void {
                             let b:number = 0;
                             do {
                                 if ((/^depth:\d+$/).test(process.argv[b]) === true) {
-                                    return Number(process.argv[b].replace("depth:", ""));
+                                    const depth:number = Number(process.argv[b].replace("depth:", ""));
+                                    process.argv.splice(b, 1);
+                                    len = len - 1;
+                                    return depth;
                                 }
                                 b = b + 1;
                             } while (b < process.argv.length);
@@ -94,12 +97,18 @@ const directory = function terminal_directory(args:readDirectory):void {
                             do {
                                 if ((/^mode:/).test(process.argv[b]) === true) {
                                     if (process.argv[b].indexOf("hash") > 0) {
+                                        process.argv.splice(b, 1);
+                                        len = len - 1;
                                         return "hash";
                                     }
                                     if (process.argv[b].indexOf("list") > 0) {
+                                        process.argv.splice(b, 1);
+                                        len = len - 1;
                                         return "list";
                                     }
                                     if (process.argv[b].indexOf("read") > 0) {
+                                        process.argv.splice(b, 1);
+                                        len = len - 1;
                                         return "read";
                                     }
                                 }
@@ -108,15 +117,23 @@ const directory = function terminal_directory(args:readDirectory):void {
                                     if ((search.charAt(0) === "\"" && search.charAt(search.length - 1) === "\"") || (search.charAt(0) === "'" && search.charAt(search.length - 1) === "'")) {
                                         search = search.slice(1, search.length - 1);
                                     }
+                                    process.argv.splice(b, 1);
+                                    len = len - 1;
                                     return "search";
                                 }
                                 if (process.argv[b] === "list") {
+                                    process.argv.splice(b, 1);
+                                    len = len - 1;
                                     return "list";
                                 }
                                 if (process.argv[b] === "hash") {
+                                    process.argv.splice(b, 1);
+                                    len = len - 1;
                                     return "hash";
                                 }
                                 if (process.argv[b] === "read") {
+                                    process.argv.splice(b, 1);
+                                    len = len - 1;
                                     return "read";
                                 }
                                 b = b + 1;
@@ -124,20 +141,19 @@ const directory = function terminal_directory(args:readDirectory):void {
                             return "read";
                         }()),
                         path: "",
-                        symbolic: (process.argv.indexOf("symbolic") > -1)
-                            ? (function terminal_directory_startPath_symbolic():boolean {
-                                process.argv.splice(process.argv.indexOf("symbolic"), 1);
-                                return true;
-                            }())
-                            : false
+                        symbolic: (function terminal_directory_startPath_symbolic():boolean {
+                            const symbol:number = process.argv.indexOf("symbolic");
+                            if (symbol < 0) {
+                                return false;
+                            }
+                            process.argv.splice(symbol, 1);
+                            len = len - 1;
+                            return true;
+                        }())
                     };
                     vars.testLogger("directory", "startPath", `determine the start point and set default configuration if executing using the 'directory' command from the terminal. Mode: ${args.mode}`);
                     if (process.argv.length < 1) {
-                        error([
-                            "No path supplied for the directory command. For an example please see:",
-                            `    ${vars.text.cyan + vars.version.command} commands directory${vars.text.none}`
-                        ]);
-                        return "";
+                        return vars.cwd;
                     }
                     do {
                         if (process.argv[a].indexOf("source:") === 0) {
