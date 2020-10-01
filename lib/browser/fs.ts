@@ -474,10 +474,7 @@ fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
 
 /* Build a single file system object from data */
 fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):Element {
-    const driveLetter = function local_fs_listItem_driveLetter(drive:string):string {
-            return drive.replace("\\\\", "\\");
-        },
-        li:HTMLElement = document.createElement("li"),
+    const li:HTMLElement = document.createElement("li"),
         label:HTMLLabelElement = document.createElement("label"),
         text:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
@@ -531,7 +528,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     }
 
     // prepare the primary item text (address)
-    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
+    text.innerHTML = item[0];
     text.oncontextmenu = context.menu;
     text.onclick = fs.select;
     li.appendChild(text);
@@ -825,10 +822,11 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
         searchParent.style.width = "12.5%";
         addressLabel.style.width = "87.5%";
     }
-    if (element.value.replace(/\s+/, "") !== "" && (event === null || (event.type === "keyup" && event.key === "Enter"))) {
+    if (event === null || (event.type === "keyup" && event.key === "Enter")) {
         const box:Element = element.getAncestor("box", "class"),
             body:Element = box.getElementsByClassName("body")[0],
-            address:string = addressLabel.getElementsByTagName("input")[0].value,
+            addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
+            address:string = addressElement.value,
             statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
             value:string = element.value,
@@ -859,6 +857,19 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                             statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural} from <em>${address}</em>.`;
                         };
                     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                        const p:HTMLElement = document.createElement("p");
+                        p.setAttribute("class", "error");
+                        if (dirData.dirs === "missing") {
+                            p.innerHTML = "The matching results are no longer available.";
+                        } else if (dirData.dirs === "noShare") {
+                            p.innerHTML = "The matching results are no longer shared.";
+                        } else if (dirData.dirs === "readOnly") {
+                            p.innerHTML = "The matching results are restricted to a read only share.";
+                        } else {
+                            p.innerHTML = "There are no matching results.";
+                        }
+                        body.innerHTML = "";
+                        body.appendChild(p);
                         statusString(0);
                     } else {
                         const output:HTMLElement = document.createElement("ul");
@@ -902,16 +913,21 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                     }
                 }
             };
-        if (event === null || browser.data.modals[id].search.join("") !== address + value) {
-            body.innerHTML = "";
-            body.append(util.delay());
-            if (browser.loadTest === false) {
-                browser.data.modals[id].search = [address, value];
-                browser.data.modals[id].selection = {};
-                network.storage("settings");
-            }
-            network.fs(payload, netCallback);
+        body.innerHTML = "";
+        body.append(util.delay());
+        if (element.value.replace(/\s+/, "") === "") {
+            addressElement.focus();
+            addressElement.blur();
+            element.focus();
+            browser.data.modals[id].search = [address, ""];
+            return;
         }
+        if (browser.loadTest === false) {
+            browser.data.modals[id].search = [address, value];
+            browser.data.modals[id].selection = {};
+            network.storage("settings");
+        }
+        network.fs(payload, netCallback);
     }
 };
 
