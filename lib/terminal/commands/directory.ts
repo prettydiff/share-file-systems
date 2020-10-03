@@ -30,7 +30,8 @@ const directory = function terminal_directory(parameters:readDirectory):void {
         let dirTest:boolean = false,
             size:number = 0,
             dirs:number = 0,
-            search:string;
+            search:string,
+            startItem:string;
         const args:readDirectory = (vars.command === "directory")
                 ? {
                     callback: function terminal_directory_path_callback(result:string[]|directoryList) {
@@ -146,24 +147,44 @@ const directory = function terminal_directory(parameters:readDirectory):void {
             method:string = (args.symbolic === true)
                 ? "lstat"
                 : "stat",
+            sort = function terminal_directory_sort():string[] {
+                if (vars.sep === "\\") {
+                    fileList.sort(function terminal_directory_sort_sortFunction(a:string, b:string):-1|1 {
+                        if (a.toLowerCase() < b.toLowerCase()) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                } else {
+                    fileList.sort();
+                }
+                if (args.path === vars.sep) {
+                    const index:number = fileList.indexOf(vars.sep);
+                    fileList.splice(index, 1);
+                    fileList.splice(0, 0, vars.sep);
+                }
+                return fileList;
+            },
             dirCounter = function terminal_directory_dirCounter(item:string):void {
                 let dirList:string[] = item.split(vars.sep),
                     dirPath:string = "",
                     index:number = 0;
                 dirList.pop();
                 dirPath = dirList.join(vars.sep);
-                if (dirList.length === 1 && (/^\w:$/).test(dirPath) === true) {
-                    dirPath = dirPath + "\\";
-                }
-                if (dirPath === "") {
+                if ((/^\w:$/).test(dirPath) === true) {
+                    dirPath = `${dirPath}\\`;
+                } else if (dirPath === "") {
                     dirPath = vars.sep;
                 }
                 index = dirNames.indexOf(dirPath);
+                if (index < 0 && args.path === "\\" && (/^\w:\\$/).test(dirPath) === true) {
+                    index = 0;
+                }
                 dirCount[index] = dirCount[index] - 1;
                 if (dirNames.length === 0 && item === args.path) {
                     // empty directory, nothing to traverse
                     if (args.mode === "list") {
-                        args.callback(fileList.sort());
+                        args.callback(sort());
                     } else {
                         args.callback(list);
                     }
@@ -177,7 +198,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                             vars.testLogger("directory", "dirCounter", "complete so call the callback or output to terminal.");
                         }
                         if (args.mode === "list") {
-                            args.callback(fileList.sort());
+                            args.callback(sort());
                         } else {
                             args.callback(list);
                         }
@@ -186,77 +207,92 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                     }
                 }
             },
-            begin = function terminal_directory_begin():void {
-                if (vars.command === "directory") {
-                    if (vars.verbose === true) {
-                        log.title("Directory");
-                    }
-                    if (args.mode === "search") {
-                        args.search = search;
-                    }
-                }
-                list.failures = [];
-                if (args.depth === undefined) {
-                    args.depth = 0;
-                }
-                statWrapper(args.path, 0);
-            },
             statWrapper = function terminal_directory_wrapper(filePath:string, parent:number):void {
                 vars.node.fs[method](filePath, function terminal_directory_wrapper_stat(er:Error, stat:Stats):void {
-                    const relPath:string = (relative === true)
+                    const driveLetter = function terminal_directory_wrapper_stat_driveLetter(input:string):string {
+                            return `${input}\\`;
+                        },
+                        relPath:string = (relative === true)
                             ? filePath.replace(args.path + vars.sep, "")
                             : filePath,
                         angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
+                            const dirBody = function terminal_directory_wrapper_stat_dir_dirBody(files:string[]):void {
+                                const index:number = (args.mode === "list")
+                                        ? fileList.length
+                                        : list.length,
+                                    status:"stat"|Stats = (test === true)
+                                        ? "stat"
+                                        : stat,
+                                    relItem:string = (relative === true)
+                                        ? item.replace(args.path + vars.sep, "")
+                                        : item;
+                                if (args.mode === "list") {
+                                    fileList.push(relItem);
+                                } else {
+                                    if (args.mode === "search") {
+                                        const names:string[] = item.split(vars.sep);
+                                        if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
+                                            list.push([relPath, "directory", "", parent, files.length, status]);
+                                        }
+                                    } else {
+                                        list.push([relItem, "directory", "", parent, files.length, status]);
+                                    }
+                                }
+                                if (files.length < 1) {
+                                    dirCounter(item);
+                                } else {
+                                    // dirCount and dirNames are parallel arrays
+                                    dirCount.push(files.length);
+                                    dirNames.push(item);
+                                    dirs = dirs + 1;
+                                }
+                                files.forEach(function terminal_directory_wrapper_stat_dir_readDir_each(value:string):void {
+                                    if (item === "\\") {
+                                        terminal_directory_wrapper(value, index);
+                                    } else if ((/^\w:\\$/).test(item) === true) {
+                                        terminal_directory_wrapper(item + value, index);
+                                    } else if (item === "/") {
+                                        terminal_directory_wrapper(`/${value}`, index);
+                                    } else {
+                                        terminal_directory_wrapper(item + vars.sep + value, index);
+                                    }
+                                });
+                            };
                             if (logTest.dir === true) {
                                 logTest.dir = false;
-                                vars.testLogger("directory", "dir", `reading directory ${filePath} for recursive operations.`);
+                                vars.testLogger("directory", "dir", `reading directory ${item} for recursive operations.`);
                             }
-                            vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
-                                if (erd !== null) {
-                                    list.failures.push(item);
-                                    if (dirs > 0) {
-                                        dirCounter(item);
-                                    } else {
-                                        args.callback(fileList.sort());
-                                    }
-                                } else {
-                                    const index:number = list.length,
-                                        status:"stat"|Stats = (test === true)
-                                            ? "stat"
-                                            : stat,
-                                        relItem:string = (relative === true)
-                                            ? item.replace(args.path + vars.sep, "")
-                                            : item;
-                                    if (args.mode === "list") {
-                                        fileList.push(relItem);
-                                    } else {
-                                        if (args.mode === "search") {
-                                            const names:string[] = filePath.split(vars.sep);
-                                            if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                                list.push([relPath, "directory", "", parent, files.length, status]);
-                                            }
+                            if (item === "\\") {
+                                //cspell:disable
+                                vars.node.child("wmic logicaldisk get name", function terminal_server_fileService_tasks_windowsRoot(erw:Error, stdout:string, stderr:string):void {
+                                    //cspell:enable
+                                    if (erw !== null || (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0)) {
+                                        list.failures.push(item);
+                                        if (dirs > 0) {
+                                            dirCounter(item);
                                         } else {
-                                            list.push([relItem, "directory", "", parent, files.length, status]);
+                                            args.callback(sort());
                                         }
-                                    }
-                                    if (files.length < 1) {
-                                        dirCounter(item);
                                     } else {
-                                        // dirCount and dirNames are parallel arrays
-                                        dirCount.push(files.length);
-                                        dirNames.push(item);
-                                        dirs = dirs + 1;
+                                        const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" ");
+                                        dirBody(drives);
                                     }
-                                    files.forEach(function terminal_directory_wrapper_stat_dir_readDir_each(value:string):void {
-                                        if (item === vars.sep || (item === args.path && (/^\w:\\$/).test(args.path) === true)) {
-                                            terminal_directory_wrapper(item + value, index);
+                                });
+                            } else {
+                                vars.node.fs.readdir(item, {encoding: "utf8"}, function terminal_directory_wrapper_stat_dir_readDir(erd:Error, files:string[]):void {
+                                    if (erd !== null) {
+                                        list.failures.push(item);
+                                        if (dirs > 0) {
+                                            dirCounter(item);
                                         } else {
-                                            terminal_directory_wrapper(item + vars.sep + value, index);
+                                            args.callback(sort());
                                         }
-                                    });
-                                }
-                            });
+                                    } else {
+                                        dirBody(files);
+                                    }
+                                });
+                            }
                         },
                         populate = function terminal_directory_wrapper_stat_populate(type:"error"|"link"|"file"|"directory"):void {
                             if (logTest.populate === true) {
@@ -268,7 +304,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 if (dirs > 0) {
                                     dirCounter(filePath);
                                 } else {
-                                    args.callback(fileList.sort());
+                                    args.callback(sort());
                                 }
                             } else {
                                 const status:"stat"|Stats = (test === true)
@@ -278,7 +314,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(fileList.sort());
+                                        args.callback(sort());
                                     }
                                 } else if (args.mode === "search") {
                                     const names:string[] = filePath.split(vars.sep);
@@ -295,7 +331,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
-                                        args.callback(fileList.sort());
+                                        args.callback(sort());
                                     }
                                 } else if (args.mode === "hash") {
                                     const hashInput:hashInput = {
@@ -326,6 +362,51 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 }
                             }
                         };
+                    if (filePath === "\\") {
+                        const date:Date = new Date();
+                        er = null;
+                        stat = {
+                            dev: 0,
+                            ino: 0,
+                            mode: 0,
+                            nlink: 0,
+                            uid: 0,
+                            gid: 0,
+                            rdev: 0,
+                            size: 0,
+                            blksize: 0,
+                            blocks: 0,
+                            atimeMs: 0,
+                            mtimeMs: 0,
+                            ctimeMs: 0,
+                            birthtimeMs: 0,
+                            atime: date,
+                            mtime: date,
+                            ctime: date,
+                            birthtime: date,
+                            isBlockDevice: function terminal_server_fileService_tasks_windowsRoot_isBlockDevice():boolean {
+                                return false;
+                            },
+                            isCharacterDevice: function terminal_server_fileService_tasks_windowsRoot_isCharacterDevice():boolean {
+                                return false;
+                            },
+                            isDirectory: function terminal_server_fileService_tasks_windowsRoot_isDirectory():boolean {
+                                return true;
+                            },
+                            isFIFO: function terminal_server_fileService_tasks_windowsRoot_isFIFO():boolean {
+                                return false;
+                            },
+                            isFile: function terminal_server_fileService_tasks_windowsRoot_isFile():boolean {
+                                return false;
+                            },
+                            isSocket: function terminal_server_fileService_tasks_windowsRoot_isSocket():boolean {
+                                return false;
+                            },
+                            isSymbolicLink: function terminal_server_fileService_tasks_windowsRoot_isSymbolicLink():boolean {
+                                return false;
+                            }
+                        };
+                    }
                     if (er !== null) {
                         if (er.toString().indexOf("no such file or directory") > 0) {
                             vars.testLogger("directory", "missing", `item ${filePath} is missing.`);
@@ -351,12 +432,9 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                             log(["directory"]);
                             return;
                         }
-                        const item:string = ((/^\w:\\$/).test(args.path) === true)
-                            ? args.path
-                            : args.path + vars.sep;
-                        if (((args.depth < 1 || filePath.replace(item, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(item, "")) < 0) {
+                        if (((args.depth < 1 || filePath.replace(startItem, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startItem, "")) < 0) {
                             dirTest = true;
-                            dir(filePath);
+                            dir(filePath.replace(/^\w:$/, driveLetter));
                         } else {
                             populate("directory");
                         }
@@ -396,8 +474,10 @@ const directory = function terminal_directory(parameters:readDirectory):void {
             };
         args.path = (function terminal_directory_path():string {
             const resolved = function terminal_directory_path_resolved(input:string):string {
-                const resolvedValue:string = vars.node.path.resolve(input);
-                return resolvedValue;
+                if (input === "\\" || input === "\\\\") {
+                    return "\\";
+                }
+                return vars.node.path.resolve(input);
             };
             if (vars.command === "directory") {
                 let len:number = process.argv.length,
@@ -416,7 +496,22 @@ const directory = function terminal_directory(parameters:readDirectory):void {
             }
             return resolved(args.path);
         }());
-        begin();
+        startItem = (args.path.charAt(args.path.length - 1) === vars.sep)
+            ? args.path
+            : args.path + vars.sep;
+        if (vars.command === "directory") {
+            if (vars.verbose === true) {
+                log.title("Directory");
+            }
+            if (args.mode === "search") {
+                args.search = search;
+            }
+        }
+        list.failures = [];
+        if (args.depth === undefined) {
+            args.depth = 0;
+        }
+        statWrapper(args.path, 0);
     };
 
 export default directory;
