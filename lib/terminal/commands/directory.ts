@@ -474,6 +474,9 @@ const directory = function terminal_directory(parameters:readDirectory):void {
             };
         args.path = (function terminal_directory_path():string {
             const resolved = function terminal_directory_path_resolved(input:string):string {
+                if ((/^\w:$/).test(input) === true) {
+                    return `${input}\\`;
+                }
                 if (input === "\\" || input === "\\\\") {
                     return "\\";
                 }
