@@ -37,7 +37,7 @@ import webSocket from "./webSocket.js";
                 active:number = Date.now(),
                 testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
                 loginFlag:boolean = false;
-            const comments:Comment[] = document.getNodesByType(8),
+            const comments:Comment[] = <Comment[]>document.getNodesByType(8),
                 commentLength:number = comments.length,
                 idleTime:number = 15000,
                 testBrowserLoad = function local_restore_testBrowserLoad():void {

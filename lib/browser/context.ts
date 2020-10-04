@@ -245,6 +245,11 @@ context.details = function local_context_details(event:MouseEvent):void {
                 const output:string[] = [],
                     length:number = addresses.length;
                 let a:number = 0;
+                if (context.element.nodeName.toLowerCase() === "ul") {
+                    const box:Element = context.element.getAncestor("box", "class"),
+                        input:HTMLInputElement = box.getElementsByTagName("input")[0];
+                    return [input.value];
+                }
                 do {
                     output.push(addresses[a][0]);
                     a = a + 1;
@@ -549,7 +554,6 @@ context.details = function local_context_details(event:MouseEvent):void {
         return;
     }
     network.fs(payloadNetwork, callback);
-    util.selectNone(element);
     context.element = null;
 };
 
@@ -865,6 +869,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
         if (readOnly === true) {
             return;
         }
+        functions.details();
         functions.newDirectory();
         functions.newFile();
         functions.paste();

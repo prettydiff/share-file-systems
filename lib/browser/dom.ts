@@ -49,7 +49,7 @@ const dom = function local_dom():void {
         getElementsByAttribute = function local_dom_getElementsByAttribute(name:string, value:string):Element[] {
             // eslint-disable-next-line
             const start:Element = (this === document) ? document.documentElement : this,
-                attrs:Attr[] = <Attr[]>start.getNodesByType(2),
+                attrs:Attr[]    = <Attr[]>start.getNodesByType(2),
                 out:Element[]   = [];
             if (typeof name !== "string") {
                 name = "";
@@ -57,11 +57,39 @@ const dom = function local_dom():void {
             if (typeof value !== "string") {
                 value = "";
             }
-            attrs.forEach(function local_dom_getElementsByAttribute_loop(item) {
+            attrs.forEach(function local_dom_getElementsByAttribute_each(item:Attr):void {
                 if (item.name === name || name === "") {
                     if (item.value === value || value === "") {
                         out.push(item.ownerElement);
                     }
+                }
+            });
+            return out;
+        },
+        // getElementsByText - Returns an array of descendant elements containing the white space trimmed text.
+        // * textValue: string - The text to match.  The value must exactly match the complete text node value after trimming white space.
+        // * castSensitive: boolean - Whether case sensitivity should apply.
+        getElementsByText = function local_dom_getElementsByText(textValue:string, caseSensitive?:boolean):Element[] {
+            // eslint-disable-next-line
+            const start:Element = (this === document) ? document.documentElement : this,
+                texts:Text[]    = <Text[]>start.getNodesByType(3),
+                out:Element[]   = [];
+            if (typeof textValue !== "string") {
+                textValue = "";
+            } else {
+                textValue = textValue.replace(/^\s+/, "").replace(/\s+$/, "");
+            }
+            if (typeof caseSensitive !== "boolean") {
+                caseSensitive = false;
+            }
+            texts.forEach(function local_dom_getElementsByText_each(item:Text):void {
+                const text:string = (caseSensitive === true)
+                    ? item.textContent.toLowerCase()
+                    : item.textContent;
+                if (textValue === "" && text.replace(/\s+/, "") !== "") {
+                    out.push(item.parentElement);
+                } else if (textValue !== "" && text.replace(/^\s+/, "").replace(/\s+$/, "") === textValue) {
+                    out.push(item.parentElement);
                 }
             });
             return out;
@@ -148,13 +176,16 @@ const dom = function local_dom():void {
         // getModalsByType - Returns a list of modals matching a given modal type
         // * The optional type argument indicates what type of modals to return
         // * The default type value is "all" or undefined which returns all modals
-        getModalsByModalType = function local_dom_getModalsByModalType(type?:modalType|"all"):Node[] {
+        getModalsByModalType = function local_dom_getModalsByModalType(type:modalType|"all"):Element[] {
             const keys:string[] = Object.keys(browser.data.modals),
                 length:number = keys.length,
-                output:Node[] = [];
+                output:Element[] = [];
             let a:number = 0;
+            if (typeof type !== "string") {
+                type = "all";
+            }
             do {
-                if (type === undefined || type === null || type === "all" || browser.data.modals[keys[a]].type === type) {
+                if (type === "all" || browser.data.modals[keys[a]].type === type) {
                     output.push(document.getElementById(keys[a]));
                 }
                 a = a + 1;
@@ -177,13 +208,15 @@ const dom = function local_dom():void {
     document.getElementsByAttribute          = getElementsByAttribute;
     document.getNodesByType                  = getNodesByType;
     document.getModalsByModalType            = getModalsByModalType;
+    document.getElementsByText               = getElementsByText;
 
     // Ensure dynamically created elements get these methods too
     Element.prototype.getAncestor            = getAncestor;
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;
+    Element.prototype.getElementsByText      = getElementsByText;
 
-    // Disabling popular but slow conventions. Enhancements to the project should consider performance and scale
+    // Disabling popular but slow conventions. Enhancements to the project must consider performance and scale
     Element.prototype.addEventListener       = disallowed;
     Element.prototype.querySelector          = disallowed;
     Element.prototype.querySelectorAll       = disallowedList;

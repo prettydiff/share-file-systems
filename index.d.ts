@@ -238,14 +238,16 @@ declare global {
         path: string;
     }
     interface Document {
-        getElementsByAttribute: Function;
-        getModalsByModalType: Function;
-        getNodesByType: Function;
+        getElementsByAttribute: (name:string, value:string) => Element[];
+        getModalsByModalType: (type:modalType|"all") => Element[];
+        getNodesByType: (typeValue:string|number) => Node[];
+        getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
     }
     interface Element {
         getAncestor: (identifier:string, selector:selector) => Element;
         getElementsByAttribute: (name:string, value:string) => Element[];
         getNodesByType: (typeValue:string|number) => Node[];
+        getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
     }
     interface fileService {
         action      : serviceType;

@@ -49,6 +49,63 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             unit: test
         };
     },
+    projectDirectory = function test_browser_projectDirectory(index:number):testBrowserItem {
+        return {
+            delay: {
+                // the last file system item is version.json
+                node: [
+                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", -1],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "ends",
+                target: ["innerHTML"],
+                type: "property",
+                value: "version.json"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: vars.projectPath
+                },
+                {
+                    event: "blur",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                }
+            ],
+            name: "Change file navigator file system location",
+            unit: [
+                {
+                    // the first file system item is .git
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "label", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: ".git"
+                }
+            ]
+        };
+    },
     browser:testBrowserItem[] = [
 
         // complete the login
@@ -383,61 +440,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // change the file system address by typing a new value
-        {
-            delay: {
-                // the last file system item is version.json
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", -1],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["innerHTML"],
-                type: "property",
-                value: "version.json"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ],
-                    value: vars.projectPath
-                },
-                {
-                    event: "blur",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                }
-            ],
-            name: "Change file navigator file system location",
-            unit: [
-                {
-                    // the first file system item is .git
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "label", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: ".git"
-                }
-            ]
-        },
+        projectDirectory(0),
 
         // double click into a child directory
         {
@@ -460,7 +463,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "li", 0],
+                        ["getElementsByTagName", "li", 0],
                     ]
                 }
             ],
@@ -854,11 +857,14 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         },
 
+        // return to project directory
+        projectDirectory(0),
+
         // display context menu
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
-            ["getElementsByTagName", "li", 0]
+            ["getElementsByTagName", "ul", 0]
         ], [
             {
                 // the context menu is visible
@@ -991,7 +997,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: "pre-rebase.sample"
+                value: "localhost.css"
             },
             interaction: [
                 {
@@ -1014,7 +1020,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     qualifier: "contains",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "4,898"
+                    value: "34,080"
                 }
             ]
         },
@@ -1030,7 +1036,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["previousSibling", "innerHTML"],
                 type: "property",
-                value: "11 most recently changed files"
+                value: "100 most recently changed files"
             },
             interaction: [
                 {
@@ -1057,7 +1063,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["previousSibling", "innerHTML"],
                 type: "property",
-                value: "All 11 files sorted alphabetically"
+                value: "files sorted alphabetically"
             },
             interaction: [
                 {
