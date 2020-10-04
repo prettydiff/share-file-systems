@@ -446,13 +446,13 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "lastType", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "hooks"
+                value: "refs"
             },
             interaction: [
                 {
@@ -460,7 +460,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByClassName", "li", 0],
                     ]
                 }
             ],
@@ -528,13 +528,13 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "lastType", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "hooks"
+                value: "refs"
             },
             interaction: [
                 {

@@ -444,12 +444,16 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                             return;
                         }
                         populate("link");
-                    } else if (stat.isFile() === true || stat.isBlockDevice() === true || stat.isCharacterDevice() === true) {
+                    } else {
                         if (type === true) {
                             if (stat.isBlockDevice() === true) {
                                 log(["blockDevice"]);
                             } else if (stat.isCharacterDevice() === true) {
                                 log(["characterDevice"]);
+                            } else if (stat.isFIFO() === true) {
+                                log(["FIFO"]);
+                            } else if (stat.isSocket() === true) {
+                                log(["socket"]);
                             } else {
                                 log(["file"]);
                             }
@@ -457,18 +461,6 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                         }
                         size = size + stat.size;
                         populate("file");
-                    } else {
-                        if (type === true) {
-                            if (stat.isFIFO() === true) {
-                                log(["FIFO"]);
-                            } else if (stat.isSocket() === true) {
-                                log(["socket"]);
-                            } else {
-                                log(["unknown"]);
-                            }
-                            return;
-                        }
-                        list[parent][3] = list[parent][3] - 1;
                     }
                 });
             };
