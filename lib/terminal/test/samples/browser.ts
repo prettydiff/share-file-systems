@@ -2626,13 +2626,13 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByClassName", "lastType", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "js"
+                value: "ws-es6"
             }
         ]),
 
@@ -2692,7 +2692,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     event: "click",
                     node: [
                         ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "button", 0]
                     ]
                 },
