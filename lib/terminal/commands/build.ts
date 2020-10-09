@@ -5,7 +5,6 @@ import { Stats, write } from "fs";
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
 import directory from "./directory.js";
-import hash from "./hash.js";
 import humanTime from "../utilities/humanTime.js";
 import lint from "./lint.js";
 import log from "../utilities/log.js";
@@ -270,8 +269,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                 writeEnd:number = 0,
                                 master:number = 0,
                                 a:number = 0,
-                                fileStart:number = 0,
-                                fileEnd:number = 0;
+                                codeLength:number = 0;
                             const length:number = dirList.length,
                                 masterList = function terminal_build_libReadme_masterList():void {
                                     let a:number = 0,
@@ -358,7 +356,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                     if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+ - \w/).test(file) === false) {
                                         error([
                                             "Code file missing required descriptive comment at top of code.",
-                                            `${vars.text.angry + file.slice(0, 300) + vars.text.none}`,
+                                            `${vars.text.angry + codeFiles[a] + vars.text.none}`,
                                             "--------------------------------------------------------------",
                                             "",
                                             "Include a comment prior to all other code.  Here is an example:",
@@ -373,7 +371,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                             `   ${vars.text.angry}2${vars.text.none} A separator comprising of a space, a hyphen, and a second space.`,
                                             `   ${vars.text.angry}3${vars.text.none} An English statement describing the code file.`
                                         ]);
-                                        return
+                                        return;
                                     }
                                     const md:boolean = (file.replace(/^\s+/, "").indexOf("<!--") === 0),
                                         comment:string = (md === true)
@@ -391,11 +389,13 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                             namePadded: `* **[${name}.${extension}](${name}.${extension})**`,
                                             path: path.join("/")
                                         };
-                                    fileEnd = fileEnd + 1;
                                     // Fourth, build the necessary data structure from reach the first comment of each file
                                     files.push(doc);
                                     // Fifth, once all TypeScript files are read the respective documentation content must be built
-                                    if (fileEnd === fileStart) {
+                                    a = a + 1;
+                                    if (a < codeLength) {
+                                        vars.node.fs.readFile(codeFiles[a], "utf8", terminal_build_libReadme_readFile);
+                                    } else {
                                         files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):number {
                                             if (x.path < y.path) {
                                                 return -1;
@@ -405,10 +405,10 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                             }
                                             return 1;
                                         });
-                                        let a:number = 1,
+                                        let aa:number = 1,
                                             b:number = 0,
                                             c:number = 0,
-                                            longest:number = files[a].name.length,
+                                            longest:number = files[aa].name.length,
                                             list:string[] = [];
                                         const fileLength:number = files.length,
                                             buildList = function terminal_build_libReadme_readFile_buildList():void {
@@ -422,25 +422,25 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                                     }
                                                     list.push(`${files[b].namePadded} - ${files[b].description}`);
                                                     b = b + 1;
-                                                } while (b < a);
+                                                } while (b < aa);
                                                 write(files[b - 1].path, list.join("\n"));
                                             };
-                                        master = files[a].path.length + files[a].name.length
+                                        master = files[aa].path.length + files[aa].name.length;
                                         do {
-                                            if (files[a].path === files[a - 1].path) {
-                                                if (files[a].name.length > longest) {
-                                                    longest = files[a].name.length;
+                                            if (files[aa].path === files[aa - 1].path) {
+                                                if (files[aa].name.length > longest) {
+                                                    longest = files[aa].name.length;
                                                 }
-                                                if (files[a].path.length + files[a].name.length > master) {
-                                                    master = files[a].path.length + files[a].name.length;
+                                                if (files[aa].path.length + files[aa].name.length > master) {
+                                                    master = files[aa].path.length + files[aa].name.length;
                                                 }
                                             } else {
                                                 buildList();
                                                 list = [];
                                                 longest = 0;
                                             }
-                                            a = a + 1;
-                                        } while (a < fileLength);
+                                            aa = aa + 1;
+                                        } while (aa < fileLength);
                                         buildList();
                                     }
                                 },
@@ -450,7 +450,8 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                     }
                                     return false;
                                 },
-                                files:docItem[] = [];
+                                files:docItem[] = [],
+                                codeFiles:string[] = [];
                             // Second, sort the directory data first by file types and then alphabetically
                             dirList.sort(function terminal_build_libReadme_dirs_sort(x:directoryItem, y:directoryItem):number {
                                 if (x[1] === "file" && y[1] !== "file") {
@@ -461,14 +462,17 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                 }
                                 return 1;
                             });
-                            // Third, read from each of the TypeScript files and direct output to readFile function
+                            // Third, gather the TypeScript and readme files
                             do {
                                 if (dirList[a][1] === "file" && (dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" || (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false))) {
-                                    fileStart = fileStart + 1;
-                                    vars.node.fs.readFile(dirList[a][0], "utf8", readFile);
+                                    codeFiles.push(dirList[a][0]);
                                 }
                                 a = a + 1;
                             } while (a < length);
+                            // Fourth, read from the files, the callback is recursive
+                            a = 0;
+                            codeLength = codeFiles.length;
+                            vars.node.fs.readFile(codeFiles[0], "utf8", readFile);
                         },
                         dirConfig:readDirectory = {
                             callback: callback,
