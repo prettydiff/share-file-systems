@@ -294,7 +294,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
 #spaces .messageList .expansion,
-#spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.75;margin:0.15em 1.2em 0 -2.1em;padding:0;vertical-align:top;width:0.75em}
+#spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -2.1em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
 #spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 
 #spaces .agentInvitation{padding:1em}

@@ -188,11 +188,6 @@ const sep:string = vars.sep,
             test: `import vars from "../utilities/vars.js";`
         },
         {
-            command: "directory",
-            qualifier: "contains",
-            test: "No path supplied for the directory command."
-        },
-        {
             command: `directory ".${superSep}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
             qualifier: "contains",
             test: " matching items from address"
