@@ -32,7 +32,7 @@ const sep:string = vars.sep,
         yellow   : "\u001b[33m"
     },
     // the tsconfig.json file hash used in multiple tests
-    hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
+    hash:string = "f6fdc288338713c9e41fedcf3d9ad09a06f2e9929eb2b7b59a76f60efbd8b98e8f962815f8474799a17496f779472e95a47d3795473e14bb094f3fc12e1a0323",
     simulation:testItem[] = [
         {
             command: "",
@@ -57,7 +57,7 @@ const sep:string = vars.sep,
         {
             command: `base64 ${projectPath}tsconfig.json`,
             qualifier: "is",
-            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ=="
+            test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJub2RlX21vZHVsZXMiCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioudHMiLAogICAgICAgICIqKi8qLnRzIgogICAgXQp9"
         },
         {
             //cspell:disable
@@ -275,7 +275,7 @@ const sep:string = vars.sep,
         {
             command: `hash string tsconfig.json algorithm:md5`,
             qualifier: "is",
-            test: "e5e546dd2eb0351f813d63d1b39dbc48"
+            test: "c54fa9c5b2a9d018f4ec8a8340f9ae7f"
         },
         {
             command: `hash string tsconfig.json algorithm:shake256`,
