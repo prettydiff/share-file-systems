@@ -711,9 +711,9 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     },
                     copyConfig:nodeCopyParams = {
                         callback: callback,
-                        destination:data.name,
-                        exclusions:[""],
-                        target:value
+                        destination: data.name,
+                        exclusions: [""],
+                        target: value
                     };
                 copy(copyConfig);
             });

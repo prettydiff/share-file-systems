@@ -51,6 +51,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 }
             }
             logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
+            config.callback(logs);
         },
         crypto = function terminal_certificate_crypto():void {
             vars.node.child(commands[index], {

@@ -52,7 +52,7 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                     dirs.pop();
                     return dirs.join(vars.sep);
                 }()),
-                file = function terminal_copy_file(source:directoryItem, path:string):void {
+                file = function terminal_copy_list_file(source:directoryItem, path:string):void {
                     const stat:Stats = <Stats>source[5],
                         readStream:Stream  = vars.node
                             .fs
@@ -61,25 +61,25 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                             .fs
                             .createWriteStream(path, {mode: stat.mode});
                     let errorFlag:boolean = false;
-                    readStream.on("error", function terminal_copy_file_readError(error:nodeError):void {
+                    readStream.on("error", function terminal_copy_list_file_readError(error:nodeError):void {
                         types(error.toString());
                         errorFlag = true;
                     });
                     if (errorFlag === false) {
-                        writeStream.on("error", function terminal_copy_file_writeError(error:nodeError):void {
+                        writeStream.on("error", function terminal_copy_list_file_writeError(error:nodeError):void {
                             types(error.toString());
                             errorFlag = true;
                         });
                         if (errorFlag === false) {
-                            writeStream.on("open", function terminal_copy_file_write():void {
+                            writeStream.on("open", function terminal_copy_list_file_writeOpen():void {
                                 readStream.pipe(writeStream);
                             });
-                            writeStream.once("finish", function terminal_copy_file_finish():void {
+                            writeStream.once("finish", function terminal_copy_list_file_writeStream():void {
                                 vars.node.fs.utimes(
                                     path,
                                     stat.atime,
                                     stat.mtime,
-                                    function terminal_copy_file_finish_utimes():void {
+                                    function terminal_copy_list_file_writeStream_callback():void {
                                         types(null);
                                     }
                                 );
@@ -87,11 +87,11 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                         }
                     }
                 },
-                link = function terminal_copy_link(source:string, path:string):void {
-                    vars.node.fs.readLink(source, function (linkError:nodeError, resolvedLink:string):void {
+                link = function terminal_copy_list_link(source:string, path:string):void {
+                    vars.node.fs.readLink(source, function terminal_copy_list_link_readLink(linkError:nodeError, resolvedLink:string):void {
                         if (linkError === null) {
                             numb.link = numb.link + 1;
-                            vars.node.fs.stat(resolvedLink, function terminal_copy_link_stat(statError:nodeError, stat:Stats):void {
+                            vars.node.fs.stat(resolvedLink, function terminal_copy_list_link_readLink_stat(statError:nodeError, stat:Stats):void {
                                 if (statError === null) {
                                     vars.node.fs.symlink(
                                         resolvedLink,
@@ -111,11 +111,11 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                         }
                     });
                 },
-                pathStat = function terminal_copy_pathStat(item:directoryItem):void {
+                pathStat = function terminal_copy_list_pathStat(item:directoryItem):void {
                     // establish destination path
                     const path:string = destination + item[0].replace(prefix, "");
-                    vars.node.fs.stat(path, function terminal_copy_pathStat_stat(statError:nodeError):void {
-                        const copyAction = function terminal_copy_pathStat_stat_copyAction():void {
+                    vars.node.fs.stat(path, function terminal_copy_list_pathStat_stat(statError:nodeError):void {
+                        const copyAction = function terminal_copy_list_pathStat_stat_copyAction():void {
                             if (item[1] === "directory") {
                                 numb.dirs = numb.dirs + 1;
                                 if (testLog.mkdir === true) {
@@ -153,21 +153,21 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                         }
                     });
                 },
-                types = function terminal_copy_types(error:string):void {
+                types = function terminal_copy_list_types(error:string):void {
                     if (error !== null && error !== undefined) {
                         numb.error = numb.error + 1;
                         log([error]);
                     }
                     if (a === len) {
                         vars.testLogger("copy", "complete", `completion test for ${target}`);
-                        params.callback();
+                        params.callback([numb.files, numb.size]);
                     } else {
                         pathStat(list[a]);
                     }
                     a = a + 1;
                 };
             
-            list.sort(function terminal_copy_directory_listSort(x:directoryItem, y:directoryItem):-1|1 {
+            list.sort(function terminal_copy_list_listSort(x:directoryItem, y:directoryItem):-1|1 {
                 if (x[1] === "directory" && y[1] !== 'directory') {
                     return -1;
                 }
