@@ -221,6 +221,18 @@ declare global {
         percent: number;
         writtenSize: number;
     }
+    interface copyLog {
+        file: boolean;
+        link: boolean;
+        mkdir: boolean;
+    }
+    interface copyStats {
+        dirs: number;
+        error: number;
+        files: number;
+        link: number;
+        size: number;
+    }
     interface copyStatus {
         failures: string[];
         fileList?: directoryList;

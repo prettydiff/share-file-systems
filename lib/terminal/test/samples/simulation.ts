@@ -270,12 +270,12 @@ const sep:string = vars.sep,
         {
             command: `hash ${projectPath}tsconfig.json algorithm:md5`,
             qualifier: "is",
-            test: "5861d4466dbf7ae3b3b2e378f1c11a45"
+            test: "c54fa9c5b2a9d018f4ec8a8340f9ae7f"
         },
         {
             command: `hash string tsconfig.json algorithm:md5`,
             qualifier: "is",
-            test: "c54fa9c5b2a9d018f4ec8a8340f9ae7f"
+            test: "e5e546dd2eb0351f813d63d1b39dbc48"
         },
         {
             command: `hash string tsconfig.json algorithm:shake256`,
