@@ -396,15 +396,6 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                     if (a < codeLength) {
                                         vars.node.fs.readFile(codeFiles[a], "utf8", terminal_build_libReadme_readFile);
                                     } else {
-                                        files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):number {
-                                            if (x.path < y.path) {
-                                                return -1;
-                                            }
-                                            if (x.path === y.path && x.name < y.name) {
-                                                return -1;
-                                            }
-                                            return 1;
-                                        });
                                         let aa:number = 1,
                                             b:number = 0,
                                             c:number = 0,
@@ -425,6 +416,15 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                                                 } while (b < aa);
                                                 write(files[b - 1].path, list.join("\n"));
                                             };
+                                        files.sort(function terminal_build_libReadme_readFile_sort(x:docItem, y:docItem):-1|1 {
+                                            if (x.path < y.path) {
+                                                return -1;
+                                            }
+                                            if (x.path === y.path && x.name < y.name) {
+                                                return -1;
+                                            }
+                                            return 1;
+                                        });
                                         master = files[aa].path.length + files[aa].name.length;
                                         do {
                                             if (files[aa].path === files[aa - 1].path) {
@@ -464,7 +464,7 @@ const build = function terminal_build(test:boolean, callback:Function):void {
                             });
                             // Third, gather the TypeScript and readme files
                             do {
-                                if (dirList[a][1] === "file" && (dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" || (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false))) {
+                                if (dirList[a][1] === "file" && dirList[a][0].indexOf("storageBrowser") < 0 && (dirList[a][0].slice(dirList[a][0].length - 3) === ".ts" || (dirList[a][0].slice(dirList[a][0].length - 3) === ".md" && nameTest(a, "readme.md") === false))) {
                                     codeFiles.push(dirList[a][0]);
                                 }
                                 a = a + 1;
