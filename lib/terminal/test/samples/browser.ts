@@ -2619,7 +2619,8 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByTagName", "li", 5]
+            ["getElementsByText", `${vars.projectPath}js`, 0],
+            ["parentNode", null, null]
         ], [
             {
                 node: [

@@ -259,7 +259,7 @@ remote.node = function local_remote_node(dom:testBrowserDOM):Element {
         str:string[] = ["document"];
     do {
         node = dom[a];
-        if (node[1] === "") {
+        if (node[1] === "" || node[1] === null) {
             element = element[node[0]];
             str.push(".");
             str.push(node[0]);
