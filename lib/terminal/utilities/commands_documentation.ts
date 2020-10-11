@@ -202,12 +202,16 @@ const commands_documentation = {
                 defined: "Returns a string describing the artifact type."
             },
             {
+                code: `${vars.version.command} directory source:"my/directory/path" mode:"array"`,
+                defined: "Returns an array of strings where each index is an absolute path."
+            },
+            {
                 code: `${vars.version.command} directory source:"my/path" mode:"hash"`,
                 defined: "Includes a SHA512 hash in the output for each file system object of type 'file'."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" mode:"list"`,
-                defined: "Returns an array of strings where each index is an absolute path."
+                defined: "Writes a list of file system artifacts, one per line, to the shell."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" search:"any string"`,

@@ -14,7 +14,7 @@ declare global {
     type colorScheme = "dark" | "default";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
-    type directoryMode = "hash" | "list" | "read" | "search";
+    type directoryMode = "array" | "hash" | "list" | "read" | "search";
     type domMethod = "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;

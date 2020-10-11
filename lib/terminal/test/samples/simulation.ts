@@ -208,14 +208,24 @@ const sep:string = vars.sep,
             test: `js${superSep}test${superSep}samples${superSep}simulation.js"`
         },
         {
-            command: `directory ${projectPath}js list`,
+            command: `directory ${projectPath}js array`,
             qualifier: "not contains",
             test: `,"ctime":`
         },
         {
-            command: `directory ${projectPath} list depth:1`,
+            command: `directory ${projectPath} array depth:1`,
             qualifier: "not contains",
             test: `bin${superSep}spaces`
+        },
+        {
+            command: `directory ${projectPath} list depth:1`,
+            qualifier: "contains",
+            test: `file       34,080  ${projectPath}license`
+        },
+        {
+            command: `directory ${projectPath} list relative depth:1`,
+            qualifier: "contains",
+            test: `file       34,080  license`
         },
         {
             command: `directory ${projectPath}js typeof`,

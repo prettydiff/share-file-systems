@@ -38,10 +38,10 @@ const wrapIt = function terminal_wrapIt(outputArray:string[], string:string):voi
                     wrapper:number = wrap;
                 do {
                     if (string.charAt(inc) === "\u001b") {
-                        if (string.charAt(inc + 4) === "m") {
-                            wrapper = wrapper + 4;
-                        } else {
+                        if (string.charAt(inc + 3) === "m") {
                             wrapper = wrapper + 3;
+                        } else if (string.charAt(inc + 4) === "m") {
+                            wrapper = wrapper + 4;
                         }
                     }
                     inc = inc + 1;

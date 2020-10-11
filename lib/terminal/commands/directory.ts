@@ -30,17 +30,46 @@ const directory = function terminal_directory(parameters:readDirectory):void {
         let dirTest:boolean = false,
             size:number = 0,
             dirs:number = 0,
+            longest:number = 0,
             search:string,
             startItem:string;
         const args:readDirectory = (vars.command === "directory")
                 ? {
-                    callback: function terminal_directory_path_callback(result:string[]|directoryList) {
-                        const output:string[] = [];
+                    callback: function terminal_directory_callback(result:string[]|directoryList) {
+                        const count:number = result.length,
+                            output:string[] = (args.mode === "list")
+                            ? <string[]>result
+                            : [];
+                        if (args.mode === "list") {
+                            let a:number = count,
+                                item:string;
+                            const size = function terminal_directory_callback_size(comma:string):string {
+                                let difference:number = longest - comma.length;
+                                if (difference > 0) {
+                                    do {
+                                        difference = difference - 1;
+                                        comma = ` ${comma}`;
+                                    } while (difference > 0);
+                                }
+                                return comma;
+                            };
+                            do {
+                                a = a - 1;
+                                item = <string>result[a];
+                                result[a] = item.replace(/\d+(,\d+)*/, size);
+                            } while (a > 0);
+                        }
                         if (vars.verbose === true) {
-                            output.push(JSON.stringify(result));
+                            if (args.mode !== "list") {
+                                output.push(JSON.stringify(result));
+                            }
                             output.push("");
-                            wrapIt(output, `${vars.version.name} found ${vars.text.green + commas(result.length) + vars.text.none} matching items from address ${vars.text.cyan + args.path + vars.text.none} with a total file size of ${vars.text.green + commas(size) + vars.text.none} bytes.`);
-                            log(output);
+                            output.push(`${vars.version.name} found ${vars.text.green + commas(count) + vars.text.none} matching items from address:`);
+                            output.push(vars.text.cyan + args.path + vars.text.none);
+                            output.push(`Total file size of ${vars.text.green + commas(size) + vars.text.none} bytes and ${vars.text.angry + commas(list.failures.length) + vars.text.none} errors.`);
+                            log(output, true);
+                        } else if (args.mode === "list") {
+                            log(<string[]>result);
                         } else {
                             log([JSON.stringify(result)]);
                         }
@@ -63,6 +92,10 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                         let b:number = 0;
                         do {
                             if ((/^mode:/).test(process.argv[b]) === true) {
+                                if (process.argv[b].indexOf("array") > 0) {
+                                    process.argv.splice(b, 1);
+                                    return "array";
+                                }
                                 if (process.argv[b].indexOf("hash") > 0) {
                                     process.argv.splice(b, 1);
                                     return "hash";
@@ -84,13 +117,17 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 process.argv.splice(b, 1);
                                 return "search";
                             }
-                            if (process.argv[b] === "list") {
+                            if (process.argv[b] === "array") {
                                 process.argv.splice(b, 1);
-                                return "list";
+                                return "array";
                             }
                             if (process.argv[b] === "hash") {
                                 process.argv.splice(b, 1);
                                 return "hash";
+                            }
+                            if (process.argv[b] === "list") {
+                                process.argv.splice(b, 1);
+                                return "list";
                             }
                             if (process.argv[b] === "read") {
                                 process.argv.splice(b, 1);
@@ -183,8 +220,10 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                 dirCount[index] = dirCount[index] - 1;
                 if (dirNames.length === 0 && item === args.path) {
                     // empty directory, nothing to traverse
-                    if (args.mode === "list") {
+                    if (args.mode === "array") {
                         args.callback(sort());
+                    } else if (args.mode === "list") {
+                        args.callback(fileList);
                     } else {
                         args.callback(list);
                     }
@@ -197,8 +236,10 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                         if (args.logRecursion === true) {
                             vars.testLogger("directory", "dirCounter", "complete so call the callback or output to terminal.");
                         }
-                        if (args.mode === "list") {
+                        if (args.mode === "array") {
                             args.callback(sort());
+                        } else if (args.mode === "list") {
+                            args.callback(fileList);
                         } else {
                             args.callback(list);
                         }
@@ -218,7 +259,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                         angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         dir = function terminal_directory_wrapper_stat_dir(item:string):void {
                             const dirBody = function terminal_directory_wrapper_stat_dir_dirBody(files:string[]):void {
-                                const index:number = (args.mode === "list")
+                                const index:number = (args.mode === "array" || args.mode === "list")
                                         ? fileList.length
                                         : list.length,
                                     status:"stat"|Stats = (test === true)
@@ -227,8 +268,10 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                     relItem:string = (relative === true)
                                         ? item.replace(args.path + vars.sep, "")
                                         : item;
-                                if (args.mode === "list") {
+                                if (args.mode === "array") {
                                     fileList.push(relItem);
+                                } else if (args.mode === "list") {
+                                    fileList.push(`directory  0  ${relPath}`);
                                 } else {
                                     if (args.mode === "search") {
                                         const names:string[] = item.split(vars.sep);
@@ -300,6 +343,9 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 vars.testLogger("directory", "populate", `populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
                             }
                             if (type === "error") {
+                                if (args.mode === "list") {
+                                    log([`error     0  ${relPath}`]);
+                                }
                                 list.failures.push(filePath);
                                 if (dirs > 0) {
                                     dirCounter(filePath);
@@ -326,8 +372,22 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                     } else {
                                         args.callback(list);
                                     }
-                                } else if (args.mode === "list") {
-                                    fileList.push(relPath);
+                                } else if (args.mode === "array" || args.mode === "list") {
+                                    if (args.mode === "array") {
+                                        fileList.push(relPath);
+                                    } else {
+                                        const typePadding:string = (type === "link")
+                                                ? "link     "
+                                                : (type === "file")
+                                                    ? "file     "
+                                                    : "directory",
+                                            comma:string = commas(stat.size),
+                                            size:number = comma.length;
+                                        if (size > longest) {
+                                            longest = size;
+                                        }
+                                        fileList.push(`${typePadding}  ${comma}  ${relPath}`);
+                                    }
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {

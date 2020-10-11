@@ -123,10 +123,12 @@ Traverses a directory in the local file system and generates a list.  If a sourc
    - Sets an exclusion list of things to ignore.
 1. `node js/application directory source:"my/path" typeof`
    - Returns a string describing the artifact type.
+1. `node js/application directory source:"my/directory/path" mode:"array"`
+   - Returns an array of strings where each index is an absolute path.
 1. `node js/application directory source:"my/path" mode:"hash"`
    - Includes a SHA512 hash in the output for each file system object of type 'file'.
 1. `node js/application directory source:"my/directory/path" mode:"list"`
-   - Returns an array of strings where each index is an absolute path.
+   - Writes a list of file system artifacts, one per line, to the shell.
 1. `node js/application directory source:"my/directory/path" search:"any string"`
    - Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied.
 1. `node js/application directory source:"my/directory/path" relative`
