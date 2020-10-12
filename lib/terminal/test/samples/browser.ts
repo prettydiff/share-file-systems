@@ -2619,7 +2619,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByText", `${vars.projectPath}documentation`, 0],
+            ["getElementsByText", `${vars.projectPath}js`, 0],
             ["parentNode", null, null]
         ], [
             {
@@ -2727,10 +2727,10 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "span", 1]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 13 items"
+                value: "directory - "
             },
             interaction: [
                 {
