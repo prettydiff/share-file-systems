@@ -10,7 +10,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         sep:string = vars.sep,
         windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
         windowsSep:string = sep.replace(/\\/g, "\\\\"),
-        hash:string = "622d3d0c8cb85c227e6bad1c99c9cd8f9323c8208383ece09ac58e713c94c34868f121de6e58e358de00a41f853f54e4ef66e6fe12a86ee124f7e452dbe89800",
+        hash:string = "f6fdc288338713c9e41fedcf3d9ad09a06f2e9929eb2b7b59a76f60efbd8b98e8f962815f8474799a17496f779472e95a47d3795473e14bb094f3fc12e1a0323",
         loopback:string = (serverVars.addresses[0].length > 1)
             ? "::"
             : "127.0.0.1";
@@ -33,7 +33,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         name: "fs:fs-base64, Base 64 Local",
         qualifier: "is",
         test: [{
-            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
+            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJub2RlX21vZHVsZXMiCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioudHMiLAogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
             id: "some-modal-id",
             path: `${projectPath}tsconfig.json`
         }]
@@ -56,7 +56,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         name: "fs:fs-base64, Base 64 Remote Device",
         qualifier: "is",
         test: [{
-            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibm9kZV9tb2R1bGVzIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqLnRzIiwKICAgICAgICAiKiovKi50cyIKICAgIF0KfQ==",
+            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJub2RlX21vZHVsZXMiCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioudHMiLAogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
             id: "some-modal-id",
             path: `${projectPath}tsconfig.json`
         }]
@@ -276,7 +276,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         qualifier: "is",
         test: {
             dirs: [
-                [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
+                [`${projectPath}tsconfig.json`, "file", "", 0, 0, null]
             ],
             fail: [],
             id: "test-ID"
@@ -301,7 +301,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         qualifier: "is",
         test: {
             dirs: [
-                [`${projectPath}tsconfig.json`,"file","",0,0,"stat"]
+                [`${projectPath}tsconfig.json`, "file", "", 0, 0, null]
             ],
             fail: [],
             id: "test-ID"
@@ -823,7 +823,7 @@ const serviceTests = function test_services():testServiceInstance[] {
                 agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 dirs: [
-                    [`${projectPath}lib${sep}storage${sep}storage.txt`, "file", "", 0, 0, "stat"]
+                    [`${projectPath}lib${sep}storage${sep}storage.txt`, "file", "", 0, 0, null]
                 ],
                 fail: [],
                 location: `${projectPath}lib${sep}storage`,
@@ -832,7 +832,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         },
         name: "fs-update-remote, Local",
         qualifier: "is",
-        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}lib${windowsSep}storage${windowsSep}storage.txt","file","",0,0,"stat"]],"fail":[],"location":"${windowsPath}lib${windowsSep}storage","status":{}}} at XXXX `
+        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}lib${windowsSep}storage${windowsSep}storage.txt","file","",0,0,null]],"fail":[],"location":"${windowsPath}lib${windowsSep}storage","status":{}}} at XXXX `
     });
     service.push(<testTemplateStorage>{
         command: {

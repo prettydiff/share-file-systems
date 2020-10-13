@@ -13,7 +13,7 @@ declare global {
     type color = [string, string];
     type colorScheme = "dark" | "default";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
-    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
+    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
     type directoryMode = "array" | "hash" | "list" | "read" | "search";
     type domMethod = "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling";
     type dragFlag = "" | "control" | "shift";
@@ -313,14 +313,14 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: Stats | "stat";
+        stat?: Stats;
     }
     interface hashOutput {
         filePath: string;
         hash: string;
         id?: string;
         parent?: number;
-        stat?: Stats | "stat";
+        stat?: Stats;
     }
     interface hashShare {
         device: string;

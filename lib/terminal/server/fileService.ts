@@ -747,6 +747,11 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                                 failures = failures.concat(result.failures);
                                 output = output.concat(result);
                             }
+                            if (vars.command === "test" || vars.command === "test_service") {
+                                result.forEach(function terminal_server_fileService_tasks_pulCallback_testEach(item:directoryItem):void {
+                                    item[5] = null;
+                                });
+                            }
                             if (count === pathLength) {
                                 const responseData:fsRemote = {
                                     dirs: "missing",

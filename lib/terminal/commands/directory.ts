@@ -262,9 +262,6 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 const index:number = (args.mode === "array" || args.mode === "list")
                                         ? fileList.length
                                         : list.length,
-                                    status:"stat"|Stats = (test === true)
-                                        ? "stat"
-                                        : stat,
                                     relItem:string = (relative === true)
                                         ? item.replace(args.path + vars.sep, "")
                                         : item;
@@ -276,10 +273,10 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                     if (args.mode === "search") {
                                         const names:string[] = item.split(vars.sep);
                                         if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                            list.push([relPath, "directory", "", parent, files.length, status]);
+                                            list.push([relPath, "directory", "", parent, files.length, stat]);
                                         }
                                     } else {
-                                        list.push([relItem, "directory", "", parent, files.length, status]);
+                                        list.push([relItem, "directory", "", parent, files.length, stat]);
                                     }
                                 }
                                 if (files.length < 1) {
@@ -353,9 +350,6 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                     args.callback(sort());
                                 }
                             } else {
-                                const status:"stat"|Stats = (test === true)
-                                    ? "stat"
-                                    : stat;
                                 if (vars.exclusions.indexOf(filePath.replace(args.path + vars.sep, "")) > -1) {
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -365,7 +359,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 } else if (args.mode === "search") {
                                     const names:string[] = filePath.split(vars.sep);
                                     if ((vars.sep === "/" && names[names.length - 1].indexOf(args.search) > -1) || (vars.sep === "\\" && names[names.length - 1].toLowerCase().indexOf(args.search.toLowerCase()) > -1)) {
-                                        list.push([relPath, type, "", parent, 0, status]);
+                                        list.push([relPath, type, "", parent, 0, stat]);
                                     }
                                     if (dirs > 0) {
                                         dirCounter(filePath);
@@ -409,11 +403,11 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                         directInput: false,
                                         source: filePath,
                                         parent: parent,
-                                        stat: status
+                                        stat: stat
                                     };
                                     hash(hashInput);
                                 } else {
-                                    list.push([relPath, type, "", parent, 0, status]);
+                                    list.push([relPath, type, "", parent, 0, stat]);
                                     if (dirs > 0) {
                                         dirCounter(filePath);
                                     } else {
