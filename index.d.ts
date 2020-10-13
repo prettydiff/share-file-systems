@@ -534,17 +534,18 @@ declare global {
     }
     interface module_remote {
         delay?: (config:testBrowserItem) => void;
+        domFailure: boolean;
         error?: (message:string, source:string, line:number, col:number, error:Error) => void;
-        evaluate?: (config:testBrowserTest) => [boolean, string, string];
+        evaluate?: (test:testBrowserTest, config:testBrowserItem) => [boolean, string, string];
         event?: (event:testBrowserItem, pageLoad:boolean) => void;
-        getProperty?: (config:testBrowserTest) => primitive;
+        getProperty?: (test:testBrowserTest, config:testBrowserItem) => primitive;
         index: number;
         keyAlt: boolean;
         keyControl: boolean;
         keyShift: boolean;
-        node?: (dom:testBrowserDOM) => Element;
+        node?: (dom:testBrowserDOM, config:testBrowserItem) => Element;
         stringify?: (primitive:primitive) => string;
-        test?: (config:testBrowserTest[], index:number) => void;
+        test?: (test:testBrowserTest[], index:number, config:testBrowserItem) => void;
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
