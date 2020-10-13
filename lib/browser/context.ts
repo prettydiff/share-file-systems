@@ -1,7 +1,5 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
-import { Stats } from "fs";
-
 import browser from "./browser.js";
 import fs from "./fs.js";
 import modal from "./modal.js";
@@ -278,7 +276,6 @@ context.details = function local_context_details(event:MouseEvent):void {
             let a:number = 0,
                 tr:Element,
                 td:HTMLElement,
-                stat:Stats,
                 heading:Element = document.createElement("h3"),
                 table:HTMLElement = document.createElement("table"),
                 tbody:Element = document.createElement("tbody"),
@@ -292,10 +289,9 @@ context.details = function local_context_details(event:MouseEvent):void {
                     } else if (list[a][1] === "link") {
                         details.links = details.links + 1;
                     } else {
-                        stat = <Stats>list[a][5];
                         fileList.push(list[a]);
                         details.files = details.files + 1;
-                        details.size = details.size + stat.size;
+                        details.size = details.size + list[a][5].size;
                     }
                     a = a + 1;
                 } while (a < length);
@@ -361,11 +357,10 @@ context.details = function local_context_details(event:MouseEvent):void {
             tbody.appendChild(tr);
             table.appendChild(tbody);
             output.appendChild(table);
-    
-            stat = <Stats>list[0][5];
-            mTime = new Date(stat.mtimeMs);
-            aTime = new Date(stat.atimeMs);
-            cTime = new Date(stat.ctimeMs);
+
+            mTime = new Date(list[0][5].mtimeMs);
+            aTime = new Date(list[0][5].atimeMs);
+            cTime = new Date(list[0][5].ctimeMs);
             heading = document.createElement("h3");
             heading.innerHTML = "MAC";
             output.appendChild(heading);
@@ -399,9 +394,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             output.appendChild(table);
     
             if (list[0][1] === "directory" && details.files > 0) {
-                let button:HTMLElement = document.createElement("button"),
-                    statA:Stats,
-                    statB:Stats;
+                let button:HTMLElement = document.createElement("button");
                 td = document.createElement("p");
                 heading = document.createElement("h3");
                 heading.innerHTML = "List files";
@@ -411,9 +404,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                 button.innerHTML = "List 100 largest files";
                 button.onclick = function local_context_details_callback_largest(event:MouseEvent):void {
                     fileList.sort(function local_context_details_callback_largest_sort(aa:directoryItem, bb:directoryItem):number {
-                        statA = <Stats>aa[5];
-                        statB = <Stats>bb[5];
-                        if (statA.size > statB.size) {
+                        if (aa[5].size > bb[5].size) {
                             return -1;
                         }
                         return 1;
@@ -426,22 +417,20 @@ context.details = function local_context_details(event:MouseEvent):void {
                         dataLength:number = Math.min(fileList.length, 100);
                     let aa:number = 0,
                         row:HTMLElement,
-                        cell:HTMLElement,
-                        stat:Stats;
+                        cell:HTMLElement;
                     p.innerHTML = `${dataLength} largest files`;
                     tbody.innerHTML = "";
                     do {
-                        stat = <Stats>fileList[aa][5];
                         row = document.createElement("tr");
                         cell = document.createElement("th");
                         cell.setAttribute("class", "file");
                         cell.innerHTML = fileList[aa][0];
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = commas(stat.size);
+                        cell.innerHTML = commas(fileList[aa][5].size);
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = prettyBytes(stat.size);
+                        cell.innerHTML = prettyBytes(fileList[aa][5].size);
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         aa = aa + 1;
@@ -458,9 +447,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                 button.innerHTML = "List 100 most recently changed files";
                 button.onclick = function local_context_details_callback_recent(event:MouseEvent):void {
                     fileList.sort(function local_context_details_callback_recent_sort(aa:directoryItem, bb:directoryItem):number {
-                        statA = <Stats>aa[5];
-                        statB = <Stats>bb[5];
-                        if (statA.mtimeMs > statB.mtimeMs) {
+                        if (aa[5].mtimeMs > bb[5].mtimeMs) {
                             return -1;
                         }
                         return 1;
@@ -473,19 +460,17 @@ context.details = function local_context_details(event:MouseEvent):void {
                         dataLength:number = Math.min(fileList.length, 100);
                     let aa:number = 0,
                         row:HTMLElement,
-                        cell:HTMLElement,
-                        stat:Stats;
+                        cell:HTMLElement;
                     p.innerHTML = `${dataLength} most recently changed files`;
                     tbody.innerHTML = "";
                     do {
-                        stat = <Stats>fileList[aa][5];
                         row = document.createElement("tr");
                         cell = document.createElement("th");
                         cell.setAttribute("class", "file");
                         cell.innerHTML = fileList[aa][0];
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = util.dateFormat(new Date(stat.mtimeMs));
+                        cell.innerHTML = util.dateFormat(new Date(fileList[aa][5].mtimeMs));
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         aa = aa + 1;

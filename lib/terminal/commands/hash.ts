@@ -1,6 +1,5 @@
 
 /* lib/terminal/commands/hash - A command driven utility to generate hash sequences on strings or file system artifacts. */
-import { Stats } from "fs";
 import { Hash } from "crypto";
 
 import commas from "../../common/commas.js";
@@ -111,7 +110,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                     } else {
                         const readConfig:readFile = {
                             path: list[index][0],
-                            stat: <Stats>list[index][5],
+                            stat: list[index][5],
                             index: index,
                             callback: function terminal_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
                                 hashBack(data, item, function terminal_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
@@ -168,7 +167,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                     } else {
                         const readConfig:readFile = {
                             path: list[a][0],
-                            stat: <Stats>list[a][5],
+                            stat: list[a][5],
                             index: a,
                             callback: function terminal_hash_dirComplete_file(data:readFile, item:string|Buffer):void {
                                 hashBack(data, item, function terminal_hash_dirComplete_file_hashBack(hashString:string, index:number):void {

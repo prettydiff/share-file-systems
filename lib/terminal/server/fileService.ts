@@ -275,8 +275,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     let b:number = 0,
                         size:number,
                         largest:number = 0,
-                        largeFile:number = 0,
-                        stat:fs.Stats;
+                        largeFile:number = 0;
                     // list schema:
                     // 0. full item path
                     // 1. item type: directory, file
@@ -288,8 +287,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     }
                     do {
                         if (dir[b][1] === "file") {
-                            stat = <fs.Stats>dir[b][5];
-                            size = stat.size;
+                            size = dir[b][5].size;
                             fileCount = fileCount + 1;
                             fileSize = fileSize + size;
                             if (size > largest) {

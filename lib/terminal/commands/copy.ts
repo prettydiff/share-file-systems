@@ -53,13 +53,12 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                     return dirs.join(vars.sep);
                 }()),
                 file = function terminal_copy_list_file(source:directoryItem, path:string):void {
-                    const stat:Stats = <Stats>source[5],
-                        readStream:Stream  = vars.node
+                    const readStream:Stream  = vars.node
                             .fs
                             .createReadStream(source[0]),
                         writeStream:Writable = vars.node
                             .fs
-                            .createWriteStream(path, {mode: stat.mode});
+                            .createWriteStream(path, {mode: source[5].mode});
                     let errorFlag:boolean = false;
                     readStream.on("error", function terminal_copy_list_file_readError(error:nodeError):void {
                         types(error.toString());
@@ -77,8 +76,8 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                             writeStream.once("finish", function terminal_copy_list_file_writeStream():void {
                                 vars.node.fs.utimes(
                                     path,
-                                    stat.atime,
-                                    stat.mtime,
+                                    source[5].atime,
+                                    source[5].mtime,
                                     function terminal_copy_list_file_writeStream_callback():void {
                                         types(null);
                                     }
@@ -124,9 +123,8 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                                 }
                                 mkdir(path, types, false);
                             } else if (item[1] === "file") {
-                                const stat:Stats = <Stats>item[5];
                                 numb.files = numb.files + 1;
-                                numb.size = numb.size + stat.size;
+                                numb.size = numb.size + item[5].size;
                                 if (testLog.file === true) {
                                     testLog.file = false;
                                     vars.testLogger("copy", "file", `write first file of copy: ${path}`);

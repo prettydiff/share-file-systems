@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
-import { Stats, write } from "fs";
+import { Stats } from "fs";
 
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";

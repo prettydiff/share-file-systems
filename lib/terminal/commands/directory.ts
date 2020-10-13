@@ -180,7 +180,6 @@ const directory = function terminal_directory(parameters:readDirectory):void {
             }()),
             list:directoryList = [],
             fileList:string[] = [],
-            test:boolean = (vars.command.indexOf("test") === 0 && vars.command !== "test_browser"),
             method:string = (args.symbolic === true)
                 ? "lstat"
                 : "stat",

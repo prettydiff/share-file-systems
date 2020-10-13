@@ -1,7 +1,5 @@
 
 /* lib/browser/fs - A collection of utilities for handling file system related tasks in the browser. */
-import { Stats } from "fs";
-
 import browser from "./browser.js";
 import context from "./context.js";
 import modal from "./modal.js";
@@ -488,19 +486,17 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             }
         };
     let span:HTMLElement,
-        plural:string,
-        stat:Stats;
+        plural:string;
 
     // preparation of descriptive text and assistive features
     if (item[1] === "file") {
         span = document.createElement("span");
-        stat = <Stats>item[5];
-        if (stat.size === 1) {
+        if (item[5].size === 1) {
             plural = "";
         } else {
             plural = "s";
         }
-        span.textContent = `file - ${commas(stat.size)} byte${plural}`;
+        span.textContent = `file - ${commas(item[5].size)} byte${plural}`;
     } else if (item[1] === "directory") {
         if (item[4] > 0) {
             const button = document.createElement("button");
