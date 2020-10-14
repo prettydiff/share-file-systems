@@ -3,11 +3,9 @@
 import { Stats } from "fs";
 
 import commas from "../../common/commas.js";
-import error from "../utilities/error.js";
 import hash from "./hash.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
-import wrapIt from "../utilities/wrapIt.js";
 
 // similar to node's fs.readdir, but recursive
 const directory = function terminal_directory(parameters:readDirectory):void {
