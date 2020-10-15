@@ -13,9 +13,9 @@ declare global {
     type color = [string, string];
     type colorScheme = "dark" | "default";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
-    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats | "stat"];
-    type directoryMode = "hash" | "list" | "read" | "search";
-    type domMethod = "childNodes" | "firstChild" | "getAncestor" | "getElementsByAttribute" | "getElementById" | "getElementsByClassName" | "getElementsByTagName" | "getModalsByModalType" | "getNodesByType" | "lsatChild" | "parentNode";
+    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
+    type directoryMode = "array" | "hash" | "list" | "read" | "search";
+    type domMethod = "activeElement" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
     type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "refresh-interaction" | "select" | "setValue" | "touchend" | "touchend" | "touchstart";
@@ -221,6 +221,18 @@ declare global {
         percent: number;
         writtenSize: number;
     }
+    interface copyLog {
+        file: boolean;
+        link: boolean;
+        mkdir: boolean;
+    }
+    interface copyStats {
+        dirs: number;
+        error: number;
+        files: number;
+        link: number;
+        size: number;
+    }
     interface copyStatus {
         failures: string[];
         fileList?: directoryList;
@@ -238,14 +250,16 @@ declare global {
         path: string;
     }
     interface Document {
-        getElementsByAttribute: Function;
-        getModalsByModalType: Function;
-        getNodesByType: Function;
+        getElementsByAttribute: (name:string, value:string) => Element[];
+        getModalsByModalType: (type:modalType|"all") => Element[];
+        getNodesByType: (typeValue:string|number) => Node[];
+        getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
     }
     interface Element {
         getAncestor: (identifier:string, selector:selector) => Element;
         getElementsByAttribute: (name:string, value:string) => Element[];
         getNodesByType: (typeValue:string|number) => Node[];
+        getElementsByText: (textValue:string, caseSensitive?:boolean) => Element[];
     }
     interface fileService {
         action      : serviceType;
@@ -299,14 +313,14 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: Stats | "stat";
+        stat?: Stats;
     }
     interface hashOutput {
         filePath: string;
         hash: string;
         id?: string;
         parent?: number;
-        stat?: Stats | "stat";
+        stat?: Stats;
     }
     interface hashShare {
         device: string;
@@ -520,14 +534,18 @@ declare global {
     }
     interface module_remote {
         delay?: (config:testBrowserItem) => void;
+        domFailure: boolean;
         error?: (message:string, source:string, line:number, col:number, error:Error) => void;
-        evaluate?: (config:testBrowserTest) => [boolean, string, string];
+        evaluate?: (test:testBrowserTest, config:testBrowserItem) => [boolean, string, string];
         event?: (event:testBrowserItem, pageLoad:boolean) => void;
-        getProperty?: (config:testBrowserTest) => primitive;
+        getProperty?: (test:testBrowserTest, config:testBrowserItem) => primitive;
         index: number;
-        node?: (dom:browserDOM[], test:testBrowserTest) => Element;
+        keyAlt: boolean;
+        keyControl: boolean;
+        keyShift: boolean;
+        node?: (dom:testBrowserDOM, config:testBrowserItem) => Element;
         stringify?: (primitive:primitive) => string;
-        test?: (config:testBrowserTest[], index:number) => void;
+        test?: (test:testBrowserTest[], index:number, config:testBrowserItem) => void;
     }
     interface module_settings {
         addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
@@ -692,6 +710,7 @@ declare global {
         ipAddress: string;
         nameDevice: string;
         nameUser: string;
+        secure: boolean;
         status: heartbeatStatus;
         storage: string;
         testBrowser?: string;
@@ -810,10 +829,13 @@ declare global {
         demo: boolean;
         noClose: boolean;
     }
+    interface testBrowserDOM extends Array<browserDOM> {
+        nodeString?: string;
+    }
     interface testBrowserEvent {
         coords?: [number, number];
         event: eventName;
-        node: browserDOM[];
+        node: testBrowserDOM;
         value?: string;
     }
     interface testBrowserItem {
@@ -821,15 +843,14 @@ declare global {
         index?: number;
         interaction: testBrowserEvent[];
         name: string;
-        test: testBrowserTest[];
+        unit: testBrowserTest[];
     }
     interface testBrowserResult {
         index: number;
         payload: [boolean, string, string][];
     }
     interface testBrowserTest {
-        node: browserDOM[];
-        nodeString?: string;
+        node: testBrowserDOM;
         qualifier: qualifier;
         target: string[];
         type: "attribute" | "element" | "property";

@@ -14,6 +14,7 @@ import response from "../../server/response.js";
 
 import tests from "../samples/browser.js";
 
+let finished:boolean = false;
 const browser:testBrowserApplication = {
     args: {
         demo: false,
@@ -39,10 +40,13 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
                         : (process.platform === "win32")
                             ? "start"
                             : "xdg-open",
-                    port:string = (serverVars.webPort === 443)
+                    port:string = ((serverVars.secure === true && serverVars.webPort === 443) || (serverVars.secure === false && serverVars.webPort === 80))
                         ? ""
                         : `:${String(serverVars.webPort)}`,
-                    path:string = `https://localhost${port}/?test_browser`,
+                    scheme:string = (serverVars.secure === true)
+                        ? "https"
+                        : "http",
+                    path:string = `${scheme}://localhost${port}/?test_browser`,
                     // execute a browser by file path to the browser binary
                     browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                         ? (function test_browser_execute_readdir_launch_serviceCall_binary():string {
@@ -97,6 +101,9 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
 
 browser.iterate = function test_browser_iterate(index:number):void {
     // not writing to storage
+    if (finished === true) {
+        return;
+    }
     tests[index].index = index;
     serverVars.testBrowser = JSON.stringify(tests[index]);
     const message:string = JSON.stringify({
@@ -114,7 +121,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
                 eventName = function test_browser_iterate_validate_eventName(property):string {
                     return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                 };
-            if (tests[index].delay === undefined && tests[index].test.length < 1) {
+            if (tests[index].delay === undefined && tests[index].unit.length < 1) {
                 logs.push("Test campaign does not contain a delay test or test instances in its test array.");
                 return false;
             }
@@ -167,10 +174,13 @@ browser.iterate = function test_browser_iterate(index:number):void {
 };
 
 browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
+    if (finished === true) {
+        return;
+    }
     let a:number = 0,
         falseFlag:boolean = false;
     const length:number = item.payload.length,
-        delay:boolean = (tests[item.index].test.length === 0),
+        delay:boolean = (tests[item.index].unit.length === 0),
         completion = function test_browser_result_completion(pass:boolean):void {
             const plural:string = (tests.length === 1)
                     ? ""
@@ -181,7 +191,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                         bb:number = 0;
                     do {
                         aa = aa - 1;
-                        bb = bb + tests[aa].test.length;
+                        bb = bb + tests[aa].unit.length;
                     } while (aa > 0);
                     if (tests[aa].delay === undefined) {
                         return bb;
@@ -189,11 +199,15 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     return bb + 1;
                 }()),
                 exit = function test_browser_result_completion_exit(type:number, message:string):void {
+                    if (finished === true) {
+                        return;
+                    }
                     const close:boolean = (browser.args.demo === false && browser.args.noClose === false),
                         // delay is extended for end of test if last event is refresh, so that the server has time to respond before exist
                         delay:number = (close === false && type === 0 && tests[browser.index].interaction[0].event === "refresh")
                             ? 1000
                             : 50;
+                    finished = true;
                     if (close === true) {
                         vars.ws.broadcast(JSON.stringify({
                             "test-browser-close": {}
@@ -205,6 +219,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     } else {
                         log([message], true);
                         browser.index = -1;
+                        serverVars.testBrowser = null;
                     }
                 };
             vars.verbose = true;
@@ -321,11 +336,11 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     .replace(/\\n/g, "\n    ")
                     .replace(/\}$/, "\n}");
                 failure.push(`     ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
-            } else if ((delay === false && item.payload[index][2] === buildNode(tests[item.index].test[index], true)) || (delay === true && item.payload[index][2] === buildNode(tests[item.index].delay, true))) {
+            } else if ((delay === false && item.payload[index][2] === buildNode(tests[item.index].unit[index], true)) || (delay === true && item.payload[index][2] === buildNode(tests[item.index].delay, true))) {
                 failure.push(`     Actual value: ${vars.text.cyan + item.payload[index][1] + vars.text.none}`);
-            } else if ((delay === false && tests[item.index].test[index].value === null) || (delay === true && tests[item.index].delay.value === null)) {
+            } else if ((delay === false && tests[item.index].unit[index].value === null) || (delay === true && tests[item.index].delay.value === null)) {
                 failure.push(`     DOM node is not null: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
-            } else if ((delay === false && tests[item.index].test[index].value === undefined) || (delay === true && tests[item.index].delay.value === undefined)) {
+            } else if ((delay === false && tests[item.index].unit[index].value === undefined) || (delay === true && tests[item.index].delay.value === undefined)) {
                 failure.push(`     DOM node is not undefined: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
             } else {
                 failure.push(`     DOM node is ${item.payload[index][1]}: ${vars.text.cyan + item.payload[index][2] + vars.text.none}`);
@@ -347,6 +362,10 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 failure.push(`     Actual value: ${vars.text.cyan + item.payload[1][1] + vars.text.none}`);
             }
             falseFlag = true;
+        } else if (item.payload[0][0] === false && item.payload[0][1].indexOf("event error ") === 0) {
+            failure.push(`${vars.text.angry}Failed: event node is ${item.payload[0][1].replace("event error ", "")}`);
+            failure.push(`     Specified event node is: ${vars.text.cyan + item.payload[0][2] + vars.text.none}`);
+            falseFlag = true;
         } else if (delay === true) {
             failure.push(testString(item.payload[a][0], tests[item.index].delay));
             if (item.payload[a][0] === false) {
@@ -355,7 +374,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             }
         } else {
             do {
-                failure.push(testString(item.payload[a][0], tests[item.index].test[a]));
+                failure.push(testString(item.payload[a][0], tests[item.index].unit[a]));
                 if (item.payload[a][0] === false) {
                     failureMessage(a);
                     falseFlag = true;

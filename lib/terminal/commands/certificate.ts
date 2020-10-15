@@ -51,6 +51,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 }
             }
             logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
+            config.callback(logs);
         },
         crypto = function terminal_certificate_crypto():void {
             vars.node.child(commands[index], {
@@ -306,7 +307,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]
                         : ["ca", config.caName, config.caDomain],
-                    confPath:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep + mode[0]}.cnf -extensions x509_ext`,
+                    confPath:string = `"${vars.projectPath}lib${vars.sep}certificate${vars.sep + mode[0]}.cnf" -extensions x509_ext`,
                     key = function terminal_certificate_createState_create_key(type:"name"|"caName"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },

@@ -759,7 +759,7 @@ The invitation *status* property will feature one of these values:
    "fs-update-remote": {
       "agent"   : "remoteUser",
       "dirs"    : [
-         ["storage.txt", "file", "", 0, 0, "stat"]
+         ["storage.txt", "file", "", 0, 0, {}]
       ],
       "location": "storage",
       "status"  : {
@@ -770,6 +770,7 @@ The invitation *status* property will feature one of these values:
       }
    }
 }
+// index 5 for each item in "dirs", empty above here, is of type Stats from "fs"
 ```
 
 ### fs-update-remote Schema

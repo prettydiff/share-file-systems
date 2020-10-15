@@ -2,6 +2,7 @@
 /* lib/terminal/utilities/log - A log utility for displaying multiple lines of text to the terminal. */
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
+import serverVars from "../server/serverVars.js";
 
 // verbose metadata printed to the shell about the application
 const log = function terminal_log(output:string[], end?:boolean):void {
@@ -33,7 +34,7 @@ const log = function terminal_log(output:string[], end?:boolean):void {
 
 log.title = function terminal_log_title(message:string, certificate?:boolean):void {
     const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - ${message + vars.text.none}`;
-    if (certificate === true) {
+    if (certificate === true && serverVars.secure === true) {
         log([
             "",
             formatted,

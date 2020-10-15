@@ -1,7 +1,5 @@
 
 /* lib/browser/fs - A collection of utilities for handling file system related tasks in the browser. */
-import { Stats } from "fs";
-
 import browser from "./browser.js";
 import context from "./context.js";
 import modal from "./modal.js";
@@ -31,7 +29,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
-            : <Element>element.parentNode,
+            : <Element>element.getAncestor("li", "tag"),
         body:Element = li.getAncestor("body", "class"),
         box:Element = <Element>body.parentNode.parentNode,
         input:HTMLInputElement = box.getElementsByTagName("input")[0],
@@ -118,11 +116,14 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             }
             let id:string = "";
             const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
-                    const addressList:[string, shareType, string][] = util.selectedAddresses(<Element>list.firstChild, list.getAttribute("data-state")),
-                        output:string[] = [];
-                    addressList.forEach(function local_fs_drag_drop_addresses_each(value:[string, shareType, string]) {
-                        output.push(value[0]);
-                    });
+                    const output:string[] = [],
+                        children:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
+                        len:number = children.length;
+                    let a:number = 0;
+                    do {
+                        output.push(children[a].getElementsByTagName("label")[0].innerHTML);
+                        a = a + 1;
+                    } while (a < len);
                     return output;
                 }()),
                 touchDrop:TouchEvent = (touch === true)
@@ -354,7 +355,10 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
         const p:Element = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
-            p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
+            const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
+                ? "."
+                : " or remote user is offline.";
+            p.innerHTML = `Error 404: Requested location is not available${local}`;
         } else if (dirData.dirs === "noShare") {
             p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
         } else {
@@ -471,10 +475,7 @@ fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
 
 /* Build a single file system object from data */
 fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):Element {
-    const driveLetter = function local_fs_listItem_driveLetter(drive:string):string {
-            return drive.replace("\\\\", "\\");
-        },
-        li:HTMLElement = document.createElement("li"),
+    const li:HTMLElement = document.createElement("li"),
         label:HTMLLabelElement = document.createElement("label"),
         text:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
@@ -488,19 +489,17 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
             }
         };
     let span:HTMLElement,
-        plural:string,
-        stat:Stats;
+        plural:string;
 
     // preparation of descriptive text and assistive features
     if (item[1] === "file") {
         span = document.createElement("span");
-        stat = <Stats>item[5];
-        if (stat.size === 1) {
+        if (item[5].size === 1) {
             plural = "";
         } else {
             plural = "s";
         }
-        span.textContent = `file - ${commas(stat.size)} byte${plural}`;
+        span.textContent = `file - ${commas(item[5].size)} byte${plural}`;
     } else if (item[1] === "directory") {
         if (item[4] > 0) {
             const button = document.createElement("button");
@@ -528,7 +527,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
     }
 
     // prepare the primary item text (address)
-    text.innerHTML = item[0].replace(/^\w:\\\\/, driveLetter);
+    text.innerHTML = item[0];
     text.oncontextmenu = context.menu;
     text.onclick = fs.select;
     li.appendChild(text);
@@ -822,10 +821,11 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
         searchParent.style.width = "12.5%";
         addressLabel.style.width = "87.5%";
     }
-    if (element.value.replace(/\s+/, "") !== "" && (event === null || (event.type === "keyup" && event.key === "Enter"))) {
+    if (event === null || (event.type === "keyup" && event.key === "Enter")) {
         const box:Element = element.getAncestor("box", "class"),
             body:Element = box.getElementsByClassName("body")[0],
-            address:string = addressLabel.getElementsByTagName("input")[0].value,
+            addressElement:HTMLInputElement = addressLabel.getElementsByTagName("input")[0],
+            address:string = addressElement.value,
             statusBar:Element = box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0],
             id:string = box.getAttribute("id"),
             value:string = element.value,
@@ -845,7 +845,10 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
             },
             netCallback = function local_fs_search_callback(responseText:string):void {
                 if (responseText === "") {
-                    body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
+                    const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
+                        ? "."
+                        : " or remote user is offline.";
+                    body.innerHTML = `<p class=\"error\">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const dirData = JSON.parse(responseText),
                         length:number = dirData.dirs.length,
@@ -856,6 +859,19 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                             statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural} from <em>${address}</em>.`;
                         };
                     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
+                        const p:HTMLElement = document.createElement("p");
+                        p.setAttribute("class", "error");
+                        if (dirData.dirs === "missing") {
+                            p.innerHTML = "The matching results are no longer available.";
+                        } else if (dirData.dirs === "noShare") {
+                            p.innerHTML = "The matching results are no longer shared.";
+                        } else if (dirData.dirs === "readOnly") {
+                            p.innerHTML = "The matching results are restricted to a read only share.";
+                        } else {
+                            p.innerHTML = "There are no matching results.";
+                        }
+                        body.innerHTML = "";
+                        body.appendChild(p);
                         statusString(0);
                     } else {
                         const output:HTMLElement = document.createElement("ul");
@@ -899,16 +915,21 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                     }
                 }
             };
-        if (event === null || browser.data.modals[id].search.join("") !== address + value) {
-            body.innerHTML = "";
-            body.append(util.delay());
-            if (browser.loadTest === false) {
-                browser.data.modals[id].search = [address, value];
-                browser.data.modals[id].selection = {};
-                network.storage("settings");
-            }
-            network.fs(payload, netCallback);
+        body.innerHTML = "";
+        body.append(util.delay());
+        if (element.value.replace(/\s+/, "") === "") {
+            addressElement.focus();
+            addressElement.blur();
+            element.focus();
+            browser.data.modals[id].search = [address, ""];
+            return;
         }
+        if (browser.loadTest === false) {
+            browser.data.modals[id].search = [address, value];
+            browser.data.modals[id].selection = {};
+            network.storage("settings");
+        }
+        network.fs(payload, netCallback);
     }
 };
 
@@ -1083,7 +1104,10 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
             },
             callback = function local_fs_text_callback(responseText:string):void {
                 if (responseText === "") {
-                    parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
+                    const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
+                        ? "."
+                        : " or remote user is offline.";
+                    parent.innerHTML = `<p class=\"error\">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const list:[Element, number, string] = fs.list(element.value, JSON.parse(responseText));
                     parent.innerHTML = "";

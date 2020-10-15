@@ -179,15 +179,11 @@ const commands_documentation = {
         ]
     },
     directory: {
-        description: "Traverses a directory in the local file system and generates a list.",
+        description: "Traverses a directory in the local file system and generates a list.  If a source is not provided the current working directory is used.",
         example: [
             {
                 code: `${vars.version.command} directory source:"my/directory/path"`,
                 defined: "Returns an array where each index is an array of [absolute path, type, parent index, file count, stat]. Type can refer to 'file', 'directory', or 'link' for symbolic links.  The parent index identify which index in the array is the objects containing directory and the file count is the number of objects a directory type object contains."
-            },
-            {
-                code: `${vars.version.command} directory source:"my/directory/path" shallow`,
-                defined: "Does not traverse child directories."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" depth:9`,
@@ -206,16 +202,24 @@ const commands_documentation = {
                 defined: "Returns a string describing the artifact type."
             },
             {
+                code: `${vars.version.command} directory source:"my/directory/path" mode:"array"`,
+                defined: "Returns an array of strings where each index is an absolute path."
+            },
+            {
                 code: `${vars.version.command} directory source:"my/path" mode:"hash"`,
                 defined: "Includes a SHA512 hash in the output for each file system object of type 'file'."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" mode:"list"`,
-                defined: "Returns an array of strings where each index is an absolute path."
+                defined: "Writes a list of file system artifacts, one per line, to the shell."
             },
             {
                 code: `${vars.version.command} directory source:"my/directory/path" search:"any string"`,
                 defined: "Returns results in the default format, but only containing artifacts containing the search token. If the 'search' argument is not provided the search function will not be applied."
+            },
+            {
+                code: `${vars.version.command} directory source:"my/directory/path" relative`,
+                defined: "The relative argument provide relative paths from the source path instead of absolute paths."
             }
         ]
     },

@@ -9,6 +9,7 @@
     },
     "exclude": [
         "js",
+        "lib/terminal/test/storageBrowser",
         "node_modules"
     ],
     "include": [

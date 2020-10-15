@@ -1,7 +1,5 @@
 
 /* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */
-import { Stats } from "fs";
-
 import commas from "../../common/commas.js"
 import directory from "./directory.js";
 import error from "../utilities/error.js";
@@ -19,8 +17,7 @@ const remove = function terminal_remove(filePath:string, callback:Function):void
                 size: 0
             },
             removeItems = function terminal_remove_removeItems(fileList:directoryList):void {
-                let a:number = 0,
-                    stat:Stats;
+                let a:number = 0;
                 const len:number = fileList.length,
                     destroy = function terminal_remove_removeItems_destroy(item:directoryItem) {
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
@@ -59,9 +56,8 @@ const remove = function terminal_remove(filePath:string, callback:Function):void
                 do {
                     if (vars.command === "remove") {
                         if (fileList[a][1] === "file") {
-                            stat = <Stats>fileList[a][5];
                             numb.file = numb.file + 1;
-                            numb.size = numb.size + stat.size;
+                            numb.size = numb.size + fileList[a][5].size;
                         } else if (fileList[a][1] === "directory") {
                             numb.dirs = numb.dirs + 1;
                         } else if (fileList[a][1] === "link") {

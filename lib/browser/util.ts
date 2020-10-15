@@ -467,6 +467,7 @@ util.getAgent = function local_util_getAgent(element:Element):agency {
 /* Shortcut key combinations */
 util.keys = function local_util_keys(event:KeyboardEvent):void {
     const key:string = event.key,
+        windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
         element:Element = (function local_util_keys_element():Element {
             let el:Element = <Element>event.srcElement || <Element>event.target;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
@@ -474,10 +475,14 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             }
             return el.getAncestor("li", "tag");
         }());
-    if (key === "F5" || key === "f5" || (event.ctrlKey === true && (key === "r" || key === "R"))) {
+    if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
         location.reload();
     }
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
+        return;
+    }
+    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && element.getAttribute("class") === "directory selected" && util.selectedAddresses(element, "directory").length === 1) {
+        fs.directory(event);
         return;
     }
     event.preventDefault();
@@ -487,7 +492,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     if (key === "Delete" || key === "DEL") {
         context.element = element;
         context.destroy(event);
-    } else if (event.altKey === true && event.ctrlKey === true) {
+    } else if (windowEvent.altKey === true && windowEvent.ctrlKey === true) {
         if ((key === "b" || key === "B") && element.nodeName.toLowerCase() === "li") {
             // key b, base64
             context.element = element;
@@ -524,7 +529,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
             // key t, details
             context.details(event, element);
         }
-    } else if (event.ctrlKey === true) {
+    } else if (windowEvent.ctrlKey === true) {
         if (key === "a" || key === "A") {
             // key a, select all
             const list:Element = (element.nodeName.toLowerCase() === "ul")

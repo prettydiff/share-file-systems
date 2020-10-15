@@ -15,7 +15,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             }
         ],
         name: "Display the primary menu",
-        test: [
+        unit: [
             {
                 // primary menu is visible
                 node: [
@@ -27,6 +27,84 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 value: "block"
             }
         ]
+    },
+    showContextMenu = function test_browser_showContextMenu(node:testBrowserDOM, test:testBrowserTest[]):testBrowserItem {
+        return {
+            delay: {
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 2
+            },
+            interaction: [
+                {
+                    event: "contextmenu",
+                    node: node
+                }
+            ],
+            name: "Show context menu on copied directory",
+            unit: test
+        };
+    },
+    projectDirectory = function test_browser_projectDirectory(index:number):testBrowserItem {
+        return {
+            delay: {
+                // the last file system item is version.json
+                node: [
+                    ["getModalsByModalType", "fileNavigate", index],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "li", -1],
+                    ["getElementsByTagName", "label", 0]
+                ],
+                qualifier: "ends",
+                target: ["innerHTML"],
+                type: "property",
+                value: "version.json"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: vars.projectPath
+                },
+                {
+                    event: "blur",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByTagName", "input", 0]
+                    ]
+                }
+            ],
+            name: "Change file navigator file system location",
+            unit: [
+                {
+                    // the first file system item is .git
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "label", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: ".git"
+                }
+            ]
+        };
     },
     browser:testBrowserItem[] = [
 
@@ -72,7 +150,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Login form",
-            test: [
+            unit: [
                 {
                     // that a local user button is present and active
                     node: [
@@ -107,7 +185,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ],
             name: "Refresh following login form completion",
             // assert that login remains complete, login data is stored and written to page
-            test: [
+            unit: [
                 {
                     // that a local user button is present and active
                     node: [
@@ -168,7 +246,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Launch 'File Navigator' modal from primary menu",
-            test: [
+            unit: [
                 {
                     // that file navigation modal contains an address bar
                     node: [
@@ -329,7 +407,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Directory expansion",
-            test: [
+            unit: [
                 {
                     // the first child list item of the expanded directory thus contains its own expansion button
                     node: [
@@ -362,61 +440,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // change the file system address by typing a new value
-        {
-            delay: {
-                // the last file system item is version.json
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", -1],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["innerHTML"],
-                type: "property",
-                value: "version.json"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ],
-                    value: vars.projectPath
-                },
-                {
-                    event: "blur",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                }
-            ],
-            name: "Change file navigator file system location",
-            test: [
-                {
-                    // the first file system item is .git
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "label", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: ".git"
-                }
-            ]
-        },
+        projectDirectory(0),
 
         // double click into a child directory
         {
@@ -425,13 +449,13 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "lastType", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "hooks"
+                value: "refs"
             },
             interaction: [
                 {
@@ -444,7 +468,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Double click into a directory",
-            test: [
+            unit: [
                 {
                     // the file navigator modal address is now at .git
                     node: [
@@ -485,7 +509,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Click the parent directory button",
-            test: [
+            unit: [
                 {
                     // the file navigator modal address is now at share-file-systems
                     node: [
@@ -507,13 +531,13 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByClassName", "lastType", 0],
                     ["getElementsByTagName", "label", 0]
                 ],
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "hooks"
+                value: "refs"
             },
             interaction: [
                 {
@@ -526,7 +550,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Click the back button of a file navigator modal",
-            test: [
+            unit: [
                 {
                     // the file navigator modal address returned back to .git
                     node: [
@@ -554,7 +578,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Click the minimize button of a file navigator modal",
-            test: [
+            unit: [
                 {
                     // the file navigator modal is 11.5em when minimized
                     node: [
@@ -599,7 +623,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Refresh following file navigation minimize",
-            test: [
+            unit: [
                 {
                     // the file navigator modal is 11.5em when minimized
                     node: [
@@ -658,7 +682,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Restore a minimized modal",
-            test: [
+            unit: [
                 {
                     // the file navigator modal is 11.5em when minimized
                     node: [
@@ -696,7 +720,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Maximize a modal",
-            test: [
+            unit: [
                 {
                     // the modal is at the top of the content area
                     node: [
@@ -740,7 +764,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Refresh following file navigation maximize",
-            test: [
+            unit: [
                 {
                     // the modal is at the top of the content area
                     node: [
@@ -798,7 +822,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Restore a maximized modal to its prior size and location",
-            test: [
+            unit: [
                 {
                     // the modal is at the top of the content area
                     node: [
@@ -833,67 +857,50 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         },
 
+        // return to project directory
+        projectDirectory(0),
+
         // display context menu
-        {
-            delay: {
-                // there is a details button
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "ul", 0]
+        ], [
+            {
+                // the context menu is visible
                 node: [
-                    ["getElementById", "contextMenu", null],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementById", "contextMenu", null]
                 ],
-                qualifier: "contains",
-                target: ["innerHTML"],
+                qualifier: "greater",
+                target: ["clientHeight"],
                 type: "property",
-                value: "CTRL + ALT + T"
+                value: 2
             },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ]
-                }
-            ],
-            name: "Display file system context menu (right click)",
-            test: [
-                {
-                    // the context menu is visible
-                    node: [
-                        ["getElementById", "contextMenu", null]
-                    ],
-                    qualifier: "greater",
-                    target: ["clientHeight"],
-                    type: "property",
-                    value: 2
-                },
-                {
-                    // the context menu is visible
-                    node: [
-                        ["getElementById", "contextMenu", null]
-                    ],
-                    qualifier: "is",
-                    target: ["style", "display"],
-                    type: "property",
-                    value: ""
-                }
-            ]
-        },
+            {
+                // the context menu is visible
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "is",
+                target: ["style", "display"],
+                type: "property",
+                value: ""
+            }
+        ]),
 
         // display details
         {
             delay: {
-                // the modal loads and content populates
+                // text of the first button
                 node: [
                     ["getModalsByModalType", "details", 0],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "button", 1]
+                    ["getElementsByTagName", "button", 0]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Recently changed"
+                value: "List 100 largest files"
             },
             interaction: [
                 {
@@ -906,19 +913,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Activate file system details",
-            test: [
-                {
-                    // text of the first button
-                    node: [
-                        ["getModalsByModalType", "details", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "Largest size"
-                },
+            unit: [
                 {
                     // text of the second button
                     node: [
@@ -929,7 +924,19 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     qualifier: "is",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Recently changed"
+                    value: "List 100 most recently changed files"
+                },
+                {
+                    // text of the third button
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "List all files alphabetically"
                 },
                 {
                     // model does not have a maximize button
@@ -979,6 +986,99 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         },
 
+        // display file list by file size
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "details", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "detailFileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["innerHTML"],
+                type: "property",
+                value: "localhost.css"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Display file list by file size",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "detailFileList", 0]
+                    ],
+                    qualifier: "contains",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "34,080"
+                }
+            ]
+        },
+
+        // display file list by file modification
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "details", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "detailFileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["previousSibling", "innerHTML"],
+                type: "property",
+                value: "100 most recently changed files"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ]
+                }
+            ],
+            name: "Display file list by modification date",
+            unit: []
+        },
+
+        // display file list all files
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "details", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "detailFileList", 0]
+                ],
+                qualifier: "contains",
+                target: ["previousSibling", "innerHTML"],
+                type: "property",
+                value: "files sorted alphabetically"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "details", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ]
+                }
+            ],
+            name: "Display file list all files",
+            unit: []
+        },
+
         // close details
         {
             interaction: [
@@ -992,7 +1092,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Close the details modal",
-            test: [
+            unit: [
                 {
                     // text of the first button
                     node: [
@@ -1066,7 +1166,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Create two shares and open local device shares",
-            test: [
+            unit: [
                 {
                     // text of the subheading
                     node: [
@@ -1158,7 +1258,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Convert read only share to full access share",
-            test: [
+            unit: [
                 {
                     // get text of the second share button
                     node: [
@@ -1237,7 +1337,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Launch a second 'File Navigator' modal from primary menu",
-            test: [
+            unit: [
                 {
                     // that file navigation modal contains an address bar
                     node: [
@@ -1410,7 +1510,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Change file navigator file system location to storageBrowser",
-            test: [
+            unit: [
                 {
                     // the first file system item is .git
                     node: [
@@ -1426,41 +1526,23 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // find new directory button
-        {
-            delay: {
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "li", 0]
+        ], [
+            {
                 node: [
-                    ["getElementById", "contextMenu", null]
+                    ["getElementById", "contextMenu", null],
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "button", 0]
                 ],
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
                 value: "New Directory"
-            },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ]
-                }
-            ],
-            name: "Find the new directory button from the context menu",
-            test: [
-                {
-                    node: [
-                        ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 5],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "contains",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "New Directory"
-                }
-            ]
-        },
+            }
+        ]),
 
         // evoke new directory with an empty field, first time
         {
@@ -1492,7 +1574,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new directory field",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1525,7 +1607,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Blur new directory field",
-            test: []
+            unit: []
         },
 
         // evoke new directory with an empty field, second time
@@ -1558,7 +1640,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new directory field second time",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1602,7 +1684,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Press ESC key on new directory field",
-            test: [
+            unit: [
                 {
                     // the file navigator modal is created
                     node: [
@@ -1648,7 +1730,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new directory field third time",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1701,7 +1783,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Create a new directory with 'Enter' key",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1755,7 +1837,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new directory field fourth time",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1807,7 +1889,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Create a new directory with blur event",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1861,7 +1943,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new file field",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1894,7 +1976,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Blur new file field",
-            test: []
+            unit: []
         },
 
         // evoke new file with an empty field, second time
@@ -1927,7 +2009,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new file field second time",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -1971,7 +2053,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Press ESC key on new file field",
-            test: [
+            unit: [
                 {
                     // the file navigator modal is created
                     node: [
@@ -2017,7 +2099,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new file field third time",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -2070,7 +2152,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Create a new file with 'Enter' key",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -2124,7 +2206,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Evoke new file field fourth time",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -2176,7 +2258,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Create a new file with blur event",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "newFileItem", null]
@@ -2225,7 +2307,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Open text pad",
-            test: [
+            unit: [
                 {
                     // that file navigator modal contains a minimize button
                     node: [
@@ -2295,7 +2377,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Modify text pad value",
-            test: [
+            unit: [
                 {
                     // that file navigator modal contains a minimize button
                     node: [
@@ -2320,7 +2402,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Refresh following use of text pad",
-            test: [
+            unit: [
                 {
                     // that file navigator modal contains a minimize button
                     node: [
@@ -2361,7 +2443,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Open export modal",
-            test: [
+            unit: [
                 {
                     // that file navigator modal contains a minimize button
                     node: [
@@ -2484,7 +2566,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Modify export modal value",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0]
@@ -2529,48 +2611,31 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Step back in history of file navigator",
-            test: []
+            unit: []
         },
 
         // open context menu on project js directory
-        {
-            delay: {
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByText", `${vars.projectPath}js`, 0],
+            ["parentNode", null, null]
+        ], [
+            {
                 node: [
-                    ["getElementById", "contextMenu", null]
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByClassName", "lastType", 0],
+                    ["getElementsByTagName", "label", 0]
                 ],
-                qualifier: "greater",
-                target: ["clientHeight"],
+                qualifier: "ends",
+                target: ["innerHTML"],
                 type: "property",
-                value: 2
-            },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5]
-                    ]
-                }
-            ],
-            name: "Open context menu on project js directory",
-            test: [
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5],
-                        ["getElementsByTagName", "label", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "js"
-                }
-            ]
-        },
+                value: "ws-es6"
+            }
+        ]),
 
         // copy directory using context menu
         {
@@ -2600,33 +2665,15 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Copy js directory using the context menu",
-            test: []
+            unit: []
         },
 
         // open context menu to paste
-        {
-            delay: {
-                node: [
-                    ["getElementById", "contextMenu", null]
-                ],
-                qualifier: "greater",
-                target: ["clientHeight"],
-                type: "property",
-                value: 2
-            },
-            interaction: [
-                {
-                    event: "contextmenu",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "fileList", 0]
-                    ]
-                }
-            ],
-            name: "Open context menu to paste",
-            test: []
-        },
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByClassName", "fileList", 0]
+        ], []),
 
         // paste from context menu
         {
@@ -2646,7 +2693,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     event: "click",
                     node: [
                         ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "button", 0]
                     ]
                 },
@@ -2658,7 +2705,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Paste from context menu",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "contextMenu", null]
@@ -2680,10 +2727,10 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "span", 1]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 4 items"
+                value: "directory - "
             },
             interaction: [
                 {
@@ -2695,7 +2742,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Update file list",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getElementById", "contextMenu", null]
@@ -2747,7 +2794,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             name: "Expand copied directory",
-            test: [
+            unit: [
                 {
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
@@ -2773,6 +2820,749 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     target: ["innerHTML"],
                     type: "property",
                     value: "lib"
+                }
+            ]
+        },
+
+        // show context menu on copied directory
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByTagName", "li", 2]
+        ], []),
+
+        // delete js directory using context menu
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "1 item deleted."
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 8],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Delete js directory using context menu",
+            unit: []
+        },
+
+        // refresh file navigator contents
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Refresh the file navigator file list",
+            unit: []
+        },
+
+        // select js directory
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 5]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory selected"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5]
+                    ]
+                }
+            ],
+            name: "Select js directory",
+            unit: []
+        },
+
+        // select additional directory
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 4]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory selected"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Select additional directory",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 5]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory selected"
+                }
+            ]
+        },
+
+        // add two selected directories to the clipboard
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 4]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Add two selected directories to the clipboard",
+            unit: []
+        },
+
+        // paste directories into different file navigator
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Copy complete."
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                }
+            ],
+            name: "Paste two directories into different file navigator",
+            unit: []
+        },
+
+        // update file list
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "span", 1]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "directory - 13 items"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Update file list",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "contextMenu", null]
+                    ],
+                    qualifier: "is",
+                    target: [],
+                    type: "element",
+                    value: null
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "begins",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory"
+                }
+            ]
+        },
+
+        // select the two pasted directories
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 3]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "directory lastType selected"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Select the two pasted directories",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory selected"
+                }
+            ]
+        },
+
+        // delete the two selected directories using the keyboard shortcut
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "2 items deleted."
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Delete"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Delete"
+                }
+            ],
+            name: "Delete the two selected directories using the keyboard shortcut",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file"
+                }
+            ]
+        },
+
+        // select two files
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 3]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file selected"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Select two files",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file selected"
+                }
+            ]
+        },
+
+        // display context menu on selected files
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 1],
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByTagName", "li", 2]
+        ], []),
+
+        // cut two files using context menu
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file cut"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 8],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            name: "Cut two files using context menu",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file cut"
+                }
+            ]
+        },
+
+        // navigate to a child directory using keyboard
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 0
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            name: "Navigate to a child directory using keyboard",
+            unit: []
+        },
+
+        // paste cut files using keyboard
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "begins",
+                target: ["innerHTML"],
+                type: "property",
+                value: "Copy complete. 2 files written"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Paste cut files using keyboard",
+            unit: []
+        },
+
+        // update modal file contents
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 2
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            name: "Update modal file contents to show pasted files",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "active"
+                }
+            ]
+        },
+
+        // select all with keyboard shortcut and cut
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 1]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file cut"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "a"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "a"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "x"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "x"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0]
+                    ],
+                    value: "Control"
+                }
+            ],
+            name: "Select all with keyboard shortcut and cut files with keyboard",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file cut"
                 }
             ]
         }

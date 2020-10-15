@@ -275,8 +275,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     let b:number = 0,
                         size:number,
                         largest:number = 0,
-                        largeFile:number = 0,
-                        stat:fs.Stats;
+                        largeFile:number = 0;
                     // list schema:
                     // 0. full item path
                     // 1. item type: directory, file
@@ -288,8 +287,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     }
                     do {
                         if (dir[b][1] === "file") {
-                            stat = <fs.Stats>dir[b][5];
-                            size = stat.size;
+                            size = dir[b][5].size;
                             fileCount = fileCount + 1;
                             fileSize = fileSize + size;
                             if (size > largest) {
@@ -711,9 +709,9 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     },
                     copyConfig:nodeCopyParams = {
                         callback: callback,
-                        destination:data.name,
-                        exclusions:[""],
-                        target:value
+                        destination: data.name,
+                        exclusions: [""],
+                        target: value
                     };
                 copy(copyConfig);
             });
@@ -746,6 +744,11 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                             if (result.length > 0) {
                                 failures = failures.concat(result.failures);
                                 output = output.concat(result);
+                            }
+                            if (vars.command === "test" || vars.command === "test_service") {
+                                result.forEach(function terminal_server_fileService_tasks_pulCallback_testEach(item:directoryItem):void {
+                                    item[5] = null;
+                                });
                             }
                             if (count === pathLength) {
                                 const responseData:fsRemote = {
@@ -785,91 +788,6 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                                 }
                             }
                         },
-                        windowsRoot = function terminal_server_fileService_tasks_windowsRoot():void {
-                            //cspell:disable
-                            vars.node.child("wmic logicaldisk get name", function terminal_server_fileService_tasks_windowsRoot(erw:Error, stdout:string, stderr:string):void {
-                            //cspell:enable
-                                if (erw !== null) {
-                                    error([erw.toString()]);
-                                } else if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
-                                    error([stderr]);
-                                }
-                                const drives:string[] = stdout.replace(/Name\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ").split(" "),
-                                    length:number = drives.length,
-                                    date:Date = new Date(),
-                                    driveList = function terminal_server_fileService_tasks_windowsRoot_driveList(result:directoryList):void {
-                                        let b:number = 1;
-                                        const resultLength:number = result.length,
-                                            masterIndex:number = masterList.length;
-                                        if (resultLength > 0) {
-                                            do {
-                                                result[b][3] = masterIndex; 
-                                                b = b + 1;
-                                            } while (b < resultLength);
-                                            masterList = masterList.concat(result);
-                                        }
-                                        a = a + 1;
-                                        if (a === length) {
-                                            callback(masterList);
-                                        }
-                                    };
-                                let masterList:directoryList = [["\\", "directory", "", 0, length, {
-                                        dev: 0,
-                                        ino: 0,
-                                        mode: 0,
-                                        nlink: 0,
-                                        uid: 0,
-                                        gid: 0,
-                                        rdev: 0,
-                                        size: 0,
-                                        blksize: 0,
-                                        blocks: 0,
-                                        atimeMs: 0,
-                                        mtimeMs: 0,
-                                        ctimeMs: 0,
-                                        birthtimeMs: 0,
-                                        atime: date,
-                                        mtime: date,
-                                        ctime: date,
-                                        birthtime: date,
-                                        isBlockDevice: function terminal_server_fileService_tasks_windowsRoot_isBlockDevice():boolean {
-                                            return false;
-                                        },
-                                        isCharacterDevice: function terminal_server_fileService_tasks_windowsRoot_isCharacterDevice():boolean {
-                                            return false;
-                                        },
-                                        isDirectory: function terminal_server_fileService_tasks_windowsRoot_isDirectory():boolean {
-                                            return false;
-                                        },
-                                        isFIFO: function terminal_server_fileService_tasks_windowsRoot_isFIFO():boolean {
-                                            return false;
-                                        },
-                                        isFile: function terminal_server_fileService_tasks_windowsRoot_isFile():boolean {
-                                            return false;
-                                        },
-                                        isSocket: function terminal_server_fileService_tasks_windowsRoot_isSocket():boolean {
-                                            return false;
-                                        },
-                                        isSymbolicLink: function terminal_server_fileService_tasks_windowsRoot_isSymbolicLink():boolean {
-                                            return false;
-                                        }
-                                    }]],
-                                    a:number = 0;
-                                drives.forEach(function terminal_server_fileService_tasks_windowsRoot_each(value:string) {
-                                    const dirConfig:readDirectory = {
-                                        callback: driveList,
-                                        depth: 1,
-                                        exclusions: [],
-                                        logRecursion: logRecursion,
-                                        mode: "read",
-                                        path: `${value}\\`,
-                                        symbolic: true
-                                    };
-                                    directory(dirConfig);
-                                    logRecursion = false;
-                                });
-                            });
-                        },
                         pathList:string[] = data.location,
                         pathLength:number = pathList.length;
                     let count:number = 0,
@@ -877,29 +795,32 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         failures:string[] = [];
                     vars.testLogger("fileService", "fs-directory and watch", "Access local directory data and set watch or set watch for remote agent directory.");
                     pathList.forEach(function terminal_server_fileService_tasks_pathEach(value:string):void {
+                        const pathRead = function terminal_server_fileService_tasks_pathEach_pathRead():void {
+                            const dirConfig:readDirectory = {
+                                callback: callback,
+                                depth: data.depth,
+                                exclusions: [],
+                                logRecursion: logRecursion,
+                                mode: "read",
+                                path: value,
+                                symbolic: true
+                            };
+                            if ((/^\w:$/).test(value) === true) {
+                                value = value + "\\";
+                            }
+                            directory(dirConfig);
+                            logRecursion = false;
+                        };
                         if (value === "\\" || value === "\\\\") {
-                            windowsRoot();
+                            pathRead();
                         } else {
                             vars.node.fs.stat(value, function terminal_server_fileService_tasks_pathEach_putStat(erp:nodeError):void {
-                                const dirConfig:readDirectory = {
-                                    callback: callback,
-                                    depth: data.depth,
-                                    exclusions: [],
-                                    logRecursion: logRecursion,
-                                    mode: "read",
-                                    path: value,
-                                    symbolic: true
-                                };
                                 if (erp !== null) {
                                     error([erp.toString()]);
                                     callback([]);
                                     return;
                                 }
-                                if ((/^\w:$/).test(value) === true) {
-                                    value = value + "\\";
-                                }
-                                directory(dirConfig);
-                                logRecursion = false;
+                                pathRead();
                             });
                         }
                     });

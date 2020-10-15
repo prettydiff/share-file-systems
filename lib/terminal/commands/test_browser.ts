@@ -3,7 +3,7 @@
 
 import browser from "../test/application/browser.js";
 import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import serverVars from "../server/serverVars.js";
 
 const test_browser = function terminal_testBrowser():void {
     const splice = function terminal_testBrowser_splice(arg:string):boolean {
@@ -18,6 +18,7 @@ const test_browser = function terminal_testBrowser():void {
             demo: splice("demo"),
             noClose: splice("no_close")
         };
+    serverVars.secure = false;
 // one browser test sample
 // * send to browser via vars.ws.broadcast = browser-test
 // * still need to define a validation case from storage/settings

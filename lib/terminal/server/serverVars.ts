@@ -77,6 +77,7 @@ const serverVars:serverVars = {
             : address[0][0][1],
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
+        secure: true,
         status: "active",
         storage: (vars.command === "test_browser")
             ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
