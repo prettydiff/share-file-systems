@@ -271,7 +271,7 @@ remote.node = function local_remote_node(dom:testBrowserDOM, config:testBrowserI
         if (node[0] === "childNodes" && node[2] === null) {
             fail = "childNodes";
         }
-        if (node[1] === "" || node[1] === null || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
+        if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
             if (fail === "") {
                 element = element[node[0]];
             }

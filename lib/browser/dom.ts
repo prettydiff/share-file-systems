@@ -197,7 +197,7 @@ const dom = function local_dom():void {
             new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
             return undefined;
         },
-        disallowedList = function local_dom_disallowedList():NodeListOf<any> {
+        disallowedList = function local_dom_disallowedList():NodeListOf<HTMLElement> {
             const list:any = [];
             // eslint-disable-next-line
             new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
@@ -225,6 +225,20 @@ const dom = function local_dom():void {
     document.querySelector                   = disallowed;
     document.querySelectorAll                = disallowedList;
 
+    // Disabling commonly used but completely unnecessary methods that harm performance and complicate code
+    Function.prototype.apply                 = disallowed;
+    Function.prototype.bind                  = disallowed;
+    Function.prototype.call                  = disallowed;
+    Object.create                            = disallowed;
+
+    // Prevent third party authors from overriding these performance measures
+    Object.freeze(Document);
+    Object.freeze(Function.prototype);
+    Object.freeze(Object);
+    Object.freeze(document.write);
+    Object.freeze(document.querySelector);
+    Object.freeze(document.querySelectorAll);
+    Object.freeze(Element.prototype);
 }
 
 export default dom;

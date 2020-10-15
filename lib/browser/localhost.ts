@@ -391,7 +391,10 @@ import webSocket from "./webSocket.js";
                                                         const p:Element = document.createElement("p");
                                                         p.setAttribute("class", "error");
                                                         if (payload.dirs === "missing") {
-                                                            p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
+                                                            const local:string = (agent === browser.data.hashDevice)
+                                                                ? "."
+                                                                : " or remote user is offline.";
+                                                            p.innerHTML = `Error 404: Requested location is not available${local}`;
                                                         } else if (payload.dirs === "noShare"){
                                                             p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
                                                         } else {

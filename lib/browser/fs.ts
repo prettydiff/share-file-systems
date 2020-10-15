@@ -355,7 +355,10 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
         const p:Element = document.createElement("p");
         p.setAttribute("class", "error");
         if (dirData.dirs === "missing") {
-            p.innerHTML = "Error 404: Requested location is not available or remote user is offline.";
+            const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
+                ? "."
+                : " or remote user is offline.";
+            p.innerHTML = `Error 404: Requested location is not available${local}`;
         } else if (dirData.dirs === "noShare") {
             p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
         } else {
@@ -842,7 +845,10 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
             },
             netCallback = function local_fs_search_callback(responseText:string):void {
                 if (responseText === "") {
-                    body.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
+                    const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
+                        ? "."
+                        : " or remote user is offline.";
+                    body.innerHTML = `<p class=\"error\">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const dirData = JSON.parse(responseText),
                         length:number = dirData.dirs.length,
@@ -1098,7 +1104,10 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
             },
             callback = function local_fs_text_callback(responseText:string):void {
                 if (responseText === "") {
-                    parent.innerHTML = "<p class=\"error\">Error 404: Requested location is no longer available or remote user is offline.</p>";
+                    const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
+                        ? "."
+                        : " or remote user is offline.";
+                    parent.innerHTML = `<p class=\"error\">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const list:[Element, number, string] = fs.list(element.value, JSON.parse(responseText));
                     parent.innerHTML = "";
