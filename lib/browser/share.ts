@@ -127,9 +127,12 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         },
         perAgent = function local_share_content_perAgent(agentNames:agentNames):void {
             const li:Element = document.createElement("li"),
-                title:Element = document.createElement("h4");
+                title:Element = document.createElement("h4"),
+                textButton:Element = document.createElement("button");
             shareListUL = document.createElement("ul");
-            title.innerHTML = browser[agentNames.agentType][agentNames.agent].name;
+            textButton.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} <span>(text)</span>`;
+            textButton.setAttribute("class", "text-button-agent");
+            title.appendChild(textButton);
             if (agentNames.agentType === "device") {
                 deviceButton(title, agentNames.agent);
             }
@@ -161,9 +164,13 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                             : "are",
                         adjective:string = (type === "device")
                             ? "available"
-                            : "shared";
+                            : "shared",
+                        textButton:Element = document.createElement("button");
                     agentTypeUL.setAttribute("class", "agentList")
                     title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
+                    textButton.innerHTML = `Text all ${type}s`;
+                    textButton.setAttribute("class", `text-button-${type}`);
+                    title.appendChild(textButton);
                     lists.appendChild(title);
                     lists.appendChild(agentTypeUL);
                 } else {

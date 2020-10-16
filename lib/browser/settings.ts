@@ -116,11 +116,13 @@ settings.applyAgentColors = function local_settings_applyUserColors(agent:string
 /* Enable or disable audio from the settings menu */
 settings.audio = function local_settings_compression(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
+    let a:number = 0;
     if (element.value === "on") {
         browser.data.audio = true;
     } else {
         browser.data.audio = false;
     }
+    settings.radio(element);
     if (browser.loadTest === false) {
         network.storage("settings");
     }
@@ -200,6 +202,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
         },
         source: browser
     });
+    settings.radio(element);
 };
 
 /* Shows and hides additional textual information about compression */
@@ -376,6 +379,20 @@ settings.modalContent = function local_settings_modalContent():Element {
     return settingsBody;
 };
 
+settings.radio = function local_settings_radio(element:Element):void {
+    const parent:HTMLElement = <HTMLElement>element.parentNode,
+        grandParent:Element = <Element>parent.parentNode,
+        labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
+        length:number = labels.length;
+    let a:number = 0;
+    do {
+        labels[a].setAttribute("class", "radio");
+        a = a + 1;
+    } while (a < length);
+    parent.setAttribute("class", "radio-checked");
+};
+
+/* Applies agent color definitions */
 settings.styleText = function local_settings_styleText(input:styleText):void {
     const template:string[] = [
         `#spaces .box[data-agent="${input.agent}"] .body,`,

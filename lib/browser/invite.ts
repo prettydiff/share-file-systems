@@ -3,6 +3,7 @@
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import settings from "./settings.js";
 import share from "./share.js";
 import util from "./util.js";
 
@@ -467,6 +468,7 @@ invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
         description.innerHTML = "Including a user allows sharing with a different person and the devices they make available.";
     }
     description.style.display = "block";
+    settings.radio(element);
 };
 
 export default invite;

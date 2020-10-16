@@ -557,6 +557,7 @@ declare global {
         compressionToggle?: EventHandlerNonNull;
         modal?: EventHandlerNonNull;
         modalContent?: () => Element;
+        radio?:(element:Element) => void;
         styleText?: (input:styleText) => void;
         text?: (event:KeyboardEvent|FocusEvent) => void;
     }
