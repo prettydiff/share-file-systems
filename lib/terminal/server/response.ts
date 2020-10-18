@@ -2,16 +2,12 @@
 
 import { ServerResponse } from "http";
 
-import log from "../utilities/log.js";
+import error from "../utilities/error.js";
 
 const response = function terminal_server_response(serverResponse:ServerResponse, type:string, message:string|Buffer):void {
     if (serverResponse !== null) {
         if (serverResponse.writableEnded === true) {
-            log([
-                "Write after end of HTTP response.",
-                "",
-                new Error().stack
-            ]);
+            error(["Write after end of HTTP response."]);
         } else {
             const textTypes:string[] = [
                     "application/json",

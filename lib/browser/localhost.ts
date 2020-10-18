@@ -11,7 +11,6 @@ import network from "./network.js";
 import remote from "./remote.js";
 import settings from "./settings.js";
 import share from "./share.js";
-import systems from "./systems.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
 
@@ -59,17 +58,6 @@ import webSocket from "./webSocket.js";
                         title: "",
                         type: "systems"
                     };
-
-                    // building logging utility (systems log)
-                    if (document.getElementById("systems-modal") === null) {
-                        payloadModal.content = systems.modalContent();
-                        payloadModal.inputs = ["close"];
-                        payloadModal.title = document.getElementById("systemLog").innerHTML;
-                        payloadModal.type = "systems";
-                        payloadModal.width = 800;
-                        modal.create(payloadModal);
-                        document.getElementById("systems-modal").style.display = "none";
-                    }
                     // building settings modal
                     if (document.getElementById("settings-modal") === null) {
                         payloadModal.content = settings.modalContent();
@@ -208,7 +196,6 @@ import webSocket from "./webSocket.js";
                     browser.menu.export.onclick = modal.export;
                     browser.menu.fileNavigator.onclick = fs.navigate;
                     browser.menu.settings.onclick = settings.modal;
-                    browser.menu.systemLog.onclick = systems.modal;
                     browser.menu.textPad.onclick = modal.textPad;
                     browser.menu["user-delete"].onclick = share.deleteList;
                     browser.menu["user-invite"].onclick = invite.start;
@@ -217,32 +204,6 @@ import webSocket from "./webSocket.js";
                         buttons[a].onblur = util.menuBlur;
                         a = a + 1;
                     } while (a < buttonsLength);
-
-                    // systems log messages
-                    if (storage !== undefined && storage.messages !== undefined) {
-                        if (storage.messages.status !== undefined && storage.messages.status.length > 0) {
-                            storage.messages.status.forEach(function local_restore_statusEach(value:messageList):void {
-                                systems.message("status", value[1], value[0]);
-                                browser.messages.status.push([value[0], value[1]]);
-                            });
-                        }
-                        if (storage.messages.users !== undefined && storage.messages.users.length > 0) {
-                            storage.messages.users.forEach(function local_restore_usersEach(value:messageList):void {
-                                systems.message("users", value[1], value[0]);
-                                browser.messages.users.push([value[0], value[1]]);
-                            });
-                        }
-                        if (storage.messages.errors !== undefined && storage.messages.errors.length > 0) {
-                            storage.messages.errors.forEach(function local_restore_errorsEach(value:messageListError):void {
-                                const error:messageError = {
-                                    error:value[1],
-                                    stack:value[2]
-                                };
-                                systems.message("errors", JSON.stringify(error), value[0]);
-                                browser.messages.errors.push([value[0], value[1], value[2]]);
-                            });
-                        }
-                    }
 
                     browser.loadTest = false;
 
@@ -453,7 +414,6 @@ import webSocket from "./webSocket.js";
                                     modal.create(storage.settings.modals[value]);
                                     z(value);
                                 } else if (storage.settings.modals[value].type === "systems") {
-                                    storage.settings.modals[value].content = systems.modalContent();
                                     modal.create(storage.settings.modals[value]);
                                     const systemsModal:Element = document.getElementById("systems-modal");
                                     let button:HTMLButtonElement;

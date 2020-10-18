@@ -848,7 +848,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                     const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                         ? "."
                         : " or remote user is offline.";
-                    body.innerHTML = `<p class=\"error\">Error 404: Requested location is no longer available${local}</p>`;
+                    body.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const dirData = JSON.parse(responseText),
                         length:number = dirData.dirs.length,
@@ -1107,7 +1107,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
                     const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                         ? "."
                         : " or remote user is offline.";
-                    parent.innerHTML = `<p class=\"error\">Error 404: Requested location is no longer available${local}</p>`;
+                    parent.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const list:[Element, number, string] = fs.list(element.value, JSON.parse(responseText));
                     parent.innerHTML = "";

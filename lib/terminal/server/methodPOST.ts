@@ -4,8 +4,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { StringDecoder } from "string_decoder";
 
+import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
-import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 import heartbeat from "./heartbeat.js";
@@ -140,21 +140,12 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
     });
     request.on("error", function terminal_server_post_errorRequest(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            log([body, "request", errorMessage.toString()]);
-            vars.ws.broadcast(JSON.stringify({
-                error: errorMessage
-            }));
+            error([body, "request", errorMessage.toString()]);
         }
     });
     serverResponse.on("error", function terminal_server_post_errorResponse(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            log([body, "response"]);
-            if (errorMessage.toString().indexOf("write after end") > -1) {
-                log([errorMessage.stack]);
-            }
-            vars.ws.broadcast(JSON.stringify({
-                error: errorMessage
-            }));
+            error([body, "response"]);
         }
     });
 

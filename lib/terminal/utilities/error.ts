@@ -26,13 +26,12 @@ const error = function terminal_error(errText:string[]):void {
                         stack: stackTrace.slice(1),
                         error: errText.join(" ")
                     };
-                if (vars.ws.broadcast === undefined) {
-                    logger(server);
-                } else {
+                if (vars.ws.broadcast !== undefined) {
                     vars.ws.broadcast(JSON.stringify({
                         error: server
                     }));
                 }
+                logger(server);
             } else {
                 const stack:string = new Error().stack.replace("Error", `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------`);
                 vars.flags.error = true;

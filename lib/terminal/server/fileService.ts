@@ -105,7 +105,6 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
         // calls httpClient library for file system operations
         httpRequest = function terminal_server_fileService_httpRequest(callback:httpCallback, errorMessage:string, type:"body"|"object") {
             if (serverVars[data.agentType] === undefined || serverVars[data.agentType][data.agent] === undefined) {
-                log([`Count not resolve IP address for agent ${data.agent} of type ${data.agentType}.`]);
                 error([`Count not resolve IP address for agent ${data.agent} of type ${data.agentType}.`]);
                 return;
             }
@@ -442,10 +441,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     vars.node.fs.writeFile(data.name + vars.sep + fileName, fileQueue[index][3], function terminal_server_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
                         const hashFailLength:number = hashFail.length;
                         if (wr !== null) {
-                            log([`Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
-                            vars.ws.broadcast(JSON.stringify({
-                                error: `Error writing file ${fileName} from remote agent ${data.agent}`
-                            }));
+                            error([`Error writing file ${fileName} from remote agent ${data.agent}`, wr.toString()]);
                             hashFail.push(fileName);
                         } else {
                             const status:completeStatus = {
@@ -539,7 +535,6 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                                 writtenFiles = writtenFiles + 1;
                                 writtenSize = writtenSize + fileData.list[a][3];
                             } else {
-                                log([`Hashes do not match for file ${fileName} from ${data.agentType} ${serverVars[data.agentType][data.agent].name}`]);
                                 fileError(`Hashes do not match for file ${fileName} from ${data.agentType} ${serverVars[data.agentType][data.agent].name}`, filePath);
                             }
                             a = a + 1;
@@ -571,7 +566,6 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                                 }
                             } else {
                                 hashFail.push(fileName);
-                                log([`Hashes do not match for file ${fileName} ${data.agentType} ${serverVars[data.agentType][data.agent].name}`]);
                                 error([`Hashes do not match for file ${fileName} ${data.agentType} ${serverVars[data.agentType][data.agent].name}`]);
                                 if (countFile + countDir + hashFail.length === listLength) {
                                     respond();
@@ -594,8 +588,10 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         if (fileResponse.headers.compression === "true") {
                             vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_server_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
                                 if (errDecompress !== null) {
-                                    log([`Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`]);
-                                    error([errDecompress.toString()]);
+                                    error([
+                                        `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
+                                        errDecompress.toString()
+                                    ]);
                                     return;
                                 }
                                 responseEnd(file);
@@ -1115,7 +1111,6 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         fileCallback(`Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);
                     } else {
                         error([erRename.toString()]);
-                        log([erRename.toString()]);
                         vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
                         response(serverResponse, "text/plain", erRename.toString());
                     }
@@ -1211,7 +1206,6 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                             fsUpdateLocal(dirs.join(slash));
                         } else {
                             error([erNewFile.toString()]);
-                            log([erNewFile.toString()]);
                             response(serverResponse, "text/plain", erNewFile.toString());
                         }
                     });

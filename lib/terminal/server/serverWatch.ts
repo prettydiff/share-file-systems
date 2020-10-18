@@ -109,12 +109,10 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
             cwd: vars.projectPath
         }, function terminal_server_watch_child(err:Error, stdout:string, stderr:string):void {
             if (err !== null) {
-                log([err.toString()]);
                 error([err.toString()]);
                 return;
             }
             if (stderr !== "" && stderr.indexOf("The ESM module loader is experimental.") < 0) {
-                log([stderr]);
                 error([stderr]);
                 return;
             }

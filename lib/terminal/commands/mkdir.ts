@@ -96,7 +96,7 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRe
         }
         vars.testLogger("mkdir", "command", "preparing the directory utility for standard input/output");
         if (process.argv[0] === undefined) {
-            log(["No directory name specified."]);
+            error(["No directory name specified."]);
             process.exit(1);
             return;
         }

@@ -29,7 +29,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/remote.ts](../lib/browser/remote.ts)**                                                       - A collection of instructions to allow event execute from outside the browser, like a remote control.
    - **[../lib/browser/settings.ts](../lib/browser/settings.ts)**                                                   - A collection of utilities and event handlers associated with processing the application state and system settings.
    - **[../lib/browser/share.ts](../lib/browser/share.ts)**                                                         - The utilities that manage and coordinate changes to user share data.
-   - **[../lib/browser/systems.ts](../lib/browser/systems.ts)**                                                     - The systems messaging utility is managed by these methods.
    - **[../lib/browser/util.ts](../lib/browser/util.ts)**                                                           - Miscellaneous tools for the browser environment.
    - **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * Directory *[../lib/common](../lib/common)*

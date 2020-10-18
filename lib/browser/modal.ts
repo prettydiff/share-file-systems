@@ -4,7 +4,6 @@ import browser from "./browser.js";
 import fs from "./fs.js";
 import invite from "./invite.js";
 import network from "./network.js";
-import systems from "./systems.js";
 import util from "./util.js";
 import share from "./share.js";
 
@@ -40,6 +39,18 @@ modal.close = function local_modal_close(event:MouseEvent):void {
         browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
     }
     delete browser.data.modals[id];
+    network.storage("settings");
+};
+
+/* Modal types that are enduring are hidden, not destroyed, when closed */
+modal.closeEnduring = function local_systems_closeEnduring(event:MouseEvent):void {
+    let box:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+    box = <HTMLElement>box.getAncestor("box", "class");
+    if (box.getAttribute("class") === "box") {
+        box.style.display = "none";
+        // this must remain separated from modal identity as more than one thing users it
+        browser.data.modals[box.getAttribute("id")].status = "hidden";
+    }
     network.storage("settings");
 };
 
@@ -181,8 +192,8 @@ modal.create = function local_modal_create(options:ui_modal):Element {
                 button.innerHTML = "✖ <span>close</span>";
                 button.setAttribute("class", "close");
                 button.setAttribute("title", "Close");
-                if (options.type === "systems" || options.type === "settings") {
-                    button.onclick = systems.close;
+                if (options.type === "settings") {
+                    button.onclick = modal.closeEnduring;
                     if (options.status === "hidden") {
                         box.style.display = "none";
                     }

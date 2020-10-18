@@ -151,10 +151,10 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                         }
                     });
                 },
-                types = function terminal_copy_list_types(error:string):void {
-                    if (error !== null && error !== undefined) {
+                types = function terminal_copy_list_types(typeError:string):void {
+                    if (typeError !== null && typeError !== undefined) {
                         numb.error = numb.error + 1;
-                        log([error]);
+                        error([typeError]);
                     }
                     if (a === len) {
                         vars.testLogger("copy", "complete", `completion test for ${target}`);

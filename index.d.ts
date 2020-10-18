@@ -506,6 +506,7 @@ declare global {
     }
     interface module_modal {
         close?: EventHandlerNonNull;
+        closeEnduring?: EventHandlerNonNull;
         confirm?: EventHandlerNonNull;
         create?: (options:ui_modal) => Element;
         export?: EventHandlerNonNull;

@@ -6,7 +6,6 @@ import invite from "./invite.js";
 import network from "./network.js";
 import remote from "./remote.js";
 import share from "./share.js";
-import systems from "./systems.js";
 import util from "./util.js";
 
 const title:Element = document.getElementsByClassName("title")[0],
@@ -27,7 +26,8 @@ const title:Element = document.getElementsByClassName("title")[0],
                     modal:Element = document.getElementById("systems-modal"),
                     tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
                     payload:string = JSON.stringify(errorData);
-                systems.message("errors", payload, "websocket");
+                // eslint-disable-next-line
+                console.error(payload);
                 if (modal.clientWidth > 0) {
                     tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
                 }

@@ -4,6 +4,7 @@ import { ServerResponse } from "http";
 
 import deviceShare from "../../common/deviceShare.js";
 
+import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
@@ -60,18 +61,12 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                                 }));
                             }
                         }
-                        log([data.action, errorMessage.toString()]);
-                        vars.ws.broadcast(JSON.stringify({
-                            error: errorMessage
-                        }));
+                        error([data.action, errorMessage.toString()]);
                     },
                     requestType: data.action,
                     response: serverResponse,
                     responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
-                        log([data.action, errorMessage.toString()]);
-                        vars.ws.broadcast(JSON.stringify({
-                            error: errorMessage
-                        }));
+                        error([data.action, errorMessage.toString()]);
                     }
                 };
             vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);

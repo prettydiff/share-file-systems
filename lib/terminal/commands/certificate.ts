@@ -169,7 +169,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
                                                 complete();
                                             }
                                         } else {
-                                            log([erRoot.toString()]);
                                             error([erRoot.toString()]);
                                         }
                                     };
@@ -197,7 +196,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     callback();
                 }
             } else {
-                log([err.toString()]);
                 error([err.toString()]);
             }
         };
@@ -334,7 +332,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
             } else if (stat.code === "ENOENT") {
                 mkdir(config.location, create, false);
             } else {
-                log([stat.toString()]);
                 error([stat.toString()]);
             }
         });

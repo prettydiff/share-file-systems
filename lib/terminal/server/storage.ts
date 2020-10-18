@@ -34,7 +34,6 @@ const storage = function terminal_server_storage(data:storage):void {
             vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
             if (erSettings !== null) {
                 error([erSettings.toString()]);
-                log([erSettings.toString()]);
                 response(data.response, "text/plain", erSettings.toString());
                 return;
             }

@@ -296,7 +296,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                     }
                 } else {
                     if (ers.code === "ENOENT") {
-                        log([`File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`]);
+                        error([`File path ${vars.text.angry + input.source + vars.text.none} is not a file or directory.`]);
                     } else {
                         error([ers.toString()]);
                     }

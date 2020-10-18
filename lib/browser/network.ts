@@ -1,7 +1,6 @@
 
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
 import browser from "./browser.js";
-import systems from "./systems.js";
 import util from "./util.js";
 
 const network:module_network = {},
@@ -186,7 +185,8 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                             : config.error,
                         stack: [new Error().stack.replace(/\s+$/, "")]
                     };
-                    systems.message("errors", JSON.stringify(error));
+                    // eslint-disable-next-line
+                    console.error(error);
                     if (config.type.indexOf("fs-") === 0) {
                         config.callback(xhr.responseText);
                         network.storage("messages");

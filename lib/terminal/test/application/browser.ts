@@ -29,7 +29,6 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
     vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function test_browser_execute_readdir(dErr:nodeError, files:string[]):void {
         if (dErr !== null) {
-            log([dErr.toString()]);
             error([dErr.toString()]);
             return;
         }
@@ -65,7 +64,6 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
                 browser.server = output.server;
                 vars.node.child(browserCommand, {cwd: vars.cwd}, function test_browser_execute_readdir_launch_serviceCallback_browser(errs:nodeError):void {
                     if (errs !== null) {
-                        log([errs.toString()]);
                         error([errs.toString()]);
                         return;
                     }

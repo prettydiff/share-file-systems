@@ -14,6 +14,5 @@
 * **[remote.ts](remote.ts)**       - A collection of instructions to allow event execute from outside the browser, like a remote control.
 * **[settings.ts](settings.ts)**   - A collection of utilities and event handlers associated with processing the application state and system settings.
 * **[share.ts](share.ts)**         - The utilities that manage and coordinate changes to user share data.
-* **[systems.ts](systems.ts)**     - The systems messaging utility is managed by these methods.
 * **[util.ts](util.ts)**           - Miscellaneous tools for the browser environment.
 * **[webSocket.ts](webSocket.ts)** - Handles web socket events and associated errors. This where most communications from outside the browser are processed.

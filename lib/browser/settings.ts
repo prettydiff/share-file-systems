@@ -116,7 +116,6 @@ settings.applyAgentColors = function local_settings_applyUserColors(agent:string
 /* Enable or disable audio from the settings menu */
 settings.audio = function local_settings_compression(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
-    let a:number = 0;
     if (element.value === "on") {
         browser.data.audio = true;
     } else {
