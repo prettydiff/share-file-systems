@@ -6,6 +6,7 @@ import common from "../common/common.js";
 import browser from "./browser.js";
 import context from "./context.js";
 import fs from "./fs.js";
+import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import settings from "./settings.js";
@@ -128,17 +129,22 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         perAgent = function local_share_content_perAgent(agentNames:agentNames):void {
             const li:Element = document.createElement("li"),
                 title:Element = document.createElement("h4"),
-                textButton:Element = document.createElement("button");
+                messageButton:HTMLElement = document.createElement("button");
             shareListUL = document.createElement("ul");
-            textButton.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} <span>(text)</span>`;
-            textButton.setAttribute("class", "text-button-agent");
-            title.appendChild(textButton);
+            if (agentNames.agentType === "device"  && agentNames.agent == browser.data.hashDevice) {
+                title.innerHTML = browser.device[agentNames.agent].name;
+            } else {
+                messageButton.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} <span>(text)</span>`;
+                messageButton.setAttribute("class", "text-button-agent");
+                messageButton.onclick = message.modal;
+                title.appendChild(messageButton);
+            }
             if (agentNames.agentType === "device") {
                 deviceButton(title, agentNames.agent);
             }
             li.appendChild(title);
             li.setAttribute("data-hash", agentNames.agent);
-            li.setAttribute("class", "agent");
+            li.setAttribute("class", agentNames.agentType);
             if (Object.keys(browser[agentNames.agentType][agentNames.agent].shares).length > 0) {
                 li.appendChild(shareListUL);
             } else {
@@ -165,12 +171,13 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                         adjective:string = (type === "device")
                             ? "available"
                             : "shared",
-                        textButton:Element = document.createElement("button");
+                        messageButton:HTMLElement = document.createElement("button");
                     agentTypeUL.setAttribute("class", "agentList")
                     title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
-                    textButton.innerHTML = `Text all ${type}s`;
-                    textButton.setAttribute("class", `text-button-${type}`);
-                    title.appendChild(textButton);
+                    messageButton.innerHTML = `Text all ${type}s`;
+                    messageButton.setAttribute("class", `text-button-${type}`);
+                    messageButton.onclick = message.modal;
+                    title.appendChild(messageButton);
                     lists.appendChild(title);
                     lists.appendChild(agentTypeUL);
                 } else {

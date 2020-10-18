@@ -10,19 +10,27 @@ const message:module_message = {};
 
 message.modal = function local_message_modal(event:MouseEvent):void {
     const element:Element = <Element>event.target,
-        className:string = element.getAttribute("class"),
-        grandParent:Element = <Element>element.parentNode.parentNode,
+        button:Element = (element.nodeName.toLowerCase() === "button")
+            ? element
+            : <Element>element.parentNode,
+        className:string = button.getAttribute("class"),
+        grandParent:Element = <Element>button.parentNode.parentNode,
         agentHash:string = (className === "text-button-agent")
             ? grandParent.getAttribute("data-hash")
             : browser.data.hashDevice,
-        agentType:agentType = "device",
-        title:string = (agentHash === browser.data.hashDevice)
-            ? `Text message all ${agentType}s`
-            : `Text message ${common.capitalize(agentType)} ${browser.data[agentType][agentHash]}`,
+        agentType:agentType = (className === "text-button-agent")
+            ? <agentType>grandParent.getAttribute("class")
+            : <agentType>button.getAttribute("class").replace("text-button-", ""),
+        title:string = (className === "text-button-agent")
+            ? `Text message ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`
+            : `Text message all ${agentType}s`,
+        content:Element = document.createElement("div"),
+        textarea:Element = document.createElement("textarea"),
+        list:Element = document.createElement("ol"),
         configuration:ui_modal = {
             agent: agentHash,
             agentType: agentType,
-            content: null,
+            content: content,
             inputs: ["close", "maximize", "minimize"],
             read_only: false,
             text_value: title,
@@ -30,6 +38,9 @@ message.modal = function local_message_modal(event:MouseEvent):void {
             type: "shares",
             width: 800
         };
+    content.setAttribute("class", "message-content");
+    content.appendChild(textarea);
+    content.appendChild(list);
     modal.create(configuration);
 };
 
