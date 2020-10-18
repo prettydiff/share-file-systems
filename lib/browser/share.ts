@@ -37,7 +37,7 @@ share.addAgent = function local_share_addAgent(input:addAgent):void {
             });
         },
         sharesModal = function local_share_addUser_sharesModal(event:MouseEvent) {
-            let element:Element = <Element>event.srcElement || <Element>event.target,
+            let element:Element = <Element>event.target,
                 agent:string = element.getAttribute("id"),
                 agentType:agentType = <agentType>element.getAttribute("data-agent-type");
             element = element.getAncestor("button", "tag");
@@ -73,7 +73,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
     const lists:Element = document.createElement("div"),
         fileNavigate = function local_share_content_fileNavigate(event:MouseEvent):void {
             const element:Element = (function local_share_content_fileNavigate_getElement():Element {
-                    const item:Element = <Element>event.srcElement || <Element>event.target;
+                    const item:Element = <Element>event.target;
                     if (item.nodeName.toLowerCase() === "button") {
                         return item;
                     }
@@ -407,7 +407,7 @@ share.deleteAgentList = function local_shares_deleteAgentList(box:Element):void 
 
 /* Delete a share from a device */
 share.deleteItem = function local_share_deleteItem(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         parent:Element = <Element>element.parentNode,
         box:Element = parent.getAncestor("box", "class"),
         agent:string = (function local_share_deleteItem_agency():string {
@@ -543,7 +543,7 @@ share.deleteListContent = function local_shares_deleteListContent():Element {
 
 /* Changes visual state of items in the shares delete list as they are checked or unchecked*/
 share.deleteToggle = function local_shares_deleteToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+    const element:HTMLInputElement = <HTMLInputElement>event.target,
         label:Element = <Element>element.parentNode;
     if (element.checked === true) {
         label.setAttribute("class", "checked");
@@ -589,7 +589,7 @@ share.modal = function local_shares_modal(agent:string, agentType:agentType|"", 
 
 /* Toggle a share between read only and full access */
 share.readOnly = function local_share_readOnly(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         parent:Element = <Element>element.parentNode,
         agency:agency = util.getAgent(element),
         hash:string = parent.getAttribute("data-hash"),

@@ -452,7 +452,7 @@ declare global {
         (Event:Event, user?:string, configuration?:ui_modal): void;
     }
     interface modalTop extends EventHandlerNonNull {
-        (Event:Event, srcElement?: Element): void;
+        (event:Event, elementInput?: Element): void;
     }
     interface modifyFile {
         end: string;
@@ -555,12 +555,12 @@ declare global {
         audio?: EventHandlerNonNull;
         colorDefaults?: colorList;
         colorScheme?: EventHandlerNonNull;
+        compressionText?: (event:KeyboardEvent|FocusEvent) => void;
         compressionToggle?: EventHandlerNonNull;
         modal?: EventHandlerNonNull;
         modalContent?: () => Element;
         radio?:(element:Element) => void;
         styleText?: (input:styleText) => void;
-        text?: (event:KeyboardEvent|FocusEvent) => void;
     }
     interface module_share {
         addAgent?: (input:addAgent) => void;

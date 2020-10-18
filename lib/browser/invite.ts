@@ -106,7 +106,7 @@ invite.complete = function local_invite_complete(invitation:invite):void {
 
 /* Handler for declining an invitation request */
 invite.decline = function local_invite_decline(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         boxLocal:Element = element.getAncestor("box", "class"),
         inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
         invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
@@ -146,7 +146,7 @@ invite.payload = function local_invite_payload(config:invitePayload):invite {
 
 /* Basic form validation on the port field */
 invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
-    const portElement:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+    const portElement:HTMLInputElement = <HTMLInputElement>event.target,
         portParent:Element = <Element>portElement.parentNode,
         element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
             ? portElement
@@ -184,7 +184,7 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
         ip:string,
         port:string,
         portNumber:number;
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         input:HTMLElement = (function local_invite_request():HTMLElement {
 
@@ -330,7 +330,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
         separator:string = "|spaces|",
         random:string = Math.random().toString(),
         blur = function local_invite_start_blur(event:FocusEvent):void {
-            const element:Element = <Element>event.srcElement || <Element>event.target,
+            const element:Element = <Element>event.target,
                 box:Element = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
@@ -453,7 +453,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
 
 /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
 invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+    const element:HTMLInputElement = <HTMLInputElement>event.target,
         parent:Element = <Element>element.parentNode.parentNode,
         grandParent:Element = <Element>parent.parentNode,
         warning:Element = grandParent.getElementsByClassName("inviteWarning")[0],

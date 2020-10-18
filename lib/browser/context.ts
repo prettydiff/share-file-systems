@@ -23,7 +23,7 @@ context.copy = function local_context_copy(event:MouseEvent):void {
             : <Element>context.element.parentNode,
         parent:Element = <Element>element.parentNode,
         box:Element = parent.getAncestor("box", "class"),
-        contextElement:Element = <Element>event.srcElement || <Element>event.target,
+        contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Copy") === 0)
@@ -63,7 +63,7 @@ context.copy = function local_context_copy(event:MouseEvent):void {
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function local_context_dataString(event:MouseEvent):void {
     const element:Element = context.element,
-        contextElement:Element = <Element>event.srcElement || <Element>event.target,
+        contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Base64") === 0)
@@ -409,7 +409,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                    const element:Element = <Element>event.target,
                         grandParent:Element = <Element>element.parentNode.parentNode,
                         table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
                         p:HTMLElement = <HTMLElement>table.previousSibling,
@@ -452,7 +452,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                    const element:Element = <Element>event.target,
                         grandParent:Element = <Element>element.parentNode.parentNode,
                         table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
                         p:HTMLElement = <HTMLElement>table.previousSibling,
@@ -492,7 +492,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                    const element:Element = <Element>event.target,
                         grandParent:Element = <Element>element.parentNode.parentNode,
                         table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
                         p:HTMLElement = <HTMLElement>table.previousSibling,
@@ -544,7 +544,7 @@ context.details = function local_context_details(event:MouseEvent):void {
 
 /* Handler for creating new directories */
 context.fsNew = function local_context_fsNew(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         cancel = function local_context_fsNew_cancel(actionElement:Element):void {
             const list:Element = actionElement.getAncestor("fileList", "class"),
                 input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
@@ -556,7 +556,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             }, 10);
         },
         actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
-            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
+            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.target,
                 actionParent:Element = <Element>actionElement.parentNode;
             if (actionEvent.key === "Enter") {
                 const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
@@ -592,7 +592,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             }
         },
         actionBlur = function local_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
-            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
+            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.target,
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
             if (actionEvent.type === "blur") {
                 if (value.replace(/\s+/, "") === "") {
@@ -824,7 +824,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             }
         };
-    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    let element:HTMLElement = <HTMLElement>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
         parent:Element = <Element>element.parentNode,
         item:Element,

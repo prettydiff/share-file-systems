@@ -11,7 +11,7 @@ const modal:module_modal = {};
 
 /* Removes a modal from the DOM for garbage collection, except systems log is merely hidden */
 modal.close = function local_modal_close(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         keys:string[] = Object.keys(browser.data.modals),
         keyLength:number = keys.length,
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class");
@@ -44,7 +44,7 @@ modal.close = function local_modal_close(event:MouseEvent):void {
 
 /* Modal types that are enduring are hidden, not destroyed, when closed */
 modal.closeEnduring = function local_systems_closeEnduring(event:MouseEvent):void {
-    let box:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+    let box:HTMLElement = <HTMLElement>event.target;
     box = <HTMLElement>box.getAncestor("box", "class");
     if (box.getAttribute("class") === "box") {
         box.style.display = "none";
@@ -56,7 +56,7 @@ modal.closeEnduring = function local_systems_closeEnduring(event:MouseEvent):voi
 
 /* Event handler for the modal's "Confirm" button */
 modal.confirm = function local_modal_confirm(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
         options = browser.data.modals[id];
@@ -408,7 +408,7 @@ modal.create = function local_modal_create(options:ui_modal):Element {
 
 /* Creates an import/export modal */
 modal.export = function local_modal_export(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("export"))
             ? [browser.data.hashDevice, false, "device"]
@@ -431,7 +431,7 @@ modal.export = function local_modal_export(event:MouseEvent):void {
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
 modal.importSettings = function local_modal_importSettings(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         dataString:string = JSON.stringify(browser.data),
         box:Element = element.getAncestor("box", "class"),
         button:HTMLButtonElement = <HTMLButtonElement>document.getElementsByClassName("cancel")[0],
@@ -448,7 +448,7 @@ modal.importSettings = function local_modal_importSettings(event:MouseEvent):voi
 
 /* The given modal consumes the entire view port of the content area */
 modal.maximize = function local_modal_maximize(event:Event):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         contentArea:Element = document.getElementById("content-area"),
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -517,7 +517,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
 modal.minimize = function local_modal_minimize(event:Event):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         border:Element = element.getAncestor("border", "class"),
         box:HTMLElement = <HTMLElement>border.parentNode,
         id:string = box.getAttribute("id"),
@@ -577,7 +577,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
 
 /* Drag and drop interaction for modals */
 modal.move = function local_modal_move(event:Event):void {
-    const x:Element = <Element>event.srcElement || <Element>event.target,
+    const x:Element = <Element>event.target,
         heading:Element = <Element>x.parentNode,
         box:HTMLElement = <HTMLElement>heading.parentNode.parentNode,
         settings:ui_modal = browser.data.modals[box.getAttribute("id")],
@@ -683,7 +683,7 @@ modal.move = function local_modal_move(event:Event):void {
 modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
     let clientWidth:number  = 0,
         clientHeight:number = 0;
-    const node:Element = <Element>event.srcElement || <Element>event.target,
+    const node:Element = <Element>event.target,
         parent:Element     = <Element>node.parentNode,
         box:HTMLElement        = <HTMLElement>parent.parentNode,
         top:number = box.offsetTop,
@@ -910,7 +910,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
 
 /* Creates a textPad modal */
 modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         titleText:string = (typeof title === "string")
             ? title
             : element.innerHTML,
@@ -943,7 +943,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */
 modal.textSave = function local_modal_textSave(event:MouseEvent):void {
-    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
+    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
         box:Element = element.getAncestor("box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
@@ -955,7 +955,7 @@ modal.textSave = function local_modal_textSave(event:MouseEvent):void {
 
 /* An idle delay is a good time to save written notes */
 modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
-    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.srcElement || <HTMLTextAreaElement>event.target,
+    const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
         box:Element = element.getAncestor("box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
@@ -970,7 +970,7 @@ modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
 
 /* Restore a minimized modal to its prior size and location */
 modal.unMinimize = function local_modal_unMinimize(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
     if (box.parentNode.nodeName.toLowerCase() === "li") {
@@ -981,7 +981,7 @@ modal.unMinimize = function local_modal_unMinimize(event:MouseEvent):void {
 /* Manages z-index of modals and moves a modal to the top on interaction */
 modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:Element):void {
     const element:Element = (elementInput === undefined)
-            ? <Element>event.srcElement || <Element>event.target
+            ? <Element>event.target
             : elementInput,
         parent:Element = <Element>element.parentNode,
         grandParent:Element = <Element>parent.parentNode;

@@ -11,7 +11,7 @@ const fs:module_fs = {};
 
 /* step back through a modal's address history */
 fs.back = function local_fs_back(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
         header:Element = box.getElementsByClassName("header")[0],
@@ -26,7 +26,7 @@ fs.back = function local_fs_back(event:MouseEvent):void {
 
 /* navigate into a directory by double click */
 fs.directory = function local_fs_directory(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+    const element:HTMLInputElement = <HTMLInputElement>event.target,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
             : <Element>element.getAncestor("li", "tag"),
@@ -66,7 +66,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
 
 /* drag and drop of selected list items */
 fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         item:Element = (function local_fs_drag_item():Element {
             let el:Element = element;
             if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
@@ -291,7 +291,7 @@ fs.dragFlag = "";
 
 /* Shows child elements of a directory */
 fs.expand = function local_fs_expand(event:MouseEvent):void {
-    const button:Element = <Element>event.srcElement || <Element>event.target,
+    const button:Element = <Element>event.target,
         box:Element = button.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
         li:HTMLElement = <HTMLElement>button.parentNode;
@@ -460,7 +460,7 @@ fs.listFail = function local_fs_listFail(count:number, box:Element):void {
 
 /* When clicking on a file list give focus to an input field so that the list can receive focus */
 fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
         inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
             ? listItems[listItems.length - 1].getElementsByTagName("input")
@@ -481,7 +481,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         input:HTMLInputElement = document.createElement("input"),
         mouseOver = function local_fs_listItem_mouseOver(event:MouseEvent):void {
             const dragBox:Element = document.getElementById("dragBox"),
-                element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target;
+                element:HTMLElement = <HTMLElement>event.target;
             if (dragBox !== null) {
                 if (event.ctrlKey === true) {
                     element.click();
@@ -647,7 +647,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
 
 /* Request file system information of the parent directory */
 fs.parent = function local_fs_parent(event:MouseEvent):boolean {
-    const element:Element = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+    const element:Element = <HTMLInputElement>event.target,
         header:Element = <Element>element.parentNode,
         input:HTMLInputElement = header.getElementsByTagName("input")[0],
         slash:string = (input.value.indexOf("/") > -1 && (input.value.indexOf("\\") < 0 || input.value.indexOf("\\") > input.value.indexOf("/")))
@@ -701,7 +701,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
 /* The front-side of renaming a file system object */
 fs.rename = function local_fs_rename(event:MouseEvent):void {
     const element:Element = (context.element === null)
-            ? <Element>event.srcElement || <Element>event.target
+            ? <Element>event.target
             : context.element,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -773,7 +773,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 
 /* A service to write file changes to the file system */
 fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
         content:string = box.getElementsByClassName("body")[0].getElementsByTagName("textarea")[0].value,
@@ -813,7 +813,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 /* Search for file system artifacts from a modal's current location */
 fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
     const element:HTMLInputElement = (searchElement === undefined)
-            ? <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target
+            ? <HTMLInputElement>event.target
             : searchElement,
         addressLabel:HTMLElement = <HTMLElement>element.parentNode.previousSibling;
     if (event !== null && event.type === "blur") {
@@ -935,7 +935,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
 
 /* Expand the search field to a large size when focused */
 fs.searchFocus = function local_fs_searchFocus(event:Event):void {
-    const search:Element = <Element>event.srcElement || <Element>event.target,
+    const search:Element = <Element>event.target,
         searchParent:HTMLElement = <HTMLElement>search.parentNode,
         address:HTMLElement = <HTMLElement>searchParent.previousSibling;
     searchParent.style.width = "60%";
@@ -947,7 +947,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
     event.preventDefault();
     event.stopPropagation();
     context.menuRemove();
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
             : <Element>element.parentNode,
@@ -1074,7 +1074,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
         windows:boolean = false,
         historyLength:number;
     const element:HTMLInputElement = (function local_fs_text_element():HTMLInputElement {
-            let el = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target;
+            let el = <HTMLInputElement>event.target;
             if (el.nodeName.toLowerCase() === "input") {
                 return el;
             }

@@ -114,7 +114,7 @@ util.delay = function local_util_delay():Element {
 
 /* Drag a selection box to capture a collection of items into a selection */
 util.dragBox = function local_util_dragBox(event:Event, callback:Function):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         list:Element = element.getAncestor("fileList", "class"),
         body:HTMLElement = <HTMLElement>list.getAncestor("body", "class"),
         box:HTMLElement = <HTMLElement>body.getAncestor("box", "class"),
@@ -257,7 +257,7 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
 
 /* Selects list items in response to drawing a drag box */
 util.dragList = function local_util_dragList(event:MouseEvent, dragBox:Element):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
         length:number = li.length,
         perimeter = function local_util_dragList_perimeter(node:HTMLElement):perimeter {
@@ -436,7 +436,7 @@ util.fixHeight = function local_util_fixHeight():void {
 util.formKeys = function local_util_login(event:KeyboardEvent, submit:Function):void {
     const key:string = event.key;
     if (key === "Enter") {
-        const element:Element = <Element>event.srcElement || <Element>event.target,
+        const element:Element = <Element>event.target,
             div:Element = element.getAncestor("div", "tag"),
             inputs:HTMLCollectionOf<HTMLInputElement> = div.getElementsByTagName("input"),
             length:number = inputs.length;
@@ -469,7 +469,7 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
     const key:string = event.key,
         windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
         element:Element = (function local_util_keys_element():Element {
-            let el:Element = <Element>event.srcElement || <Element>event.target;
+            let el:Element = <Element>event.target;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }

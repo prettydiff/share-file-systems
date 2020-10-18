@@ -144,7 +144,7 @@ import webSocket from "./webSocket.js";
                             active = Date.now();
                         },
                         shareAll = function local_restore_complete_shareAll(event:MouseEvent):void {
-                            const element:Element = <Element>event.srcElement || <Element>event.target,
+                            const element:Element = <Element>event.target,
                                 parent:Element = <Element>element.parentNode,
                                 classy:string = element.getAttribute("class");
                             if (parent.getAttribute("class") === "all-shares") {
