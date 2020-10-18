@@ -3,7 +3,7 @@
 import { Stats } from "fs";
 import { Stream, Writable } from "stream";
 
-import commas from "../../common/commas.js";
+import common from "../../common/common.js";
 import directory from "./directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -227,7 +227,7 @@ const copy = function terminal_copy(params:nodeCopyParams):void {
                 out.push(" at ");
                 out.push(vars.text.green);
                 out.push(vars.text.bold);
-                out.push(commas(numb.size));
+                out.push(common.commas(numb.size));
                 out.push(vars.text.none);
                 out.push(" bytes.");
                 vars.verbose = true;

@@ -6,16 +6,15 @@ import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 import { Stream, Writable } from "stream";
 import * as zlib from "zlib";
 
-import agents from "../../common/agents.js";
+import common from "../../common/common.js";
+
 import base64 from "../commands/base64.js";
-import commas from "../../common/commas.js";
 import copy from "../commands/copy.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
 import log from "../utilities/log.js";
 import mkdir from "../commands/mkdir.js";
-import prettyBytes from "../../common/prettyBytes.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
@@ -56,7 +55,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     ? "Copy"
                     : `Copying ${numbers.percent.toFixed(2)}%`;
             vars.testLogger("fileService", "copyMessage", "Status information about multiple file copy.");
-            return `${verb} complete. ${commas(numbers.countFile)} file${filePlural} written at size ${prettyBytes(numbers.writtenSize)} (${commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
+            return `${verb} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
         },
         // prepares a file list from a remote device otherwise writes the http response if the same device
         fileCallback = function terminal_server_fileService_fileCallback(message:string):void {
@@ -664,7 +663,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         : "s",
                     output:copyStatus = {
                         failures: [],
-                        message: `Copy started for ${fileData.fileCount} file${filePlural} at ${prettyBytes(fileData.fileSize)} (${commas(fileData.fileSize)} bytes).`,
+                        message: `Copy started for ${fileData.fileCount} file${filePlural} at ${common.prettyBytes(fileData.fileSize)} (${common.commas(fileData.fileSize)} bytes).`,
                         target: `local-${data.name.replace(/\\/g, "\\\\")}`
                     };
                 vars.ws.broadcast(JSON.stringify({
@@ -1286,7 +1285,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                 }
             }
         };
-        agents({
+        common.agents({
             countBy: "agent",
             perAgent: perAgent,
             source: serverVars

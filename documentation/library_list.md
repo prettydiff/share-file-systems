@@ -24,6 +24,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/fs.ts](../lib/browser/fs.ts)**                                                               - A collection of utilities for handling file system related tasks in the browser.
    - **[../lib/browser/invite.ts](../lib/browser/invite.ts)**                                                       - A collection of utilities for processing invitation related tasks.
    - **[../lib/browser/localhost.ts](../lib/browser/localhost.ts)**                                                 - The file that is sourced into the index.html file and generates the default browser experience.
+   - **[../lib/browser/message.ts](../lib/browser/message.ts)**                                                     - A library for executing the text messaging application.
    - **[../lib/browser/modal.ts](../lib/browser/modal.ts)**                                                         - A collection of utilities for generating and manipulating modals/windows in the browser.
    - **[../lib/browser/network.ts](../lib/browser/network.ts)**                                                     - The methods that execute data requests to the local terminal instance of the application.
    - **[../lib/browser/remote.ts](../lib/browser/remote.ts)**                                                       - A collection of instructions to allow event execute from outside the browser, like a remote control.
@@ -32,10 +33,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/util.ts](../lib/browser/util.ts)**                                                           - Miscellaneous tools for the browser environment.
    - **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                 - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * Directory *[../lib/common](../lib/common)*
-   - **[../lib/common/agents.ts](../lib/common/agents.ts)**                                                         - Traverses the list of agents, devices and users, and performs an action on each as dictated by a callback
-   - **[../lib/common/commas.ts](../lib/common/commas.ts)**                                                         - Converts numbers into a string of comma separated triplets.
-   - **[../lib/common/deviceShare.ts](../lib/common/deviceShare.ts)**                                               - Converts the local device list into a flattened object of shares for remote users.
-   - **[../lib/common/prettyBytes.ts](../lib/common/prettyBytes.ts)**                                               - Rounds data sizes to human readable powers of 1024.
+   - **[../lib/common/common.ts](../lib/common/common.ts)**                                                         - A collection of tools available to any environment.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
    - **[../lib/terminal/commands/agent_data.ts](../lib/terminal/commands/agent_data.ts)**                           - Writes agent data to the shell.
    - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                       - A connectivity tester to shared remote agents.

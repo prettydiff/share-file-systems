@@ -5,7 +5,8 @@ import context from "./context.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import util from "./util.js";
-import commas from "../common/commas.js";
+
+import common from "../common/common.js";
 
 const fs:module_fs = {};
 
@@ -499,7 +500,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         } else {
             plural = "s";
         }
-        span.textContent = `file - ${commas(item[5].size)} byte${plural}`;
+        span.textContent = `file - ${common.commas(item[5].size)} byte${plural}`;
     } else if (item[1] === "directory") {
         if (item[4] > 0) {
             const button = document.createElement("button");
@@ -515,7 +516,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
         } else {
             plural = "s";
         }
-        span.textContent = `directory - ${commas(item[4])} item${plural}`;
+        span.textContent = `directory - ${common.commas(item[4])} item${plural}`;
         li.ondblclick = fs.directory;
     } else {
         span = document.createElement("span");
@@ -635,7 +636,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
             text_event: fs.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
-            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${agentType.charAt(0).toUpperCase() + agentType.slice(1)}, ${browser[agentType][agentName].name}`,
+            title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${common.capitalize(agentType)}, ${browser[agentType][agentName].name}`,
             type: "fileNavigate",
             width: 800
         },
@@ -856,7 +857,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                             const plural:string = (dirData.dirs.length === 1)
                                 ? ""
                                 : "es";
-                            statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${commas(length)}</strong> match${plural} from <em>${address}</em>.`;
+                            statusBar.innerHTML = `Search fragment "<em>${value}</em>" returned <strong>${common.commas(length)}</strong> match${plural} from <em>${address}</em>.`;
                         };
                     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly" || length < 1) {
                         const p:HTMLElement = document.createElement("p");

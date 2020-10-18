@@ -1,7 +1,7 @@
 
 /* lib/terminal/utilities/humanTime - A utility to generate human readable time sequences. */
 /*eslint no-console: 0*/
-import prettyBytes from "../../common/prettyBytes.js";
+import common from "../../common/common.js";
 
 import vars from "./vars.js";
 
@@ -60,7 +60,7 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
                 : numberString(minutes);
         };
     memory       = process.memoryUsage();
-    finalMem     = prettyBytes(memory.rss);
+    finalMem     = common.prettyBytes(memory.rss);
 
     //last line for additional instructions without bias to the timer
     secondString = numberString(elapsed);

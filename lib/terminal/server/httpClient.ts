@@ -2,7 +2,7 @@
 /* lib/terminal/server/httpClient - A library for handling all child HTTP requests. */
 import {ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions} from "http";
 
-import agents from "../../common/agents.js";
+import common from "../../common/common.js";
 
 import forbiddenUser from "./forbiddenUser.js";
 import response from "./response.js";
@@ -42,7 +42,7 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             },
         requestError = (config.id === "heartbeat")
             ? function terminal_server_httpClient_requestErrorHeartbeat(errorMessage:nodeError):void {
-                agents({
+                common.agents({
                     countBy: "agent",
                     perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
                         if (errorMessage.address === serverVars[agentNames.agentType][agentNames.agent].ip) {

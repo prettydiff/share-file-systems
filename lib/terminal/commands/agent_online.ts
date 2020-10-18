@@ -3,7 +3,7 @@
 
 import {ClientRequest, IncomingMessage, RequestOptions} from "http";
 
-import agents from "../../common/agents.js";
+import common from "../../common/common.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
@@ -36,7 +36,7 @@ const agent_online = function terminal_agentOnline():void {
         if (arg === "list") {
             const store:string[] = [];
             log.title("Agent List");
-            agents({
+            common.agents({
                 countBy: "agent",
                 perAgent: function terminal_agentOnline_storage_perAgent(agentNames:agentNames):void {
                     const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ip}`;
@@ -48,7 +48,7 @@ const agent_online = function terminal_agentOnline():void {
                 },
                 perAgentType: function terminal_agentOnline_storage_perAgentType(agentNames:agentNames):void {
                     store.push("");
-                    store.push(`${vars.text.cyan + vars.text.bold + agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)}:${vars.text.none}`);
+                    store.push(`${vars.text.cyan + vars.text.bold + common.capitalize(agentNames.agentType)}:${vars.text.none}`);
                     if (agentNames.agentType === "user" && Object.keys(storage.user).length < 1) {
                         store.push("no shared users");
                     }
@@ -155,9 +155,9 @@ const agent_online = function terminal_agentOnline():void {
                 if (arg === "all") {
                     log.title("Test All Agent Connectivity");
                 } else {
-                    log.title(`Test Each ${arg.charAt(0).toUpperCase() + arg.slice(1)} Agent`);
+                    log.title(`Test Each ${common.capitalize(arg)} Agent`);
                 }
-                agents({
+                common.agents({
                     countBy: "agent",
                     perAgent: function terminal_agentOnline_storage_perAgent(agentNames:agentNames):void {
                         if (agentNames.agent !== storage.settings.hashDevice && (arg === "all" || agentNames.agentType === arg)) {

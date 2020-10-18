@@ -2,7 +2,6 @@
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
 import { ServerResponse } from "http";
 
-import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 import httpClient from "./httpClient.js";
@@ -10,8 +9,7 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
-import agents from "../../common/agents.js";
-import deviceShare from "../../common/deviceShare.js";
+import common from "../../common/common.js";
 import error from "../utilities/error.js";
 
 const removeByType = function terminal_server_heartbeatDelete_byType(list:string[], type:agentType):void {
@@ -83,7 +81,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
                 responseError: errorHandler
             };
         if (config.list === null) {
-            agents({
+            common.agents({
                 complete: responder,
                 countBy: "agent",
                 perAgent: function terminal_server_heartbeatBroadcast_perAgent(agentNames:agentNames):void {
@@ -131,7 +129,7 @@ const removeByType = function terminal_server_heartbeatDelete_byType(list:string
                                     ip: serverVars.ipAddress,
                                     name: serverVars.nameUser,
                                     port: serverVars.webPort,
-                                    shares: deviceShare(serverVars.device, config.deleted)
+                                    shares: common.deviceShare(serverVars.device, config.deleted)
                                 }
                             }
                             : {};

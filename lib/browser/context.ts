@@ -6,8 +6,8 @@ import modal from "./modal.js";
 import network from "./network.js";
 import share from "./share.js";
 import util from "./util.js";
-import commas from "../common/commas.js";
-import prettyBytes from "../common/prettyBytes.js";
+
+import common from "../common/common.js";
 
 const context:module_context = {
     element: null,
@@ -224,7 +224,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             left: event.clientX,
             read_only: agency[1],
             single: true,
-            title: `Details - ${agency[2].slice(0, 1).toUpperCase() + agency[2].slice(1)}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
+            title: `Details - ${common.capitalize(agency[2])}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -298,7 +298,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             }
     
             output.setAttribute("class", "fileDetailOutput");
-            heading.innerHTML = `File System Details - ${commas(list.length)} items`;
+            heading.innerHTML = `File System Details - ${common.commas(list.length)} items`;
             output.appendChild(heading);
             tr = document.createElement("tr");
             td = document.createElement("th");
@@ -314,9 +314,9 @@ context.details = function local_context_details(event:MouseEvent):void {
             tr.appendChild(td);
             td = document.createElement("td");
             if (details.size > 1024) {
-                td.innerHTML = `${commas(details.size)} bytes (${prettyBytes(details.size)})`;
+                td.innerHTML = `${common.commas(details.size)} bytes (${common.prettyBytes(details.size)})`;
             } else {
-                td.innerHTML = `${commas(details.size)} bytes`;
+                td.innerHTML = `${common.commas(details.size)} bytes`;
             }
             tr.appendChild(td);
             tbody.appendChild(tr);
@@ -336,7 +336,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             td.innerHTML = "Files";
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = commas(details.files);
+            td.innerHTML = common.commas(details.files);
             tr.appendChild(td);
             tbody.appendChild(tr);
             tr = document.createElement("tr");
@@ -344,7 +344,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             td.innerHTML = "Directories";
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = commas(details.directories);
+            td.innerHTML = common.commas(details.directories);
             tr.appendChild(td);
             tbody.appendChild(tr);
             tr = document.createElement("tr");
@@ -352,7 +352,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             td.innerHTML = "Symbolic Links";
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = commas(details.links);
+            td.innerHTML = common.commas(details.links);
             tr.appendChild(td);
             tbody.appendChild(tr);
             table.appendChild(tbody);
@@ -427,10 +427,10 @@ context.details = function local_context_details(event:MouseEvent):void {
                         cell.innerHTML = fileList[aa][0];
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = commas(fileList[aa][5].size);
+                        cell.innerHTML = common.commas(fileList[aa][5].size);
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = prettyBytes(fileList[aa][5].size);
+                        cell.innerHTML = common.prettyBytes(fileList[aa][5].size);
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         aa = aa + 1;
@@ -501,7 +501,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                     let aa:number = 0,
                         row:HTMLElement,
                         cell:HTMLElement;
-                    p.innerHTML = `All ${commas(dataLength)} files sorted alphabetically`;
+                    p.innerHTML = `All ${common.commas(dataLength)} files sorted alphabetically`;
                     tbody.innerHTML = "";
                     do {
                         row = document.createElement("tr");

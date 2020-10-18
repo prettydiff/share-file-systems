@@ -4,7 +4,7 @@ import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
 
-import agents from "../common/agents.js";
+import common from "../common/common.js";
 
 const settings:module_settings = {};
 
@@ -152,7 +152,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
         browser.pageBody.setAttribute("class", element.value);
     }
 
-    agents({
+    common.agents({
         complete: complete,
         countBy: "agent",
         perAgent: function local_settings_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
@@ -264,7 +264,7 @@ settings.modalContent = function local_settings_modalContent():Element {
         },
         perAgentType = function local_settings_modalContent_perAgentType(agentNames:agentNames):void {
             const ul:Element = document.createElement("ul");
-            section = createSection(`◩ ${agentNames.agentType.charAt(0).toUpperCase() + agentNames.agentType.slice(1)} Color Definitions`);
+            section = createSection(`◩ ${common.capitalize(agentNames.agentType)} Color Definitions`);
             p = document.createElement("p");
             p.innerHTML = "Accepted format is 3 or 6 digit hexadecimal (0-f)";
             section.appendChild(p);
@@ -387,7 +387,7 @@ settings.modalContent = function local_settings_modalContent():Element {
     section.appendChild(p);
     settingsBody.appendChild(section);
 
-    agents({
+    common.agents({
         countBy: "agent",
         perAgent: function local_settings_modalContent_perAgent(agentNames:agentNames):void {
             settings.addUserColor(agentNames.agent, agentNames.agentType, section);

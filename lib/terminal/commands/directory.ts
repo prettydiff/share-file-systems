@@ -2,7 +2,7 @@
 /* lib/terminal/commands/directory - A command driven utility to walk the file system and return a data structure. */
 import { Stats } from "fs";
 
-import commas from "../../common/commas.js";
+import common from "../../common/common.js";
 import hash from "./hash.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
@@ -62,9 +62,9 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                 output.push(JSON.stringify(result));
                             }
                             output.push("");
-                            output.push(`${vars.version.name} found ${vars.text.green + commas(count) + vars.text.none} matching items from address:`);
+                            output.push(`${vars.version.name} found ${vars.text.green + common.commas(count) + vars.text.none} matching items from address:`);
                             output.push(vars.text.cyan + args.path + vars.text.none);
-                            output.push(`Total file size of ${vars.text.green + commas(size) + vars.text.none} bytes and ${vars.text.angry + commas(list.failures.length) + vars.text.none} errors.`);
+                            output.push(`Total file size of ${vars.text.green + common.commas(size) + vars.text.none} bytes and ${vars.text.angry + common.commas(list.failures.length) + vars.text.none} errors.`);
                             log(output, true);
                         } else if (args.mode === "list") {
                             log(<string[]>result);
@@ -372,7 +372,7 @@ const directory = function terminal_directory(parameters:readDirectory):void {
                                                 : (type === "file")
                                                     ? "file     "
                                                     : "directory",
-                                            comma:string = commas(stat.size),
+                                            comma:string = common.commas(stat.size),
                                             size:number = comma.length;
                                         if (size > longest) {
                                             longest = size;

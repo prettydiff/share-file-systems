@@ -30,7 +30,7 @@ declare global {
     type messageListError = [string, string, string[]];
     type messageType = "errors" | "status" | "users";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-    type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
+    type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | qualifier;
@@ -460,6 +460,13 @@ declare global {
         target: string;
         start: string;
     }
+    interface module_common {
+        agents: (agents:agentsConfiguration) => void;
+        capitalize: (input:string) => string;
+        commas: (number:number) => string;
+        deviceShare: (devices:agents, deleted:agentList) => agentShares;
+        prettyBytes: (an_integer:number) => string; 
+    }
     interface module_context {
         copy?: EventHandlerNonNull;
         dataString?: EventHandlerNonNull;
@@ -503,6 +510,9 @@ declare global {
         respond?: (invitation:invite) => void;
         start?: sharesDeleteList;
         typeToggle?: EventHandlerNonNull;
+    }
+    interface module_message {
+        modal?: EventHandlerNonNull;
     }
     interface module_modal {
         close?: EventHandlerNonNull;

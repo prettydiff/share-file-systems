@@ -4,7 +4,7 @@
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
 import { request } from "https";
 
-import agents from "../../../common/agents.js";
+import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
 import server from "../../commands/server.js";
@@ -51,7 +51,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                     callback();
                 }
             };
-            agents({
+            common.agents({
                 complete: complete,
                 countBy: "agent",
                 perAgent: function test_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
@@ -216,7 +216,7 @@ service.killServers = function test_services_killServers(complete:testComplete):
             testComplete(complete);
         }
     };
-    agents({
+    common.agents({
         complete: agentComplete,
         countBy: "agent",
         perAgent: function test_services_killServers_perAgent(agentNames:agentNames, counts:agentCounts):void {

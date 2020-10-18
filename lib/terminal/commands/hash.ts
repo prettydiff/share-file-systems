@@ -2,7 +2,7 @@
 /* lib/terminal/commands/hash - A command driven utility to generate hash sequences on strings or file system artifacts. */
 import { Hash } from "crypto";
 
-import commas from "../../common/commas.js";
+import common from "../../common/common.js";
 import directory from "./directory.js";
 import error from "../utilities/error.js";
 import get from "./get.js";
@@ -91,7 +91,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                                 hashComplete();
                             } else {
                                 if (vars.verbose === true) {
-                                    log([`${humanTime(false)}${vars.text.green + commas(a) + vars.text.none} files hashed so far...`]);
+                                    log([`${humanTime(false)}${vars.text.green + common.commas(a) + vars.text.none} files hashed so far...`]);
                                 }
                                 c = 0;
                                 recursive();
@@ -148,7 +148,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
             vars.testLogger("hash", "dirComplete", `reading the directory tree is complete with ${listLength} items and a ulimit of ${limit}.`);
             list.sort(sortFunction);
             if (vars.verbose === true && vars.testLogFlag === "") {
-                log([`${humanTime(false)}Completed analyzing the directory tree in the file system and found ${vars.text.green + commas(listLength) + vars.text.none} file system objects.`]);
+                log([`${humanTime(false)}Completed analyzing the directory tree in the file system and found ${vars.text.green + common.commas(listLength) + vars.text.none} file system objects.`]);
             }
             if (limit < 1 || listLength < limit) {
                 do {
@@ -190,7 +190,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
             } else {
                 if (vars.verbose === true) {
                     log([
-                        `Due to a ulimit setting of ${vars.text.angry + commas(limit) + vars.text.none} ${vars.version.name} will read only ${vars.text.cyan + commas(shortLimit) + vars.text.none} files at a time.`,
+                        `Due to a ulimit setting of ${vars.text.angry + common.commas(limit) + vars.text.none} ${vars.version.name} will read only ${vars.text.cyan + common.commas(shortLimit) + vars.text.none} files at a time.`,
                         ""
                     ]);
                 }

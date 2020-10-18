@@ -9,6 +9,7 @@
 * **[fs.ts](fs.ts)**               - A collection of utilities for handling file system related tasks in the browser.
 * **[invite.ts](invite.ts)**       - A collection of utilities for processing invitation related tasks.
 * **[localhost.ts](localhost.ts)** - The file that is sourced into the index.html file and generates the default browser experience.
+* **[message.ts](message.ts)**     - A library for executing the text messaging application.
 * **[modal.ts](modal.ts)**         - A collection of utilities for generating and manipulating modals/windows in the browser.
 * **[network.ts](network.ts)**     - The methods that execute data requests to the local terminal instance of the application.
 * **[remote.ts](remote.ts)**       - A collection of instructions to allow event execute from outside the browser, like a remote control.

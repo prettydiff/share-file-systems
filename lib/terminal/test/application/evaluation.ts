@@ -7,6 +7,8 @@ import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
+import common from "../../../common/common.js";
+
 import service from "../application/service.js";
 import simulation from "../application/simulation.js";
 
@@ -103,7 +105,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                 });
             }
         },
-        capital:string = output.testType.charAt(0).toUpperCase() + output.testType.slice(1),
+        capital:string = common.capitalize(output.testType),
         logString:string = `${vars.text.cyan}Log - ${vars.text.none}`,
         testLog:string[] = (vars.testLogFlag === "service")
             ? (function test_testEvaluation_logService():string[] {

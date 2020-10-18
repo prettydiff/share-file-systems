@@ -1,6 +1,6 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
-import commas from "../../common/commas.js";
+import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
 
@@ -81,7 +81,7 @@ const error = function terminal_error(errText:string[]):void {
             logger("");
             logger(`${vars.text.green}## Environment${vars.text.none}`);
             logger(`* OS - **${vars.node.os.platform()} ${vars.node.os.release()}**`);
-            logger(`* Mem - ${commas(totalmem)} - ${commas(freemem)} = **${commas(totalmem - freemem)}**`);
+            logger(`* Mem - ${common.commas(totalmem)} - ${common.commas(freemem)} = **${common.commas(totalmem - freemem)}**`);
             logger(`* CPU - ${vars.node.os.arch()} ${vars.node.os.cpus().length} cores`);
             logger("");
             logger(`${vars.text.green}## Command Line Instruction${vars.text.none}`);

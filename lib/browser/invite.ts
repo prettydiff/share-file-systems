@@ -7,6 +7,8 @@ import settings from "./settings.js";
 import share from "./share.js";
 import util from "./util.js";
 
+import common from "../common/common.js";
+
 const invite:module_invite = {};
 
 /* Accept an invitation, handler on a modal's confirm button*/
@@ -308,7 +310,7 @@ invite.respond = function local_invite_respond(invitation:invite):void {
         a = a + 1;
     } while (a < length);
     div.setAttribute("class", "agentInvitation");
-    text.innerHTML = `${invitation.type.slice(0, 1).toUpperCase() + invitation.type.slice(1)} <strong>${name}</strong> from ${ip} is inviting you to share spaces.`;
+    text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share spaces.`;
     div.appendChild(text);
     text = document.createElement("p");
     label.innerHTML = `${name} said:`;

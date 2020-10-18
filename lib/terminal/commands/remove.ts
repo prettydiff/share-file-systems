@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/remove - A command driven utility to recursively remove file system artifacts. */
-import commas from "../../common/commas.js"
+import common from "../../common/common.js"
 import directory from "./directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -128,7 +128,7 @@ const remove = function terminal_remove(filePath:string, callback:Function):void
                     }
                     out.push(" at ");
                     out.push(vars.text.angry);
-                    out.push(commas(numb.size));
+                    out.push(common.commas(numb.size));
                     out.push(vars.text.none);
                     out.push(" bytes.");
                     log(["", out.join(""), `Removed ${vars.text.cyan + dirConfig.path + vars.text.none}`], true);

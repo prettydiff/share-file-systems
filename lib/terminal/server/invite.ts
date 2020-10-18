@@ -2,7 +2,7 @@
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
 import { ServerResponse } from "http";
 
-import deviceShare from "../../common/deviceShare.js";
+import common from "../../common/common.js";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -131,7 +131,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     ip: serverVars.ipAddress,
                     name: serverVars.nameUser,
                     port: serverVars.webPort,
-                    shares: deviceShare(serverVars.device, null)
+                    shares: common.deviceShare(serverVars.device, null)
                 }
             };
         inviteHttp(data.ip, data.port);
@@ -149,7 +149,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         ip: serverVars.ipAddress,
                         name: serverVars.nameUser,
                         port: serverVars.webPort,
-                        shares: deviceShare(serverVars.device, null)
+                        shares: common.deviceShare(serverVars.device, null)
                     }
                 };
             data.status = "accepted";
@@ -176,7 +176,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         ip: serverVars.ipAddress,
                         name: serverVars.nameUser,
                         port: serverVars.webPort,
-                        shares: deviceShare(serverVars.device, null)
+                        shares: common.deviceShare(serverVars.device, null)
                     }
                 };
             }

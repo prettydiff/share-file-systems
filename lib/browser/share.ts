@@ -1,7 +1,7 @@
 
 /* lib/browser/share - The utilities that manage and coordinate changes to user share data. */
 
-import agents from "../common/agents.js";
+import common from "../common/common.js";
 
 import browser from "./browser.js";
 import context from "./context.js";
@@ -143,7 +143,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                 li.appendChild(shareListUL);
             } else {
                 const p:Element = document.createElement("p");
-                p.innerHTML = `${agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
+                p.innerHTML = `${common.capitalize(agentNames.agentType)} <em>${browser[agentNames.agentType][agentNames.agent].name}</em> has no shares.`;
                 li.appendChild(p);
             }
             agentTypeUL.appendChild(li);
@@ -231,7 +231,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         shareListUL:Element;
 
     if (agentName === "" || agentType === "") {
-        agents({
+        common.agents({
             countBy: "share",
             perAgent: perAgent,
             perAgentType: perAgentType,
@@ -252,7 +252,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
         if (shareLength < 1) {
             const p:Element = document.createElement("p");
             p.setAttribute("class", "no-shares");
-            p.innerHTML = `${agentType.slice(0, 1).toUpperCase() + agentType.slice(1)} <em>${browser[agentType][agentName].name}</em> has no shares.`;
+            p.innerHTML = `${common.capitalize(agentType)} <em>${browser[agentType][agentName].name}</em> has no shares.`;
             div.appendChild(p);
         } else {
             let a:number = 0;
@@ -494,7 +494,7 @@ share.deleteListContent = function local_shares_deleteListContent():Element {
         total:number = 0,
         ul:Element = document.createElement("ul");
     content.setAttribute("class", "share-delete");
-    agents({
+    common.agents({
         countBy: "agent",
         perAgent: function local_share_deleteList_perAgent(agentNames:agentNames):void {
             if (agentNames.agentType !== "device" || (agentNames.agentType === "device" && agentNames.agent !== browser.data.hashDevice)) {
@@ -515,7 +515,7 @@ share.deleteListContent = function local_shares_deleteListContent():Element {
         },
         perAgentType: function local_share_deleteList_perAgentType(agentNames:agentNames):void {
             h3 = document.createElement("h3");
-            h3.innerHTML = `${agentNames.agentType.charAt(0).toUpperCase() + agentNames.agentType.slice(1)}s`;
+            h3.innerHTML = `${common.capitalize(agentNames.agentType)}s`;
             names = Object.keys(browser[agentNames.agentType]);
             length = names.length;
             content.appendChild(h3);
@@ -561,7 +561,7 @@ share.modal = function local_shares_modal(agent:string, agentType:agentType|"", 
             title:string = (agent === "")
                 ? (agentType === "")
                     ? "⌘ All Shares"
-                    : `${icon} All ${agentType.charAt(0).toUpperCase() + agentType.slice(1)} Shares`
+                    : `${icon} All ${common.capitalize(agentType)} Shares`
                 : `${icon} Shares for ${agentType} - ${browser[agentType][agent].name}`;
         configuration = {
             agent: agent,
