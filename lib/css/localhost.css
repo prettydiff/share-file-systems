@@ -247,7 +247,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentList{margin:1em 1em 1em 2em}
 #spaces .no-shares{margin:1em 1em 1em 2.667em}
 #spaces .agentList h3{font-size:1em}
-#spaces .agentList li{border-style:none}
+#spaces .agentList li{border-style:none;list-style:none}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .agentList button.device,
 #spaces .agentList button.user{background:transparent;border-style:none;display:inline-block;font-size:1em;padding:0.2em 0 1.2em;text-align:left}
@@ -277,7 +277,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentList button:hover{cursor:pointer;text-decoration:underline}
 #spaces .agentList li.device,
 #spaces .agentList li.user{margin:0 0 1em}
-#spaces .agentList li.device::before{content:"💻 "}
+#spaces ul.agentList li.device::before{content:"💻 "}
 #spaces .agentList li li.device::before{content:""}
 #spaces .agentList li.user::before{content:"👤 "}
 #spaces .agentList .device h3,
@@ -289,8 +289,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .no-shares,
 #spaces .agentList .device ul,
 #spaces .agentList .user ul,
-#spaces .agentList ul.device,
-#spaces .agentList ul.user{clear:both;margin:2em 0 0;padding:0}
+#spaces .agentList ul.agent{clear:both;margin:2em 0 0;padding:0}
 #spaces .agentList ul.device li,
 #spaces .agentList ul.user li{border-style:solid;border-width:0 0 0.1em;list-style-type:none}
 
