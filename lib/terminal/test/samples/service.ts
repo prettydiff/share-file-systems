@@ -916,31 +916,6 @@ const serviceTests = function test_services():testServiceInstance[] {
         command: {
             storage: {
                 data: {
-                    status: [],
-                    users: [],
-                    errors: [
-                        [
-                            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
-                                "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
-                                "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
-                                "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
-                                "FSReqCallback.oncomplete (fs.js:154:23)"
-                            ]
-                        ]
-                    ]
-                },
-                response: null,
-                type: "messages"
-            }
-        },
-        name: "storage messages, Local messages storage without HTTP response",
-        qualifier: "is",
-        test: "messages storage written with false response for testing."
-    });
-    service.push(<testTemplateStorage>{
-        command: {
-            storage: {
-                data: {
                     [serverVars.hashDevice]: {
                         ip: loopback,
                         name: "remote user name",

@@ -6,6 +6,7 @@ import context from "./context.js";
 import fs from "./fs.js";
 import getNodesByType from "./dom.js";
 import invite from "./invite.js";
+import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import remote from "./remote.js";
@@ -298,19 +299,20 @@ import webSocket from "./webSocket.js";
                             }
 
                             modalKeys.forEach(function local_restore_modalKeys(value:string) {
-                                if (storage.settings.modals[value].type === "fileNavigate") {
-                                    const agent:string = storage.settings.modals[value].agent,
+                                const modalItem:ui_modal = storage.settings.modals[value];
+                                if (modalItem.type === "fileNavigate") {
+                                    const agent:string = modalItem.agent,
                                         payload:fileService = {
                                             action: "fs-directory",
                                             agent: agent,
-                                            agentType: storage.settings.modals[value].agentType,
+                                            agentType: modalItem.agentType,
                                             copyAgent: "",
                                             copyType: "device",
                                             depth: 2,
                                             id: value,
-                                            location: [storage.settings.modals[value].text_value],
+                                            location: [modalItem.text_value],
                                             name: "",
-                                            share: storage.settings.modals[value].share,
+                                            share: modalItem.share,
                                             watch: "yes"
                                         },
                                         selection = function local_restore_modalKeys_selection(id:string):void {
@@ -363,7 +365,7 @@ import webSocket from "./webSocket.js";
                                                         }
                                                         return [p, 0, ""];
                                                     }())
-                                                    : fs.list(storage.settings.modals[value].text_value, payload);
+                                                    : fs.list(modalItem.text_value, payload);
                                             files[0].removeAttribute("title");
                                             if (responseText !== "") {
                                                 const fsModal:Element = document.getElementById(id);
@@ -378,13 +380,13 @@ import webSocket from "./webSocket.js";
                                                 fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                             }
                                         };
-                                    if (storage.settings.modals[value].search !== undefined && storage.settings.modals[value].search[0] === storage.settings.modals[value].text_value && storage.settings.modals[value].search[1] !== "") {
+                                    if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
                                         let search:HTMLInputElement;
                                         const delay:Element = util.delay();
-                                        storage.settings.modals[value].content = delay;
-                                        storage.settings.modals[value].id = value;
-                                        storage.settings.modals[value].text_event = fs.text;
-                                        modal.create(storage.settings.modals[value]);
+                                        modalItem.content = delay;
+                                        modalItem.id = value;
+                                        modalItem.text_event = fs.text;
+                                        modal.create(modalItem);
                                         search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
                                         fs.search(null, search, function local_restore_modalKeys_searchCallback():void {
                                             selection(value);
@@ -392,62 +394,65 @@ import webSocket from "./webSocket.js";
                                         z(value);
                                     } else {
                                         const delay:Element = util.delay();
-                                        storage.settings.modals[value].content = delay;
-                                        storage.settings.modals[value].id = value;
-                                        storage.settings.modals[value].text_event = fs.text;
-                                        modal.create(storage.settings.modals[value]);
+                                        modalItem.content = delay;
+                                        modalItem.id = value;
+                                        modalItem.text_event = fs.text;
+                                        modal.create(modalItem);
                                         z(value);
                                         network.fs(payload, callback);
                                     }
-                                } else if (storage.settings.modals[value].type === "textPad" || storage.settings.modals[value].type === "export") {
+                                } else if (modalItem.type === "textPad" || modalItem.type === "export") {
                                     const textArea:HTMLTextAreaElement = document.createElement("textarea");
-                                    if (storage.settings.modals[value].type === "textPad") {
-                                        if (storage.settings.modals[value].text_value !== undefined) {
-                                            textArea.value = storage.settings.modals[value].text_value;
+                                    if (modalItem.type === "textPad") {
+                                        if (modalItem.text_value !== undefined) {
+                                            textArea.value = modalItem.text_value;
                                         }
                                         textArea.onblur = modal.textSave;
                                     } else {
                                         textArea.value = JSON.stringify(storage.settings);
                                     }
-                                    storage.settings.modals[value].content = textArea;
-                                    storage.settings.modals[value].id = value;
-                                    modal.create(storage.settings.modals[value]);
+                                    modalItem.content = textArea;
+                                    modalItem.id = value;
+                                    modal.create(modalItem);
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "systems") {
-                                    modal.create(storage.settings.modals[value]);
+                                } else if (modalItem.type === "message") {
+                                    message.modal(modalItem);
+                                    z(value);
+                                } else if (modalItem.type === "systems") {
+                                    modal.create(modalItem);
                                     const systemsModal:Element = document.getElementById("systems-modal");
                                     let button:HTMLButtonElement;
-                                    if (storage.settings.modals[value].text_value === "status") {
+                                    if (modalItem.text_value === "status") {
                                         button = <HTMLButtonElement>systemsModal.getElementsByClassName("status")[0];
                                         button.click();
-                                    } else if (storage.settings.modals[value].text_value === "users") {
+                                    } else if (modalItem.text_value === "users") {
                                         button = <HTMLButtonElement>systemsModal.getElementsByClassName("users")[0];
                                         button.click();
-                                    } else if (storage.settings.modals[value].text_value === "errors") {
+                                    } else if (modalItem.text_value === "errors") {
                                         button = <HTMLButtonElement>systemsModal.getElementsByClassName("errors")[0];
                                         button.click();
                                     }
-                                    if (storage.settings.modals[value].status === "normal") {
+                                    if (modalItem.status === "normal") {
                                         document.getElementById("systems-modal").style.display = "block";
                                     }
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "shares") {
-                                    const agentType:agentType|"" = (storage.settings.modals[value].title.indexOf("All Shares") > -1)
+                                } else if (modalItem.type === "shares") {
+                                    const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
                                         ? ""
-                                        : storage.settings.modals[value].agentType;
-                                    share.modal(storage.settings.modals[value].agent, agentType, storage.settings.modals[value]);
+                                        : modalItem.agentType;
+                                    share.modal(modalItem.agent, agentType, modalItem);
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "share_delete") {
-                                    share.deleteList(null, storage.settings.modals[value]);
+                                } else if (modalItem.type === "share_delete") {
+                                    share.deleteList(null, modalItem);
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "invite-request") {
-                                    invite.start(null, storage.settings.modals[value]);
+                                } else if (modalItem.type === "invite-request") {
+                                    invite.start(null, modalItem);
                                     z(value);
-                                } else if (storage.settings.modals[value].type === "settings") {
+                                } else if (modalItem.type === "settings") {
                                     browser.data.brotli = storage.settings.brotli;
                                     browser.data.hashType = storage.settings.hashType;
-                                    storage.settings.modals[value].content = settings.modalContent();
-                                    modal.create(storage.settings.modals[value]);
+                                    modalItem.content = settings.modalContent();
+                                    modal.create(modalItem);
                                     const settingsModal:Element = document.getElementById("settings-modal"),
                                         inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
                                         length:number = inputs.length;

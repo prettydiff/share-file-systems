@@ -5,14 +5,12 @@ import util from "./util.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
-let messageTransmit:boolean = true;
 
 /* Send instructions to remove this local device/user from deleted remote agents */
 network.deleteAgents = function local_network_deleteAgents(deleted:agentList):void {
     network.xhr({
         callback: null,
         error: null,
-        halt: false,
         payload: JSON.stringify({
             "delete-agents": deleted
         }),
@@ -32,7 +30,6 @@ network.fs = function local_network_fs(configuration:fileService, callback:Funct
             }
         },
         error: `Transmission error when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-        halt: true,
         payload: JSON.stringify({
             fs: configuration
         }),
@@ -52,7 +49,6 @@ network.hashDevice = function local_network_hashDevice(callback:Function):void {
             callback(hashes);
         },
         error: null,
-        halt: false,
         payload: JSON.stringify({hashDevice:hashes}),
         type: "hashDevice"
     });
@@ -68,7 +64,6 @@ network.hashShare = function local_network_hashShare(configuration:hashShareConf
     network.xhr({
         callback: configuration.callback,
         error: null,
-        halt: false,
         payload: JSON.stringify({hashShare:payload}),
         type: "hashShare"
     });
@@ -89,7 +84,6 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
     network.xhr({
         callback: null,
         error: null,
-        halt: false,
         payload: JSON.stringify({
             "heartbeat-update": heartbeat
         }),
@@ -102,7 +96,6 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     network.xhr({
         callback: null,
         error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
-        halt: true,
         payload: JSON.stringify({
             invite: configuration
         }),
@@ -115,7 +108,6 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     network.xhr({
         callback: null,
         error: `Transmission error related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
-        halt: false,
         payload: JSON.stringify({
             invite: inviteData
         }),
@@ -125,18 +117,15 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
 
 /* Writes configurations to file storage */
 network.storage = function local_network_storage(type:storageType):void {
-    if (browser.loadTest === true && type !== "settings" && ((messageTransmit === false && type === "messages") || type !== "messages")) {
+    if (browser.loadTest === true && type !== "settings") {
         return;
     }
-    messageTransmit = false;
     const storage:storage = {
             data: (type === "settings")
                 ? browser.data
-                : (type === "messages")
-                    ? browser.messages
-                    : (type === "device")
-                        ? browser.device
-                        : browser.user,
+                : (type === "device")
+                    ? browser.device
+                    : browser.user,
             response: null,
             type: type
         },
@@ -146,7 +135,6 @@ network.storage = function local_network_storage(type:storageType):void {
     network.xhr({
         callback: null,
         error: null,
-        halt: false,
         payload: payload,
         type: type
     });
@@ -157,7 +145,6 @@ network.testBrowserLoaded = function local_network_testBrowserLoaded(payload:[bo
     network.xhr({
         callback: null,
         error: null,
-        halt: false,
         payload: JSON.stringify({
             "test-browser": {
                 index: index,
@@ -173,7 +160,6 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         readyState = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
-                messageTransmit = true;
                 if (xhr.status === 200 || xhr.status === 0) {
                     if (config.callback !== null) {
                         config.callback(xhr.responseText);
@@ -196,9 +182,6 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                 }
             }
         };
-    if (config.halt === true) {
-        messageTransmit = false;
-    }
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;

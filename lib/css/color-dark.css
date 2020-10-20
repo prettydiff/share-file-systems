@@ -111,6 +111,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .header .fileSearch input{border-color:#666}
 .dark #spaces .fileList li input.error,
 .dark #spaces .box .header .error{background:#300;color:#c33}
+.dark #spaces .box button.send-button,
 .dark #spaces .box button.confirm{background:#020;border-color:#393;color:#393}
 .dark #spaces .box button.save{background:#ffc;border-color:#990;color:#770}
 .dark #spaces .box .delay svg{stroke:#cdf}
@@ -130,8 +131,6 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .tabs .status{color:#6cf}
 .dark #spaces .box .tabs .users{color:#696}
 .dark #spaces .box .tabs .errors{color:#c33}
-.dark #spaces .messageList{border-color:#000}
-.dark #spaces .messageList li{border-color:#666}
 .dark #spaces #system-errors span{color:#c33}
 
 /* share list */
@@ -162,6 +161,5 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .fileList li.selected.cut:hover{background:#393}
 .dark #spaces .fileList li.cut{background:#330;opacity:0.5;outline-color:#990;color:#fff}
 .dark #spaces .fileList li.cut:hover{background:#660}
-.dark #spaces .messageList .expansion,
 .dark #spaces .fileList .expansion{background:#333;border-color:#666;box-shadow:0.05em 0.05em 0.125em #000;color:#ccc}
 .dark #spaces #file-list-drag{background:#fff}

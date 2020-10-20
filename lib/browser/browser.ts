@@ -37,11 +37,6 @@ const browser:browser = {
         "user-delete": document.getElementById("user-delete"),
         "user-invite": document.getElementById("user-invite")
     },
-    messages: {
-        status: [],
-        users: [],
-        errors: []
-    },
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),
     testBrowser: null,

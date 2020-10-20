@@ -3,6 +3,7 @@
 import browser from "./browser.js";
 import fs from "./fs.js";
 import invite from "./invite.js";
+import message from "./message.js";
 import network from "./network.js";
 import util from "./util.js";
 import share from "./share.js";
@@ -162,6 +163,9 @@ modal.create = function local_modal_create(options:ui_modal):Element {
     body.style.width = `${options.width / 10}em`;
     box.style.left = `${options.left / 10}em`;
     box.style.top = `${options.top / 10}em`;
+    if (options.scroll === false) {
+        body.style.overflow = "hidden";
+    }
     section.appendChild(button);
     section.setAttribute("class", "heading");
     border.appendChild(section);
@@ -300,7 +304,26 @@ modal.create = function local_modal_create(options:ui_modal):Element {
         section.appendChild(extra);
         border.appendChild(section);
     }
-    if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
+    if (options.type === "message") {
+        const textArea:HTMLTextAreaElement = document.createElement("textarea");
+        textArea.onmousedown = message.textareaDown;
+        textArea.onmousemove = message.textareaResize;
+        textArea.onmouseup = message.textareaUp;
+        button = document.createElement("button");
+        button.innerHTML = "✉ Send Message";
+        button.setAttribute("class", "confirm");
+        extra = document.createElement("p");
+        extra.appendChild(button);
+        extra.setAttribute("class", "footer-buttons");
+        section = document.createElement("div");
+        section.setAttribute("class", "footer");
+        section.appendChild(textArea);
+        section.appendChild(extra);
+        extra = document.createElement("span");
+        extra.setAttribute("class", "clear");
+        section.appendChild(extra);
+        border.appendChild(section);
+    } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
         height = height + 9.3;
         section = document.createElement("div");
         section.setAttribute("class", "footer");
@@ -684,11 +707,11 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
     let clientWidth:number  = 0,
         clientHeight:number = 0;
     const node:Element = <Element>event.target,
-        parent:Element     = <Element>node.parentNode,
-        box:HTMLElement        = <HTMLElement>parent.parentNode,
+        parent:Element = <Element>node.parentNode,
+        box:HTMLElement = <HTMLElement>parent.parentNode,
         top:number = box.offsetTop,
         left:number = box.offsetLeft,
-        body:HTMLDivElement       = box.getElementsByTagName("div")[1],
+        body:HTMLDivElement = <HTMLDivElement>box.getElementsByClassName("body")[0],
         heading:HTMLElement = box.getElementsByTagName("h2")[0],
         headingButton:HTMLElement = heading.getElementsByTagName("button")[0],
         touch:boolean = (event !== null && event.type === "touchstart"),
@@ -700,9 +723,9 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
             ? 0
             : (header.clientHeight / 10),
         footer:Element = <Element>box.getElementsByClassName("footer")[0],
-        message:HTMLElement = (footer === undefined)
+        statusMessage:HTMLElement = (footer === undefined)
             ? undefined
-            : <HTMLElement>footer.getElementsByClassName("message")[0],
+            : <HTMLElement>footer.getElementsByClassName("status-message")[0],
         footerButtons:HTMLElement = (footer === undefined)
             ? undefined
             : <HTMLElement>footer.getElementsByClassName("footer-buttons")[0],
@@ -719,6 +742,9 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
         footerHeight:number = (footer === undefined)
             ? 0
             : (footer.clientHeight / 10),
+        footerTextarea:HTMLElement = (footer === undefined)
+            ? undefined
+            : footer.getElementsByTagName("textarea")[0],
         sideLeft:HTMLElement = <HTMLElement>box.getElementsByClassName("side-l")[0],
         sideRight:HTMLElement = <HTMLElement>box.getElementsByClassName("side-r")[0],
         mouseEvent:MouseEvent = <MouseEvent>event,
@@ -733,10 +759,10 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
         direction:string = node.getAttribute("class").split("-")[1],
         offsetWidth:number    = (mac === true)
             ? 20
-            : -16,
+            : 0,
         offsetHeight:number    = (mac === true)
             ? 18
-            : -20,
+            : 0,
         sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
         drop       = function local_modal_resize_drop():void {
             const settings:ui_modal = browser.data.modals[box.getAttribute("id")];
@@ -775,23 +801,29 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                     body.style.width = `${bodyWidth}em`;
                     heading.style.width = `${bodyWidth + 0.2}em`;
                     headingButton.style.width = `${((bodyWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
+                    if (statusMessage !== undefined) {
+                        statusMessage.style.width = `${(bodyWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
                         status.style.width = `${bodyWidth - 2}em`;
                         statusBar.style.width = `${(bodyWidth - 4) / 1.5}em`;
                     }
+                    if (footerTextarea !== undefined) {
+                        footerTextarea.style.width = `${(bodyWidth - 4) / 1.8}em`;
+                    }
                 } else if (leftTest === false && computedWidth > minWidth) {
                     body.style.width = `${computedWidth}em`;
                     heading.style.width = `${computedWidth + 0.2}em`;
                     headingButton.style.width = `${((computedWidth - buttonPadding) / 1.8)}em`;
-                    if (message !== undefined) {
-                        message.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
+                    if (statusMessage !== undefined) {
+                        statusMessage.style.width = `${(computedWidth - footerOffset - 4) / 1.5}em`;
                     }
                     if (statusBar !== undefined) {
                         status.style.width = `${computedWidth - 2}em`;
                         statusBar.style.width = `${(computedWidth - 4) / 1.5}em`;
+                    }
+                    if (footerTextarea !== undefined) {
+                        footerTextarea.style.width = `${(computedWidth - 4) / 1.8}em`;
                     }
                 }
             }

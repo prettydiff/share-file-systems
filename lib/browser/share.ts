@@ -136,7 +136,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
             } else {
                 messageButton.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} <span>(text)</span>`;
                 messageButton.setAttribute("class", "text-button-agent");
-                messageButton.onclick = message.modal;
+                messageButton.onclick = message.shareButton;
                 title.appendChild(messageButton);
             }
             if (agentNames.agentType === "device") {
@@ -176,7 +176,7 @@ share.content = function local_share_content(agentName:string, agentType:agentTy
                     title.innerHTML = `There ${verb} ${listLength} <strong>${type + plural}</strong> ${adjective}.`;
                     messageButton.innerHTML = `Text all ${type}s`;
                     messageButton.setAttribute("class", `text-button-${type}`);
-                    messageButton.onclick = message.modal;
+                    messageButton.onclick = message.shareButton;
                     title.appendChild(messageButton);
                     lists.appendChild(title);
                     lists.appendChild(agentTypeUL);

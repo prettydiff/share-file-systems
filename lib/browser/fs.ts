@@ -801,7 +801,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
                 pList:HTMLCollectionOf<Element> = footer.getElementsByTagName("p"),
                 p:HTMLElement = document.createElement("p");
             p.innerHTML = message;
-            p.setAttribute("class", "message");
+            p.setAttribute("class", "status-message");
             if (pList[0] !== buttons) {
                 footer.removeChild(pList[0]);
             }

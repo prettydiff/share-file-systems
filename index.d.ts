@@ -26,9 +26,6 @@ declare global {
     type httpCallback = httpBodyCallback|httpObjectCallback;
     type inviteAction = "invite" | "invite-request" | "invite-response" | "invite-complete";
     type inviteStatus = "accepted" | "declined" | "invited";
-    type messageList = [string, string];
-    type messageListError = [string, string, string[]];
-    type messageType = "errors" | "status" | "users";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
     type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
     type primitive = boolean | null | number | string | undefined;
@@ -123,7 +120,6 @@ declare global {
         device: agents;
         loadTest: boolean;
         localNetwork: localNetwork;
-        messages:messages;
         menu: {
             export: HTMLElement;
             fileNavigator: HTMLElement;
@@ -440,11 +436,6 @@ declare global {
         error:string;
         stack:string[];
     }
-    interface messages {
-        status: messageList[];
-        users: messageList[];
-        errors: messageListError[];
-    }
     interface methodList {
         [key:string]: Function;
     }
@@ -512,7 +503,12 @@ declare global {
         typeToggle?: EventHandlerNonNull;
     }
     interface module_message {
-        modal?: EventHandlerNonNull;
+        modal?: (configuration:ui_modal) => void;
+        mousedown: boolean;
+        shareButton?: EventHandlerNonNull;
+        textareaDown?: EventHandlerNonNull;
+        textareaResize?: EventHandlerNonNull;
+        textareaUp?: EventHandlerNonNull;
     }
     interface module_modal {
         close?: EventHandlerNonNull;
@@ -627,7 +623,6 @@ declare global {
     interface networkConfig {
         callback: (responseText:string) => void;
         error: string;
-        halt: boolean;
         payload: string;
         type: string;
     }
@@ -758,7 +753,7 @@ declare global {
         stack: string[];
     }
     interface storage {
-        data: agents | messages | ui_data;
+        data: agents | ui_data;
         response: ServerResponse;
         type: storageType;
     }
@@ -767,7 +762,6 @@ declare global {
     }
     interface storageItems {
         device: agents;
-        messages: messages;
         settings: ui_data;
         user: agents;
     }
@@ -973,7 +967,7 @@ declare global {
     interface testTemplateStorage extends testTemplate {
         command: {
             "storage": {
-                data: agents | messages | ui_data;
+                data: agents | ui_data;
                 response: ServerResponse;
                 type: storageType;
             };
@@ -1020,6 +1014,7 @@ declare global {
         move?: boolean;
         read_only: boolean;
         resize?: boolean;
+        scroll?: boolean;
         search?: [string, string];
         selection?: selection;
         share?: string;

@@ -5,43 +5,73 @@ import common from "../common/common.js";
 
 import browser from "./browser.js";
 import modal from "./modal.js";
+import network from "./network.js";
 
-const message:module_message = {};
+const message:module_message = {
+    mousedown: false
+};
 
-message.modal = function local_message_modal(event:MouseEvent):void {
+/* render a message modal */
+message.modal = function local_message_modal(configuration:ui_modal):void {
+    const content:Element = document.createElement("ol");
+    content.setAttribute("class", "message-content");
+    configuration.content = content;
+    modal.create(configuration);
+};
+
+/* generate a message modal from a share button */
+message.shareButton = function local_message_shareButton(event:MouseEvent):void {
     const element:Element = <Element>event.target,
-        button:Element = (element.nodeName.toLowerCase() === "button")
+        source:Element = (element.nodeName.toLowerCase() === "button")
             ? element
             : <Element>element.parentNode,
-        className:string = button.getAttribute("class"),
-        grandParent:Element = <Element>button.parentNode.parentNode,
+        className:string = source.getAttribute("class"),
+        grandParent:Element = <Element>source.parentNode.parentNode,
         agentHash:string = (className === "text-button-agent")
             ? grandParent.getAttribute("data-hash")
             : browser.data.hashDevice,
         agentType:agentType = (className === "text-button-agent")
             ? <agentType>grandParent.getAttribute("class")
-            : <agentType>button.getAttribute("class").replace("text-button-", ""),
-        title:string = (className === "text-button-agent")
-            ? `Text message ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`
-            : `Text message all ${agentType}s`,
-        content:Element = document.createElement("div"),
-        textarea:Element = document.createElement("textarea"),
-        list:Element = document.createElement("ol"),
+            : <agentType>source.getAttribute("class").replace("text-button-", ""),
+        title:string = (agentHash === browser.data.hashDevice)
+            ? `Text message to all ${agentType}s`
+            : `Text message to ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`,
         configuration:ui_modal = {
             agent: agentHash,
             agentType: agentType,
-            content: content,
+            content: null,
             inputs: ["close", "maximize", "minimize"],
             read_only: false,
+            scroll: false,
             text_value: title,
             title: title,
-            type: "shares",
+            type: "message",
             width: 800
         };
-    content.setAttribute("class", "message-content");
-    content.appendChild(textarea);
-    content.appendChild(list);
-    modal.create(configuration);
+    message.modal(configuration);
+};
+
+message.textareaDown = function local_message_textareaDown():void {
+    message.mousedown = true;
+};
+
+message.textareaResize = function local_message_textareaResize(event:MouseEvent):void {
+    if (message.mousedown === true) {
+        const element:Element = <Element>event.target,
+            box:Element = element.getAncestor("box", "class"),
+            body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
+            id:string = box.getAttribute("id");
+        let width:number = element.clientWidth + 40;
+        if (width > 557) {
+            body.style.width = `${width / 10}em`;
+            browser.data.modals[id].width = width;
+        }
+    }
+};
+
+message.textareaUp = function local_message_textareaUp():void {
+    message.mousedown = false;
+    network.storage("settings");
 };
 
 export default message;

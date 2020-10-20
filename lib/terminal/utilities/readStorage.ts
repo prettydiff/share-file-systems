@@ -14,11 +14,6 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
         const flag:storageFlag = {},
             storage:storageItems = {
                 device: {},
-                messages: {
-                    errors: [],
-                    status: [],
-                    users: []
-                },
                 settings: {
                     audio: false,
                     brotli: 0,
