@@ -694,4 +694,18 @@ util.selectNone = function local_util_selectNone(element:Element):void {
     }
 };
 
+/* produce a time string from a date object */
+util.time = function local_util_time(date:Date):string {
+    const hours:string = date.getHours().toString(),
+        minutes:string = date.getMinutes().toString(),
+        seconds:string = date.getSeconds().toString(),
+        pad = function local_util_time_pad(input:string):string {
+            if (input.length === 1) {
+                return `0${input}`;
+            }
+            return input;
+        }
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};
+
 export default util;

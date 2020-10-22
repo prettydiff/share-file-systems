@@ -433,8 +433,15 @@ declare global {
         wsPort: number;
     }
     interface messageError {
-        error:string;
-        stack:string[];
+        error: string;
+        stack: string[];
+    }
+    interface messageItem {
+        agentFrom: string;
+        agentTo: string;
+        agentType: agentType;
+        date: number;
+        message: string;
     }
     interface methodList {
         [key:string]: Function;
@@ -503,9 +510,12 @@ declare global {
         typeToggle?: EventHandlerNonNull;
     }
     interface module_message {
+        footer?: () => Element;
         modal?: (configuration:ui_modal) => void;
         mousedown: boolean;
+        post?: (item:messageItem) => void;
         shareButton?: EventHandlerNonNull;
+        submit?: EventHandlerNonNull;
         textareaDown?: EventHandlerNonNull;
         textareaResize?: EventHandlerNonNull;
         textareaUp?: EventHandlerNonNull;
@@ -609,6 +619,7 @@ declare global {
         selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
         selectExpression?: RegExp;
         selectNone?:(element:Element) => void;
+        time?: (date:Date) => string;
     }
     interface navConfig {
         agentName: string;

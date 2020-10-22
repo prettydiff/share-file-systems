@@ -305,24 +305,7 @@ modal.create = function local_modal_create(options:ui_modal):Element {
         border.appendChild(section);
     }
     if (options.type === "message") {
-        const textArea:HTMLTextAreaElement = document.createElement("textarea");
-        textArea.onmousedown = message.textareaDown;
-        textArea.onmousemove = message.textareaResize;
-        textArea.onmouseup = message.textareaUp;
-        button = document.createElement("button");
-        button.innerHTML = "✉ Send Message";
-        button.setAttribute("class", "confirm");
-        extra = document.createElement("p");
-        extra.appendChild(button);
-        extra.setAttribute("class", "footer-buttons");
-        section = document.createElement("div");
-        section.setAttribute("class", "footer");
-        section.appendChild(textArea);
-        section.appendChild(extra);
-        extra = document.createElement("span");
-        extra.setAttribute("class", "clear");
-        section.appendChild(extra);
-        border.appendChild(section);
+        border.appendChild(message.footer());
     } else if (Array.isArray(options.inputs) === true && (options.inputs.indexOf("cancel") > -1 || options.inputs.indexOf("confirm") > -1 || options.inputs.indexOf("save") > -1)) {
         height = height + 9.3;
         section = document.createElement("div");

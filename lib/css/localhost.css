@@ -319,9 +319,13 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentInvitation p{font-size:1.5em}
 #spaces .agentInvitation textarea{display:block;height:5em;width:100%}
 
-#spaces .message-content ol{margin:0;overflow:scroll}
+#spaces .message-content{list-style:none;margin:0;padding:0}
+#spaces .message-content li{}
+#spaces .message-content .message-meta{border-style:none solid none none;border-width:0.1em;float:left;margin:0 1em 0 0;padding:1em}
+#spaces .message-content .message-meta strong{font-size:2em}
+#spaces .message-content .message-meta em{display:block}
+#spaces .message-content p{font-size:1.5em}
 #spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;width:100%}
-#spaces .message-content .send-button{float:right;font-size:2em;margin:0.5em 1.5em}
 
 /* code for testing */
 /*
