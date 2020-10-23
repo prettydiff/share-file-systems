@@ -154,3 +154,7 @@
 #spaces #file-list-drag{background:#fff}
 
 #spaces .message-content .message-input{background:#eee}
+#spaces .message-content .message-self.prior{border-bottom-color:#ccc}
+#spaces .message-content .prior{border-bottom-color:#ddd}
+#spaces .message-content .message-self{background:#eef}
+#spaces .message-content th strong{color:#c00}

@@ -37,38 +37,52 @@ message.footer = function local_message_footer():Element {
 
 /* render a message modal */
 message.modal = function local_message_modal(configuration:ui_modal):void {
-    const content:Element = document.createElement("ol");
+    const content:Element = document.createElement("table");
     content.setAttribute("class", "message-content");
+    content.appendChild(document.createElement("tbody"));
     configuration.content = content;
     modal.create(configuration);
 };
 
 /* Visually display a text message from a local submission */
 message.post = function local_message_post(item:messageItem):void {
-    const li:Element = document.createElement("li"),
-        meta:Element = document.createElement("p"),
-        message:HTMLElement = document.createElement("p"),
-        self:boolean = ((item.agentType === "device" && item.agentFrom === browser.data.hashDevice) || (item.agentType === "user" && item.agentFrom === browser.data.hashUser)),
-        clear:Element = document.createElement("span"),
+    const tr:Element = document.createElement("tr"),
+        meta:Element = document.createElement("th"),
+        message:HTMLElement = document.createElement("td"),
+        self = function local_message_post_self(hash:string):boolean {
+            if (item.agentType === "device" && hash === browser.data.hashDevice) {
+                return true;
+            }
+            if (item.agentType === "user" && hash === browser.data.hashUser) {
+                return true;
+            }
+            return false;
+        },
         date:Date = new Date(item.date),
         modals:Element[] = document.getModalsByModalType("message");
     let index:number = modals.length,
-        ol:Element;
-    message.innerHTML = item.message;
-    clear.setAttribute("class", "clear");
-    if (self === true) {
-        li.setAttribute("class", "message-self");
-    }
-    meta.setAttribute("class", "message-meta");
-    meta.innerHTML = `<strong>${browser[item.agentType][item.agentFrom].name}</strong> ${common.capitalize(item.agentType)} <em>${util.dateFormat(date)}</em>`;
-    li.appendChild(meta);
-    li.appendChild(message);
-    li.appendChild(clear);
+        tbody:Element,
+        posts:HTMLCollectionOf<Element>;
+    message.innerHTML = `<p>${item.message.replace(/^\s+/, "").replace(/\s+$/, "").replace(/(\r?\n)+/, "</p><p>")}</p>`;
+    tr.setAttribute("data-agentFrom", item.agentFrom);
+    meta.innerHTML = `<strong>${browser[item.agentType][item.agentFrom].name}</strong> <span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
+    tr.appendChild(meta);
+    tr.appendChild(message);
     do {
         index = index - 1;
         if (modals[index].getAttribute("data-agentType") === item.agentType && modals[index].getAttribute("data-agent") === item.agentTo) {
-            ol = modals[index].getElementsByClassName("message-content")[0];
-            ol.insertBefore(li, ol.firstChild);
+            tbody = modals[index].getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0];
+            posts = tbody.getElementsByTagName("tr");
+            if (posts.length > 0 && self(posts[0].getAttribute("data-agentFrom")) === true) {
+                if (self(item.agentFrom) === true) {
+                    tr.setAttribute("class", "message-self prior");
+                } else {
+                    tr.setAttribute("class", "prior");
+                }
+            } else if (self(item.agentFrom) === true) {
+                tr.setAttribute("class", "message-self");
+            }
+            tbody.insertBefore(tr, tbody.firstChild);
         }
     } while (index > 0);
 };
@@ -121,7 +135,6 @@ message.submit = function local_message_submit(event:MouseEvent):void {
         agency:agency = util.getAgent(element),
         footer:Element = element.getAncestor("footer", "class"),
         textArea:HTMLTextAreaElement = footer.getElementsByTagName("textarea")[0],
-        messageValue:string = textArea.value,
         payload:messageItem = {
             agentFrom: (agency[2] === "device")
                 ? browser.data.hashDevice
@@ -129,9 +142,10 @@ message.submit = function local_message_submit(event:MouseEvent):void {
             agentTo: agency[0],
             agentType: agency[2],
             date: Date.now(),
-            message: messageValue
+            message: textArea.value
         };
     message.post(payload);
+    textArea.value = "";
 };
 
 /* event handler for textarea resizing */
