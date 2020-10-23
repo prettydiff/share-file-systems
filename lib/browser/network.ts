@@ -173,12 +173,6 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                     };
                     // eslint-disable-next-line
                     console.error(error);
-                    if (config.type.indexOf("fs-") === 0) {
-                        config.callback(xhr.responseText);
-                        network.storage("messages");
-                    } else if (config.type !== "messages") {
-                        network.storage("messages");
-                    }
                 }
             }
         };

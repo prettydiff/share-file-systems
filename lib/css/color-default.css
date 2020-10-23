@@ -153,8 +153,12 @@
 #spaces .fileList .expansion{background:#eee;border-color:#333;box-shadow:0.05em 0.05em 0.125em #ccc}
 #spaces #file-list-drag{background:#fff}
 
+/* text messaging */
 #spaces .message-content .message-input{background:#eee}
-#spaces .message-content .message-self.prior{border-bottom-color:#ccc}
-#spaces .message-content .prior{border-bottom-color:#ddd}
-#spaces .message-content .message-self{background:#eef}
+#spaces .message-content .message-self.prior,
+#spaces .message-content .message-self th{border-color:#ccc}
+#spaces .message-content .prior,
+#spaces .message-content th{border-color:#ddd}
+#spaces .message-content .message-self{background:#eef8ff}
 #spaces .message-content th strong{color:#c00}
+#spaces .message-content tr{border-color:#000}

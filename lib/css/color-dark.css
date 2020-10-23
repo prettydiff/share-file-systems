@@ -163,3 +163,14 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .fileList li.cut:hover{background:#660}
 .dark #spaces .fileList .expansion{background:#333;border-color:#666;box-shadow:0.05em 0.05em 0.125em #000;color:#ccc}
 .dark #spaces #file-list-drag{background:#fff}
+
+/* text messaging */
+.dark #spaces .message-content .message-input{background:#333}
+.dark #spaces .message-content .message-self.prior,
+.dark #spaces .message-content .message-self.prior th,
+.dark #spaces .message-content .message-self th{border-color:#000}
+.dark #spaces .message-content .prior,
+.dark #spaces .message-content th{border-color:#444}
+.dark #spaces .message-content .message-self{background:#333}
+.dark #spaces .message-content th strong{color:#c33}
+.dark #spaces .message-content tr{border-color:#666}
