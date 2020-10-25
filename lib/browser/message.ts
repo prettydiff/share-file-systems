@@ -58,12 +58,31 @@ message.post = function local_message_post(item:messageItem):void {
             }
             return false;
         },
+        unicode = function local_message_post_unicode(reference:string):string {
+            const output:string[] = [];
+            reference.split("\\u").forEach(function local_message_post_unicode(value:string) {
+                output.push(String.fromCharCode(Number(`0x${value}`)));
+            });
+            return output.join("");
+        },
+        decimal = function local_message_post_decimal(reference:string):string {
+            return String.fromCodePoint(Number(reference.replace("&#", "").replace(";", "")));
+        },
+        html = function local_message_post_html(reference:string):string {
+            return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
+        },
         date:Date = new Date(item.date),
         modals:Element[] = document.getModalsByModalType("message");
     let index:number = modals.length,
         tbody:Element,
         posts:HTMLCollectionOf<Element>;
-    message.innerHTML = `<p>${item.message.replace(/^\s+/, "").replace(/\s+$/, "").replace(/(\r?\n)+/, "</p><p>")}</p>`;
+    message.innerHTML = `<p>${item.message
+        .replace(/^\s+/, "")
+        .replace(/\s+$/, "")
+        .replace(/(?<!\\)(\\u[0-9a-f]{4})+/g, unicode)
+        .replace(/&#\d+;/g, decimal)
+        .replace(/&#x[0-9a-f]+;/, html)
+        .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
     tr.setAttribute("data-agentFrom", item.agentFrom);
     meta.innerHTML = `<strong>${browser[item.agentType][item.agentFrom].name}</strong> <span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
     tr.appendChild(meta);
@@ -161,7 +180,7 @@ message.textareaResize = function local_message_textareaResize(event:MouseEvent)
             body:HTMLElement = <HTMLElement>box.getElementsByClassName("body")[0],
             id:string = box.getAttribute("id");
         let width:number = element.clientWidth + 38;
-        if (width > 557) {console.log(width);
+        if (width > 557) {
             body.style.width = `${width / 10}em`;
             browser.data.modals[id].width = width;
         }
