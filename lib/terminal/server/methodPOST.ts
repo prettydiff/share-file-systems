@@ -111,6 +111,11 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
             } else if (task === "heartbeat-delete-agents") {
                 // * received instructions from remote to delete agents
                 heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], serverResponse);
+            } else if (task === "message") {
+                // * 
+                // create a function here:
+                // 1. if agent is self then broadcast
+                // 2. else send to agentTo
             } else if (task === "storage") {
                 // * local: Writes changes to storage files
                 const dataPackage:storage = JSON.parse(body).storage;

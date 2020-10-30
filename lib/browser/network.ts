@@ -115,6 +115,20 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     });
 };
 
+network.message = function local_network_message(message:messageItem):void {
+    const error:string = ((message.agentType === "device" && message.agentTo === browser.data.hashDevice) || (message.agentType === "user" && message.agentTo === browser.data.hashUser))
+        ? `Transmission error related to text message broadcast to ${message.agentType}s.`
+        : `Transmission error related to text message for ${message.agentType} ${message.agentTo}.`;
+    network.xhr({
+        callback:null,
+        error: error,
+        payload: JSON.stringify({
+            message: message
+        }),
+        type: "message"
+    });
+};
+
 /* Writes configurations to file storage */
 network.storage = function local_network_storage(type:storageType):void {
     if (browser.loadTest === true && type !== "settings") {

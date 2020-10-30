@@ -84,7 +84,7 @@ message.post = function local_message_post(item:messageItem):void {
         .replace(/&#x[0-9a-f]+;/, html)
         .replace(/(\r?\n)+/g, "</p><p>")}</p>`;
     tr.setAttribute("data-agentFrom", item.agentFrom);
-    meta.innerHTML = `<strong>${browser[item.agentType][item.agentFrom].name}</strong> <span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
+    meta.innerHTML = `<strong>${browser[item.agentType][item.agentFrom].name}</strong><span>${common.capitalize(item.agentType)}</span> <em>${util.dateFormat(date)}</em>`;
     tr.appendChild(meta);
     tr.appendChild(message);
     do {
@@ -164,6 +164,7 @@ message.submit = function local_message_submit(event:MouseEvent):void {
             message: textArea.value
         };
     message.post(payload);
+    network.message(payload);
     textArea.value = "";
 };
 

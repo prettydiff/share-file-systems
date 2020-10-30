@@ -321,16 +321,16 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 
 #spaces .message-content{border-collapse:collapse;margin:0;padding:0;width:100%}
 #spaces .message-content tr{border-style:none none solid;border-width:0.1em}
-#spaces .message-content th{border-style:none solid none none;border-width:0.1em;font-weight:normal;margin:0 1em 0 0;overflow:hidden;padding:0.5em;text-align:left;text-overflow:ellipsis;white-space:nowrap;width:20em}
-#spaces .message-content th strong{display:inline-block;font-size:2em;margin:0 0 -0.42em;overflow:hidden;text-overflow:ellipsis;max-width:8em}
-#spaces .message-content th em{display:block}
+#spaces .message-content th{border-style:none solid none none;border-width:0.1em;font-weight:normal;margin:0 1em 0 0;overflow:hidden;text-align:left;text-overflow:ellipsis;vertical-align:baseline;white-space:nowrap;width:20em}
+#spaces .message-content th strong{display:inline-block;font-size:2em;line-height:1;margin:0.25em 0 0;max-width:8em;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+#spaces .message-content th em{display:block;margin:0.5em 0 0}
 #spaces .message-content th,
 #spaces .message-content td{font-size:1.5em;margin:0;padding:0 0.5em}
 #spaces .message-content td p{margin:0.5em 0}
 #spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;width:100%}
 #spaces .message-content .prior strong,
 #spaces .message-content .prior th span{display:none}
-#spaces .message-content th span{display:inline-block;margin:0 0 0.25em}
+#spaces .message-content th span{display:inline-block;margin:1em 0 0 0.5em}
 
 /* code for testing */
 /*

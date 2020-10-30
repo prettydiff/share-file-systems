@@ -30,11 +30,11 @@ declare global {
     type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
-    type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains" | qualifier;
+    type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "invite" | "storage" | "test-browser";
-    type serviceType = serviceFS | "invite-status" | "message" | "settings";
+    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "storage" | "test-browser";
+    type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
     type testListType = "browser" | "service" | "simulation";
@@ -545,6 +545,7 @@ declare global {
         heartbeat?: (status:heartbeatStatus, update:boolean) => void;
         inviteAccept?:(configuration:invite) => void;
         inviteRequest?: (configuration:invite) => void;
+        message?: (message:messageItem) => void;
         storage?: (type:storageType) => void;
         testBrowserLoaded?: (payload?:[boolean, string, string][], index?:number) => void;
         xhr?: (config:networkConfig) => void;
@@ -898,7 +899,7 @@ declare global {
         artifact?: string;
         command: string;
         file?: string;
-        qualifier: qualifierFile;
+        qualifier: qualifier | qualifierFile;
         test: string;
     }
     interface testServiceApplication {
@@ -921,7 +922,7 @@ declare global {
         command: any;
         file?: string;
         name: string;
-        qualifier: qualifierFile;
+        qualifier: qualifier;
         shares?: testServiceShares;
         test: object | string;
     }
@@ -941,7 +942,7 @@ declare global {
             [key: string]: any;
         };
         name: string;
-        qualifier: qualifierFile;
+        qualifier: qualifier;
         test: string;
     }
     interface testTemplateFileService {
@@ -949,7 +950,7 @@ declare global {
             "fs": fileService;
         };
         name: string;
-        qualifier: qualifierFile;
+        qualifier: qualifier;
         test: testServiceFileTarget;
     }
     interface testTemplateHeartbeatComplete {
@@ -957,7 +958,7 @@ declare global {
             "heartbeat-complete": heartbeat;
         };
         name: string;
-        qualifier: qualifierFile;
+        qualifier: qualifier;
         test: {
             "heartbeat-status": heartbeat;
         };
@@ -967,7 +968,7 @@ declare global {
             "heartbeat-update": heartbeatUpdate;
         };
         name: string;
-        qualifier: qualifierFile;
+        qualifier: qualifier;
         test: string;
     }
     interface testTemplateInvite extends testTemplate {
