@@ -44,7 +44,7 @@ message.modal = function browser_message_modal(configuration:ui_modal):void {
     modal.create(configuration);
 };
 
-/* Visually display a text message from a local submission */
+/* Visually display a text message */
 message.post = function browser_message_post(item:messageItem):void {
     const tr:Element = document.createElement("tr"),
         meta:Element = document.createElement("th"),
@@ -89,16 +89,16 @@ message.post = function browser_message_post(item:messageItem):void {
     tr.appendChild(message);
     do {
         index = index - 1;
-        if (modals[index].getAttribute("data-agentType") === item.agentType && modals[index].getAttribute("data-agent") === item.agentTo) {
+        if (modals[index].getAttribute("data-agentType") === item.agentType && (modals[index].getAttribute("data-agent") === item.agentTo || modals[index].getAttribute("data-agent") === item.agentFrom)) {
             tbody = modals[index].getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0];
             posts = tbody.getElementsByTagName("tr");
             if (posts.length > 0 && self(posts[0].getAttribute("data-agentFrom")) === true) {
-                if (self(item.agentTo) === true) {
+                if (self(item.agentFrom) === true) {
                     tr.setAttribute("class", "message-self prior");
                 } else {
                     tr.setAttribute("class", "prior");
                 }
-            } else if (self(item.agentTo) === true) {
+            } else if (self(item.agentFrom) === true) {
                 tr.setAttribute("class", "message-self");
             }
             tbody.insertBefore(tr, tbody.firstChild);

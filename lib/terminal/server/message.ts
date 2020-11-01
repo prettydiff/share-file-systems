@@ -7,13 +7,13 @@ import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
-const message = function terminal_message(messageText:string, serverResponse:ServerResponse):void {
+const message = function terminal_server_message(messageText:string, serverResponse:ServerResponse):void {
     const data:messageItem = JSON.parse(messageText).message,
         list:agents = serverVars[data.agentType],
         agents:string[] = Object.keys(list),
         config:httpConfiguration = {
             agentType: data.agentType,
-            callback: function terminal_message_singleCallback():void {
+            callback: function terminal_server_message_singleCallback():void {
                 return;
             },
             callbackType: "object",

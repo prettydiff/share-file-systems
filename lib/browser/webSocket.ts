@@ -3,6 +3,7 @@
 import browser from "./browser.js";
 import fs from "./fs.js";
 import invite from "./invite.js";
+import message from "./message.js";
 import network from "./network.js";
 import remote from "./remote.js";
 import share from "./share.js";
@@ -17,7 +18,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         WebSocket = null;
         return socket;
     }()),
-    message = function browser_socketMessage(event:SocketEvent):void {
+    socketMessage = function browser_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
         }
@@ -213,6 +214,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             heartbeatStatus(JSON.parse(event.data)["heartbeat-status"]);
         } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
             heartbeatDelete();
+        } else if (event.data.indexOf("{\"message\":") === 0) {
+            message.post(JSON.parse(event.data).message);
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {
@@ -276,7 +279,7 @@ const title:Element = document.getElementsByClassName("title")[0],
 
         /* Handle Web Socket responses */
         socket.onopen = open;
-        socket.onmessage = message;
+        socket.onmessage = socketMessage;
         socket.onclose = close;
         socket.onerror = error;
         callback();
