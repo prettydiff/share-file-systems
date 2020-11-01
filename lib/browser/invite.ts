@@ -158,7 +158,7 @@ invite.portValidation = function browser_invite_port(event:KeyboardEvent):void {
                 const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
                     length:number = inputs.length;
                 do {
-                    if (inputs[a].getAttribute("placeholder") === "Number 1024-65535") {
+                    if (inputs[a].getAttribute("placeholder") === "Number 1-65535") {
                         return inputs[a];
                     }
                     a = a + 1;
@@ -168,10 +168,10 @@ invite.portValidation = function browser_invite_port(event:KeyboardEvent):void {
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
     if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
-        if (value !== "" && (isNaN(numb) === true || numb < 1024 || numb > 65535)) {
+        if (value !== "" && (isNaN(numb) === true || numb < 1 || numb > 65535)) {
             element.style.color = "#f00";
             element.style.borderColor = "#f00";
-            parent.firstChild.textContent = "Error: Port must be a number from 1024-65535 or empty.";
+            parent.firstChild.textContent = "Error: Port must be a number from 1-65535 or empty.";
             element.focus();
         } else {
             parent.firstChild.textContent = "Port";
@@ -411,7 +411,7 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:ui_moda
     input = document.createElement("input");
     label.innerHTML = "Port";
     input.setAttribute("type", "text");
-    input.placeholder = "Number 1024-65535";
+    input.placeholder = "Number 1-65535";
     input.onkeyup = invite.portValidation;
     if (saved !== null) {
         input.value = saved.port;
