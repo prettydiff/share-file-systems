@@ -1,5 +1,5 @@
 
-/* lib/browser/remote - A collection of instructions to allow event execute from outside the browser, like a remote control. */
+/* lib/browser/remote - A collection of instructions to allow event execution from outside the browser, like a remote control. */
 
 import browser from "./browser.js";
 import network from "./network.js";
@@ -12,11 +12,11 @@ const remote:module_remote = {
     keyShift: false
 };
 
-remote.delay = function local_remote_delay(config:testBrowserItem):void {
+remote.delay = function browser_remote_delay(config:testBrowserItem):void {
     let a:number = 0;
     const delay:number = 50,
         maxTries:number = 200,
-        delayFunction = function local_remote_delay_timeout():void {
+        delayFunction = function browser_remote_delay_timeout():void {
             const testResult:[boolean, string, string] = remote.evaluate(config.delay, config);
             if (testResult[0] === true) {
                 if (config.unit.length > 0) {
@@ -34,7 +34,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
                 ], config.index);
                 return;
             }
-            setTimeout(local_remote_delay_timeout, delay);
+            setTimeout(browser_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
     console.log(`Executing delay on test campaign ${config.index}: ${config.name}`);
@@ -47,7 +47,7 @@ remote.delay = function local_remote_delay(config:testBrowserItem):void {
 
 // report javascript errors as test failures
 // eslint-disable-next-line
-remote.error = function local_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
+remote.error = function browser_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
     network.testBrowserLoaded([[false, JSON.stringify({
         file: source,
         column: col,
@@ -60,7 +60,7 @@ remote.error = function local_remote_error(message:string, source:string, line:n
 };
 
 // determine whether a given test item is pass or fail
-remote.evaluate = function local_remote_evaluate(test:testBrowserTest, config:testBrowserItem):[boolean, string, string] {
+remote.evaluate = function browser_remote_evaluate(test:testBrowserTest, config:testBrowserItem):[boolean, string, string] {
     const rawValue:primitive|Element = (test.type === "element")
             ? remote.node(test.node, config)
             : remote.getProperty(test, config),
@@ -105,14 +105,14 @@ remote.evaluate = function local_remote_evaluate(test:testBrowserTest, config:te
 };
 
 // process a single event instance
-remote.event = function local_remote_testEvent(testItem:testBrowserItem, pageLoad:boolean):void {
+remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageLoad:boolean):void {
     let a:number = 0,
         element:HTMLElement,
         config:testBrowserEvent,
         htmlElement:HTMLInputElement,
         action:Event,
         refresh:boolean = false,
-        stringReplace = function local_remote_testEvent_stringReplace(str:string):string {
+        stringReplace = function browser_remote_testEvent_stringReplace(str:string):string {
             return str
                 .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
@@ -218,17 +218,17 @@ remote.event = function local_remote_testEvent(testItem:testBrowserItem, pageLoa
 };
 
 // get the value of the specified property/attribute
-remote.getProperty = function local_remote_getProperty(test:testBrowserTest, config:testBrowserItem):primitive {
+remote.getProperty = function browser_remote_getProperty(test:testBrowserTest, config:testBrowserItem):primitive {
     const element:Element = remote.node(test.node, config),
         pLength = test.target.length - 1,
-        method = function local_remote_getProperty_method(prop:Object, name:string):primitive {
+        method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
             if (name.slice(name.length - 2) === "()") {
                 name = name.slice(0, name.length - 2);
                 return prop[name]();
             }
             return prop[name];
         },
-        property = function local_remote_getProperty_property():primitive {
+        property = function browser_remote_getProperty_property():primitive {
             let b:number = 1,
                 item:Object = method(element, test.target[0]);
             if (pLength > 1) {
@@ -256,7 +256,7 @@ remote.getProperty = function local_remote_getProperty(test:testBrowserTest, con
 };
 
 // gather a DOM node using instructions from a data structure
-remote.node = function local_remote_node(dom:testBrowserDOM, config:testBrowserItem):Element {
+remote.node = function browser_remote_node(dom:testBrowserDOM, config:testBrowserItem):Element {
     let element:Element|Document = document,
         node:[domMethod, string, number],
         a:number = 0,
@@ -341,14 +341,14 @@ remote.node = function local_remote_node(dom:testBrowserDOM, config:testBrowserI
 };
 
 // converts a primitive of any type into a string for presentation
-remote.stringify = function local_remote_raw(primitive:primitive):string {
+remote.stringify = function browser_remote_raw(primitive:primitive):string {
     return (typeof primitive === "string")
         ? `"${primitive.replace(/"/g, "\\\"")}"`
         : String(primitive);
 };
 
 //process all cases of a test scenario for a given test item
-remote.test = function local_remote_test(test:testBrowserTest[], index:number, config:testBrowserItem):void {
+remote.test = function browser_remote_test(test:testBrowserTest[], index:number, config:testBrowserItem):void {
     let a:number = 0;
     const result:[boolean, string, string][] = [],
         length:number = test.length;

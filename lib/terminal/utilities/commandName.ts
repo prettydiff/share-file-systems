@@ -4,7 +4,7 @@ import help from "../commands/help.js";
 import vars from "./vars.js";
 
 // determines if the terminal command is a supported feature
-const commandName = function terminal_command():string {
+const commandName = function terminal_utilities_command():string {
     let comKeys:string[] = Object.keys(vars.commands),
         filtered:string[] = [],
         a:number = 0,
@@ -14,7 +14,7 @@ const commandName = function terminal_command():string {
         len:number = (arg === undefined)
             ? 0
             : arg.length + 1,
-        commandFilter = function terminal_command_commandFilter(item:string):boolean {
+        commandFilter = function terminal_utilities_command_commandFilter(item:string):boolean {
             if (item.indexOf(arg.slice(0, a)) === 0) {
                 return true;
             }

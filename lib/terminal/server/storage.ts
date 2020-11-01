@@ -1,9 +1,7 @@
 
 /* lib/terminal/server/storage - A library for writing data to storage. */
-import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
-import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 import response from "./response.js";
@@ -18,7 +16,7 @@ const storage = function terminal_server_storage(data:storage):void {
             if (testFlag === true) {
                 response(data.response, "text/plain", `${data.type} storage written with false response for testing.`);
             } else {
-                vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_renameNode(erName:Error) {
+                vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_rename_renameNode(erName:Error) {
                     if (erName !== null) {
                         vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
                             if (erUnlink !== null) {
@@ -30,7 +28,7 @@ const storage = function terminal_server_storage(data:storage):void {
                 });
             }
         },
-        writeCallback = function terminal_server_storage_writeStorage(erSettings:Error):void {
+        writeCallback = function terminal_server_storage_writeCallback(erSettings:Error):void {
             vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
             if (erSettings !== null) {
                 error([erSettings.toString()]);

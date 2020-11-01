@@ -12,7 +12,7 @@
 * **[message.ts](message.ts)**     - A library for executing the text messaging application.
 * **[modal.ts](modal.ts)**         - A collection of utilities for generating and manipulating modals/windows in the browser.
 * **[network.ts](network.ts)**     - The methods that execute data requests to the local terminal instance of the application.
-* **[remote.ts](remote.ts)**       - A collection of instructions to allow event execute from outside the browser, like a remote control.
+* **[remote.ts](remote.ts)**       - A collection of instructions to allow event execution from outside the browser, like a remote control.
 * **[settings.ts](settings.ts)**   - A collection of utilities and event handlers associated with processing the application state and system settings.
 * **[share.ts](share.ts)**         - The utilities that manage and coordinate changes to user share data.
 * **[util.ts](util.ts)**           - Miscellaneous tools for the browser environment.

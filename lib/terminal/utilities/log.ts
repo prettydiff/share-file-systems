@@ -5,7 +5,7 @@ import vars from "./vars.js";
 import serverVars from "../server/serverVars.js";
 
 // verbose metadata printed to the shell about the application
-const log = function terminal_log(output:string[], end?:boolean):void {
+const log = function terminal_utilities_log(output:string[], end?:boolean):void {
     // eslint-disable-next-line
     const logger:(input:string) => void = console.log;
     if (vars.verbose === true && (output.length > 1 || output[0] !== "")) {
@@ -14,7 +14,7 @@ const log = function terminal_log(output:string[], end?:boolean):void {
     if (output[output.length - 1] === "") {
         output.pop();
     }
-    output.forEach(function terminal_log_each(value:string) {
+    output.forEach(function terminal_utilities_log_each(value:string) {
         logger(value);
     });
     if (end === true) {
@@ -32,7 +32,7 @@ const log = function terminal_log(output:string[], end?:boolean):void {
     }
 };
 
-log.title = function terminal_log_title(message:string, certificate?:boolean):void {
+log.title = function terminal_utilities_log_title(message:string, certificate?:boolean):void {
     const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - ${message + vars.text.none}`;
     if (certificate === true && serverVars.secure === true) {
         log([

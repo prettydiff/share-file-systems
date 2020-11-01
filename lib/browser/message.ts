@@ -13,7 +13,7 @@ const message:module_message = {
 };
 
 /* called from modal.create to supply the footer area modal content */
-message.footer = function local_message_footer():Element {
+message.footer = function browser_message_footer():Element {
     const textArea:HTMLTextAreaElement = document.createElement("textarea"),
         button = document.createElement("button"),
         paragraph = document.createElement("p"),
@@ -36,7 +36,7 @@ message.footer = function local_message_footer():Element {
 };
 
 /* render a message modal */
-message.modal = function local_message_modal(configuration:ui_modal):void {
+message.modal = function browser_message_modal(configuration:ui_modal):void {
     const content:Element = document.createElement("table");
     content.setAttribute("class", "message-content");
     content.appendChild(document.createElement("tbody"));
@@ -45,11 +45,11 @@ message.modal = function local_message_modal(configuration:ui_modal):void {
 };
 
 /* Visually display a text message from a local submission */
-message.post = function local_message_post(item:messageItem):void {
+message.post = function browser_message_post(item:messageItem):void {
     const tr:Element = document.createElement("tr"),
         meta:Element = document.createElement("th"),
         message:HTMLElement = document.createElement("td"),
-        self = function local_message_post_self(hash:string):boolean {
+        self = function browser_message_post_self(hash:string):boolean {
             if (item.agentType === "device" && hash === browser.data.hashDevice) {
                 return true;
             }
@@ -58,17 +58,17 @@ message.post = function local_message_post(item:messageItem):void {
             }
             return false;
         },
-        unicode = function local_message_post_unicode(reference:string):string {
+        unicode = function browser_message_post_unicode(reference:string):string {
             const output:string[] = [];
-            reference.split("\\u").forEach(function local_message_post_unicode(value:string) {
+            reference.split("\\u").forEach(function browser_message_post_unicode(value:string) {
                 output.push(String.fromCharCode(Number(`0x${value}`)));
             });
             return output.join("");
         },
-        decimal = function local_message_post_decimal(reference:string):string {
+        decimal = function browser_message_post_decimal(reference:string):string {
             return String.fromCodePoint(Number(reference.replace("&#", "").replace(";", "")));
         },
-        html = function local_message_post_html(reference:string):string {
+        html = function browser_message_post_html(reference:string):string {
             return String.fromCodePoint(Number(reference.replace("&#x", "0x").replace(";", "")));
         },
         date:Date = new Date(item.date),
@@ -93,12 +93,12 @@ message.post = function local_message_post(item:messageItem):void {
             tbody = modals[index].getElementsByClassName("message-content")[0].getElementsByTagName("tbody")[0];
             posts = tbody.getElementsByTagName("tr");
             if (posts.length > 0 && self(posts[0].getAttribute("data-agentFrom")) === true) {
-                if (self(item.agentFrom) === true) {
+                if (self(item.agentTo) === true) {
                     tr.setAttribute("class", "message-self prior");
                 } else {
                     tr.setAttribute("class", "prior");
                 }
-            } else if (self(item.agentFrom) === true) {
+            } else if (self(item.agentTo) === true) {
                 tr.setAttribute("class", "message-self");
             }
             tbody.insertBefore(tr, tbody.firstChild);
@@ -107,7 +107,7 @@ message.post = function local_message_post(item:messageItem):void {
 };
 
 /* generate a message modal from a share button */
-message.shareButton = function local_message_shareButton(event:MouseEvent):void {
+message.shareButton = function browser_message_shareButton(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         source:Element = (element.nodeName.toLowerCase() === "button")
             ? element
@@ -149,7 +149,7 @@ message.shareButton = function local_message_shareButton(event:MouseEvent):void 
 };
 
 /* the submit event handler to take message text into a data object */
-message.submit = function local_message_submit(event:MouseEvent):void {
+message.submit = function browser_message_submit(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         agency:agency = util.getAgent(element),
         footer:Element = element.getAncestor("footer", "class"),
@@ -169,12 +169,12 @@ message.submit = function local_message_submit(event:MouseEvent):void {
 };
 
 /* event handler for textarea resizing */
-message.textareaDown = function local_message_textareaDown():void {
+message.textareaDown = function browser_message_textareaDown():void {
     message.mousedown = true;
 };
 
 /* event handler for resizing the modal from textarea resize */
-message.textareaResize = function local_message_textareaResize(event:MouseEvent):void {
+message.textareaResize = function browser_message_textareaResize(event:MouseEvent):void {
     if (message.mousedown === true) {
         const element:Element = <Element>event.target,
             box:Element = element.getAncestor("box", "class"),
@@ -189,7 +189,7 @@ message.textareaResize = function local_message_textareaResize(event:MouseEvent)
 };
 
 /* event handler for textarea resizing */
-message.textareaUp = function local_message_textareaUp():void {
+message.textareaUp = function browser_message_textareaUp():void {
     message.mousedown = false;
     network.storage("settings");
 };

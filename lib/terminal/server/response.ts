@@ -20,7 +20,7 @@ const response = function terminal_server_response(serverResponse:ServerResponse
                     "image/svg+xml",
                     "application/xhtml+xml"
                 ],
-                contains = function terminal_server_response(input:string):boolean {
+                contains = function terminal_server_response_contains(input:string):boolean {
                     const stringMessage:string = (Buffer.isBuffer(message) === true)
                             ? ""
                             : <string>message,

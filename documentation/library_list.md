@@ -28,7 +28,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/message.ts](../lib/browser/message.ts)**                                                     - A library for executing the text messaging application.
    - **[../lib/browser/modal.ts](../lib/browser/modal.ts)**                                                         - A collection of utilities for generating and manipulating modals/windows in the browser.
    - **[../lib/browser/network.ts](../lib/browser/network.ts)**                                                     - The methods that execute data requests to the local terminal instance of the application.
-   - **[../lib/browser/remote.ts](../lib/browser/remote.ts)**                                                       - A collection of instructions to allow event execute from outside the browser, like a remote control.
+   - **[../lib/browser/remote.ts](../lib/browser/remote.ts)**                                                       - A collection of instructions to allow event execution from outside the browser, like a remote control.
    - **[../lib/browser/settings.ts](../lib/browser/settings.ts)**                                                   - A collection of utilities and event handlers associated with processing the application state and system settings.
    - **[../lib/browser/share.ts](../lib/browser/share.ts)**                                                         - The utilities that manage and coordinate changes to user share data.
    - **[../lib/browser/util.ts](../lib/browser/util.ts)**                                                           - Miscellaneous tools for the browser environment.
@@ -65,6 +65,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/heartbeat.ts](../lib/terminal/server/heartbeat.ts)**                                 - The code that manages sending and receiving user online status updates.
    - **[../lib/terminal/server/httpClient.ts](../lib/terminal/server/httpClient.ts)**                               - A library for handling all child HTTP requests.
    - **[../lib/terminal/server/invite.ts](../lib/terminal/server/invite.ts)**                                       - Manages the order of invitation related processes for traffic across the internet.
+   - **[../lib/terminal/server/message.ts](../lib/terminal/server/message.ts)**                                     - Process and send text messages.
    - **[../lib/terminal/server/methodGET.ts](../lib/terminal/server/methodGET.ts)**                                 - The library for handling all traffic related to HTTP requests with method GET.
    - **[../lib/terminal/server/methodPOST.ts](../lib/terminal/server/methodPOST.ts)**                               - The library for handling all traffic related to HTTP requests with method POST.
    - **[../lib/terminal/server/readOnly.ts](../lib/terminal/server/readOnly.ts)**                                   - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.

@@ -13,7 +13,7 @@ import remove from "./remove.js";
 import vars from "../utilities/vars.js";
 
 // hash utility for strings or files
-const hash = function terminal_hash(input:hashInput):hashOutput {
+const hash = function terminal_commands_hash(input:hashInput):hashOutput {
     // input:
     // * callback    - function - callback function
     // * directInput - boolean - if false the source will be regarded as a file system artifact
@@ -28,14 +28,14 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
             : input.algorithm,
         hashList:boolean = false;
     const http:RegExp = (/^https?:\/\//), //sha512, sha3-512, shake256
-        dirComplete = function terminal_hash_dirComplete(list:directoryList):void {
+        dirComplete = function terminal_commands_hash_dirComplete(list:directoryList):void {
             let a:number = 0,
                 c:number = 0,
                 testLog:boolean = true;
             const listLength:number = list.length,
                 listObject:any = {},
                 hashes:string[] = [],
-                hashComplete = function terminal_hash_dirComplete_callback():void {
+                hashComplete = function terminal_commands_hash_dirComplete_callback():void {
                     const hash:Hash = vars.node.crypto.createHash(algorithm),
                         hashOutput:hashOutput = {
                             filePath: <string>input.source,
@@ -61,13 +61,13 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                         input.callback(hashOutput);
                     }
                 },
-                hashBack = function terminal_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
+                hashBack = function terminal_commands_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                     const hash:Hash = vars.node.crypto.createHash(algorithm);
                     if (testLog === true) {
                         vars.testLogger("hash", "hashBack", "reading file as a stream.");
                         testLog = false;
                     }
-                    hash.on("readable", function terminal_hash_dirComplete_hashBack_hash():void {
+                    hash.on("readable", function terminal_commands_hash_dirComplete_hashBack_hash():void {
                         let hashString:string = "";
                         const hashData:Buffer = <Buffer>hash.read();
                         if (hashData !== null) {
@@ -78,13 +78,13 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                     hash.write(item);
                     hash.end();
                     if (http.test(<string>input.source) === true) {
-                        remove(data.path, function terminal_hash_dirComplete_hashBack_hash_remove():boolean {
+                        remove(data.path, function terminal_commands_hash_dirComplete_hashBack_remove():boolean {
                             return true;
                         });
                     }
                 },
-                typeHash = function terminal_hash_dirComplete_typeHash(index:number, end:number) {
-                    const terminate = function terminal_hash_dirComplete_typeHash_terminate():void {
+                typeHash = function terminal_commands_hash_dirComplete_typeHash(index:number, end:number) {
+                    const terminate = function terminal_commands_hash_dirComplete_typeHash_terminate():void {
                         c = c + 1;
                         if (c === end) {
                             if (a === listLength) {
@@ -112,8 +112,8 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                             path: list[index][0],
                             stat: list[index][5],
                             index: index,
-                            callback: function terminal_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
-                                hashBack(data, item, function terminal_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
+                            callback: function terminal_commands_hash_dirComplete_typeHash_callback(data:readFile, item:string|Buffer):void {
+                                hashBack(data, item, function terminal_commands_hash_dirComplete_typeHash_callback_hashBack(hashString:string, item:number) {
                                     hashes[item[0]] = hashString;
                                     if (hashList === true) {
                                         listObject[data.path] = hashString;
@@ -127,7 +127,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                         readFile(readConfig);
                     }
                 },
-                recursive = function terminal_hash_dirComplete_recursive():void {
+                recursive = function terminal_commands_hash_dirComplete_recursive():void {
                     let b = 0,
                         end = (listLength - a < shortLimit)
                             ? listLength - a
@@ -139,7 +139,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                         b = b + 1;
                     } while (b < shortLimit && a < listLength);
                 },
-                sortFunction = function terminal_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem) {
+                sortFunction = function terminal_commands_hash_dirComplete_sortFunction(a:directoryItem, b:directoryItem) {
                     if (a[0] < b[0]) {
                         return -1;
                     }
@@ -169,8 +169,8 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
                             path: list[a][0],
                             stat: list[a][5],
                             index: a,
-                            callback: function terminal_hash_dirComplete_file(data:readFile, item:string|Buffer):void {
-                                hashBack(data, item, function terminal_hash_dirComplete_file_hashBack(hashString:string, index:number):void {
+                            callback: function terminal_commands_hash_dirComplete_callback(data:readFile, item:string|Buffer):void {
+                                hashBack(data, item, function terminal_commands_hash_dirComplete_callback_hashBack(hashString:string, index:number):void {
                                     if (hashList === true) {
                                         listObject[data.path] = hashString;
                                     } else {
@@ -231,7 +231,7 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
             return;
         }
         input = {
-            callback: function terminal_hash_callback(output:hashOutput):void {
+            callback: function terminal_commands_hash_callback(output:hashOutput):void {
                 if (vars.verbose === true) {
                     log([`${vars.version.name} hashed ${vars.text.cyan + input.source + vars.text.none}`, output.hash], true);
                 } else {
@@ -262,24 +262,24 @@ const hash = function terminal_hash(input:hashInput):hashOutput {
     }
     if (http.test(<string>input.source) === true) {
         vars.testLogger("hash", "http", "if the path is http(s) then request content from the internet.");
-        get(<string>input.source, function terminal_hash_get(fileData:string) {
+        get(<string>input.source, function terminal_commands_hash_get(fileData:string) {
             const hash:Hash = vars.node.crypto.createHash(algorithm);
             hash.update(fileData);
             log([hash.digest("hex")], true);
         });
     } else {
         vars.testLogger("hash", "file path", "when the input is not the terminal's standard input or a http(s) scheme assume a file path, but first set ulimit on POSIX to prevent file system errors on large directory trees.");
-        vars.node.child("ulimit -n", function terminal_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
+        vars.node.child("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
             if (ulimit_err === null && ulimit_out !== "unlimited" && isNaN(Number(ulimit_out)) === false) {
                 limit = Number(ulimit_out);
                 shortLimit = Math.ceil(limit / 5);
             }
-            vars.node.fs.stat(input.source, function terminal_hash_stat(ers:nodeError) {
+            vars.node.fs.stat(input.source, function terminal_commands_hash_stat(ers:nodeError) {
                 if (ers === null) {
                     if (input.parent === undefined || (input.parent !== undefined && typeof input.id === "string" && input.id.length > 0)) {
                         // not coming from the directory library.  The directory library will always pass a parent property and not an id property
                         const dirConfig:readDirectory = {
-                            callback: function terminal_hash_stat_dirCallback(list:directoryList) {
+                            callback: function terminal_commands_hash_stat_dirCallback(list:directoryList) {
                                 dirComplete(list);
                             },
                             depth: 0,

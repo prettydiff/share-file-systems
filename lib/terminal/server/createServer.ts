@@ -11,8 +11,8 @@ import methodPOST from "./methodPOST.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
     
-const createServer = function terminal_server_create(request:IncomingMessage, serverResponse:ServerResponse):void {
-    const host:string = (function terminal_server_create_host():string {
+const createServer = function terminal_server_createServer(request:IncomingMessage, serverResponse:ServerResponse):void {
+    const host:string = (function terminal_server_createServer_host():string {
             const addresses:[string, string, string][] = serverVars.addresses[0],
                 length:number = addresses.length;
             let a:number = 0,
@@ -40,7 +40,7 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
             } while (a < length);
             return request.headers.host;
         }()),
-        postTest = function terminal_server_create_postTest():boolean {
+        postTest = function terminal_server_createServer_postTest():boolean {
             if (
                 request.method === "POST" && (
                     host === "localhost" || (
@@ -77,11 +77,11 @@ const createServer = function terminal_server_create(request:IncomingMessage, se
         methodPOST(request, serverResponse);
     } else {
         // the delay is necessary to prevent a race condition between service execution and data storage writing
-        setTimeout(function terminal_server_create_delay():void {
+        setTimeout(function terminal_server_createServer_delay():void {
             if (postTest() === true) {
                 methodPOST(request, serverResponse);
             } else {
-                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_create_delay_userStat(err:nodeError):void {
+                vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
                     if (err === null) {
                         forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"], serverResponse);
                     }

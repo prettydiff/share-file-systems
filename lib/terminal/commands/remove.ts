@@ -7,7 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // similar to posix "rm -rf" command
-const remove = function terminal_remove(filePath:string, callback:Function):void {
+const remove = function terminal_commands_remove(filePath:string, callback:Function):void {
         let testLog:testLogFlag = vars.testLogFlag,
             testLogFlag:boolean = (vars.testLogFlag !== "");
         const numb:any = {
@@ -16,21 +16,21 @@ const remove = function terminal_remove(filePath:string, callback:Function):void
                 link: 0,
                 size: 0
             },
-            removeItems = function terminal_remove_removeItems(fileList:directoryList):void {
+            removeItems = function terminal_commands_remove_removeItems(fileList:directoryList):void {
                 let a:number = 0;
                 const len:number = fileList.length,
-                    destroy = function terminal_remove_removeItems_destroy(item:directoryItem) {
+                    destroy = function terminal_commands_remove_removeItems_destroy(item:directoryItem) {
                         const type:"rmdir"|"unlink" = (item[1] === "directory")
                             ? "rmdir"
                             : "unlink";
                         if (testLogFlag === true) {
                             vars.testLogger("remove", "destroy", "recursively remove items, rmdir for directories and unlink for other artifacts");
                         }
-                        vars.node.fs[type](item[0], function terminal_remove_removeItems_destroy_callback(er:nodeError):void {
+                        vars.node.fs[type](item[0], function terminal_commands_remove_removeItems_destroy_callback(er:nodeError):void {
                             if (vars.verbose === true && er !== null && er.toString().indexOf("no such file or directory") < 0) {
                                 if (er.code === "ENOTEMPTY") {
                                     testLogFlag = false;
-                                    terminal_remove_removeItems_destroy(item);
+                                    terminal_commands_remove_removeItems_destroy(item);
                                     return;
                                 }
                                 error([er.toString()]);
@@ -43,7 +43,7 @@ const remove = function terminal_remove(filePath:string, callback:Function):void
                                 fileList[item[3]][4] = fileList[item[3]][4] - 1;
                                 if (fileList[item[3]][4] < 1) {
                                     testLogFlag = false;
-                                    terminal_remove_removeItems_destroy(fileList[item[3]]);
+                                    terminal_commands_remove_removeItems_destroy(fileList[item[3]]);
                                 }
                             }
                         });
@@ -98,7 +98,7 @@ const remove = function terminal_remove(filePath:string, callback:Function):void
                 return;
             }
             dirConfig.path = vars.node.path.resolve(process.argv[0]);
-            callback = function terminal_remove_callback() {
+            callback = function terminal_commands_remove_callback() {
                 if (vars.verbose === true) {
                     const out = [`${vars.version.name} removed `];
                     vars.verbose = true;

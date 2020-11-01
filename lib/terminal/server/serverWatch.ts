@@ -7,15 +7,15 @@ import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
 
-const serverWatch = function terminal_server_watch(type:"rename"|"change", filename:string|null):void {
-    const extension:string = (function terminal_server_watch_extension():string {
+const serverWatch = function terminal_server_serverWatch(type:"rename"|"change", filename:string|null):void {
+    const extension:string = (function terminal_server_serverWatch_extension():string {
             if (filename === null) {
                 return "";
             }
             const list = filename.split(".");
             return list[list.length - 1];
         }()),
-        ignore   = function terminal_server_watch_ignore(input:string|null):boolean {
+        ignore   = function terminal_server_serverWatch_ignore(input:string|null):boolean {
             if (input.indexOf(".git") === 0) {
                 return true;
             }
@@ -32,11 +32,11 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
     }
     vars.testLogger("serverWatch", "", "Establishing watch for application components to refresh the page or compile updated code.");
     if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
-        const time = function terminal_server_watch_time(message:string, build:boolean):void {
+        const time = function terminal_server_serverWatch_time(message:string, build:boolean):void {
             const date:Date = new Date(),
                 dateArray:string[] = [],
                 output:string[] = [],
-                duration = function terminal_server_watch_duration():void {
+                duration = function terminal_server_serverWatch_time_duration():void {
                     let hours:number = 0,
                         minutes:number = 0,
                         seconds:number = 0,
@@ -124,7 +124,7 @@ const serverWatch = function terminal_server_watch(type:"rename"|"change", filen
     } else if (extension === "css" || extension === "xhtml") {
         vars.ws.broadcast("reload");
     } else {
-        const fsUpdateCallback = function terminal_server_watch_projectPath(result:directoryList):void {
+        const fsUpdateCallback = function terminal_server_serverWatch_fsUpdateCallback(result:directoryList):void {
                 if (vars.command !== "test_browser") {
                     vars.ws.broadcast(JSON.stringify({
                         "fs-update-local": result

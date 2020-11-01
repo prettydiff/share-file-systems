@@ -10,6 +10,7 @@ import vars from "../utilities/vars.js";
 
 import heartbeat from "./heartbeat.js";
 import invite from "./invite.js";
+import message from "./message.js";
 import readOnly from "./readOnly.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
@@ -112,10 +113,8 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 // * received instructions from remote to delete agents
                 heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], serverResponse);
             } else if (task === "message") {
-                // * 
-                // create a function here:
-                // 1. if agent is self then broadcast
-                // 2. else send to agentTo
+                // * process text messages
+                message(body, serverResponse);
             } else if (task === "storage") {
                 // * local: Writes changes to storage files
                 const dataPackage:storage = JSON.parse(body).storage;

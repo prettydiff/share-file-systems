@@ -28,7 +28,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             }
         ]
     },
-    showContextMenu = function test_browser_showContextMenu(node:testBrowserDOM, test:testBrowserTest[]):testBrowserItem {
+    showContextMenu = function terminal_test_samples_browser_showContextMenu(node:testBrowserDOM, test:testBrowserTest[]):testBrowserItem {
         return {
             delay: {
                 node: [
@@ -49,7 +49,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             unit: test
         };
     },
-    projectDirectory = function test_browser_projectDirectory(index:number):testBrowserItem {
+    projectDirectory = function terminal_test_samples_browser_projectDirectory(index:number):testBrowserItem {
         return {
             delay: {
                 // the last file system item is version.json

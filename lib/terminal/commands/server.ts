@@ -18,7 +18,7 @@ import serverWatch from "../server/serverWatch.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const server = function terminal_server(serverCallback:serverCallback):void {
+const server = function terminal_commands_server(serverCallback:serverCallback):void {
     // at this time the serverCallback argument is only used by test automation and so its availability
     // * locks the server to address ::1 (loopback)
     // * bypasses messaging users on server start up
@@ -41,7 +41,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         certName:string = "share-file",
         insecure:boolean = (serverVars.secure === false)
             ? true
-            : (function terminal_server_insecure():boolean {
+            : (function terminal_commands_server_insecure():boolean {
                 const index:number = process.argv.indexOf("insecure");
                 if (index < 0) {
                     return false;
@@ -50,7 +50,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 process.argv.splice(index, 1);
                 return true;
             }()),
-        browserFlag:boolean = (function terminal_server_browserTest():boolean {
+        browserFlag:boolean = (function terminal_commands_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
             serverVars.storage = (vars.command === "test_browser")
@@ -71,7 +71,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         scheme:string = (insecure === true)
             ? "http"
             : "https",
-        browser = function terminal_server_browser(httpServer:httpServer):void {
+        browser = function terminal_commands_server_browser(httpServer:httpServer):void {
             // open a browser from the command line
             serverCallback.callback({
                 agent: serverCallback.agent,
@@ -87,7 +87,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             ? "start"
                             : "xdg-open",
                     browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -100,12 +100,12 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 });
             }
         },
-        service = function terminal_server_service():void {
+        service = function terminal_commands_server_service():void {
             if (https.flag.crt === true && https.flag.key === true) {
                 if (https.certificate.cert === "" || https.certificate.key === "") {
                     certificate({
                         caDomain: "share-file-ca",
-                        callback: function terminal_server_service_callback(logs:string[]):void {
+                        callback: function terminal_commands_server_service_callback(logs:string[]):void {
                             https.flag.crt = false;
                             https.flag.key = false;
                             httpsRead("crt");
@@ -127,8 +127,8 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 }
             }
         },
-        httpsRead = function terminal_server_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+        httpsRead = function terminal_commands_server_httpsRead(certType:certKey):void {
+            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_commands_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -140,8 +140,8 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 service();
             });
         },
-        httpsFile = function terminal_server_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_server_httpsFile_stat(statError:nodeError):void {
+        httpsFile = function terminal_commands_server_httpsFile(certType:certKey):void {
+            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_commands_server_httpsFile_stat(statError:nodeError):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {
@@ -157,7 +157,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                     ? 80
                     : vars.version.port
                 : Number(process.argv[0]),
-        serverError = function terminal_server_serverError(errorMessage:nodeError):void {
+        serverError = function terminal_commands_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
                     error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP server.`]);
@@ -168,10 +168,10 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 error([errorMessage.toString()]);
             }
         },
-        start = function terminal_server_start(httpServer:httpServer) {
-            const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
+        start = function terminal_commands_server_start(httpServer:httpServer) {
+            const logOutput = function terminal_commands_server_start_logger(storageData:storageItems):void {
                     const output:string[] = [],
-                        localAddresses = function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
+                        localAddresses = function terminal_commands_server_start_logger_localAddresses(value:[string, string, string]):void {
                             a = value[0].length;
                             if (a < serverVars.addresses[1]) {
                                 do {
@@ -221,7 +221,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             }
                         }
                         if (certLogs !== null) {
-                            certLogs.forEach(function terminal_server_start_logger_certLogs(value:string):void {
+                            certLogs.forEach(function terminal_commands_server_start_logger_certLogs(value:string):void {
                                 output.push(value);
                             });
                         }
@@ -231,7 +231,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_server_start_readComplete(storageData:storageItems) {
+                readComplete = function terminal_commands_server_start_readComplete(storageData:storageItems) {
                     serverVars.brotli = storageData.settings.brotli;
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.hashType = storageData.settings.hashType;
@@ -253,13 +253,13 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         heartbeat.update(hbConfig);
                     }
                 },
-                listen = function terminal_server_start_listen():void {
+                listen = function terminal_commands_server_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
                         wsServer:httpServer = (insecure === true)
-                            ? vars.node.http.createServer(function terminal_server_start_listen_wsListenerInsecure():void {
+                            ? vars.node.http.createServer(function terminal_commands_server_start_listen_wsListenerInsecure():void {
                                 return;
                             })
-                            : vars.node.https.createServer(https.certificate, function terminal_server_start_listen_wsListener():void {
+                            : vars.node.https.createServer(https.certificate, function terminal_commands_server_start_listen_wsListener():void {
                                 return;
                             });
                     serverVars.webPort = serverAddress.port;
@@ -279,12 +279,12 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             ? "::1"
                             : "127.0.0.1",
                         port: serverVars.wsPort
-                    }, function terminal_server_start_listen_wsListen():void {
+                    }, function terminal_commands_server_start_listen_wsListen():void {
                         vars.ws = new WebSocket.Server({
                             server: wsServer
                         });
-                        vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
-                            vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
+                        vars.ws.broadcast = function terminal_commands_server_start_listen_socketBroadcast(data:string):void {
+                            vars.ws.clients.forEach(function terminal_commands_server_start_listen_socketBroadcast_clients(client):void {
                                 if (client.readyState === WebSocket.OPEN) {
                                     client.send(data);
                                 }
@@ -320,7 +320,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         serverCallback = {
             agent: "",
             agentType: "device",
-            callback: function terminal_server_falseCallback():void {}
+            callback: function terminal_commands_server_falseCallback():void {}
         };
     }
     if (insecure === true) {

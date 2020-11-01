@@ -9,7 +9,7 @@ import common from "../common/common.js";
 const settings:module_settings = {};
 
 /* Add agent color options to the settings menu */
-settings.addUserColor = function local_settings_addUserColor(agent:string, type:agentType, settingsBody:Element):void {
+settings.addUserColor = function browser_settings_addUserColor(agent:string, type:agentType, settingsBody:Element):void {
     const ul:Element = settingsBody.getElementsByClassName(`${type}-color-list`)[0],
         li:Element = document.createElement("li"),
         p:Element = document.createElement("p"),
@@ -56,7 +56,7 @@ settings.addUserColor = function local_settings_addUserColor(agent:string, type:
 };
 
 /* specify custom agent color settings */
-settings.agentColor = function local_settings_modal(event:KeyboardEvent):void {
+settings.agentColor = function browser_settings_agentColor(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target,
         colorTest:RegExp = (/^(([0-9a-fA-F]{3})|([0-9a-fA-F]{6}))$/),
         color:string = `${element.value.replace(/\s+/g, "").replace("#", "")}`,
@@ -84,7 +84,7 @@ settings.agentColor = function local_settings_modal(event:KeyboardEvent):void {
 };
 
 /* Update the agent color information in the style tag */
-settings.applyAgentColors = function local_settings_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
+settings.applyAgentColors = function browser_settings_applyUserColors(agent:string, type:agentType, colors:[string, string]):void {
     const prefix:string = `#spaces .box[data-agent="${agent}"] `,
         style:string = browser.style.innerHTML,
         styleText:styleText = {
@@ -114,7 +114,7 @@ settings.applyAgentColors = function local_settings_applyUserColors(agent:string
 };
 
 /* Enable or disable audio from the settings menu */
-settings.audio = function local_settings_compression(event:MouseEvent):void {
+settings.audio = function browser_settings_audio(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target;
     if (element.value === "on") {
         browser.data.audio = true;
@@ -133,10 +133,10 @@ settings.colorDefaults = {
 };
 
 /* Change the color scheme */
-settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):void {
+settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target,
         oldScheme:string = browser.data.color,
-        complete = function local_settings_colorScheme_complete(counts:agentCounts):void {
+        complete = function browser_settings_colorScheme_complete(counts:agentCounts):void {
             counts.count = counts.count + 1;
             if (counts.count === counts.total) {
                 browser.data.color = <colorScheme>element.value;
@@ -155,7 +155,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
     common.agents({
         complete: complete,
         countBy: "agent",
-        perAgent: function local_settings_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
+        perAgent: function browser_settings_colorScheme_perAgent(agentNames:agentNames, counts:agentCounts):void {
             if (agentColors === null || (agentNames.agentType === "user" && agentNames.agent === browser.data.hashUser)) {
                 complete(counts);
                 return;
@@ -191,7 +191,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
             } while (c < agentLength);
             complete(counts);
         },
-        perAgentType: function local_settings_colorScheme_perAgent(agentNames) {
+        perAgentType: function browser_settings_colorScheme_perAgent(agentNames) {
             const list:Element = document.getElementsByClassName(`${agentNames.agentType}-color-list`)[0];
             if (list === undefined) {
                 agentColors = null;
@@ -205,7 +205,7 @@ settings.colorScheme = function local_settings_colorScheme(event:MouseEvent):voi
 };
 
 /* Settings compression level */
-settings.compressionText = function local_settings_text(event:KeyboardEvent):void {
+settings.compressionText = function browser_settings_compressionText(event:KeyboardEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target;
     if (element.value.replace(/\s+/, "") !== "" && (event.type === "blur" || (event.type === "change" && element.nodeName.toLowerCase() === "select") || (event.type === "keyup" && event.key === "Enter"))) {
         const numb:number = Number(element.value),
@@ -225,7 +225,7 @@ settings.compressionText = function local_settings_text(event:KeyboardEvent):voi
 };
 
 /* Shows and hides additional textual information about compression */
-settings.compressionToggle = function local_settings_compressionToggle(event:MouseEvent):void {
+settings.compressionToggle = function browser_settings_compressionToggle(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target,
         parent:Element = <Element>element.parentNode,
         info:HTMLElement = <HTMLElement>parent.getElementsByClassName("compression-details")[0];
@@ -239,7 +239,7 @@ settings.compressionToggle = function local_settings_compressionToggle(event:Mou
 };
 
 /* Shows the settings modal */
-settings.modal = function local_settings_modal(event:MouseEvent):void {
+settings.modal = function browser_settings_modal(event:MouseEvent):void {
     const settings:HTMLElement = document.getElementById("settings-modal"),
         data:ui_modal = browser.data.modals["settings-modal"];
     modal.zTop(event, settings);
@@ -251,10 +251,10 @@ settings.modal = function local_settings_modal(event:MouseEvent):void {
 };
 
 /* The content of the settings modal */
-settings.modalContent = function local_settings_modalContent():Element {
+settings.modalContent = function browser_settings_modalContent():Element {
     const settingsBody:Element = document.createElement("div"),
         random:string = Math.random().toString(),
-        createSection = function local_settings_modalContent(title:string):Element {
+        createSection = function browser_settings_modalContent(title:string):Element {
             const container:Element = document.createElement("div"),
                 h3:Element = document.createElement("h3");
             container.setAttribute("class", "section");
@@ -262,7 +262,7 @@ settings.modalContent = function local_settings_modalContent():Element {
             container.appendChild(h3);
             return container;
         },
-        perAgentType = function local_settings_modalContent_perAgentType(agentNames:agentNames):void {
+        perAgentType = function browser_settings_modalContent_perAgentType(agentNames:agentNames):void {
             const ul:Element = document.createElement("ul");
             section = createSection(`◩ ${common.capitalize(agentNames.agentType)} Color Definitions`);
             p = document.createElement("p");
@@ -389,7 +389,7 @@ settings.modalContent = function local_settings_modalContent():Element {
 
     common.agents({
         countBy: "agent",
-        perAgent: function local_settings_modalContent_perAgent(agentNames:agentNames):void {
+        perAgent: function browser_settings_modalContent_perAgent(agentNames:agentNames):void {
             settings.addUserColor(agentNames.agent, agentNames.agentType, section);
         },
         perAgentType: perAgentType,
@@ -398,7 +398,7 @@ settings.modalContent = function local_settings_modalContent():Element {
     return settingsBody;
 };
 
-settings.radio = function local_settings_radio(element:Element):void {
+settings.radio = function browser_settings_radio(element:Element):void {
     const parent:HTMLElement = <HTMLElement>element.parentNode,
         grandParent:Element = <Element>parent.parentNode,
         labels:HTMLCollectionOf<Element> = grandParent.getElementsByTagName("label"),
@@ -412,7 +412,7 @@ settings.radio = function local_settings_radio(element:Element):void {
 };
 
 /* Applies agent color definitions */
-settings.styleText = function local_settings_styleText(input:styleText):void {
+settings.styleText = function browser_settings_styleText(input:styleText):void {
     const template:string[] = [
         `#spaces .box[data-agent="${input.agent}"] .body,`,
         `#spaces #${input.type} button[data-agent="${input.agent}"]:hover{background-color:#`,

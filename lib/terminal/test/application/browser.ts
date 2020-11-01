@@ -23,17 +23,17 @@ const browser:testBrowserApplication = {
     index: -1
 };
 
-browser.execute = function test_browser_execute(args:testBrowserArgs):void {
+browser.execute = function terminal_test_application_browser_execute(args:testBrowserArgs):void {
     browser.args.demo = args.demo;
     browser.args.noClose = args.noClose;
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
-    vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function test_browser_execute_readdir(dErr:nodeError, files:string[]):void {
+    vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_execute_readdir(dErr:nodeError, files:string[]):void {
         if (dErr !== null) {
             error([dErr.toString()]);
             return;
         }
-        const browserLaunch = function test_browser_execute_readdir_launch():void {
-            const serviceCallback = function test_browser_execute_readdir_launch_serviceCallback(output:serverOutput):void {
+        const browserLaunch = function terminal_test_application_browser_execute_readdir_browserLaunch():void {
+            const serviceCallback = function terminal_test_application_browser_execute_readdir_browserLaunch_serviceCallback(output:serverOutput):void {
                 const keyword:string = (process.platform === "darwin")
                         ? "open"
                         : (process.platform === "win32")
@@ -48,7 +48,7 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
                     path:string = `${scheme}://localhost${port}/?test_browser`,
                     // execute a browser by file path to the browser binary
                     browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
-                        ? (function test_browser_execute_readdir_launch_serviceCall_binary():string {
+                        ? (function terminal_test_application_browser_execute_readdir_launch_serviceCallback_browserCommand():string {
                             if (process.platform === "win32") {
                                 // yes, this is ugly.  Windows old cmd shell doesn't play well with file paths
                                 process.argv[0] = `${process.argv[0].replace(/\\/g, "\"\\\"").replace("\"\\", "\\") + "\""}`;
@@ -62,7 +62,7 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
                         }())
                         : `${keyword} ${path}`;
                 browser.server = output.server;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function test_browser_execute_readdir_launch_serviceCallback_browser(errs:nodeError):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_execute_readdir_launch_serviceCallback_child(errs:nodeError):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -85,7 +85,7 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
             do {
                 length = length - 1;
                 if (files[length] !== "storage.txt") {
-                    remove(serverVars.storage + files[length], function test_browser_execute_readdir_remove():void {
+                    remove(serverVars.storage + files[length], function terminal_test_application_browser_execute_readdir_remove():void {
                         flags = flags - 1;
                         if (flags === 1) {
                             browserLaunch();
@@ -97,7 +97,7 @@ browser.execute = function test_browser_execute(args:testBrowserArgs):void {
     });
 };
 
-browser.iterate = function test_browser_iterate(index:number):void {
+browser.iterate = function terminal_test_application_browser_iterate(index:number):void {
     // not writing to storage
     if (finished === true) {
         return;
@@ -113,10 +113,10 @@ browser.iterate = function test_browser_iterate(index:number):void {
         ],
 
         // determine if non-interactive events have required matching data properties
-        validate = function test_browser_iterate_validate():boolean {
+        validate = function terminal_test_application_browser_iterate_validate():boolean {
             let a:number = 0;
             const length:number = tests[index].interaction.length,
-                eventName = function test_browser_iterate_validate_eventName(property):string {
+                eventName = function terminal_test_application_browser_iterate_validate_eventName(property):string {
                     return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                 };
             if (tests[index].delay === undefined && tests[index].unit.length < 1) {
@@ -143,7 +143,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
     // * about 1 in 10 times this will fail following event "refresh"
     // * because serverVars.testBrowser is not updated to methodGET library fast enough
     if (validate() === true) {
-        setTimeout(function test_browser_iterate_delay():void {
+        setTimeout(function terminal_test_application_browser_iterate_setTimeout():void {
             const refresh:number = index + 1;
             vars.ws.broadcast(message);
             if (tests[index].interaction[0].event === "refresh") {
@@ -171,7 +171,7 @@ browser.iterate = function test_browser_iterate(index:number):void {
     }
 };
 
-browser.result = function test_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
+browser.result = function terminal_test_application_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
     if (finished === true) {
         return;
     }
@@ -179,11 +179,11 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
         falseFlag:boolean = false;
     const length:number = item.payload.length,
         delay:boolean = (tests[item.index].unit.length === 0),
-        completion = function test_browser_result_completion(pass:boolean):void {
+        completion = function terminal_test_application_browser_result_completion(pass:boolean):void {
             const plural:string = (tests.length === 1)
                     ? ""
                     : "s",
-                totalTests:number = (function test_browser_result_completion_total():number {
+                totalTests:number = (function terminal_test_application_browser_result_completion_total():number {
                     // gathers a total count of tests
                     let aa:number = tests.length,
                         bb:number = 0;
@@ -196,7 +196,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                     }
                     return bb + 1;
                 }()),
-                exit = function test_browser_result_completion_exit(type:number, message:string):void {
+                exit = function terminal_test_application_browser_result_completion_exit(type:number, message:string):void {
                     if (finished === true) {
                         return;
                     }
@@ -210,7 +210,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                         vars.ws.broadcast(JSON.stringify({
                             "test-browser-close": {}
                         }));
-                        setTimeout(function test_browser_result_completion_exit_delay():void {
+                        setTimeout(function terminal_test_application_browser_result_completion_exit_setTimeout():void {
                             log([message], true);
                             process.exit(type);
                         }, delay);
@@ -230,14 +230,14 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             }
             exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total campaign${plural} and ${totalTests} tests.`);
         },
-        summary = function test_browser_result_summary(pass:boolean):string {
+        summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
             const text:string = ` browser test ${item.index + 1}: ${vars.text.none + tests[item.index].name}`,
                 resultString:string = (pass === true)
                     ? `${vars.text.green}Passed`
                     : `${vars.text.angry}Failed`;
             return humanTime(false) + resultString + text;
         },
-        buildNode = function test_Browser_result_buildNode(config:testBrowserTest, elementOnly:boolean):string {
+        buildNode = function terminal_test_application_Browser_result_buildNode(config:testBrowserTest, elementOnly:boolean):string {
             let b:number = 0;
             const node:browserDOM[] = config.node,
                 property:string[] = config.target,
@@ -275,7 +275,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
             }
             return output.join("");
         },
-        testString = function test_browser_result_testString(pass:boolean, config:testBrowserTest):string {
+        testString = function terminal_test_application_browser_result_testString(pass:boolean, config:testBrowserTest):string {
             const valueStore:primitive = config.value,
                 valueType:string = typeof valueStore,
                 value = (valueStore === null)
@@ -323,7 +323,7 @@ browser.result = function test_browser_result(item:testBrowserResult, serverResp
                 nodeString = `${vars.text.none} ${buildNode(config, false)} ${qualifier} ${value}`;
             return star + resultString + nodeString;
         },
-        failureMessage = function test_Browser_result_failureMessage(index:number):void {
+        failureMessage = function terminal_test_application_browser_result_failureMessage(index:number):void {
             if (item.payload[index][2] === "error") {
                 let error:string = item.payload[index][1]
                     .replace("{\"file\":"   , `{\n    "${vars.text.cyan}file${vars.text.none}"   :`)

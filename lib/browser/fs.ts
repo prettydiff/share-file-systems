@@ -11,7 +11,7 @@ import common from "../common/common.js";
 const fs:module_fs = {};
 
 /* step back through a modal's address history */
-fs.back = function local_fs_back(event:MouseEvent):void {
+fs.back = function browser_fs_back(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -26,7 +26,7 @@ fs.back = function local_fs_back(event:MouseEvent):void {
 };
 
 /* navigate into a directory by double click */
-fs.directory = function local_fs_directory(event:MouseEvent):void {
+fs.directory = function browser_fs_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
@@ -37,7 +37,7 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
-        callback = function local_fs_directory_callback(responseText:string):void {
+        callback = function browser_fs_directory_callback(responseText:string):void {
             const list:[Element, number, string] = fs.list(path, JSON.parse(responseText));
             body.innerHTML = "";
             body.appendChild(list[0]);
@@ -66,9 +66,9 @@ fs.directory = function local_fs_directory(event:MouseEvent):void {
 };
 
 /* drag and drop of selected list items */
-fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
+fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
     const element:Element = <Element>event.target,
-        item:Element = (function local_fs_drag_item():Element {
+        item:Element = (function browser_fs_drag_item():Element {
             let el:Element = element;
             if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
                 event.preventDefault();
@@ -78,7 +78,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             }
             return el.getAncestor("li", "tag");
         }()),
-        fileList:Element = (function local_fs_drag_fileList():Element {
+        fileList:Element = (function browser_fs_drag_fileList():Element {
             let parent:Element = <Element>element.parentNode;
             if (parent.parentNode.nodeName.toLowerCase() !== "div") {
                 do {
@@ -98,10 +98,10 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
         right:number = left+ + body.clientWidth,
         touch:boolean = (event !== null && event.type === "touchstart"),
         list:HTMLElement = document.createElement("ul"),
-        mouseDown = function local_fs_drag_document(documentEvent:MouseEvent):void {
+        mouseDown = function browser_fs_drag_document(documentEvent:MouseEvent):void {
             documentEvent.preventDefault();
         },
-        drop = function local_fs_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
+        drop = function browser_fs_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
             if (list.parentNode !== null) {
                 list.parentNode.removeChild(list);
             }
@@ -116,7 +116,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                 return;
             }
             let id:string = "";
-            const addresses:string[] = (function local_fs_drag_drop_addresses():string[] {
+            const addresses:string[] = (function browser_fs_drag_drop_addresses():string[] {
                     const output:string[] = [],
                         children:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
                         len:number = children.length;
@@ -139,7 +139,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                 clientY:number = (touch === true)
                     ? touchDrop.touches[0].clientY
                     : mouseDrop.clientY,
-                target:string = (function local_fs_drag_drop_target():string {
+                target:string = (function browser_fs_drag_drop_target():string {
                     const ul = browser.content.getElementsByClassName("fileList"),
                         length:number = ul.length;
                     let a:number = 0,
@@ -198,7 +198,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
                     share    : browser.data.modals[id].share,
                     watch    : "no"
                 },
-                callback = function local_fs_drag_drop_callback():void {
+                callback = function browser_fs_drag_drop_callback():void {
                     return;
                 };
             if (target === "") {
@@ -206,7 +206,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
             }
             network.fs(payload, callback);
         },
-        move = function local_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
+        move = function browser_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
                     ? <TouchEvent>moveEvent
                     : null, 
@@ -291,7 +291,7 @@ fs.drag = function local_fs_drag(event:MouseEvent|TouchEvent):void {
 fs.dragFlag = "";
 
 /* Shows child elements of a directory */
-fs.expand = function local_fs_expand(event:MouseEvent):void {
+fs.expand = function browser_fs_expand(event:MouseEvent):void {
     const button:Element = <Element>event.target,
         box:Element = button.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -311,7 +311,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
-            callback = function local_fs_expand_callback(responseText:string) {
+            callback = function browser_fs_expand_callback(responseText:string) {
                 const list:[Element, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
                 li.appendChild(list[0]);
             };
@@ -330,7 +330,7 @@ fs.expand = function local_fs_expand(event:MouseEvent):void {
 };
 
 /* Builds the HTML file list */
-fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, number, string] {
+fs.list = function browser_fs_list(location:string, dirData:fsRemote):[Element, number, string] {
     const local:directoryList = [],
         list:directoryList = <directoryList>dirData.dirs,
         length:number = list.length,
@@ -340,7 +340,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
             : dirData.fail.length,
         box:Element = document.getElementById(dirData.id),
         count:[number, number, number, number] = [0, 0, 0, 0],
-        plural = function local_fs_list_plural(input:string, quantity:number):string {
+        plural = function browser_fs_list_plural(input:string, quantity:number):string {
             if (quantity === 1) {
                 return input;
             }
@@ -393,7 +393,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
     status = (location === "\\")
         ? `${count[0]} ${plural("drive", list.length)}`
         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
-    local.sort(function local_fs_list_sort(a:directoryItem, b:directoryItem):number {
+    local.sort(function browser_fs_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {
             if (a[0].toLowerCase() < b[0].toLowerCase()) {
@@ -434,7 +434,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
     output.oncontextmenu = context.menu;
     output.onkeydown = util.keys;
     output.onclick = fs.listFocus;
-    output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
+    output.onmousedown = function browser_fs_list_dragSelect(event:MouseEvent):void {
         util.dragBox(event, util.dragList);
     };
     output.setAttribute("class", "fileList");
@@ -442,7 +442,7 @@ fs.list = function local_fs_list(location:string, dirData:fsRemote):[Element, nu
 };
 
 /* Display status information when the Operating system locks files from access */
-fs.listFail = function local_fs_listFail(count:number, box:Element):void {
+fs.listFail = function browser_fs_listFail(count:number, box:Element):void {
     const statusBar:Element = box.getElementsByClassName("status-bar")[0],
         p:Element = statusBar.getElementsByTagName("p")[0],
         ul:Element = statusBar.getElementsByTagName("ul")[0],
@@ -460,7 +460,7 @@ fs.listFail = function local_fs_listFail(count:number, box:Element):void {
 };
 
 /* When clicking on a file list give focus to an input field so that the list can receive focus */
-fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
+fs.listFocus = function browser_fs_listFocus(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
         inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
@@ -475,12 +475,12 @@ fs.listFocus = function local_fs_listFocus(event:MouseEvent):void {
 };
 
 /* Build a single file system object from data */
-fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):Element {
+fs.listItem = function browser_fs_listItem(item:directoryItem, extraClass:string):Element {
     const li:HTMLElement = document.createElement("li"),
         label:HTMLLabelElement = document.createElement("label"),
         text:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
-        mouseOver = function local_fs_listItem_mouseOver(event:MouseEvent):void {
+        mouseOver = function browser_fs_listItem_mouseOver(event:MouseEvent):void {
             const dragBox:Element = document.getElementById("dragBox"),
                 element:HTMLElement = <HTMLElement>event.target;
             if (dragBox !== null) {
@@ -562,7 +562,7 @@ fs.listItem = function local_fs_listItem(item:directoryItem, extraClass:string):
 };
 
 /* Create a file navigator modal */
-fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):void {
+fs.navigate = function browser_fs_navigate(event:MouseEvent, config?:navConfig):void {
     const agentName:string = (config === undefined || config.agentName === undefined)
             ? browser.data.hashDevice
             : config.agentName,
@@ -579,7 +579,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = function local_fs_navigate_callback(responseText:string):void {
+        callback:Function = function browser_fs_navigate_callback(responseText:string):void {
             if (responseText === "") {
                 return;
             }
@@ -594,7 +594,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
                     : location,
             body:Element = box.getElementsByClassName("body")[0],
                 files:Element = (payload.dirs === "missing")
-                    ? (function local_fs_navigate_callback_missing():Element {
+                    ? (function browser_fs_navigate_callback_missing():Element {
                         const p:Element = document.createElement("p");
                         p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
                         p.setAttribute("class", "error");
@@ -647,7 +647,7 @@ fs.navigate = function local_fs_navigate(event:MouseEvent, config?:navConfig):vo
 };
 
 /* Request file system information of the parent directory */
-fs.parent = function local_fs_parent(event:MouseEvent):boolean {
+fs.parent = function browser_fs_parent(event:MouseEvent):boolean {
     const element:Element = <HTMLInputElement>event.target,
         header:Element = <Element>element.parentNode,
         input:HTMLInputElement = header.getElementsByTagName("input")[0],
@@ -660,7 +660,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
         box:Element = <Element>bodyParent.parentNode,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
-        newAddress:string = (function local_fs_parent_newAddress():string {
+        newAddress:string = (function browser_fs_parent_newAddress():string {
             if ((/^\w:\\$/).test(value) === true) {
                 return "\\";
             }
@@ -682,7 +682,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
             share: browser.data.modals[id].share,
             watch: value
         },
-        callback = function local_fs_parent_callback(responseText:string):void {
+        callback = function browser_fs_parent_callback(responseText:string):void {
             const list:[Element, number, string] = fs.list(newAddress, JSON.parse(responseText));
             input.value = newAddress;
             body.innerHTML = "";
@@ -700,7 +700,7 @@ fs.parent = function local_fs_parent(event:MouseEvent):boolean {
 };
 
 /* The front-side of renaming a file system object */
-fs.rename = function local_fs_rename(event:MouseEvent):void {
+fs.rename = function browser_fs_rename(event:MouseEvent):void {
     const element:Element = (context.element === null)
             ? <Element>event.target
             : context.element,
@@ -708,7 +708,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
         id:string = box.getAttribute("id"),
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
-        action = <EventHandlerNonNull>function local_fs_rename_action(action:KeyboardEvent):void {
+        action = <EventHandlerNonNull>function browser_fs_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
                 if (dir + input.value === text) {
@@ -728,7 +728,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
-                        callback = function local_fs_rename_callback():void {
+                        callback = function browser_fs_rename_callback():void {
                             label.removeChild(input);
                             label.innerHTML = label.innerHTML + input.value;
                         };
@@ -773,7 +773,7 @@ fs.rename = function local_fs_rename(event:MouseEvent):void {
 };
 
 /* A service to write file changes to the file system */
-fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
+fs.saveFile = function browser_fs_saveFile(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -794,7 +794,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
             share: browser.data.modals[id].share,
             watch: "no"
         },
-        callback = function local_fs_saveFile_callback(message:string):void {
+        callback = function browser_fs_saveFile_callback(message:string):void {
             const footer:Element = box.getElementsByClassName("footer")[0],
                 body:Element = box.getElementsByClassName("body")[0],
                 buttons:Element = footer.getElementsByClassName("footer-buttons")[0],
@@ -812,7 +812,7 @@ fs.saveFile = function local_fs_saveFile(event:MouseEvent):void {
 };
 
 /* Search for file system artifacts from a modal's current location */
-fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
+fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
     const element:HTMLInputElement = (searchElement === undefined)
             ? <HTMLInputElement>event.target
             : searchElement,
@@ -844,7 +844,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
-            netCallback = function local_fs_search_callback(responseText:string):void {
+            netCallback = function browser_fs_search_callback(responseText:string):void {
                 if (responseText === "") {
                     const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                         ? "."
@@ -853,7 +853,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                 } else {
                     const dirData = JSON.parse(responseText),
                         length:number = dirData.dirs.length,
-                        statusString = function local_fs_search_statusString(length:number):void {
+                        statusString = function browser_fs_search_statusString(length:number):void {
                             const plural:string = (dirData.dirs.length === 1)
                                 ? ""
                                 : "es";
@@ -881,12 +881,12 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
                         output.oncontextmenu = context.menu;
                         output.onkeydown = util.keys;
                         output.onclick = fs.listFocus;
-                        output.onmousedown = function local_fs_list_dragSelect(event:MouseEvent):void {
+                        output.onmousedown = function browser_fs_list_dragSelect(event:MouseEvent):void {
                             util.dragBox(event, util.dragList);
                         };
                         output.setAttribute("class", "fileList");
                         statusString(length);
-                        dirData.dirs.sort(function local_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
+                        dirData.dirs.sort(function browser_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
                             // when types are the same
                             if (a[1] === b[1]) {
                                 if (a[0].toLowerCase() < b[0].toLowerCase()) {
@@ -935,7 +935,7 @@ fs.search = function local_fs_search(event?:KeyboardEvent, searchElement?:HTMLIn
 };
 
 /* Expand the search field to a large size when focused */
-fs.searchFocus = function local_fs_searchFocus(event:Event):void {
+fs.searchFocus = function browser_fs_searchFocus(event:Event):void {
     const search:Element = <Element>event.target,
         searchParent:HTMLElement = <HTMLElement>search.parentNode,
         address:HTMLElement = <HTMLElement>searchParent.previousSibling;
@@ -944,7 +944,7 @@ fs.searchFocus = function local_fs_searchFocus(event:Event):void {
 };
 
 /* Select a file system item for an action */
-fs.select = function local_fs_select(event:KeyboardEvent):void {
+fs.select = function browser_fs_select(event:KeyboardEvent):void {
     event.preventDefault();
     event.stopPropagation();
     context.menuRemove();
@@ -986,7 +986,7 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
         }
     } else if (event.shiftKey === true || fs.dragFlag === "shift") {
         const liList = body.getElementsByTagName("li"),
-            shift = function local_fs_select_shift(index:number, end:number):void {
+            shift = function browser_fs_select_shift(index:number, end:number):void {
                 if (state === true) {
                     do {
                         liList[index].getElementsByTagName("input")[0].checked = false;
@@ -1067,14 +1067,14 @@ fs.select = function local_fs_select(event:KeyboardEvent):void {
 };
 
 /* Requests file system data from a text field, such as manually typing an address */
-fs.text = function local_fs_text(event:KeyboardEvent):void {
+fs.text = function browser_fs_text(event:KeyboardEvent):void {
     let parent:Element,
         box:Element,
         id:string,
         button:boolean = false,
         windows:boolean = false,
         historyLength:number;
-    const element:HTMLInputElement = (function local_fs_text_element():HTMLInputElement {
+    const element:HTMLInputElement = (function browser_fs_text_element():HTMLInputElement {
             let el = <HTMLInputElement>event.target;
             if (el.nodeName.toLowerCase() === "input") {
                 return el;
@@ -1103,7 +1103,7 @@ fs.text = function local_fs_text(event:KeyboardEvent):void {
                 share: browser.data.modals[id].share,
                 watch: watchValue
             },
-            callback = function local_fs_text_callback(responseText:string):void {
+            callback = function browser_fs_text_callback(responseText:string):void {
                 if (responseText === "") {
                     const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                         ? "."

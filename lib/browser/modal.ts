@@ -11,7 +11,7 @@ import share from "./share.js";
 const modal:module_modal = {};
 
 /* Removes a modal from the DOM for garbage collection, except systems log is merely hidden */
-modal.close = function local_modal_close(event:MouseEvent):void {
+modal.close = function browser_modal_close(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         keys:string[] = Object.keys(browser.data.modals),
         keyLength:number = keys.length,
@@ -44,7 +44,7 @@ modal.close = function local_modal_close(event:MouseEvent):void {
 };
 
 /* Modal types that are enduring are hidden, not destroyed, when closed */
-modal.closeEnduring = function local_systems_closeEnduring(event:MouseEvent):void {
+modal.closeEnduring = function browser_systems_closeEnduring(event:MouseEvent):void {
     let box:HTMLElement = <HTMLElement>event.target;
     box = <HTMLElement>box.getAncestor("box", "class");
     if (box.getAttribute("class") === "box") {
@@ -56,7 +56,7 @@ modal.closeEnduring = function local_systems_closeEnduring(event:MouseEvent):voi
 };
 
 /* Event handler for the modal's "Confirm" button */
-modal.confirm = function local_modal_confirm(event:MouseEvent):void {
+modal.confirm = function browser_modal_confirm(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -77,7 +77,7 @@ modal.confirm = function local_modal_confirm(event:MouseEvent):void {
 };
 
 /* Modal creation factory */
-modal.create = function local_modal_create(options:ui_modal):Element {
+modal.create = function browser_modal_create(options:ui_modal):Element {
     let button:HTMLElement = document.createElement("button"),
         buttonCount:number = 0,
         section:HTMLElement = document.createElement("h2"),
@@ -140,7 +140,7 @@ modal.create = function local_modal_create(options:ui_modal):Element {
     button.onmousedown = modal.move;
     button.ontouchstart = modal.move;
     button.onclick = modal.unMinimize;
-    button.onblur  = function local_modal_create_blur():void {
+    button.onblur  = function browser_modal_create_blur():void {
         button.onclick = null;
     };
     box.setAttribute("id", id);
@@ -413,7 +413,7 @@ modal.create = function local_modal_create(options:ui_modal):Element {
 };
 
 /* Creates an import/export modal */
-modal.export = function local_modal_export(event:MouseEvent):void {
+modal.export = function browser_modal_export(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
         agency:agency = (element === document.getElementById("export"))
@@ -436,7 +436,7 @@ modal.export = function local_modal_export(event:MouseEvent):void {
 };
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
-modal.importSettings = function local_modal_importSettings(event:MouseEvent):void {
+modal.importSettings = function browser_modal_importSettings(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         dataString:string = JSON.stringify(browser.data),
         box:Element = element.getAncestor("box", "class"),
@@ -453,7 +453,7 @@ modal.importSettings = function local_modal_importSettings(event:MouseEvent):voi
 };
 
 /* The given modal consumes the entire view port of the content area */
-modal.maximize = function local_modal_maximize(event:Event):void {
+modal.maximize = function browser_modal_maximize(event:Event):void {
     const element:Element = <Element>event.target,
         contentArea:Element = document.getElementById("content-area"),
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
@@ -497,7 +497,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
         box.style.top = "0em";
         box.style.left = "0em";
         body.style.width = `${(contentArea.clientWidth - 20) / 10}em`;
-        body.style.height = (function local_modal_maximize_maxHeight():string {
+        body.style.height = (function browser_modal_maximize_maxHeight():string {
             let height:number = contentArea.clientHeight,
                 header:Element = box.getElementsByClassName("header")[0];
             height = (height - title.clientHeight) - 27;
@@ -522,7 +522,7 @@ modal.maximize = function local_modal_maximize(event:Event):void {
 };
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
-modal.minimize = function local_modal_minimize(event:Event):void {
+modal.minimize = function browser_modal_minimize(event:Event):void {
     const element:Element = <Element>event.target,
         border:Element = element.getAncestor("border", "class"),
         box:HTMLElement = <HTMLElement>border.parentNode,
@@ -582,7 +582,7 @@ modal.minimize = function local_modal_minimize(event:Event):void {
 };
 
 /* Drag and drop interaction for modals */
-modal.move = function local_modal_move(event:Event):void {
+modal.move = function browser_modal_move(event:Event):void {
     const x:Element = <Element>event.target,
         heading:Element = <Element>x.parentNode,
         box:HTMLElement = <HTMLElement>heading.parentNode.parentNode,
@@ -604,7 +604,7 @@ modal.move = function local_modal_move(event:Event):void {
         touchY = (touch === true)
             ? touchEvent.touches[0].clientY
             : 0,
-        drop       = function local_modal_move_drop(dropEvent:Event):boolean {
+        drop       = function browser_modal_move_drop(dropEvent:Event):boolean {
             const headingWidth:number = box.getElementsByTagName("h2")[0].clientWidth;
             boxLeft = box.offsetLeft;
             boxTop  = box.offsetTop;
@@ -633,7 +633,7 @@ modal.move = function local_modal_move(event:Event):void {
             dropEvent.preventDefault();
             return false;
         },
-        boxMove         = function local_modal_move_boxMove(moveEvent:TouchEvent|MouseEvent):boolean {
+        boxMove         = function browser_modal_move_boxMove(moveEvent:TouchEvent|MouseEvent):boolean {
             const touchEvent:TouchEvent = (touch === true)
                     ? <TouchEvent>moveEvent
                     : null, 
@@ -686,7 +686,7 @@ modal.move = function local_modal_move(event:Event):void {
 };
 
 /* Allows resizing of modals in 1 of 8 directions */
-modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
+modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
     let clientWidth:number  = 0,
         clientHeight:number = 0;
     const node:Element = <Element>event.target,
@@ -747,7 +747,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
             ? 18
             : 0,
         sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
-        drop       = function local_modal_resize_drop():void {
+        drop       = function browser_modal_resize_drop():void {
             const settings:ui_modal = browser.data.modals[box.getAttribute("id")];
             if (touch === true) {
                 document.ontouchmove = null;
@@ -766,7 +766,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
             }
             network.storage("settings");
         },
-        compute = function local_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
+        compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
             const minWidth:number = 55.7;
             let bodyWidth:number,
                 bodyHeight:number,
@@ -830,7 +830,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
             }
         },
         side:any    = {
-            b: function local_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
+            b: function browser_modal_resize_sizeB(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     y:number = (touch === true)
@@ -838,7 +838,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientY;
                 compute(false, false, [-10, y]);
             },
-            bl: function local_modal_resize_sizeBL(moveEvent:MouseEvent|TouchEvent):void {
+            bl: function browser_modal_resize_sizeBL(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     x:number = (touch === true)
@@ -849,7 +849,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientY;
                 compute(true, false, [x, y]);
             },
-            br: function local_modal_resize_sizeBR(moveEvent:MouseEvent|TouchEvent):void {
+            br: function browser_modal_resize_sizeBR(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     x:number = (touch === true)
@@ -860,7 +860,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientY;
                 compute(false, false, [x, y]);
             },
-            l: function local_modal_resize_sizeL(moveEvent:MouseEvent|TouchEvent):void {
+            l: function browser_modal_resize_sizeL(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     x:number = (touch === true)
@@ -868,7 +868,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientX;
                 compute(true, false, [x, -10]);
             },
-            r: function local_modal_resize_sizeR(moveEvent:MouseEvent|TouchEvent):void {
+            r: function browser_modal_resize_sizeR(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     x:number = (touch === true)
@@ -876,7 +876,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientX;
                 compute(false, false, [x, -10]);
             },
-            t: function local_modal_resize_sizeT(moveEvent:MouseEvent|TouchEvent):void {
+            t: function browser_modal_resize_sizeT(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     y:number = (touch === true)
@@ -884,7 +884,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientY;
                 compute(false, true, [-10, y]);
             },
-            tl: function local_modal_resize_sizeTL(moveEvent:MouseEvent|TouchEvent):void {
+            tl: function browser_modal_resize_sizeTL(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     x:number = (touch === true)
@@ -895,7 +895,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
                         : mouseMove.clientY;
                 compute(true, true, [x, y]);
             },
-            tr: function local_modal_resize_sizeTR(moveEvent:MouseEvent|TouchEvent):void {
+            tr: function browser_modal_resize_sizeTR(moveEvent:MouseEvent|TouchEvent):void {
                 const mouseMove:MouseEvent = <MouseEvent>moveEvent,
                     touchMove:TouchEvent = <TouchEvent>moveEvent,
                     x:number = (touch === true)
@@ -924,7 +924,7 @@ modal.resize = function local_modal_resize(event:MouseEvent|TouchEvent):void {
 };
 
 /* Creates a textPad modal */
-modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
+modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, title?:string):void {
     const element:Element = <Element>event.target,
         titleText:string = (typeof title === "string")
             ? title
@@ -957,7 +957,7 @@ modal.textPad = function local_modal_textPad(event:MouseEvent, value?:string, ti
 };
 
 /* Pushes the text content of a textPad modal into settings so that it is saved */
-modal.textSave = function local_modal_textSave(event:MouseEvent):void {
+modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
         box:Element = element.getAncestor("box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
@@ -969,14 +969,14 @@ modal.textSave = function local_modal_textSave(event:MouseEvent):void {
 };
 
 /* An idle delay is a good time to save written notes */
-modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
+modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
         box:Element = element.getAncestor("box", "class"),
         data:ui_modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
     }
-    data.timer = window.setTimeout(function local_modal_textTimer_delay() {
+    data.timer = window.setTimeout(function browser_modal_textTimer_delay() {
         window.clearTimeout(data.timer);
         data.text_value = element.value;
         network.storage("settings");
@@ -984,7 +984,7 @@ modal.textTimer = function local_modal_textTimer(event:KeyboardEvent):void {
 }
 
 /* Restore a minimized modal to its prior size and location */
-modal.unMinimize = function local_modal_unMinimize(event:MouseEvent):void {
+modal.unMinimize = function browser_modal_unMinimize(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
@@ -994,7 +994,7 @@ modal.unMinimize = function local_modal_unMinimize(event:MouseEvent):void {
 };
 
 /* Manages z-index of modals and moves a modal to the top on interaction */
-modal.zTop = function local_modal_zTop(event:MouseEvent, elementInput?:Element):void {
+modal.zTop = function browser_modal_zTop(event:MouseEvent, elementInput?:Element):void {
     const element:Element = (elementInput === undefined)
             ? <Element>event.target
             : elementInput,

@@ -6,8 +6,8 @@ import commands_documentation from "./lib/terminal/utilities/commands_documentat
 import error from "./lib/terminal/utilities/error.js";
 import vars from "./lib/terminal/utilities/vars.js";
 
-(function init() {
-    const execute = function node_execute():void {
+(function terminal_init() {
+    const execute = function terminal_init_execute():void {
         // command documentation
         vars.commands = commands_documentation;
 
@@ -16,9 +16,9 @@ import vars from "./lib/terminal/utilities/vars.js";
 
         commandList[vars.command]();
     };
-    vars.node.fs.stat(`${vars.projectPath}version.json`, function node_version(erStat:Error) {
+    vars.node.fs.stat(`${vars.projectPath}version.json`, function terminal_init_version(erStat:Error) {
         if (erStat === null) {
-            vars.node.fs.readFile(`${vars.projectPath}version.json`, "utf8", function node_version_read(er:Error, versionFile:string):void {
+            vars.node.fs.readFile(`${vars.projectPath}version.json`, "utf8", function terminal_init_version_read(er:Error, versionFile:string):void {
                 if (er !== null) {
                     error([er.toString()]);
                     return;

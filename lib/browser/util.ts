@@ -9,7 +9,7 @@ import share from "./share.js";
 
 const util:module_util = {};
 
-util.audio = function local_util_audio(name:string):void {
+util.audio = function browser_util_audio(name:string):void {
     const context:AudioContext = new AudioContext(),
         binary:BinaryType = <BinaryType>window.atob(audio[name].data),
         source:AudioBufferSourceNode  = context.createBufferSource(),
@@ -33,7 +33,7 @@ util.audio = function local_util_audio(name:string):void {
 };
 
 /* Converts a date object into US Army date format */
-util.dateFormat = function local_util_dateFormat(date:Date):string {
+util.dateFormat = function browser_util_dateFormat(date:Date):string {
     const dateData:string[] = [
             date.getFullYear().toString(),
             date.getMonth().toString(),
@@ -95,7 +95,7 @@ util.dateFormat = function local_util_dateFormat(date:Date):string {
 };
 
 /* Create a div element with a spinner and class name of 'delay' */
-util.delay = function local_util_delay():Element {
+util.delay = function browser_util_delay():Element {
     const div:Element = document.createElement("div"),
         text:Element = document.createElement("p"),
         svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -113,7 +113,7 @@ util.delay = function local_util_delay():Element {
 };
 
 /* Drag a selection box to capture a collection of items into a selection */
-util.dragBox = function local_util_dragBox(event:Event, callback:Function):void {
+util.dragBox = function browser_util_dragBox(event:Event, callback:Function):void {
     const element:Element = <Element>event.target,
         list:Element = element.getAncestor("fileList", "class"),
         body:HTMLElement = <HTMLElement>list.getAncestor("body", "class"),
@@ -144,7 +144,7 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
         y:number = (touch === true)
             ? touchEvent.touches[0].clientY
             : mouseEvent.clientY,   
-        drop       = function local_util_dragBox_drop(e:Event):boolean {
+        drop       = function browser_util_dragBox_drop(e:Event):boolean {
             callback(event, drag);
             if (drag.parentNode !== null) {
                 drag.parentNode.removeChild(drag);
@@ -158,13 +158,13 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
             }
             network.storage("settings");
             e.preventDefault();
-            setTimeout(function local_util_dragBox_drop_scroll():void {
+            setTimeout(function browser_util_dragBox_drop_scroll():void {
                 body.scrollLeft = bodyScrollLeft;
                 body.scrollTop = bodyScrollTop;
             }, 5);
             return false;
         },
-        boxMove = function local_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
+        boxMove = function browser_util_dragBox_boxMove(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchEvent:TouchEvent = (touch === true)
                     ? <TouchEvent>moveEvent
                     : null,
@@ -256,11 +256,11 @@ util.dragBox = function local_util_dragBox(event:Event, callback:Function):void 
 };
 
 /* Selects list items in response to drawing a drag box */
-util.dragList = function local_util_dragList(event:MouseEvent, dragBox:Element):void {
+util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element):void {
     const element:Element = <Element>event.target,
         li:HTMLCollectionOf<HTMLElement> = element.getElementsByTagName("li"),
         length:number = li.length,
-        perimeter = function local_util_dragList_perimeter(node:HTMLElement):perimeter {
+        perimeter = function browser_util_dragList_perimeter(node:HTMLElement):perimeter {
             return {
                 bottom: node.offsetTop + node.clientHeight,
                 left: node.offsetLeft,
@@ -351,10 +351,10 @@ util.dragList = function local_util_dragList(event:MouseEvent, dragBox:Element):
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
-util.fileListStatus = function local_util_fileListStatus(data:copyStatus):void {
+util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void {
     const modals:Element[] = (data.target.indexOf("remote-") === 0)
             ? [document.getElementById(data.target.replace("remote-", ""))]
-            : (function local_util_fileListStatus_modals():Element[] {
+            : (function browser_util_fileListStatus_modals():Element[] {
                 const names:string[] = Object.keys(browser.data.modals),
                     address:string = data.target.replace("local-", ""),
                     namesLength:number = names.length,
@@ -425,7 +425,7 @@ util.fileListStatus = function local_util_fileListStatus(data:copyStatus):void {
 };
 
 /* Resizes the interactive area to fit the browser viewport */
-util.fixHeight = function local_util_fixHeight():void {
+util.fixHeight = function browser_util_fixHeight():void {
     const height:number   = window.innerHeight || document.getElementsByTagName("body")[0].clientHeight;
     document.getElementById("spaces").style.height = `${height / 10}em`;
     browser.content.style.height = `${(height - 51) / 10}em`;
@@ -433,7 +433,7 @@ util.fixHeight = function local_util_fixHeight():void {
 };
 
 /* A simple utility to provide form execution to input fields not in a form */
-util.formKeys = function local_util_login(event:KeyboardEvent, submit:Function):void {
+util.formKeys = function browser_util_formKeys(event:KeyboardEvent, submit:Function):void {
     const key:string = event.key;
     if (key === "Enter") {
         const element:Element = <Element>event.target,
@@ -453,7 +453,7 @@ util.formKeys = function local_util_login(event:KeyboardEvent, submit:Function):
 };
 
 /* Get the agent of a given modal */
-util.getAgent = function local_util_getAgent(element:Element):agency {
+util.getAgent = function browser_util_getAgent(element:Element):agency {
     const box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id");
     let agent:string = browser.data.modals[id].agent;
@@ -465,10 +465,10 @@ util.getAgent = function local_util_getAgent(element:Element):agency {
 };
 
 /* Shortcut key combinations */
-util.keys = function local_util_keys(event:KeyboardEvent):void {
+util.keys = function browser_util_keys(event:KeyboardEvent):void {
     const key:string = event.key,
         windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
-        element:Element = (function local_util_keys_element():Element {
+        element:Element = (function browser_util_keys_element():Element {
             let el:Element = <Element>event.target;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
@@ -566,9 +566,9 @@ util.keys = function local_util_keys(event:KeyboardEvent):void {
 };
 
 /* Show/hide for the primary application menu that hangs off the title bar */
-util.menu = function local_util_menu():void {
+util.menu = function browser_util_menu():void {
     const menu:HTMLElement = document.getElementById("menu"),
-        move = function local_util_menu_move(event:MouseEvent):void {
+        move = function browser_util_menu_move(event:MouseEvent):void {
             if (event.clientX > menu.clientWidth || event.clientY > menu.clientHeight + 51) {
                 menu.style.display = "none";
                 document.onmousemove = null;
@@ -582,7 +582,7 @@ util.menu = function local_util_menu():void {
     document.onmousemove = move;
 };
 
-util.menuBlur = function local_util_menuBlur():void {
+util.menuBlur = function browser_util_menuBlur():void {
     const active:Element = document.activeElement,
         menu:HTMLElement = document.getElementById("menu");
     if (active.parentNode.parentNode !== menu) {
@@ -591,7 +591,7 @@ util.menuBlur = function local_util_menuBlur():void {
 };
 
 /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-util.minimizeAll = function local_util_minimizeAll() {
+util.minimizeAll = function browser_util_minimizeAll() {
     const keys:string[] = Object.keys(browser.data.modals),
         length:number = keys.length;
     let a:number = 0,
@@ -615,7 +615,7 @@ util.minimizeAll = function local_util_minimizeAll() {
 util.minimizeAllFlag = false;
 
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
-util.selectedAddresses = function local_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
+util.selectedAddresses = function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
     const output:[string, shareType, string][] = [],
         parent:Element = <Element>element.parentNode,
         agent:string = util.getAgent(element)[0],
@@ -669,7 +669,7 @@ util.selectedAddresses = function local_util_selectedAddresses(element:Element, 
 util.selectExpression = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
-util.selectNone = function local_util_selectNone(element:Element):void {
+util.selectNone = function browser_util_selectNone(element:Element):void {
     const box:Element = element.getAncestor("box", "class");
     let a:number = 0,
         inputLength:number,
@@ -695,11 +695,11 @@ util.selectNone = function local_util_selectNone(element:Element):void {
 };
 
 /* produce a time string from a date object */
-util.time = function local_util_time(date:Date):string {
+util.time = function browser_util_time(date:Date):string {
     const hours:string = date.getHours().toString(),
         minutes:string = date.getMinutes().toString(),
         seconds:string = date.getSeconds().toString(),
-        pad = function local_util_time_pad(input:string):string {
+        pad = function browser_util_time_pad(input:string):string {
             if (input.length === 1) {
                 return `0${input}`;
             }

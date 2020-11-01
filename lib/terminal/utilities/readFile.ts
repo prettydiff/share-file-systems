@@ -4,7 +4,7 @@ import error from "./error.js";
 import vars from "./vars.js";
 
 // similar to node's fs.readFile, but determines if the file is binary or text so that it can create either a buffer or text dump
-const readFile = function terminal_readFile(args:readFile):void {
+const readFile = function terminal_utilities_readFile(args:readFile):void {
     // arguments
     // * callback - function - What to do next. Args
     // *    args - the arguments passed in
@@ -16,8 +16,8 @@ const readFile = function terminal_readFile(args:readFile):void {
     vars
         .node
         .fs
-        .open(args.path, "r", function terminal_readFile_file_open(ero:Error, fd:number):void {
-            const failure = function terminal_readFile_file_open_failure(message:string) {
+        .open(args.path, "r", function terminal_utilities_readFile_open(ero:Error, fd:number):void {
+            const failure = function terminal_utilities_readFile_open_failure(message:string) {
                     if (args.index > 0) {
                         error([
                             `Failed after ${args.index} files.`,
@@ -44,7 +44,7 @@ const readFile = function terminal_readFile(args:readFile):void {
                     0,
                     messageSize,
                     1,
-                    function terminal_readFile_file_open_read(errA:Error, bytesA:number, bufferA:Buffer):number {
+                    function terminal_utilities_readFile_open_read(errA:Error, bytesA:number, bufferA:Buffer):number {
                         let bufferString:string = "";
                         if (errA !== null) {
                             failure(errA.toString());
@@ -63,13 +63,13 @@ const readFile = function terminal_readFile(args:readFile):void {
                                     0,
                                     args.stat.size,
                                     0,
-                                    function terminal_readFile_file_open_read_readBinary(errB:Error, bytesB:number, bufferB:Buffer):void {
+                                    function terminal_utilities_readFile_open_read_readBinary(errB:Error, bytesB:number, bufferB:Buffer):void {
                                         if (errB !== null) {
                                             failure(errB.toString());
                                             return;
                                         }
                                         if (bytesB > 0) {
-                                            vars.node.fs.close(fd, function terminal_readFile_file_open_read_readBinary_close():void {
+                                            vars.node.fs.close(fd, function terminal_utilities_readFile_open_read_readBinary_close():void {
                                                 args.callback(args, bufferB);
                                             });
                                         }
@@ -81,12 +81,12 @@ const readFile = function terminal_readFile(args:readFile):void {
                                 .fs
                                 .readFile(args.path, {
                                     encoding: "utf8"
-                                }, function terminal_readFile_file_open_read_readFile(errC:Error, dump:string):void {
+                                }, function terminal_utilities_readFile_open_read_readFile(errC:Error, dump:string):void {
                                     if (errC !== null && errC !== undefined) {
                                         failure(errC.toString());
                                         return;
                                     }
-                                    vars.node.fs.close(fd, function terminal_readFile_file_open_read_readFile_close() {
+                                    vars.node.fs.close(fd, function terminal_utilities_readFile_open_read_readFile_close() {
                                         args.callback(args, dump);
                                     });
                                 });

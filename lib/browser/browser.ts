@@ -21,7 +21,7 @@ const browser:browser = {
     },
     device: {},
     loadTest: true,
-    localNetwork: (function local_network():localNetwork {
+    localNetwork: (function browser_localNetwork():localNetwork {
         let str:string = document.getElementsByTagName("body")[0].innerHTML,
             pattern:string = "<!--network:";
         str = str.slice(str.indexOf(pattern) + pattern.length);

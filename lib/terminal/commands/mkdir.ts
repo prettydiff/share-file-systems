@@ -7,7 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // makes specified directory structures in the local file system
-const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRecursion:boolean):void {
+const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Function, logRecursion:boolean):void {
     let ind:number = 0;
     const testLog = (logRecursion === true)
             ? {
@@ -27,7 +27,7 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRe
             : vars.node.path.resolve(dirToMake),
         dirs:string[] = dir.split(vars.sep),
         len:number = dirs.length,
-        errorHandler = function terminal_mkdir_errorHandler(errorInstance:nodeError, statInstance:Stats, errorCallback:() => void):void {
+        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:nodeError, statInstance:Stats, errorCallback:() => void):void {
             if (errorInstance !== null) {
                 if (errorInstance.toString().indexOf("no such file or directory") > 0 || errorInstance.code === "ENOENT") {
                     errorCallback();
@@ -57,20 +57,20 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRe
             error([`Destination directory, '${vars.text.cyan + dir + vars.text.none}', is a ${type}.`]);
             return;
         },
-        recursiveStat = function terminal_mkdir_recursiveStat():void {
+        recursiveStat = function terminal_commands_mkdir_recursiveStat():void {
             ind = ind + 1;
             const target:string = dirs.slice(0, ind).join(vars.sep);
             vars.node.fs.stat(
                 target,
-                function terminal_mkdir_recursiveStat_callback(errA:nodeError, statA:Stats):void {
-                    errorHandler(errA, statA, function terminal_mkdir_recursiveStat_errorHandler():void {
+                function terminal_commands_mkdir_recursiveStat_callback(errA:nodeError, statA:Stats):void {
+                    errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
                         if (testLog.callback === true) {
                             testLog.callback = false;
                             vars.testLogger("mkdir", "recursiveStat_callback", "each recursive directory gets a new stat. When something already exists at the destination it will not be overwritten, so complete");
                         }
                         vars.node.fs.mkdir(
                             target,
-                            function terminal_mkdir_recursiveStat_callback_mkdir(errB:Error):void {
+                            function terminal_mkdir_recursiveStat_callback_errorHandler_mkdir(errB:Error):void {
                                 if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
                                     error([errB.toString()]);
                                     return;
@@ -82,7 +82,7 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRe
                                 if (ind === len) {
                                     callback();
                                 } else {
-                                    terminal_mkdir_recursiveStat();
+                                    terminal_commands_mkdir_recursiveStat();
                                 }
                             }
                         );
@@ -100,7 +100,7 @@ const mkdir = function terminal_mkdir(dirToMake:string, callback:Function, logRe
             process.exit(1);
             return;
         }
-        callback = function terminal_mkdir_callback() {
+        callback = function terminal_commands_mkdir_callback() {
             if (vars.verbose === true) {
                 log([`Directory created at ${vars.text.cyan + dir + vars.text.none}`], true);
             }

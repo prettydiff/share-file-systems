@@ -4,7 +4,7 @@
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
-const serviceTests = function test_services():testServiceInstance[] {
+const serviceTests = function terminal_test_samples_services():testServiceInstance[] {
     const service:testServiceInstance[] = [],
         projectPath:string = vars.projectPath,
         sep:string = vars.sep,

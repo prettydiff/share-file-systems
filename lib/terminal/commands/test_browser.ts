@@ -5,8 +5,8 @@ import browser from "../test/application/browser.js";
 import log from "../utilities/log.js";
 import serverVars from "../server/serverVars.js";
 
-const test_browser = function terminal_testBrowser():void {
-    const splice = function terminal_testBrowser_splice(arg:string):boolean {
+const testBrowser = function terminal_commands_testBrowser():void {
+    const splice = function terminal_commands_testBrowser_splice(arg:string):boolean {
             const index:number = process.argv.indexOf(arg);
             if (index < 0) {
                 return false;
@@ -30,4 +30,4 @@ const test_browser = function terminal_testBrowser():void {
     browser.execute(args);
 };
 
-export default test_browser;
+export default testBrowser;
