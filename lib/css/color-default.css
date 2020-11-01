@@ -112,15 +112,6 @@
 #spaces .box .delete{background:#fdd;border-color:#900;box-shadow:0.075em 0.075em 0.25em #ccc;color:#900}
 #spaces #dragBox{background:#9cf;border-color:#69c}
 
-/* systems modal content */
-#spaces .box .tabs{background:#999}
-#spaces .box .tabs button{background:#ddd;border-color:#000}
-#spaces .box .tabs button.active{background:#fff}
-#spaces .box .tabs .status{color:#00c}
-#spaces .box .tabs .users{color:#060}
-#spaces .box .tabs .errors{color:#c00}
-#spaces #system-errors span{color:#c00}
-
 /* share list */
 #spaces .agentList li.full-access{background:#eef;border-color:#99c}
 #spaces .agentList button{color:#00f}

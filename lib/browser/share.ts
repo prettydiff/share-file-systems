@@ -67,10 +67,6 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
 
 /* Generate the content of a share modal */
 share.content = function browser_share_content(agentName:string, agentType:agentType|""):Element {
-    if (agentName === undefined) {
-        return document.getElementById("systems-modal");
-    }
-
     const lists:Element = document.createElement("div"),
         fileNavigate = function browser_share_content_fileNavigate(event:MouseEvent):void {
             const element:Element = (function browser_share_content_fileNavigate_getElement():Element {
@@ -630,7 +626,7 @@ share.update = function browser_share_update(exclusion:string):void {
     do {
         if (exclusion !== modals[a]) {
             item = browser.data.modals[modals[a]];
-            if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "settings" && item.type !== "systems" && item.type !== "share_delete") {
+            if (browser[item.agentType][item.agent] === undefined && item.type !== "shares" && item.type !== "settings" && item.type !== "share_delete") {
                 closer(document.getElementById(modals[a]));
             } else if (item.type === "shares") {
                 modal = document.getElementById(modals[a]);

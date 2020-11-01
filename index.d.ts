@@ -27,7 +27,7 @@ declare global {
     type inviteAction = "invite" | "invite-request" | "invite-response" | "invite-complete";
     type inviteStatus = "accepted" | "declined" | "invited";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
-    type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "shares" | "share_delete" | "settings" | "systems" | "textPad";
+    type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "shares" | "share_delete" | "settings" | "textPad";
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
@@ -592,14 +592,6 @@ declare global {
         modal?: (agent:string, agentType:agentType|"", configuration:ui_modal|null) => void;
         readOnly?: EventHandlerNonNull;
         update?: (exclusion:string) => void;
-    }
-    interface module_systems {
-        close?: EventHandlerNonNull;
-        expand?: EventHandlerNonNull;
-        message?: (type:string, content:string, timeStore?:string) => void;
-        modal?: EventHandlerNonNull;
-        modalContent?: () => Element;
-        tabs?: EventHandlerNonNull;
     }
     interface module_util {
         audio?: (name:string) => void;

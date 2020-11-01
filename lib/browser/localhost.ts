@@ -52,17 +52,15 @@ import webSocket from "./webSocket.js";
                 single: true,
                 status: "hidden",
                 title: "",
-                type: "systems"
+                type: "settings"
             };
             // building settings modal
             if (document.getElementById("settings-modal") === null) {
                 payloadModal.content = settings.modalContent();
                 payloadModal.inputs = ["close"];
                 payloadModal.title = document.getElementById("settings").innerHTML;
-                payloadModal.type = "settings";
                 delete payloadModal.width;
                 modal.create(payloadModal);
-                document.getElementById("settings-modal").style.display = "none";
             }
         },
         applyLogin = function browser_init_applyLogin():void {
@@ -178,7 +176,7 @@ import webSocket from "./webSocket.js";
             // watch for local idleness
             document.onclick = activate;
 
-            if (browser.data.hashDevice !== "" && (document.getElementById("settings-modal") === null || document.getElementById("systems-modal") === null)) {
+            if (browser.data.hashDevice !== "" && document.getElementById("settings-modal") === null) {
                 defaultModals();
             }
 
@@ -412,24 +410,6 @@ import webSocket from "./webSocket.js";
                             z(value);
                         } else if (modalItem.type === "message") {
                             message.modal(modalItem);
-                            z(value);
-                        } else if (modalItem.type === "systems") {
-                            modal.create(modalItem);
-                            const systemsModal:Element = document.getElementById("systems-modal");
-                            let button:HTMLButtonElement;
-                            if (modalItem.text_value === "status") {
-                                button = <HTMLButtonElement>systemsModal.getElementsByClassName("status")[0];
-                                button.click();
-                            } else if (modalItem.text_value === "users") {
-                                button = <HTMLButtonElement>systemsModal.getElementsByClassName("users")[0];
-                                button.click();
-                            } else if (modalItem.text_value === "errors") {
-                                button = <HTMLButtonElement>systemsModal.getElementsByClassName("errors")[0];
-                                button.click();
-                            }
-                            if (modalItem.status === "normal") {
-                                document.getElementById("systems-modal").style.display = "block";
-                            }
                             z(value);
                         } else if (modalItem.type === "shares") {
                             const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)

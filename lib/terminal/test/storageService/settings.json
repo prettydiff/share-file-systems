@@ -79,26 +79,10 @@
             "type"      : "shares",
             "width"     : 800,
             "zIndex"    : 3
-        },
-        "systems-modal"                    : {
-            "agent"    : "7f22346707be198af81ac14d5f718875ba67f67fb94bd2256c226fb8c676301f153bdd972818bc5b00aab7ee38190e9374d8e75e600ed5bbbddf4dbc5d5ca594",
-            "agentType": "device",
-            "content"  : {},
-            "height"   : 400,
-            "id"       : "systems-modal",
-            "left"     : 220,
-            "read_only": false,
-            "single"   : true,
-            "status"   : "hidden",
-            "title"    : "<span class=\"icon-systemLog\">⌬</span> System Log",
-            "top"      : 220,
-            "type"     : "systems",
-            "width"    : 800,
-            "zIndex"   : 2
         }
     },
     "modalTypes": [
-        "settings", "systems", "shares", "fileNavigate"
+        "settings", "shares", "fileNavigate"
     ],
     "nameDevice": "test local device",
     "nameUser"  : "test local user",

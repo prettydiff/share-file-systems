@@ -877,7 +877,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                     hashType: "sha3-512",
                     hashUser: serverVars.hashUser,
                     modals: {
-                        "systems-modal": {
+                        "settings-modal": {
                             agent: serverVars.hashDevice,
                             agentType: "device",
                             content: null,
@@ -887,18 +887,18 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                             read_only: false,
                             single: true,
                             status: "hidden",
-                            title: "<span class=\"icon-systemLog\">⌬</span> System Log",
-                            type: "systems",
+                            title: "<span class=\"icon-settings\">⚙</span> Settings",
+                            type: "settings",
                             width: 800,
                             zIndex: 1,
-                            id: "systems-modal",
+                            id: "settings-modal",
                             left: 200,
                             top: 200,
                             height: 400
                         },
                     },
                     modalTypes: [
-                        "systems", "settings", "fileNavigate", "invite-request"
+                        "settings", "fileNavigate", "invite-request"
                     ],
                     nameDevice: "this device name",
                     nameUser: "local user name",

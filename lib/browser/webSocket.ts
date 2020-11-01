@@ -24,14 +24,9 @@ const title:Element = document.getElementsByClassName("title")[0],
         }
         const error = function browser_socketMessage_error():void {
                 const errorData:socketError = JSON.parse(event.data).error,
-                    modal:Element = document.getElementById("systems-modal"),
-                    tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
                     payload:string = JSON.stringify(errorData);
                 // eslint-disable-next-line
                 console.error(payload);
-                if (modal.clientWidth > 0) {
-                    tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
-                }
             },
             fsUpdateLocal = function browser_socketMessage_fsUpdateLocal():void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),

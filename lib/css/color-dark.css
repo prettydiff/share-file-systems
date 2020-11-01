@@ -124,15 +124,6 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .delete{background:#311;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}
 .dark #spaces #dragBox{background:#9cf;border-color:#69c}
 
-/* systems modal content */
-.dark #spaces .box .tabs{background:#000}
-.dark #spaces .box .tabs button{background:#333;border-color:#666}
-.dark #spaces .box .tabs button.active{background:#222}
-.dark #spaces .box .tabs .status{color:#6cf}
-.dark #spaces .box .tabs .users{color:#696}
-.dark #spaces .box .tabs .errors{color:#c33}
-.dark #spaces #system-errors span{color:#c33}
-
 /* share list */
 .dark #spaces .agentList li.full-access{background:#112;border-color:#6cf}
 .dark #spaces .agentList button{color:#6cf}

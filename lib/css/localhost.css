@@ -186,15 +186,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 
-/* systems modal content */
-#spaces .box .tabs{height:5.7em;margin:0;padding:0}
-#spaces .box .tabs li{border-style:none;display:block;margin:0;padding:0}
-#spaces .box .tabs button{border-style:solid solid solid none;border-width:0.05em;cursor:pointer;display:block;float:left;font-size:2em;font-weight:bold;list-style:none;margin:0.25em 0 -0.1em 0;padding:0.5em 2%;width:33.3%}
-#spaces .box .tabs button.active{border-style:none solid none none;margin:0 0 -0.1em 0;padding:0.8em 2% 0.55em;text-decoration:underline}
-#spaces #system-status,
-#spaces #system-user,
-#spaces #system-errors{clear:both;float:none}
-#spaces #systems-modal{display:none}
 
 /* invite user */
 #spaces .inviteUser{padding:1em}
