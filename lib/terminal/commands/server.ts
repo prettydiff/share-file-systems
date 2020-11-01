@@ -215,9 +215,9 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                         output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${serverVars.ipAddress + portString + vars.text.none}`);
                         if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
                             if (serverVars.addresses[0][0][2] === "ipv4") {
-                                output.push(`or                 : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses[0][0][1] + vars.text.none}`);
+                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses[0][0][1] + vars.text.none}`);
                             } else {
-                                output.push(`or                 : ${vars.text.bold + vars.text.green+ scheme}://[${serverVars.addresses[0][0][1]}]${portString + vars.text.none}`);
+                                output.push(`or                     : ${vars.text.bold + vars.text.green+ scheme}://[${serverVars.addresses[0][0][1]}]${portString + vars.text.none}`);
                             }
                         }
                         if (certLogs !== null) {

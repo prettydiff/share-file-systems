@@ -10,7 +10,7 @@ import share from "./share.js";
 
 const modal:module_modal = {};
 
-/* Removes a modal from the DOM for garbage collection, except systems log is merely hidden */
+/* Removes a modal from the DOM for garbage collection */
 modal.close = function browser_modal_close(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         keys:string[] = Object.keys(browser.data.modals),
@@ -44,7 +44,7 @@ modal.close = function browser_modal_close(event:MouseEvent):void {
 };
 
 /* Modal types that are enduring are hidden, not destroyed, when closed */
-modal.closeEnduring = function browser_systems_closeEnduring(event:MouseEvent):void {
+modal.closeEnduring = function browser_modal_closeEnduring(event:MouseEvent):void {
     let box:HTMLElement = <HTMLElement>event.target;
     box = <HTMLElement>box.getAncestor("box", "class");
     if (box.getAttribute("class") === "box") {
@@ -84,11 +84,9 @@ modal.create = function browser_modal_create(options:ui_modal):Element {
         input:HTMLInputElement,
         extra:HTMLElement,
         height:number = 1;
-    const id:string = (options.type === "systems")
-            ? "systems-modal"
-            : (options.type === "settings")
-                ? "settings-modal"
-                : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
+    const id:string = (options.type === "settings")
+            ? "settings-modal"
+            : (options.id || `${options.type}-${Math.random().toString() + browser.data.zIndex + 1}`),
         box:HTMLElement = document.createElement("div"),
         body:HTMLElement = document.createElement("div"),
         border:Element = document.createElement("div"),
@@ -132,11 +130,7 @@ modal.create = function browser_modal_create(options:ui_modal):Element {
     if (options.status === undefined) {
         options.status = "normal";
     }
-    if (options.type === "systems") {
-        button.innerHTML = document.getElementById("systemLog").innerHTML;
-    } else {
-        button.innerHTML = options.title;
-    }
+    button.innerHTML = options.title;
     button.onmousedown = modal.move;
     button.ontouchstart = modal.move;
     button.onclick = modal.unMinimize;
@@ -394,16 +388,10 @@ modal.create = function browser_modal_create(options:ui_modal):Element {
     if (options.status === "minimized" && options.inputs.indexOf("minimize") > -1) {
         const minimize:HTMLElement = <HTMLElement>box.getElementsByClassName("minimize")[0];
         options.status = "normal";
-        if (options.type === "systems") {
-            box.style.display = "block";
-        }
         minimize.click();
     } else if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
         const maximize:HTMLElement = <HTMLElement>box.getElementsByClassName("maximize")[0];
         options.status = "normal";
-        if (options.type === "systems") {
-            box.style.display = "block";
-        }
         maximize.click();
     }
     if (browser.loadTest === false) {
@@ -760,10 +748,6 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
             clientHeight           = body.clientHeight;
             settings.width = clientWidth - offsetWidth;
             settings.height = clientHeight - offsetHeight;
-            if (box.getAttribute("id") === "systems-modal") {
-                const tabs:HTMLElement = <HTMLElement>box.getElementsByClassName("tabs")[0];
-                tabs.style.width = `${body.clientWidth / 10}em`;
-            }
             network.storage("settings");
         },
         compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
