@@ -337,6 +337,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 vars.testLogger("directory", "populate", `populate item ${filePath} according to type:${type} and mode:${args.mode}.`);
                             }
                             if (type === "error") {
+                                if (list[parent] !== undefined) {
+                                    list[parent][4] = list[parent][4] - 1;
+                                }
                                 if (args.mode === "list") {
                                     log([`error     0  ${relPath}`]);
                                 }
@@ -440,7 +443,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             birthtime: date,
                             isBlockDevice: empty,
                             isCharacterDevice: empty,
-                            isDirectory: empty,
+                            isDirectory: function terminal_commands_directory_statWrapper_isDirectory():boolean {
+                                return true;
+                            },
                             isFIFO: empty,
                             isFile: empty,
                             isSocket: empty,
@@ -472,7 +477,10 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             log(["directory"]);
                             return;
                         }
-                        if (((args.depth < 1 || filePath.replace(startItem, "").split(vars.sep).length < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startItem, "")) < 0) {
+                        const dirs:number = (args.path === "\\" && (/\w:$/).test(filePath) === false)
+                            ? `\\${filePath.replace(startItem, "")}`.split(vars.sep).length
+                            : filePath.replace(startItem, "").split(vars.sep).length;
+                        if (((args.depth < 1 || dirs < args.depth) || dirTest === false) && vars.exclusions.indexOf(filePath.replace(startItem, "")) < 0) {
                             dirTest = true;
                             dir(filePath.replace(/^\w:$/, driveLetter));
                         } else {
