@@ -116,7 +116,7 @@ import webSocket from "./webSocket.js";
         loadComplete = function browser_init_complete():void {
             const idleness = function browser_init_complete_idleness():void {
                     const time:number = Date.now();
-                    if (time - active > idleTime && localDevice !== null && browser.socket.readyState === 1) {
+                    if (time - active > idleTime && localDevice !== null) {
                         localDevice.setAttribute("class", "idle");
                         network.heartbeat("idle", false);
                     }

@@ -23,10 +23,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             return;
         }
         const error = function browser_socketMessage_error():void {
-                const errorData:socketError = JSON.parse(event.data).error,
-                    payload:string = JSON.stringify(errorData);
                 // eslint-disable-next-line
-                console.error(payload);
+                console.error(event.data);
             },
             fsUpdateLocal = function browser_socketMessage_fsUpdateLocal():void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
@@ -263,20 +261,12 @@ const title:Element = document.getElementsByClassName("title")[0],
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }
-                browser.socket = browser_webSocket(function browser_webSocket_callback():void {
-                    return;
-                });
-            },
-            error = function browser_webSocket_socketError(message):void {
-                // eslint-disable-next-line
-                console.log(message);
             };
 
         /* Handle Web Socket responses */
         socket.onopen = open;
         socket.onmessage = socketMessage;
         socket.onclose = close;
-        socket.onerror = error;
         callback();
         return socket;
     };

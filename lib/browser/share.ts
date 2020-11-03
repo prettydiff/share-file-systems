@@ -127,7 +127,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                 title:Element = document.createElement("h4"),
                 messageButton:HTMLElement = document.createElement("button");
             shareListUL = document.createElement("ul");
-            if (agentNames.agentType === "device"  && agentNames.agent == browser.data.hashDevice) {
+            if (agentNames.agentType === "device" && agentNames.agent === browser.data.hashDevice) {
                 title.innerHTML = browser.device[agentNames.agent].name;
             } else {
                 messageButton.innerHTML = `${browser[agentNames.agentType][agentNames.agent].name} <span>(text)</span>`;

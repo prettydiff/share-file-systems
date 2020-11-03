@@ -2,6 +2,7 @@
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
 import browser from "./browser.js";
 import util from "./util.js";
+import webSocket from "./webSocket.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
@@ -175,6 +176,12 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
         readyState = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 0) {
+                    const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
+                    if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
+                        webSocket(function local_network_messages_callback_webSocket():boolean {
+                            return true;
+                        });
+                    }
                     if (config.callback !== null) {
                         config.callback(xhr.responseText);
                     }

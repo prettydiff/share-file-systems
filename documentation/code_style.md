@@ -68,6 +68,7 @@ These are the rules by which code is an objective pass or failure.  Any exceptio
 7. Keyword `this` is forbidden.
 8. Do not use keyword `else` after a `return` or `break` statement.
 9. Console statements can be used for testing and troubleshoot, but are otherwise forbidden without a qualified exception.
+10. Try/catch blocks are forbidden.  This convention prevents execution via JIT.  Do not intentionally provide fragile code.
 
 ### Types Declarations
 1. Type *any* is forbidden.
