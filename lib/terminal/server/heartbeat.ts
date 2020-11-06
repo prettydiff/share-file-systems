@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/heartbeat - The code that manages sending and receiving user online status updates. */
-import { ServerResponse } from "http";
+import { IncomingMessage, ServerResponse } from "http";
 
 import vars from "../utilities/vars.js";
 
@@ -42,33 +42,40 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             responder = function terminal_server_heartbeat_broadcast_responder():void {
                 return;
             },
-            errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:nodeError, agent:string, type:agentType):void {
-                const data:heartbeat = {
-                    agentFrom: agent,
-                    agentTo: (type === "device")
-                        ? serverVars.hashDevice
-                        : serverVars.hashUser,
-                    agentType: type,
-                    shares: {},
-                    shareType: type,
-                    status: "offline"
-                };
-                vars.ws.broadcast(JSON.stringify({
-                    "heartbeat-complete": data
-                }));
-                if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
-                    error([
-                        `Error sending or receiving heartbeat to ${type} ${agent}`,
-                        errorMessage.toString()
-                    ]);
-                }
+            errorHandler = function terminal_server_heartbeat_broadcast_errorHandler(errorMessage:nodeError):void {
+                common.agents({
+                    countBy: "agent",
+                    perAgent: function terminal_server_httpClient_requestErrorHeartbeat(agentNames:agentNames):void {
+                        if (errorMessage.address === serverVars[agentNames.agentType][agentNames.agent].ip) {
+                            const data:heartbeat = {
+                                agentFrom: agentNames.agent,
+                                agentTo: (agentNames.agentType === "device")
+                                    ? serverVars.hashDevice
+                                    : serverVars.hashUser,
+                                agentType: agentNames.agentType,
+                                shares: {},
+                                shareType: agentNames.agentType,
+                                status: "offline"
+                            };
+                            vars.ws.broadcast(JSON.stringify({
+                                "heartbeat-complete": data
+                            }));
+                            if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
+                                error([
+                                    `Error sending or receiving heartbeat to ${agentNames.agentType} ${agentNames.agent}`,
+                                    errorMessage.toString()
+                                ]);
+                            }
+                        }
+                    },
+                    source: serverVars
+                });
             },
             httpConfig:httpConfiguration = {
                 agentType: "user",
-                callback: function terminal_server_heartbeat_broadcast_callback(responseBody:Buffer|string):void {
-                    vars.ws.broadcast(responseBody);
+                callback: function terminal_server_heartbeat_broadcast_callback(message:IncomingMessage):void {
+                    vars.ws.broadcast(message.toString());
                 },
-                callbackType: "body",
                 errorMessage: "",
                 id: "heartbeat",
                 ip: "",

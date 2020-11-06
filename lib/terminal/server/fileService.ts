@@ -102,7 +102,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
             }
         },
         // calls httpClient library for file system operations
-        httpRequest = function terminal_server_fileService_httpRequest(callback:httpCallback, errorMessage:string, type:"body"|"object") {
+        httpRequest = function terminal_server_fileService_httpRequest(callback:(message:IncomingMessage, headers:IncomingHttpHeaders) => void, errorMessage:string) {
             if (serverVars[data.agentType] === undefined || serverVars[data.agentType][data.agent] === undefined) {
                 error([`Count not resolve IP address for agent ${data.agent} of type ${data.agentType}.`]);
                 return;
@@ -141,10 +141,37 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         : data.share,
                     watch: data.watch
                 },
+                requestError = function terminal_server_fileService_httpRequest_requestError(httpError:nodeError):void {
+                    const copyStatus:copyStatus = {
+                            failures: [],
+                            message: data.id.slice(data.id.indexOf("|") + 1),
+                            target: data.id.slice(0, data.id.indexOf("|"))
+                        },
+                        fsRemote:fsRemote = {
+                            dirs: "missing",
+                            fail: [],
+                            id: (data.id.indexOf("|Copying ") > 0)
+                                ? JSON.stringify({
+                                    "file-list-status": copyStatus
+                                })
+                                : data.id
+                        };
+                    if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                        error([errorMessage, httpError.toString()]);
+                    }
+                    response(serverResponse, "application/json", JSON.stringify(fsRemote));
+                },
+                responseError = function terminal_server_fileService_httpRequest_responseError(httpError:nodeError):void {
+                    if (httpError.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                        log([errorMessage, errorMessage.toString()]);
+                        vars.ws.broadcast(JSON.stringify({
+                            error: errorMessage
+                        }));
+                    }
+                },
                 httpConfig:httpConfiguration = {
                     agentType: data.agentType,
                     callback: callback,
-                    callbackType: type,
                     errorMessage: errorMessage,
                     id: data.id,
                     ip: serverVars[data.agentType][data.agent].ip,
@@ -153,8 +180,10 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     }),
                     port: serverVars[data.agentType][data.agent].port,
                     remoteName: data.agent,
+                    requestError: requestError,
                     requestType: data.action,
-                    response: serverResponse
+                    response: serverResponse,
+                    responseError: responseError
                 };
             if (data.agentType === "user" && data.copyType !== "user") {
                 data.copyAgent = serverVars.hashUser;
@@ -220,20 +249,50 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                                     payload:string = JSON.stringify({
                                         "fs-update-remote": update
                                     }),
+                                    requestError = function terminal_server_fileService_watchHandler_remote_requestError(message:nodeError):void {
+                                        const copyStatus:copyStatus = {
+                                                failures: [],
+                                                message: data.id.slice(data.id.indexOf("|") + 1),
+                                                target: data.id.slice(0, data.id.indexOf("|"))
+                                            },
+                                            fsRemote:fsRemote = {
+                                                dirs: "missing",
+                                                fail: [],
+                                                id: (data.id.indexOf("|Copying ") > 0)
+                                                    ? JSON.stringify({
+                                                        "file-list-status": copyStatus
+                                                    })
+                                                    : data.id
+                                            };
+                                        if (message.code !== "ETIMEDOUT" && message.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                                            error([errorMessage, message.toString()]);
+                                        }
+                                        response(serverResponse, "application/json", JSON.stringify(fsRemote));
+                                    },
+                                    responseError = function terminal_server_fileService_watchHandler_remote_responseError(message:nodeError):void {
+                                        if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                                            log([errorMessage, errorMessage.toString()]);
+                                            vars.ws.broadcast(JSON.stringify({
+                                                error: errorMessage
+                                            }));
+                                        }
+                                    },
+                                    errorMessage:string = `Error related to remote file system watch at ${data.agent}.`,
                                     httpConfig:httpConfiguration = {
                                         agentType: data.agentType,
-                                        callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(responseBody:Buffer|string):void {
-                                            response(serverResponse, "application/json", responseBody);
+                                        callback: function terminal_server_fileService_watchHandler_remote_directoryCallback(message:IncomingMessage):void {
+                                            response(serverResponse, "application/json", message.toString());
                                         },
-                                        callbackType: "body",
-                                        errorMessage: `Error related to remote file system watch at ${data.agent}.`,
+                                        errorMessage: errorMessage,
                                         id: "",
                                         ip: serverVars[data.agentType][data.agent].ip,
                                         payload: payload,
                                         port: serverVars[data.agentType][data.agent].port,
                                         remoteName: data.agent,
+                                        requestError: requestError,
                                         requestType: data.action,
-                                        response: serverResponse
+                                        response: serverResponse,
+                                        responseError: responseError
                                     };
                                 httpClient(httpConfig);
                             },
@@ -394,11 +453,11 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                                 data.action = "fs-cut-remove";
                                 data.name = JSON.stringify(types);
                                 data.watch = fileData.list[0][0].slice(0, fileData.list[0][0].lastIndexOf(fileData.list[0][2])).replace(/(\/|\\)+$/, "");
-                                httpRequest(function terminal_server_fileService_requestFiles_respond_cut_cutCall(responseBody:string|Buffer):void {
-                                    if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
-                                        vars.ws.broadcast(responseBody);
+                                httpRequest(function terminal_server_fileService_requestFiles_respond_cut_cutCall(message:IncomingMessage):void {
+                                    if (message.toString().indexOf("{\"fs-update-remote\":") === 0) {
+                                        vars.ws.broadcast(message.toString());
                                     }
-                                }, "Error requesting file removal for fs-cut.", "body");
+                                }, "Error requesting file removal for fs-cut.");
                             }
                         };
                     vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
@@ -605,7 +664,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_server_fileService_requestFiles_requestFile():void {
-                    const writeCallback:httpCallback = (fileData.stream === true)
+                    const writeCallback:(message:IncomingMessage, headers:IncomingHttpHeaders) => void = (fileData.stream === true)
                         ? writeStream
                         : fileRequestCallback;
                     vars.testLogger("fileService", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
@@ -624,7 +683,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     }
                     data.location = [fileData.list[a][0]];
                     data.remoteWatch = fileData.list[a][2];
-                    httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${serverVars[data.agentType][data.agent].name}`, "object");
+                    httpRequest(writeCallback, `Error on requesting file ${fileData.list[a][2]} from ${serverVars[data.agentType][data.agent].name}`);
                     if (fileData.stream === false) {
                         a = a + 1;
                         if (a < listLength) {
@@ -717,7 +776,7 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                 vars.testLogger("fileService", "remote user and remote device", "Forwarding request to a remote user's other device on which the share resides");
                 data.agent = remoteUsers[0];
                 data.agentType = "device";
-                httpRequest(function terminal_server_fileService_tasks_removeUserRemoteDevice(responseBody:string|Buffer, headers:IncomingHttpHeaders):void {
+                httpRequest(function terminal_server_fileService_tasks_removeUserRemoteDevice(message:IncomingMessage, headers:IncomingHttpHeaders):void {
                     if (headers.file_name !== undefined) {
                         serverResponse.setHeader("hash", headers.hash);
                         serverResponse.setHeader("file_name", headers.file_name);
@@ -725,13 +784,13 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         serverResponse.setHeader("cut_path", headers.cut_path);
                         serverResponse.setHeader("compression", headers.compression);
                     }
-                    response(serverResponse, "application/json", responseBody);
-                }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`, "body");
+                    response(serverResponse, "application/json", message.toString());
+                }, `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`);
             } else if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
                 vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
-                httpRequest(function terminal_server_fileService_tasks_genericHTTP(responseBody:string|Buffer):void {
-                    response(serverResponse, "application/json", responseBody);
-                }, `Error requesting ${data.action} from remote.`, "body");
+                httpRequest(function terminal_server_fileService_tasks_genericHTTP(message:IncomingMessage):void {
+                    response(serverResponse, "application/json", message.toString());
+                }, `Error requesting ${data.action} from remote.`);
             } else if (data.action === "fs-directory" || data.action === "fs-details") {
                 if (localDevice === true || (localDevice === false && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
                     const callback = function terminal_server_fileService_tasks_putCallback(result:directoryList):void {
@@ -822,14 +881,14 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                 } else {
                     vars.testLogger("fileService", "fs-details remote", "Get directory data from a remote agent without setting a file system watch.");
                     // remote file server access
-                    httpRequest(function terminal_server_fileService_tasks_remoteFileAccess(responseBody:string|Buffer):void {
-                        if (responseBody.indexOf("{\"fs-update-remote\":") === 0) {
-                            vars.ws.broadcast(responseBody);
+                    httpRequest(function terminal_server_fileService_tasks_remoteFileAccess(message:IncomingMessage):void {
+                        if (message.toString().indexOf("{\"fs-update-remote\":") === 0) {
+                            vars.ws.broadcast(message.toString());
                             response(serverResponse, "text/plain", "Terminal received file system response from remote.");
                         } else {
-                            response(serverResponse, "application/json", responseBody);
+                            response(serverResponse, "application/json", message.toString());
                         }
-                    }, `Error on reading from remote file system at agent ${data.agent}`, "body");
+                    }, `Error on reading from remote file system at agent ${data.agent}`);
                 }
             } else if (data.action === "fs-close") {
                 vars.testLogger("fileService", "fs-close", "Close a file system watch.");
@@ -854,9 +913,9 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         const listData:remoteCopyList = {
                             callback: function terminal_server_fileService_tasks_remoteListCallback(listData:remoteCopyListData):void {
                                 const httpCall = function terminal_server_fileService_tasks_remoteListCallback_http():void {
-                                        httpRequest(function terminal_server_fileService_tasks_remoteListCallback_http_request(responseBody:string|Buffer):void {
-                                            response(serverResponse, "application/json", responseBody);
-                                        }, "Error sending list of files to remote for copy from local device.", "body");
+                                        httpRequest(function terminal_server_fileService_tasks_remoteListCallback_http_request(message:IncomingMessage):void {
+                                            response(serverResponse, "application/json", message.toString());
+                                        }, "Error sending list of files to remote for copy from local device.");
                                     },
                                     hashCallback = function terminal_server_fileService_tasks_remoteListCallback_hash(hashOutput:hashOutput):void {
                                         data.copyAgent = serverVars.hashUser;
@@ -899,17 +958,17 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                         data.copyAgent = serverVars.hashUser;
                         data.copyType = "user";
                     }
-                    httpRequest(function terminal_server_fileService_tasks_httpCopy(responseBody:string|Buffer):void {
-                        requestFiles(JSON.parse(<string>responseBody));
-                    }, "Error copying from remote to local device", "body");
+                    httpRequest(function terminal_server_fileService_tasks_httpCopy(message:IncomingMessage):void {
+                        requestFiles(JSON.parse(message.toString()));
+                    }, "Error copying from remote to local device");
                 } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
                     // * data.agent === sameRemoteAgent
                     // * data.agent === sameRemoteAgent
                     vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");
                     data.action = <serviceType>`${data.action}-self`;
-                    httpRequest(function terminal_server_fileService_tasks_sameRemote(responseBody:string|Buffer):void {
-                        response(serverResponse, "application/json", responseBody);
-                    }, `Error copying files to and ${data.agentType} ${serverVars[data.agentType][data.agent].name}.`, "body");
+                    httpRequest(function terminal_server_fileService_tasks_sameRemote(message:IncomingMessage):void {
+                        response(serverResponse, "application/json", message.toString());
+                    }, `Error copying files to and ${data.agentType} ${serverVars[data.agentType][data.agent].name}.`);
                 } else {
                     // * data.agent === remoteAgent
                     // * data.copyAgent === differentRemoteAgent
@@ -918,22 +977,22 @@ const fileService = function terminal_server_fileService(serverResponse:ServerRe
                     data.action = <serviceType>`${data.action}-list-remote`;
                     data.remoteWatch = serverVars.hashDevice;
                     data.watch = "third party action";
-                    httpRequest(function terminal_server_fileService_tasks_httpRemoteRemote(responseBody:string|Buffer):void {
+                    httpRequest(function terminal_server_fileService_tasks_httpRemoteRemote(message:IncomingMessage):void {
                         //console.log("");
                         //console.log("responseBody");
                         //console.log(responseBody);
                         //requestFiles(JSON.parse(<string>responseBody));
-                        log([<string>responseBody]);
-                    }, "Error copying from remote to local device", "body");
+                        log([message.toString()]);
+                    }, "Error copying from remote to local device");
                 }
             } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
                 // issue a fs-copy-list on an agent from a different agent
                 vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
                 reverseAgents();
                 data.action = <serviceType>`${data.action.replace("-remote", "")}`;
-                httpRequest(function terminal_server_fileService_tasks_httpCopyRemote(responseBody:string|Buffer):void {
-                    requestFiles(JSON.parse(<string>responseBody));
-                }, "Error copying from remote to local device", "body");
+                httpRequest(function terminal_server_fileService_tasks_httpCopyRemote(message:IncomingMessage):void {
+                    requestFiles(JSON.parse(message.toString()));
+                }, "Error copying from remote to local device");
             } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
                 // respond with a single file
                 // * generated internally from function requestFiles

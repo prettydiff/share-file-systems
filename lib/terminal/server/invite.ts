@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
-import { ServerResponse } from "http";
+import { IncomingMessage, ServerResponse } from "http";
 
 import common from "../../common/common.js";
 
@@ -33,12 +33,11 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                 }()),
                 httpConfig:httpConfiguration = {
                     agentType: data.type,
-                    callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
+                    callback: function terminal_server_invite_request_callback(message:IncomingMessage):void {
                         if (vars.command.indexOf("test") !== 0) {
-                            log([<string>responseBody]);
+                            log([message.toString()]);
                         }
                     },
-                    callbackType: "body",
                     errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
                     id: "",
                     ip: ip,

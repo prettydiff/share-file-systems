@@ -3,6 +3,7 @@
 
 import { ServerResponse } from "http";
 
+import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
@@ -11,20 +12,33 @@ const message = function terminal_server_message(messageText:string, serverRespo
     const data:messageItem = JSON.parse(messageText).message,
         list:agents = serverVars[data.agentType],
         agents:string[] = Object.keys(list),
+        requestError = function terminal_server_message_requestError(message:nodeError):void {
+            error([errorMessage, message.toString()]);
+        },
+        responseError = function terminal_server_message_responseError(message:nodeError):void {
+            if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                error([errorMessage, errorMessage.toString()]);
+                vars.ws.broadcast(JSON.stringify({
+                    error: errorMessage
+                }));
+            }
+        },
+        errorMessage:string = `Failed to send text message to ${data.agentTo}`,
         config:httpConfiguration = {
             agentType: data.agentType,
             callback: function terminal_server_message_singleCallback():void {
                 return;
             },
-            callbackType: "object",
-            errorMessage: `Failed to send text message to ${data.agentTo}`,
+            errorMessage: errorMessage,
             id: "",
             ip: list[data.agentTo].ip,
             payload: messageText,
             port: list[data.agentTo].port,
             remoteName: data.agentTo,
+            requestError: requestError,
             requestType: "message",
-            response: serverResponse
+            response: serverResponse,
+            responseError: responseError
         };
     if (data.agentFrom === data.agentTo) {
         // broadcast
