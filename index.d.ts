@@ -373,7 +373,7 @@ declare global {
     }
     interface httpConfiguration {
         agentType: agentType,
-        callback: (message:IncomingMessage, headers:IncomingHttpHeaders) => void;
+        callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         errorMessage: string;
         id: string;
         ip: string;
@@ -384,6 +384,7 @@ declare global {
         requestType: string;
         response: ServerResponse;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
+        stream?: (message:IncomingMessage) => void;
     }
     interface httpServer extends Server {
         port: number;

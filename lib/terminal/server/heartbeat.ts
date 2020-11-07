@@ -73,7 +73,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             },
             httpConfig:httpConfiguration = {
                 agentType: "user",
-                callback: function terminal_server_heartbeat_broadcast_callback(message:IncomingMessage):void {
+                callback: function terminal_server_heartbeat_broadcast_callback(message:Buffer|string):void {
                     vars.ws.broadcast(message.toString());
                 },
                 errorMessage: "",

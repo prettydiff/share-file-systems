@@ -33,7 +33,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                 }()),
                 httpConfig:httpConfiguration = {
                     agentType: data.type,
-                    callback: function terminal_server_invite_request_callback(message:IncomingMessage):void {
+                    callback: function terminal_server_invite_request_callback(message:Buffer|string):void {
                         if (vars.command.indexOf("test") !== 0) {
                             log([message.toString()]);
                         }
