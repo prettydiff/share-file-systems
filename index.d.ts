@@ -474,7 +474,7 @@ declare global {
         paste?: EventHandlerNonNull;
         type: contextType;
     }
-    interface module_fs {
+    interface module_fileBrowser {
         back?: EventHandlerNonNull;
         directory?: EventHandlerNonNull;
         drag?: EventHandlerNonNull;
@@ -536,7 +536,7 @@ declare global {
     }
     interface module_network {
         deleteAgents?: (deleted:agentList) => void;
-        fs?: (localService, callback:Function, id?:string) => void;
+        fileBrowser?: (localService, callback:Function, id?:string) => void;
         hashDevice?: (callback:Function) => void;
         hashShare?: (configuration:hashShareConfiguration) => void;
         heartbeat?: (status:heartbeatStatus, update:boolean) => void;

@@ -3,7 +3,7 @@
 
 import browser from "./browser.js";
 import context from "./context.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import dom from "./dom.js";
 import invite from "./invite.js";
 import message from "./message.js";
@@ -188,7 +188,7 @@ import webSocket from "./webSocket.js";
             allUser.onclick = shareAll;
             document.getElementById("minimize-all").onclick = util.minimizeAll;
             browser.menu.export.onclick = modal.export;
-            browser.menu.fileNavigator.onclick = fs.navigate;
+            browser.menu.fileNavigator.onclick = fileBrowser.navigate;
             browser.menu.settings.onclick = settings.modal;
             browser.menu.textPad.onclick = modal.textPad;
             browser.menu["user-delete"].onclick = share.deleteList;
@@ -358,7 +358,7 @@ import webSocket from "./webSocket.js";
                                                 }
                                                 return [p, 0, ""];
                                             }())
-                                            : fs.list(modalItem.text_value, payload);
+                                            : fileBrowser.list(modalItem.text_value, payload);
                                     files[0].removeAttribute("title");
                                     if (responseText !== "") {
                                         const fsModal:Element = document.getElementById(id);
@@ -366,7 +366,7 @@ import webSocket from "./webSocket.js";
                                             return;
                                         }
                                         let body:Element = fsModal.getElementsByClassName("body")[0];
-                                        fs.listFail(files[1], fsModal);
+                                        fileBrowser.listFail(files[1], fsModal);
                                         body.innerHTML = "";
                                         body.appendChild(files[0]);
                                         selection(id);
@@ -378,10 +378,10 @@ import webSocket from "./webSocket.js";
                                 const delay:Element = util.delay();
                                 modalItem.content = delay;
                                 modalItem.id = value;
-                                modalItem.text_event = fs.text;
+                                modalItem.text_event = fileBrowser.text;
                                 modal.create(modalItem);
                                 search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                fs.search(null, search, function browser_init_modalKeys_searchCallback():void {
+                                fileBrowser.search(null, search, function browser_init_modalKeys_searchCallback():void {
                                     selection(value);
                                 });
                                 z(value);
@@ -389,10 +389,10 @@ import webSocket from "./webSocket.js";
                                 const delay:Element = util.delay();
                                 modalItem.content = delay;
                                 modalItem.id = value;
-                                modalItem.text_event = fs.text;
+                                modalItem.text_event = fileBrowser.text;
                                 modal.create(modalItem);
                                 z(value);
-                                network.fs(payload, callback);
+                                network.fileBrowser(payload, callback);
                             }
                         } else if (modalItem.type === "textPad" || modalItem.type === "export") {
                             const textArea:HTMLTextAreaElement = document.createElement("textarea");

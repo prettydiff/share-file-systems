@@ -1,7 +1,7 @@
 
 /* lib/browser/modal - A collection of utilities for generating and manipulating modals/windows in the browser. */
 import browser from "./browser.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
 import message from "./message.js";
 import network from "./network.js";
@@ -241,25 +241,25 @@ modal.create = function browser_modal_create(options:ui_modal):Element {
                 button.innerHTML = "◀<span>Previous address</span>";
                 button.setAttribute("class", "backDirectory");
                 button.setAttribute("title", "Back to previous address");
-                button.onclick = fs.back;
+                button.onclick = fileBrowser.back;
                 extra.appendChild(button);
                 button = document.createElement("button");
                 button.innerHTML = "↺<span>Reload</span>";
                 button.setAttribute("class", "reloadDirectory");
                 button.setAttribute("title", "Reload directory");
-                button.onclick = fs.text;
+                button.onclick = fileBrowser.text;
                 extra.appendChild(button);
                 button = document.createElement("button");
                 button.innerHTML = "▲<span>Parent directory</span>";
                 button.setAttribute("class", "parentDirectory");
                 button.setAttribute("title", "Parent directory");
-                button.onclick = fs.parent;
+                button.onclick = fileBrowser.parent;
                 extra.appendChild(button);
                 search.type = "text";
                 search.placeholder = "⌕ Search";
-                search.onblur = fs.search;
-                search.onfocus = fs.searchFocus;
-                search.onkeyup = fs.search;
+                search.onblur = fileBrowser.search;
+                search.onfocus = fileBrowser.searchFocus;
+                search.onkeyup = fileBrowser.search;
                 if (options.search !== undefined && options.search[1] !== "") {
                     search.value = options.search[1];
                 } else {
@@ -310,7 +310,7 @@ modal.create = function browser_modal_create(options:ui_modal):Element {
             button = document.createElement("button");
             button.innerHTML = "🖫 Save File";
             button.setAttribute("class", "save");
-            button.onclick = fs.saveFile;
+            button.onclick = fileBrowser.saveFile;
             extra.appendChild(button);
         }
         if (options.inputs.indexOf("confirm") > -1) {
@@ -660,8 +660,8 @@ modal.move = function browser_modal_move(event:Event):void {
         return;
     }
     event.preventDefault();
-    border.style.opacity = ".5";
-    box.style.height   = ".1em";
+    border.style.opacity = "0.5";
+    box.style.height   = "0.1em";
     if (touch === true) {
         document.ontouchmove  = boxMove;
         document.ontouchstart = null;

@@ -1,7 +1,7 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
 import browser from "./browser.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import share from "./share.js";
@@ -156,7 +156,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
         }
         a = a + 1;
     } while (a < length);
-    network.fs(payloadNetwork, callback);
+    network.fileBrowser(payloadNetwork, callback);
     context.element = null;
     context.type = "";
 };
@@ -182,7 +182,7 @@ context.destroy = function browser_context_destroy():void {
             watch: "no"
         },
         callback = function browser_context_destroy_callback(responseText:string):void {
-            const list:[Element, number, string] = fs.list(payload.name, JSON.parse(responseText)),
+            const list:[Element, number, string] = fileBrowser.list(payload.name, JSON.parse(responseText)),
                 body:Element = box.getElementsByClassName("body")[0],
                 count:number = payload.location.length,
                 plural:string = (count === 1)
@@ -205,7 +205,7 @@ context.destroy = function browser_context_destroy():void {
             payload.location.push(value[0]);
         });
     }
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
     context.element = null;
 };
 
@@ -538,7 +538,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
     if (browser.loadTest === true) {
         return;
     }
-    network.fs(payloadNetwork, callback);
+    network.fileBrowser(payloadNetwork, callback);
     context.element = null;
 };
 
@@ -581,7 +581,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                     };
                 if (value.replace(/\s+/, "") !== "") {
                     actionParent.innerHTML = payload.location[0];
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             } else {
                 if (actionEvent.key === "Escape") {
@@ -618,7 +618,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                             return;
                         };
                     actionParent.innerHTML = payload.location[0];
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             }
         },
@@ -650,7 +650,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
 
             li.setAttribute("class", type);
             if (type === "directory") {
-                li.ondblclick = fs.directory;
+                li.ondblclick = fileBrowser.directory;
             }
             path = box.getElementsByTagName("input")[0].value;
             if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
@@ -665,7 +665,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             label.appendChild(input);
             label.setAttribute("class", "selection");
             text.oncontextmenu = context.menu;
-            text.onclick = fs.select;
+            text.onclick = fileBrowser.select;
             text.innerHTML = path;
             field.onkeyup = actionKeyboard;
             field.onblur = actionBlur;
@@ -675,12 +675,12 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             text.appendChild(field);
             li.appendChild(text);
             span = document.createElement("span");
-            span.onclick = fs.select;
+            span.onclick = fileBrowser.select;
             span.oncontextmenu = context.menu;
             li.appendChild(span);
             li.oncontextmenu = context.menu;
             li.appendChild(label);
-            li.onclick = fs.select;
+            li.onclick = fileBrowser.select;
             if (context.element.nodeName.toLowerCase() === "ul") {
                 context.element.appendChild(li);
             } else {
@@ -810,7 +810,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    button.onclick = fs.rename;
+                    button.onclick = fileBrowser.rename;
                 }
                 item.appendChild(button);
                 itemList.push(item);
@@ -975,7 +975,7 @@ context.paste = function browser_context_paste():void {
     if (clipboard === "") {
         return;
     }
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
     context.element = null;
 };
 

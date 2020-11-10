@@ -3,7 +3,7 @@
 import audio from "./audio.js";
 import browser from "./browser.js";
 import context from "./context.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import network from "./network.js";
 import share from "./share.js";
 
@@ -304,13 +304,13 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                     if (liLocation[a].bottom >= dragArea.bottom) {
                         // drag area covering only a single list item
                         if (event.ctrlKey === true) {
-                            fs.dragFlag = "control";
+                            fileBrowser.dragFlag = "control";
                             li[a].click();
-                            fs.dragFlag = "";
+                            fileBrowser.dragFlag = "";
                         } else if (event.shiftKey === true) {
-                            fs.dragFlag = "shift";
+                            fileBrowser.dragFlag = "shift";
                             li[a].click();
-                            fs.dragFlag = "";
+                            fileBrowser.dragFlag = "";
                         } else {
                             li[a].click();
                         }
@@ -329,7 +329,7 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                 a = a + 1;
             } while (a < length);
             if (event.ctrlKey === true) {
-                fs.dragFlag = "control";
+                fileBrowser.dragFlag = "control";
                 a = first;
                 last = last + 1;
                 do {
@@ -341,10 +341,10 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
                     li[first].click();
                 }
                 li[first].click();
-                fs.dragFlag = "shift";
+                fileBrowser.dragFlag = "shift";
                 li[last].click();
             }
-            fs.dragFlag = "";
+            fileBrowser.dragFlag = "";
         }
     }
     return;
@@ -411,7 +411,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
                     id = modals[a].getAttribute("id");
                     body = modals[a].getElementsByClassName("body")[0];
                     body.innerHTML = "";
-                    list = fs.list(browser.data.modals[id].text_value, {
+                    list = fileBrowser.list(browser.data.modals[id].text_value, {
                         dirs: data.fileList,
                         fail: [],
                         id: id
@@ -482,7 +482,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
         return;
     }
     if (key === "Enter" && element.nodeName.toLowerCase() === "li" && element.getAttribute("class") === "directory selected" && util.selectedAddresses(element, "directory").length === 1) {
-        fs.directory(event);
+        fileBrowser.directory(event);
         return;
     }
     event.preventDefault();
@@ -520,7 +520,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             context.dataString(event);
         } else if ((key === "r" || key === "R") && element.nodeName.toLowerCase() === "li") {
             // key r, rename
-            fs.rename(event);
+            fileBrowser.rename(event);
         } else if (key === "s" || key === "S") {
             // key s, share
             context.element = element;

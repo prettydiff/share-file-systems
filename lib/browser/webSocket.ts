@@ -1,7 +1,7 @@
 
 /* lib/browser/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 import browser from "./browser.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
 import message from "./message.js";
 import network from "./network.js";
@@ -39,7 +39,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.hashDevice) {
                         const box:Element = document.getElementById(modalKeys[a]),
                             body:Element = box.getElementsByClassName("body")[0],
-                            list:[Element, number, string] = fs.list(root, {
+                            list:[Element, number, string] = fileBrowser.list(root, {
                                 dirs: fsData,
                                 fail: fsData.failures,
                                 id: modalKeys[a]
@@ -67,12 +67,12 @@ const title:Element = document.getElementsByClassName("title")[0],
                     callback = function browser_socketMessage_closeCallback():boolean {
                         return true;
                     };
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             },
             fsUpdateRemote = function browser_socketMessage_fsUpdateRemote():void {
                 const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
-                    list:[Element, number, string] = fs.list(data.location, {
+                    list:[Element, number, string] = fileBrowser.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
                         fail: data.fail

@@ -22,7 +22,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/browser.ts](../lib/browser/browser.ts)**                                                     - A list of declared variables globally available to the browser instance of the application.
    - **[../lib/browser/context.ts](../lib/browser/context.ts)**                                                     - A collection of event handlers associated with the right click context menu.
    - **[../lib/browser/dom.ts](../lib/browser/dom.ts)**                                                             - Extensions to the DOM to provide navigational functionality not present from the standard methods
-   - **[../lib/browser/fs.ts](../lib/browser/fs.ts)**                                                               - A collection of utilities for handling file system related tasks in the browser.
+   - **[../lib/browser/fileBrowser.ts](../lib/browser/fileBrowser.ts)**                                             - A collection of utilities for handling file system related tasks in the browser.
    - **[../lib/browser/invite.ts](../lib/browser/invite.ts)**                                                       - A collection of utilities for processing invitation related tasks.
    - **[../lib/browser/localhost.ts](../lib/browser/localhost.ts)**                                                 - The file that is sourced into the index.html file and generates the default browser experience.
    - **[../lib/browser/message.ts](../lib/browser/message.ts)**                                                     - A library for executing the text messaging application.

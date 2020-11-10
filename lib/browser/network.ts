@@ -20,7 +20,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
 };
 
 /* Accesses the file system */
-network.fs = function local_network_fs(configuration:fileService, callback:Function):void {
+network.fileBrowser = function local_network_fileBrowser(configuration:fileService, callback:Function):void {
     network.xhr({
         callback: function local_network_fs_callback(responseText:string) {
             responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");

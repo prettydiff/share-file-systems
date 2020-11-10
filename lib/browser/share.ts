@@ -5,7 +5,7 @@ import common from "../common/common.js";
 
 import browser from "./browser.js";
 import context from "./context.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import message from "./message.js";
 import modal from "./modal.js";
 import network from "./network.js";
@@ -97,7 +97,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
             } else {
                 address = path;
             }
-            fs.navigate(event, {
+            fileBrowser.navigate(event, {
                 agentName: agent,
                 agentType: agentType,
                 path: address,
@@ -112,7 +112,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                 button.setAttribute("class", "file-system-root");
                 button.innerHTML = "File System Root";
                 button.onclick = function browser_share_content_perAgent_fsRoot():void {
-                    fs.navigate(null, {
+                    fileBrowser.navigate(null, {
                         agentName: hash,
                         agentType: "device",
                         path: "**root**",

@@ -1,5 +1,5 @@
 
-/* lib/browser/fs - A collection of utilities for handling file system related tasks in the browser. */
+/* lib/browser/fileBrowser - A collection of utilities for handling file system related tasks in the browser. */
 import browser from "./browser.js";
 import context from "./context.js";
 import modal from "./modal.js";
@@ -8,10 +8,10 @@ import util from "./util.js";
 
 import common from "../common/common.js";
 
-const fs:module_fs = {};
+const fileBrowser:module_fileBrowser = {};
 
 /* step back through a modal's address history */
-fs.back = function browser_fs_back(event:MouseEvent):void {
+fileBrowser.back = function browser_fileBrowser_back(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -21,12 +21,12 @@ fs.back = function browser_fs_back(event:MouseEvent):void {
     if (history.length > 1) {
         history.pop();
         address.value = history[history.length - 1];
-        fs.text(event);
+        fileBrowser.text(event);
     }
 };
 
 /* navigate into a directory by double click */
-fs.directory = function browser_fs_directory(event:MouseEvent):void {
+fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent):void {
     const element:HTMLInputElement = <HTMLInputElement>event.target,
         li:Element = (element.nodeName.toLowerCase() === "li")
             ? element
@@ -37,11 +37,11 @@ fs.directory = function browser_fs_directory(event:MouseEvent):void {
         path:string = li.getElementsByTagName("label")[0].innerHTML,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
-        callback = function browser_fs_directory_callback(responseText:string):void {
-            const list:[Element, number, string] = fs.list(path, JSON.parse(responseText));
+        callback = function browser_fileBrowser_directory_callback(responseText:string):void {
+            const list:[Element, number, string] = fileBrowser.list(path, JSON.parse(responseText));
             body.innerHTML = "";
             body.appendChild(list[0]);
-            fs.listFail(list[1], box);
+            fileBrowser.listFail(list[1], box);
             browser.data.modals[box.getAttribute("id")].text_value = path;
             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
             network.storage("settings");
@@ -62,13 +62,13 @@ fs.directory = function browser_fs_directory(event:MouseEvent):void {
     event.preventDefault();
     input.value = path;
     browser.data.modals[box.getAttribute("id")].history.push(path);
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
 };
 
 /* drag and drop of selected list items */
-fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
+fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent):void {
     const element:Element = <Element>event.target,
-        item:Element = (function browser_fs_drag_item():Element {
+        item:Element = (function browser_fileBrowser_drag_item():Element {
             let el:Element = element;
             if (el.nodeName.toLowerCase() !== "label" && el.nodeName.toLowerCase() !== "span") {
                 event.preventDefault();
@@ -78,7 +78,7 @@ fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
             }
             return el.getAncestor("li", "tag");
         }()),
-        fileList:Element = (function browser_fs_drag_fileList():Element {
+        fileList:Element = (function browser_fileBrowser_drag_fileList():Element {
             let parent:Element = <Element>element.parentNode;
             if (parent.parentNode.nodeName.toLowerCase() !== "div") {
                 do {
@@ -98,10 +98,10 @@ fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
         right:number = left+ + body.clientWidth,
         touch:boolean = (event !== null && event.type === "touchstart"),
         list:HTMLElement = document.createElement("ul"),
-        mouseDown = function browser_fs_drag_document(documentEvent:MouseEvent):void {
+        mouseDown = function browser_fileBrowser_drag_document(documentEvent:MouseEvent):void {
             documentEvent.preventDefault();
         },
-        drop = function browser_fs_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
+        drop = function browser_fileBrowser_drag_drop(dropEvent:MouseEvent|TouchEvent):void {
             if (list.parentNode !== null) {
                 list.parentNode.removeChild(list);
             }
@@ -116,7 +116,7 @@ fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
                 return;
             }
             let id:string = "";
-            const addresses:string[] = (function browser_fs_drag_drop_addresses():string[] {
+            const addresses:string[] = (function browser_fileBrowser_drag_drop_addresses():string[] {
                     const output:string[] = [],
                         children:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li"),
                         len:number = children.length;
@@ -139,7 +139,7 @@ fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
                 clientY:number = (touch === true)
                     ? touchDrop.touches[0].clientY
                     : mouseDrop.clientY,
-                target:string = (function browser_fs_drag_drop_target():string {
+                target:string = (function browser_fileBrowser_drag_drop_target():string {
                     const ul = browser.content.getElementsByClassName("fileList"),
                         length:number = ul.length;
                     let a:number = 0,
@@ -198,15 +198,15 @@ fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
                     share    : browser.data.modals[id].share,
                     watch    : "no"
                 },
-                callback = function browser_fs_drag_drop_callback():void {
+                callback = function browser_fileBrowser_drag_drop_callback():void {
                     return;
                 };
             if (target === "") {
                 return;
             }
-            network.fs(payload, callback);
+            network.fileBrowser(payload, callback);
         },
-        move = function browser_fs_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
+        move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
                     ? <TouchEvent>moveEvent
                     : null, 
@@ -288,10 +288,10 @@ fs.drag = function browser_fs_drag(event:MouseEvent|TouchEvent):void {
     }
 };
 
-fs.dragFlag = "";
+fileBrowser.dragFlag = "";
 
 /* Shows child elements of a directory */
-fs.expand = function browser_fs_expand(event:MouseEvent):void {
+fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void {
     const button:Element = <Element>event.target,
         box:Element = button.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -311,13 +311,13 @@ fs.expand = function browser_fs_expand(event:MouseEvent):void {
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
-            callback = function browser_fs_expand_callback(responseText:string) {
-                const list:[Element, number, string] = fs.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
+            callback = function browser_fileBrowser_expand_callback(responseText:string) {
+                const list:[Element, number, string] = fileBrowser.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
                 li.appendChild(list[0]);
             };
         button.innerHTML = "-<span>Collapse this folder</span>";
         button.setAttribute("title", "Collapse this folder");
-        network.fs(payload, callback);
+        network.fileBrowser(payload, callback);
     } else {
         const ul:HTMLCollectionOf<HTMLUListElement> = li.getElementsByTagName("ul");
         button.innerHTML = "+<span>Expand this folder</span>";
@@ -330,7 +330,7 @@ fs.expand = function browser_fs_expand(event:MouseEvent):void {
 };
 
 /* Builds the HTML file list */
-fs.list = function browser_fs_list(location:string, dirData:fsRemote):[Element, number, string] {
+fileBrowser.list = function browser_fileBrowser_list(location:string, dirData:fsRemote):[Element, number, string] {
     const local:directoryList = [],
         list:directoryList = <directoryList>dirData.dirs,
         length:number = list.length,
@@ -340,7 +340,7 @@ fs.list = function browser_fs_list(location:string, dirData:fsRemote):[Element, 
             : dirData.fail.length,
         box:Element = document.getElementById(dirData.id),
         count:[number, number, number, number] = [0, 0, 0, 0],
-        plural = function browser_fs_list_plural(input:string, quantity:number):string {
+        plural = function browser_fileBrowser_list_plural(input:string, quantity:number):string {
             if (quantity === 1) {
                 return input;
             }
@@ -393,7 +393,7 @@ fs.list = function browser_fs_list(location:string, dirData:fsRemote):[Element, 
     status = (location === "\\")
         ? `${count[0]} ${plural("drive", list.length)}`
         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
-    local.sort(function browser_fs_list_sort(a:directoryItem, b:directoryItem):number {
+    local.sort(function browser_fileBrowser_list_sort(a:directoryItem, b:directoryItem):number {
         // when types are the same
         if (a[1] === b[1]) {
             if (a[0].toLowerCase() < b[0].toLowerCase()) {
@@ -421,20 +421,19 @@ fs.list = function browser_fs_list(location:string, dirData:fsRemote):[Element, 
         do {
             if (local[a][0] !== "\\" && local[a][0] !== "/") {
                 if (a < localLength - 1 && local[a + 1][1] !== local[a][1]) {
-                    output.appendChild(fs.listItem(local[a], "lastType"));
+                    output.appendChild(fileBrowser.listItem(local[a], "lastType"));
                 } else {
-                    output.appendChild(fs.listItem(local[a], ""));
+                    output.appendChild(fileBrowser.listItem(local[a], ""));
                 }
             }
             a = a + 1;
         } while (a < localLength);
     }
     output.tabIndex = 0;
-    output.title = list[0][0];
     output.oncontextmenu = context.menu;
     output.onkeydown = util.keys;
-    output.onclick = fs.listFocus;
-    output.onmousedown = function browser_fs_list_dragSelect(event:MouseEvent):void {
+    output.onclick = fileBrowser.listFocus;
+    output.onmousedown = function browser_fileBrowser_list_dragSelect(event:MouseEvent):void {
         util.dragBox(event, util.dragList);
     };
     output.setAttribute("class", "fileList");
@@ -442,7 +441,7 @@ fs.list = function browser_fs_list(location:string, dirData:fsRemote):[Element, 
 };
 
 /* Display status information when the Operating system locks files from access */
-fs.listFail = function browser_fs_listFail(count:number, box:Element):void {
+fileBrowser.listFail = function browser_fileBrowser_listFail(count:number, box:Element):void {
     const statusBar:Element = box.getElementsByClassName("status-bar")[0],
         p:Element = statusBar.getElementsByTagName("p")[0],
         ul:Element = statusBar.getElementsByTagName("ul")[0],
@@ -460,7 +459,7 @@ fs.listFail = function browser_fs_listFail(count:number, box:Element):void {
 };
 
 /* When clicking on a file list give focus to an input field so that the list can receive focus */
-fs.listFocus = function browser_fs_listFocus(event:MouseEvent):void {
+fileBrowser.listFocus = function browser_fileBrowser_listFocus(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         listItems:HTMLCollectionOf<Element> = element.getElementsByTagName("li"),
         inputs:HTMLCollectionOf<HTMLElement> = (listItems.length > 0)
@@ -475,12 +474,12 @@ fs.listFocus = function browser_fs_listFocus(event:MouseEvent):void {
 };
 
 /* Build a single file system object from data */
-fs.listItem = function browser_fs_listItem(item:directoryItem, extraClass:string):Element {
+fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem, extraClass:string):Element {
     const li:HTMLElement = document.createElement("li"),
         label:HTMLLabelElement = document.createElement("label"),
         text:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
-        mouseOver = function browser_fs_listItem_mouseOver(event:MouseEvent):void {
+        mouseOver = function browser_fileBrowser_listItem_mouseOver(event:MouseEvent):void {
             const dragBox:Element = document.getElementById("dragBox"),
                 element:HTMLElement = <HTMLElement>event.target;
             if (dragBox !== null) {
@@ -507,7 +506,7 @@ fs.listItem = function browser_fs_listItem(item:directoryItem, extraClass:string
             button.setAttribute("class", "expansion");
             button.innerHTML = "+<span>Expand this folder</span>";
             button.setAttribute("title", "Expand this folder");
-            button.onclick = fs.expand;
+            button.onclick = fileBrowser.expand;
             li.appendChild(button);
         }
         span = document.createElement("span");
@@ -517,7 +516,7 @@ fs.listItem = function browser_fs_listItem(item:directoryItem, extraClass:string
             plural = "s";
         }
         span.textContent = `directory - ${common.commas(item[4])} item${plural}`;
-        li.ondblclick = fs.directory;
+        li.ondblclick = fileBrowser.directory;
     } else {
         span = document.createElement("span");
         if (item[1] === "link") {
@@ -530,11 +529,11 @@ fs.listItem = function browser_fs_listItem(item:directoryItem, extraClass:string
     // prepare the primary item text (address)
     text.innerHTML = item[0];
     text.oncontextmenu = context.menu;
-    text.onclick = fs.select;
+    text.onclick = fileBrowser.select;
     li.appendChild(text);
 
     // prepare the descriptive text
-    span.onclick = fs.select;
+    span.onclick = fileBrowser.select;
     span.oncontextmenu = context.menu;
     li.appendChild(span);
 
@@ -552,17 +551,17 @@ fs.listItem = function browser_fs_listItem(item:directoryItem, extraClass:string
     } else {
         li.setAttribute("class", item[1]);
     }
-    li.onclick = fs.select;
+    li.onclick = fileBrowser.select;
     li.oncontextmenu = context.menu;
     li.onkeydown = util.keys; // key combinations
-    li.onmousedown = fs.drag;
+    li.onmousedown = fileBrowser.drag;
     li.onmouseover = mouseOver;
-    li.ontouchstart = fs.drag;
+    li.ontouchstart = fileBrowser.drag;
     return li;
 };
 
 /* Create a file navigator modal */
-fs.navigate = function browser_fs_navigate(event:MouseEvent, config?:navConfig):void {
+fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, config?:navConfig):void {
     const agentName:string = (config === undefined || config.agentName === undefined)
             ? browser.data.hashDevice
             : config.agentName,
@@ -579,7 +578,7 @@ fs.navigate = function browser_fs_navigate(event:MouseEvent, config?:navConfig):
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = function browser_fs_navigate_callback(responseText:string):void {
+        callback:Function = function browser_fileBrowser_navigate_callback(responseText:string):void {
             if (responseText === "") {
                 return;
             }
@@ -594,13 +593,13 @@ fs.navigate = function browser_fs_navigate(event:MouseEvent, config?:navConfig):
                     : location,
             body:Element = box.getElementsByClassName("body")[0],
                 files:Element = (payload.dirs === "missing")
-                    ? (function browser_fs_navigate_callback_missing():Element {
+                    ? (function browser_fileBrowser_navigate_callback_missing():Element {
                         const p:Element = document.createElement("p");
                         p.innerHTML = "Error 404: This directory or object is missing or unavailable.";
                         p.setAttribute("class", "error");
                         return p;
                     }())
-                    : fs.list(loc, payload)[0];
+                    : fileBrowser.list(loc, payload)[0];
             if (replaceAddress === true) {
                 const modal:ui_modal = browser.data.modals[payload.id];
                 box.getElementsByTagName("input")[0].value = loc;
@@ -633,7 +632,7 @@ fs.navigate = function browser_fs_navigate(event:MouseEvent, config?:navConfig):
             selection: {},
             share: share,
             status_bar: true,
-            text_event: fs.text,
+            text_event: fileBrowser.text,
             text_placeholder: "Optionally type a file system address here.",
             text_value: location,
             title: `${document.getElementById("fileNavigator").innerHTML} ${readOnlyString}- ${common.capitalize(agentType)}, ${browser[agentType][agentName].name}`,
@@ -642,12 +641,12 @@ fs.navigate = function browser_fs_navigate(event:MouseEvent, config?:navConfig):
         },
         box:Element = modal.create(payloadModal);
     payloadNetwork.id = box.getAttribute("id");
-    network.fs(payloadNetwork, callback);
+    network.fileBrowser(payloadNetwork, callback);
     document.getElementById("menu").style.display = "none";
 };
 
 /* Request file system information of the parent directory */
-fs.parent = function browser_fs_parent(event:MouseEvent):boolean {
+fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boolean {
     const element:Element = <HTMLInputElement>event.target,
         header:Element = <Element>element.parentNode,
         input:HTMLInputElement = header.getElementsByTagName("input")[0],
@@ -660,7 +659,7 @@ fs.parent = function browser_fs_parent(event:MouseEvent):boolean {
         box:Element = <Element>bodyParent.parentNode,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
-        newAddress:string = (function browser_fs_parent_newAddress():string {
+        newAddress:string = (function browser_fileBrowser_parent_newAddress():string {
             if ((/^\w:\\$/).test(value) === true) {
                 return "\\";
             }
@@ -682,12 +681,12 @@ fs.parent = function browser_fs_parent(event:MouseEvent):boolean {
             share: browser.data.modals[id].share,
             watch: value
         },
-        callback = function browser_fs_parent_callback(responseText:string):void {
-            const list:[Element, number, string] = fs.list(newAddress, JSON.parse(responseText));
+        callback = function browser_fileBrowser_parent_callback(responseText:string):void {
+            const list:[Element, number, string] = fileBrowser.list(newAddress, JSON.parse(responseText));
             input.value = newAddress;
             body.innerHTML = "";
             body.appendChild(list[0]);
-            fs.listFail(list[1], box);
+            fileBrowser.listFail(list[1], box);
             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
             browser.data.modals[id].text_value = newAddress;
             network.storage("settings");
@@ -696,11 +695,11 @@ fs.parent = function browser_fs_parent(event:MouseEvent):boolean {
         return false;
     }
     browser.data.modals[id].history.push(newAddress);
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
 };
 
 /* The front-side of renaming a file system object */
-fs.rename = function browser_fs_rename(event:MouseEvent):void {
+fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void {
     const element:Element = (context.element === null)
             ? <Element>event.target
             : context.element,
@@ -708,7 +707,7 @@ fs.rename = function browser_fs_rename(event:MouseEvent):void {
         id:string = box.getAttribute("id"),
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
-        action = <EventHandlerNonNull>function browser_fs_rename_action(action:KeyboardEvent):void {
+        action = <EventHandlerNonNull>function browser_fileBrowser_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
                 if (dir + input.value === text) {
@@ -728,11 +727,11 @@ fs.rename = function browser_fs_rename(event:MouseEvent):void {
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
-                        callback = function browser_fs_rename_callback():void {
+                        callback = function browser_fileBrowser_rename_callback():void {
                             label.removeChild(input);
                             label.innerHTML = label.innerHTML + input.value;
                         };
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             } else if (action.type === "keyup") {
                 if (action.key === "Enter") {
@@ -773,7 +772,7 @@ fs.rename = function browser_fs_rename(event:MouseEvent):void {
 };
 
 /* A service to write file changes to the file system */
-fs.saveFile = function browser_fs_saveFile(event:MouseEvent):void {
+fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         id:string = box.getAttribute("id"),
@@ -794,7 +793,7 @@ fs.saveFile = function browser_fs_saveFile(event:MouseEvent):void {
             share: browser.data.modals[id].share,
             watch: "no"
         },
-        callback = function browser_fs_saveFile_callback(message:string):void {
+        callback = function browser_fileBrowser_saveFile_callback(message:string):void {
             const footer:Element = box.getElementsByClassName("footer")[0],
                 body:Element = box.getElementsByClassName("body")[0],
                 buttons:Element = footer.getElementsByClassName("footer-buttons")[0],
@@ -808,11 +807,11 @@ fs.saveFile = function browser_fs_saveFile(event:MouseEvent):void {
             p.style.width = `${(body.clientWidth - buttons.clientWidth - 40) / 15}em`;
             footer.insertBefore(p, pList[0]);
         };
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
 };
 
 /* Search for file system artifacts from a modal's current location */
-fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
+fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, searchElement?:HTMLInputElement, callback?:Function):void {
     const element:HTMLInputElement = (searchElement === undefined)
             ? <HTMLInputElement>event.target
             : searchElement,
@@ -844,7 +843,7 @@ fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTML
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
-            netCallback = function browser_fs_search_callback(responseText:string):void {
+            netCallback = function browser_fileBrowser_search_callback(responseText:string):void {
                 if (responseText === "") {
                     const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                         ? "."
@@ -853,7 +852,7 @@ fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTML
                 } else {
                     const dirData = JSON.parse(responseText),
                         length:number = dirData.dirs.length,
-                        statusString = function browser_fs_search_statusString(length:number):void {
+                        statusString = function browser_fileBrowser_search_statusString(length:number):void {
                             const plural:string = (dirData.dirs.length === 1)
                                 ? ""
                                 : "es";
@@ -880,13 +879,13 @@ fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTML
                         output.tabIndex = 0;
                         output.oncontextmenu = context.menu;
                         output.onkeydown = util.keys;
-                        output.onclick = fs.listFocus;
-                        output.onmousedown = function browser_fs_list_dragSelect(event:MouseEvent):void {
+                        output.onclick = fileBrowser.listFocus;
+                        output.onmousedown = function browser_fileBrowser_list_dragSelect(event:MouseEvent):void {
                             util.dragBox(event, util.dragList);
                         };
                         output.setAttribute("class", "fileList");
                         statusString(length);
-                        dirData.dirs.sort(function browser_fs_search_callback_sort(a:directoryItem, b:directoryItem):number {
+                        dirData.dirs.sort(function browser_fileBrowser_search_callback_sort(a:directoryItem, b:directoryItem):number {
                             // when types are the same
                             if (a[1] === b[1]) {
                                 if (a[0].toLowerCase() < b[0].toLowerCase()) {
@@ -905,7 +904,7 @@ fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTML
                             return 1;
                         });
                         do {
-                            output.appendChild(fs.listItem(dirData.dirs[a], ""));
+                            output.appendChild(fileBrowser.listItem(dirData.dirs[a], ""));
                             a = a + 1;
                         } while (a < length);
                         body.innerHTML = "";
@@ -930,12 +929,12 @@ fs.search = function browser_fs_search(event?:KeyboardEvent, searchElement?:HTML
             browser.data.modals[id].selection = {};
             network.storage("settings");
         }
-        network.fs(payload, netCallback);
+        network.fileBrowser(payload, netCallback);
     }
 };
 
 /* Expand the search field to a large size when focused */
-fs.searchFocus = function browser_fs_searchFocus(event:Event):void {
+fileBrowser.searchFocus = function browser_fileBrowser_searchFocus(event:Event):void {
     const search:Element = <Element>event.target,
         searchParent:HTMLElement = <HTMLElement>search.parentNode,
         address:HTMLElement = <HTMLElement>searchParent.previousSibling;
@@ -944,7 +943,7 @@ fs.searchFocus = function browser_fs_searchFocus(event:Event):void {
 };
 
 /* Select a file system item for an action */
-fs.select = function browser_fs_select(event:KeyboardEvent):void {
+fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):void {
     event.preventDefault();
     event.stopPropagation();
     context.menuRemove();
@@ -960,7 +959,7 @@ fs.select = function browser_fs_select(event:KeyboardEvent):void {
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
-    if (fs.dragFlag !== "") {
+    if (fileBrowser.dragFlag !== "") {
         event.preventDefault();
         event.stopPropagation();
     }
@@ -974,7 +973,7 @@ fs.select = function browser_fs_select(event:KeyboardEvent):void {
         return;
     }
 
-    if (event.ctrlKey === true || fs.dragFlag === "control") {
+    if (event.ctrlKey === true || fileBrowser.dragFlag === "control") {
         if (state === true) {
             input.checked = false;
             li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
@@ -984,9 +983,9 @@ fs.select = function browser_fs_select(event:KeyboardEvent):void {
             li.setAttribute("class", `${li.getAttribute("class")} selected`);
             modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
-    } else if (event.shiftKey === true || fs.dragFlag === "shift") {
+    } else if (event.shiftKey === true || fileBrowser.dragFlag === "shift") {
         const liList = body.getElementsByTagName("li"),
-            shift = function browser_fs_select_shift(index:number, end:number):void {
+            shift = function browser_fileBrowser_select_shift(index:number, end:number):void {
                 if (state === true) {
                     do {
                         liList[index].getElementsByTagName("input")[0].checked = false;
@@ -1067,14 +1066,14 @@ fs.select = function browser_fs_select(event:KeyboardEvent):void {
 };
 
 /* Requests file system data from a text field, such as manually typing an address */
-fs.text = function browser_fs_text(event:KeyboardEvent):void {
+fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
     let parent:Element,
         box:Element,
         id:string,
         button:boolean = false,
         windows:boolean = false,
         historyLength:number;
-    const element:HTMLInputElement = (function browser_fs_text_element():HTMLInputElement {
+    const element:HTMLInputElement = (function browser_fileBrowser_text_element():HTMLInputElement {
             let el = <HTMLInputElement>event.target;
             if (el.nodeName.toLowerCase() === "input") {
                 return el;
@@ -1103,17 +1102,17 @@ fs.text = function browser_fs_text(event:KeyboardEvent):void {
                 share: browser.data.modals[id].share,
                 watch: watchValue
             },
-            callback = function browser_fs_text_callback(responseText:string):void {
+            callback = function browser_fileBrowser_text_callback(responseText:string):void {
                 if (responseText === "") {
                     const local:string = (box.getAttribute("data-agent") === browser.data.hashDevice)
                         ? "."
                         : " or remote user is offline.";
                     parent.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
-                    const list:[Element, number, string] = fs.list(element.value, JSON.parse(responseText));
+                    const list:[Element, number, string] = fileBrowser.list(element.value, JSON.parse(responseText));
                     parent.innerHTML = "";
                     parent.appendChild(list[0]);
-                    fs.listFail(list[1], box);
+                    fileBrowser.listFail(list[1], box);
                     box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
                     browser.data.modals[id].text_value = element.value;
                     element.removeAttribute("class");
@@ -1127,8 +1126,8 @@ fs.text = function browser_fs_text(event:KeyboardEvent):void {
         if (button === false && ((windows === false && element.value !== browser.data.modals[id].history[historyLength]) || (windows === true && element.value.toLowerCase() !== browser.data.modals[id].history[historyLength].toLowerCase()))) {
             browser.data.modals[id].history.push(element.value);
         }
-        network.fs(payload, callback);
+        network.fileBrowser(payload, callback);
     }
 };
 
-export default fs;
+export default fileBrowser;
