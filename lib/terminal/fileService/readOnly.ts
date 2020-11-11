@@ -1,15 +1,16 @@
 
-/* lib/terminal/server/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
+/* lib/terminal/fileService/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
+
 import { Hash } from "crypto";
 import { IncomingMessage, ServerResponse } from "http";
 
 import fileService from "./fileService.js";
-import hashIdentity from "./hashIdentity.js";
-import response from "./response.js";
-import serverVars from "./serverVars.js";
+import hashIdentity from "../server/hashIdentity.js";
+import response from "../server/response.js";
+import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const readOnly = function terminal_server_readOnly(request:IncomingMessage, serverResponse:ServerResponse, dataString:string):void {
+const readOnly = function terminal_fileService_readOnly(request:IncomingMessage, serverResponse:ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString).fs,
         copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)
@@ -21,7 +22,7 @@ const readOnly = function terminal_server_readOnly(request:IncomingMessage, serv
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
     if (data.watch === "remote" && data.action !== "fs-copy-file" && data.action !== "fs-cut-file") {
-        hashIdentity(data.share, function terminal_server_readOnly_hashIdentity(token:string):void {
+        hashIdentity(data.share, function terminal_fileService_readOnly_hashIdentity(token:string):void {
             if (token === "") {
                 response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
             } else {

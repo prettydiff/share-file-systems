@@ -57,9 +57,20 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/test_simulation.ts](../lib/terminal/commands/test_simulation.ts)**                 - A command driven wrapper for running simulation tests of supported terminal commands.
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                   - A command to update the application from git and then run the build.
    - **[../lib/terminal/commands/version.ts](../lib/terminal/commands/version.ts)**                                 - A command utility for expressing the application's version.
+* Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
+   - **[../lib/terminal/fileService/copyMessage.ts](../lib/terminal/fileService/copyMessage.ts)**                   - Generates status messaging for a copy operation.
+   - **[../lib/terminal/fileService/copySameAgent.ts](../lib/terminal/fileService/copySameAgent.ts)**               - Copy items from one location to another on the same agent.
+   - **[../lib/terminal/fileService/fileCallback.ts](../lib/terminal/fileService/fileCallback.ts)**                 - A callback to file system requests that provides directory tree data.
+   - **[../lib/terminal/fileService/fileService.ts](../lib/terminal/fileService/fileService.ts)**                   - Manages various file system services.
+   - **[../lib/terminal/fileService/httpRequest.ts](../lib/terminal/fileService/httpRequest.ts)**                   - Format a properly packaged http request for file services.
+   - **[../lib/terminal/fileService/readOnly.ts](../lib/terminal/fileService/readOnly.ts)**                         - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
+   - **[../lib/terminal/fileService/remoteCopyList.ts](../lib/terminal/fileService/remoteCopyList.ts)**             - Generates a file system list from a remote agent so that the source agent knows what artifacts to request by name.
+   - **[../lib/terminal/fileService/requestFiles.ts](../lib/terminal/fileService/requestFiles.ts)**                 - Pulls files from one agent to another.
+   - **[../lib/terminal/fileService/reverseAgents.ts](../lib/terminal/fileService/reverseAgents.ts)**               - Convert data.copyAgent to data.agent and data.agent to data.copyAgent.
+   - **[../lib/terminal/fileService/watchHandler.ts](../lib/terminal/fileService/watchHandler.ts)**                 - An event handler for file system watch events.
+   - **[../lib/terminal/fileService/watchLocal.ts](../lib/terminal/fileService/watchLocal.ts)**                     - Broadcasts local file system changes to the browser.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/createServer.ts](../lib/terminal/server/createServer.ts)**                           - This library launches the HTTP server and all supporting service utilities.
-   - **[../lib/terminal/server/fileService.ts](../lib/terminal/server/fileService.ts)**                             - This library executes various file system related services and actions.
    - **[../lib/terminal/server/forbiddenUser.ts](../lib/terminal/server/forbiddenUser.ts)**                         - A single function for handling rejected HTTP responses associated with disallowed requests.
    - **[../lib/terminal/server/hashIdentity.ts](../lib/terminal/server/hashIdentity.ts)**                           - Compares a security token to a generated hash to bypass typical file service security restrictions
    - **[../lib/terminal/server/heartbeat.ts](../lib/terminal/server/heartbeat.ts)**                                 - The code that manages sending and receiving user online status updates.
@@ -68,7 +79,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/message.ts](../lib/terminal/server/message.ts)**                                     - Process and send text messages.
    - **[../lib/terminal/server/methodGET.ts](../lib/terminal/server/methodGET.ts)**                                 - The library for handling all traffic related to HTTP requests with method GET.
    - **[../lib/terminal/server/methodPOST.ts](../lib/terminal/server/methodPOST.ts)**                               - The library for handling all traffic related to HTTP requests with method POST.
-   - **[../lib/terminal/server/readOnly.ts](../lib/terminal/server/readOnly.ts)**                                   - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
    - **[../lib/terminal/server/response.ts](../lib/terminal/server/response.ts)**                                   - A uniform means of handling HTTP responses.
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                               - A library of variables globally available for all server related tasks.
    - **[../lib/terminal/server/serverWatch.ts](../lib/terminal/server/serverWatch.ts)**                             - A library that establishes a file system watch respective to the application itself.

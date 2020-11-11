@@ -11,7 +11,7 @@ import vars from "../utilities/vars.js";
 import heartbeat from "./heartbeat.js";
 import invite from "./invite.js";
 import message from "./message.js";
-import readOnly from "./readOnly.js";
+import readOnly from "../fileService/readOnly.js";
 import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";

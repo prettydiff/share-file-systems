@@ -269,6 +269,25 @@ declare global {
         share       : string;
         watch       : string;
     }
+    interface fileServiceRequest {
+        callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
+        data: fileService;
+        errorMessage:string;
+        serverResponse: ServerResponse;
+        stream?:(message:IncomingMessage) => void;
+    }
+    interface fileServiceRequestFiles {
+        data: fileService;
+        fileData: remoteCopyListData;
+        logRecursion: boolean;
+        serverResponse: ServerResponse;
+    }
+    interface fileServiceWatch {
+        data: fileService;
+        logRecursion: boolean;
+        serverResponse: ServerResponse;
+        value: string;
+    }
     interface fileStore extends Array<[number, string, string, Buffer]> {
         [index:number]: [number, string, string, Buffer];
     }
