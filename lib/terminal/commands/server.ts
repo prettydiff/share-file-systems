@@ -306,10 +306,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
             }, serverWatch);
             httpServer.on("error", serverError);
             httpServer.listen({
-                port: port,
-                host: (serverVars.addresses[0].length > 1)
-                    ? "::1"
-                    : "127.0.0.1"
+                port: port
             }, listen);
         };
     if (vars.command.indexOf("test_") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {

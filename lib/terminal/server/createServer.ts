@@ -32,12 +32,6 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             if (name === "::1" || name === "127.0.0.1") {
                 return "localhost";
             }
-            do {
-                if (addresses[a][1] === name) {
-                    return "localhost";
-                }
-                a = a + 1;
-            } while (a < length);
             return request.headers.host;
         }()),
         postTest = function terminal_server_createServer_postTest():boolean {
@@ -71,8 +65,12 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             serverResponse.setHeader("agent-type", "user");
         }
         response(serverResponse, "text/plain", `response from ${serverVars.hashDevice}`);
-    } else if (request.method === "GET" && host === "localhost") {
-        methodGET(request, serverResponse);
+    } else if (request.method === "GET") {
+        if (host === "localhost") {
+            methodGET(request, serverResponse);
+        } else {
+            response(serverResponse, "text/plain", "ForbiddenAccess:GET method from external agent.");
+        }
     } else if (postTest() === true) {
         methodPOST(request, serverResponse);
     } else {

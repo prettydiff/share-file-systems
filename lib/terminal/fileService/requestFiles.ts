@@ -32,34 +32,34 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
         // prepares the HTTP response message if all requested files are written
         respond = function terminal_fileService_requestFiles_respond():void {
             const cut = function terminal_fileService_requestFiles_respond_cut():void {
-                    if (config.data.action.indexOf("fs-cut") === 0) {
-                        const types:string[] = [];
-                        cutList.sort(function terminal_fileService_requestFiles_respond_cut_cutSort(itemA:[string, string], itemB:[string, string]):number {
-                            if (itemA[1] === "directory" && itemB[1] !== "directory") {
-                                return 1;
+                if (config.data.action.indexOf("fs-cut") === 0) {
+                    const types:string[] = [];
+                    cutList.sort(function terminal_fileService_requestFiles_respond_cut_cutSort(itemA:[string, string], itemB:[string, string]):number {
+                        if (itemA[1] === "directory" && itemB[1] !== "directory") {
+                            return 1;
+                        }
+                        return -1;
+                    });
+                    config.data.location = [];
+                    cutList.forEach(function terminal_fileService_requestFiles_respond_cut_cutList(value:[string, string]):void {
+                        config.data.location.push(value[0]);
+                        types.push(value[1]);
+                    });
+                    config.data.action = "fs-cut-remove";
+                    config.data.name = JSON.stringify(types);
+                    config.data.watch = config.fileData.list[0][0].slice(0, config.fileData.list[0][0].lastIndexOf(config.fileData.list[0][2])).replace(/(\/|\\)+$/, "");
+                    httpRequest({
+                        callback: function terminal_fileService_requestFiles_respond_cut_cutCall(message:Buffer|string):void {
+                            if (message.toString().indexOf("{\"fs-update-remote\":") === 0) {
+                                vars.ws.broadcast(message.toString());
                             }
-                            return -1;
-                        });
-                        config.data.location = [];
-                        cutList.forEach(function terminal_fileService_requestFiles_respond_cut_cutList(value:[string, string]):void {
-                            config.data.location.push(value[0]);
-                            types.push(value[1]);
-                        });
-                        config.data.action = "fs-cut-remove";
-                        config.data.name = JSON.stringify(types);
-                        config.data.watch = config.fileData.list[0][0].slice(0, config.fileData.list[0][0].lastIndexOf(config.fileData.list[0][2])).replace(/(\/|\\)+$/, "");
-                        httpRequest({
-                            callback: function terminal_fileService_requestFiles_respond_cut_cutCall(message:Buffer|string):void {
-                                if (message.toString().indexOf("{\"fs-update-remote\":") === 0) {
-                                    vars.ws.broadcast(message.toString());
-                                }
-                            },
-                            data: config.data,
-                            errorMessage: "Error requesting file removal for fs-cut.",
-                            serverResponse: config.serverResponse
-                        });
-                    }
-                };
+                        },
+                        data: config.data,
+                        errorMessage: "Error requesting file removal for fs-cut.",
+                        serverResponse: config.serverResponse
+                    });
+                }
+            };
             vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
             directory({
                 callback: function terminal_fileService_requestFiles_respond_cut_finalDir(dirItems:directoryList):void {

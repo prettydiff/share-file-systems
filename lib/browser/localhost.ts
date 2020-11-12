@@ -109,7 +109,7 @@ import webSocket from "./webSocket.js";
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
-            browser.socket = webSocket(function browser_init_applyLogin_socket():void {
+            webSocket(function browser_init_applyLogin_socket():void {
                 testBrowserLoad();
             });
         },
@@ -202,7 +202,7 @@ import webSocket from "./webSocket.js";
             browser.loadTest = false;
 
             if (loginFlag === true) {
-                browser.socket = webSocket(function browser_init_applyLogin_socket():void {
+                webSocket(function browser_init_applyLogin_socket():void {
                     activate();
                     idleness();
                     testBrowserLoad();

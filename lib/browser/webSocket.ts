@@ -226,7 +226,7 @@ const title:Element = document.getElementsByClassName("title")[0],
             location.reload();
         }
     },
-    webSocket = function browser_webSocket(callback:() => void):WebSocket {
+    webSocket = function browser_webSocket(callback:() => void):void {
         const scheme:string = (location.protocol === "http:")
                 ? ""
                 : "s",
@@ -235,6 +235,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 const device:Element = (browser.data.hashDevice === "")
                     ? null
                     : document.getElementById(browser.data.hashDevice);
+                browser.socket = socket;
                 if (device !== null) {
                     device.setAttribute("class", "active");
                 }
@@ -268,7 +269,6 @@ const title:Element = document.getElementsByClassName("title")[0],
         socket.onmessage = socketMessage;
         socket.onclose = close;
         callback();
-        return socket;
     };
 
 export default webSocket;
