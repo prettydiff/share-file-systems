@@ -171,21 +171,45 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
         start = function terminal_commands_server_start(httpServer:httpServer) {
             const logOutput = function terminal_commands_server_start_logger(storageData:storageItems):void {
                     const output:string[] = [],
-                        localAddresses = function terminal_commands_server_start_logger_localAddresses(value:[string, string, string]):void {
-                            a = value[0].length;
-                            if (a < serverVars.addresses[1]) {
-                                do {
-                                    value[0] = value[0] + " ";
-                                    a = a + 1;
-                                } while (a < serverVars.addresses[1]);
-                            }
-                            if (value[0].charAt(0) === " ") {
-                                output.push(`     ${value[0]}: ${value[1]}`);
-                            } else {
-                                output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
-                            }
+                        localAddresses = function terminal_commands_server_start_logger_localAddresses():void {
+                            let longest:number = 0;
+                            const nameLength = function terminal_commands_server_start_logger_localAddresses_nameLength(scheme:"IPv6"|"IPv4"):void {
+                                    let a:number = 0;
+                                    const total:number = serverVars.addresses[scheme].length;
+                                    if (total > 0) {
+                                        do {
+                                            if (serverVars.addresses[scheme][a][1].length > longest) {
+                                                longest = serverVars.addresses[scheme][a][1].length;
+                                            }
+                                            a = a + 1;
+                                        } while (a < total);
+                                    }
+                                },
+                                format = function terminal_commands_server_start_logger_localAddresses_format(scheme:"IPv6"|"IPv4"):void {
+                                    let a:number = 0,
+                                        b:number,
+                                        name:string;
+                                    const total:number = serverVars.addresses[scheme].length;
+                                    if (total > 0) {
+                                        do {
+                                            b = serverVars.addresses[scheme][a][1].length;
+                                            name = serverVars.addresses[scheme][a][1];
+                                            if (b < longest) {
+                                                do {
+                                                    name = `${name} `;
+                                                    b = b + 1;
+                                                } while (b < longest);
+                                            }
+                                            output.push(`   ${vars.text.angry}*${vars.text.none} ${name}: ${serverVars.addresses[scheme][a][0]}`);
+                                            a = a + 1;
+                                        } while (a < total);
+                                    }
+                                };
+                            nameLength("IPv6");
+                            nameLength("IPv4");
+                            format("IPv6");
+                            format("IPv4");
                         };
-                    let a:number = 0;
 
                     if (vars.command !== "test_service") {
                         serverVars.device = storageData.device;
@@ -204,20 +228,23 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                         // log the port information to the terminal
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
                         output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
-                        if (serverVars.addresses[0].length === 1) {
+
+                        output.push("");
+                        if (serverVars.addresses.IPv6.length + serverVars.addresses.IPv4.length === 1) {
                             output.push("Local IP address is:");
                         } else {
                             output.push("Local IP addresses are:");
                         }
-    
-                        serverVars.addresses[0].forEach(localAddresses);
+                        localAddresses();
+                        output.push("");
+
                         output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
                         output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${serverVars.ipAddress + portString + vars.text.none}`);
-                        if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
-                            if (serverVars.addresses[0][0][2] === "ipv4") {
-                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses[0][0][1] + vars.text.none}`);
+                        if (portString !== "") {
+                            if (serverVars.ipFamily === "IPv6") {
+                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://[${serverVars.addresses.IPv6[0][0]}]${portString + vars.text.none}`);
                             } else {
-                                output.push(`or                     : ${vars.text.bold + vars.text.green+ scheme}://[${serverVars.addresses[0][0][1]}]${portString + vars.text.none}`);
+                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses.IPv4[0][0]}:${portString + vars.text.none}`);
                             }
                         }
                         if (certLogs !== null) {
@@ -238,7 +265,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                     serverVars.hashUser = storageData.settings.hashUser;
                     serverVars.nameDevice = storageData.settings.nameDevice;
                     serverVars.nameUser = storageData.settings.nameUser;
-                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || (serverVars.addresses.IPv6[0][1] === "disconnected" && serverVars.addresses.IPv4[0][1] === "disconnected")) {
                         logOutput(storageData);
                     } else {
                         const hbConfig:heartbeatUpdate = {
@@ -271,11 +298,11 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                     portWeb = serverAddress.port;
                     portString = ((portWeb === 443 && insecure === false) || (portWeb === 80 && insecure === true))
                         ? ""
-                        : (serverVars.addresses[0].length > 1)
+                        : (serverVars.ipFamily === "IPv6")
                             ? `[${portWeb}]`
                             :`:${portWeb}`;
                     wsServer.listen({
-                        host: (serverVars.addresses[0].length > 1)
+                        host: (serverVars.ipFamily === "IPv6")
                             ? "::1"
                             : "127.0.0.1",
                         port: serverVars.wsPort

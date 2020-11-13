@@ -26,8 +26,8 @@ import tests from "../samples/service.js";
 
 const projectPath:string = vars.projectPath,
     sep:string = vars.sep,
-    loopback:string = (serverVars.addresses[0].length > 1)
-        ? "::"
+    loopback:string = (serverVars.ipFamily === "IPv6")
+        ? "::1"
         : "127.0.0.1",
 
     // start test list

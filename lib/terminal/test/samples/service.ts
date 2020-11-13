@@ -11,8 +11,8 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
         windowsSep:string = sep.replace(/\\/g, "\\\\"),
         hash:string = "f6fdc288338713c9e41fedcf3d9ad09a06f2e9929eb2b7b59a76f60efbd8b98e8f962815f8474799a17496f779472e95a47d3795473e14bb094f3fc12e1a0323",
-        loopback:string = (serverVars.addresses[0].length > 1)
-            ? "::"
+        loopback:string = (serverVars.ipFamily === "IPv6")
+            ? "::1"
             : "127.0.0.1";
     
     service.push(<testTemplateFileService>{

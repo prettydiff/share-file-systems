@@ -640,6 +640,10 @@ declare global {
     interface navigate extends EventHandlerNonNull {
         (Event:Event, config?: navConfig): void;
     }
+    interface networkAddresses {
+        IPv4: [string, string][];
+        IPv6: [string, string][];
+    }
     interface networkConfig {
         callback: (responseText:string) => void;
         error: string;
@@ -728,13 +732,14 @@ declare global {
         wsPort: number;
     }
     interface serverVars {
-        addresses: [[string, string, string][], number];
+        addresses: networkAddresses;
         brotli: brotli;
         device: agents;
         hashDevice: string;
         hashType: hash;
         hashUser: string;
         ipAddress: string;
+        ipFamily: "IPv6" | "IPv4";
         nameDevice: string;
         nameUser: string;
         secure: boolean;

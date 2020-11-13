@@ -13,10 +13,7 @@ import serverVars from "./serverVars.js";
     
 const createServer = function terminal_server_createServer(request:IncomingMessage, serverResponse:ServerResponse):void {
     const host:string = (function terminal_server_createServer_host():string {
-            const addresses:[string, string, string][] = serverVars.addresses[0],
-                length:number = addresses.length;
-            let a:number = 0,
-                name:string = request.headers.host;
+            let name:string = request.headers.host;
             if (name === undefined) {
                 return;
             }
