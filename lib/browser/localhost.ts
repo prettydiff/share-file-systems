@@ -115,8 +115,9 @@ import webSocket from "./webSocket.js";
         },
         loadComplete = function browser_init_complete():void {
             const idleness = function browser_init_complete_idleness():void {
-                    const time:number = Date.now();
-                    if (time - active > idleTime && localDevice !== null) {
+                    const time:number = Date.now(),
+                        offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
+                    if (offline.length < 1 && time - active > idleTime && localDevice !== null) {
                         localDevice.setAttribute("class", "idle");
                         network.heartbeat("idle", false);
                     }
