@@ -77,7 +77,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                     vars.ws.broadcast(message.toString());
                 },
                 errorMessage: "",
-                id: "heartbeat",
                 ip: "",
                 payload: "",
                 port: 443,

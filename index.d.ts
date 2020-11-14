@@ -394,7 +394,6 @@ declare global {
         agentType: agentType,
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         errorMessage: string;
-        id: string;
         ip: string;
         payload: Buffer|string;
         port: number;
@@ -699,16 +698,16 @@ declare global {
     }
     interface remoteCopyList {
         callback: Function;
+        data: fileService;
         files: [string, string, string, number][];
-        id: string;
         index: number;
         length: number;
+        logRecursion: boolean;
     }
     interface remoteCopyListData {
         directories: number;
         fileCount: number;
         fileSize: number;
-        id: string;
         list: [string, string, string, number][];
         stream: boolean;
     }

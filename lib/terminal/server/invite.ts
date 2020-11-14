@@ -39,7 +39,6 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         }
                     },
                     errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
-                    id: "",
                     ip: ip,
                     payload: payload,
                     port: port,

@@ -30,7 +30,6 @@ const message = function terminal_server_message(messageText:string, serverRespo
                 return;
             },
             errorMessage: errorMessage,
-            id: "",
             ip: list[data.agentTo].ip,
             payload: messageText,
             port: list[data.agentTo].port,

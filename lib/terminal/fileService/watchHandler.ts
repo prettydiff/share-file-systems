@@ -79,7 +79,6 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                     response(config.serverResponse, "application/json", message.toString());
                                 },
                                 errorMessage: errorMessage,
-                                id: "",
                                 ip: serverVars[config.data.agentType][config.data.agent].ip,
                                 payload: payload,
                                 port: serverVars[config.data.agentType][config.data.agent].port,

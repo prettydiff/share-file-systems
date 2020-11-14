@@ -109,13 +109,14 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 callback: function terminal_fileService_fileService_tasks_remoteListCallback(listData:remoteCopyListData):void {
                     response(serverResponse, "application/octet-stream", JSON.stringify(listData));
                 },
+                data: data,
                 files: [],
-                id: data.id,
                 index: 0,
-                length: data.location.length
+                length: data.location.length,
+                logRecursion: logRecursion
             };
             vars.testLogger("fileService", "fs-copy-list", "Call the remoteCopyList function so that a remote agent knows what files to request.");
-            remoteCopyList(data, logRecursion, listData);
+            remoteCopyList(listData);
         },
         copyListRemote = function terminal_fileService_fileService_tasks_copyListRemote():void {
             vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
@@ -172,13 +173,14 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         httpCall();
                     }
                 },
+                data: data,
                 files: [],
-                id: data.id,
                 index: 0,
-                length: data.location.length
+                length: data.location.length,
+                logRecursion: logRecursion
             };
             vars.testLogger("fileService", "fs-copy destination-not-local", "When the destination is not the local device call the remoteCopyList function to get a list of artifacts to request.");
-            remoteCopyList(data, logRecursion, listData);
+            remoteCopyList(listData);
         },
         copyRemoteSameAgent = function terminal_fileService_fileService_tasks_copyRemoteSameAgent():void {
             vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");

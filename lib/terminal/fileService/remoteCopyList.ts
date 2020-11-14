@@ -4,18 +4,17 @@ import directory from "../commands/directory.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const remoteCopyList = function terminal_fileService_remoteCopyList(data:fileService, logRecursion:boolean, config:remoteCopyList):void {
-    const localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device"),
-        list: [string, string, string, number][] = [],
+const remoteCopyList = function terminal_fileService_remoteCopyList(config:remoteCopyList):void {
+    const list: [string, string, string, number][] = [],
         callback = function terminal_fileService_remoteCopyList_callback(dir:directoryList):void {
             const dirLength:number = dir.length,
                 location:string = (function terminal_fileServices_remoteCopyList_callback_location():string {
-                    let backSlash:number = data.location[config.index].indexOf("\\"),
-                        forwardSlash:number = data.location[config.index].indexOf("/"),
+                    let backSlash:number = config.data.location[config.index].indexOf("\\"),
+                        forwardSlash:number = config.data.location[config.index].indexOf("/"),
                         remoteSep:string = ((backSlash < forwardSlash && backSlash > -1 && forwardSlash > -1) || forwardSlash < 0)
                             ? "\\"
                             : "/",
-                        address:string[] = data.location[config.index].replace(/(\/|\\)$/, "").split(remoteSep);
+                        address:string[] = config.data.location[config.index].replace(/(\/|\\)$/, "").split(remoteSep);
                     address.pop();
                     return address.join(remoteSep) + remoteSep;
                 }());
@@ -56,13 +55,13 @@ const remoteCopyList = function terminal_fileService_remoteCopyList(data:fileSer
                     callback: terminal_fileService_remoteCopyList_callback,
                     depth: 0,
                     exclusions: [],
-                    logRecursion: logRecursion,
+                    logRecursion: config.logRecursion,
                     mode: "read",
-                    path: data.location[config.index],
+                    path: config.data.location[config.index],
                     symbolic: false
                 };
                 directory(recursiveConfig);
-                logRecursion = false;
+                config.logRecursion = false;
             } else {
                 // sort directories ahead of files and then sort shorter directories before longer directories
                 // * This is necessary to ensure directories are written before the files and child directories that go in them.
@@ -70,7 +69,6 @@ const remoteCopyList = function terminal_fileService_remoteCopyList(data:fileSer
                     directories: directories,
                     fileCount: fileCount,
                     fileSize: fileSize,
-                    id: config.id,
                     list: list,
                     stream: (largest > 12884901888 || largeFile > 3 || (fileSize / fileCount) > 4294967296)
                 };
@@ -99,9 +97,9 @@ const remoteCopyList = function terminal_fileService_remoteCopyList(data:fileSer
             callback: callback,
             depth: 0,
             exclusions: [],
-            logRecursion: logRecursion,
+            logRecursion: config.logRecursion,
             mode: "read",
-            path: data.location[config.index],
+            path: config.data.location[config.index],
             symbolic: false
         };
     let directories:number =0,
@@ -109,7 +107,7 @@ const remoteCopyList = function terminal_fileService_remoteCopyList(data:fileSer
         fileSize:number = 0;
     vars.testLogger("fileService", "remoteCopyList", "Gathers the directory data from the requested file system trees so that the local device may request each file from the remote.");
     directory(dirConfig);
-    logRecursion = false;
+    config.logRecursion = false;
 };
 
 export default remoteCopyList;

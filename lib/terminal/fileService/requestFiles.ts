@@ -78,7 +78,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                     vars.ws.broadcast(JSON.stringify({
                         "file-list-status": output
                     }));
-                    output.target = `remote-${config.fileData.id}`;
+                    output.target = `remote-${config.data.id}`;
                     response(config.serverResponse, "application/json", JSON.stringify({
                         "file-list-status": output
                     }));

@@ -78,7 +78,6 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             agentType: config.data.agentType,
             callback: config.callback,
             errorMessage: config.errorMessage,
-            id: config.data.id,
             ip: serverVars[config.data.agentType][config.data.agent].ip,
             payload: JSON.stringify({
                 fs: payload
