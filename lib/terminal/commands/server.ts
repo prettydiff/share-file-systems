@@ -53,7 +53,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
         browserFlag:boolean = (function terminal_commands_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
-            serverVars.storage = (vars.command === "test_browser")
+            serverVars.storage = (vars.command === "test_browser" || vars.command === "test_browser_remote")
                 ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
                 : (vars.command.indexOf("test") === 0 || test > -1)
                     ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
