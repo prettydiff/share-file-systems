@@ -82,7 +82,7 @@
         "/.gitignore",
         "/.vscode",
         "/js/**",
-        "!/js/ws-es6",
+        "!/js/lib/ws-es6",
         "/lib/certificate/*.*",
         "!/lib/certificate/ca.cnf",
         "!/lib/certificate/readme.md",

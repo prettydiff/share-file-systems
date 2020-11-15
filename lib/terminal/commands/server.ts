@@ -2,7 +2,7 @@
 /* lib/terminal/commands/server - A command driven HTTP server for running the terminal instance of the application. */
 import { AddressInfo } from "net";
 
-import WebSocket from "../../../ws-es6/index.js";
+import WebSocket from "../../ws-es6/index.js";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
