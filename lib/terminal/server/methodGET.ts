@@ -18,7 +18,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
             ? request.url.slice(0, quest)
             : request.url;
     const localPath:string = (uri === "/")
-            ? `${vars.projectPath}index.html`
+            ? `${vars.projectPath}lib${vars.sep}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
     vars.testLogger("methodGet", "", "Handles all HTTP requests to the server of method 'GET' and dynamically populates the HTML with data.");
     vars.node.fs.stat(localPath, function terminal_server_get_stat(ers:nodeError, stat:Stats):void {
@@ -106,7 +106,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                                 type = "application/xhtml+xml";
                             }
                         } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
-                            if (localPath === `${vars.projectPath}index.html` && typeof data === "string") {
+                            if (localPath === `${vars.projectPath}lib${vars.sep}index.html` && typeof data === "string") {
                                 pageState("text/html");
                             } else {
                                 type = "text/html";

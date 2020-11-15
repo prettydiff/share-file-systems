@@ -554,8 +554,10 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                 // write the current version, change date, and modify html
                 version: function terminal_commands_build_version():void {
                     const pack:string = `${vars.projectPath}package.json`,
-                        html:string = `${vars.projectPath}index.html`,
+                        html:string = `${vars.projectPath}lib${vars.sep}index.html`,
+                        configPath:string = `${vars.projectPath}lib${vars.sep}configurations.json`,
                         flag = {
+                            config: false,
                             html: false,
                             json: false
                         },
@@ -582,12 +584,31 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                             return;
                                                         }
                                                         flag.html = true;
-                                                        if (flag.json === true) {
+                                                        if (flag.config === true && flag.json === true) {
                                                             next("Version data written");
                                                         }
                                                     };
                                                 fileData = fileData.replace(regex, `<h1>${vars.version.name} <span class="application-version">version ${vars.version.number}</span></h1>`);
                                                 vars.node.fs.writeFile(html, fileData, "utf8", writeHTML);
+                                            },
+                                            readConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig(err:Error, configFile:string):void {
+                                                if (err !== null) {
+                                                    error([err.toString()]);
+                                                    return;
+                                                }
+                                                const config = JSON.parse(configFile),
+                                                    writeConfig = function terminal_commands_build_version_packStat_readPack_commitHash_readConfig_writeConfig(erc:Error):void {
+                                                        if (erc !== null) {
+                                                            error([erc.toString()]);
+                                                            return;
+                                                        }
+                                                        flag.config = true;
+                                                        if (flag.html === true && flag.json === true) {
+                                                            next("Version data written");
+                                                        }
+                                                    };
+                                                config["package-lock.json"].version = vars.version.number;
+                                                vars.node.fs.writeFile(configPath, JSON.stringify(config), "utf8", writeConfig);
                                             },
                                             writeVersion =  function terminal_commands_build_version_packStat_readPack_commitHash_writeVersion(erj:Error):void {
                                                 if (erj !== null) {
@@ -595,7 +616,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                                     return;
                                                 }
                                                 flag.json = true;
-                                                if (flag.html === true) {
+                                                if (flag.config === true && flag.html === true) {
                                                     next("Version data written");
                                                 }
                                             };
@@ -613,6 +634,9 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
             
                                         // modify index.html
                                         vars.node.fs.readFile(html, "utf8", readHTML);
+            
+                                        // modify configuration.json
+                                        vars.node.fs.readFile(configPath, "utf8", readConfig);
             
                                         // modify version.json
                                         vars.node.fs.writeFile(`${vars.projectPath}version.json`, JSON.stringify(vars.version), "utf8", writeVersion);

@@ -35,6 +35,7 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
     browser.args.demo = args.demo;
     browser.args.noClose = args.noClose;
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+    if (vars.command !== "test")
     vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_execute_readdir(dErr:nodeError, files:string[]):void {
         if (dErr !== null) {
             error([dErr.toString()]);
