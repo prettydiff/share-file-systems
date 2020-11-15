@@ -19,7 +19,6 @@ import webSocket from "./webSocket.js";
 
     util.fixHeight();
     window.onresize = util.fixHeight;
-    browser.style.type = "text/css";
     document.getElementsByTagName("head")[0].appendChild(browser.style);
 
     // Extend the browser interface

@@ -5,30 +5,33 @@ import vars from "../../utilities/vars.js";
 
 const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
     windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
-    mainMenu:testBrowserItem = {
-        interaction: [
-            {
-                event: "click",
-                node: [
-                    ["getElementById", "menuToggle", null]
-                ]
-            }
-        ],
-        name: "Display the primary menu",
-        unit: [
-            {
-                // primary menu is visible
-                node: [
-                    ["getElementById", "menu", null]
-                ],
-                qualifier: "is",
-                target: ["style", "display"],
-                type: "property",
-                value: "block"
-            }
-        ]
+    mainMenu = function terminal_test_samples_browser_mainMenu(machine:string):testBrowserItem {
+        return {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "menuToggle", null]
+                    ]
+                }
+            ],
+            machine: machine,
+            name: "Display the primary menu",
+            unit: [
+                {
+                    // primary menu is visible
+                    node: [
+                        ["getElementById", "menu", null]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "display"],
+                    type: "property",
+                    value: "block"
+                }
+            ]
+        }
     },
-    showContextMenu = function terminal_test_samples_browser_showContextMenu(node:testBrowserDOM, test:testBrowserTest[]):testBrowserItem {
+    showContextMenu = function terminal_test_samples_browser_showContextMenu(node:testBrowserDOM, test:testBrowserTest[], machine:string):testBrowserItem {
         return {
             delay: {
                 node: [
@@ -45,11 +48,12 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: node
                 }
             ],
+            machine: machine,
             name: "Show context menu on copied directory",
             unit: test
         };
     },
-    projectDirectory = function terminal_test_samples_browser_projectDirectory(index:number):testBrowserItem {
+    projectDirectory = function terminal_test_samples_browser_projectDirectory(index:number, machine:string):testBrowserItem {
         return {
             delay: {
                 // the last file system item is version.json
@@ -88,6 +92,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: machine,
             name: "Change file navigator file system location",
             unit: [
                 {
@@ -149,6 +154,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Login form",
             unit: [
                 {
@@ -183,6 +189,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: null
                 }
             ],
+            machine: "self",
             name: "Refresh following login form completion",
             // assert that login remains complete, login data is stored and written to page
             unit: [
@@ -221,7 +228,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // access the primary menu
-        mainMenu,
+        mainMenu("self"),
 
         // open a file navigator modal
         {
@@ -245,6 +252,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Launch 'File Navigator' modal from primary menu",
             unit: [
                 {
@@ -406,6 +414,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Directory expansion",
             unit: [
                 {
@@ -440,7 +449,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // change the file system address by typing a new value
-        projectDirectory(0),
+        projectDirectory(0, "self"),
 
         // double click into a child directory
         {
@@ -467,6 +476,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Double click into a directory",
             unit: [
                 {
@@ -508,6 +518,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Click the parent directory button",
             unit: [
                 {
@@ -549,6 +560,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Click the back button of a file navigator modal",
             unit: [
                 {
@@ -577,6 +589,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Click the minimize button of a file navigator modal",
             unit: [
                 {
@@ -622,6 +635,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: null
                 }
             ],
+            machine: "self",
             name: "Refresh following file navigation minimize",
             unit: [
                 {
@@ -681,6 +695,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Restore a minimized modal",
             unit: [
                 {
@@ -719,6 +734,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Maximize a modal",
             unit: [
                 {
@@ -763,6 +779,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: null
                 }
             ],
+            machine: "self",
             name: "Refresh following file navigation maximize",
             unit: [
                 {
@@ -821,6 +838,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Restore a maximized modal to its prior size and location",
             unit: [
                 {
@@ -858,7 +876,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // return to project directory
-        projectDirectory(0),
+        projectDirectory(0, "self"),
 
         // display context menu
         showContextMenu([
@@ -886,7 +904,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 type: "property",
                 value: ""
             }
-        ]),
+        ], "self"),
 
         // display details
         {
@@ -912,6 +930,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Activate file system details",
             unit: [
                 {
@@ -1009,6 +1028,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Display file list by file size",
             unit: [
                 {
@@ -1048,6 +1068,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Display file list by modification date",
             unit: []
         },
@@ -1075,6 +1096,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Display file list all files",
             unit: []
         },
@@ -1091,6 +1113,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Close the details modal",
             unit: [
                 {
@@ -1165,6 +1188,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Create two shares and open local device shares",
             unit: [
                 {
@@ -1257,6 +1281,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Convert read only share to full access share",
             unit: [
                 {
@@ -1303,7 +1328,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
         },
 
         // access the primary menu
-        mainMenu,
+        mainMenu("self"),
 
         // open a second file navigator modal
         {
@@ -1336,6 +1361,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Launch a second 'File Navigator' modal from primary menu",
             unit: [
                 {
@@ -1509,6 +1535,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Change file navigator file system location to storageBrowser",
             unit: [
                 {
@@ -1542,7 +1569,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 type: "property",
                 value: "New Directory"
             }
-        ]),
+        ], "self"),
 
         // evoke new directory with an empty field, first time
         {
@@ -1573,6 +1600,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new directory field",
             unit: [
                 {
@@ -1606,6 +1634,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Blur new directory field",
             unit: []
         },
@@ -1639,6 +1668,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new directory field second time",
             unit: [
                 {
@@ -1683,6 +1713,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Escape"
                 }
             ],
+            machine: "self",
             name: "Press ESC key on new directory field",
             unit: [
                 {
@@ -1729,6 +1760,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new directory field third time",
             unit: [
                 {
@@ -1782,6 +1814,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Enter"
                 }
             ],
+            machine: "self",
             name: "Create a new directory with 'Enter' key",
             unit: [
                 {
@@ -1836,6 +1869,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new directory field fourth time",
             unit: [
                 {
@@ -1888,6 +1922,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Create a new directory with blur event",
             unit: [
                 {
@@ -1942,6 +1977,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new file field",
             unit: [
                 {
@@ -1975,6 +2011,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Blur new file field",
             unit: []
         },
@@ -2008,6 +2045,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new file field second time",
             unit: [
                 {
@@ -2052,6 +2090,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Escape"
                 }
             ],
+            machine: "self",
             name: "Press ESC key on new file field",
             unit: [
                 {
@@ -2098,6 +2137,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new file field third time",
             unit: [
                 {
@@ -2151,6 +2191,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Enter"
                 }
             ],
+            machine: "self",
             name: "Create a new file with 'Enter' key",
             unit: [
                 {
@@ -2205,6 +2246,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Evoke new file field fourth time",
             unit: [
                 {
@@ -2257,6 +2299,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Create a new file with blur event",
             unit: [
                 {
@@ -2282,7 +2325,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         },
         
-        mainMenu,
+        mainMenu("self"),
 
         // open text pad
         {
@@ -2306,6 +2349,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Open text pad",
             unit: [
                 {
@@ -2376,6 +2420,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Modify text pad value",
             unit: [
                 {
@@ -2401,6 +2446,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: null
                 }
             ],
+            machine: "self",
             name: "Refresh following use of text pad",
             unit: [
                 {
@@ -2418,7 +2464,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         },
         
-        mainMenu,
+        mainMenu("self"),
 
         // open export modal
         {
@@ -2442,6 +2488,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Open export modal",
             unit: [
                 {
@@ -2565,6 +2612,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     node: []
                 }
             ],
+            machine: "self",
             name: "Modify export modal value",
             unit: [
                 {
@@ -2610,6 +2658,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Step back in history of file navigator",
             unit: []
         },
@@ -2635,7 +2684,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 type: "property",
                 value: "ws-es6"
             }
-        ]),
+        ], "self"),
 
         // copy directory using context menu
         {
@@ -2664,6 +2713,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Copy js directory using the context menu",
             unit: []
         },
@@ -2673,7 +2723,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "body", 0],
             ["getElementsByClassName", "fileList", 0]
-        ], []),
+        ], [], "self"),
 
         // paste from context menu
         {
@@ -2704,6 +2754,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Paste from context menu",
             unit: [
                 {
@@ -2741,6 +2792,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Update file list",
             unit: [
                 {
@@ -2793,6 +2845,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Expand copied directory",
             unit: [
                 {
@@ -2829,7 +2882,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "fileList", 0],
             ["getElementsByTagName", "li", 2]
-        ], []),
+        ], [], "self"),
 
         // delete js directory using context menu
         {
@@ -2854,6 +2907,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Delete js directory using context menu",
             unit: []
         },
@@ -2880,6 +2934,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Refresh the file navigator file list",
             unit: []
         },
@@ -2907,6 +2962,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Select js directory",
             unit: []
         },
@@ -2952,6 +3008,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Control"
                 }
             ],
+            machine: "self",
             name: "Select additional directory",
             unit: [
                 {
@@ -3019,6 +3076,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Control"
                 }
             ],
+            machine: "self",
             name: "Add two selected directories to the clipboard",
             unit: []
         },
@@ -3077,6 +3135,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "v"
                 }
             ],
+            machine: "self",
             name: "Paste two directories into different file navigator",
             unit: []
         },
@@ -3104,6 +3163,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Update file list",
             unit: [
                 {
@@ -3178,6 +3238,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Control"
                 }
             ],
+            machine: "self",
             name: "Select the two pasted directories",
             unit: [
                 {
@@ -3227,6 +3288,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Delete"
                 }
             ],
+            machine: "self",
             name: "Delete the two selected directories using the keyboard shortcut",
             unit: [
                 {
@@ -3292,6 +3354,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Control"
                 }
             ],
+            machine: "self",
             name: "Select two files",
             unit: [
                 {
@@ -3313,7 +3376,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "fileList", 0],
             ["getElementsByTagName", "li", 2]
-        ], []),
+        ], [], "self"),
 
         // cut two files using context menu
         {
@@ -3338,6 +3401,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Cut two files using context menu",
             unit: [
                 {
@@ -3395,6 +3459,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Enter"
                 }
             ],
+            machine: "self",
             name: "Navigate to a child directory using keyboard",
             unit: []
         },
@@ -3446,6 +3511,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Control"
                 }
             ],
+            machine: "self",
             name: "Paste cut files using keyboard",
             unit: []
         },
@@ -3472,6 +3538,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ]
                 }
             ],
+            machine: "self",
             name: "Update modal file contents to show pasted files",
             unit: [
                 {
@@ -3551,6 +3618,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "Control"
                 }
             ],
+            machine: "self",
             name: "Select all with keyboard shortcut and cut files with keyboard",
             unit: [
                 {

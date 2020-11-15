@@ -9,7 +9,8 @@ const remote:module_remote = {
     index: -1,
     keyAlt: false,
     keyControl: false,
-    keyShift: false
+    keyShift: false,
+    task: "test-browser"
 };
 
 remote.delay = function browser_remote_delay(config:testBrowserItem):void {
@@ -22,16 +23,16 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
                 if (config.unit.length > 0) {
                     remote.test(config.unit, config.index, config);
                 } else {
-                    network.testBrowserLoaded([testResult], config.index);
+                    network.testBrowser([testResult], config.index, config.task);
                 }
                 return;
             }
             a = a + 1;
             if (a === maxTries) {
-                network.testBrowserLoaded([
+                network.testBrowser([
                     [false, "delay timeout", config.delay.node.nodeString],
                     remote.evaluate(config.delay, config)
-                ], config.index);
+                ], config.index, config.task);
                 return;
             }
             setTimeout(browser_remote_delay_timeout, delay);
@@ -48,7 +49,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
 // report javascript errors as test failures
 // eslint-disable-next-line
 remote.error = function browser_remote_error(message:string, source:string, line:number, col:number, error:Error):void {
-    network.testBrowserLoaded([[false, JSON.stringify({
+    network.testBrowser([[false, JSON.stringify({
         file: source,
         column: col,
         line: line,
@@ -56,7 +57,7 @@ remote.error = function browser_remote_error(message:string, source:string, line
         stack: (error === null)
             ? null
             : error.stack
-    }), "error"]], remote.index);
+    }), "error"]], remote.index, remote.task);
 };
 
 // determine whether a given test item is pass or fail
@@ -118,6 +119,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         };
     const eventLength:number = testItem.interaction.length;
+    remote.task = testItem.task;
     if (remote.index < testItem.index) {
         remote.index = testItem.index;
         browser.testBrowser = testItem;
@@ -149,9 +151,9 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                     return;
                 }
                 if (element === null || element === undefined) {
-                    network.testBrowserLoaded([
+                    network.testBrowser([
                         [false, `event error ${String(element)}`, config.node.nodeString]
-                    ], testItem.index);
+                    ], testItem.index, testItem.task);
                     browser.testBrowser = null;
                     return;
                 }
@@ -324,16 +326,16 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, config:testBrowse
     } while (a < nodeLength);
     dom.nodeString = str.join("");
     if (fail === "getElementById") {
-        network.testBrowserLoaded([
+        network.testBrowser([
             [false, "Bad test. Method 'getElementById' must only occur as the first DOM method", dom.nodeString]
-        ], config.index);
+        ], config.index, config.task);
         remote.domFailure = true;
         return null;
     }
     if (fail === "childNodes") {
-        network.testBrowserLoaded([
+        network.testBrowser([
             [false, "Bad test. Property 'childNodes' requires an index value as the third data point of a DOM item: [\"childNodes\", null, 1]", dom.nodeString]
-        ], config.index);
+        ], config.index, config.task);
         remote.domFailure = true;
         return null;
     }
@@ -361,7 +363,7 @@ remote.test = function browser_remote_test(test:testBrowserTest[], index:number,
             }
             a = a + 1;
         } while (a < length);
-        network.testBrowserLoaded(result, index);
+        network.testBrowser(result, index, config.task);
     }
 };
 

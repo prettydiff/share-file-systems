@@ -132,6 +132,12 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
             } else if (task === "test-browser") {
                 // * validate a browser test iteration
                 browser.result(JSON.parse(body)["test-browser"], serverResponse);
+            } else if (task === "test-browser-remote") {
+                vars.ws.broadcast(body);
+            } else if (task === "test-browser-response") {
+                response(serverResponse, "application/json", JSON.stringify({
+                    "test-browser": JSON.parse(body)["test-browser-response"]
+                }));
             }
         };
 

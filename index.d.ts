@@ -34,6 +34,7 @@ declare global {
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
+    type testBrowserType = "test-browser" | "test-browser-response";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
@@ -562,7 +563,7 @@ declare global {
         inviteRequest?: (configuration:invite) => void;
         message?: (message:messageItem) => void;
         storage?: (type:storageType) => void;
-        testBrowserLoaded?: (payload?:[boolean, string, string][], index?:number) => void;
+        testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserType) => void;
         xhr?: (config:networkConfig) => void;
     }
     interface module_remote {
@@ -578,6 +579,7 @@ declare global {
         keyShift: boolean;
         node?: (dom:testBrowserDOM, config:testBrowserItem) => Element;
         stringify?: (primitive:primitive) => string;
+        task: testBrowserType;
         test?: (test:testBrowserTest[], index:number, config:testBrowserItem) => void;
     }
     interface module_settings {
@@ -872,12 +874,21 @@ declare global {
         delay?: testBrowserTest;
         index?: number;
         interaction: testBrowserEvent[];
+        machine: string;
         name: string;
+        task?: testBrowserType;
         unit: testBrowserTest[];
     }
     interface testBrowserResult {
         index: number;
         payload: [boolean, string, string][];
+    }
+    interface testBrowserMachines {
+        [key:string]: {
+            ip: string;
+            port: number;
+            secure: boolean;
+        }
     }
     interface testBrowserTest {
         node: testBrowserDOM;

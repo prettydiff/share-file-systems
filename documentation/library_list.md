@@ -53,6 +53,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/server.ts](../lib/terminal/commands/server.ts)**                                   - A command driven HTTP server for running the terminal instance of the application.
    - **[../lib/terminal/commands/test.ts](../lib/terminal/commands/test.ts)**                                       - A command driven wrapper for all test utilities.
    - **[../lib/terminal/commands/test_browser.ts](../lib/terminal/commands/test_browser.ts)**                       - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result.
+   - **[../lib/terminal/commands/test_browser_remote.ts](../lib/terminal/commands/test_browser_remote.ts)**         - Launches the server and puts the application on standby awaiting instructions from a remote agent.
    - **[../lib/terminal/commands/test_service.ts](../lib/terminal/commands/test_service.ts)**                       - A command driven wrapper for the service tests, which test the various services used by the application.
    - **[../lib/terminal/commands/test_simulation.ts](../lib/terminal/commands/test_simulation.ts)**                 - A command driven wrapper for running simulation tests of supported terminal commands.
    - **[../lib/terminal/commands/update.ts](../lib/terminal/commands/update.ts)**                                   - A command to update the application from git and then run the build.

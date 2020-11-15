@@ -4,6 +4,7 @@
 import { ServerResponse } from "http";
 
 import error from "../../utilities/error.js";
+import httpClient from "../../server/httpClient.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import server from "../../commands/server.js";
@@ -16,12 +17,19 @@ import tests from "../samples/browser.js";
 
 let finished:boolean = false;
 const browser:testBrowserApplication = {
-    args: {
-        demo: false,
-        noClose: false
+        args: {
+            demo: false,
+            noClose: false
+        },
+        index: -1
     },
-    index: -1
-};
+    machines:testBrowserMachines = {
+        VM1: {
+            ip: "192.168.56.125",
+            port: 80,
+            secure: false
+        }
+    };
 
 browser.execute = function terminal_test_application_browser_execute(args:testBrowserArgs):void {
     browser.args.demo = args.demo;
@@ -143,27 +151,51 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
     // * about 1 in 10 times this will fail following event "refresh"
     // * because serverVars.testBrowser is not updated to methodGET library fast enough
     if (validate() === true) {
-        setTimeout(function terminal_test_application_browser_iterate_setTimeout():void {
-            const refresh:number = index + 1;
-            vars.ws.broadcast(message);
-            if (tests[index].interaction[0].event === "refresh") {
-                if (tests[index].delay !== undefined) {
-                    vars.verbose = true;
-                    logs.push(    `Test is a refresh test, but it must not contain a ${vars.text.angry}delay${vars.text.none} property.`);
-                    log(logs, true);
-                    process.exit(1);
-                    return;
+        if (tests[index].machine === "self") {
+            setTimeout(function terminal_test_application_browser_iterate_setTimeout():void {
+                const refresh:number = index + 1;
+                vars.ws.broadcast(message);
+                if (tests[index].interaction[0].event === "refresh") {
+                    if (tests[index].delay !== undefined) {
+                        vars.verbose = true;
+                        logs.push(    `Test is a refresh test, but it must not contain a ${vars.text.angry}delay${vars.text.none} property.`);
+                        log(logs, true);
+                        process.exit(1);
+                        return;
+                    }
+                    if (refresh < tests.length) {
+                        tests[refresh].index = refresh;
+                        serverVars.testBrowser = JSON.stringify(tests[refresh]);
+                    } else if (browser.args.noClose === true) {
+                        serverVars.testBrowser = "refresh-complete";
+                    } else {
+                        serverVars.testBrowser = "refresh-complete-close";
+                    }
                 }
-                if (refresh < tests.length) {
-                    tests[refresh].index = refresh;
-                    serverVars.testBrowser = JSON.stringify(tests[refresh]);
-                } else if (browser.args.noClose === true) {
-                    serverVars.testBrowser = "refresh-complete";
-                } else {
-                    serverVars.testBrowser = "refresh-complete-close";
-                }
-            }
-        }, delay);
+            }, delay);
+        } else {
+            httpClient({
+                agentType: "device",
+                callback: function terminal_test_application_browser_iterate_httpClient(message:Buffer|string):void {
+                    browser.result(JSON.parse(message.toString())["test-browser-remote"], null);
+                },
+                errorMessage: `Browser test ${index} received a transmission error sending the test.`,
+                ip: machines[tests[index].machine].ip,
+                payload: JSON.stringify({
+                    "test-browser-remote": tests[index]
+                }),
+                port: machines[tests[index].machine].port,
+                requestError: function terminal_test_application_browser_iterate_remoteRequest():void {
+                    log([`Error requesting test ${index} to remote machine ${tests[index].machine}.`]);
+                },
+                requestType: "test-browser-remote",
+                remoteName: "test-browser-remote",
+                response: null,
+                responseError: function terminal_test_application_browser_iterate_remoteResponse():void {
+                    log([`Error on response to test ${index} to remote machine ${tests[index].machine}.`]);
+                },
+            });
+        }
     } else {
         vars.verbose = true;
         log(logs, true);
@@ -346,7 +378,9 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
         },
         failure:string[] = [];
 
-    response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${tests[item.index].name}`);
+    if (tests[item.index].machine === "self") {
+        response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${tests[item.index].name}`);
+    }
     if (browser.index < item.index) {
         browser.index = item.index;
         if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {

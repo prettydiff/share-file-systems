@@ -376,6 +376,27 @@ const commands_documentation = {
             }
         ]
     },
+    test_browser_remote: {
+        description: "Launches the application in the same context as command 'test_browser' but in listening mode waiting for test scenarios as a network request.",
+        example: [
+            {
+                code: `${vars.version.command} test_browser_remote`,
+                defined: "Launches the server and then waits for further guidance."
+            },
+            {
+                code: `${vars.version.command} test_browser_remote no_close`,
+                defined: "Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection."
+            },
+            {
+                code: `${vars.version.command} test_browser_remote demo`,
+                defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
+            },
+            {
+                code: `${vars.version.command} test_browser_remote "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,
+                defined: "By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary."
+            }
+        ]
+    },
     test_service: {
         description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
         example: [
