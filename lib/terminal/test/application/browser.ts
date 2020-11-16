@@ -16,7 +16,10 @@ import response from "../../server/response.js";
 import tests from "../samples/browser.js";
 
 let finished:boolean = false;
-const browser:testBrowserApplication = {
+const task:testBrowserType = (vars.command === "test_browser_remote")
+        ? "test-browser-response"
+        : "test-browser",
+    browser:testBrowserApplication = {
         args: {
             demo: false,
             noClose: false
@@ -29,13 +32,17 @@ const browser:testBrowserApplication = {
             port: 80,
             secure: false
         }
+    },
+    assign = function terminal_test_application_browser_assign(index:number):void {
+        tests[index].index = index;
+        tests[index].task = task;
+        serverVars.testBrowser = tests[index];
     };
 
 browser.execute = function terminal_test_application_browser_execute(args:testBrowserArgs):void {
     browser.args.demo = args.demo;
     browser.args.noClose = args.noClose;
     serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
-    if (vars.command !== "test")
     vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_execute_readdir(dErr:nodeError, files:string[]):void {
         if (dErr !== null) {
             error([dErr.toString()]);
@@ -86,8 +93,7 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
         };
         let length:number = files.length,
             flags:number = length;
-        tests[0].index = 0;
-        serverVars.testBrowser = JSON.stringify(tests[0]);
+        assign(0);
         if (length === 1) {
             browserLaunch();
         } else {
@@ -111,8 +117,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
     if (finished === true) {
         return;
     }
-    tests[index].index = index;
-    serverVars.testBrowser = JSON.stringify(tests[index]);
+    assign(index);
     const message:string = JSON.stringify({
             "test-browser": tests[index]
         }),
@@ -165,12 +170,25 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                         return;
                     }
                     if (refresh < tests.length) {
-                        tests[refresh].index = refresh;
-                        serverVars.testBrowser = JSON.stringify(tests[refresh]);
+                        assign(refresh);
                     } else if (browser.args.noClose === true) {
-                        serverVars.testBrowser = "refresh-complete";
+                        serverVars.testBrowser = {
+                            index: index,
+                            interaction: null,
+                            machine: tests[index].machine,
+                            name: "refresh-complete",
+                            task: task,
+                            unit: null
+                        };
                     } else {
-                        serverVars.testBrowser = "refresh-complete-close";
+                        serverVars.testBrowser = {
+                            index: index,
+                            interaction: null,
+                            machine: tests[index].machine,
+                            name: "refresh-complete-close",
+                            task: task,
+                            unit: null
+                        };
                     }
                 }
             }, delay);

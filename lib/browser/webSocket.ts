@@ -194,8 +194,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 footer.style.display = "block";
             },
             testBrowser = function browser_socketMessage_testBrowser(task:testBrowserType):void {
-                const test:testBrowserItem = JSON.parse(event.data[task]);
-                test.task = task;
+                const test:testBrowserItem = JSON.parse(event.data)[task];
                 remote.event(test, false);
             };
         if (event.data.indexOf("{\"error\":") === 0) {

@@ -34,6 +34,7 @@ import webSocket from "./webSocket.js";
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
+        testBrowserReg:RegExp = (/^test_browser(_remote)?:/),
         testBrowserLoad = function browser_init_testBrowserLoad():void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;
@@ -214,15 +215,16 @@ import webSocket from "./webSocket.js";
         };
     do {
         cString = comments[a].substringData(0, comments[a].length);
-        if (cString.indexOf("testBrowser:") === 0) {
-            const test:string = cString.replace("testBrowser:", "");
-            if (test === "refresh-complete-close" || test === "refresh-complete") {
-                if (test === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
+        if (testBrowserReg.test(cString) === true) {
+            const testString:string = cString.replace(testBrowserReg, ""),
+                test = JSON.parse(testString);
+            if (test.name === "refresh-complete-close" || test.name === "refresh-complete") {
+                if (test.name === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
                     window.close();
                 }
                 return;
-            } else if (cString !== "testBrowser:null") {
-                browser.testBrowser = JSON.parse(cString.replace("testBrowser:", ""));
+            } else if (test !== null) {
+                browser.testBrowser = test;
             }
         } else if (cString.indexOf("storage:") === 0) {
             if (cString.indexOf("\"device\":{}") > 0) {

@@ -849,7 +849,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     qualifier: "is",
                     target: ["style", "top"],
                     type: "property",
-                    value: "22em"
+                    value: "21em"
                 },
                 {
                     // the modal is at the left of the content area
@@ -859,7 +859,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "22em"
+                    value: "21em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -2344,7 +2344,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     event: "click",
                     node: [
                         ["getElementById", "menu", null],
-                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "button", 0]
                     ]
                 }
@@ -2483,7 +2483,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     event: "click",
                     node: [
                         ["getElementById", "menu", null],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 2],
                         ["getElementsByTagName", "button", 0]
                     ]
                 }
@@ -2573,7 +2573,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `","left":250,"top":250,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":6}`
+                    value: `","left":240,"top":240,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":5}`
                 }
             ]
         },
@@ -2682,7 +2682,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "ends",
                 target: ["innerHTML"],
                 type: "property",
-                value: "ws-es6"
+                value: "node_modules"
             }
         ], "self"),
 
@@ -2826,13 +2826,13 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "ul", 0],
-                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "li", 0],
                     ["getElementsByTagName", "span", 1]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 2 items"
+                value: "directory - 4 items"
             },
             interaction: [
                 {
@@ -3152,7 +3152,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 13 items"
+                value: "directory - 14 items"
             },
             interaction: [
                 {

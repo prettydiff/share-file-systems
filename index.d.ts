@@ -746,7 +746,7 @@ declare global {
         secure: boolean;
         status: heartbeatStatus;
         storage: string;
-        testBrowser?: string;
+        testBrowser?: testBrowserItem;
         timeStore: number;
         user: agents;
         watches: {

@@ -1,5 +1,6 @@
 
 /* lib/browser/network - The methods that execute data requests to the local terminal instance of the application. */
+import { config } from "process";
 import browser from "./browser.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
