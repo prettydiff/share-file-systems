@@ -3633,6 +3633,120 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                     value: "file cut"
                 }
             ]
+        },
+
+        // complete the login
+        {
+            delay: {
+                // that class is removed from body
+                node: [
+                    ["getElementsByTagName", "body", 0]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: null
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [["getElementById", "login-user", null]]
+                },
+                {
+                    event: "setValue",
+                    node: [["getElementById", "login-user", null]],
+                    value: "Primary User"
+                },
+                {
+                    event: "click",
+                    node: [["getElementById", "login-device", null]]
+                },
+                {
+                    event: "setValue",
+                    node: [["getElementById", "login-device", null]],
+                    value: "Primary Device"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "login-device", null],
+                        ["parentNode", "", null],
+                        ["parentNode", "", null],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "VM1",
+            name: "Login form",
+            unit: [
+                {
+                    // that a local user button is present and active
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "active"
+                },
+                {
+                    // that the login messaging is not visible
+                    node: [
+                        ["getElementById", "login", null]
+                    ],
+                    qualifier: "is",
+                    target: ["clientHeight"],
+                    type: "property",
+                    value: 0
+                }
+            ]
+        },
+
+        // refresh the page and test that a user populates and there is no login
+        {
+            interaction: [
+                {
+                    event: "refresh",
+                    node: null
+                }
+            ],
+            machine: "VM1",
+            name: "Refresh following login form completion",
+            // assert that login remains complete, login data is stored and written to page
+            unit: [
+                {
+                    // that a local user button is present and active
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "active"
+                },
+                {
+                    // that the login messaging is not visible
+                    node: [
+                        ["getElementById", "login", null]
+                    ],
+                    qualifier: "is",
+                    target: ["clientHeight"],
+                    type: "property",
+                    value: 0
+                },
+                {
+                    // that class is removed from body
+                    node: [
+                        ["getElementsByTagName", "body", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: null
+                }
+            ]
         }
     ];
 

@@ -38,7 +38,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             setTimeout(browser_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
-    console.log(`Executing delay on test campaign ${config.index}: ${config.name}`);
+    console.log(`Executing delay on test ${config.index}: ${config.name}`);
     if (config.delay === undefined) {
         remote.test(config.unit, config.index, config);
     } else {
@@ -141,7 +141,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 if (a === 0) {
                     location.reload();
                 } else {
-                    remote.error("The event 'refresh' was provided not as the first event of a campaign", "", 0, 0, null);
+                    remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
                     return;
                 }
             } else if (testItem.interaction[a].event !== "refresh-interaction") {

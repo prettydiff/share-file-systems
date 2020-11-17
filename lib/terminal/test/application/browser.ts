@@ -122,7 +122,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
             "test-browser": tests[index]
         }),
         logs:string[] = [
-            `Test campaign ${index + 1} malformed: ${vars.text.angry + tests[index].name + vars.text.none}`,
+            `Test ${index + 1} malformed: ${vars.text.angry + tests[index].name + vars.text.none}`,
             ""
         ],
 
@@ -134,7 +134,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                     return `   ${vars.text.angry}*${vars.text.none} Interaction ${a + 1} has event ${vars.text.cyan}setValue${vars.text.none} but no ${vars.text.angry + property + vars.text.none} property.`;
                 };
             if (tests[index].delay === undefined && tests[index].unit.length < 1) {
-                logs.push("Test campaign does not contain a delay test or test instances in its test array.");
+                logs.push("Test does not contain a delay test or test instances in its test array.");
                 return false;
             }
             do {
@@ -276,10 +276,10 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
                 const passPlural:string = (item.index === 1)
                     ? ""
                     : "s";
-                exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} tests from ${item.index + 1} test campaign${passPlural}.`);
+                exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${item.index + 1} test${passPlural}.`);
                 return;
             }
-            exit(1, `${vars.text.angry}Failed${vars.text.none} on test campaign ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total campaign${plural} and ${totalTests} tests.`);
+            exit(1, `${vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`);
         },
         summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
             const text:string = ` browser test ${item.index + 1}: ${vars.text.none + tests[item.index].name}`,
