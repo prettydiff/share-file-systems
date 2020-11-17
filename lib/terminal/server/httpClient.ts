@@ -39,7 +39,9 @@ const httpClient = function terminal_server_httpClient(config:httpConfiguration)
             ? "invite-request"
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
-                : "",
+                : (vars.command.indexOf("test_browser") === 0)
+                    ? "test-browser"
+                    : "",
         headers:OutgoingHttpHeaders = {
             "content-type": "application/x-www-form-urlencoded",
             "content-length": Buffer.byteLength(config.payload),

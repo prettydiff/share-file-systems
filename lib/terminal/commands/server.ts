@@ -223,7 +223,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
-                    if (vars.command.indexOf("test") !== 0) {
+                    if (vars.command === "test_browser_remote" || vars.command.indexOf("test") !== 0) {
 
                         // log the port information to the terminal
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
@@ -253,7 +253,11 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                             });
                         }
                         output.push("");
-                        log.title("Local Server");
+                        if (vars.command === "test_browser_remote") {
+                            output.push("");
+                        } else {
+                            log.title("Local Server");
+                        }
                         log(output, true);
                     }
                     browser(httpServer);

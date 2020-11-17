@@ -38,7 +38,8 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                         host !== "localhost" && (
                             serverVars.user[<string>request.headers["agent-name"]] !== undefined ||
                             request.headers.invite === "invite-request" ||
-                            request.headers.invite === "invite-complete"
+                            request.headers.invite === "invite-complete" ||
+                            (request.headers.invite === "test-browser" && vars.command.indexOf("test_browser") === 0)
                         )
                     )
                 )
