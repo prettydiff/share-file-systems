@@ -34,7 +34,7 @@ declare global {
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
-    type testBrowserType = "test-browser" | "test-browser-response";
+    type testBrowserType = "test-browser" | "test-browser-remote";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;

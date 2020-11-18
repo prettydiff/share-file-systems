@@ -17,7 +17,7 @@ import tests from "../samples/browser.js";
 
 let finished:boolean = false;
 const task:testBrowserType = (vars.command === "test_browser_remote")
-        ? "test-browser-response"
+        ? "test-browser-remote"
         : "test-browser",
     browser:testBrowserApplication = {
         args: {

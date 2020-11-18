@@ -225,7 +225,7 @@ const title:Element = document.getElementsByClassName("title")[0],
         } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
             testBrowser("test-browser");
         } else if (event.data.indexOf("{\"test-browser-remote\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            testBrowser("test-browser-response");
+            testBrowser("test-browser-remote");
         } else if (event.data.indexOf("{\"test-browser-close\":") === 0 && location.href.indexOf("?test_browser") > 0) {
             window.close();
         } else if (event.data === "reload") {
