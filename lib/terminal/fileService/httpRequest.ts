@@ -86,9 +86,9 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             remoteName: config.data.agent,
             requestError: requestError,
             requestType: config.data.action,
-            response: config.serverResponse,
-            responseError: responseError,
-            stream: config.stream
+            responseObject: config.serverResponse,
+            responseStream: config.stream,
+            responseError: responseError
         };
     if (config.data.agentType === "user" && config.data.copyType !== "user") {
         config.data.copyAgent = serverVars.hashUser;

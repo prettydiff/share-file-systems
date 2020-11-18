@@ -195,6 +195,11 @@ const title:Element = document.getElementsByClassName("title")[0],
             },
             testBrowser = function browser_socketMessage_testBrowser(task:testBrowserType):void {
                 const test:testBrowserItem = JSON.parse(event.data)[task];
+                if (task === "test-browser-remote") {
+                    test.task = "test-browser-response";
+                } else {
+                    test.task = "test-browser";
+                }
                 remote.event(test, false);
             };
         if (event.data.indexOf("{\"error\":") === 0) {

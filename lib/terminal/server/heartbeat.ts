@@ -83,7 +83,8 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 remoteName: "",
                 requestError: errorHandler,
                 requestType: config.requestType,
-                response: null,
+                responseObject: null,
+                responseStream: httpClient.stream,
                 responseError: errorHandler
             };
         if (config.list === null) {

@@ -34,7 +34,7 @@ declare global {
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
-    type testBrowserType = "test-browser" | "test-browser-remote";
+    type testBrowserType = "test-browser" | "test-browser-remote" | "test-browser-response";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
@@ -273,9 +273,9 @@ declare global {
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         data: fileService;
-        errorMessage:string;
+        errorMessage: string;
         serverResponse: ServerResponse;
-        stream?:(message:IncomingMessage) => void;
+        stream: (message:IncomingMessage) => void;
     }
     interface fileServiceRequestFiles {
         data: fileService;
@@ -391,6 +391,10 @@ declare global {
         status: heartbeatStatus;
         type: agentType;
     }
+    interface httpClient {
+        (config:httpConfiguration): void;
+        stream?: (fsResponse:IncomingMessage, config?:httpConfiguration) => void;
+    }
     interface httpConfiguration {
         agentType: agentType,
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -401,9 +405,9 @@ declare global {
         remoteName: string;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: string;
-        response: ServerResponse;
+        responseObject: ServerResponse;
+        responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
-        stream?: (message:IncomingMessage) => void;
     }
     interface httpServer extends Server {
         port: number;

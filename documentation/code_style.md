@@ -54,6 +54,9 @@ These are the rules by which code is an objective pass or failure.  Any exceptio
 6. All function names will be unique.
 7. Files will use lowercase names with words separated by underscores.
 
+### Node
+1. Synchronous methods are forbidden if an asynchronous method is available.
+
 ### Reuse
 1. Nested functions are permitted.
 2. Modules and methods are preferred.

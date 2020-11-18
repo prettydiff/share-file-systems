@@ -16,6 +16,7 @@ import vars from "../utilities/vars.js";
 
 import copyMessage from "./copyMessage.js";
 import httpRequest from "./httpRequest.js";
+import httpClient from "../server/httpClient.js";
 
 const requestFiles = function terminal_fileService_requestFiles(config:fileServiceRequestFiles):void {
     let writeActive:boolean = false,
@@ -56,7 +57,8 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         },
                         data: config.data,
                         errorMessage: "Error requesting file removal for fs-cut.",
-                        serverResponse: config.serverResponse
+                        serverResponse: config.serverResponse,
+                        stream: httpClient.stream
                     });
                 }
             };

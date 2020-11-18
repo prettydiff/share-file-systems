@@ -209,7 +209,8 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                 },
                 requestType: "test-browser-remote",
                 remoteName: "test-browser-remote",
-                response: null,
+                responseObject: null,
+                responseStream: httpClient.stream,
                 responseError: function terminal_test_application_browser_iterate_remoteResponse():void {
                     log([`Error on response to test ${index} to remote machine ${tests[index].machine}.`]);
                 },
