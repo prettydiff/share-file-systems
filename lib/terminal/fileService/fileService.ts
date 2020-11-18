@@ -24,6 +24,7 @@ import requestFiles from "./requestFiles.js";
 import reverseAgents from "./reverseAgents.js";
 import watchHandler from "./watchHandler.js";
 import watchLocal from "./watchLocal.js";
+import httpClient from "../server/httpClient.js";
 
 const fileService = function terminal_fileService_fileService(serverResponse:ServerResponse, data:fileService):void {
     let logRecursion:boolean = true;
@@ -134,7 +135,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: "Error copying from remote to local device",
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         copyLocalToRemote = function terminal_fileService_fileService_tasks_copyLocalToRemote():void {
@@ -147,7 +149,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                                 },
                                 data: data,
                                 errorMessage: "Error sending list of files to remote for copy from local device.",
-                                serverResponse: serverResponse
+                                serverResponse: serverResponse,
+                                stream: httpClient.stream
                             });
                         },
                         hashCallback = function terminal_fileService_fileService_tasks_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
@@ -192,7 +195,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: `Error copying files to and ${data.agentType} ${serverVars[data.agentType][data.agent].name}.`,
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         copyRemoteToDifferentRemote = function terminal_fileService_fileService_tasks_copyRemoteToDifferentRemote():void {
@@ -211,7 +215,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: "Error copying from remote to local device",
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         copyRemoteToLocal = function terminal_fileService_fileService_tasks_copyRemoteToLocal():void {
@@ -232,7 +237,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: "Error copying from remote to local device",
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         copyRequest = function terminal_fileService_fileService_tasks_copyRequest():void {
@@ -548,7 +554,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: `Error requesting ${data.action} from remote.`,
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         remoteUserRemoteDevice = function terminal_fileService_fileService_tasks_remoteUerRemoteDevice():void {
@@ -568,7 +575,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`,
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         remoteWatch = function terminal_fileService_fileService_tasks_remoteWatch():void {
@@ -585,7 +593,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 },
                 data: data,
                 errorMessage: `Error on reading from remote file system at agent ${data.agent}`,
-                serverResponse: serverResponse
+                serverResponse: serverResponse,
+                stream: httpClient.stream
             });
         },
         rename = function terminal_fileService_fileService_tasks_rename():void {
