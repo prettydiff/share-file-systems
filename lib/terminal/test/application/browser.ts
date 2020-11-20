@@ -14,6 +14,7 @@ import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
 
 import tests from "../samples/browser.js";
+import { type } from "os";
 
 let finished:boolean = false;
 const task:testBrowserType = (vars.command === "test_browser_remote")
@@ -45,6 +46,11 @@ const task:testBrowserType = (vars.command === "test_browser_remote")
         tests[index].task = task;
         serverVars.testBrowser = tests[index];
     };
+
+browser.remoteClose = function terminal_test_application_browser_remoteClose(exit:{code:0|1, message:string}):void {
+    log([exit.message]);
+    process.exit(exit.code);
+};
 
 browser.execute = function terminal_test_application_browser_execute(args:testBrowserArgs):void {
     browser.args.demo = args.demo;
@@ -133,6 +139,32 @@ browser.exit = function terminal_test_application_browser_exit():void {
             ? 1000
             : 50;
     if (close === true) {
+        if (tests[browser.index].machine !== "self") {
+            httpClient({
+                agentType: "device",
+                callback: function terminal_test_application_browser_remoteReturn_callback():void {
+                    browser.transmissionReturned = browser.transmissionReturned + 1;
+                    if (finished === true) {
+                        browser.exit();
+                    }
+                },
+                errorMessage: `Failed to return test ${browser.index} result from remote agent ${serverVars.nameDevice}.`,
+                ip: browser.ip,
+                port: browser.port,
+                payload: JSON.stringify({
+                    "test-browser-close": {
+                        code: browser.exitType,
+                        message: browser.exitMessage
+                    }
+                }),
+                remoteName: browser.agent,
+                requestError: null,
+                requestType: "test-browser (from remote agent)",
+                responseObject: null,
+                responseStream: httpClient.stream,
+                responseError: null
+            });
+        }
         vars.ws.broadcast(JSON.stringify({
             "test-browser-close": {}
         }));
@@ -483,9 +515,7 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
         },
         failure:string[] = [];
 
-    if (tests[item.index].machine === "self") {
-        response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${tests[item.index].name}`);
-    }
+    response(serverResponse, "text/plain", `Processing browser test ${item.index + 1}: ${tests[item.index].name}`);
     if (browser.index < item.index) {
         browser.index = item.index;
         if (item.payload[0][0] === false && item.payload[0][1] === "delay timeout") {

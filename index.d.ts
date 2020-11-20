@@ -871,6 +871,7 @@ declare global {
         iterate?: (index:number) => void;
         port: number;
         remote?: (item:testBrowserTransfer, serverResponse:ServerResponse) => void;
+        remoteClose?: (exit:{code:0|1, message:string}) => void;
         remoteReturn?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
