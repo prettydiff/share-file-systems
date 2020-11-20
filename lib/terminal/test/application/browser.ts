@@ -233,7 +233,9 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
 };
 
 browser.remote = function terminal_test_application_browser_remote(item:testBrowserTransfer, serverResponse:ServerResponse):void {
-    vars.ws.broadcast(item.test);
+    vars.ws.broadcast(JSON.stringify({
+        ["test-browser-remote"]: item.test
+    }));
     browser.agent = item.agent;
     browser.ip = item.ip;
     browser.port = item.port;
