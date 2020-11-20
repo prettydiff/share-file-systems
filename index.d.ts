@@ -854,10 +854,15 @@ declare global {
     }
     interface testBrowserApplication {
         [index:number]: testBrowserItem;
+        agent: string;
         args: testBrowserArgs;
         execute?: (args:testBrowserArgs) => void;
         index: number;
+        ip: string;
         iterate?: (index:number) => void;
+        port: number;
+        remote?: (item:testBrowserTransfer, serverResponse:ServerResponse) => void;
+        remoteReturn?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
     }
@@ -900,6 +905,12 @@ declare global {
         target: string[];
         type: "attribute" | "element" | "property";
         value: boolean | null | number | string;
+    }
+    interface testBrowserTransfer {
+        agent: string;
+        ip: string;
+        port: number;
+        test: testBrowserItem;
     }
     interface testComplete {
         callback: Function;

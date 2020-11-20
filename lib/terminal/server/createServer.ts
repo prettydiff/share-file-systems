@@ -39,7 +39,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                             serverVars.user[<string>request.headers["agent-name"]] !== undefined ||
                             request.headers.invite === "invite-request" ||
                             request.headers.invite === "invite-complete" ||
-                            (request.headers.invite === "test-browser" && vars.command.indexOf("test_browser") === 0)
+                            (request.headers.invite === "test-browser" && vars.command.indexOf("test_browser") === 0 && Object.keys(serverVars.user).length < 1)
                         )
                     )
                 )
@@ -52,6 +52,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
     // *** available for troubleshooting:
     // console.log(requestType+" "+host+" "+postTest());
+
     if (host === "") {
         response(serverResponse, "text/plain", `ForbiddenAccess: unknown user`);
     } else  if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {

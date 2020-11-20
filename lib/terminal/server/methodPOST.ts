@@ -133,11 +133,9 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 // * validate a browser test iteration
                 browser.result(JSON.parse(body)["test-browser"], serverResponse);
             } else if (task === "test-browser-remote") {
-                vars.ws.broadcast(body);
+                browser.remote(JSON.parse(body)["test-browser-remote"], serverResponse);
             } else if (task === "test-browser-response") {
-                response(serverResponse, "application/json", JSON.stringify({
-                    "test-browser": JSON.parse(body)["test-browser-response"]
-                }));
+                browser.remoteReturn(JSON.parse(body)["test-browser-response"], serverResponse);
             }
         };
 

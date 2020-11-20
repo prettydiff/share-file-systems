@@ -20,11 +20,14 @@ const task:testBrowserType = (vars.command === "test_browser_remote")
         ? "test-browser-remote"
         : "test-browser",
     browser:testBrowserApplication = {
+        agent: "",
         args: {
             demo: false,
             noClose: false
         },
-        index: -1
+        index: -1,
+        ip: "",
+        port: 0
     },
     machines:testBrowserMachines = {
         VM1: {
@@ -193,6 +196,12 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                 }
             }, delay);
         } else {
+            const payload:testBrowserTransfer = {
+                agent: serverVars.hashUser,
+                ip: serverVars.ipAddress,
+                port: serverVars.webPort,
+                test: tests[index]
+            };
             httpClient({
                 agentType: "device",
                 callback: function terminal_test_application_browser_iterate_httpClient(message:Buffer|string):void {
@@ -201,7 +210,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                 errorMessage: `Browser test ${index} received a transmission error sending the test.`,
                 ip: machines[tests[index].machine].ip,
                 payload: JSON.stringify({
-                    "test-browser-remote": tests[index]
+                    "test-browser-remote": payload
                 }),
                 port: machines[tests[index].machine].port,
                 requestError: function terminal_test_application_browser_iterate_remoteRequest():void {
@@ -221,6 +230,37 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
         log(logs, true);
         process.exit(1);
     }
+};
+
+browser.remote = function terminal_test_application_browser_remote(item:testBrowserTransfer, serverResponse:ServerResponse):void {
+    vars.ws.broadcast(item.test);
+    browser.agent = item.agent;
+    browser.ip = item.ip;
+    browser.port = item.port;
+    response(serverResponse, "text/plain", "Test received at remote");
+};
+
+browser.remoteReturn = function terminal_test_application_browser_remoteReturn(item:testBrowserResult, serverResponse:ServerResponse): void {
+    httpClient({
+        agentType: "device",
+        callback: function terminal_test_application_browser_remoteReturn_callback():void {},
+        errorMessage: `Failed to return test ${item.index} result from remote agent ${serverVars.nameDevice}.`,
+        ip: browser.ip,
+        port: browser.port,
+        payload: JSON.stringify({
+            "test-browser": item
+        }),
+        remoteName: browser.agent,
+        requestError: function terminal_test_application_browser_remoteReturn_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
+            error([`Error on request returning test ${item.index} result from ${agent} of type ${type}`, errorMessage.toString()]);
+        },
+        requestType: "test-browser (from remote agent)",
+        responseObject: serverResponse,
+        responseStream: httpClient.stream,
+        responseError: function terminal_test_application_browser_remoteReturn_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
+            error([`Error on response returning test ${item.index} result from ${agent} of type ${type}`, errorMessage.toString()]);
+        }
+    });
 };
 
 browser.result = function terminal_test_application_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
