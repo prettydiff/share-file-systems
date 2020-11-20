@@ -204,8 +204,8 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
             };
             httpClient({
                 agentType: "device",
-                callback: function terminal_test_application_browser_iterate_httpClient(message:Buffer|string):void {
-                    browser.result(JSON.parse(message.toString())["test-browser-remote"], null);
+                callback: function terminal_test_application_browser_iterate_httpClient(message:Buffer|string):string {
+                    return <string>message;
                 },
                 errorMessage: `Browser test ${index} received a transmission error sending the test.`,
                 ip: machines[tests[index].machine].ip,
@@ -243,6 +243,17 @@ browser.remote = function terminal_test_application_browser_remote(item:testBrow
 };
 
 browser.remoteReturn = function terminal_test_application_browser_remoteReturn(item:testBrowserResult, serverResponse:ServerResponse): void {
+    const errorCall = function terminal_test_application_browser_errorCall(data:httpError):void {
+        if (data.agent === undefined && data.type === undefined) {
+            error([`Error on ${data.callType} returning test ${item.index}`, data.error.toString()]);
+        } else if (data.agent === undefined) {
+            error([`Error on ${data.callType} returning test ${item.index} result from type ${data.type}`, data.error.toString()]);
+        } else if (data.type === undefined) {
+            error([`Error on ${data.callType} returning test ${item.index} result from ${data.agent}`, data.error.toString()]);
+        } else {
+            error([`Error on ${data.callType} returning test ${item.index} result from ${data.agent} of type ${data.type}`, data.error.toString()]);
+        }
+    };
     httpClient({
         agentType: "device",
         callback: function terminal_test_application_browser_remoteReturn_callback():void {},
@@ -254,13 +265,23 @@ browser.remoteReturn = function terminal_test_application_browser_remoteReturn(i
         }),
         remoteName: browser.agent,
         requestError: function terminal_test_application_browser_remoteReturn_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
-            error([`Error on request returning test ${item.index} result from ${agent} of type ${type}`, errorMessage.toString()]);
+            errorCall({
+                callType: "request",
+                agent: agent,
+                error: errorMessage,
+                type: type
+            });
         },
         requestType: "test-browser (from remote agent)",
         responseObject: serverResponse,
         responseStream: httpClient.stream,
         responseError: function terminal_test_application_browser_remoteReturn_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
-            error([`Error on response returning test ${item.index} result from ${agent} of type ${type}`, errorMessage.toString()]);
+            errorCall({
+                callType: "response",
+                agent: agent,
+                error: errorMessage,
+                type: type
+            });
         }
     });
 };
@@ -296,7 +317,7 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
                     }
                     const close:boolean = (browser.args.demo === false && browser.args.noClose === false),
                         // delay is extended for end of test if last event is refresh, so that the server has time to respond before exist
-                        delay:number = (close === false && type === 0 && tests[browser.index].interaction[0].event === "refresh")
+                        delay:number = (tests[browser.index].machine !== "self" || (close === false && type === 0 && tests[browser.index].interaction[0].event === "refresh"))
                             ? 1000
                             : 50;
                     finished = true;

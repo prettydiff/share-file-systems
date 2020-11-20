@@ -409,6 +409,12 @@ declare global {
         responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
     }
+    interface httpError {
+        agent: string;
+        callType: "request" | "response";
+        error: nodeError;
+        type: agentType;
+    }
     interface httpServer extends Server {
         port: number;
     }
