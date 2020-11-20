@@ -612,8 +612,7 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
     }
 };
 
-browser.route = function terminal_test_application_browser_route(message:string, serverResponse:ServerResponse):void {
-    const data:testBrowserRoute = JSON.parse(message);
+browser.route = function terminal_test_application_browser_route(data:testBrowserRoute, serverResponse:ServerResponse):void {
     if (data.action === "result") {
         browser.result(data.result, serverResponse);
     } else if (data.action === "close") {

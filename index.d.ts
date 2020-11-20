@@ -874,7 +874,7 @@ declare global {
         remoteClose?: (exit:{code:0|1, message:string}) => void;
         remoteReturn?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
-        route?: (message:string, serverResponse:ServerResponse) => void;
+        route?: (date:testBrowserRoute, serverResponse:ServerResponse) => void;
         server?: httpServer;
         transmissionReturned: number;
         transmissionSent: number;
