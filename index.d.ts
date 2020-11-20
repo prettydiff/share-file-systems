@@ -863,6 +863,9 @@ declare global {
         agent: string;
         args: testBrowserArgs;
         execute?: (args:testBrowserArgs) => void;
+        exit?: () => void;
+        exitMessage: string;
+        exitType: 0 | 1;
         index: number;
         ip: string;
         iterate?: (index:number) => void;
@@ -871,6 +874,8 @@ declare global {
         remoteReturn?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         server?: httpServer;
+        transmissionReturned: number;
+        transmissionSent: number;
     }
     interface testBrowserArgs {
         demo: boolean;

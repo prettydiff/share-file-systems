@@ -25,9 +25,13 @@ const task:testBrowserType = (vars.command === "test_browser_remote")
             demo: false,
             noClose: false
         },
+        exitMessage: "",
+        exitType: 0,
         index: -1,
         ip: "",
-        port: 0
+        port: 0,
+        transmissionReturned: 0,
+        transmissionSent: 0
     },
     machines:testBrowserMachines = {
         VM1: {
@@ -113,6 +117,34 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
             } while (length > 0);
         }
     });
+};
+
+browser.exit = function terminal_test_application_browser_exit():void {
+    if (finished === true) {
+        return;
+    }
+    finished = true;
+    if (browser.transmissionSent > browser.transmissionReturned) {
+        return;
+    }
+    const close:boolean = (browser.args.demo === false && browser.args.noClose === false),
+        // delay is extended for end of test if last event is refresh, so that the server has time to respond before exist
+        delay:number = (close === false && browser.exitType === 0 && tests[browser.index].interaction[0].event === "refresh")
+            ? 1000
+            : 50;
+    if (close === true) {
+        vars.ws.broadcast(JSON.stringify({
+            "test-browser-close": {}
+        }));
+        setTimeout(function terminal_test_application_browser_result_completion_exit_setTimeout():void {
+            log([browser.exitMessage], true);
+            process.exit(browser.exitType);
+        }, delay);
+    } else {
+        log([browser.exitMessage], true);
+        browser.index = -1;
+        serverVars.testBrowser = null;
+    }
 };
 
 browser.iterate = function terminal_test_application_browser_iterate(index:number):void {
@@ -204,8 +236,11 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
             };
             httpClient({
                 agentType: "device",
-                callback: function terminal_test_application_browser_iterate_httpClient(message:Buffer|string):string {
-                    return <string>message;
+                callback: function terminal_test_application_browser_iterate_httpClient():void {
+                    browser.transmissionReturned = browser.transmissionReturned + 1;
+                    if (finished === true) {
+                        browser.exit();
+                    }
                 },
                 errorMessage: `Browser test ${index} received a transmission error sending the test.`,
                 ip: machines[tests[index].machine].ip,
@@ -224,6 +259,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                     log([`Error on response to test ${index} to remote machine ${tests[index].machine}.`]);
                 },
             });
+            browser.transmissionSent = browser.transmissionSent + 1;
         }
     } else {
         vars.verbose = true;
@@ -256,7 +292,12 @@ browser.remoteReturn = function terminal_test_application_browser_remoteReturn(i
     };
     httpClient({
         agentType: "device",
-        callback: function terminal_test_application_browser_remoteReturn_callback():void {},
+        callback: function terminal_test_application_browser_remoteReturn_callback():void {
+            browser.transmissionReturned = browser.transmissionReturned + 1;
+            if (finished === true) {
+                browser.exit();
+            }
+        },
         errorMessage: `Failed to return test ${item.index} result from remote agent ${serverVars.nameDevice}.`,
         ip: browser.ip,
         port: browser.port,
@@ -284,6 +325,7 @@ browser.remoteReturn = function terminal_test_application_browser_remoteReturn(i
             });
         }
     });
+    browser.transmissionSent = browser.transmissionSent + 1;
 };
 
 browser.result = function terminal_test_application_browser_result(item:testBrowserResult, serverResponse:ServerResponse):void {
@@ -310,40 +352,20 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
                         return bb;
                     }
                     return bb + 1;
-                }()),
-                exit = function terminal_test_application_browser_result_completion_exit(type:number, message:string):void {
-                    if (finished === true) {
-                        return;
-                    }
-                    const close:boolean = (browser.args.demo === false && browser.args.noClose === false),
-                        // delay is extended for end of test if last event is refresh, so that the server has time to respond before exist
-                        delay:number = (tests[browser.index].machine !== "self" || (close === false && type === 0 && tests[browser.index].interaction[0].event === "refresh"))
-                            ? 1000
-                            : 50;
-                    finished = true;
-                    if (close === true) {
-                        vars.ws.broadcast(JSON.stringify({
-                            "test-browser-close": {}
-                        }));
-                        setTimeout(function terminal_test_application_browser_result_completion_exit_setTimeout():void {
-                            log([message], true);
-                            process.exit(type);
-                        }, delay);
-                    } else {
-                        log([message], true);
-                        browser.index = -1;
-                        serverVars.testBrowser = null;
-                    }
-                };
+                }());
             vars.verbose = true;
             if (pass === true) {
                 const passPlural:string = (item.index === 1)
                     ? ""
                     : "s";
-                exit(0, `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${item.index + 1} test${passPlural}.`);
+                browser.exitMessage = `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${item.index + 1} test${passPlural}.`;
+                browser.exitType = 0;
+                browser.exit();
                 return;
             }
-            exit(1, `${vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`);
+            browser.exitMessage = `${vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (item.index + 1) + vars.text.none}: "${vars.text.cyan + tests[item.index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+            browser.exitType = 1;
+            browser.exit();
         },
         summary = function terminal_test_application_browser_result_summary(pass:boolean):string {
             const text:string = ` browser test ${item.index + 1}: ${vars.text.none + tests[item.index].name}`,
