@@ -10,7 +10,7 @@ const remote:module_remote = {
     keyAlt: false,
     keyControl: false,
     keyShift: false,
-    task: "test-browser"
+    task: "result"
 };
 
 remote.delay = function browser_remote_delay(config:testBrowserItem):void {
@@ -23,7 +23,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
                 if (config.unit.length > 0) {
                     remote.test(config.unit, config.index, config);
                 } else {
-                    network.testBrowser([testResult], config.index, config.task);
+                    network.testBrowser([testResult], config.index, config.action);
                 }
                 return;
             }
@@ -32,7 +32,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
                 network.testBrowser([
                     [false, "delay timeout", config.delay.node.nodeString],
                     remote.evaluate(config.delay, config)
-                ], config.index, config.task);
+                ], config.index, config.action);
                 return;
             }
             setTimeout(browser_remote_delay_timeout, delay);
@@ -119,7 +119,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         };
     const eventLength:number = testItem.interaction.length;
-    remote.task = testItem.task;
+    remote.task = testItem.action;
     if (remote.index < testItem.index) {
         remote.index = testItem.index;
         browser.testBrowser = testItem;
@@ -153,7 +153,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 if (element === null || element === undefined) {
                     network.testBrowser([
                         [false, `event error ${String(element)}`, config.node.nodeString]
-                    ], testItem.index, testItem.task);
+                    ], testItem.index, testItem.action);
                     browser.testBrowser = null;
                     return;
                 }
@@ -328,14 +328,14 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, config:testBrowse
     if (fail === "getElementById") {
         network.testBrowser([
             [false, "Bad test. Method 'getElementById' must only occur as the first DOM method", dom.nodeString]
-        ], config.index, config.task);
+        ], config.index, config.action);
         remote.domFailure = true;
         return null;
     }
     if (fail === "childNodes") {
         network.testBrowser([
             [false, "Bad test. Property 'childNodes' requires an index value as the third data point of a DOM item: [\"childNodes\", null, 1]", dom.nodeString]
-        ], config.index, config.task);
+        ], config.index, config.action);
         remote.domFailure = true;
         return null;
     }
@@ -363,7 +363,7 @@ remote.test = function browser_remote_test(test:testBrowserTest[], index:number,
             }
             a = a + 1;
         } while (a < length);
-        network.testBrowser(result, index, config.task);
+        network.testBrowser(result, index, config.action);
     }
 };
 

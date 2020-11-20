@@ -193,14 +193,13 @@ const title:Element = document.getElementsByClassName("title")[0],
                 content.style.display = "block";
                 footer.style.display = "block";
             },
-            testBrowser = function browser_socketMessage_testBrowser(task:testBrowserType):void {
-                const test:testBrowserItem = JSON.parse(event.data)[task];
-                if (task === "test-browser-remote") {
-                    test.task = "test-browser-response";
-                } else {
-                    test.task = "test-browser";
+            testBrowser = function browser_socketMessage_testBrowser():void {
+                const data:testBrowserRoute = JSON.parse(event.data)["test-browser"];
+                if (data.action === "close") {
+                    window.close();
+                    return;
                 }
-                remote.event(test, false);
+                remote.event(data.test, false);
             };
         if (event.data.indexOf("{\"error\":") === 0) {
             error();
@@ -228,11 +227,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 invite.respond(invitation);
             }
         } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            testBrowser("test-browser");
-        } else if (event.data.indexOf("{\"test-browser-remote\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            testBrowser("test-browser-remote");
-        } else if (event.data.indexOf("{\"test-browser-close\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            window.close();
+            testBrowser();
         } else if (event.data === "reload") {
             location.reload();
         }

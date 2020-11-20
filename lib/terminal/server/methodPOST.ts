@@ -131,13 +131,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                 invite(body, serverResponse);
             } else if (task === "test-browser") {
                 // * validate a browser test iteration
-                browser.result(JSON.parse(body)["test-browser"], serverResponse);
-            } else if (task === "test-browser-close") {
-                browser.remoteClose(JSON.parse(body)["test-browser-close"]);
-            } else if (task === "test-browser-remote") {
-                browser.remote(JSON.parse(body)["test-browser-remote"], serverResponse);
-            } else if (task === "test-browser-response") {
-                browser.remoteReturn(JSON.parse(body)["test-browser-response"], serverResponse);
+                browser.route(body, serverResponse);
             }
         };
 

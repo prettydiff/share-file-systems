@@ -34,7 +34,7 @@ declare global {
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
-    type testBrowserType = "test-browser" | "test-browser-remote" | "test-browser-response";
+    type testBrowserAction = "close" | "request" | "respond" | "result";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
@@ -573,7 +573,7 @@ declare global {
         inviteRequest?: (configuration:invite) => void;
         message?: (message:messageItem) => void;
         storage?: (type:storageType) => void;
-        testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserType) => void;
+        testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
         xhr?: (config:networkConfig) => void;
     }
     interface module_remote {
@@ -589,7 +589,7 @@ declare global {
         keyShift: boolean;
         node?: (dom:testBrowserDOM, config:testBrowserItem) => Element;
         stringify?: (primitive:primitive) => string;
-        task: testBrowserType;
+        task: testBrowserAction;
         test?: (test:testBrowserTest[], index:number, config:testBrowserItem) => void;
     }
     interface module_settings {
@@ -870,10 +870,11 @@ declare global {
         ip: string;
         iterate?: (index:number) => void;
         port: number;
-        remote?: (item:testBrowserTransfer, serverResponse:ServerResponse) => void;
+        remote?: (item:testBrowserTransfer, test:testBrowserItem, serverResponse:ServerResponse) => void;
         remoteClose?: (exit:{code:0|1, message:string}) => void;
         remoteReturn?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
+        route?: (message:string, serverResponse:ServerResponse) => void;
         server?: httpServer;
         transmissionReturned: number;
         transmissionSent: number;
@@ -892,17 +893,13 @@ declare global {
         value?: string;
     }
     interface testBrowserItem {
+        action?: testBrowserAction;
         delay?: testBrowserTest;
         index?: number;
         interaction: testBrowserEvent[];
         machine: string;
         name: string;
-        task?: testBrowserType;
         unit: testBrowserTest[];
-    }
-    interface testBrowserResult {
-        index: number;
-        payload: [boolean, string, string][];
     }
     interface testBrowserMachines {
         [key:string]: {
@@ -910,6 +907,20 @@ declare global {
             port: number;
             secure: boolean;
         }
+    }
+    interface testBrowserResult {
+        index: number;
+        payload: [boolean, string, string][];
+    }
+    interface testBrowserRoute {
+        action: testBrowserAction;
+        exit: {
+            code: 0 | 1;
+            message: string;
+        };
+        result: testBrowserResult;
+        test: testBrowserItem;
+        transfer: testBrowserTransfer;
     }
     interface testBrowserTest {
         node: testBrowserDOM;
@@ -922,7 +933,6 @@ declare global {
         agent: string;
         ip: string;
         port: number;
-        test: testBrowserItem;
     }
     interface testComplete {
         callback: Function;
