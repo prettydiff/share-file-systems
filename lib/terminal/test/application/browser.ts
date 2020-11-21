@@ -357,7 +357,7 @@ browser.remoteReturn = function terminal_test_application_browser_remoteReturn(i
             }
         },
         route:testBrowserRoute = {
-            action: "respond",
+            action: "result",
             exit: null,
             result: item,
             test: null,
