@@ -199,7 +199,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     window.close();
                     return;
                 }
-                remote.event(data.test, false);
+                remote.event(data.test, false, data.action);
             };
         if (event.data.indexOf("{\"error\":") === 0) {
             error();

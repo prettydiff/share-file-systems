@@ -5,12 +5,12 @@ import browser from "./browser.js";
 import network from "./network.js";
 
 const remote:module_remote = {
+    action: "result",
     domFailure: false,
     index: -1,
     keyAlt: false,
     keyControl: false,
-    keyShift: false,
-    task: "result"
+    keyShift: false
 };
 
 remote.delay = function browser_remote_delay(config:testBrowserItem):void {
@@ -23,7 +23,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
                 if (config.unit.length > 0) {
                     remote.test(config.unit, config.index, config);
                 } else {
-                    network.testBrowser([testResult], config.index, config.action);
+                    network.testBrowser([testResult], config.index, remote.action);
                 }
                 return;
             }
@@ -32,7 +32,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
                 network.testBrowser([
                     [false, "delay timeout", config.delay.node.nodeString],
                     remote.evaluate(config.delay, config)
-                ], config.index, config.action);
+                ], config.index, remote.action);
                 return;
             }
             setTimeout(browser_remote_delay_timeout, delay);
@@ -57,7 +57,7 @@ remote.error = function browser_remote_error(message:string, source:string, line
         stack: (error === null)
             ? null
             : error.stack
-    }), "error"]], remote.index, remote.task);
+    }), "error"]], remote.index, remote.action);
 };
 
 // determine whether a given test item is pass or fail
@@ -106,12 +106,12 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest, config:
 };
 
 // process a single event instance
-remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageLoad:boolean):void {
+remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageLoad:boolean, action:testBrowserAction):void {
     let a:number = 0,
         element:HTMLElement,
         config:testBrowserEvent,
         htmlElement:HTMLInputElement,
-        action:Event,
+        event:Event,
         refresh:boolean = false,
         stringReplace = function browser_remote_testEvent_stringReplace(str:string):string {
             return str
@@ -119,10 +119,16 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         };
     const eventLength:number = testItem.interaction.length;
-    remote.task = testItem.action;
+    remote.action = action;
     if (remote.index < testItem.index) {
         remote.index = testItem.index;
-        browser.testBrowser = testItem;
+        browser.testBrowser = {
+            action: action,
+            exit: null,
+            result: null,
+            test: testItem,
+            transfer: null
+        };
         do {
             if (testItem.interaction[a].event === "refresh-interaction") {
                 if (pageLoad === true) {
@@ -153,7 +159,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 if (element === null || element === undefined) {
                     network.testBrowser([
                         [false, `event error ${String(element)}`, config.node.nodeString]
-                    ], testItem.index, testItem.action);
+                    ], testItem.index, action);
                     browser.testBrowser = null;
                     return;
                 }
@@ -186,7 +192,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                             }
                         } else {
                             const tabIndex:number = element.tabIndex;
-                            action = new KeyboardEvent(config.event, {
+                            event = new KeyboardEvent(config.event, {
                                 key: config.value,
                                 altKey: remote.keyAlt,
                                 ctrlKey: remote.keyControl,
@@ -194,20 +200,20 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                             });
                             element.tabIndex = 0;
                             element.dispatchEvent(new Event("focus"));
-                            element.dispatchEvent(action);
+                            element.dispatchEvent(event);
                             element.tabIndex = tabIndex;
                         }
                     } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
-                        action = new MouseEvent(config.event, {
+                        event = new MouseEvent(config.event, {
                             altKey: remote.keyAlt,
                             ctrlKey: remote.keyControl,
                             shiftKey: remote.keyShift
                         });
-                        element.dispatchEvent(action);
+                        element.dispatchEvent(event);
                     } else {
-                        action = document.createEvent("Event");
-                        action.initEvent(config.event, false, true);
-                        element.dispatchEvent(action);
+                        event = document.createEvent("Event");
+                        event.initEvent(config.event, false, true);
+                        element.dispatchEvent(event);
                     }
                 }
             }
@@ -328,14 +334,14 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, config:testBrowse
     if (fail === "getElementById") {
         network.testBrowser([
             [false, "Bad test. Method 'getElementById' must only occur as the first DOM method", dom.nodeString]
-        ], config.index, config.action);
+        ], config.index, remote.action);
         remote.domFailure = true;
         return null;
     }
     if (fail === "childNodes") {
         network.testBrowser([
             [false, "Bad test. Property 'childNodes' requires an index value as the third data point of a DOM item: [\"childNodes\", null, 1]", dom.nodeString]
-        ], config.index, config.action);
+        ], config.index, remote.action);
         remote.domFailure = true;
         return null;
     }
@@ -363,7 +369,7 @@ remote.test = function browser_remote_test(test:testBrowserTest[], index:number,
             }
             a = a + 1;
         } while (a < length);
-        network.testBrowser(result, index, config.action);
+        network.testBrowser(result, index, remote.action);
     }
 };
 

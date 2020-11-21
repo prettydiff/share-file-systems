@@ -130,7 +130,7 @@ declare global {
         pageBody: Element;
         socket?: WebSocket;
         style: HTMLStyleElement;
-        testBrowser: testBrowserItem;
+        testBrowser: testBrowserRoute;
         user: agents;
     }
     interface certificate {
@@ -577,11 +577,12 @@ declare global {
         xhr?: (config:networkConfig) => void;
     }
     interface module_remote {
+        action: testBrowserAction;
         delay?: (config:testBrowserItem) => void;
         domFailure: boolean;
         error?: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate?: (test:testBrowserTest, config:testBrowserItem) => [boolean, string, string];
-        event?: (event:testBrowserItem, pageLoad:boolean) => void;
+        event?: (event:testBrowserItem, pageLoad:boolean, action:testBrowserAction) => void;
         getProperty?: (test:testBrowserTest, config:testBrowserItem) => primitive;
         index: number;
         keyAlt: boolean;
@@ -589,7 +590,6 @@ declare global {
         keyShift: boolean;
         node?: (dom:testBrowserDOM, config:testBrowserItem) => Element;
         stringify?: (primitive:primitive) => string;
-        task: testBrowserAction;
         test?: (test:testBrowserTest[], index:number, config:testBrowserItem) => void;
     }
     interface module_settings {
@@ -756,7 +756,7 @@ declare global {
         secure: boolean;
         status: heartbeatStatus;
         storage: string;
-        testBrowser?: testBrowserItem;
+        testBrowser?: testBrowserRoute;
         timeStore: number;
         user: agents;
         watches: {
@@ -893,7 +893,6 @@ declare global {
         value?: string;
     }
     interface testBrowserItem {
-        action?: testBrowserAction;
         delay?: testBrowserTest;
         index?: number;
         interaction: testBrowserEvent[];

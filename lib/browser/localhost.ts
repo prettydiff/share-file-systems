@@ -39,7 +39,7 @@ import webSocket from "./webSocket.js";
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;
                 setTimeout(function browser_init_testBrowserLoad_delay():void {
-                    remote.event(browser.testBrowser, true);
+                    remote.event(browser.testBrowser.test, true, browser.testBrowser.action);
                 }, 500);
             }
         },

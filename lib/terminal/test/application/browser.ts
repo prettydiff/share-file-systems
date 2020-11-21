@@ -14,13 +14,9 @@ import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
 
 import tests from "../samples/browser.js";
-import { type } from "os";
 
 let finished:boolean = false;
-const action:testBrowserAction = (vars.command === "test_browser_remote")
-        ? "request"
-        : "result",
-    browser:testBrowserApplication = {
+const browser:testBrowserApplication = {
         agent: "",
         args: {
             demo: false,
@@ -43,8 +39,15 @@ const action:testBrowserAction = (vars.command === "test_browser_remote")
     },
     assign = function terminal_test_application_browser_assign(index:number):void {
         tests[index].index = index;
-        tests[index].action = action;
-        serverVars.testBrowser = tests[index];
+        serverVars.testBrowser = {
+            action: (tests[index].machine === "self")
+                ? "result"
+                : "request",
+            exit: null,
+            result: null,
+            test: tests[index],
+            transfer: null
+        };
     };
 
 browser.execute = function terminal_test_application_browser_execute(args:testBrowserArgs):void {
@@ -249,6 +252,15 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                     "test-browser": route
                 }));
                 if (tests[index].interaction[0].event === "refresh") {
+                    const payload: testBrowserRoute = {
+                        action: (browser.args.noClose === true)
+                            ? "request"
+                            : "close",
+                        exit: null,
+                        result: null,
+                        test: null,
+                        transfer: null
+                    };
                     if (tests[index].delay !== undefined) {
                         vars.verbose = true;
                         logs.push(    `Test is a refresh test, but it must not contain a ${vars.text.angry}delay${vars.text.none} property.`);
@@ -258,24 +270,8 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                     }
                     if (refresh < tests.length) {
                         assign(refresh);
-                    } else if (browser.args.noClose === true) {
-                        serverVars.testBrowser = {
-                            action: action,
-                            index: index,
-                            interaction: null,
-                            machine: tests[index].machine,
-                            name: "refresh-complete",
-                            unit: null
-                        };
                     } else {
-                        serverVars.testBrowser = {
-                            action: action,
-                            index: index,
-                            interaction: null,
-                            machine: tests[index].machine,
-                            name: "refresh-complete-close",
-                            unit: null
-                        };
+                        serverVars.testBrowser = payload;
                     }
                 }
             }, delay);
