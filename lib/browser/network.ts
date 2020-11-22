@@ -158,14 +158,11 @@ network.storage = function local_network_storage(type:storageType):void {
 
 /* Lets the service code know the browser is fully loaded and ready receive test samples. */
 network.testBrowser = function local_network_testBrowser(payload:[boolean, string, string][], index:number, task:testBrowserAction):void {
-    const result:testBrowserResult = {
-            index: index,
-            payload: payload
-        },
-        data:testBrowserRoute = {
+    const data:testBrowserRoute = {
             action: task,
             exit: null,
-            result: result,
+            index:index,
+            result: payload,
             test: null,
             transfer: null
         };

@@ -21,9 +21,9 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             const testResult:[boolean, string, string] = remote.evaluate(config.delay, config);
             if (testResult[0] === true) {
                 if (config.unit.length > 0) {
-                    remote.test(config.unit, config.index, config);
+                    remote.test(config.unit, remote.index, config);
                 } else {
-                    network.testBrowser([testResult], config.index, remote.action);
+                    network.testBrowser([testResult], remote.index, remote.action);
                 }
                 return;
             }
@@ -32,15 +32,15 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
                 network.testBrowser([
                     [false, "delay timeout", config.delay.node.nodeString],
                     remote.evaluate(config.delay, config)
-                ], config.index, remote.action);
+                ], remote.index, remote.action);
                 return;
             }
             setTimeout(browser_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
-    console.log(`Executing delay on test ${config.index}: ${config.name}`);
+    console.log(`Executing delay on test ${remote.index}: ${config.name}`);
     if (config.delay === undefined) {
-        remote.test(config.unit, config.index, config);
+        remote.test(config.unit, remote.index, config);
     } else {
         setTimeout(delayFunction, delay);
     }
@@ -106,7 +106,7 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest, config:
 };
 
 // process a single event instance
-remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageLoad:boolean, action:testBrowserAction):void {
+remote.event = function browser_remote_testEvent(item:testBrowserRoute, pageLoad:boolean):void {
     let a:number = 0,
         element:HTMLElement,
         config:testBrowserEvent,
@@ -118,21 +118,15 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         };
-    const eventLength:number = testItem.interaction.length;
-    remote.action = action;
-    if (remote.index < testItem.index) {
-        remote.index = testItem.index;
-        browser.testBrowser = {
-            action: action,
-            exit: null,
-            result: null,
-            test: testItem,
-            transfer: null
-        };
+    const eventLength:number = item.test.interaction.length;
+    remote.action = item.action;
+    if (remote.index < item.index) {
+        remote.index = item.index;
+        browser.testBrowser = item;
         do {
-            if (testItem.interaction[a].event === "refresh-interaction") {
+            if (item.test.interaction[a].event === "refresh-interaction") {
                 if (pageLoad === true) {
-                    remote.delay(testItem);
+                    remote.delay(item.test);
                     return;
                 }
                 refresh = true;
@@ -142,7 +136,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
 
         a = 0;
         do {
-            config = testItem.interaction[a];
+            config = item.test.interaction[a];
             if (config.event === "refresh") {
                 if (a === 0) {
                     location.reload();
@@ -150,8 +144,8 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                     remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
                     return;
                 }
-            } else if (testItem.interaction[a].event !== "refresh-interaction") {
-                element = <HTMLElement>remote.node(config.node, testItem);
+            } else if (item.test.interaction[a].event !== "refresh-interaction") {
+                element = <HTMLElement>remote.node(config.node, item.test);
                 if (remote.domFailure === true) {
                     remote.domFailure = false;
                     return;
@@ -159,7 +153,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
                 if (element === null || element === undefined) {
                     network.testBrowser([
                         [false, `event error ${String(element)}`, config.node.nodeString]
-                    ], testItem.index, action);
+                    ], item.index, item.action);
                     browser.testBrowser = null;
                     return;
                 }
@@ -220,7 +214,7 @@ remote.event = function browser_remote_testEvent(testItem:testBrowserItem, pageL
             a = a + 1;
         } while (a < eventLength);
         if (refresh === false) {
-            remote.delay(testItem);
+            remote.delay(item.test);
         }
     }
 };
@@ -334,14 +328,14 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, config:testBrowse
     if (fail === "getElementById") {
         network.testBrowser([
             [false, "Bad test. Method 'getElementById' must only occur as the first DOM method", dom.nodeString]
-        ], config.index, remote.action);
+        ], remote.index, remote.action);
         remote.domFailure = true;
         return null;
     }
     if (fail === "childNodes") {
         network.testBrowser([
             [false, "Bad test. Property 'childNodes' requires an index value as the third data point of a DOM item: [\"childNodes\", null, 1]", dom.nodeString]
-        ], config.index, remote.action);
+        ], remote.index, remote.action);
         remote.domFailure = true;
         return null;
     }

@@ -66,7 +66,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                             type:string = "";
                         const pageState = function terminal_server_get_readCallback_pageState(pageType:string):void {
                                 const appliedData = function terminal_server_get_readCallback_pageState_appliedData(storageData:storageItems):void {
-                                        const testBrowser:string = ((vars.command === "test_browser" || (vars.command === "test_browser_remote" && serverVars.testBrowser.test.index > 0)) && serverVars.testBrowser !== undefined)
+                                        const testBrowser:string = ((vars.command === "test_browser" || (vars.command === "test_browser_remote" && serverVars.testBrowser.index > 0)) && serverVars.testBrowser !== undefined)
                                                 ? `<!--${vars.command}:${JSON.stringify(serverVars.testBrowser)}-->`
                                                 : "",
                                             dataString:string = (typeof data === "string")

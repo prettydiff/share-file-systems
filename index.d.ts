@@ -582,7 +582,7 @@ declare global {
         domFailure: boolean;
         error?: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate?: (test:testBrowserTest, config:testBrowserItem) => [boolean, string, string];
-        event?: (event:testBrowserItem, pageLoad:boolean, action:testBrowserAction) => void;
+        event?: (item:testBrowserRoute, pageLoad:boolean) => void;
         getProperty?: (test:testBrowserTest, config:testBrowserItem) => primitive;
         index: number;
         keyAlt: boolean;
@@ -863,16 +863,16 @@ declare global {
         agent: string;
         args: testBrowserArgs;
         execute?: (args:testBrowserArgs) => void;
-        exit?: () => void;
+        exit?: (index:number) => void;
         exitMessage: string;
         exitType: 0 | 1;
         index: number;
         ip: string;
         iterate?: (index:number) => void;
         port: number;
-        remote?: (item:testBrowserTransfer, test:testBrowserItem, serverResponse:ServerResponse) => void;
+        remote?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         remoteClose?: (exit:{code:0|1, message:string}) => void;
-        remoteReturn?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
+        remoteReturn?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserResult, serverResponse:ServerResponse) => void;
         route?: (date:testBrowserRoute, serverResponse:ServerResponse) => void;
         server?: httpServer;
@@ -894,7 +894,6 @@ declare global {
     }
     interface testBrowserItem {
         delay?: testBrowserTest;
-        index?: number;
         interaction: testBrowserEvent[];
         machine: string;
         name: string;
@@ -907,17 +906,14 @@ declare global {
             secure: boolean;
         }
     }
-    interface testBrowserResult {
-        index: number;
-        payload: [boolean, string, string][];
-    }
     interface testBrowserRoute {
         action: testBrowserAction;
         exit: {
             code: 0 | 1;
             message: string;
         };
-        result: testBrowserResult;
+        index: number;
+        result: [boolean, string, string][];
         test: testBrowserItem;
         transfer: testBrowserTransfer;
     }
