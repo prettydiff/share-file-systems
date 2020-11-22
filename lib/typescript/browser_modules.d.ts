@@ -97,16 +97,16 @@ interface module_remote {
     delay?: (config:testBrowserItem) => void;
     domFailure: boolean;
     error?: (message:string, source:string, line:number, col:number, error:Error) => void;
-    evaluate?: (test:testBrowserTest, config:testBrowserItem) => [boolean, string, string];
+    evaluate?: (test:testBrowserTest) => [boolean, string, string];
     event?: (item:testBrowserRoute, pageLoad:boolean) => void;
-    getProperty?: (test:testBrowserTest, config:testBrowserItem) => primitive;
+    getProperty?: (test:testBrowserTest) => primitive;
     index: number;
     keyAlt: boolean;
     keyControl: boolean;
     keyShift: boolean;
-    node?: (dom:testBrowserDOM, config:testBrowserItem) => Element;
+    node?: (dom:testBrowserDOM) => Element;
     stringify?: (primitive:primitive) => string;
-    test?: (test:testBrowserTest[], index:number, config:testBrowserItem) => void;
+    test?: (test:testBrowserTest[], index:number) => void;
 }
 interface module_settings {
     addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;

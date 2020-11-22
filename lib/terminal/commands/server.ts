@@ -37,19 +37,15 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
         },
         portString:string = "",
         certLogs:string[] = null;
+    (function terminal_commands_server_insecure():void {
+        const index:number = process.argv.indexOf("insecure");
+        if (index > -1) {
+            serverVars.secure = false;
+            process.argv.splice(index, 1);
+        }
+    }());
     const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
-        insecure:boolean = (serverVars.secure === false)
-            ? true
-            : (function terminal_commands_server_insecure():boolean {
-                const index:number = process.argv.indexOf("insecure");
-                if (index < 0) {
-                    return false;
-                }
-                serverVars.secure = false;
-                process.argv.splice(index, 1);
-                return true;
-            }()),
         browserFlag:boolean = (function terminal_commands_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -68,9 +64,9 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
             }
             return false;
         }()),
-        scheme:string = (insecure === true)
-            ? "http"
-            : "https",
+        scheme:string = (serverVars.secure === true)
+            ? "https"
+            : "http",
         browser = function terminal_commands_server_browser(httpServer:httpServer):void {
             // open a browser from the command line
             serverCallback.callback({
@@ -152,11 +148,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
         },
         port:number = (vars.command === "test_service" || vars.command === "test")
             ? 0
-            : (isNaN(Number(process.argv[0])) === true)
-                ? (insecure === true && vars.version.port === 443)
-                    ? 80
-                    : vars.version.port
-                : Number(process.argv[0]),
+            : Number(process.argv[0]),
         serverError = function terminal_commands_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
@@ -211,7 +203,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                             format("IPv4");
                         };
 
-                    if (vars.command !== "test_service") {
+                    if (vars.command !== "test" && vars.command !== "test_service") {
                         serverVars.device = storageData.device;
                         serverVars.hashDevice = storageData.settings.hashDevice;
                         serverVars.user = storageData.user;
@@ -269,7 +261,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                     serverVars.hashUser = storageData.settings.hashUser;
                     serverVars.nameDevice = storageData.settings.nameDevice;
                     serverVars.nameUser = storageData.settings.nameUser;
-                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || (serverVars.addresses.IPv6[0][1] === "disconnected" && serverVars.addresses.IPv4[0][1] === "disconnected")) {
+                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.addresses.IPv6.length < 1 || serverVars.addresses.IPv6[0][1] === "disconnected") && serverVars.addresses.IPv4[0][1] === "disconnected")) {
                         logOutput(storageData);
                     } else {
                         const hbConfig:heartbeatUpdate = {
@@ -286,11 +278,11 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                 },
                 listen = function terminal_commands_server_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
-                        wsServer:httpServer = (insecure === true)
-                            ? vars.node.http.createServer(function terminal_commands_server_start_listen_wsListenerInsecure():void {
+                        wsServer:httpServer = (serverVars.secure === true)
+                            ? vars.node.https.createServer(function terminal_commands_server_start_listen_wsListenerSecure():void {
                                 return;
                             })
-                            : vars.node.https.createServer(https.certificate, function terminal_commands_server_start_listen_wsListener():void {
+                            : vars.node.http.createServer(https.certificate, function terminal_commands_server_start_listen_wsListener():void {
                                 return;
                             });
                     serverVars.webPort = serverAddress.port;
@@ -300,7 +292,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
 
                     httpServer.port = serverAddress.port;
                     portWeb = serverAddress.port;
-                    portString = ((portWeb === 443 && insecure === false) || (portWeb === 80 && insecure === true))
+                    portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
                         ? ""
                         : (serverVars.ipFamily === "IPv6")
                             ? `[${portWeb}]`
@@ -351,11 +343,11 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
             callback: function terminal_commands_server_falseCallback():void {}
         };
     }
-    if (insecure === true) {
-        start(vars.node.http.createServer(createServer));
-    } else {
+    if (serverVars.secure === true) {
         httpsFile("crt");
         httpsFile("key");
+    } else {
+        start(vars.node.http.createServer(createServer));
     }
 };
 

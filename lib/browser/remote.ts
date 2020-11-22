@@ -18,10 +18,10 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
     const delay:number = 50,
         maxTries:number = 200,
         delayFunction = function browser_remote_delay_timeout():void {
-            const testResult:[boolean, string, string] = remote.evaluate(config.delay, config);
+            const testResult:[boolean, string, string] = remote.evaluate(config.delay);
             if (testResult[0] === true) {
                 if (config.unit.length > 0) {
-                    remote.test(config.unit, remote.index, config);
+                    remote.test(config.unit, remote.index);
                 } else {
                     network.testBrowser([testResult], remote.index, remote.action);
                 }
@@ -31,7 +31,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             if (a === maxTries) {
                 network.testBrowser([
                     [false, "delay timeout", config.delay.node.nodeString],
-                    remote.evaluate(config.delay, config)
+                    remote.evaluate(config.delay)
                 ], remote.index, remote.action);
                 return;
             }
@@ -40,7 +40,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
     // eslint-disable-next-line
     console.log(`Executing delay on test ${remote.index}: ${config.name}`);
     if (config.delay === undefined) {
-        remote.test(config.unit, remote.index, config);
+        remote.test(config.unit, remote.index);
     } else {
         setTimeout(delayFunction, delay);
     }
@@ -61,10 +61,10 @@ remote.error = function browser_remote_error(message:string, source:string, line
 };
 
 // determine whether a given test item is pass or fail
-remote.evaluate = function browser_remote_evaluate(test:testBrowserTest, config:testBrowserItem):[boolean, string, string] {
+remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
     const rawValue:primitive|Element = (test.type === "element")
-            ? remote.node(test.node, config)
-            : remote.getProperty(test, config),
+            ? remote.node(test.node)
+            : remote.getProperty(test),
         qualifier:qualifier = test.qualifier,
         configString:string = <string>test.value;
     if (qualifier === "is" && rawValue === configString) {
@@ -145,7 +145,7 @@ remote.event = function browser_remote_testEvent(item:testBrowserRoute, pageLoad
                     return;
                 }
             } else if (item.test.interaction[a].event !== "refresh-interaction") {
-                element = <HTMLElement>remote.node(config.node, item.test);
+                element = <HTMLElement>remote.node(config.node);
                 if (remote.domFailure === true) {
                     remote.domFailure = false;
                     return;
@@ -220,8 +220,8 @@ remote.event = function browser_remote_testEvent(item:testBrowserRoute, pageLoad
 };
 
 // get the value of the specified property/attribute
-remote.getProperty = function browser_remote_getProperty(test:testBrowserTest, config:testBrowserItem):primitive {
-    const element:Element = remote.node(test.node, config),
+remote.getProperty = function browser_remote_getProperty(test:testBrowserTest):primitive {
+    const element:Element = remote.node(test.node),
         pLength = test.target.length - 1,
         method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
             if (name.slice(name.length - 2) === "()") {
@@ -258,7 +258,7 @@ remote.getProperty = function browser_remote_getProperty(test:testBrowserTest, c
 };
 
 // gather a DOM node using instructions from a data structure
-remote.node = function browser_remote_node(dom:testBrowserDOM, config:testBrowserItem):Element {
+remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
     let element:Element|Document = document,
         node:[domMethod, string, number],
         a:number = 0,
@@ -350,13 +350,13 @@ remote.stringify = function browser_remote_raw(primitive:primitive):string {
 };
 
 //process all cases of a test scenario for a given test item
-remote.test = function browser_remote_test(test:testBrowserTest[], index:number, config:testBrowserItem):void {
+remote.test = function browser_remote_test(test:testBrowserTest[], index:number):void {
     let a:number = 0;
     const result:[boolean, string, string][] = [],
         length:number = test.length;
     if (length > 0) {
         do {
-            result.push(remote.evaluate(test[a], config));
+            result.push(remote.evaluate(test[a]));
             if (remote.domFailure === true) {
                 remote.domFailure = false;
                 return;
