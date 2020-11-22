@@ -22,7 +22,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
         errorOut = function terminal_utilities_error_errorOut():void {
             if (vars.command === "server") {
                 const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
-                    server:serverError = {
+                    server:error = {
                         stack: stackTrace.slice(1),
                         error: errText.join(" ")
                     };

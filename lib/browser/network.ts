@@ -41,13 +41,13 @@ network.fileBrowser = function local_network_fileBrowser(configuration:fileServi
 
 /* generate a share to describe a new share from the local device */
 network.hashDevice = function local_network_hashDevice(callback:Function):void {
-    const hashes:hashUser = {
+    const hashes:hashAgent = {
             device: browser.data.nameDevice,
             user: browser.data.nameUser
         };
     network.xhr({
         callback: function local_network_hashDevice_callback(responseText:string) {
-            const hashes:hashUser = JSON.parse(responseText);
+            const hashes:hashAgent = JSON.parse(responseText);
             callback(hashes);
         },
         error: null,
@@ -192,7 +192,7 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                         config.callback(xhr.responseText);
                     }
                 } else {
-                    const error:messageError = {
+                    const error:error = {
                         error: (config.error === null)
                             ? `XHR responded with ${xhr.status} when sending messages of type ${config.type}.`
                             : config.error,

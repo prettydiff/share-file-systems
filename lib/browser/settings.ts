@@ -241,7 +241,7 @@ settings.compressionToggle = function browser_settings_compressionToggle(event:M
 /* Shows the settings modal */
 settings.modal = function browser_settings_modal(event:MouseEvent):void {
     const settings:HTMLElement = document.getElementById("settings-modal"),
-        data:ui_modal = browser.data.modals["settings-modal"];
+        data:modal = browser.data.modals["settings-modal"];
     modal.zTop(event, settings);
     if (data.status === "hidden") {
         settings.style.display = "block";

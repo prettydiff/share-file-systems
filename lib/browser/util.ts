@@ -624,7 +624,7 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
         length:number = 0,
         itemList:HTMLCollectionOf<Element>,
         box:Element,
-        dataModal:ui_modal,
+        dataModal:modal,
         addressItem:Element;
     if (element.nodeName.toLowerCase() !== "li") {
         element = <Element>element.parentNode;

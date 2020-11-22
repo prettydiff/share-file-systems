@@ -181,7 +181,7 @@ invite.portValidation = function browser_invite_port(event:KeyboardEvent):void {
 };
 
 /* Send the invite request to the network */
-invite.request = function browser_invite_request(event:MouseEvent, options:ui_modal):void {
+invite.request = function browser_invite_request(event:MouseEvent, options:modal):void {
     let type:agentType,
         ip:string,
         port:string,
@@ -278,7 +278,7 @@ invite.respond = function browser_invite_respond(invitation:invite):void {
     const div:Element = document.createElement("div"),
         modals:string[] = Object.keys(browser.data.modals),
         length:number = modals.length,
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: div,
@@ -327,7 +327,7 @@ invite.respond = function browser_invite_respond(invitation:invite):void {
 };
 
 /* Invite users to your shared space */
-invite.start = function browser_invite_start(event:MouseEvent, settings?:ui_modal):void {
+invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):void {
     const inviteElement:Element = document.createElement("div"),
         separator:string = "|spaces|",
         random:string = Math.random().toString(),
@@ -435,7 +435,7 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:ui_moda
     inviteElement.appendChild(section);
     inviteElement.setAttribute("class", "inviteUser");
     if (settings === undefined) {
-        const payload:ui_modal = {
+        const payload:modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: inviteElement,

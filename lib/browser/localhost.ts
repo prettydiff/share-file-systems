@@ -44,7 +44,7 @@ import webSocket from "./webSocket.js";
             }
         },
         defaultModals = function browser_init_defaultModals():void {
-            const payloadModal:ui_modal = {
+            const payloadModal:modal = {
                 agent: browser.data.hashDevice,
                 agentType: "device",
                 content: null,
@@ -76,7 +76,7 @@ import webSocket from "./webSocket.js";
                     } else {
                         browser.data.nameUser = nameUser.value;
                         browser.data.nameDevice = nameDevice.value;
-                        network.hashDevice(function browser_init_applyLogin_action_hash(hashes:hashUser) {
+                        network.hashDevice(function browser_init_applyLogin_action_hash(hashes:hashAgent) {
                             browser.data.hashDevice = hashes.device;
                             browser.data.hashUser = hashes.user;
                             browser.device[hashes.device] = {
@@ -294,7 +294,7 @@ import webSocket from "./webSocket.js";
                     }
 
                     modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                        const modalItem:ui_modal = storage.settings.modals[value];
+                        const modalItem:modal = storage.settings.modals[value];
                         if (modalItem.type === "fileNavigate") {
                             const agent:string = modalItem.agent,
                                 payload:fileService = {
@@ -312,7 +312,7 @@ import webSocket from "./webSocket.js";
                                 },
                                 selection = function browser_init_modalKeys_selection(id:string):void {
                                     const box:Element = document.getElementById(id),
-                                        modalData:ui_modal = browser.data.modals[id],
+                                        modalData:modal = browser.data.modals[id],
                                         keys:string[] = (modalData.selection === undefined)
                                             ? []
                                             : Object.keys(modalData.selection),

@@ -77,7 +77,7 @@ modal.confirm = function browser_modal_confirm(event:MouseEvent):void {
 };
 
 /* Modal creation factory */
-modal.create = function browser_modal_create(options:ui_modal):Element {
+modal.create = function browser_modal_create(options:modal):Element {
     let button:HTMLElement = document.createElement("button"),
         buttonCount:number = 0,
         section:HTMLElement = document.createElement("h2"),
@@ -407,7 +407,7 @@ modal.export = function browser_modal_export(event:MouseEvent):void {
         agency:agency = (element === document.getElementById("export"))
             ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
-        payload:ui_modal = {
+        payload:modal = {
             agent: agency[0],
             agentType: "device",
             content: textArea,
@@ -574,7 +574,7 @@ modal.move = function browser_modal_move(event:Event):void {
     const x:Element = <Element>event.target,
         heading:Element = <Element>x.parentNode,
         box:HTMLElement = <HTMLElement>heading.parentNode.parentNode,
-        settings:ui_modal = browser.data.modals[box.getAttribute("id")],
+        settings:modal = browser.data.modals[box.getAttribute("id")],
         border:HTMLElement = box.getElementsByTagName("div")[0],
         minifyTest:boolean = (box.parentNode.nodeName.toLowerCase() === "li"),
         touch:boolean = (event !== null && event.type === "touchstart"),
@@ -736,7 +736,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
             : 0,
         sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
         drop       = function browser_modal_resize_drop():void {
-            const settings:ui_modal = browser.data.modals[box.getAttribute("id")];
+            const settings:modal = browser.data.modals[box.getAttribute("id")];
             if (touch === true) {
                 document.ontouchmove = null;
                 document.ontouchstart = null;
@@ -917,7 +917,7 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
         agency:agency = (element === document.getElementById("textPad"))
             ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
-        payload:ui_modal = {
+        payload:modal = {
             agent: agency[0],
             agentType: "device",
             content: textArea,
@@ -944,7 +944,7 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
 modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
         box:Element = element.getAncestor("box", "class"),
-        data:ui_modal = browser.data.modals[box.getAttribute("id")];
+        data:modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
     }
@@ -956,7 +956,7 @@ modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
 modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
     const element:HTMLTextAreaElement = <HTMLTextAreaElement>event.target,
         box:Element = element.getAncestor("box", "class"),
-        data:ui_modal = browser.data.modals[box.getAttribute("id")];
+        data:modal = browser.data.modals[box.getAttribute("id")];
     if (data.timer !== undefined) {
         window.clearTimeout(data.timer);
     }

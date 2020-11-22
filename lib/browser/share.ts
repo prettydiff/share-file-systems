@@ -446,10 +446,10 @@ share.deleteItem = function browser_share_deleteItem(event:MouseEvent):void {
 };
 
 /* Creates a confirmation modal listing users for deletion */
-share.deleteList = function browser_share_deleteList(event:MouseEvent, configuration?:ui_modal):void {
+share.deleteList = function browser_share_deleteList(event:MouseEvent, configuration?:modal):void {
     const content:Element = share.deleteListContent(),
         total:number = content.getElementsByTagName("li").length,
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: content,
@@ -556,7 +556,7 @@ share.deleteToggle = function browser_shares_deleteToggle(event:MouseEvent):void
 };
 
 /* Displays a list of shared items for each user */
-share.modal = function browser_shares_modal(agent:string, agentType:agentType|"", configuration:ui_modal|null):void {
+share.modal = function browser_shares_modal(agent:string, agentType:agentType|"", configuration:modal|null):void {
     if (configuration === null) {
         const icon:string = (agentType === "device")
                 ? "🖳"
@@ -621,7 +621,7 @@ share.update = function browser_share_update(exclusion:string):void {
         modal:Element,
         body:Element,
         agent:string,
-        item:ui_modal,
+        item:modal,
         agentType:agentType | "";
     do {
         if (exclusion !== modals[a]) {

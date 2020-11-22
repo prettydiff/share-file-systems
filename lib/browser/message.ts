@@ -36,7 +36,7 @@ message.footer = function browser_message_footer():Element {
 };
 
 /* render a message modal */
-message.modal = function browser_message_modal(configuration:ui_modal):void {
+message.modal = function browser_message_modal(configuration:modal):void {
     const content:Element = document.createElement("table");
     content.setAttribute("class", "message-content");
     content.appendChild(document.createElement("tbody"));
@@ -123,7 +123,7 @@ message.shareButton = function browser_message_shareButton(event:MouseEvent):voi
         title:string = (agentHash === browser.data.hashDevice)
             ? `Text message to all ${agentType}s`
             : `Text message to ${common.capitalize(agentType)} ${browser[agentType][agentHash].name}`,
-        configuration:ui_modal = {
+        configuration:modal = {
             agent: agentHash,
             agentType: agentType,
             content: null,

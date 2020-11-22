@@ -601,7 +601,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
                     }())
                     : fileBrowser.list(loc, payload)[0];
             if (replaceAddress === true) {
-                const modal:ui_modal = browser.data.modals[payload.id];
+                const modal:modal = browser.data.modals[payload.id];
                 box.getElementsByTagName("input")[0].value = loc;
                 modal.text_value = loc;
                 modal.history[modal.history.length - 1] = loc;
@@ -623,7 +623,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             share: share,
             watch: "yes"
         },
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: agentName,
             agentType: agentType,
             content: util.delay(),
@@ -955,7 +955,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     let state:boolean = input.checked,
         body:Element = li,
         box:Element,
-        modalData:ui_modal;
+        modalData:modal;
     if (document.getElementById("newFileItem") !== null) {
         return;
     }

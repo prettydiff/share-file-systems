@@ -22,8 +22,8 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
     const decoder:StringDecoder = new StringDecoder("utf8"),
         end = function terminal_server_post_end():void {
             const hashDevice = function terminal_server_post_end_hashDevice():void {
-                const nameData:hashUser = JSON.parse(body).hashDevice,
-                        hashes:hashUser = {
+                const nameData:hashAgent = JSON.parse(body).hashDevice,
+                        hashes:hashAgent = {
                             device: "",
                             user: ""
                         },

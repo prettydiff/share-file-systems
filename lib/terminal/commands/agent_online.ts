@@ -83,7 +83,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                         port: storage[agentType][agentHash].port,
                         timeout: 1000
                     },
-                    outputString = function terminal_commands_agentOnline_readStorage_request_errorString(output:testAgentOutput):string {
+                    outputString = function terminal_commands_agentOnline_readStorage_request_errorString(output:agentOutput):string {
                         const status = (output.status === "bad")
                             ? `${vars.text.angry}Bad${vars.text.none}`
                             : `${vars.text.green + vars.text.bold}Good${vars.text.none}`;

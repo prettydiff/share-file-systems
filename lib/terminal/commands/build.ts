@@ -353,7 +353,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                                         error(["Error reading file during documentation build task."]);
                                         return;
                                     }
-                                    if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+ - \w/).test(file) === false) {
+                                    if ((/^\s*((\/\*)|(<!--)) \w+(\/\w+)+(\.d)? - \w/).test(file) === false) {
                                         error([
                                             "Code file missing required descriptive comment at top of code.",
                                             `${vars.text.angry + codeFiles[a] + vars.text.none}`,

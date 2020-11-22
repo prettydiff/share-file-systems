@@ -91,7 +91,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
             share: browser.data.modals[id].share,
             watch: "no"
         },
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: agency[0],
             agentType: agency[2],
             content: null,
@@ -215,7 +215,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: agency[0],
             agentType: agency[2],
             content: div,

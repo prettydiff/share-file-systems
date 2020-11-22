@@ -107,3 +107,12 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/utilities/readStorage.ts](../lib/terminal/utilities/readStorage.ts)**                       - Reads all the storage files and returns a data structure to a callback
    - **[../lib/terminal/utilities/vars.ts](../lib/terminal/utilities/vars.ts)**                                     - Globally available variables for the terminal utility.
    - **[../lib/terminal/utilities/wrapIt.ts](../lib/terminal/utilities/wrapIt.ts)**                                 - A tool to perform word wrap when printing text to the shell.
+* Directory *[../lib/typescript](../lib/typescript)*
+   - **[../lib/typescript/browser.d.ts](../lib/typescript/browser.d.ts)**                                           - TypeScript interfaces used by browser specific libraries.
+   - **[../lib/typescript/browser_modules.d.ts](../lib/typescript/browser_modules.d.ts)**                           - TypeScript interfaces that define master library modules used in the browser.
+   - **[../lib/typescript/environment.d.ts](../lib/typescript/environment.d.ts)**                                   - TypeScript interfaces that define environmental objects.
+   - **[../lib/typescript/fileService.d.ts](../lib/typescript/fileService.d.ts)**                                   - TypeScript interfaces used by the file services.
+   - **[../lib/typescript/global.d.ts](../lib/typescript/global.d.ts)**                                             - TypeScript interfaces used in many unrelated areas of the application.
+   - **[../lib/typescript/terminal.d.ts](../lib/typescript/terminal.d.ts)**                                         - TypeScript interfaces used by terminal specific libraries.
+   - **[../lib/typescript/test.d.ts](../lib/typescript/test.d.ts)**                                                 - TypeScript interfaces used test automation.
+   - **[../lib/typescript/types.d.ts](../lib/typescript/types.d.ts)**                                               - TypeScript static types.
