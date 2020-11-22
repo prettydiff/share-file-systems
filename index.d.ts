@@ -859,7 +859,6 @@ declare global {
         type: "request" | "response";
     }
     interface testBrowserApplication {
-        [index:number]: testBrowserItem;
         agent: string;
         args: testBrowserArgs;
         execute?: (args:testBrowserArgs) => void;
@@ -898,6 +897,10 @@ declare global {
         machine: string;
         name: string;
         unit: testBrowserTest[];
+    }
+    interface testBrowserItems extends Array<testBrowserItem> {
+        [index:number]: testBrowserItem;
+        machines?: testBrowserMachines;
     }
     interface testBrowserMachines {
         [key:string]: {

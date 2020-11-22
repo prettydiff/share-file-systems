@@ -5,6 +5,13 @@ import vars from "../../utilities/vars.js";
 
 const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
     windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
+    machines:testBrowserMachines = {
+        VM1: {
+            ip: "192.168.56.125",
+            port: 80,
+            secure: false
+        }
+    },
     mainMenu = function terminal_test_samples_browser_mainMenu(machine:string):testBrowserItem {
         return {
             interaction: [
@@ -111,7 +118,30 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         };
     },
-    browser:testBrowserItem[] = [
+    browser:testBrowserItems = [
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementsByTagName", "body", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "testing",
+            unit: [
+                {
+                    node: [
+                        ["getElementsByTagName", "body", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["nodeName", "toLowerCase()"],
+                    type: "property",
+                    value: "body"
+                }
+            ]
+        },
 
         // complete the login
         {
@@ -3677,7 +3707,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             machine: "VM1",
-            name: "Login form",
+            name: "Login form on VM1",
             unit: [
                 {
                     // that a local user button is present and active
@@ -3712,7 +3742,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 }
             ],
             machine: "VM1",
-            name: "Refresh following login form completion",
+            name: "Refresh following login form completion on VM1",
             // assert that login remains complete, login data is stored and written to page
             unit: [
                 {
@@ -3749,5 +3779,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         }
     ];
+
+browser.machines = machines;
 
 export default browser;

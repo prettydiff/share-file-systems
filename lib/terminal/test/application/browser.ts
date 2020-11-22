@@ -30,13 +30,6 @@ const browser:testBrowserApplication = {
         transmissionReturned: 0,
         transmissionSent: 0
     },
-    machines:testBrowserMachines = {
-        VM1: {
-            ip: "192.168.56.125",
-            port: 80,
-            secure: false
-        }
-    },
     assign = function terminal_test_application_browser_assign(index:number):void {
         serverVars.testBrowser = {
             action: (tests[index].machine === "self")
@@ -137,7 +130,7 @@ browser.exit = function terminal_test_application_browser_exit(index:number):voi
             ? 1000
             : 50;
     if (close === true) {
-        const agents:string[] = Object.keys(machines),
+        const agents:string[] = Object.keys(tests.machines),
             close:testBrowserRoute = {
                 action: "close",
                 exit: null,
@@ -167,8 +160,8 @@ browser.exit = function terminal_test_application_browser_exit(index:number):voi
                     }
                 },
                 errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
-                ip: machines[name].ip,
-                port: machines[name].port,
+                ip: tests.machines[name].ip,
+                port: tests.machines[name].port,
                 payload: JSON.stringify({
                     "test-browser": close
                 }),
@@ -302,11 +295,11 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                     }
                 },
                 errorMessage: `Browser test ${index} received a transmission error sending the test.`,
-                ip: machines[tests[index].machine].ip,
+                ip: tests.machines[tests[index].machine].ip,
                 payload: JSON.stringify({
                     "test-browser": route
                 }),
-                port: machines[tests[index].machine].port,
+                port: tests.machines[tests[index].machine].port,
                 requestError: function terminal_test_application_browser_iterate_remoteRequest():void {
                     log([`Error requesting test ${index} to remote machine ${tests[index].machine}.`]);
                 },
