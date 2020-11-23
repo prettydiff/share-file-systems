@@ -146,7 +146,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                 }
             });
         },
-        port:number = (vars.command.indexOf("test") === 0)
+        port:number = (vars.command.indexOf("test") === 0 && vars.command !== "test_browser_remote")
             ? 0
             : (isNaN(Number(process.argv[0])) === true)
                 ? (vars.version.port === 443 && serverVars.secure === false)
