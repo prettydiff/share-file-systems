@@ -146,9 +146,13 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                 }
             });
         },
-        port:number = (vars.command === "test_service" || vars.command === "test")
+        port:number = (vars.command.indexOf("test") === 0)
             ? 0
-            : Number(process.argv[0]),
+            : (isNaN(Number(process.argv[0])) === true)
+                ? (vars.version.port === 443 && serverVars.secure === false)
+                    ? 80
+                    : vars.version.port
+                : Number(process.argv[0]),
         serverError = function terminal_commands_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {

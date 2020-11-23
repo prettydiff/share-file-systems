@@ -442,7 +442,7 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):
             height: 650,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             read_only: false,
-            title: document.getElementById("user-invite").innerHTML,
+            title: document.getElementById("agent-invite").innerHTML,
             type: "invite-request"
         };
         modal.create(payload);

@@ -13,8 +13,8 @@ interface browser {
         systemLog: HTMLElement;
         settings: HTMLElement;
         textPad: HTMLElement;
-        "user-delete": HTMLElement;
-        "user-invite": HTMLElement;
+        "agent-delete": HTMLElement;
+        "agent-invite": HTMLElement;
     };
     pageBody: Element;
     socket?: WebSocket;

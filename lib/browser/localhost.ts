@@ -192,8 +192,8 @@ import webSocket from "./webSocket.js";
             browser.menu.fileNavigator.onclick = fileBrowser.navigate;
             browser.menu.settings.onclick = settings.modal;
             browser.menu.textPad.onclick = modal.textPad;
-            browser.menu["user-delete"].onclick = share.deleteList;
-            browser.menu["user-invite"].onclick = invite.start;
+            browser.menu["agent-delete"].onclick = share.deleteList;
+            browser.menu["agent-invite"].onclick = invite.start;
             a = 0;
             do {
                 buttons[a].onblur = util.menuBlur;
