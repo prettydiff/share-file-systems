@@ -601,9 +601,7 @@ browser.result = function terminal_test_application_browser_result(item:testBrow
         }
         log([summary(true)]);
         if (index + 1 < tests.length) {
-            if (tests[browser.index].interaction[0].event !== "refresh") {
-                browser.iterate(index + 1);
-            }
+            browser.iterate(index + 1);
         } else {
             completion(true);
         }

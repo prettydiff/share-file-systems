@@ -10,10 +10,11 @@
     "exclude": [
         "js",
         "lib/terminal/test/storageBrowser",
-        "node_modules"
+        "lib/ws-es6",
+        "**/node_modules",
+        "**/.*/"
     ],
     "include": [
-        "*.ts",
         "**/*.ts"
     ]
 }
