@@ -34,7 +34,7 @@ import webSocket from "./webSocket.js";
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
-        testBrowserReg:RegExp = (/^test_browser(_remote)?:/),
+        testBrowserReg:RegExp = (/^test_browser:/),
         testBrowserLoad = function browser_init_testBrowserLoad():void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;

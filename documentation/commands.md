@@ -232,20 +232,15 @@ Launches the 'server' command as a child process, launches the default browser t
    - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
 1. `node js/application test_browser demo`
    - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
+1. `node js/application test_browser mode:"self"`
+   - The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.
+1. `node js/application test_browser mode:"agents"`
+   - The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'.
+1. `node js/application test_browser mode:"remote"`
+   - The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically.
+1. `node js/application test_browser mode:"full"`
+   - The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list.
 1. `node js/application test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
-   - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
-
-## test_browser_remote
-Launches the application in the same context as command 'test_browser' but in listening mode waiting for test scenarios as a network request.
-
-### Examples
-1. `node js/application test_browser_remote`
-   - Launches the server and then waits for further guidance.
-1. `node js/application test_browser_remote no_close`
-   - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
-1. `node js/application test_browser_remote demo`
-   - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
-1. `node js/application test_browser_remote "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 
 ## test_service

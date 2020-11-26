@@ -46,14 +46,10 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
     }());
     const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
+        testBrowserRemote:boolean = (serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
         browserFlag:boolean = (function terminal_commands_server_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
-            serverVars.storage = (vars.command === "test_browser" || vars.command === "test_browser_remote")
-                ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
-                : (vars.command.indexOf("test") === 0 || test > -1)
-                    ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
-                    : `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
             if (test > -1) {
                process.argv.splice(test, 1);
             }
@@ -146,13 +142,24 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                 }
             });
         },
-        port:number = (vars.command.indexOf("test") === 0 && vars.command !== "test_browser_remote")
-            ? 0
-            : (isNaN(Number(process.argv[0])) === true)
-                ? (vars.version.port === 443 && serverVars.secure === false)
-                    ? 80
-                    : vars.version.port
-                : Number(process.argv[0]),
+        port:number = (function terminal_commands_server_port():number {
+            let len:number = process.argv.length,
+                item:number = -1;
+            do {
+                len = len - 1;
+                item = Number(process.argv[len]);
+                if (isNaN(item) === false) {
+                    break;
+                }
+            } while (len > 0);
+            return (vars.command.indexOf("test") === 0 && testBrowserRemote === false)
+                ? 0
+                : (item > -1)
+                    ? (vars.version.port === 443 && serverVars.secure === false)
+                        ? 80
+                        : vars.version.port
+                    : item;
+        }()),
         serverError = function terminal_commands_server_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
@@ -219,7 +226,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
-                    if (vars.command === "test_browser_remote" || vars.command.indexOf("test") !== 0) {
+                    if (testBrowserRemote === true || vars.command.indexOf("test") !== 0) {
 
                         // log the port information to the terminal
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
@@ -249,7 +256,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                             });
                         }
                         output.push("");
-                        if (vars.command === "test_browser_remote") {
+                        if (testBrowserRemote === true) {
                             output.push("");
                         } else {
                             log.title("Local Server");
@@ -336,7 +343,7 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
                 port: port
             }, listen);
         };
-    if (vars.command.indexOf("test_") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
+    if (vars.command.indexOf("test") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
         error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);
         return;
     }

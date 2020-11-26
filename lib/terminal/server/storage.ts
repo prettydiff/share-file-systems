@@ -10,7 +10,7 @@ import serverVars from "./serverVars.js";
 const storage = function terminal_server_storage(data:storage):void {
     const location:string = serverVars.storage + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
-        testFlag:boolean = (vars.command !== "test_browser" && vars.command !== "test_browser_remote" && vars.command.indexOf("test") === 0),
+        testFlag:boolean = (serverVars.testBrowser === null && vars.command.indexOf("test") === 0),
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
             if (testFlag === true) {

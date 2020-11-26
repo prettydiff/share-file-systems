@@ -125,7 +125,7 @@ const serverWatch = function terminal_server_serverWatch(type:"rename"|"change",
         vars.ws.broadcast("reload");
     } else {
         const fsUpdateCallback = function terminal_server_serverWatch_fsUpdateCallback(result:directoryList):void {
-                if (vars.command !== "test_browser" && vars.command !== "test_browser_remote") {
+                if (serverVars.testBrowser === null) {
                     vars.ws.broadcast(JSON.stringify({
                         "fs-update-local": result
                     }));

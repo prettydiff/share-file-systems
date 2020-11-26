@@ -120,6 +120,7 @@ service.addServers = function terminal_test_application_services_addServers(call
     readStorage(storageComplete);
     removal();
 };
+
 service.execute = function terminal_test_application_services_execute(config:testExecute):void {
     const index:number = (config.list.length < 1)
             ? config.index
@@ -209,10 +210,14 @@ service.execute = function terminal_test_application_services_execute(config:tes
     });
     httpRequest.write(command);
 };
+
 service.killServers = function terminal_test_application_services_killServers(complete:testComplete):void {
     const agentComplete = function terminal_test_application_services_killServers_agentComplete(counts:agentCounts):void {
         counts.count = counts.count + 1;
         if (counts.count === counts.total) {
+            serverVars.device = {};
+            serverVars.user = {};
+            serverVars.watches = {};
             testComplete(complete);
         }
     };
@@ -220,8 +225,9 @@ service.killServers = function terminal_test_application_services_killServers(co
         complete: agentComplete,
         countBy: "agent",
         perAgent: function terminal_test_application_services_killServers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-            service.serverRemote[agentNames.agentType][agentNames.agent].close();
-            agentComplete(counts);
+            service.serverRemote[agentNames.agentType][agentNames.agent].close(function terminal_test_application_services_killServers_perAgent_close():void {
+                agentComplete(counts);
+            });
         },
         source: serverVars
     });

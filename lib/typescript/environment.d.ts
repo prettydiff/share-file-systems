@@ -69,7 +69,7 @@ interface serverVars {
     secure: boolean;
     status: heartbeatStatus;
     storage: string;
-    testBrowser?: testBrowserRoute;
+    testBrowser: testBrowserRoute;
     timeStore: number;
     user: agents;
     watches: {

@@ -58,7 +58,6 @@ declare global {
         iterate?: (index:number) => void;
         port: number;
         remote?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
-        remoteClose?: (exit:{code:0|1, message:string}) => void;
         remoteReturn?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         route?: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
@@ -67,7 +66,9 @@ declare global {
         transmissionSent: number;
     }
     interface testBrowserArgs {
+        callback: (message:string, failCount:number) => void;
         demo: boolean;
+        mode: testBrowserMode;
         noClose: boolean;
     }
     interface testBrowserDOM extends Array<browserDOM> {
@@ -99,10 +100,7 @@ declare global {
     }
     interface testBrowserRoute {
         action: testBrowserAction;
-        exit: {
-            code: 0 | 1;
-            message: string;
-        };
+        exit: string;
         index: number;
         result: [boolean, string, string][];
         test: testBrowserItem;

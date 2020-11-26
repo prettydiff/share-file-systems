@@ -6,7 +6,15 @@ import log from "../utilities/log.js";
 import serverVars from "../server/serverVars.js";
 
 const testBrowser = function terminal_commands_testBrowser():void {
-    const splice = function terminal_commands_testBrowser_splice(arg:string):boolean {
+    // Arguments:
+    // * demo: slows down the test iteration rate to half a second so that each step is clearly visible
+    // * no_close: keeps services online and the browser open after completion of the tests
+    // * mode: determines what to execute
+    //    - self: (default) executes tests that run on only the local machine
+    //    - agents: executes tests that require multiple computers, the other computers must be running "remote" mode
+    //    - full: executes the "self" tests and then the "agent" tests as a single list
+    //    - remote: puts the computer into test mode listening for test instructions, the receiving end of the "agent" tests
+    const spliceBoolean = function terminal_commands_testBrowser_spliceBoolean(arg:string):boolean {
             const index:number = process.argv.indexOf(arg);
             if (index < 0) {
                 return false;
@@ -14,9 +22,33 @@ const testBrowser = function terminal_commands_testBrowser():void {
             process.argv.splice(index, 1);
             return true;
         },
+        spliceString = function terminal_commands_testBrowser_spliceString(arg:string):string {
+            let len:number = process.argv.length,
+                value:string;
+            if (len > 0) {
+                do {
+                    len = len - 1;
+                    if (process.argv[len].indexOf(arg) === 0) {
+                        value = process.argv[len].replace(arg, "");
+                        if (arg === "mode:" && (value === "agents" || value === "full" || value === "remote" || value === "self")) {
+                            return value;
+                        }
+                        return "self";
+                    }
+                } while (len > 0);
+            }
+            if (arg === "mode:") {
+                return "self";
+            }
+        },
         args:testBrowserArgs = {
-            demo: splice("demo"),
-            noClose: splice("no_close")
+            callback: function terminal_commands_testBrowser_callback(message:string, exit:number):void {
+                log([message], true);
+                process.exit(exit);
+            },
+            demo: spliceBoolean("demo"),
+            mode: <testBrowserMode>spliceString("mode:"),
+            noClose: spliceBoolean("no_close")
         };
     serverVars.secure = false;
 // one browser test sample
@@ -29,5 +61,10 @@ const testBrowser = function terminal_commands_testBrowser():void {
     log.title("Browser Tests", true);
     browser.execute(args);
 };
+
+//todo
+// 2 write support for args.mode:remote
+// 3 define close for remote only to close the browser
+// 4 'agents' delete test storage on remotes at start of test and launch browser
 
 export default testBrowser;

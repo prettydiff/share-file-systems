@@ -19,7 +19,7 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
             ? "invite-request"
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
                 ? "invite-complete"
-                : (vars.command.indexOf("test_browser") === 0)
+                : (serverVars.testBrowser !== null)
                     ? "test-browser"
                     : "",
         headers:OutgoingHttpHeaders = {

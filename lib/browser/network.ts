@@ -179,6 +179,7 @@ network.testBrowser = function local_network_testBrowser(payload:[boolean, strin
 /* the backbone of this library, all transmissions from the browser occur here */
 network.xhr = function local_network_xhr(config:networkConfig):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
+        testIndex:number = location.href.indexOf("?test_browser"),
         readyState = function local_network_messages_callback():void {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 0) {
@@ -203,6 +204,12 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
                 }
             }
         };
+    if (browser.testBrowser === null && testIndex > 0) {
+        return;
+    }
+    if (browser.testBrowser !== null && testIndex < 0) {
+        return;
+    }
     xhr.onreadystatechange = readyState;
     xhr.open("POST", loc, true);
     xhr.withCredentials = true;

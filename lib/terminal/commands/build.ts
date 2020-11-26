@@ -11,6 +11,7 @@ import log from "../utilities/log.js";
 import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 import remove from "./remove.js";
+import browser from "../test/application/browser.js";
 
 // build/test system
 const build = function terminal_commands_build(test:boolean, callback:Function):void {
@@ -28,7 +29,8 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                 test: [
                     "lint",
                     "simulation",
-                    "service"
+                    "service",
+                    "browserSelf"
                 ]
             },
             type:string = (test === true)
@@ -130,6 +132,23 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
             },
             // These are all the parts of the execution cycle, but their order is dictated by the 'order' object.
             phases = {
+                browserSelf: function terminal_commands_build_browserSelf():void {
+                    const splice = function terminal_commands_build_browserSelf_splice(parameter:string):boolean {
+                            const index:number = process.argv.indexOf(parameter);
+                            if (index < 0) {
+                                return false;
+                            }
+                            process.argv.splice(index, 1);
+                            return true;
+                        };
+                    heading("Test Local Device in Browser");
+                    browser.execute({
+                        callback: testsCallback,
+                        demo: splice("demo"),
+                        mode: "self",
+                        noClose: splice("no_close")
+                    });
+                },
                 // clearStorage removes temporary storage files that should have been removed, but weren't
                 clearStorage: function terminal_commands_build_clearStorage():void {
                     heading("Removing unnecessary temporary files");

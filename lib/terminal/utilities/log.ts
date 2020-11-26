@@ -23,7 +23,7 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
             logger("________________________________________________");
             logger(`Version ${vars.text.angry + vars.version.number + vars.text.none}`);
             logger(`Updated ${vars.version.date}`);
-            logger(`git Log ${vars.text.cyan + vars.version.hash + vars.text.none}`);
+            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.version.hash + vars.text.none}`);
             logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
         }
         if (vars.verbose === true && vars.command !== "server" && vars.command !== "version") {

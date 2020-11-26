@@ -237,6 +237,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                 ? ""
                 : "s",
             socket:WebSocket = new sock(`ws${scheme}://localhost:${browser.localNetwork.wsPort}/`),
+            testIndex:number = location.href.indexOf("?test_browser"),
             open = function browser_webSocket_socketOpen():void {
                 const device:Element = (browser.data.hashDevice === "")
                     ? null
@@ -271,10 +272,12 @@ const title:Element = document.getElementsByClassName("title")[0],
             };
 
         /* Handle Web Socket responses */
-        socket.onopen = open;
-        socket.onmessage = socketMessage;
-        socket.onclose = close;
-        callback();
+        if ((browser.testBrowser === null && testIndex < 0) || (browser.testBrowser !== null && testIndex > 0)) {
+            socket.onopen = open;
+            socket.onmessage = socketMessage;
+            socket.onclose = close;
+            callback();
+        }
     };
 
 export default webSocket;

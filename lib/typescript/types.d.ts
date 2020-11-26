@@ -33,6 +33,7 @@ declare global {
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
     type testBrowserAction = "close" | "request" | "respond" | "result";
+    type testBrowserMode = "agents" | "full" | "remote" | "self";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;

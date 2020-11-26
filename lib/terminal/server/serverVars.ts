@@ -68,12 +68,9 @@ const serverVars:serverVars = {
         nameUser: "",
         secure: true,
         status: "active",
-        storage: (vars.command === "test_browser" || vars.command === "test_browser_remote")
-            ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
-            : (vars.command.indexOf("test") === 0)
-                ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
-                : `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
+        storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
         timeStore: 0,
+        testBrowser: null,
         user: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser
