@@ -9,7 +9,7 @@ import projectDirectory from "../application/browser_projectDirectory.js";
 
 const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
     windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
-    browserSelf:testBrowserItems = [
+    browserSelf:testBrowserItem[] = [
         {
             interaction: [
                 {
