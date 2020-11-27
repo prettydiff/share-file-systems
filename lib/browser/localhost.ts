@@ -38,9 +38,11 @@ import webSocket from "./webSocket.js";
         testBrowserLoad = function browser_init_testBrowserLoad():void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;
-                setTimeout(function browser_init_testBrowserLoad_delay():void {
-                    remote.event(browser.testBrowser, true);
-                }, 500);
+                if (browser.testBrowser.action !== "reset") {
+                    setTimeout(function browser_init_testBrowserLoad_delay():void {
+                        remote.event(browser.testBrowser, true);
+                    }, 500);
+                }
             }
         },
         defaultModals = function browser_init_defaultModals():void {

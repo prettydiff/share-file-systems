@@ -57,7 +57,7 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
             : test_agents;
     if (args.mode === "remote") {
         serverVars.testBrowser = {
-            action: "request",
+            action: "reset",
             exit: "",
             index: -1,
             result: [],
