@@ -59,7 +59,7 @@ declare global {
         port: number;
         remote?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         remoteClose?: (exit:string, serverResponse:ServerResponse) => void;
-        remoteReturn?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
+        remoteReturn?: (item:testBrowserRoute) => void;
         reset?: (launch:boolean, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         route?: (data:testBrowserRoute, serverResponse:ServerResponse) => void;

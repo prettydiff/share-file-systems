@@ -391,11 +391,21 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
                 });
             };
             if (launch === true) {
-                server({
-                    agent: "",
-                    agentType: "device",
-                    callback: serviceCallback
-                });
+                if (browser.args.mode === "remote") {
+                    server({
+                        agent: "",
+                        agentType: "device",
+                        callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote():void {
+                            log([`${vars.text.cyan}Listening for instructions...${vars.text.none}`]);
+                        }
+                    });
+                } else {
+                    server({
+                        agent: "",
+                        agentType: "device",
+                        callback: serviceCallback
+                    });
+                }
             } else {
                 serviceCallback(null);
             }
@@ -420,7 +430,7 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
     });
 };
 
-browser.remoteReturn = function terminal_test_application_browser_remoteReturn(item:testBrowserRoute, serverResponse:ServerResponse): void {
+browser.remoteReturn = function terminal_test_application_browser_remoteReturn(item:testBrowserRoute): void {
     const errorCall = function terminal_test_application_browser_errorCall(data:httpError):void {
             if (data.agent === undefined && data.type === undefined) {
                 error([`Error on ${data.callType} returning test ${item.index}`, data.error.toString()]);
@@ -694,7 +704,7 @@ browser.route = function terminal_test_application_browser_route(data:testBrowse
     } else if (data.action === "reset") {
         browser.reset(false, serverResponse);
     } else if (data.action === "respond") {
-        browser.remoteReturn(data, serverResponse);
+        browser.remoteReturn(data);
     }
 };
 
