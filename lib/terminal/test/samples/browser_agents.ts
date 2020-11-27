@@ -212,7 +212,7 @@ const browserAgents:testBrowserItem[] = [
         },
 
         // refresh VM1 and test that a user populates and there is no login
-        {
+        /*{
             interaction: [
                 {
                     event: "refresh",
@@ -787,7 +787,7 @@ const browserAgents:testBrowserItem[] = [
                     value: undefined
                 }
             ]
-        }
+        }*/
     ];
 
 export default browserAgents;

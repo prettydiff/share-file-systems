@@ -36,7 +36,6 @@ const message = function terminal_server_message(messageText:string, serverRespo
             remoteName: data.agentTo,
             requestError: requestError,
             requestType: "message",
-            responseObject: serverResponse,
             responseStream: httpClient.stream,
             responseError: responseError
         };

@@ -85,7 +85,6 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                 remoteName: config.data.agent,
                                 requestError: requestError,
                                 requestType: config.data.action,
-                                responseObject: config.serverResponse,
                                 responseStream: httpClient.stream,
                                 responseError: responseError
                             };

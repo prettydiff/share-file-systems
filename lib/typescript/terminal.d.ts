@@ -201,7 +201,6 @@ declare global {
         remoteName: string;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: string;
-        responseObject: ServerResponse;
         responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
         responseError: (error:nodeError, agent?:string, type?:agentType) => void;
     }

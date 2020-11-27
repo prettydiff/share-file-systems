@@ -39,9 +39,7 @@ const browser:testBrowserApplication = {
     },
     assign = function terminal_test_application_browser_assign(index:number):void {
         serverVars.testBrowser = {
-            action: (tests[index].machine === "self")
-                ? "result"
-                : "request",
+            action: "result",
             exit: "",
             index: index,
             result: [],
@@ -108,7 +106,6 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
                 responseError: function terminal_test_application_browser_execute_responseError(errorMessage:nodeError):void {
                     log([errorMessage.toString()]);
                 },
-                responseObject: null,
                 responseStream: httpClient.stream
             });
             index = index + 1;
@@ -158,7 +155,6 @@ browser.exit = function terminal_test_application_browser_exit(index:number):voi
                 return;
             },
             requestType: "test-browser (from remote agent)",
-            responseObject: null,
             responseStream: httpClient.stream,
             responseError: function terminal_test_application_browser_exit_responseError():void {
                 return;
@@ -186,7 +182,6 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
     if (finished === true) {
         return;
     }
-    assign(index);
     const route:testBrowserRoute = {
             action: "result",
             exit: "",
@@ -232,6 +227,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
     // * because serverVars.testBrowser is not updated to methodGET library fast enough
     if (validate() === true) {
         if (tests[index].machine === "self") {
+            assign(index);
             setTimeout(function terminal_test_application_browser_iterate_setTimeout():void {
                 const refresh:number = index + 1;
                 vars.ws.broadcast(JSON.stringify({
@@ -240,7 +236,7 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                 if (tests[index].interaction[0].event === "refresh") {
                     const payload: testBrowserRoute = {
                         action: (browser.args.noClose === true)
-                            ? "request"
+                            ? "result"
                             : "close",
                         exit: "",
                         index: index,
@@ -297,13 +293,11 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                 },
                 requestType: "test-browser-request",
                 remoteName: "test-browser-request",
-                responseObject: null,
                 responseStream: httpClient.stream,
                 responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
                     log([errorMessage.toString()]);
                 },
             });
-            browser.transmissionSent = browser.transmissionSent + 1;
         }
     } else {
         vars.verbose = true;
@@ -333,6 +327,14 @@ browser.remote = function terminal_test_application_browser_remote(item:testBrow
 };
 
 browser.remoteClose = function terminal_test_application_browser_remoteClose(exit:string, serverResponse:ServerResponse):void {
+    const close:testBrowserRoute = {
+        action: "close",
+        exit: exit,
+        index: -1,
+        result: [],
+        test: null,
+        transfer: null
+    };
     vars.ws.broadcast(JSON.stringify({
         "test-browser": close
     }));
@@ -462,7 +464,6 @@ browser.remoteReturn = function terminal_test_application_browser_remoteReturn(i
             });
         },
         requestType: "test-browser (from remote agent)",
-        responseObject: serverResponse,
         responseStream: httpClient.stream,
         responseError: function terminal_test_application_browser_remoteReturn_responseError(errorMessage:nodeError, agent:string, type:agentType):void {
             errorCall({

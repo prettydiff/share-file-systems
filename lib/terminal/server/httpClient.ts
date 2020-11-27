@@ -8,13 +8,6 @@ import error from "../utilities/error.js";
 import vars from "../utilities/vars.js";
 
 const httpClient:httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
-    if (config.responseObject === undefined) {
-        error([
-            "config.response of httpClient is undefined.",
-            JSON.stringify(config)
-        ]);
-        return;
-    }
     const invite:string = (config.payload.indexOf("{\"invite\":{\"action\":\"invite-request\"") === 0)
             ? "invite-request"
             : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
@@ -72,7 +65,7 @@ httpClient.stream = function terminal_server_httpClient_callback(fsResponse:Inco
             ? Buffer.concat(chunks)
             : chunks.join("");
         if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-            forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user", config.responseObject);
+            forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
         } else {
             config.callback(body, fsResponse.headers);
         }

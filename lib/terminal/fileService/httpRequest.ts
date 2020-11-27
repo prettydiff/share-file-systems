@@ -86,7 +86,6 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             remoteName: config.data.agent,
             requestError: requestError,
             requestType: config.data.action,
-            responseObject: config.serverResponse,
             responseStream: config.stream,
             responseError: responseError
         };
