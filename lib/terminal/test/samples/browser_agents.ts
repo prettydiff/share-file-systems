@@ -4,7 +4,7 @@
 import machines from "../application/browser_machines.js";
 import mainMenu from "../application/browser_mainMenu.js";
 
-const browserAgents:testBrowserItems = [
+const browserAgents:testBrowserItem[] = [
         {
             interaction: [
                 {

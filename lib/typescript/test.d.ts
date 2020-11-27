@@ -58,7 +58,9 @@ declare global {
         iterate?: (index:number) => void;
         port: number;
         remote?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
+        remoteClose?: (exit:string, serverResponse:ServerResponse) => void;
         remoteReturn?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
+        reset?: (launch:boolean, serverResponse:ServerResponse) => void;
         result?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
         route?: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
         server?: httpServer;
@@ -86,10 +88,6 @@ declare global {
         machine: string;
         name: string;
         unit: testBrowserTest[];
-    }
-    interface testBrowserItems extends Array<testBrowserItem> {
-        [index:number]: testBrowserItem;
-        machines?: testBrowserMachines;
     }
     interface testBrowserMachines {
         [key:string]: {

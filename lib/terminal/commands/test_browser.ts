@@ -51,20 +51,8 @@ const testBrowser = function terminal_commands_testBrowser():void {
             noClose: spliceBoolean("no_close")
         };
     serverVars.secure = false;
-// one browser test sample
-// * send to browser via vars.ws.broadcast = browser-test
-// * still need to define a validation case from storage/settings
-// * need to save data to a temporary location
-// * need to define secondary devices/browsers that process different instructions
-//     - the secondary systems must store data in a temporary location and transmit settings back to the primary
-// * need to remove or reset temporary files before running test samples
     log.title("Browser Tests", true);
     browser.execute(args);
 };
-
-//todo
-// 2 write support for args.mode:remote
-// 3 define close for remote only to close the browser
-// 4 'agents' delete test storage on remotes at start of test and launch browser
 
 export default testBrowser;
