@@ -403,8 +403,9 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
                     server({
                         agent: "",
                         agentType: "device",
-                        callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote():void {
-                            log([`${vars.text.cyan}Environment reset. Listening for instructions...${vars.text.none}`]);
+                        callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote(output:serverOutput):void {
+                            browser.server = output.server;
+                            log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                         }
                     });
                 } else {
