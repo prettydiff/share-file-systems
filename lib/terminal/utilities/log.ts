@@ -34,7 +34,7 @@ const log = function terminal_utilities_log(output:string[], end?:boolean):void 
 
 log.title = function terminal_utilities_log_title(message:string, certificate?:boolean):void {
     const formatted:string = `${vars.text.cyan + vars.text.bold + vars.text.underline + vars.version.name} - ${message + vars.text.none}`;
-    if (certificate === true && serverVars.secure === true) {
+    if (certificate === true && serverVars.secure === true && vars.command !== "test_browser") {
         log([
             "",
             formatted,

@@ -3,7 +3,6 @@
 
 import browser from "../test/application/browser.js";
 import log from "../utilities/log.js";
-import serverVars from "../server/serverVars.js";
 
 const testBrowser = function terminal_commands_testBrowser():void {
     // Arguments:
@@ -50,7 +49,6 @@ const testBrowser = function terminal_commands_testBrowser():void {
             mode: <testBrowserMode>spliceString("mode:"),
             noClose: spliceBoolean("no_close")
         };
-    serverVars.secure = false;
     log.title("Browser Tests", true);
     browser.execute(args);
 };

@@ -88,6 +88,7 @@ const methodGET = function terminal_server_get(request:IncomingMessage, serverRe
                             // cspell:disable
                             csp:string = `default-src 'self'; base-uri 'self'; font-src 'self' data:; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' ${wsScheme}://localhost:${serverVars.wsPort}/; frame-ancestors 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; manifest-src 'none'`;
                             // cspell:enable
+
                         vars.testLogger("methodGET", "readCallback", "After reading the requested file now to make decisions about what to do with it.");
                         if (localPath.indexOf(".js") === localPath.length - 3) {
                             type = "application/javascript";

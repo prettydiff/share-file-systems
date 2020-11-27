@@ -73,8 +73,14 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
         const list:string[] = Object.keys(machines),
             listLength:number = list.length,
             resetCallback = function terminal_test_application_browser_execute_resetCallback():void {
+                const boldGreen:string = vars.text.green + vars.text.bold,
+                    color:string = (count === listLength - 1)
+                        ? boldGreen
+                        : vars.text.angry;
                 count = count + 1;
+                log([`Received ready state from ${color + count + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines.`]);
                 if (count === listLength) {
+                    log(["", "Executing tests"]);
                     browser.reset(true, null);
                 }
             },
@@ -88,6 +94,7 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
             };
         let index:number = 0,
             count:number = 0;
+        log(["Preparing remote machines"]);
         do {
             httpClient({
                 agentType: "device",
@@ -161,19 +168,19 @@ browser.exit = function terminal_test_application_browser_exit(index:number):voi
             }
         });
     });
-    if (browser.args.noClose === false) {
+    if (browser.args.noClose === true) {
+        log([browser.exitMessage]);
+    } else {
         vars.ws.broadcast(JSON.stringify({
             "test-browser": close
         }));
         setTimeout(function terminal_test_application_browser_result_completion_exit_setTimeout():void {
-            browser.args.callback(browser.exitMessage, browser.exitType);
+            //browser.args.callback(browser.exitMessage, browser.exitType);
         }, delay);
         browser.index = -1;
         serverVars.secure = true;
-        serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+        //serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
         serverVars.testBrowser = null;
-    } else {
-        log([browser.exitMessage]);
     }
 };
 
@@ -386,6 +393,7 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
                         return;
                     }
                     if (launch === false) {
+                        log(["Sending response to browser test reset from remote."]);
                         response(serverResponse, "text/plain", "Browser test reset received on remote.");
                     }
                 });
@@ -396,7 +404,7 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
                         agent: "",
                         agentType: "device",
                         callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote():void {
-                            log([`${vars.text.cyan}Listening for instructions...${vars.text.none}`]);
+                            log([`${vars.text.cyan}Environment reset. Listening for instructions...${vars.text.none}`]);
                         }
                     });
                 } else {
@@ -412,6 +420,7 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
         };
         let length:number = files.length,
             flags:number = length;
+        log(["Resetting test environment."]);
         if (length === 1) {
             browserLaunch();
         } else {

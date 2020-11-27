@@ -66,9 +66,13 @@ const serverVars:serverVars = {
             : "IPv4",
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
-        secure: true,
+        secure: (vars.command === "test_browser")
+            ? false
+            : true,
         status: "active",
-        storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
+        storage: (vars.command === "test_browser")
+            ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
+            : `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
         timeStore: 0,
         testBrowser: null,
         user: {},
