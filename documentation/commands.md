@@ -196,21 +196,21 @@ Remove a file or directory tree from the local file system.
 1. `node js/application remove "C:\Program Files"`
    - Quote the path if it contains non-alphanumeric characters.
 
-## server
+## service
 Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
 
 ### Examples
-1. `node js/application server`
+1. `node js/application service`
    - Launches the server on default port 443 and web sockets on port 444.
-1. `node js/application server 8080`
+1. `node js/application service 8080`
    - If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port.
-1. `node js/application server 0`
+1. `node js/application service 0`
    - To receive a random available port specify port number 0.
-1. `node js/application server browser`
+1. `node js/application service browser`
    - The 'browser' argument launches the default location in the user's default web browser.
-1. `node js/application server test`
+1. `node js/application service test`
    - The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data.
-1. `node js/application server test browser 9000`
+1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
 
 ## test

@@ -58,7 +58,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                             directInput: true,
                             source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
                         };
-                    vars.testLogger("server", "hashDevice", "Create a hash to name a device.");
+                    vars.testLogger("service", "hashDevice", "Create a hash to name a device.");
                     hash(input);
                 },
                 hashShare = function terminal_server_post_end_hashShare():void {
@@ -79,11 +79,11 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                             id: body,
                             source: serverVars.hashUser + serverVars.hashDevice + hashShare.type + hashShare.share
                         };
-                    vars.testLogger("server", "hashShare", "Create a hash to name a new share.");
+                    vars.testLogger("service", "hashShare", "Create a hash to name a new share.");
                     hash(input);
                 },
                 updateRemote = function terminal_server_post_end_updateRemote():void {
-                    vars.testLogger("server", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
+                    vars.testLogger("service", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
                     vars.ws.broadcast(body);
                     response(serverResponse, "text/plain", `Received directory watch for ${body} at ${serverVars.ipAddress}.`);
                 };

@@ -63,7 +63,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                                         });
                                     }
                                     error([ero.toString()]);
-                                    if (vars.command !== "server") {
+                                    if (vars.command !== "service") {
                                         return;
                                     }
                                 }
@@ -82,7 +82,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                                             }
                                             if (err !== null) {
                                                 error([err.toString()]);
-                                                if (vars.command !== "server") {
+                                                if (vars.command !== "service") {
                                                     return;
                                                 }
                                             }
@@ -119,12 +119,12 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                         }
                         if (er.toString().indexOf("no such file or directory") > 0) {
                             error([angryPath]);
-                            if (vars.command !== "server") {
+                            if (vars.command !== "service") {
                                 return;
                             }
                         }
                         error([er.toString()]);
-                        if (vars.command !== "server") {
+                        if (vars.command !== "service") {
                             return;
                         }
                     }
@@ -135,7 +135,7 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
                             });
                         }
                         error([angryPath]);
-                        if (vars.command !== "server") {
+                        if (vars.command !== "service") {
                             return;
                         }
                     }

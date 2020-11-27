@@ -313,31 +313,31 @@ const commands_documentation = {
             }
         ]
     },
-    server: {
+    service: {
         description: "Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
         example: [
             {
-                code: `${vars.version.command} server`,
+                code: `${vars.version.command} service`,
                 defined: `Launches the server on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
             },
             {
-                code: `${vars.version.command} server 8080`,
+                code: `${vars.version.command} service 8080`,
                 defined: "If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port."
             },
             {
-                code: `${vars.version.command} server 0`,
+                code: `${vars.version.command} service 0`,
                 defined: "To receive a random available port specify port number 0."
             },
             {
-                code: `${vars.version.command} server browser`,
+                code: `${vars.version.command} service browser`,
                 defined: "The 'browser' argument launches the default location in the user's default web browser."
             },
             {
-                code: `${vars.version.command} server test`,
+                code: `${vars.version.command} service test`,
                 defined: "The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data."
             },
             {
-                code: `${vars.version.command} server test browser 9000`,
+                code: `${vars.version.command} service test browser 9000`,
                 defined: "An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             }
         ]

@@ -50,7 +50,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/lint.ts](../lib/terminal/commands/lint.ts)**                                                 - A command driven wrapper for executing external application ESLint.
    - **[../lib/terminal/commands/mkdir.ts](../lib/terminal/commands/mkdir.ts)**                                               - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/remove.ts](../lib/terminal/commands/remove.ts)**                                             - A command driven utility to recursively remove file system artifacts.
-   - **[../lib/terminal/commands/server.ts](../lib/terminal/commands/server.ts)**                                             - A command driven HTTP server for running the terminal instance of the application.
+   - **[../lib/terminal/commands/service.ts](../lib/terminal/commands/service.ts)**                                           - A command driven HTTP server for running the terminal instance of the application.
    - **[../lib/terminal/commands/test.ts](../lib/terminal/commands/test.ts)**                                                 - A command driven wrapper for all test utilities.
    - **[../lib/terminal/commands/test_browser.ts](../lib/terminal/commands/test_browser.ts)**                                 - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result.
    - **[../lib/terminal/commands/test_service.ts](../lib/terminal/commands/test_service.ts)**                                 - A command driven wrapper for the service tests, which test the various services used by the application.
