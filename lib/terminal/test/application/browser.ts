@@ -7,7 +7,7 @@ import error from "../../utilities/error.js";
 import httpClient from "../../server/httpClient.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
-import server from "../../commands/server.js";
+import server from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 import remove from "../../commands/remove.js";
@@ -101,18 +101,20 @@ browser.execute = function terminal_test_application_browser_execute(args:testBr
                 }),
                 port: machines[list[index]].port,
                 remoteName: browser.agent,
-                requestError: function terminal_test_application_browser_execute_requestError():void {
-                    log([`Error with request browser test reset to remote machine ${list[index]}.`]);
+                requestError: function terminal_test_application_browser_execute_requestError(errorMessage:nodeError):void {
+                    log([errorMessage.toString()]);
                 },
                 requestType: "test-browser (from remote agent)",
-                responseError: function terminal_test_application_browser_execute_responseError():void {
-                    log([`Error with response browser test reset to remote machine ${list[index]}.`]);
+                responseError: function terminal_test_application_browser_execute_responseError(errorMessage:nodeError):void {
+                    log([errorMessage.toString()]);
                 },
                 responseObject: null,
                 responseStream: httpClient.stream
             });
             index = index + 1;
         } while (index < listLength);
+    } else {
+        browser.reset(true, null);
     }
 };
 
@@ -290,15 +292,15 @@ browser.iterate = function terminal_test_application_browser_iterate(index:numbe
                     "test-browser": route
                 }),
                 port: machines[tests[index].machine].port,
-                requestError: function terminal_test_application_browser_iterate_remoteRequest():void {
-                    log([`Error requesting test ${index} to remote machine ${tests[index].machine}.`]);
+                requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:nodeError):void {
+                    log([errorMessage.toString()]);
                 },
                 requestType: "test-browser-request",
                 remoteName: "test-browser-request",
                 responseObject: null,
                 responseStream: httpClient.stream,
-                responseError: function terminal_test_application_browser_iterate_remoteResponse():void {
-                    log([`Error on response to test ${index} to remote machine ${tests[index].machine}.`]);
+                responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
+                    log([errorMessage.toString()]);
                 },
             });
             browser.transmissionSent = browser.transmissionSent + 1;

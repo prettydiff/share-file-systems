@@ -15,7 +15,7 @@ import help from "../commands/help.js";
 import lint from "../commands/lint.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
-import server from "../commands/server.js";
+import server from "../commands/service.js";
 import test from "../commands/test.js";
 import test_browser from "../commands/test_browser.js";
 import test_service from "../commands/test_service.js";

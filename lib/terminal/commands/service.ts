@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/server - A command driven HTTP server for running the terminal instance of the application. */
+/* lib/terminal/commands/service - A command driven HTTP server for running the terminal instance of the application. */
 import { AddressInfo } from "net";
 
 import WebSocket from "../../ws-es6/index.js";
@@ -143,15 +143,18 @@ const server = function terminal_commands_server(serverCallback:serverCallback):
             });
         },
         port:number = (function terminal_commands_server_port():number {
-            let len:number = process.argv.length,
+            const len:number = process.argv.length;
+            let index:number = 0,
                 item:number = -1;
             do {
-                len = len - 1;
-                item = Number(process.argv[len]);
+                item = Number(process.argv[index]);
                 if (isNaN(item) === false) {
                     break;
                 }
-            } while (len > 0);
+            } while (index < len);
+            if (index === len) {
+                item = -1;
+            }
             return (vars.command.indexOf("test") === 0 && testBrowserRemote === false)
                 ? 0
                 : (item > -1)

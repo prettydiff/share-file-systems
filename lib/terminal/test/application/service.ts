@@ -7,7 +7,7 @@ import { request } from "https";
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
-import server from "../../commands/server.js";
+import server from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
