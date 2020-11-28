@@ -175,12 +175,12 @@ browser.exit = function terminal_test_application_browser_exit(index:number):voi
             "test-browser": close
         }));
         setTimeout(function terminal_test_application_browser_result_completion_exit_setTimeout():void {
-            //browser.args.callback(browser.exitMessage, browser.exitType);
+            browser.index = -1;
+            serverVars.secure = true;
+            serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+            serverVars.testBrowser = null;
+            browser.args.callback(browser.exitMessage, browser.exitType);
         }, delay);
-        browser.index = -1;
-        serverVars.secure = true;
-        //serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
-        serverVars.testBrowser = null;
     }
 };
 
@@ -384,13 +384,16 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
                             return `${keyword} ${process.argv[0]} ${path}`;
                         }())
                         : `${keyword} ${path}`;
-                if (launch === true) {
-                    browser.server = output.server;
-                }
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
+                    }
+                    if (stdout !== "") {
+                        log([stdout]);
+                    }
+                    if (stderr !== "") {
+                        log([stderr.toString()]);
                     }
                     if (launch === false) {
                         log(["Sending response to browser test reset from remote."]);
@@ -403,8 +406,7 @@ browser.reset = function terminal_test_application_browser_reset(launch:boolean,
                     server({
                         agent: "",
                         agentType: "device",
-                        callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote(output:serverOutput):void {
-                            browser.server = output.server;
+                        callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote():void {
                             log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                         }
                     });
