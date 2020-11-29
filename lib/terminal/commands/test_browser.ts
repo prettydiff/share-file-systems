@@ -50,7 +50,7 @@ const testBrowser = function terminal_commands_testBrowser():void {
             noClose: spliceBoolean("no_close")
         };
     log.title("Browser Tests", true);
-    browser.execute(args);
+    browser.methods.execute(args);
 };
 
 export default testBrowser;

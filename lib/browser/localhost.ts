@@ -42,6 +42,8 @@ import webSocket from "./webSocket.js";
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
                     }, 500);
+                } else if (browser.testBrowser.index < 0) {
+                    network.testBrowser(null, -1, "reset-browser");
                 }
             }
         },

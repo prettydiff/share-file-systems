@@ -32,7 +32,7 @@ declare global {
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
-    type testBrowserAction = "close" | "request" | "reset" | "respond" | "result";
+    type testBrowserAction = "close" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
     type testBrowserMode = "agents" | "full" | "remote" | "self";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;

@@ -49,20 +49,25 @@ declare global {
     interface testBrowserApplication {
         agent: string;
         args: testBrowserArgs;
-        execute?: (args:testBrowserArgs) => void;
-        exit?: (index:number) => void;
         exitMessage: string;
         exitType: 0 | 1;
         index: number;
         ip: string;
-        iterate?: (index:number) => void;
+        methods: {
+            execute: (args:testBrowserArgs) => void;
+            exit: (index:number) => void;
+            iterate: (index:number) => void;
+            remote: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
+            remoteClose: (exit:string, serverResponse:ServerResponse) => void;
+            remoteReturn: (item:testBrowserRoute) => void;
+            reset: (data:testBrowserRoute, launch:boolean, serverResponse:ServerResponse) => void;
+            resetComplete: (serverResponse:ServerResponse) => void;
+            resetResponse: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
+            result: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
+            route: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
+        };
         port: number;
-        remote?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
-        remoteClose?: (exit:string, serverResponse:ServerResponse) => void;
-        remoteReturn?: (item:testBrowserRoute) => void;
-        reset?: (launch:boolean, serverResponse:ServerResponse) => void;
-        result?: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
-        route?: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
+        remoteAgents: number;
         server?: httpServer;
         transmissionReturned: number;
         transmissionSent: number;

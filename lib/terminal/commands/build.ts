@@ -142,7 +142,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                             return true;
                         };
                     heading("Test Local Device in Browser");
-                    browser.execute({
+                    browser.methods.execute({
                         callback: testsCallback,
                         demo: splice("demo"),
                         mode: "self",

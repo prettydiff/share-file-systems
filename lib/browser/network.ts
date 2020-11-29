@@ -161,10 +161,10 @@ network.testBrowser = function local_network_testBrowser(payload:[boolean, strin
     const data:testBrowserRoute = {
             action: task,
             exit: null,
-            index:index,
+            index: index,
             result: payload,
             test: null,
-            transfer: null
+            transfer: browser.testBrowser.transfer
         };
     network.xhr({
         callback: null,
