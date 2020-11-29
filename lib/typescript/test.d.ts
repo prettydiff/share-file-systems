@@ -60,7 +60,7 @@ declare global {
             remote: (item:testBrowserRoute, serverResponse:ServerResponse) => void;
             remoteClose: (exit:string, serverResponse:ServerResponse) => void;
             remoteReturn: (item:testBrowserRoute) => void;
-            reset: (serverResponse:ServerResponse) => void;
+            reset: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
             resetComplete: (serverResponse:ServerResponse) => void;
             resetResponse: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
             result: (item:testBrowserRoute, serverResponse:ServerResponse) => void;

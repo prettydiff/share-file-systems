@@ -383,10 +383,11 @@ const browser:testBrowserApplication = {
                 });
                 browser.transmissionSent = browser.transmissionSent + 1;
             },
-            reset: function terminal_test_application_browser_reset(serverResponse:ServerResponse):void {
+            reset: function terminal_test_application_browser_reset(data:testBrowserRoute, serverResponse:ServerResponse):void {
                 if (serverResponse !== null) {
                     response(serverResponse, "text/plain", "Browser test reset received on remote.");
                 }
+                serverVars.testBrowser = data;
                 vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_reset_readdir(dErr:nodeError, files:string[]):void {
                     if (dErr !== null) {
                         error([dErr.toString()]);
@@ -467,7 +468,15 @@ const browser:testBrowserApplication = {
                 log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines.`]);
                 if (browser.remoteAgents === listLength) {
                     log(["", "Executing tests"]);
-                    browser.methods.reset(null);
+                    browser.index = 0;
+                    browser.methods.reset({
+                        action: "result",
+                        exit: "",
+                        index: 0,
+                        result: [],
+                        test: tests[0],
+                        transfer: null
+                    }, null);
                 }
             },
             resetResponse: function terminal_test_application_browser_resetResponse(data:testBrowserRoute, serverResponse:ServerResponse):void {
@@ -739,7 +748,7 @@ const browser:testBrowserApplication = {
                     // * resets the environment on mode:remote
                     // * from mode:agent (remote) in browser.execute to this computer mode:remote
                     // * generates an HTTP response
-                    browser.methods.reset(serverResponse);
+                    browser.methods.reset(data, serverResponse);
                 } else if (data.action === "respond") {
                     // * converts an action 'request' into a test for the browser of a specified mode:remote
                     // * from browser.remote of mode:agents (remote)
