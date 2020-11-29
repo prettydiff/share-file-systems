@@ -53,6 +53,13 @@ const browser:testBrowserApplication = {
                         test: null,
                         transfer: null
                     };
+                    server({
+                        agent: "",
+                        agentType: "device",
+                        callback: function terminal_test_application_browser_execute_remoteServer():void {
+                            log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
+                        }
+                    });
                 } else {
                     assign(0);
                     if (args.mode === "agents") {
@@ -428,21 +435,11 @@ const browser:testBrowserApplication = {
                             });
                         };
                         if (launch === true) {
-                            if (browser.args.mode === "remote") {
-                                server({
-                                    agent: "",
-                                    agentType: "device",
-                                    callback: function terminal_test_application_browser_reset_readdir_browserLaunch_remote():void {
-                                        log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
-                                    }
-                                });
-                            } else {
-                                server({
-                                    agent: "",
-                                    agentType: "device",
-                                    callback: serviceCallback
-                                });
-                            }
+                            server({
+                                agent: "",
+                                agentType: "device",
+                                callback: serviceCallback
+                            });
                         } else {
                             serviceCallback();
                         }
