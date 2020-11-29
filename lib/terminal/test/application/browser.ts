@@ -52,6 +52,7 @@ const browser:testBrowserApplication = {
                             };
                         let index:number = 0;
                         log(["Preparing remote machines"]);
+                        serverVars.testBrowser = payload;
                         do {
                             httpClient({
                                 agentType: "device",
