@@ -41,6 +41,9 @@ const browser:testBrowserApplication = {
                     : (args.mode === "full")
                         ? test_self.concat(test_agents.slice(3))
                         : test_agents;
+
+                serverVars.secure = false;
+                serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 if (args.mode === "remote") {
                     serverVars.testBrowser = {
                         action: "close",
@@ -52,52 +55,50 @@ const browser:testBrowserApplication = {
                     };
                 } else {
                     assign(0);
-                }
-                serverVars.secure = false;
-                serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
-                if (args.mode === "agents") {
-                    const list:string[] = Object.keys(machines),
-                        listLength:number = list.length,
-                        payload:testBrowserRoute = {
-                            action: "reset-request",
-                            exit: "",
-                            index: -1,
-                            result: [],
-                            test: null,
-                            transfer: {
-                                agent: "",
-                                ip: serverVars.ipAddress,
-                                port: serverVars.webPort
-                            }
-                        };
-                    let index:number = 0;
-                    log(["Preparing remote machines"]);
-                    do {
-                        httpClient({
-                            agentType: "device",
-                            callback: function terminal_test_application_browser_execute_callback():void {
-                                return;
-                            },
-                            errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
-                            ip: machines[list[index]].ip,
-                            payload: JSON.stringify({
-                                "test-browser": payload
-                            }),
-                            port: machines[list[index]].port,
-                            remoteName: browser.agent,
-                            requestError: function terminal_test_application_browser_execute_requestError(errorMessage:nodeError):void {
-                                log([errorMessage.toString()]);
-                            },
-                            requestType: "testBrowser-reset",
-                            responseError: function terminal_test_application_browser_execute_responseError(errorMessage:nodeError):void {
-                                log([errorMessage.toString()]);
-                            },
-                            responseStream: httpClient.stream
-                        });
-                        index = index + 1;
-                    } while (index < listLength);
-                } else {
-                    browser.methods.reset(null, true, null);
+                    if (args.mode === "agents") {
+                        const list:string[] = Object.keys(machines),
+                            listLength:number = list.length,
+                            payload:testBrowserRoute = {
+                                action: "reset-request",
+                                exit: "",
+                                index: -1,
+                                result: [],
+                                test: null,
+                                transfer: {
+                                    agent: "",
+                                    ip: serverVars.ipAddress,
+                                    port: serverVars.webPort
+                                }
+                            };
+                        let index:number = 0;
+                        log(["Preparing remote machines"]);
+                        do {
+                            httpClient({
+                                agentType: "device",
+                                callback: function terminal_test_application_browser_execute_callback():void {
+                                    return;
+                                },
+                                errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
+                                ip: machines[list[index]].ip,
+                                payload: JSON.stringify({
+                                    "test-browser": payload
+                                }),
+                                port: machines[list[index]].port,
+                                remoteName: browser.agent,
+                                requestError: function terminal_test_application_browser_execute_requestError(errorMessage:nodeError):void {
+                                    log([errorMessage.toString()]);
+                                },
+                                requestType: "testBrowser-reset",
+                                responseError: function terminal_test_application_browser_execute_responseError(errorMessage:nodeError):void {
+                                    log([errorMessage.toString()]);
+                                },
+                                responseStream: httpClient.stream
+                            });
+                            index = index + 1;
+                        } while (index < listLength);
+                    } else {
+                        browser.methods.reset(null, true, null);
+                    }
                 }
             },
             exit: function terminal_test_application_browser_exit(index:number):void {
@@ -371,6 +372,9 @@ const browser:testBrowserApplication = {
                 browser.transmissionSent = browser.transmissionSent + 1;
             },
             reset: function terminal_test_application_browser_reset(data:testBrowserRoute, launch:boolean, serverResponse:ServerResponse):void {
+                if (serverResponse !== null) {
+                    response(serverResponse, "text/plain", "Browser test reset received on remote.");
+                }
                 vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_reset_readdir(dErr:nodeError, files:string[]):void {
                     if (dErr !== null) {
                         error([dErr.toString()]);
@@ -420,7 +424,6 @@ const browser:testBrowserApplication = {
                                 }
                                 if (launch === false) {
                                     log(["Sending response to browser test reset from remote."]);
-                                    response(serverResponse, "text/plain", "Browser test reset received on remote.");
                                 }
                             });
                         };
