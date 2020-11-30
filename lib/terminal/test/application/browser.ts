@@ -78,7 +78,7 @@ const browser:testBrowserApplication = {
                             index = index + 1;
                         } while (index < listLength);
                     },
-                    iterate = function terminal_test_application_browser_execute_iterate():void {
+                    reset = function terminal_test_application_browser_execute_reset():void {
                         browser.methods.reset({
                             action: "result",
                             exit: "",
@@ -115,9 +115,9 @@ const browser:testBrowserApplication = {
                     agentType: "device",
                     callback: (args.mode === "remote")
                         ? remote
-                        : (args.mode === "agents")
-                            ? agents
-                            : iterate
+                        : (args.mode === "self")
+                            ? reset
+                            : agents
                 });
             },
             exit: function terminal_test_application_browser_exit(index:number):void {
@@ -125,46 +125,53 @@ const browser:testBrowserApplication = {
                     return;
                 }
                 finished = true;
-                let count:number = 0;
-                const agents:string[] = Object.keys(machines),
-                    close:testBrowserRoute = {
-                        action: "close",
-                        exit: browser.exitMessage,
-                        index: index,
-                        result: [],
-                        test: null,
-                        transfer: null
-                    };
-                agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                    httpClient({
-                        agentType: "device",
-                        callback: function terminal_test_application_browser_exit_callback():void {
-                            count = count + 1;
-                            if (count === agents.length) {
-                                browser.index = -1;
-                                serverVars.secure = true;
-                                serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
-                                serverVars.testBrowser = null;
-                                browser.args.callback(browser.exitMessage, browser.exitType);
+                const closing = function terminal_test_application_browser_exit_closing():void {
+                    browser.index = -1;
+                    serverVars.secure = true;
+                    serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+                    serverVars.testBrowser = null;
+                    browser.args.callback(browser.exitMessage, browser.exitType);
+                };
+                if (browser.args.mode === "agents" || browser.args.mode === "full") {
+                    let count:number = 0;
+                    const agents:string[] = Object.keys(machines),
+                        close:testBrowserRoute = {
+                            action: "close",
+                            exit: browser.exitMessage,
+                            index: index,
+                            result: [],
+                            test: null,
+                            transfer: null
+                        };
+                    agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
+                        httpClient({
+                            agentType: "device",
+                            callback: function terminal_test_application_browser_exit_callback():void {
+                                count = count + 1;
+                                if (count === agents.length) {
+                                    closing();
+                                }
+                            },
+                            errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
+                            ip: machines[name].ip,
+                            port: machines[name].port,
+                            payload: JSON.stringify({
+                                "test-browser": close
+                            }),
+                            remoteName: browser.agent,
+                            requestError:  function terminal_test_application_browser_exit_requestError():void {
+                                return;
+                            },
+                            requestType: "testBrowser-close",
+                            responseStream: httpClient.stream,
+                            responseError: function terminal_test_application_browser_exit_responseError():void {
+                                return;
                             }
-                        },
-                        errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
-                        ip: machines[name].ip,
-                        port: machines[name].port,
-                        payload: JSON.stringify({
-                            "test-browser": close
-                        }),
-                        remoteName: browser.agent,
-                        requestError:  function terminal_test_application_browser_exit_requestError():void {
-                            return;
-                        },
-                        requestType: "testBrowser-close",
-                        responseStream: httpClient.stream,
-                        responseError: function terminal_test_application_browser_exit_responseError():void {
-                            return;
-                        }
+                        });
                     });
-                });
+                } else {
+                    closing();
+                }
             },
             iterate: function terminal_test_application_browser_iterate(index:number):void {
                 // not writing to storage
@@ -436,7 +443,7 @@ const browser:testBrowserApplication = {
                     };
                     let length:number = files.length,
                         flags:number = length;
-                    log(["Resetting test environment."]);
+                    log([`${humanTime(false)} Resetting test environment.`]);
                     serverVars.device = {};
                     serverVars.user = {};
                     if (length === 1) {
