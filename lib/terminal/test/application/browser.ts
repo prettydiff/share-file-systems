@@ -436,7 +436,11 @@ const browser:testBrowserApplication = {
                                     index: -1,
                                     result: [],
                                     test: null,
-                                    transfer: null
+                                    transfer: {
+                                        agent: "",
+                                        ip: serverVars.ipAddress,
+                                        port: serverVars.webPort
+                                    }
                                 };
                             }
                         vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
