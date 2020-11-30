@@ -437,6 +437,8 @@ const browser:testBrowserApplication = {
                     let length:number = files.length,
                         flags:number = length;
                     log(["Resetting test environment."]);
+                    serverVars.device = {};
+                    serverVars.user = {};
                     if (length === 1) {
                         browserLaunch();
                     } else {
