@@ -428,33 +428,22 @@ const browser:testBrowserApplication = {
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())
                                 : `${keyword} ${path}`,
-                            store:testBrowserRoute = serverVars.testBrowser;
-                            if (browser.args.mode === "remote") {
-                                serverVars.testBrowser = {
-                                    action: "reset-browser",
-                                    exit: "",
-                                    index: -1,
-                                    result: [],
-                                    test: null,
-                                    transfer: {
-                                        agent: "",
-                                        ip: serverVars.ipAddress,
-                                        port: serverVars.webPort
-                                    }
-                                };
-                            }
+                            testIndex:number = serverVars.testBrowser.index;
+                        if (browser.args.mode === "remote") {
+                            serverVars.testBrowser.index = -2;
+                        }
                         vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
                             if (errs !== null) {
                                 error([errs.toString()]);
                                 return;
                             }
+                            serverVars.testBrowser.index = testIndex;
                             if (stdout !== "") {
                                 log([stdout]);
                             }
                             if (stderr !== "") {
                                 log([stderr.toString()]);
                             }
-                            serverVars.testBrowser = store;
                         });
                     };
                     let length:number = files.length,

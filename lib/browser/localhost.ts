@@ -38,9 +38,9 @@ import webSocket from "./webSocket.js";
         testBrowserLoad = function browser_init_testBrowserLoad():void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;
-                if (browser.testBrowser.action === "reset-browser") {
+                if (browser.testBrowser.index < -1) {
                     network.testBrowser(null, -1, "reset-browser");
-                } else if (browser.testBrowser.action !== "close") {
+                } else if (browser.testBrowser.action !== "close" && browser.testBrowser.action !== "reset-browser") {
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
                     }, 500);
