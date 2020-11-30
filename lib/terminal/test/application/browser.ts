@@ -427,7 +427,18 @@ const browser:testBrowserApplication = {
                                     }
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())
-                                : `${keyword} ${path}`;
+                                : `${keyword} ${path}`,
+                            store:testBrowserRoute = serverVars.testBrowser;
+                            if (browser.args.mode === "remote") {
+                                serverVars.testBrowser = {
+                                    action: "reset-browser",
+                                    exit: "",
+                                    index: -1,
+                                    result: [],
+                                    test: null,
+                                    transfer: null
+                                };
+                            }
                         vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
                             if (errs !== null) {
                                 error([errs.toString()]);
@@ -439,11 +450,12 @@ const browser:testBrowserApplication = {
                             if (stderr !== "") {
                                 log([stderr.toString()]);
                             }
+                            serverVars.testBrowser = store;
                         });
                     };
                     let length:number = files.length,
                         flags:number = length;
-                    log([`${humanTime(false)} Resetting test environment.`]);
+                    log([`${humanTime(false)}Resetting test environment.`]);
                     serverVars.device = {};
                     serverVars.user = {};
                     if (length === 1) {
