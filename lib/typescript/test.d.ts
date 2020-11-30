@@ -68,9 +68,6 @@ declare global {
         };
         port: number;
         remoteAgents: number;
-        server?: httpServer;
-        transmissionReturned: number;
-        transmissionSent: number;
     }
     interface testBrowserArgs {
         callback: (message:string, failCount:number) => void;
