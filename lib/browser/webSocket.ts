@@ -250,28 +250,24 @@ const title:Element = document.getElementsByClassName("title")[0],
                 title.setAttribute("class", "title");
             },
             close = function browser_webSocket_socketClose():void {
-                if (location.href.indexOf("?test_browser") > 0 && location.href.indexOf("?test_browser_noClose") < 0) {
-                    window.close();
-                } else {
-                    const device:Element = (browser.data.hashDevice === "")
-                            ? null
-                            : document.getElementById(browser.data.hashDevice),
-                        agentList:Element = document.getElementById("agentList"),
-                        active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
-                    let a:number = active.length,
-                        parent:Element;
-                    if (a > 0) {
-                        do {
-                            a = a - 1;
-                            parent = <Element>active[a].parentNode;
-                            parent.setAttribute("class", "offline");
-                        } while (a > 0);
-                    }
-                    title.setAttribute("class", "title offline");
-                    title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
-                    if (device !== null) {
-                        device.setAttribute("class", "offline");
-                    }
+                const device:Element = (browser.data.hashDevice === "")
+                        ? null
+                        : document.getElementById(browser.data.hashDevice),
+                    agentList:Element = document.getElementById("agentList"),
+                    active:HTMLCollectionOf<Element> = agentList.getElementsByClassName("status-active");
+                let a:number = active.length,
+                    parent:Element;
+                if (a > 0) {
+                    do {
+                        a = a - 1;
+                        parent = <Element>active[a].parentNode;
+                        parent.setAttribute("class", "offline");
+                    } while (a > 0);
+                }
+                title.setAttribute("class", "title offline");
+                title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+                if (device !== null) {
+                    device.setAttribute("class", "offline");
                 }
             };
 

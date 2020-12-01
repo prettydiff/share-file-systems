@@ -125,24 +125,29 @@ const browser:testBrowserApplication = {
                     return;
                 }
                 finished = true;
-                const closing = function terminal_test_application_browser_exit_closing():void {
-                    browser.index = -1;
-                    serverVars.secure = true;
-                    serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
-                    serverVars.testBrowser = null;
-                    browser.args.callback(browser.exitMessage, browser.exitType);
-                };
+                const close:testBrowserRoute = {
+                        action: "close",
+                        exit: browser.exitMessage,
+                        index: index,
+                        result: [],
+                        test: null,
+                        transfer: null
+                    },
+                    closing = function terminal_test_application_browser_exit_closing():void {
+                        vars.ws.broadcast(JSON.stringify({
+                            "test-browser": close
+                        }));
+                        setTimeout(function terminal_test_application_browser_exit_closing_delay():void {
+                            browser.index = -1;
+                            serverVars.secure = true;
+                            serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+                            serverVars.testBrowser = null;
+                            browser.args.callback(browser.exitMessage, browser.exitType);
+                        }, 1000);
+                    };
                 if (browser.args.mode === "agents" || browser.args.mode === "full") {
                     let count:number = 0;
-                    const agents:string[] = Object.keys(machines),
-                        close:testBrowserRoute = {
-                            action: "close",
-                            exit: browser.exitMessage,
-                            index: index,
-                            result: [],
-                            test: null,
-                            transfer: null
-                        };
+                    const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
                         httpClient({
                             agentType: "device",
