@@ -86,7 +86,7 @@ const browser:testBrowserApplication = {
                             result: [],
                             test: tests[0],
                             transfer: null
-                        }, null);
+                        });
                     },
                     remote = function terminal_test_application_browser_execute_remoteServer():void {
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
@@ -133,18 +133,23 @@ const browser:testBrowserApplication = {
                         test: null,
                         transfer: null
                     },
-                    closing = function terminal_test_application_browser_exit_closing():void {
-                        vars.ws.broadcast(JSON.stringify({
-                            "test-browser": close
-                        }));
-                        setTimeout(function terminal_test_application_browser_exit_closing_delay():void {
-                            browser.index = -1;
-                            serverVars.secure = true;
-                            serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
-                            serverVars.testBrowser = null;
-                            browser.args.callback(browser.exitMessage, browser.exitType);
-                        }, 1000);
-                    };
+                    exitTasks = function terminal_test_application_browser_exit_exitTasks():void {
+                        browser.index = -1;
+                        serverVars.secure = true;
+                        serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+                        serverVars.testBrowser = null;
+                        browser.args.callback(browser.exitMessage, browser.exitType);
+                    },
+                    closing = (browser.args.noClose === true)
+                        ? exitTasks
+                        : function terminal_test_application_browser_exit_closing():void {
+                            vars.ws.broadcast(JSON.stringify({
+                                "test-browser": close
+                            }));
+                            setTimeout(function terminal_test_application_browser_exit_closing_delay():void {
+                                exitTasks();
+                            }, 1000);
+                        };
                 if (browser.args.mode === "agents" || browser.args.mode === "full") {
                     let count:number = 0;
                     const agents:string[] = Object.keys(machines);
@@ -307,7 +312,7 @@ const browser:testBrowserApplication = {
                     }
                 }
             },
-            remote: function terminal_test_application_browser_remote(item:testBrowserRoute, serverResponse:ServerResponse):void {
+            remote: function terminal_test_application_browser_remote(item:testBrowserRoute):void {
                 const route:testBrowserRoute = {
                     action: "respond",
                     exit: "",
@@ -322,9 +327,8 @@ const browser:testBrowserApplication = {
                 browser.agent = item.transfer.agent;
                 browser.ip = item.transfer.ip;
                 browser.port = item.transfer.port;
-                response(serverResponse, "text/plain", "Test received at remote");
             },
-            remoteClose: function terminal_test_application_browser_remoteClose(exit:string, serverResponse:ServerResponse):void {
+            remoteClose: function terminal_test_application_browser_remoteClose(exit:string):void {
                 const close:testBrowserRoute = {
                     action: "close",
                     exit: exit,
@@ -337,7 +341,6 @@ const browser:testBrowserApplication = {
                     "test-browser": close
                 }));
                 log([exit], true);
-                response(serverResponse, "text/plain", "Close complete.");
             },
             remoteReturn: function terminal_test_application_browser_remoteReturn(item:testBrowserRoute): void {
                 const errorCall = function terminal_test_application_browser_errorCall(data:httpError):void {
@@ -393,10 +396,7 @@ const browser:testBrowserApplication = {
                     }
                 });
             },
-            reset: function terminal_test_application_browser_reset(data:testBrowserRoute, serverResponse:ServerResponse):void {
-                if (serverResponse !== null) {
-                    response(serverResponse, "text/plain", "Browser test reset received on remote.");
-                }
+            reset: function terminal_test_application_browser_reset(data:testBrowserRoute):void {
                 if (browser.args.mode !== "remote") {
                     data.action = "result";
                 }
@@ -418,9 +418,7 @@ const browser:testBrowserApplication = {
                             scheme:string = (serverVars.secure === true)
                                 ? "https"
                                 : "http",
-                            path:string = (browser.args.noClose === true)
-                                ? `${scheme}://localhost${port}/?test_browser_noClose`
-                                : `${scheme}://localhost${port}/?test_browser`,
+                            path:string = `${scheme}://localhost${port}/?test_browser`,
                             // execute a browser by file path to the browser binary
                             browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                                 ? (function terminal_test_application_browser_reset_readdir_launch_serviceCallback_browserCommand():string {
@@ -435,29 +433,30 @@ const browser:testBrowserApplication = {
                                     }
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())
-                                : `${keyword} ${path}`;
-                        vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
-                            if (errs !== null) {
-                                error([errs.toString()]);
-                                return;
-                            }
-                            if (stdout !== "") {
-                                log([stdout]);
-                            }
-                            if (stderr !== "") {
-                                log([stderr.toString()]);
-                            }
-                            if (browser.args.mode === "remote") {
-                                serverVars.testBrowser = {
-                                    action: "reset-browser",
-                                    exit: "",
-                                    index: -1,
-                                    result: [],
-                                    test: null,
-                                    transfer: null
-                                };
-                            }
-                        });
+                                : `${keyword} ${path}`,
+                            child = function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
+                                if (errs !== null) {
+                                    error([errs.toString()]);
+                                    return;
+                                }
+                                if (stdout !== "") {
+                                    log([stdout]);
+                                }
+                                if (stderr !== "") {
+                                    log([stderr.toString()]);
+                                }
+                                if (browser.args.mode === "remote") {
+                                    serverVars.testBrowser = {
+                                        action: "reset-browser",
+                                        exit: "",
+                                        index: -1,
+                                        result: [],
+                                        test: null,
+                                        transfer: null
+                                    };
+                                }
+                            };
+                        vars.node.child(browserCommand, child);
                     };
                     let length:number = files.length,
                         flags:number = length;
@@ -481,8 +480,7 @@ const browser:testBrowserApplication = {
                     }
                 });
             },
-            resetComplete: function terminal_test_application_browser_resetComplete(serverResponse:ServerResponse):void {
-                response(serverResponse, "text/plain", "Test reset returned complete.");
+            resetComplete: function terminal_test_application_browser_resetComplete():void {
                 const list:string[] = Object.keys(machines),
                     listLength:number = list.length,
                     boldGreen:string = vars.text.green + vars.text.bold,
@@ -500,11 +498,10 @@ const browser:testBrowserApplication = {
                         result: [],
                         test: tests[0],
                         transfer: null
-                    }, null);
+                    });
                 }
             },
-            resetResponse: function terminal_test_application_browser_resetResponse(data:testBrowserRoute, serverResponse:ServerResponse):void {
-                response(serverResponse, "text/plain", "Test browser loaded.");
+            resetResponse: function terminal_test_application_browser_resetResponse(data:testBrowserRoute):void {
                 if (browser.args.mode === "remote") {
                     const payload:testBrowserRoute = {
                         action: "reset-complete",
@@ -537,7 +534,7 @@ const browser:testBrowserApplication = {
                     });
                 }
             },
-            result: function terminal_test_application_browser_result(item:testBrowserRoute, serverResponse:ServerResponse):void {
+            result: function terminal_test_application_browser_result(item:testBrowserRoute):void {
                 if (finished === true) {
                     return;
                 }
@@ -693,8 +690,7 @@ const browser:testBrowserApplication = {
                         }
                     },
                     failure:string[] = [];
-            
-                response(serverResponse, "text/plain", `Processing browser test ${index + 1}: ${tests[index].name}`);
+
                 if (browser.index < index) {
                     browser.index = index;
                     if (result[0][0] === false && result[0][1] === "delay timeout") {
@@ -744,35 +740,36 @@ const browser:testBrowserApplication = {
                 }
             },
             route: function terminal_test_application_browser_route(data:testBrowserRoute, serverResponse:ServerResponse):void {
+                response(serverResponse, "text/plain", "Responding to browser test automation request.");
                 if (data.action === "result") {
                     // * response to test completion
                     // * from browsers whether local or remote
                     // * calls browser.iterate
-                    browser.methods.result(data, serverResponse);
+                    browser.methods.result(data);
                 } else if (data.action === "close") {
                     // * tells the test browser to close
                     // * from browser.exit on mode:agents sent to mode:remote
-                    browser.methods.remoteClose(data.exit, serverResponse);
+                    browser.methods.remoteClose(data.exit);
                 } else if (data.action === "request") {
                     // * sends a test from mode:agents to a specified mode:remote
                     // * from browser.iterate
                     // * sends an unused HTTP response
-                    browser.methods.remote(data, serverResponse);
+                    browser.methods.remote(data);
                 } else if (data.action === "reset-browser") {
                     // * indicates the environment is reset and the browser is ready on the local computer (mode:remote)
                     // * from the browser
                     // * send an HTTP request to data.transfer identifiers
-                    browser.methods.resetResponse(data, serverResponse);
+                    browser.methods.resetResponse(data);
                 } else if (data.action === "reset-complete") {
                     // * confirms that the remote computers are reset and their web browsers are ready to execute
                     // * from resetResponse of mode:remote sent to mode:agents
                     // * executes local reset-request thus beginning test iteration
-                    browser.methods.resetComplete(serverResponse);
+                    browser.methods.resetComplete();
                 } else if (data.action === "reset-request") {
                     // * resets the environment on mode:remote
                     // * from mode:agent (remote) in browser.execute to this computer mode:remote
                     // * generates an HTTP response
-                    browser.methods.reset(data, serverResponse);
+                    browser.methods.reset(data);
                 } else if (data.action === "respond") {
                     // * converts an action 'request' into a test for the browser of a specified mode:remote
                     // * from browser.remote of mode:agents (remote)
