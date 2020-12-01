@@ -427,17 +427,12 @@ const browser:testBrowserApplication = {
                                     }
                                     return `${keyword} ${process.argv[0]} ${path}`;
                                 }())
-                                : `${keyword} ${path}`,
-                            testIndex:number = serverVars.testBrowser.index;
-                        if (browser.args.mode === "remote") {
-                            serverVars.testBrowser.index = -2;
-                        }
+                                : `${keyword} ${path}`;
                         vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_test_application_browser_reset_readdir_launch_serviceCallback_child(errs:nodeError, stdout:string, stderr:string|Buffer):void {
                             if (errs !== null) {
                                 error([errs.toString()]);
                                 return;
                             }
-                            serverVars.testBrowser.index = testIndex;
                             if (stdout !== "") {
                                 log([stdout]);
                             }
