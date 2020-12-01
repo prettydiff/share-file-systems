@@ -102,7 +102,7 @@ const browser:testBrowserApplication = {
                 serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 if (args.mode === "remote") {
                     serverVars.testBrowser = {
-                        action: "close",
+                        action: "reset-browser",
                         exit: "",
                         index: -1,
                         result: [],
@@ -233,7 +233,7 @@ const browser:testBrowserApplication = {
                                 const payload: testBrowserRoute = {
                                     action: (browser.args.noClose === true)
                                         ? "result"
-                                        : "close",
+                                        : "reset-browser",
                                     exit: "",
                                     index: index,
                                     result: [],
