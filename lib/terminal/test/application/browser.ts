@@ -392,6 +392,9 @@ const browser:testBrowserApplication = {
                 if (serverResponse !== null) {
                     response(serverResponse, "text/plain", "Browser test reset received on remote.");
                 }
+                if (browser.args.mode !== "remote") {
+                    data.action = "result";
+                }
                 serverVars.testBrowser = data;
                 vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_reset_readdir(dErr:nodeError, files:string[]):void {
                     if (dErr !== null) {
@@ -438,6 +441,16 @@ const browser:testBrowserApplication = {
                             }
                             if (stderr !== "") {
                                 log([stderr.toString()]);
+                            }
+                            if (browser.args.mode === "remote") {
+                                serverVars.testBrowser = {
+                                    action: "reset-browser",
+                                    exit: "",
+                                    index: -1,
+                                    result: [],
+                                    test: null,
+                                    transfer: null
+                                };
                             }
                         });
                     };

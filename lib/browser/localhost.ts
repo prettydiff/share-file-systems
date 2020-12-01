@@ -222,10 +222,7 @@ import webSocket from "./webSocket.js";
         if (testBrowserReg.test(cString) === true) {
             const testString:string = cString.replace(testBrowserReg, ""),
                 test = JSON.parse(testString);
-            if (test.name === "refresh-complete-close" || test.name === "refresh-complete") {
-                if (test.name === "refresh-complete-close" && location.href.indexOf("?test_browser") > 0) {
-                    window.close();
-                }
+            if (test.name === "refresh-complete") {
                 return;
             } else if (test !== null) {
                 browser.testBrowser = test;
