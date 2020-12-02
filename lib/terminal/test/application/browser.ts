@@ -418,7 +418,9 @@ const browser:testBrowserApplication = {
                             scheme:string = (serverVars.secure === true)
                                 ? "https"
                                 : "http",
-                            path:string = `${scheme}://localhost${port}/?test_browser`,
+                            path:string = (browser.args.mode === "remote")
+                                ? `${scheme}://localhost${port}/?test_browser_remote`
+                                : `${scheme}://localhost${port}/?test_browser`,
                             // execute a browser by file path to the browser binary
                             browserCommand:string = (process.argv.length > 0 && (process.argv[0].indexOf("\\") > -1 || process.argv[0].indexOf("/") > -1))
                                 ? (function terminal_test_application_browser_reset_readdir_launch_serviceCallback_browserCommand():string {

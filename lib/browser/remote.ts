@@ -106,14 +106,14 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolea
 };
 
 // process a single event instance
-remote.event = function browser_remote_testEvent(item:testBrowserRoute, pageLoad:boolean):void {
+remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boolean):void {
     let a:number = 0,
         element:HTMLElement,
         config:testBrowserEvent,
         htmlElement:HTMLInputElement,
         event:Event,
         refresh:boolean = false,
-        stringReplace = function browser_remote_testEvent_stringReplace(str:string):string {
+        stringReplace = function browser_remote_event_stringReplace(str:string):string {
             return str
                 .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
