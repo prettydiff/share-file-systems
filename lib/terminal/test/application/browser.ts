@@ -445,16 +445,6 @@ const browser:testBrowserApplication = {
                                 if (stderr !== "") {
                                     log([stderr.toString()]);
                                 }
-                                if (browser.args.mode === "remote") {
-                                    serverVars.testBrowser = {
-                                        action: "reset-browser",
-                                        exit: "",
-                                        index: -1,
-                                        result: [],
-                                        test: null,
-                                        transfer: null
-                                    };
-                                }
                             };
                         vars.node.child(browserCommand, child);
                     };
