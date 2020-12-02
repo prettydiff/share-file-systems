@@ -40,7 +40,7 @@ import webSocket from "./webSocket.js";
                 window.onerror = remote.error;
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
-                } else if (browser.testBrowser.action !== "close" && location.href.indexOf("?test_browser_remote") < 0) {
+                } else if (browser.testBrowser.action !== "close") {
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
                     }, 500);
