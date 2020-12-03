@@ -17,18 +17,18 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 import browser from "../test/application/browser.js";
 
-const methodPOST = function terminal_server_post(request:IncomingMessage, serverResponse:ServerResponse) {
+const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
     let body:string = "";
     const decoder:StringDecoder = new StringDecoder("utf8"),
-        end = function terminal_server_post_end():void {
-            const hashDevice = function terminal_server_post_end_hashDevice():void {
+        end = function terminal_server_methodPOST_end():void {
+            const hashDevice = function terminal_server_methodPOST_end_hashDevice():void {
                 const nameData:hashAgent = JSON.parse(body).hashDevice,
                         hashes:hashAgent = {
                             device: "",
                             user: ""
                         },
-                        callbackUser = function terminal_server_post_end_hashUser(hashUser:hashOutput) {
-                            const callbackDevice = function terminal_server_post_end_hashUser_hashDevice(hashDevice:hashOutput) {
+                        callbackUser = function terminal_server_methodPOST_end_hashUser(hashUser:hashOutput) {
+                            const callbackDevice = function terminal_server_methodPOST_end_hashUser_hashDevice(hashDevice:hashOutput) {
                                 serverVars.hashDevice = hashDevice.hash;
                                 serverVars.nameDevice = nameData.device;
                                 serverVars.device[serverVars.hashDevice] = {
@@ -61,11 +61,11 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                     vars.testLogger("service", "hashDevice", "Create a hash to name a device.");
                     hash(input);
                 },
-                hashShare = function terminal_server_post_end_hashShare():void {
+                hashShare = function terminal_server_methodPOST_end_hashShare():void {
                     const hashShare:hashShare = JSON.parse(body).hashShare,
                         input:hashInput = {
                             algorithm: "sha3-512",
-                            callback: function terminal_server_post_end_shareHash(hashData:hashOutput) {
+                            callback: function terminal_server_methodPOST_end_shareHash(hashData:hashOutput) {
                                 const outputBody:hashShare = JSON.parse(hashData.id).hashShare,
                                     hashResponse:hashShareResponse = {
                                         device: outputBody.device,
@@ -82,7 +82,7 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
                     vars.testLogger("service", "hashShare", "Create a hash to name a new share.");
                     hash(input);
                 },
-                updateRemote = function terminal_server_post_end_updateRemote():void {
+                updateRemote = function terminal_server_methodPOST_end_updateRemote():void {
                     vars.testLogger("service", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
                     vars.ws.broadcast(body);
                     response(serverResponse, "text/plain", `Received directory watch for ${body} at ${serverVars.ipAddress}.`);
@@ -136,18 +136,18 @@ const methodPOST = function terminal_server_post(request:IncomingMessage, server
         };
 
     // request handling
-    request.on('data', function terminal_server_post_data(data:Buffer) {
+    request.on('data', function terminal_server_methodPOST_data(data:Buffer) {
         body = body + decoder.write(data);
         if (body.length > 1e6) {
             request.connection.destroy();
         }
     });
-    request.on("error", function terminal_server_post_errorRequest(errorMessage:nodeError):void {
+    request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
             error([body, "request", errorMessage.toString()]);
         }
     });
-    serverResponse.on("error", function terminal_server_post_errorResponse(errorMessage:nodeError):void {
+    serverResponse.on("error", function terminal_server_methodPOST_errorResponse(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
             error([body, "response"]);
         }

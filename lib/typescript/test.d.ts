@@ -61,7 +61,7 @@ declare global {
             request: (item:testBrowserRoute) => void;
             ["reset-browser"]: (data:testBrowserRoute) => void;
             ["reset-complete"]: () => void;
-            ["reset-request"]: (data:testBrowserRoute) => void;
+            ["reset-request"]: () => void;
             respond: (item:testBrowserRoute) => void;
             result: (item:testBrowserRoute) => void;
             route: (data:testBrowserRoute, serverResponse:ServerResponse) => void;

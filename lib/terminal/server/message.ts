@@ -5,6 +5,7 @@ import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
 import httpClient from "./httpClient.js";
+import response from "./response.js";
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";
 
@@ -39,6 +40,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
             responseStream: httpClient.stream,
             responseError: responseError
         };
+    response(serverResponse, "text/plain", "Responding to message.");
     if (data.agentFrom === data.agentTo) {
         // broadcast
         let agentLength:number = agents.length;
