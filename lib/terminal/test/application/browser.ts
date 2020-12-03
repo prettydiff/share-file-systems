@@ -79,7 +79,16 @@ const browser:testBrowserApplication = {
                             index = index + 1;
                         } while (index < listLength);
                     },
-                    reset = function terminal_test_application_browser_execute_reset():void {},
+                    reset = function terminal_test_application_browser_execute_reset():void {
+                        browser.methods["reset-request"]({
+                            action: "result",
+                            exit: "",
+                            index: 0,
+                            result: [],
+                            test: tests[0],
+                            transfer: null
+                        });
+                    },
                     remote = function terminal_test_application_browser_execute_remoteServer():void {
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                     };
@@ -372,26 +381,21 @@ const browser:testBrowserApplication = {
                 log([`Received ready state from ${color + browser.remoteAgents + vars.text.none} of ${boldGreen + listLength + vars.text.none} total machines.`]);
                 if (browser.remoteAgents === listLength) {
                     log(["", "Executing tests"]);
-                    browser.methods["reset-request"]();
+                    browser.methods["reset-request"]({
+                        action: "result",
+                        exit: "",
+                        index: 0,
+                        result: [],
+                        test: tests[0],
+                        transfer: null
+                    });
                 }
             },
-            ["reset-request"]: function terminal_test_application_browser_resetRequest():void {
-                serverVars.testBrowser = {
-                    action: (browser.args.mode === "remote")
-                        ? "reset-browser"
-                        : "reset-request",
-                    exit: "",
-                    index: -1,
-                    result: [],
-                    test: null,
-                    transfer: (browser.args.mode === "remote")
-                        ? null
-                        : {
-                            agent: "",
-                            ip: serverVars.ipAddress,
-                            port: serverVars.webPort
-                        }
-                };
+            ["reset-request"]: function terminal_test_application_browser_resetRequest(data:testBrowserRoute):void {
+                if (browser.args.mode !== "remote") {
+                    data.action = "result";
+                }
+                serverVars.testBrowser = data;
                 vars.node.fs.readdir(serverVars.storage.slice(0, serverVars.storage.length - 1), function terminal_test_application_browser_resetRequest_readdir(dErr:nodeError, files:string[]):void {
                     if (dErr !== null) {
                         error([dErr.toString()]);
