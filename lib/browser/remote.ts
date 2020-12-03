@@ -38,7 +38,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             setTimeout(browser_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
-    console.log(`Executing delay on test ${remote.index}: ${config.name}`);
+    console.log(`Executing delay on test index ${remote.index}: ${config.name}`);
     if (config.delay === undefined) {
         remote.test(config.unit, remote.index);
     } else {

@@ -51,22 +51,9 @@ const browser:testBrowserApplication = {
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
                 const agents = function terminal_test_application_browser_execute_agents():void {
                         const list:string[] = Object.keys(machines),
-                            listLength:number = list.length,
-                            payload:testBrowserRoute = {
-                                action: "reset-request",
-                                exit: "",
-                                index: -1,
-                                result: [],
-                                test: null,
-                                transfer: {
-                                    agent: "",
-                                    ip: serverVars.ipAddress,
-                                    port: serverVars.webPort
-                                }
-                            };
+                            listLength:number = list.length;
                         let index:number = 0;
                         log(["Preparing remote machines"]);
-                        serverVars.testBrowser = payload;
                         do {
                             httpClient({
                                 agentType: "device",
@@ -76,7 +63,7 @@ const browser:testBrowserApplication = {
                                 errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
                                 ip: machines[list[index]].ip,
                                 payload: JSON.stringify({
-                                    "test-browser": payload
+                                    "test-browser": serverVars.testBrowser
                                 }),
                                 port: machines[list[index]].port,
                                 remoteName: browser.agent,
@@ -114,16 +101,22 @@ const browser:testBrowserApplication = {
 
                 serverVars.secure = false;
                 serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
-                if (args.mode === "remote") {
-                    serverVars.testBrowser = {
-                        action: "reset-browser",
-                        exit: "",
-                        index: -1,
-                        result: [],
-                        test: null,
-                        transfer: null
-                    };
-                }
+                serverVars.testBrowser = {
+                    action: (args.mode === "remote")
+                        ? "reset-browser"
+                        : "reset-request",
+                    exit: "",
+                    index: -1,
+                    result: [],
+                    test: null,
+                    transfer: (args.mode === "remote")
+                        ? null
+                        : {
+                            agent: "",
+                            ip: serverVars.ipAddress,
+                            port: serverVars.webPort
+                        }
+                };
                 server({
                     agent: "",
                     agentType: "device",
@@ -759,7 +752,7 @@ const browser:testBrowserApplication = {
                 // -
                 // respond
                 // * converts an action 'request' into a test for the browser of a specified mode:remote
-                // * from browser.remote of mode:agents (remote)
+                // * from browser.request of mode:agents (remote)
                 // * sends an HTTP request to browser.ip with the test result
                 // -
                 // result
