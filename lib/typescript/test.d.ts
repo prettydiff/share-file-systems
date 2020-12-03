@@ -54,15 +54,15 @@ declare global {
         index: number;
         ip: string;
         methods: {
+            close: (data:testBrowserRoute) => void;
             execute: (args:testBrowserArgs) => void;
             exit: (index:number) => void;
             iterate: (index:number) => void;
-            remote: (item:testBrowserRoute) => void;
-            remoteClose: (exit:string) => void;
-            remoteReturn: (item:testBrowserRoute) => void;
-            reset: (data:testBrowserRoute) => void;
-            resetComplete: () => void;
-            resetResponse: (data:testBrowserRoute) => void;
+            request: (item:testBrowserRoute) => void;
+            ["reset-browser"]: (data:testBrowserRoute) => void;
+            ["reset-complete"]: () => void;
+            ["reset-request"]: (data:testBrowserRoute) => void;
+            respond: (item:testBrowserRoute) => void;
             result: (item:testBrowserRoute) => void;
             route: (data:testBrowserRoute, serverResponse:ServerResponse) => void;
         };
