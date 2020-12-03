@@ -92,6 +92,22 @@ const browser:testBrowserApplication = {
 
                 serverVars.secure = false;
                 serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
+                serverVars.testBrowser = {
+                    action: (args.mode === "remote")
+                        ? "reset-browser"
+                        : "reset-request",
+                    exit: "",
+                    index: -1,
+                    result: [],
+                    test: null,
+                    transfer: (args.mode === "remote")
+                        ? null
+                        : {
+                            agent: "",
+                            ip: serverVars.ipAddress,
+                            port: serverVars.webPort
+                        }
+                };
                 server({
                     agent: "",
                     agentType: "device",
