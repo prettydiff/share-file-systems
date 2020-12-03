@@ -46,7 +46,7 @@ const browser:testBrowserApplication = {
                 vars.ws.broadcast(JSON.stringify({
                     "test-browser": close
                 }));
-                log([data.exit], true);
+                log([data.exit, ""], true);
             },
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
                 const agents = function terminal_test_application_browser_execute_agents():void {
@@ -328,6 +328,7 @@ const browser:testBrowserApplication = {
                     test: item.test,
                     transfer: null
                 };
+                item.action = "respond";
                 serverVars.testBrowser = item;
                 vars.ws.broadcast(JSON.stringify({
                     "test-browser": route
