@@ -3,6 +3,7 @@
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
+import time from "../utilities/time.js";
 import vars from "../utilities/vars.js";
 
 import serverVars from "./serverVars.js";
@@ -32,79 +33,10 @@ const serverWatch = function terminal_server_serverWatch(type:"rename"|"change",
     }
     vars.testLogger("serverWatch", "", "Establishing watch for application components to refresh the page or compile updated code.");
     if (extension === "ts" && serverVars.timeStore < Date.now() - 1000) {
-        const time = function terminal_server_serverWatch_time(message:string, build:boolean):void {
-            const date:Date = new Date(),
-                dateArray:string[] = [],
-                output:string[] = [],
-                duration = function terminal_server_serverWatch_time_duration():void {
-                    let hours:number = 0,
-                        minutes:number = 0,
-                        seconds:number = 0,
-                        span:number = date.valueOf() - serverVars.timeStore,
-                        list:string[] = [];
-                    if (span > 3600000) {
-                        hours = Math.floor(span / 3600000);
-                        span = span - (hours * 3600000);
-                    }
-                    list.push(hours.toString());
-                    if (list[0].length < 2) {
-                        list[0] = `0${list[0]}`;
-                    }
-                    if (span > 60000) {
-                        minutes = Math.floor(span / 60000);
-                        span = span - (minutes * 60000);
-                    }
-                    list.push(minutes.toString());
-                    if (list[1].length < 2) {
-                        list[1] = `0${list[1]}`;
-                    }
-                    if (span > 1000) {
-                        seconds = Math.floor(span / 1000);
-                        span = span - (seconds * 1000);
-                    }
-                    list.push(seconds.toString());
-                    if (list[2].length < 2) {
-                        list[2] = `0${list[2]}`;
-                    }
-                    list.push(span.toString());
-                    if (list[3].length < 3) {
-                        do {
-                            list[3] = `0${list[3]}`;
-                        } while (list[3].length < 3);
-                    }
-                    output.push(`[${vars.text.bold + vars.text.purple + list.join(":") + vars.text.none}] Total compile time.\u0007`);
-                };
-            let hours:string = String(date.getHours()),
-                minutes:string = String(date.getMinutes()),
-                seconds:string = String(date.getSeconds()),
-                milliSeconds:string = String(date.getMilliseconds());
-            if (hours.length === 1) {
-                hours = `0${hours}`;
-            }
-            if (minutes.length === 1) {
-                minutes = `0${minutes}`;
-            }
-            if (seconds.length === 1) {
-                seconds = `0${seconds}`;
-            }
-            if (milliSeconds.length < 3) {
-                do {
-                    milliSeconds = `0${milliSeconds}`;
-                } while (milliSeconds.length < 3);
-            }
-            dateArray.push(hours);
-            dateArray.push(minutes);
-            dateArray.push(seconds);
-            dateArray.push(milliSeconds);
-            output.push(`[${vars.text.cyan + dateArray.join(":") + vars.text.none}] ${message}`);
-            if (build === true) {
-                duration();
-            }
-            log(output);
-            serverVars.timeStore = date.valueOf();
-        };
-        log([""]);
-        time(`Compiling for ${vars.text.green + filename + vars.text.none}`, false);
+        const timeStart:[string, number] = time(`Compiling for ${vars.text.green + filename + vars.text.none}`, false, serverVars.timeStore);
+        
+        log(["", timeStart[0]]);
+        serverVars.timeStore = timeStart[1];
         vars.node.child(`${vars.version.command} build incremental`, {
             cwd: vars.projectPath
         }, function terminal_server_watch_child(err:Error, stdout:string, stderr:string):void {
@@ -116,8 +48,11 @@ const serverWatch = function terminal_server_serverWatch(type:"rename"|"change",
                 error([stderr]);
                 return;
             }
+            const output:string[] = [];
+            output.push(time("TypeScript Compiled", false, serverVars.timeStore)[0]);
+            output.push(time("Total Compile Time", true, serverVars.timeStore)[0]);
             log([stdout]);
-            time("TypeScript Compiled", true);
+            log(output);
             vars.ws.broadcast("reload");
             return;
         });

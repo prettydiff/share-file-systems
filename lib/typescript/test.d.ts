@@ -68,6 +68,7 @@ declare global {
         };
         port: number;
         remoteAgents: number;
+        timeStart: number;
     }
     interface testBrowserArgs {
         callback: (message:string, failCount:number) => void;

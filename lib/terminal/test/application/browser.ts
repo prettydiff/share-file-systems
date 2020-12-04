@@ -12,6 +12,7 @@ import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
+import time from "../../utilities/time.js";
 
 import machines from "./browser_machines.js";
 import test_agents from "../samples/browser_agents.js";
@@ -46,7 +47,7 @@ const browser:testBrowserApplication = {
                 vars.ws.broadcast(JSON.stringify({
                     "test-browser": close
                 }));
-                log([data.exit, ""], true);
+                log([time(data.exit, true, browser.timeStart)[0], ""], true);
             },
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
                 const agents = function terminal_test_application_browser_execute_agents():void {
@@ -444,8 +445,10 @@ const browser:testBrowserApplication = {
                         vars.node.child(browserCommand, child);
                     };
                     let length:number = files.length,
-                        flags:number = length;
-                    log([`${humanTime(false)}Resetting test environment.`]);
+                        flags:number = length,
+                        timeStore:[string, number] = time("Resetting Test Environment", false, 0);
+                    log(["", "", timeStore[0]]);
+                    browser.timeStart = timeStore[1];
                     serverVars.device = {};
                     serverVars.user = {};
                     if (length === 1) {
@@ -485,6 +488,7 @@ const browser:testBrowserApplication = {
                         test: null,
                         transfer: null
                     };
+                serverVars.testBrowser.action = "reset-browser";
                 httpClient({
                     agentType: "device",
                     callback: function terminal_test_application_browser_respond_callback():void {
@@ -763,7 +767,8 @@ const browser:testBrowserApplication = {
             }
         },
         port: 0,
-        remoteAgents: 0
+        remoteAgents: 0,
+        timeStart: 0
     },
     assign = function terminal_test_application_browser_assign(index:number):void {
         serverVars.testBrowser = {
