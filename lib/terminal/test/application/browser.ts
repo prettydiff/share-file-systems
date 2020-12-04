@@ -664,9 +664,10 @@ const browser:testBrowserApplication = {
                                 .replace(",\"column\":" , `,\n    "${vars.text.cyan}column${vars.text.none}" :`)
                                 .replace(",\"line\":"   , `,\n    "${vars.text.cyan}line${vars.text.none}"   :`)
                                 .replace(",\"message\":", `,\n    "${vars.text.cyan}message${vars.text.none}":`)
-                                .replace(",\"stack\":"  , `,\n    "${vars.text.cyan}stack${vars.text.none}"  :`)
-                                .replace(/\\n/g, "\n    ")
-                                .replace(/\}$/, "\n}");
+                                .replace(",\"stack\":\"", `,\n    "${vars.text.cyan}stack${vars.text.none}"  :\n        `)
+                                .replace(/\\n/g, "\n        ")
+                                .replace(/@http/g, "  -  http")
+                                .replace(/\s*"\s*\}$/, "\n}");
                             failure.push(`     ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
                         } else if ((delay === false && result[a][2] === buildNode(tests[index].unit[index], true)) || (delay === true && result[a][2] === buildNode(tests[index].delay, true))) {
                             failure.push(`     Actual value: ${vars.text.cyan + result[a][1] + vars.text.none}`);
