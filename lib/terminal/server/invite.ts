@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
-import { IncomingMessage, ServerResponse } from "http";
+import { ServerResponse } from "http";
 
 import common from "../../common/common.js";
 

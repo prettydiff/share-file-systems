@@ -21,7 +21,7 @@ const fileCallback = function terminal_fileService_fileCallback(serverResponse:S
         : message;
     if (localDevice === true) {
         vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
-        response(serverResponse, "text/plain", payload);
+        response(serverResponse, "application/json", payload);
     } else {
         const dirConfig:readDirectory = {
             callback: function terminal_fileService_fileCallback_dir(directory:directoryList):void {

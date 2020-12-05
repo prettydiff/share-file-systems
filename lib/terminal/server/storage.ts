@@ -13,9 +13,7 @@ const storage = function terminal_server_storage(data:storage):void {
         testFlag:boolean = (serverVars.testBrowser === null && vars.command.indexOf("test") === 0),
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
-            if (testFlag === true) {
-                response(data.response, "text/plain", `${data.type} storage written with false response for testing.`);
-            } else {
+            if (testFlag === false) {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_rename_renameNode(erName:Error) {
                     if (erName !== null) {
                         vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
@@ -24,7 +22,6 @@ const storage = function terminal_server_storage(data:storage):void {
                             }
                         });
                     }
-                    response(data.response, "text/plain", `${data.type} written`);
                 });
             }
         },
@@ -32,7 +29,6 @@ const storage = function terminal_server_storage(data:storage):void {
             vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
             if (erSettings !== null) {
                 error([erSettings.toString()]);
-                response(data.response, "text/plain", erSettings.toString());
                 return;
             }
             if (data.type === "settings") {
@@ -62,6 +58,7 @@ const storage = function terminal_server_storage(data:storage):void {
     } else {
         vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
     }
+    response(data.response, "text/plain", `${data.type} written`);
 };
 
 export default storage;

@@ -169,7 +169,6 @@ declare global {
         deleted: agentList;
         list: heartbeatShare;
         requestType: "heartbeat-complete" | "heartbeat-delete-agents";
-        response: ServerResponse;
         sendShares: boolean;
         status: heartbeatStatus;
     }

@@ -66,6 +66,7 @@ const serverVars:serverVars = {
             : "IPv4",
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
+        requests: 0,
         secure: (vars.command === "test_browser")
             ? false
             : true,

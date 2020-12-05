@@ -4,8 +4,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { StringDecoder } from "string_decoder";
 
-import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
+import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 import heartbeat from "./heartbeat.js";
@@ -43,7 +43,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     response: null,
                                     type: "device"
                                 });
-                                response(serverResponse, "text/plain", JSON.stringify(hashes));
+                                response(serverResponse, "application/json", JSON.stringify(hashes));
                             };
                             serverVars.hashUser = hashUser.hash;
                             serverVars.nameUser = nameData.user;
@@ -99,6 +99,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
             } else if (task === "heartbeat-status") {
                 // * the response to a heartbeat at the original requestor
                 vars.ws.broadcast(body);
+                response(serverResponse, "text/plain", "heartbeat-status");
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
                 readOnly(request, serverResponse, body);
@@ -144,12 +145,12 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     });
     request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            error([body, "request", errorMessage.toString()]);
+            log(["POST request", "", body, "", vars.text.angry + errorMessage.toString() + vars.text.none]);
         }
     });
     serverResponse.on("error", function terminal_server_methodPOST_errorResponse(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            error([body, "response"]);
+            log(["POST response", "", body, "", vars.text.angry + errorMessage.toString() + vars.text.none]);
         }
     });
 

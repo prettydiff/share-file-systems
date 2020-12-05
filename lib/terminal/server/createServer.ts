@@ -53,6 +53,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
     // *** available for troubleshooting:
     // console.log(requestType+" "+host+" "+postTest());
 
+    serverVars.requests = serverVars.requests + 1;
     if (host === "") {
         response(serverResponse, "text/plain", `ForbiddenAccess: unknown user`);
     } else  if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {

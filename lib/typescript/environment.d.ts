@@ -66,6 +66,7 @@ interface serverVars {
     ipFamily: "IPv6" | "IPv4";
     nameDevice: string;
     nameUser: string;
+    requests: number;
     secure: boolean;
     status: heartbeatStatus;
     storage: string;

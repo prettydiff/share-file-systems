@@ -175,14 +175,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 } while (a > 0);
             }
         }
-        // respond irrespective of broadcast status or completion to prevent hanging sockets
-        if (config.response !== null) {
-            if (config.status === "deleted") {
-                response(config.response, "text/plain", "Deletion task sent.");
-            } else {
-                response(config.response, "text/plain", "Heartbeat broadcast sent.");
-            }
-        }
     },
     // updates shares/storage only if necessary and then sends the payload to the browser
     parse = function terminal_server_heartbeat_parse(data:heartbeat, serverResponse:ServerResponse):void {
@@ -243,7 +235,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                     type: "user"
                 },
                 requestType: "heartbeat-complete",
-                response: null,
                 sendShares: true,
                 status: <heartbeatStatus>data.status
             });
@@ -265,12 +256,12 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 deleted: deleted,
                 list: null,
                 requestType: "heartbeat-delete-agents",
-                response: serverResponse,
                 sendShares: true,
                 status: "deleted"
             });
             removeByType(deleted.device, "device");
             removeByType(deleted.user, "user");
+            response(serverResponse, "text/plain", "response from heartbeat.delete");
         },
         deleteResponse: function terminal_server_heartbeat_deleteResponse(data:heartbeat, serverResponse:ServerResponse):void {
             if (data.agentType === "device") {
@@ -295,7 +286,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             vars.ws.broadcast(JSON.stringify({
                 "heartbeat-delete-agents": data
             }));
-            response(serverResponse, "text/plain", "Response to remote user deletion.");
+            response(serverResponse, "text/plain", "response from heartbeat.deleteResponse");
         },
         parse: parse,
         update: function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
@@ -320,10 +311,10 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 },
                 list: data.broadcastList,
                 requestType: "heartbeat-complete",
-                response: data.response,
                 sendShares: share,
                 status: data.status
             });
+            response(data.response, "text/plain", "response from heartbeat.update");
         }
     };
 

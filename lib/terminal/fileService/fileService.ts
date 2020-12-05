@@ -379,6 +379,8 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         response(serverResponse, "text/plain", erNewFile.toString());
                     }
                 });
+            } else {
+                response(serverResponse, "text/plain", `unsupported type ${data.name}`);
             }
         },
         read = function terminal_fileService_fileService_tasks_read():void {

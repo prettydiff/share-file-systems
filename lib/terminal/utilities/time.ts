@@ -6,7 +6,6 @@ const time = function terminal_server_serverWatch_time(message:string, differenc
     const date:Date = new Date(),
         dateValue:number = date.valueOf(),
         dateArray:string[] = [],
-        output:string[] = [],
         duration = function terminal_server_serverWatch_time_duration():string {
             let hours:number = 0,
                 minutes:number = 0,

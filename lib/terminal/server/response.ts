@@ -3,6 +3,7 @@
 import { ServerResponse } from "http";
 
 import error from "../utilities/error.js";
+import serverVars from "./serverVars.js";
 
 const response = function terminal_server_response(serverResponse:ServerResponse, type:string, message:string|Buffer):void {
     if (serverResponse !== null) {
@@ -46,6 +47,7 @@ const response = function terminal_server_response(serverResponse:ServerResponse
             serverResponse.writeHead(status, {"Content-Type": type});
             serverResponse.write(message);
             serverResponse.end();
+            serverVars.requests = serverVars.requests - 1;
         }
     }
 };
