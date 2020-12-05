@@ -7,7 +7,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // http(s) get function
-const get = function terminal_get(address:string, callback:Function|null):void {
+const get = function terminal_commands_get(address:string, callback:Function|null):void {
         if (vars.command === "get") {
             address = process.argv[0];
             if (vars.verbose === true) {
@@ -36,12 +36,12 @@ const get = function terminal_get(address:string, callback:Function|null):void {
             return;
         }
         // both http and https are used here as the scheme variable
-        vars.node[scheme].get(address, function terminal_get_callback(res:IncomingMessage) {
+        vars.node[scheme].get(address, function terminal_commands_get_callback(res:IncomingMessage) {
             vars.testLogger("get", "callback", `requesting address ${address}`);
-            res.on("data", function terminal_get_callback_data(chunk:string):void {
+            res.on("data", function terminal_commands_get_callback_data(chunk:string):void {
                 file = file + chunk;
             });
-            res.on("end", function terminal_get_callback_end() {
+            res.on("end", function terminal_commands_get_callback_end() {
                 if (res.statusCode !== 200) {
                     vars.testLogger("get", "response complete", `status code: ${res.statusCode}`);
                     if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 303 || res.statusCode === 307 || res.statusCode === 308) {
@@ -50,7 +50,7 @@ const get = function terminal_get(address:string, callback:Function|null):void {
                         }
                         process.argv[0] = res.headers.location;
                         address = process.argv[0];
-                        terminal_get(address, callback);
+                        terminal_commands_get(address, callback);
                         return;
                     }
                     error([`${scheme}.get failed with status code ${res.statusCode}`]);

@@ -4,14 +4,14 @@
 import browser from "./browser.js";
 
 /* lib/browser/dom - Extensions to the DOM to provide navigational function not present from the standard methods */
-const dom = function local_dom():void {
+const dom = function browser_dom():void {
     // getAncestor - A method to walk up the DOM towards the documentElement.
     // * identifier: string - The string value to search for.
     // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
-    const getAncestor = function local_dom_getAncestor(identifier:string, selector:selector):Element {
+    const getAncestor = function browser_dom_getAncestor(identifier:string, selector:selector):Element {
             // eslint-disable-next-line
             let start:Element = (this === document) ? document.documentElement : this;
-            const test = function local_dom_getAncestor_test():boolean {
+            const test = function browser_dom_getAncestor_test():boolean {
                     if (selector === "class") {
                         if (start.getAttribute("class") === identifier) {
                             return true;
@@ -46,7 +46,7 @@ const dom = function local_dom():void {
         // getElementByAttribute - Search all descendant elements containing a matching attribute with matching value and returns an array of corresponding elements.
         // * name: string - The name of the attribute to search for.  An empty string means accept every attribute name.
         // * value: string - The attribute value to search for.  An empty string means accept any attribute value.  
-        getElementsByAttribute = function local_dom_getElementsByAttribute(name:string, value:string):Element[] {
+        getElementsByAttribute = function browser_dom_getElementsByAttribute(name:string, value:string):Element[] {
             // eslint-disable-next-line
             const start:Element = (this === document) ? document.documentElement : this,
                 attrs:Attr[]    = <Attr[]>start.getNodesByType(2),
@@ -57,7 +57,7 @@ const dom = function local_dom():void {
             if (typeof value !== "string") {
                 value = "";
             }
-            attrs.forEach(function local_dom_getElementsByAttribute_each(item:Attr):void {
+            attrs.forEach(function browser_dom_getElementsByAttribute_each(item:Attr):void {
                 if (item.name === name || name === "") {
                     if (item.value === value || value === "") {
                         out.push(item.ownerElement);
@@ -69,7 +69,7 @@ const dom = function local_dom():void {
         // getElementsByText - Returns an array of descendant elements containing the white space trimmed text.
         // * textValue: string - The text to match.  The value must exactly match the complete text node value after trimming white space.
         // * castSensitive: boolean - Whether case sensitivity should apply.
-        getElementsByText = function local_dom_getElementsByText(textValue:string, caseSensitive?:boolean):Element[] {
+        getElementsByText = function browser_dom_getElementsByText(textValue:string, caseSensitive?:boolean):Element[] {
             // eslint-disable-next-line
             const start:Element = (this === document) ? document.documentElement : this,
                 texts:Text[]    = <Text[]>start.getNodesByType(3),
@@ -82,7 +82,7 @@ const dom = function local_dom():void {
             if (typeof caseSensitive !== "boolean") {
                 caseSensitive = false;
             }
-            texts.forEach(function local_dom_getElementsByText_each(item:Text):void {
+            texts.forEach(function browser_dom_getElementsByText_each(item:Text):void {
                 const text:string = (caseSensitive === true)
                     ? item.textContent.toLowerCase()
                     : item.textContent;
@@ -98,7 +98,7 @@ const dom = function local_dom():void {
         // * typeValue: string|number = The value must be a node type name or a node type number (0-12)
         // - An empty string, "all", or 0 means gather all descendant nodes regardless of type.
         // - For standard values see: https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
-        getNodesByType = function local_dom_getNodesByType(typeValue:string|number):Node[] {
+        getNodesByType = function browser_dom_getNodesByType(typeValue:string|number):Node[] {
             const valueString:string = (typeof typeValue === "string") ? typeValue.toLowerCase() : "",
                 // eslint-disable-next-line
                 root:Element = (this === document) ? document.documentElement : this,
@@ -140,9 +140,9 @@ const dom = function local_dom():void {
             }
 
             // A handy dandy function to trap all the DOM walking
-            return (function local_dom_getNodesByType_walking():Node[] {
+            return (function browser_dom_getNodesByType_walking():Node[] {
                 const output:Node[] = [],
-                    child  = function local_dom_getNodesByType_walking_child(x:Element):void {
+                    child  = function browser_dom_getNodesByType_walking_child(x:Element):void {
                         const children:NodeListOf<ChildNode> = x.childNodes;
                         let a:NamedNodeMap    = x.attributes,
                             b:number    = a.length,
@@ -163,7 +163,7 @@ const dom = function local_dom():void {
                                 }
                                 if (children[c].nodeType === 1) {
                                     //recursion magic
-                                    local_dom_getNodesByType_walking_child(<Element>children[c]);
+                                    browser_dom_getNodesByType_walking_child(<Element>children[c]);
                                 }
                                 c = c + 1;
                             } while (c < b);
@@ -176,7 +176,7 @@ const dom = function local_dom():void {
         // getModalsByType - Returns a list of modals matching a given modal type
         // * The optional type argument indicates what type of modals to return
         // * The default type value is "all" or undefined which returns all modals
-        getModalsByModalType = function local_dom_getModalsByModalType(type:modalType|"all"):Element[] {
+        getModalsByModalType = function browser_dom_getModalsByModalType(type:modalType|"all"):Element[] {
             const keys:string[] = Object.keys(browser.data.modals),
                 length:number = keys.length,
                 output:Element[] = [];
@@ -192,12 +192,12 @@ const dom = function local_dom():void {
             } while (a < length);
             return output;
         },
-        disallowed = function local_dom_disallowed():void {
+        disallowed = function browser_dom_disallowed():void {
             // eslint-disable-next-line
             new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
             return undefined;
         },
-        disallowedList = function local_dom_disallowedList():NodeListOf<HTMLElement> {
+        disallowedList = function browser_dom_disallowedList():NodeListOf<HTMLElement> {
             const list:any = [];
             // eslint-disable-next-line
             new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);

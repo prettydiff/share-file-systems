@@ -4,15 +4,15 @@
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
-const serviceTests = function test_services():testServiceInstance[] {
+const serviceTests = function terminal_test_samples_services():testServiceInstance[] {
     const service:testServiceInstance[] = [],
         projectPath:string = vars.projectPath,
         sep:string = vars.sep,
         windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
         windowsSep:string = sep.replace(/\\/g, "\\\\"),
-        hash:string = "f6fdc288338713c9e41fedcf3d9ad09a06f2e9929eb2b7b59a76f60efbd8b98e8f962815f8474799a17496f779472e95a47d3795473e14bb094f3fc12e1a0323",
-        loopback:string = (serverVars.addresses[0].length > 1)
-            ? "::"
+        hash:string = "af4c67a18bf237f9f2eeac165d73ce69ce9d53596387cc02789af512e71b098c04f87dd5e1c222aeaab2c5ec5014856d272fa71ce8f556888e3efed57f4acc29",
+        loopback:string = (serverVars.ipFamily === "IPv6")
+            ? "::1"
             : "127.0.0.1";
     
     service.push(<testTemplateFileService>{
@@ -33,7 +33,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         name: "fs:fs-base64, Base 64 Local",
         qualifier: "is",
         test: [{
-            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJub2RlX21vZHVsZXMiCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioudHMiLAogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
+            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
             id: "some-modal-id",
             path: `${projectPath}tsconfig.json`
         }]
@@ -56,7 +56,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         name: "fs:fs-base64, Base 64 Remote Device",
         qualifier: "is",
         test: [{
-            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJub2RlX21vZHVsZXMiCiAgICBdLAogICAgImluY2x1ZGUiOiBbCiAgICAgICAgIioudHMiLAogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
+            content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
             id: "some-modal-id",
             path: `${projectPath}tsconfig.json`
         }]
@@ -701,7 +701,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         },
         name: "fs:fs-directory, Directory Local 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -739,7 +739,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         },
         name: "fs:fs-directory, Directory Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -777,7 +777,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         },
         name: "fs:fs-search, Search Local 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -815,7 +815,7 @@ const serviceTests = function test_services():testServiceInstance[] {
         },
         name: "fs:fs-search, Search Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fs.js","file"`
+        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
     });
     service.push(<testTemplateUpdateRemote>{
         command: {
@@ -877,7 +877,7 @@ const serviceTests = function test_services():testServiceInstance[] {
                     hashType: "sha3-512",
                     hashUser: serverVars.hashUser,
                     modals: {
-                        "systems-modal": {
+                        "settings-modal": {
                             agent: serverVars.hashDevice,
                             agentType: "device",
                             content: null,
@@ -887,18 +887,18 @@ const serviceTests = function test_services():testServiceInstance[] {
                             read_only: false,
                             single: true,
                             status: "hidden",
-                            title: "<span class=\"icon-systemLog\">⌬</span> System Log",
-                            type: "systems",
+                            title: "<span class=\"icon-settings\">⚙</span> Settings",
+                            type: "settings",
                             width: 800,
                             zIndex: 1,
-                            id: "systems-modal",
+                            id: "settings-modal",
                             left: 200,
                             top: 200,
                             height: 400
                         },
                     },
                     modalTypes: [
-                        "systems", "settings", "fileNavigate", "invite-request"
+                        "settings", "fileNavigate", "invite-request"
                     ],
                     nameDevice: "this device name",
                     nameUser: "local user name",
@@ -911,31 +911,6 @@ const serviceTests = function test_services():testServiceInstance[] {
         name: "storage settings, Local settings storage without HTTP response",
         qualifier: "is",
         test: "settings storage written with false response for testing."
-    });
-    service.push(<testTemplateStorage>{
-        command: {
-            storage: {
-                data: {
-                    status: [],
-                    users: [],
-                    errors: [
-                        [
-                            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
-                                "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
-                                "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
-                                "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
-                                "FSReqCallback.oncomplete (fs.js:154:23)"
-                            ]
-                        ]
-                    ]
-                },
-                response: null,
-                type: "messages"
-            }
-        },
-        name: "storage messages, Local messages storage without HTTP response",
-        qualifier: "is",
-        test: "messages storage written with false response for testing."
     });
     service.push(<testTemplateStorage>{
         command: {

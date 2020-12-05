@@ -2,16 +2,13 @@
 
 import { ServerResponse } from "http";
 
-import log from "../utilities/log.js";
+import error from "../utilities/error.js";
+import serverVars from "./serverVars.js";
 
 const response = function terminal_server_response(serverResponse:ServerResponse, type:string, message:string|Buffer):void {
     if (serverResponse !== null) {
         if (serverResponse.writableEnded === true) {
-            log([
-                "Write after end of HTTP response.",
-                "",
-                new Error().stack
-            ]);
+            error(["Write after end of HTTP response."]);
         } else {
             const textTypes:string[] = [
                     "application/json",
@@ -24,7 +21,7 @@ const response = function terminal_server_response(serverResponse:ServerResponse
                     "image/svg+xml",
                     "application/xhtml+xml"
                 ],
-                contains = function terminal_server_response(input:string):boolean {
+                contains = function terminal_server_response_contains(input:string):boolean {
                     const stringMessage:string = (Buffer.isBuffer(message) === true)
                             ? ""
                             : <string>message,
@@ -50,6 +47,7 @@ const response = function terminal_server_response(serverResponse:ServerResponse
             serverResponse.writeHead(status, {"Content-Type": type});
             serverResponse.write(message);
             serverResponse.end();
+            serverVars.requests = serverVars.requests - 1;
         }
     }
 };

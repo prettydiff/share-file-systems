@@ -4,7 +4,7 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 // help text
-const help = function terminal_help():void {
+const help = function terminal_commands_help():void {
     vars.verbose = true;
     vars.testLogger("help", "", "help messaging");
     log.title("Help");

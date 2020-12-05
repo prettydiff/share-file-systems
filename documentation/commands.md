@@ -196,21 +196,21 @@ Remove a file or directory tree from the local file system.
 1. `node js/application remove "C:\Program Files"`
    - Quote the path if it contains non-alphanumeric characters.
 
-## server
+## service
 Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.
 
 ### Examples
-1. `node js/application server`
+1. `node js/application service`
    - Launches the server on default port 443 and web sockets on port 444.
-1. `node js/application server 8080`
+1. `node js/application service 8080`
    - If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port.
-1. `node js/application server 0`
+1. `node js/application service 0`
    - To receive a random available port specify port number 0.
-1. `node js/application server browser`
+1. `node js/application service browser`
    - The 'browser' argument launches the default location in the user's default web browser.
-1. `node js/application server test`
+1. `node js/application service test`
    - The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data.
-1. `node js/application server test browser 9000`
+1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
 
 ## test
@@ -232,6 +232,14 @@ Launches the 'server' command as a child process, launches the default browser t
    - Disables the 'window.close()' command at the end of test instructions so that the browser remains open for manual inspection.
 1. `node js/application test_browser demo`
    - Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions.
+1. `node js/application test_browser mode:"self"`
+   - The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.
+1. `node js/application test_browser mode:"agents"`
+   - The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'.
+1. `node js/application test_browser mode:"remote"`
+   - The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically.
+1. `node js/application test_browser mode:"full"`
+   - The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list.
 1. `node js/application test_browser "C:\Program Files\Mozilla Firefox\firefox.exe" no_close`
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 

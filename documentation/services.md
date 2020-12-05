@@ -418,23 +418,6 @@ Stores state of the GUI and content displayed in the browser
       "deviceHash": "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
       "hash"      : "sha3-512",
       "modals"    : {
-         "systems-modal": {
-            "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
-            "agentType": "device",
-            "content"  : {},
-            "inputs"   : ["close", "maximize", "minimize"],
-            "read_only": false,
-            "single"   : true,
-            "status"   : "hidden",
-            "title"    : "<span class=\"icon-systemLog\">⌬</span> System Log",
-            "type"     : "systems",
-            "width"    : 800,
-            "zIndex"   : 1,
-            "id"       : "systems-modal",
-            "left"     : 200,
-            "top"      : 200,
-            "height"   : 400
-         },
          "settings-modal": {
             "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
             "agentType": "device",
@@ -476,7 +459,7 @@ Stores state of the GUI and content displayed in the browser
             "search"          : ["",""]
          }
       },
-      "modalTypes": ["systems","settings","fileNavigate","invite-request"],
+      "modalTypes": ["settings","fileNavigate","invite-request"],
       "nameDevice": "Old Desktop",
       "nameUser"  : "Austin",
       "zIndex"    : 6
@@ -503,7 +486,7 @@ Stores state of the GUI and content displayed in the browser
       "deviceHash": "string, A unique identifier for only this specific local device",
       "hash"      : "string, the name of a supported hash function.  The fault is sha3-512.  See hash command documentation or the index.d.ts file for the list of supported hash functions.",
       "modals (list of populated modals by modal id)": {
-         "systems-modal (id of the modal)": {
+         "settings-modal (id of the modal)": {
             "agent"           : "string, where the modal's content resides",
             "agentType"       : "device/user. Device for a shared device of the local computer.  User for a remote user's data.",
             "content"         : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the modal's generated content",

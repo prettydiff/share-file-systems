@@ -31,12 +31,12 @@ const vars:terminalVariables = {
             }
         },
         cwd: process.cwd().replace(/(\/|\\)js$/, ""),
-        exclusions: (function node_exclusions():string[] {
+        exclusions: (function terminal_utilities_vars_exclusions():string[] {
             const args = process.argv.join(" "),
                 match = args.match(/\signore\s*\[/);
             if (match !== null) {
                 const list:string[] = [],
-                    listBuilder = function node_exclusions_listBuilder():void {
+                    listBuilder = function terminal_utilities_vars_exclusions_listBuilder():void {
                         do {
                             if (process.argv[a] === "]" || process.argv[a].charAt(process.argv[a].length - 1) === "]") {
                                 if (process.argv[a] !== "]") {
@@ -96,7 +96,7 @@ const vars:terminalVariables = {
             path  : path,
             zlib  : zlib
         },
-        projectPath: (function node_projectPath():string {
+        projectPath: (function terminal_utilities_vars_projectPath():string {
             // this block normalizes node execution across operating systems and directory locations in the case that node could be executed as a component of a shell utility
             const length:number = process.argv.length,
                 regNode:RegExp = new RegExp("((\\\\)|/)node(\\.exe)?$"),
@@ -118,7 +118,7 @@ const vars:terminalVariables = {
         sep: "/",
         startTime: process.hrtime(),
         testLogFlag: "",
-        testLogger: function node_testLogger(library:string, container:string, message:string):void {
+        testLogger: function vars_utilities_vars_testLogger(library:string, container:string, message:string):void {
             if (vars.testLogFlag !== "") {
                 const contain:string = (container === "")
                         ? ""

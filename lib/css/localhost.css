@@ -136,7 +136,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box p.summary strong{display:block}
 #spaces .box .share-delete h3{margin:1em 1em 0}
 #spaces .box .share-delete ul{margin:0}
-#spaces .messageList .expansion span,
 #spaces .box .header button span,
 #spaces .fileList .expansion span,
 #spaces .box .buttons span{display:block;height:0.05em;position:absolute;top:-200em;width:0.05em}
@@ -187,22 +186,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 
-/* systems modal content */
-#spaces .box .tabs{height:5.7em;margin:0;padding:0}
-#spaces .box .tabs li{border-style:none;display:block;margin:0;padding:0}
-#spaces .box .tabs button{border-style:solid solid solid none;border-width:0.05em;cursor:pointer;display:block;float:left;font-size:2em;font-weight:bold;list-style:none;margin:0.25em 0 -0.1em 0;padding:0.5em 2%;width:33.3%}
-#spaces .box .tabs button.active{border-style:none solid none none;margin:0 0 -0.1em 0;padding:0.8em 2% 0.55em;text-decoration:underline}
-#spaces .messageList{border-style:solid none none;border-width:0.1em;display:none;margin:-0.1em 0 0;padding:1em}
-#spaces .messageList.active{display:block}
-#spaces .messageList li{border-style:none none solid;border-width:0 0 0.05em;font-family:monospace;font-size:1.25em;list-style:none;padding:0.25em 0;white-space:pre}
-#spaces .messageList span{display:inline-block;font-weight:bold;margin:0 1em 0 0}
-#spaces .messageList li .expansion{font-family:"Cloud","Lucida Sans Unicode","Helvetica","Arial",sans-serif;margin:0 0.5em 0 0}
-#spaces .messageList li ul{display:none}
-#spaces .messageList li li{font-size:1em}
-#spaces #system-status,
-#spaces #system-user,
-#spaces #system-errors{clear:both;float:none}
-#spaces #systems-modal{display:none}
 
 /* invite user */
 #spaces .inviteUser{padding:1em}
@@ -223,7 +206,11 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .settings .user-color-list-p,
 #spaces .settings label{font-size:1.6em}
 #spaces .inviteUser .radio,
-#spaces .settings .radio{display:inline-block;width:15em}
+#spaces .settings .radio,
+#spaces .inviteUser .radio-checked,
+#spaces .settings .radio-checked{display:inline-block;width:15em}
+#spaces .inviteUser .radio-checked,
+#spaces .settings .radio-checked{font-weight:bold;text-decoration:underline}
 #spaces .settings input[type="text"]{display:inline-block;margin:0 1em 0 0;width:2em}
 #spaces .settings button{border-style:solid;border-width:0.05em;cursor:pointer;font-size:1.6em;margin:0 0 0.5em;width:15em}
 #spaces .settings select{-moz-appearance:none;appearance:none;border-style:solid;border-width:0.05em;font-size:1em;margin:0 1em 0 0;width:15em}
@@ -243,7 +230,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentList{margin:1em 1em 1em 2em}
 #spaces .no-shares{margin:1em 1em 1em 2.667em}
 #spaces .agentList h3{font-size:1em}
-#spaces .agentList li{border-style:none}
+#spaces .agentList li{border-style:none;list-style:none}
 #spaces .agentList li li{border-style:none none solid;border-width:0.05em;display:block;list-style:none}
 #spaces .agentList button.device,
 #spaces .agentList button.user{background:transparent;border-style:none;display:inline-block;font-size:1em;padding:0.2em 0 1.2em;text-align:left}
@@ -253,19 +240,41 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentList .delete span{display:block;text-indent:-2000em}
 #spaces .agentList .file-system-root,
 #spaces .agentList button.make-read-only,
-#spaces .agentList button.grant-full-access{border-style:solid;border-width:0.1em;display:block;float:right;font-size:1em;font-weight:bold;padding:0;text-align:center;width:12em}
+#spaces .agentList button.grant-full-access,
+#spaces .agentList .text-button-agent,
+#spaces .text-button-device,
+#spaces .text-button-user{border-style:solid;border-width:0.1em;cursor:pointer;font-size:1em;font-weight:bold;padding:0}
+#spaces .agentList .file-system-root,
+#spaces .agentList button.make-read-only,
+#spaces .agentList button.grant-full-access{display:block;float:right;text-align:center;width:12em}
+#spaces .agentList .text-button-agent,
+#spaces .text-button-device,
+#spaces .text-button-user{display:inline-block;min-width:10em;padding:0 1em;text-align:center;}
+#spaces .text-button-device,
+#spaces .text-button-user{font-size:0.75em;margin:0 0 0 1.5em}
+#spaces .text-button-device:hover,
+#spaces .text-button-user:hover{text-decoration:underline}
+#spaces .text-button-agent span{font-weight:normal}
 #spaces .agentList .read-only-status{display:block;font-weight:normal}
 #spaces .agentList .full-access .read-only-status{font-weight:bold}
 #spaces .agentList button:hover{cursor:pointer;text-decoration:underline}
-#spaces .agentList li.agent{margin:0 0 1em}
-#spaces .agentList li.agent::before{content:"👤 "}
-#spaces .agentList .agent h3,
-#spaces .agentList .agent h4{display:inline}
-#spaces .agentList .agent p,
+#spaces .agentList li.device,
+#spaces .agentList li.user{margin:0 0 1em}
+#spaces ul.agentList li.device::before{content:"💻 "}
+#spaces .agentList li li.device::before{content:""}
+#spaces .agentList li.user::before{content:"👤 "}
+#spaces .agentList .device h3,
+#spaces .agentList .user h3,
+#spaces .agentList .device h4,
+#spaces .agentList .user h4{display:inline}
+#spaces .agentList .device p,
+#spaces .agentList .user p,
 #spaces .no-shares,
-#spaces .agentList .agent ul,
+#spaces .agentList .device ul,
+#spaces .agentList .user ul,
 #spaces .agentList ul.agent{clear:both;margin:2em 0 0;padding:0}
-#spaces .agentList ul.agent li{border-style:solid;border-width:0 0 0.1em;list-style-type:none}
+#spaces .agentList ul.device li,
+#spaces .agentList ul.user li{border-style:solid;border-width:0 0 0.1em;list-style-type:none}
 
 /* share delete */
 #spaces .share-delete{padding:0 5em}
@@ -293,7 +302,6 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
-#spaces .messageList .expansion,
 #spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -2.1em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
 #spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 
@@ -301,6 +309,19 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .agentInvitation h3{font-weight:normal;margin:0}
 #spaces .agentInvitation p{font-size:1.5em}
 #spaces .agentInvitation textarea{display:block;height:5em;width:100%}
+
+#spaces .message-content{border-collapse:collapse;margin:0;padding:0;width:100%}
+#spaces .message-content tr{border-style:none none solid;border-width:0.1em}
+#spaces .message-content th{border-style:none solid none none;border-width:0.1em;font-weight:normal;margin:0 1em 0 0;overflow:hidden;text-align:left;text-overflow:ellipsis;vertical-align:baseline;white-space:nowrap;width:20em}
+#spaces .message-content th strong{display:inline-block;font-size:2em;line-height:1;margin:0.25em 0 0;max-width:8em;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+#spaces .message-content th em{display:block;margin:0.5em 0 0}
+#spaces .message-content th,
+#spaces .message-content td{font-size:1.5em;margin:0;padding:0 0.5em}
+#spaces .message-content td p{margin:0.5em 0}
+#spaces .footer textarea{display:block;font-size:1.8em;height:5em;margin:0 0 0.25em;resize:both;width:100%}
+#spaces .message-content .prior strong,
+#spaces .message-content .prior th span{display:none}
+#spaces .message-content th span{display:inline-block;margin:1em 0 0 0.5em}
 
 /* code for testing */
 /*

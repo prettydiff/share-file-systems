@@ -2,8 +2,9 @@
 /* lib/terminal/server/invite - Manages the order of invitation related processes for traffic across the internet. */
 import { ServerResponse } from "http";
 
-import deviceShare from "../../common/deviceShare.js";
+import common from "../../common/common.js";
 
+import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
@@ -32,14 +33,12 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                 }()),
                 httpConfig:httpConfiguration = {
                     agentType: data.type,
-                    callback: function terminal_server_invite_request_callback(responseBody:Buffer|string):void {
+                    callback: function terminal_server_invite_request_callback(message:Buffer|string):void {
                         if (vars.command.indexOf("test") !== 0) {
-                            log([<string>responseBody]);
+                            log([message.toString()]);
                         }
                     },
-                    callbackType: "body",
                     errorMessage: `Error on invite to ${data.ip} and port ${data.port}.`,
-                    id: "",
                     ip: ip,
                     payload: payload,
                     port: port,
@@ -60,18 +59,12 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                                 }));
                             }
                         }
-                        log([data.action, errorMessage.toString()]);
-                        vars.ws.broadcast(JSON.stringify({
-                            error: errorMessage
-                        }));
+                        error([data.action, errorMessage.toString()]);
                     },
                     requestType: data.action,
-                    response: serverResponse,
+                    responseStream: httpClient.stream,
                     responseError: function terminal_server_invite_request_responseError(errorMessage:nodeError):void {
-                        log([data.action, errorMessage.toString()]);
-                        vars.ws.broadcast(JSON.stringify({
-                            error: errorMessage
-                        }));
+                        error([data.action, errorMessage.toString()]);
                     }
                 };
             vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);
@@ -136,7 +129,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     ip: serverVars.ipAddress,
                     name: serverVars.nameUser,
                     port: serverVars.webPort,
-                    shares: deviceShare(serverVars.device, null)
+                    shares: common.deviceShare(serverVars.device, null)
                 }
             };
         inviteHttp(data.ip, data.port);
@@ -154,7 +147,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         ip: serverVars.ipAddress,
                         name: serverVars.nameUser,
                         port: serverVars.webPort,
-                        shares: deviceShare(serverVars.device, null)
+                        shares: common.deviceShare(serverVars.device, null)
                     }
                 };
             data.status = "accepted";
@@ -181,7 +174,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         ip: serverVars.ipAddress,
                         name: serverVars.nameUser,
                         port: serverVars.webPort,
-                        shares: deviceShare(serverVars.device, null)
+                        shares: common.deviceShare(serverVars.device, null)
                     }
                 };
             }

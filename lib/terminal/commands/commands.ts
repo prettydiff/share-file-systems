@@ -6,13 +6,13 @@ import wrapIt from "../utilities/wrapIt.js";
 import vars from "../utilities/vars.js";
 
 // CLI commands documentation generator
-const commands = function terminal_commands():void {
+const commands = function terminal_commands_commands():void {
         let index:number = 0;
         const keys:string[] = (process.argv[0] === "all")
                 ? Object.keys(vars.commands)
                 : [process.argv[0]],
             length:number = keys.length,
-            named = function terminal_commands_named():void {
+            named = function terminal_commands_commands_named():void {
                 // specifically mentioned option
                 const output:string[] = [],
                     comm:any = vars.commands[keys[index]],
@@ -39,7 +39,7 @@ const commands = function terminal_commands():void {
                         output.push("");
                     }
                     log(output);
-                    terminal_commands_named();
+                    terminal_commands_commands_named();
                 } else {
                     log(output, true);
                 }

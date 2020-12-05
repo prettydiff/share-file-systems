@@ -21,7 +21,7 @@ const browser:browser = {
     },
     device: {},
     loadTest: true,
-    localNetwork: (function local_network():localNetwork {
+    localNetwork: (function browser_localNetwork():localNetwork {
         let str:string = document.getElementsByTagName("body")[0].innerHTML,
             pattern:string = "<!--network:";
         str = str.slice(str.indexOf(pattern) + pattern.length);
@@ -34,13 +34,8 @@ const browser:browser = {
         settings: document.getElementById("settings"),
         systemLog: document.getElementById("systemLog"),
         textPad: document.getElementById("textPad"),
-        "user-delete": document.getElementById("user-delete"),
-        "user-invite": document.getElementById("user-invite")
-    },
-    messages: {
-        status: [],
-        users: [],
-        errors: []
+        "agent-delete": document.getElementById("agent-delete"),
+        "agent-invite": document.getElementById("agent-invite")
     },
     pageBody: document.getElementsByTagName("body")[0],
     style: document.createElement("style"),

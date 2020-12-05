@@ -7,8 +7,8 @@ import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
-const test_service = function terminal_testService():void {
-    const completeCallback =  function terminal_testService_callback(message:string, failCount:number):void {
+const testService = function terminal_commands_testService():void {
+    const completeCallback =  function terminal_commands_testService_callback(message:string, failCount:number):void {
         vars.verbose = true;
         log([message], true);
         if (failCount > 0) {
@@ -21,7 +21,7 @@ const test_service = function terminal_testService():void {
         vars.testLogFlag = "service";
     }
     if (typeof process.argv[0] === "string") {
-        const addCallback = function terminal_testService_addCallback():void {
+        const addCallback = function terminal_commands_testService_addCallback():void {
                 let a:number = 0,
                     filterLength:number = 0,
                     fail:number = 0;
@@ -59,4 +59,4 @@ const test_service = function terminal_testService():void {
     }
 };
 
-export default test_service;
+export default testService;

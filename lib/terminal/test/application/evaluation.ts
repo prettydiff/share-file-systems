@@ -7,12 +7,14 @@ import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import vars from "../../utilities/vars.js";
 
+import common from "../../../common/common.js";
+
 import service from "../application/service.js";
 import simulation from "../application/simulation.js";
 
 import testComplete from "./complete.js";
 
-const testEvaluation = function test_testEvaluation(output:testEvaluation):void {
+const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
     const serviceItem:testItem|testServiceInstance = (output.testType === "service")
             ? <testServiceInstance>output.test
             : null,
@@ -29,7 +31,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
             service: service,
             simulation: simulation
         },
-        increment = function test_testEvaluation_increment(messages:[string, string, string[]]):void {
+        increment = function terminal_test_application_testEvaluation_increment(messages:[string, string, string[]]):void {
             const command:string = (typeof output.test.command === "string")
                     ? <string>output.test.command
                     : JSON.stringify(output.test.command),
@@ -39,7 +41,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                 name = (output.testType === "service")
                     ? serviceItem.name
                     : command,
-                interval = function test_testEvaluation_increment_interval():void {
+                interval = function terminal_test_application_testEvaluation_increment_interval():void {
                     const total:number = (output.list.length < 1)
                         ? list[output.testType].tests.length
                         : output.list.length;
@@ -53,7 +55,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                         });
                     } else {
                         const complete:testComplete = {
-                            callback: function test_testEvaluation_increment_interval_callback(message:string, failCount:number):void {
+                            callback: function terminal_test_application_testEvaluation_increment_interval_callback(message:string, failCount:number):void {
                                 output.callback(message, failCount);
                             },
                             fail: output.fail,
@@ -67,7 +69,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
                         }
                     }
                 },
-                testMessage = function test_testEvaluation_increment_message():void {
+                testMessage = function terminal_test_application_testEvaluation_increment_testMessage():void {
                     if (messages[0] === "") {
                         log([`${humanTime(false) + vars.text.green}Passed ${output.testType} ${output.index + 1}: ${vars.text.none + name}`]);
                     } else if (messages[0].indexOf("fail - ") === 0) {
@@ -98,21 +100,21 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
             if (output.test.artifact === "" || output.test.artifact === undefined) {
                 interval();
             } else {
-                remove(output.test.artifact, function test_testListRunner_increment_remove():void {
+                remove(output.test.artifact, function terminal_test_application_testListRunner_increment_remove():void {
                     interval();
                 });
             }
         },
-        capital:string = output.testType.charAt(0).toUpperCase() + output.testType.slice(1),
+        capital:string = common.capitalize(output.testType),
         logString:string = `${vars.text.cyan}Log - ${vars.text.none}`,
         testLog:string[] = (vars.testLogFlag === "service")
-            ? (function test_testEvaluation_logService():string[] {
+            ? (function terminal_test_application_testEvaluation_logService():string[] {
                 const store:string[] = vars.testLogStore;
                 vars.testLogStore = [];
                 return store;
             }())
             : (vars.testLogFlag === "simulation" && output.values[0].indexOf(logString) > -1)
-                ? (function test_testEvaluation_logSimulation():string[] {
+                ? (function terminal_test_application_testEvaluation_logSimulation():string[] {
                     const endIndex:number = output.values[0].lastIndexOf(logString),
                         str:string = output.values[0].slice(endIndex),
                         strIndex:number = str.indexOf("\n"),
@@ -180,7 +182,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
         }
         if (output.test.qualifier.indexOf("file ") === 0) {
             output.test.file = vars.node.path.resolve(output.test.file);
-            vars.node.fs.readFile(output.test.file, "utf8", function test_testEvaluation_file(err:Error, dump:string) {
+            vars.node.fs.readFile(output.test.file, "utf8", function terminal_test_application_testEvaluation_file(err:Error, dump:string) {
                 if (err !== null) {
                     increment([`fail - ${err}`, "", testLog]);
                     return;
@@ -213,7 +215,7 @@ const testEvaluation = function test_testEvaluation(output:testEvaluation):void 
             });
         } else if (output.test.qualifier.indexOf("filesystem ") === 0) {
             output.test.test = vars.node.path.resolve(test);
-            vars.node.fs.stat(test, function test_testEvaluation_filesystem(ers:Error) {
+            vars.node.fs.stat(test, function terminal_test_application_testEvaluation_stat(ers:Error) {
                 if (ers !== null) {
                     if (ers.toString().indexOf("ENOENT") > -1) {
                         if (output.test.qualifier === "filesystem contains") {

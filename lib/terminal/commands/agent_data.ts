@@ -5,7 +5,7 @@ import log from "../utilities/log.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const agent_data = function terminal_agentData():void {
+const agentData = function terminal_commands_agentData():void {
     const type:string = (process.argv[0] === "device" || process.argv[0] === "devices" || process.argv[0] === "user" || process.argv[0] === "users")
             ? process.argv[0].replace(/s$/, "")
             : (process.argv[0] === undefined || process.argv[0] === null)
@@ -19,9 +19,9 @@ const agent_data = function terminal_agentData():void {
             user: {}
         },
         readFlag:[boolean, boolean] = [false, false],
-        output = function terminal_agentData_output():void {
+        output = function terminal_commands_agentData_output():void {
             const text:string[] = [],
-                typeList = function terminal_agentData_output_typeList(input:agentType):void{
+                typeList = function terminal_commands_agentData_output_typeList(input:agentType):void{
                     const keys:string[] = Object.keys(agents[input]),
                         length:number = keys.length,
                         output:agentTextList = [];
@@ -36,7 +36,7 @@ const agent_data = function terminal_agentData():void {
                         text.push(`${vars.text.angry}* No agents of type ${input}.${vars.text.none}`);
                     }
                 },
-                list = function terminal_agentData_output_list(keys:agentTextList, perType:boolean):void {
+                list = function terminal_commands_agentData_output_list(keys:agentTextList, perType:boolean):void {
                     const length:number = keys.length;
                     let a:number = 0,
                         b:number = 0,
@@ -85,7 +85,7 @@ const agent_data = function terminal_agentData():void {
                     typeList("user");
                     log(text, true);
                 } else if ((/^[0-9a-f]{128}$/).test(type) === true && type.length === 128) {
-                    const selectiveAgent = function terminal_agentData_output_selectiveAgent(agentType:agentType):void {
+                    const selectiveAgent = function terminal_commands_agentData_output_selectiveAgent(agentType:agentType):void {
                         const shares:agentShares = agents[agentType][type].shares,
                             shareNames:string[] = Object.keys(shares),
                             shareLength:number = shareNames.length;
@@ -159,7 +159,7 @@ const agent_data = function terminal_agentData():void {
                 log(text, true);
             }
         },
-        deviceCallback = function terminal_agentData_deviceCallback(readErr:nodeError, fileData:string):void {
+        deviceCallback = function terminal_commands_agentData_deviceCallback(readErr:nodeError, fileData:string):void {
             if (readErr !== null && readErr.code !== "ENOENT") {
                 log([readErr.toString()]);
                 process.exit(0);
@@ -171,7 +171,7 @@ const agent_data = function terminal_agentData():void {
                 output();
             }
         },
-        userCallback = function terminal_agentData_userCallback(readErr:nodeError, fileData:string):void {
+        userCallback = function terminal_commands_agentData_userCallback(readErr:nodeError, fileData:string):void {
             if (readErr !== null && readErr.code !== "ENOENT") {
                 log([readErr.toString()]);
                 process.exit(0);
@@ -196,4 +196,4 @@ const agent_data = function terminal_agentData():void {
     }
 };
 
-export default agent_data;
+export default agentData;

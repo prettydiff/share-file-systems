@@ -87,7 +87,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .expansion,
 .dark #spaces .box .footer button{box-shadow:0.1em 0.1em 0.25em #000}
 .dark #spaces .agentList .agent button.make-read-only,
-.dark #spaces .box .buttons button.minimize{background:#421;border-color:#ca0;color:#ca0}
+.dark #spaces .box .buttons button.minimize{background:#421;border-color:#db0;color:#db0}
 .dark #spaces .box .buttons button.maximize{background:#024;border-color:#6cf;color:#6cf}
 .dark #spaces .box .buttons button.close{background:#300;border-color:#c33;color:#c33}
 .dark #spaces .box h2.heading{background:#333;border-color:#666}
@@ -111,6 +111,7 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .box .header .fileSearch input{border-color:#666}
 .dark #spaces .fileList li input.error,
 .dark #spaces .box .header .error{background:#300;color:#c33}
+.dark #spaces .box button.send-button,
 .dark #spaces .box button.confirm{background:#020;border-color:#393;color:#393}
 .dark #spaces .box button.save{background:#ffc;border-color:#990;color:#770}
 .dark #spaces .box .delay svg{stroke:#cdf}
@@ -120,19 +121,8 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .agentList .agent button.grant-full-access,
 .dark #spaces .box button.cancel,
 .dark #spaces .share-delete .checked,
-.dark #spaces .box .delete{background:#300;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}
+.dark #spaces .box .delete{background:#311;border-color:#c33;box-shadow:0.075em 0.075em 0.25em #000;color:#c33}
 .dark #spaces #dragBox{background:#9cf;border-color:#69c}
-
-/* systems modal content */
-.dark #spaces .box .tabs{background:#000}
-.dark #spaces .box .tabs button{background:#333;border-color:#666}
-.dark #spaces .box .tabs button.active{background:#222}
-.dark #spaces .box .tabs .status{color:#6cf}
-.dark #spaces .box .tabs .users{color:#696}
-.dark #spaces .box .tabs .errors{color:#c33}
-.dark #spaces .messageList{border-color:#000}
-.dark #spaces .messageList li{border-color:#666}
-.dark #spaces #system-errors span{color:#c33}
 
 /* share list */
 .dark #spaces .agentList li.full-access{background:#112;border-color:#6cf}
@@ -142,6 +132,9 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces ul.agentList li{border-color:#000}
 .dark #spaces div.agentList li,
 .dark #spaces ul.agentList li li{border-color:#ccc}
+.dark #spaces .agentList .text-button-agent,
+.dark #spaces .text-button-device,
+.dark #spaces .text-button-user,
 .dark #spaces .agentList .file-system-root{background:#024;border-color:#6cf;color:#6cf}
 
 /* share delete */
@@ -159,6 +152,16 @@ body.dark{scrollbar-color:#444 #111}
 .dark #spaces .fileList li.selected.cut:hover{background:#393}
 .dark #spaces .fileList li.cut{background:#330;opacity:0.5;outline-color:#990;color:#fff}
 .dark #spaces .fileList li.cut:hover{background:#660}
-.dark #spaces .messageList .expansion,
 .dark #spaces .fileList .expansion{background:#333;border-color:#666;box-shadow:0.05em 0.05em 0.125em #000;color:#ccc}
 .dark #spaces #file-list-drag{background:#fff}
+
+/* text messaging */
+.dark #spaces .message-content .message-input{background:#333}
+.dark #spaces .message-content .message-self.prior,
+.dark #spaces .message-content .message-self.prior th,
+.dark #spaces .message-content .message-self th{border-color:#000}
+.dark #spaces .message-content .prior,
+.dark #spaces .message-content th{border-color:#444}
+.dark #spaces .message-content .message-self{background:#333}
+.dark #spaces .message-content th strong{color:#c33}
+.dark #spaces .message-content tr{border-color:#666}

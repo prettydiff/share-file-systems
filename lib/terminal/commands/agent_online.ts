@@ -3,14 +3,14 @@
 
 import {ClientRequest, IncomingMessage, RequestOptions} from "http";
 
-import agents from "../../common/agents.js";
+import common from "../../common/common.js";
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
 import readStorage from "../utilities/readStorage.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const agent_online = function terminal_agentOnline():void {
+const agentOnline = function terminal_commands_agentOnline():void {
     vars.verbose = true;
     if (process.argv[0] === undefined) {
         error([
@@ -20,7 +20,7 @@ const agent_online = function terminal_agentOnline():void {
         return;
     }
 
-    readStorage(function terminal_agentOnline_storage(storage:storageItems) {
+    readStorage(function terminal_commands_agentOnline_readStorage(storage:storageItems) {
         const arg:string = process.argv[0],
             type:agentType = (storage.device[arg] === undefined)
                 ? "user"
@@ -36,9 +36,9 @@ const agent_online = function terminal_agentOnline():void {
         if (arg === "list") {
             const store:string[] = [];
             log.title("Agent List");
-            agents({
+            common.agents({
                 countBy: "agent",
-                perAgent: function terminal_agentOnline_storage_perAgent(agentNames:agentNames):void {
+                perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
                     const text:string = `${vars.text.angry}*${vars.text.none} ${vars.text.green + agentNames.agent + vars.text.none} - ${storage[agentNames.agentType][agentNames.agent].name}, ${storage[agentNames.agentType][agentNames.agent].ip}`;
                     if (agentNames.agent === hash) {
                         store.push(text.replace(" - ", ` - ${vars.text.angry}(local device)${vars.text.none} - `));
@@ -46,9 +46,9 @@ const agent_online = function terminal_agentOnline():void {
                         store.push(text);
                     }
                 },
-                perAgentType: function terminal_agentOnline_storage_perAgentType(agentNames:agentNames):void {
+                perAgentType: function terminal_commands_agentOnline_readStorage_perAgentType(agentNames:agentNames):void {
                     store.push("");
-                    store.push(`${vars.text.cyan + vars.text.bold + agentNames.agentType.slice(0, 1).toUpperCase() + agentNames.agentType.slice(1)}:${vars.text.none}`);
+                    store.push(`${vars.text.cyan + vars.text.bold + common.capitalize(agentNames.agentType)}:${vars.text.none}`);
                     if (agentNames.agentType === "user" && Object.keys(storage.user).length < 1) {
                         store.push("no shared users");
                     }
@@ -59,7 +59,7 @@ const agent_online = function terminal_agentOnline():void {
         } else {
             let count:number = 0,
                 total:number = 0;
-            const requestWrapper = function terminal_agentOnline_storage_request(agentType:agentType, agentHash:string):void {
+            const requestWrapper = function terminal_commands_agentOnline_readStorage_request(agentType:agentType, agentHash:string):void {
                 const agent:agent = storage[agentType][agentHash],
                     name:string = agent.name,
                     requestBody:string = `${vars.version.name} agent test for ${name} from ${storage.settings.nameDevice}.`,
@@ -83,19 +83,19 @@ const agent_online = function terminal_agentOnline():void {
                         port: storage[agentType][agentHash].port,
                         timeout: 1000
                     },
-                    outputString = function terminal_agentOnline_storage_errorString(output:testAgentOutput):string {
+                    outputString = function terminal_commands_agentOnline_readStorage_request_errorString(output:agentOutput):string {
                         const status = (output.status === "bad")
                             ? `${vars.text.angry}Bad${vars.text.none}`
                             : `${vars.text.green + vars.text.bold}Good${vars.text.none}`;
                         return `${status} ${output.type} from ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
                     },
-                    callback = function terminal_agentOnline_storage_callback(response:IncomingMessage):void {
+                    callback = function terminal_commands_agentOnline_readStorage_request_callback(response:IncomingMessage):void {
                         const chunks:Buffer[] = [];
                         response.setEncoding("utf8");
-                        response.on("data", function terminal_agentOnline_storage_callback_data(chunk:Buffer):void {
+                        response.on("data", function terminal_commands_agentOnline_readStorage_request_callback_data(chunk:Buffer):void {
                             chunks.push(chunk);
                         });
-                        response.on("end", function terminal_agentOnline_storage_callback_end():void {
+                        response.on("end", function terminal_commands_agentOnline_readStorage_request_callback_end():void {
                             const body:string = (Buffer.isBuffer(chunks[0]) === true)
                                     ? Buffer.concat(chunks).toString()
                                     : chunks.join("");
@@ -119,7 +119,7 @@ const agent_online = function terminal_agentOnline():void {
                                 ], (count === total));
                             }
                         });
-                        response.on("error", function terminal_agentOnline_storage_callback_error(httpError:nodeError):void {
+                        response.on("error", function terminal_commands_agentOnline_readStorage_request_callback_error(httpError:nodeError):void {
                             count = count + 1;
                             log([
                                 outputString({
@@ -132,7 +132,7 @@ const agent_online = function terminal_agentOnline():void {
                             ], (count === total));
                         });
                     },
-                    requestError = function terminal_agentOnline_storage_error(httpError:nodeError):void {
+                    requestError = function terminal_commands_agentOnline_readStorage_request_requestError(httpError:nodeError):void {
                         log([
                             outputString({
                                 agent: agentHash,
@@ -155,17 +155,17 @@ const agent_online = function terminal_agentOnline():void {
                 if (arg === "all") {
                     log.title("Test All Agent Connectivity");
                 } else {
-                    log.title(`Test Each ${arg.charAt(0).toUpperCase() + arg.slice(1)} Agent`);
+                    log.title(`Test Each ${common.capitalize(arg)} Agent`);
                 }
-                agents({
+                common.agents({
                     countBy: "agent",
-                    perAgent: function terminal_agentOnline_storage_perAgent(agentNames:agentNames):void {
+                    perAgent: function terminal_commands_agentOnline_readStorage_perAgent(agentNames:agentNames):void {
                         if (agentNames.agent !== storage.settings.hashDevice && (arg === "all" || agentNames.agentType === arg)) {
                             total = total + 1;
                             requestWrapper(agentNames.agentType, agentNames.agent);
                         }
                     },
-                    perAgentType: function terminal_agentOnline_storage_perAgentType(agentNames:agentNames):void {
+                    perAgentType: function terminal_commands_commands_agentOnline_readStorage_perAgentType(agentNames:agentNames):void {
                         if (agentNames.agentType === "user" && Object.keys(storage.user).length < 1) {
                             log([`${vars.text.cyan + vars.text.bold}No users to test.${vars.text.none}`]);
                         } else if (agentNames.agentType === "device" && Object.keys(storage.device).length < 2) {
@@ -191,4 +191,4 @@ const agent_online = function terminal_agentOnline():void {
     });
 };
 
-export default agent_online;
+export default agentOnline;

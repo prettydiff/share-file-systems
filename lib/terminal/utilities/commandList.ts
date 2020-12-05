@@ -15,7 +15,7 @@ import help from "../commands/help.js";
 import lint from "../commands/lint.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
-import server from "../commands/server.js";
+import service from "../commands/service.js";
 import test from "../commands/test.js";
 import test_browser from "../commands/test_browser.js";
 import test_service from "../commands/test_service.js";
@@ -38,7 +38,7 @@ const commandList = {
     lint: lint,
     mkdir: mkdir,
     remove: remove,
-    server: server,
+    service: service,
     test: test,
     test_browser: test_browser,
     test_service: test_service,

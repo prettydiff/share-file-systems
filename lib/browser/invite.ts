@@ -3,13 +3,16 @@
 import browser from "./browser.js";
 import modal from "./modal.js";
 import network from "./network.js";
+import settings from "./settings.js";
 import share from "./share.js";
 import util from "./util.js";
+
+import common from "../common/common.js";
 
 const invite:module_invite = {};
 
 /* Accept an invitation, handler on a modal's confirm button*/
-invite.accept = function local_invite_accept(box:Element):void {
+invite.accept = function browser_invite_accept(box:Element):void {
     const div:Element = box.getElementsByClassName("agentInvitation")[0],
         invitation:invite = JSON.parse(div.getAttribute("data-invitation")),
         payload:invite = invite.payload({
@@ -32,7 +35,7 @@ invite.accept = function local_invite_accept(box:Element):void {
 };
 
 /* A wrapper around share.addAgents for converting devices type into device type */
-invite.addAgents = function local_invite_addAgents(invitation:invite):void {
+invite.addAgents = function browser_invite_addAgents(invitation:invite):void {
     const keyShares:string[] = Object.keys(invitation.shares);
     if (invitation.type === "device") {
         let a:number = keyShares.length;
@@ -68,7 +71,7 @@ invite.addAgents = function local_invite_addAgents(invitation:invite):void {
 };
 
 /* Handles final status of an invitation response */
-invite.complete = function local_invite_complete(invitation:invite):void {
+invite.complete = function browser_invite_complete(invitation:invite):void {
     const modal:Element = document.getElementById(invitation.modal);
     if (modal === null) {
         invite.addAgents(invitation);
@@ -77,7 +80,7 @@ invite.complete = function local_invite_complete(invitation:invite):void {
             delay:HTMLElement = <HTMLElement>modal.getElementsByClassName("delay")[0],
             footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
             inviteUser:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-            prepOutput = function local_invite_respond_prepOutput(output:Element):void {
+            prepOutput = function browser_invite_respond_prepOutput(output:Element):void {
                 if (invitation.status === "accepted") {
                     output.innerHTML = "Invitation accepted!";
                     output.setAttribute("class", "accepted");
@@ -104,8 +107,8 @@ invite.complete = function local_invite_complete(invitation:invite):void {
 };
 
 /* Handler for declining an invitation request */
-invite.decline = function local_invite_decline(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+invite.decline = function browser_invite_decline(event:MouseEvent):void {
+    const element:Element = <Element>event.target,
         boxLocal:Element = element.getAncestor("box", "class"),
         inviteBody:Element = boxLocal.getElementsByClassName("agentInvitation")[0],
         invitation:invite = JSON.parse(inviteBody.getAttribute("data-invitation"));
@@ -122,7 +125,7 @@ invite.decline = function local_invite_decline(event:MouseEvent):void {
 };
 
 /* Prepare the big invitation payload object from a reduced set of data */
-invite.payload = function local_invite_payload(config:invitePayload):invite {
+invite.payload = function browser_invite_payload(config:invitePayload):invite {
     return {
         action: config.action,
         deviceHash: (config.type === "user")
@@ -144,18 +147,18 @@ invite.payload = function local_invite_payload(config:invitePayload):invite {
 };
 
 /* Basic form validation on the port field */
-invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
-    const portElement:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+invite.portValidation = function browser_invite_port(event:KeyboardEvent):void {
+    const portElement:HTMLInputElement = <HTMLInputElement>event.target,
         portParent:Element = <Element>portElement.parentNode,
         element:HTMLInputElement = (portParent.innerHTML.indexOf("Port") === 0)
             ? portElement
-            : (function local_invite_port_finder():HTMLInputElement {
+            : (function browser_invite_port_finder():HTMLInputElement {
                 let body:Element = portParent.getAncestor("body", "class"),
                     a:number = 0;
                 const inputs:HTMLCollectionOf<HTMLInputElement> = body.getElementsByTagName("input"),
                     length:number = inputs.length;
                 do {
-                    if (inputs[a].getAttribute("placeholder") === "Number 1024-65535") {
+                    if (inputs[a].getAttribute("placeholder") === "Number 1-65535") {
                         return inputs[a];
                     }
                     a = a + 1;
@@ -165,10 +168,10 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
         value:string = element.value.replace(/\s+/g, ""),
         numb:number = Number(value);
     if (event.type === "blur" || (event.type === "keyup" && event.key === "Enter")) {
-        if (value !== "" && (isNaN(numb) === true || numb < 1024 || numb > 65535)) {
+        if (value !== "" && (isNaN(numb) === true || numb < 1 || numb > 65535)) {
             element.style.color = "#f00";
             element.style.borderColor = "#f00";
-            parent.firstChild.textContent = "Error: Port must be a number from 1024-65535 or empty.";
+            parent.firstChild.textContent = "Error: Port must be a number from 1-65535 or empty.";
             element.focus();
         } else {
             parent.firstChild.textContent = "Port";
@@ -178,14 +181,14 @@ invite.portValidation = function local_invite_port(event:KeyboardEvent):void {
 };
 
 /* Send the invite request to the network */
-invite.request = function local_invite_request(event:MouseEvent, options:ui_modal):void {
+invite.request = function browser_invite_request(event:MouseEvent, options:modal):void {
     let type:agentType,
         ip:string,
         port:string,
         portNumber:number;
-    const element:Element = <Element>event.srcElement || <Element>event.target,
+    const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
-        input:HTMLElement = (function local_invite_request():HTMLElement {
+        input:HTMLElement = (function browser_invite_request():HTMLElement {
 
             // value attainment and form validation
             const inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
@@ -271,11 +274,11 @@ invite.request = function local_invite_request(event:MouseEvent, options:ui_moda
 };
 
 /* Receive an invitation from another user */
-invite.respond = function local_invite_respond(invitation:invite):void {
+invite.respond = function browser_invite_respond(invitation:invite):void {
     const div:Element = document.createElement("div"),
         modals:string[] = Object.keys(browser.data.modals),
         length:number = modals.length,
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: div,
@@ -307,7 +310,7 @@ invite.respond = function local_invite_respond(invitation:invite):void {
         a = a + 1;
     } while (a < length);
     div.setAttribute("class", "agentInvitation");
-    text.innerHTML = `${invitation.type.slice(0, 1).toUpperCase() + invitation.type.slice(1)} <strong>${name}</strong> from ${ip} is inviting you to share spaces.`;
+    text.innerHTML = `${common.capitalize(invitation.type)} <strong>${name}</strong> from ${ip} is inviting you to share spaces.`;
     div.appendChild(text);
     text = document.createElement("p");
     label.innerHTML = `${name} said:`;
@@ -324,12 +327,12 @@ invite.respond = function local_invite_respond(invitation:invite):void {
 };
 
 /* Invite users to your shared space */
-invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal):void {
+invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):void {
     const inviteElement:Element = document.createElement("div"),
         separator:string = "|spaces|",
         random:string = Math.random().toString(),
-        blur = function local_invite_start_blur(event:FocusEvent):void {
-            const element:Element = <Element>event.srcElement || <Element>event.target,
+        blur = function browser_invite_start_blur(event:FocusEvent):void {
+            const element:Element = <Element>event.target,
                 box:Element = element.getAncestor("box", "class"),
                 id:string = box.getAttribute("id"),
                 inputs:HTMLCollectionOf<HTMLInputElement> = box.getElementsByTagName("input"),
@@ -408,7 +411,7 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
     input = document.createElement("input");
     label.innerHTML = "Port";
     input.setAttribute("type", "text");
-    input.placeholder = "Number 1024-65535";
+    input.placeholder = "Number 1-65535";
     input.onkeyup = invite.portValidation;
     if (saved !== null) {
         input.value = saved.port;
@@ -432,14 +435,14 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
     inviteElement.appendChild(section);
     inviteElement.setAttribute("class", "inviteUser");
     if (settings === undefined) {
-        const payload:ui_modal = {
+        const payload:modal = {
             agent: browser.data.hashDevice,
             agentType: "device",
             content: inviteElement,
             height: 650,
             inputs: ["cancel", "close", "confirm", "maximize", "minimize"],
             read_only: false,
-            title: document.getElementById("user-invite").innerHTML,
+            title: document.getElementById("agent-invite").innerHTML,
             type: "invite-request"
         };
         modal.create(payload);
@@ -451,8 +454,8 @@ invite.start = function local_invite_start(event:MouseEvent, settings?:ui_modal)
 };
 
 /* Switch text messaging in the invitation request modal when the user clicks on the type radio buttons */
-invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
-    const element:HTMLInputElement = <HTMLInputElement>event.srcElement || <HTMLInputElement>event.target,
+invite.typeToggle = function browser_invite_typeToggle(event:MouseEvent):void {
+    const element:HTMLInputElement = <HTMLInputElement>event.target,
         parent:Element = <Element>element.parentNode.parentNode,
         grandParent:Element = <Element>parent.parentNode,
         warning:Element = grandParent.getElementsByClassName("inviteWarning")[0],
@@ -467,6 +470,7 @@ invite.typeToggle = function local_invite_typeToggle(event:MouseEvent):void {
         description.innerHTML = "Including a user allows sharing with a different person and the devices they make available.";
     }
     description.style.display = "block";
+    settings.radio(element);
 };
 
 export default invite;

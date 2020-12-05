@@ -7,8 +7,8 @@ import testListRunner from "../test/application/runner.js";
 import vars from "../utilities/vars.js";
 
 // run the test suite using the build application
-const test_simulation = function terminal_testSimulation():void {
-    const completeCallback =  function terminal_testSimulation_callback(message:string, failCount:number):void {
+const testSimulation = function terminal_commands_testSimulation():void {
+    const completeCallback =  function terminal_commands_testSimulation_callback(message:string, failCount:number):void {
         vars.verbose = true;
         log([message], true);
         if (failCount > 0) {
@@ -49,4 +49,4 @@ const test_simulation = function terminal_testSimulation():void {
     }
 };
 
-export default test_simulation;
+export default testSimulation;

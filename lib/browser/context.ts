@@ -1,13 +1,13 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
 import browser from "./browser.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
 import network from "./network.js";
 import share from "./share.js";
 import util from "./util.js";
-import commas from "../common/commas.js";
-import prettyBytes from "../common/prettyBytes.js";
+
+import common from "../common/common.js";
 
 const context:module_context = {
     element: null,
@@ -16,14 +16,14 @@ const context:module_context = {
 let clipboard:string = "";
 
 /* Handler for file system artifact copy */
-context.copy = function local_context_copy(event:MouseEvent):void {
+context.copy = function browser_context_copy(event:MouseEvent):void {
     const addresses:string[] = [],
         element:Element = (context.element.nodeName.toLowerCase() === "li")
             ? context.element
             : <Element>context.element.parentNode,
         parent:Element = <Element>element.parentNode,
         box:Element = parent.getAncestor("box", "class"),
-        contextElement:Element = <Element>event.srcElement || <Element>event.target,
+        contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Copy") === 0)
@@ -46,7 +46,7 @@ context.copy = function local_context_copy(event:MouseEvent):void {
     if (selected.length < 1) {
         addresses.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
-        selected.forEach(function local_context_destroy_each(value:[string, shareType, string]):void {
+        selected.forEach(function browser_context_destroy_each(value:[string, shareType, string]):void {
             addresses.push(value[0]);
         });
     }
@@ -61,9 +61,9 @@ context.copy = function local_context_copy(event:MouseEvent):void {
 };
 
 /* Handler for base64, edit, and hash operations from the context menu */
-context.dataString = function local_context_dataString(event:MouseEvent):void {
+context.dataString = function browser_context_dataString(event:MouseEvent):void {
     const element:Element = context.element,
-        contextElement:Element = <Element>event.srcElement || <Element>event.target,
+        contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
             : (contextElement.innerHTML.indexOf("Base64") === 0)
@@ -91,7 +91,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             share: browser.data.modals[id].share,
             watch: "no"
         },
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: agency[0],
             agentType: agency[2],
             content: null,
@@ -107,7 +107,7 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
             type: "textPad",
             width: 500
         },
-        callback = function local_context_dataString_callback(resultString:string):void {
+        callback = function browser_context_dataString_callback(resultString:string):void {
             const data:stringDataList = JSON.parse(resultString),
                 length:number = data.length;
             let a:number = 0,
@@ -156,13 +156,13 @@ context.dataString = function local_context_dataString(event:MouseEvent):void {
         }
         a = a + 1;
     } while (a < length);
-    network.fs(payloadNetwork, callback);
+    network.fileBrowser(payloadNetwork, callback);
     context.element = null;
     context.type = "";
 };
 
 /* Handler for removing file system artifacts via context menu */
-context.destroy = function local_context_destroy():void {
+context.destroy = function browser_context_destroy():void {
     let element:Element = context.element,
         selected:[string, shareType, string][],
         box:Element = element.getAncestor("box", "class"),
@@ -181,8 +181,8 @@ context.destroy = function local_context_destroy():void {
             share: browser.data.modals[id].share,
             watch: "no"
         },
-        callback = function local_context_destroy_callback(responseText:string):void {
-            const list:[Element, number, string] = fs.list(payload.name, JSON.parse(responseText)),
+        callback = function browser_context_destroy_callback(responseText:string):void {
+            const list:[Element, number, string] = fileBrowser.list(payload.name, JSON.parse(responseText)),
                 body:Element = box.getElementsByClassName("body")[0],
                 count:number = payload.location.length,
                 plural:string = (count === 1)
@@ -201,21 +201,21 @@ context.destroy = function local_context_destroy():void {
     if (selected.length < 1) {
         payload.location.push(element.getElementsByTagName("label")[0].innerHTML);
     } else {
-        selected.forEach(function local_context_destroy_each(value:[string, shareType, string]):void {
+        selected.forEach(function browser_context_destroy_each(value:[string, shareType, string]):void {
             payload.location.push(value[0]);
         });
     }
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
     context.element = null;
 };
 
 /* Handler for details action of context menu */
-context.details = function local_context_details(event:MouseEvent):void {
+context.details = function browser_context_details(event:MouseEvent):void {
     const element:Element = context.element,
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
-        payloadModal:ui_modal = {
+        payloadModal:modal = {
             agent: agency[0],
             agentType: agency[2],
             content: div,
@@ -224,7 +224,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             left: event.clientX,
             read_only: agency[1],
             single: true,
-            title: `Details - ${agency[2].slice(0, 1).toUpperCase() + agency[2].slice(1)}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
+            title: `Details - ${common.capitalize(agency[2])}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
             top: event.clientY - 60,
             type: "details",
             width: 500
@@ -239,7 +239,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             copyType: "device",
             depth: 0,
             id: id,
-            location: (function local_context_details_addressList():string[] {
+            location: (function browser_context_details_addressList():string[] {
                 const output:string[] = [],
                     length:number = addresses.length;
                 let a:number = 0;
@@ -258,7 +258,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             share: browser.data.modals[id].share,
             watch: "no"
         },
-        callback = function local_context_details_callback(response:string):void {
+        callback = function browser_context_details_callback(response:string):void {
             const payload:fsRemote = JSON.parse(response),
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
@@ -298,7 +298,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             }
     
             output.setAttribute("class", "fileDetailOutput");
-            heading.innerHTML = `File System Details - ${commas(list.length)} items`;
+            heading.innerHTML = `File System Details - ${common.commas(list.length)} items`;
             output.appendChild(heading);
             tr = document.createElement("tr");
             td = document.createElement("th");
@@ -314,9 +314,9 @@ context.details = function local_context_details(event:MouseEvent):void {
             tr.appendChild(td);
             td = document.createElement("td");
             if (details.size > 1024) {
-                td.innerHTML = `${commas(details.size)} bytes (${prettyBytes(details.size)})`;
+                td.innerHTML = `${common.commas(details.size)} bytes (${common.prettyBytes(details.size)})`;
             } else {
-                td.innerHTML = `${commas(details.size)} bytes`;
+                td.innerHTML = `${common.commas(details.size)} bytes`;
             }
             tr.appendChild(td);
             tbody.appendChild(tr);
@@ -336,7 +336,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             td.innerHTML = "Files";
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = commas(details.files);
+            td.innerHTML = common.commas(details.files);
             tr.appendChild(td);
             tbody.appendChild(tr);
             tr = document.createElement("tr");
@@ -344,7 +344,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             td.innerHTML = "Directories";
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = commas(details.directories);
+            td.innerHTML = common.commas(details.directories);
             tr.appendChild(td);
             tbody.appendChild(tr);
             tr = document.createElement("tr");
@@ -352,7 +352,7 @@ context.details = function local_context_details(event:MouseEvent):void {
             td.innerHTML = "Symbolic Links";
             tr.appendChild(td);
             td = document.createElement("td");
-            td.innerHTML = commas(details.links);
+            td.innerHTML = common.commas(details.links);
             tr.appendChild(td);
             tbody.appendChild(tr);
             table.appendChild(tbody);
@@ -402,14 +402,14 @@ context.details = function local_context_details(event:MouseEvent):void {
 
                 // largest files
                 button.innerHTML = "List 100 largest files";
-                button.onclick = function local_context_details_callback_largest(event:MouseEvent):void {
-                    fileList.sort(function local_context_details_callback_largest_sort(aa:directoryItem, bb:directoryItem):number {
+                button.onclick = function browser_context_details_callback_largest(event:MouseEvent):void {
+                    fileList.sort(function browser_context_details_callback_largest_sort(aa:directoryItem, bb:directoryItem):number {
                         if (aa[5].size > bb[5].size) {
                             return -1;
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                    const element:Element = <Element>event.target,
                         grandParent:Element = <Element>element.parentNode.parentNode,
                         table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
                         p:HTMLElement = <HTMLElement>table.previousSibling,
@@ -427,10 +427,10 @@ context.details = function local_context_details(event:MouseEvent):void {
                         cell.innerHTML = fileList[aa][0];
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = commas(fileList[aa][5].size);
+                        cell.innerHTML = common.commas(fileList[aa][5].size);
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = prettyBytes(fileList[aa][5].size);
+                        cell.innerHTML = common.prettyBytes(fileList[aa][5].size);
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         aa = aa + 1;
@@ -445,14 +445,14 @@ context.details = function local_context_details(event:MouseEvent):void {
                 td = document.createElement("p"),
                 button = document.createElement("button");
                 button.innerHTML = "List 100 most recently changed files";
-                button.onclick = function local_context_details_callback_recent(event:MouseEvent):void {
-                    fileList.sort(function local_context_details_callback_recent_sort(aa:directoryItem, bb:directoryItem):number {
+                button.onclick = function browser_context_details_callback_recent(event:MouseEvent):void {
+                    fileList.sort(function browser_context_details_callback_recent_sort(aa:directoryItem, bb:directoryItem):number {
                         if (aa[5].mtimeMs > bb[5].mtimeMs) {
                             return -1;
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                    const element:Element = <Element>event.target,
                         grandParent:Element = <Element>element.parentNode.parentNode,
                         table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
                         p:HTMLElement = <HTMLElement>table.previousSibling,
@@ -485,14 +485,14 @@ context.details = function local_context_details(event:MouseEvent):void {
                 td = document.createElement("p");
                 button = document.createElement("button");
                 button.innerHTML = "List all files alphabetically";
-                button.onclick = function local_context_details_callback_allFiles(event:MouseEvent):void {
-                    fileList.sort(function local_context_details_callback_allFiles_sort(aa:directoryItem, bb:directoryItem):number {
+                button.onclick = function browser_context_details_callback_allFiles(event:MouseEvent):void {
+                    fileList.sort(function browser_context_details_callback_allFiles_sort(aa:directoryItem, bb:directoryItem):number {
                         if (aa[0] < bb[0]) {
                             return -1;
                         }
                         return 1;
                     });
-                    const element:Element = <Element>event.srcElement || <Element>event.target,
+                    const element:Element = <Element>event.target,
                         grandParent:Element = <Element>element.parentNode.parentNode,
                         table:HTMLElement = <HTMLElement>grandParent.getElementsByClassName("detailFileList")[0],
                         p:HTMLElement = <HTMLElement>table.previousSibling,
@@ -501,7 +501,7 @@ context.details = function local_context_details(event:MouseEvent):void {
                     let aa:number = 0,
                         row:HTMLElement,
                         cell:HTMLElement;
-                    p.innerHTML = `All ${commas(dataLength)} files sorted alphabetically`;
+                    p.innerHTML = `All ${common.commas(dataLength)} files sorted alphabetically`;
                     tbody.innerHTML = "";
                     do {
                         row = document.createElement("tr");
@@ -538,25 +538,25 @@ context.details = function local_context_details(event:MouseEvent):void {
     if (browser.loadTest === true) {
         return;
     }
-    network.fs(payloadNetwork, callback);
+    network.fileBrowser(payloadNetwork, callback);
     context.element = null;
 };
 
 /* Handler for creating new directories */
-context.fsNew = function local_context_fsNew(event:MouseEvent):void {
-    const element:Element = <Element>event.srcElement || <Element>event.target,
-        cancel = function local_context_fsNew_cancel(actionElement:Element):void {
+context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
+    const element:Element = <Element>event.target,
+        cancel = function browser_context_fsNew_cancel(actionElement:Element):void {
             const list:Element = actionElement.getAncestor("fileList", "class"),
                 input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
-            setTimeout(function local_context_fsNew_cancel_delay():void {
+            setTimeout(function browser_context_fsNew_cancel_delay():void {
                 if (actionElement.parentNode.parentNode.parentNode === list) {
                     list.removeChild(actionElement.parentNode.parentNode);
                     input.focus();
                 }
             }, 10);
         },
-        actionKeyboard = function local_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
-            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
+        actionKeyboard = function browser_context_fsNew_actionKeyboard(actionEvent:KeyboardEvent):void {
+            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.target,
                 actionParent:Element = <Element>actionElement.parentNode;
             if (actionEvent.key === "Enter") {
                 const value:string = actionElement.value.replace(/(\s+|\.)$/, ""),
@@ -576,12 +576,12 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                         share: browser.data.modals[id].share,
                         watch: "no"
                     },
-                    callback = function local_context_fsNew_actionKeyboard_callback():void {
+                    callback = function browser_context_fsNew_actionKeyboard_callback():void {
                         return;
                     };
                 if (value.replace(/\s+/, "") !== "") {
                     actionParent.innerHTML = payload.location[0];
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             } else {
                 if (actionEvent.key === "Escape") {
@@ -591,8 +591,8 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                 actionElement.value = actionElement.value.replace(/\?|<|>|"|\||\*|:|\\|\/|\u0000/g, "");
             }
         },
-        actionBlur = function local_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
-            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.srcElement || <HTMLInputElement>actionEvent.target,
+        actionBlur = function browser_context_fsNew_actionBlur(actionEvent:FocusEvent):void {
+            const actionElement:HTMLInputElement = <HTMLInputElement>actionEvent.target,
                 value:string = actionElement.value.replace(/(\s+|\.)$/, "");
             if (actionEvent.type === "blur") {
                 if (value.replace(/\s+/, "") === "") {
@@ -614,15 +614,15 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
-                        callback = function local_context_fsNew_actionBlur_callback():void {
+                        callback = function browser_context_fsNew_actionBlur_callback():void {
                             return;
                         };
                     actionParent.innerHTML = payload.location[0];
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             }
         },
-        build = function local_context_fsNew_build():void {
+        build = function browser_context_fsNew_build():void {
             const li:HTMLElement = document.createElement("li"),
                 label:HTMLLabelElement = document.createElement("label"),
                 input:HTMLInputElement = document.createElement("input"),
@@ -650,7 +650,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
 
             li.setAttribute("class", type);
             if (type === "directory") {
-                li.ondblclick = fs.directory;
+                li.ondblclick = fileBrowser.directory;
             }
             path = box.getElementsByTagName("input")[0].value;
             if (path.indexOf("/") < 0 || (path.indexOf("\\") < path.indexOf("/") && path.indexOf("\\") > -1 && path.indexOf("/") > -1)) {
@@ -665,7 +665,7 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             label.appendChild(input);
             label.setAttribute("class", "selection");
             text.oncontextmenu = context.menu;
-            text.onclick = fs.select;
+            text.onclick = fileBrowser.select;
             text.innerHTML = path;
             field.onkeyup = actionKeyboard;
             field.onblur = actionBlur;
@@ -675,12 +675,12 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
             text.appendChild(field);
             li.appendChild(text);
             span = document.createElement("span");
-            span.onclick = fs.select;
+            span.onclick = fileBrowser.select;
             span.oncontextmenu = context.menu;
             li.appendChild(span);
             li.oncontextmenu = context.menu;
             li.appendChild(label);
-            li.onclick = fs.select;
+            li.onclick = fileBrowser.select;
             if (context.element.nodeName.toLowerCase() === "ul") {
                 context.element.appendChild(li);
             } else {
@@ -697,14 +697,14 @@ context.fsNew = function local_context_fsNew(event:MouseEvent):void {
 };
 
 /* Creates context menu */
-context.menu = function local_context_menu(event:MouseEvent):void {
+context.menu = function browser_context_menu(event:MouseEvent):void {
     const itemList:Element[] = [],
         menu:HTMLElement = document.createElement("ul"),
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
             : "CTRL",
         functions:contextFunctions = {
-            base64: function local_context_menu_base64():void {
+            base64: function browser_context_menu_base64():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Base64 <em>${command} + ALT + B</em>`;
@@ -712,7 +712,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            copy: function local_context_menu_copy():void {
+            copy: function browser_context_menu_copy():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Copy <em>${command} + C</em>`;
@@ -720,7 +720,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            cut: function local_context_menu_cut():void {
+            cut: function browser_context_menu_cut():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Cut <em>${command} + X</em>`;
@@ -728,7 +728,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            destroy: function local_context_menu_destroy():void {
+            destroy: function browser_context_menu_destroy():void {
                 let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
@@ -743,7 +743,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            details: function local_context_menu_details():void {
+            details: function browser_context_menu_details():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Details <em>${command} + ALT + T</em>`;
@@ -751,7 +751,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            edit: function local_context_menu_edit():void {
+            edit: function browser_context_menu_edit():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 if (readOnly === true) {
@@ -763,7 +763,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            hash: function local_context_menu_hash():void {
+            hash: function browser_context_menu_hash():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Hash <em>${command} + ALT + H</em>`;
@@ -771,7 +771,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            newDirectory: function local_context_menu_newDirectory():void {
+            newDirectory: function browser_context_menu_newDirectory():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New Directory <em>${command} + ALT + D</em>`;
@@ -779,7 +779,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            newFile: function local_context_menu_newFile():void {
+            newFile: function browser_context_menu_newFile():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `New File <em>${command} + ALT + F</em>`;
@@ -787,7 +787,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            paste: function local_context_menu_paste():void {
+            paste: function browser_context_menu_paste():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Paste <em>${command} + V</em>`;
@@ -801,7 +801,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 item.appendChild(button);
                 itemList.push(item);
             },
-            rename: function local_context_menu_rename():void {
+            rename: function browser_context_menu_rename():void {
                 let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
                 input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
@@ -810,12 +810,12 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 if (input.value === "/" || input.value === "\\") {
                     button.disabled = true;
                 } else {
-                    button.onclick = fs.rename;
+                    button.onclick = fileBrowser.rename;
                 }
                 item.appendChild(button);
                 itemList.push(item);
             },
-            share: function local_context_menu_share():void {
+            share: function browser_context_menu_share():void {
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Share <em>${command} + ALT + S</em>`;
@@ -824,7 +824,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             }
         };
-    let element:HTMLElement = <HTMLElement>event.srcElement || <HTMLElement>event.target,
+    let element:HTMLElement = <HTMLElement>event.target,
         nodeName:string = element.nodeName.toLowerCase(),
         parent:Element = <Element>element.parentNode,
         item:Element,
@@ -896,7 +896,7 @@ context.menu = function local_context_menu(event:MouseEvent):void {
     menu.style.zIndex = `${browser.data.zIndex + 10}`;
     // vertical
     if (browser.content.clientHeight < ((itemList.length * 57) + 1) + clientY) {
-        const offset:number = (function local_context_menu_verticalOffset():number {
+        const offset:number = (function browser_context_menu_verticalOffset():number {
             // modify position of the menu when performing test automation
             if (event.clientY === undefined) {
                 return -25;
@@ -937,15 +937,19 @@ context.menu = function local_context_menu(event:MouseEvent):void {
 };
 
 /* Destroys a context menu */
-context.menuRemove = function local_context_menuRemove():void {
-    const menu:Element = document.getElementById("contextMenu");
+context.menuRemove = function browser_context_menuRemove():void {
+    const menu:Element = document.getElementById("contextMenu"),
+        offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
+    if (offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
+        network.heartbeat("active", true);
+    }
     if (menu !== null) {
         menu.parentNode.removeChild(menu);
     }
 };
 
 /* Prepare the network action to write files */
-context.paste = function local_context_paste():void {
+context.paste = function browser_context_paste():void {
     const element:Element = context.element.getAncestor("box", "class"),
         destination:string = element.getElementsByTagName("input")[0].value,
         clipData:clipboard = (clipboard === "")
@@ -968,14 +972,14 @@ context.paste = function local_context_paste():void {
             share    : clipData.share,
             watch    : "no"
         },
-        callback = function local_context_paste_callback():void {
+        callback = function browser_context_paste_callback():void {
             clipboard = "";
             util.selectNone(document.getElementById(clipData.id));
         };
     if (clipboard === "") {
         return;
     }
-    network.fs(payload, callback);
+    network.fileBrowser(payload, callback);
     context.element = null;
 };
 

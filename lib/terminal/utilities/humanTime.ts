@@ -1,12 +1,12 @@
 
 /* lib/terminal/utilities/humanTime - A utility to generate human readable time sequences. */
 /*eslint no-console: 0*/
-import prettyBytes from "../../common/prettyBytes.js";
+import common from "../../common/common.js";
 
 import vars from "./vars.js";
 
 // converting time durations into something people read
-const humanTime = function terminal_humanTime(finished:boolean):string {
+const humanTime = function terminal_utilities_humanTime(finished:boolean):string {
     let minuteString:string = "",
         hourString:string   = "",
         secondString:string = "",
@@ -15,7 +15,7 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
         minutes:number      = 0,
         hours:number        = 0,
         memory,
-        elapsed:number      = (function terminal_humanTime_elapsed():number {
+        elapsed:number      = (function terminal_utilities_humanTime_elapsed():number {
             const big:number = 1e9,
                 differenceTime:[number, number] = process.hrtime(vars.startTime);
             if (differenceTime[1] === 0) {
@@ -23,7 +23,7 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
             }
             return differenceTime[0] + (differenceTime[1] / big);
         }());
-    const numberString = function terminal_humanTime_numberString(numb:number):string {
+    const numberString = function terminal_utilities_humanTime_numberString(numb:number):string {
             const strSplit:string[] = String(numb).split(".");
             if (strSplit.length > 1) {
                 if (strSplit[1].length < 9) {
@@ -39,13 +39,13 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
             }
             return `${strSplit[0]}`;
         },
-        plural       = function terminal_humanTime_plural(x:number, y:string):string {
+        plural       = function terminal_utilities_humanTime_plural(x:number, y:string):string {
             if (x !== 1) {
                 return `${numberString(x) + y}s `;
             }
             return `${numberString(x) + y} `;
         },
-        minute       = function terminal_humanTime_minute():void {
+        minute       = function terminal_utilities_humanTime_minute():void {
             minutes      = parseInt((elapsed / 60).toString(), 10);
             minuteString = (finished === true)
                 ? plural(minutes, " minute")
@@ -60,7 +60,7 @@ const humanTime = function terminal_humanTime(finished:boolean):string {
                 : numberString(minutes);
         };
     memory       = process.memoryUsage();
-    finalMem     = prettyBytes(memory.rss);
+    finalMem     = common.prettyBytes(memory.rss);
 
     //last line for additional instructions without bias to the timer
     secondString = numberString(elapsed);

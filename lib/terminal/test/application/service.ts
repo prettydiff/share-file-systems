@@ -4,10 +4,10 @@
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
 import { request } from "https";
 
-import agents from "../../../common/agents.js";
+import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
 import readStorage from "../../utilities/readStorage.js";
-import server from "../../commands/server.js";
+import server from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
@@ -26,8 +26,8 @@ import tests from "../samples/service.js";
 
 const projectPath:string = vars.projectPath,
     sep:string = vars.sep,
-    loopback:string = (serverVars.addresses[0].length > 1)
-        ? "::"
+    loopback:string = (serverVars.ipFamily === "IPv6")
+        ? "::1"
         : "127.0.0.1",
 
     // start test list
@@ -38,24 +38,24 @@ const projectPath:string = vars.projectPath,
         }
     };
 
-service.addServers = function test_services_addServers(callback:Function):void {
+service.addServers = function terminal_test_application_services_addServers(callback:Function):void {
     const flags = {
             removal: false,
             storage: false
         },
-        servers = function test_services_addServers_servers():void {
-            const complete = function test_services_addServers_servers_complete(counts:agentCounts):void {
+        servers = function terminal_test_application_services_addServers_servers():void {
+            const complete = function terminal_test_application_services_addServers_servers_complete(counts:agentCounts):void {
                 counts.count = counts.count + 1;
                 if (counts.count === counts.total) {
                     service.tests = tests();
                     callback();
                 }
             };
-            agents({
+            common.agents({
                 complete: complete,
                 countBy: "agent",
-                perAgent: function test_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-                    const serverCallback = function test_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
+                perAgent: function terminal_test_application_services_addServers_servers_perAgent(agentNames:agentNames, counts:agentCounts):void {
+                    const serverCallback = function terminal_test_application_services_addServers_servers_perAgent_serverCallback(output:serverOutput):void {
                         serverVars[output.agentType][output.agent].port = output.webPort;
                         serverVars[output.agentType][output.agent].ip = loopback;
                         service.serverRemote[agentNames.agentType][agentNames.agent] = output.server;
@@ -73,7 +73,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                 source: serverVars
             });
         },
-        storageComplete = function test_services_addServers_storageComplete(storageData:storageItems):void {
+        storageComplete = function terminal_test_application_services_addServers_storageComplete(storageData:storageItems):void {
             serverVars.brotli = storageData.settings.brotli;
             serverVars.hashDevice = storageData.settings.hashDevice;
             serverVars.hashType = storageData.settings.hashType;
@@ -89,7 +89,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
             }
         },
         // remove any trash left behind from a prior test
-        removal = function test_services_addServers_removal():void {
+        removal = function terminal_test_application_services_addServers_removal():void {
             let count:number = 0;
             const list:string[] = [
                     `${projectPath}serviceTestLocal`,
@@ -102,7 +102,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                     `${projectPath}serviceRemote.json`,
                     `${projectPath}lib${sep}storage${sep}version.json`
                 ],
-                removeCallback = function test_services_addServers_removal_removeCallback():void {
+                removeCallback = function terminal_test_application_services_addServers_removal_removeCallback():void {
                     count = count + 1;
                     if (count === list.length) {
                         flags.removal = true;
@@ -111,7 +111,7 @@ service.addServers = function test_services_addServers(callback:Function):void {
                         }
                     }
                 };
-            list.forEach(function test_services_addServers_removal_each(value:string):void {
+            list.forEach(function terminal_test_application_services_addServers_removal_each(value:string):void {
                 remove(value, removeCallback);
             });
         };
@@ -120,17 +120,18 @@ service.addServers = function test_services_addServers(callback:Function):void {
     readStorage(storageComplete);
     removal();
 };
-service.execute = function test_services_execute(config:testExecute):void {
+
+service.execute = function terminal_test_application_services_execute(config:testExecute):void {
     const index:number = (config.list.length < 1)
             ? config.index
             : config.list[config.index],
         testItem:testServiceInstance = service.tests[index],
-        keyword:string = (function test_services_execute_keyword():string {
+        keyword:string = (function terminal_test_application_services_execute_keyword():string {
             const words:string[] = Object.keys(testItem.command);
             return words[0];
         }()),
         agent:string = testItem.command[keyword].agent,
-        command:string = (function test_services_execute_command():string {
+        command:string = (function terminal_test_application_services_execute_command():string {
             if (keyword === "invite") {
                 if (testItem.command.invite.action === "invite" || testItem.command.invite.action === "invite-response") {
                     if (testItem.command.invite.type === "device") {
@@ -177,7 +178,7 @@ service.execute = function test_services_execute(config:testExecute):void {
                     : serverVars[testItem.command[keyword].agentType][testItem.command[keyword].agent].port,
             timeout: 1000
         },
-        evaluator = function test_service_execute_evaluator(message:string):void {
+        evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
             testEvaluation({
                 callback: config.complete,
                 fail: config.fail,
@@ -188,40 +189,45 @@ service.execute = function test_services_execute(config:testExecute):void {
                 values: [message, "", ""]
             });
         },
-        requestCallback = function test_service_callback(response:IncomingMessage):void {
+        requestCallback = function terminal_test_application_service_execute_callback(response:IncomingMessage):void {
             const chunks:string[] = [];
-            response.on("data", function test_service_callback_data(chunk:string):void {
+            response.on("data", function terminal_test_application_service_execute_callback_data(chunk:string):void {
                 chunks.push(chunk);
             });
-            response.on("end", function test_service_callback_end():void {
+            response.on("end", function terminal_test_application_service_execute_callback_end():void {
                 // A delay is built into the server to eliminate a race condition between service execution and data writing.
                 // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
                 // * The delay here is the HTTP round trip plus 10ms.
-                setTimeout(function test_service_callback_end_delay():void {
+                setTimeout(function terminal_test_application_service_execute_callback_end_delay():void {
                     httpRequest.end();
                     evaluator(chunks.join(""));
                 }, 25);
             });
         },
         httpRequest:ClientRequest = request(payload, requestCallback);
-    httpRequest.on("error", function test_testListRunner_service_error(reqError:nodeError):void {
+    httpRequest.on("error", function terminal_test_application_service_execute_error(reqError:nodeError):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
     httpRequest.write(command);
 };
-service.killServers = function test_services_killServers(complete:testComplete):void {
-    const agentComplete = function test_services_killServers_complete(counts:agentCounts):void {
+
+service.killServers = function terminal_test_application_services_killServers(complete:testComplete):void {
+    const agentComplete = function terminal_test_application_services_killServers_agentComplete(counts:agentCounts):void {
         counts.count = counts.count + 1;
         if (counts.count === counts.total) {
+            serverVars.device = {};
+            serverVars.user = {};
+            serverVars.watches = {};
             testComplete(complete);
         }
     };
-    agents({
+    common.agents({
         complete: agentComplete,
         countBy: "agent",
-        perAgent: function test_services_killServers_perAgent(agentNames:agentNames, counts:agentCounts):void {
-            service.serverRemote[agentNames.agentType][agentNames.agent].close();
-            agentComplete(counts);
+        perAgent: function terminal_test_application_services_killServers_perAgent(agentNames:agentNames, counts:agentCounts):void {
+            service.serverRemote[agentNames.agentType][agentNames.agent].close(function terminal_test_application_services_killServers_perAgent_close():void {
+                agentComplete(counts);
+            });
         },
         source: serverVars
     });

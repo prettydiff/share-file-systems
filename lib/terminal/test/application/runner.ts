@@ -12,20 +12,20 @@ const list:testTypeCollection = {
         service: service,
         simulation: simulation
     },
-    testListRunner = function test_testListRunner(testListType:testListType, callback:Function):void {
+    testListRunner = function terminal_test_application_testListRunner(testListType:testListType, callback:Function):void {
         if (vars.testLogFlag !== "") {
             vars.testLogFlag = testListType;
         }
         if (vars.command === testListType) {
-            callback = function test_lint_callback(message:string):void {
+            callback = function terminal_test_application_testListRunner_callback(message:string):void {
                 log([message, "\u0007"], true); // bell sound
             };
             log([`${vars.text.underline + vars.text.bold + vars.version.name} - ${testListType} tests${vars.text.none}`, ""]);
         }
 
         if (testListType === "service") {
-            const addServers = function test_testListRunner_addServers():void {
-                list.service.addServers(function test_testListRunner_serviceCallback():void {
+            const addServers = function terminal_test_application_testListRunner_addServers():void {
+                list.service.addServers(function terminal_test_application_testListRunner_addServers_callback():void {
                     list.service.execute({
                         complete: callback,
                         fail: 0,

@@ -7,11 +7,11 @@ import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
-const certificate = function terminal_certificate(config:certificate_input):void {
+const certificate = function terminal_commands_certificate(config:certificate_input):void {
     let index:number = 0;
     const fromCommand:boolean = (vars.command === "certificate"),
         commands:string[] = [],
-        logConfig = function terminal_certificate_logConfig(logs:string[]):void {
+        logConfig = function terminal_commands_certificate_logConfig(logs:string[]):void {
             if (fromCommand === true) {
                 logs.push(`Application mode: ${vars.text.cyan + config.mode + vars.text.none}`);
                 if (config.mode === "create") {
@@ -30,7 +30,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
             }
             logs.push("");
         },
-        posix = function terminal_certification_posix(logs:string[]):void {
+        posix = function terminal_commands_certification_posix(logs:string[]):void {
             const name:string = (config.selfSign === true)
                     ? config.name
                     : config.caName,
@@ -53,14 +53,14 @@ const certificate = function terminal_certificate(config:certificate_input):void
             logs.push(`${vars.text.green + vars.text.bold}sudo trust anchor${removes[0]} "${config.location + vars.sep + name}.crt"${removes[1] + vars.text.none}`);
             config.callback(logs);
         },
-        crypto = function terminal_certificate_crypto():void {
+        crypto = function terminal_commands_certificate_crypto():void {
             vars.node.child(commands[index], {
                 cwd: config.location
-            }, function terminal_certificate_child(erChild:Error):void {
+            }, function terminal_commands_certificate_child(erChild:Error):void {
                 if (erChild === null) {
                     index = index + 1;
                     if (index < commands.length) {
-                        terminal_certificate_crypto();
+                        terminal_commands_certificate_crypto();
                     } else {
                         const logs:string[] = [
                             "",
@@ -97,10 +97,10 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 log([erChild.toString()]);
             });
         },
-        readdir = function terminal_certificate_readdir(err:nodeError, fileList:string[]):void {
+        readdir = function terminal_commands_certificate_readdir(err:nodeError, fileList:string[]):void {
             if (err === null) {
                 const killList:string[] = [`${config.caName}.crt`, `${config.caName}.key`, `${config.caName}.srl`, `${config.name}.crt`, `${config.name}.csr`, `${config.name}.key`],
-                    callback = function terminal_certificate_readdir_removeCallback():void {
+                    callback = function terminal_commands_certificate_readdir_removeCallback():void {
                         status = status + 1;
                         if (total === 0 || status === total) {
                             const logs:string[] = [];
@@ -125,14 +125,14 @@ const certificate = function terminal_certificate(config:certificate_input):void
                                             logs: []
                                         }
                                     },
-                                    childBody = function terminal_certificate_readdir_removeCallback_childBody(erRoot:nodeError, stdout:string):void {
+                                    childBody = function terminal_commands_certificate_readdir_removeCallback_childBody(erRoot:nodeError, stdout:string):void {
                                         if (erRoot === null) {
                                             const certs:string[] = stdout.split("================ C"),
-                                                complete = function terminal_certificate_readdir_removeCallback_childBody_complete():void {
+                                                complete = function terminal_commands_certificate_readdir_removeCallback_childBody_complete():void {
                                                     const plural:string = (certDelete.ca.logs.length + certDelete.root.logs.length === 1)
                                                             ? ""
                                                             : "s",
-                                                        logsEach = function terminal_certificate_readdir_removeCallback_childBody_complete_each(value:string):void {
+                                                        logsEach = function terminal_commands_certificate_readdir_removeCallback_childBody_complete_each(value:string):void {
                                                             logs.push(value);
                                                         };
                                                     if (certDelete.ca.logs.length + certDelete.root.logs.length === 0) {
@@ -169,7 +169,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
                                                 complete();
                                             }
                                         } else {
-                                            log([erRoot.toString()]);
                                             error([erRoot.toString()]);
                                         }
                                     };
@@ -183,7 +182,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
                 let status:number = 0,
                     total:number = 0;
                 if (fileList.length > 0) {
-                    fileList.forEach(function terminal_certificate_readdir_each(file:string):void {
+                    fileList.forEach(function terminal_commands_certificate_readdir_each(file:string):void {
                         if (killList.indexOf(file) > -1) {
                             total = total + 1;
                             log([`${vars.text.angry}*${vars.text.none} Removing file ${config.location + vars.sep + file}`]);
@@ -197,7 +196,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
                     callback();
                 }
             } else {
-                log([err.toString()]);
                 error([err.toString()]);
             }
         };
@@ -210,7 +208,7 @@ const certificate = function terminal_certificate(config:certificate_input):void
 
         config = {
             caDomain: "share-file-ca",
-            callback: function terminal_certificate_callback(logs:string[]):void {
+            callback: function terminal_commands_certificate_callback(logs:string[]):void {
                 vars.verbose = true;
                 log(logs, true);
             },
@@ -302,13 +300,13 @@ const certificate = function terminal_certificate(config:certificate_input):void
     }
     
     if (config.mode === "create") {
-        vars.node.fs.stat(config.location, function terminal_certificate_createStat(stat:nodeError):void {
-            const create = function terminal_certificate_createStat_create():void {
+        vars.node.fs.stat(config.location, function terminal_commands_certificate_createStat(stat:nodeError):void {
+            const create = function terminal_commands_certificate_createStat_create():void {
                 const mode:[string, string, string] = (config.selfSign === true)
                         ? ["selfSign", config.name, config.domain]
                         : ["ca", config.caName, config.caDomain],
                     confPath:string = `"${vars.projectPath}lib${vars.sep}certificate${vars.sep + mode[0]}.cnf" -extensions x509_ext`,
-                    key = function terminal_certificate_createState_create_key(type:"name"|"caName"):string {
+                    key = function terminal_commands_certificate_createState_create_key(type:"name"|"caName"):string {
                         return `openssl genpkey -algorithm RSA -out ${config[type]}.key`;
                     },
                     cert:string = `openssl req -x509 -key ${mode[1]}.key -days ${config.days} -out ${mode[1]}.crt -subj "/CN=${mode[2]}/O=${config.organization}"`;
@@ -334,7 +332,6 @@ const certificate = function terminal_certificate(config:certificate_input):void
             } else if (stat.code === "ENOENT") {
                 mkdir(config.location, create, false);
             } else {
-                log([stat.toString()]);
                 error([stat.toString()]);
             }
         });

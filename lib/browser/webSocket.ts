@@ -1,38 +1,32 @@
 
 /* lib/browser/webSocket - Handles web socket events and associated errors. This where most communications from outside the browser are processed. */
 import browser from "./browser.js";
-import fs from "./fs.js";
+import fileBrowser from "./fileBrowser.js";
 import invite from "./invite.js";
+import message from "./message.js";
 import network from "./network.js";
 import remote from "./remote.js";
 import share from "./share.js";
-import systems from "./systems.js";
 import util from "./util.js";
 
 const title:Element = document.getElementsByClassName("title")[0],
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
-    sock:WebSocketLocal = (function local_socket():WebSocketLocal {
+    sock:WebSocketLocal = (function browser_socket():WebSocketLocal {
         // A minor security circumvention.
         const socket:WebSocketLocal = <WebSocketLocal>WebSocket;
         // eslint-disable-next-line
         WebSocket = null;
         return socket;
     }()),
-    message = function local_socketMessage(event:SocketEvent):void {
+    socketMessage = function browser_socketMessage(event:SocketEvent):void {
         if (typeof event.data !== "string") {
             return;
         }
-        const error = function local_socketMessage_error():void {
-                const errorData:socketError = JSON.parse(event.data).error,
-                    modal:Element = document.getElementById("systems-modal"),
-                    tabs:HTMLElement = <HTMLElement>modal.getElementsByClassName("tabs")[0],
-                    payload:string = JSON.stringify(errorData);
-                systems.message("errors", payload, "websocket");
-                if (modal.clientWidth > 0) {
-                    tabs.style.width = `${modal.getElementsByClassName("body")[0].scrollWidth / 10}em`;
-                }
+        const error = function browser_socketMessage_error():void {
+                // eslint-disable-next-line
+                console.error(event.data);
             },
-            fsUpdateLocal = function local_socketMessage_fsUpdateLocal():void {
+            fsUpdateLocal = function browser_socketMessage_fsUpdateLocal():void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
                     fsData:directoryList = JSON.parse(event.data)["fs-update-local"],
                     keyLength:number = modalKeys.length;
@@ -45,7 +39,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.hashDevice) {
                         const box:Element = document.getElementById(modalKeys[a]),
                             body:Element = box.getElementsByClassName("body")[0],
-                            list:[Element, number, string] = fs.list(root, {
+                            list:[Element, number, string] = fileBrowser.list(root, {
                                 dirs: fsData,
                                 fail: fsData.failures,
                                 id: modalKeys[a]
@@ -70,15 +64,15 @@ const title:Element = document.getElementsByClassName("title")[0],
                         share: "",
                         watch: "no"
                     },
-                    callback = function local_socketMessage_closeCallback():boolean {
+                    callback = function browser_socketMessage_closeCallback():boolean {
                         return true;
                     };
-                    network.fs(payload, callback);
+                    network.fileBrowser(payload, callback);
                 }
             },
-            fsUpdateRemote = function local_socketMessage_fsUpdateRemote():void {
+            fsUpdateRemote = function browser_socketMessage_fsUpdateRemote():void {
                 const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
-                    list:[Element, number, string] = fs.list(data.location, {
+                    list:[Element, number, string] = fileBrowser.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
                         fail: data.fail
@@ -110,19 +104,19 @@ const title:Element = document.getElementsByClassName("title")[0],
                     util.fileListStatus(JSON.parse(data.status));
                 }
             },
-            heartbeatDelete = function local_socketMessage_heartbeatDelete():void {
+            heartbeatDelete = function browser_socketMessage_heartbeatDelete():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-delete-agents"];
                 if (heartbeat.agentType === "device") {
                     const deletion:agentList = <agentList>heartbeat.status,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
                         devices:string[] = Object.keys(browser.device),
                         users:string[] = Object.keys(browser.user);
-                    devices.forEach(function local_socketMessage_heartbeatDelete_deviceEach(value:string) {
+                    devices.forEach(function browser_socketMessage_heartbeatDelete_deviceEach(value:string) {
                         if (value !== browser.data.hashDevice && (removeSelf === true || deletion.device.indexOf(value) > -1)) {
                             share.deleteAgent(value, "device");
                         }
                     });
-                    users.forEach(function local_socketMessage_heartbeatDelete_userEach(value:string) {
+                    users.forEach(function browser_socketMessage_heartbeatDelete_userEach(value:string) {
                         if (removeSelf === true || deletion.user.indexOf(value) > -1) {
                             share.deleteAgent(value, "user");
                         }
@@ -134,13 +128,13 @@ const title:Element = document.getElementsByClassName("title")[0],
                 }
                 network.storage("settings");
             },
-            heartbeatStatus = function local_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
+            heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
                 const button:Element = document.getElementById(heartbeat.agentFrom);
                 if (button !== null && button.getAttribute("data-agent-type") === heartbeat.agentType) {
                     button.setAttribute("class", <heartbeatStatus>heartbeat.status);
                 }
             },
-            heartbeat = function local_socketMessage_heartbeat():void {
+            heartbeat = function browser_socketMessage_heartbeat():void {
                 const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-complete"];
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
@@ -183,7 +177,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     }
                 }
             },
-            invitation = function local_socketMessage_invite():void {
+            invitation = function browser_socketMessage_invite():void {
                 const inviteData:invite = JSON.parse(event.data)["invite-error"],
                     modal:Element = document.getElementById(inviteData.modal);
                 if (modal === null) {
@@ -198,6 +192,14 @@ const title:Element = document.getElementsByClassName("title")[0],
                 content.parentNode.removeChild(content.parentNode.lastChild);
                 content.style.display = "block";
                 footer.style.display = "block";
+            },
+            testBrowser = function browser_socketMessage_testBrowser():void {
+                const data:testBrowserRoute = JSON.parse(event.data)["test-browser"];
+                if (data.action === "close") {
+                    window.close();
+                    return;
+                }
+                remote.event(data, false);
             };
         if (event.data.indexOf("{\"error\":") === 0) {
             error();
@@ -213,6 +215,8 @@ const title:Element = document.getElementsByClassName("title")[0],
             heartbeatStatus(JSON.parse(event.data)["heartbeat-status"]);
         } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
             heartbeatDelete();
+        } else if (event.data.indexOf("{\"message\":") === 0) {
+            message.post(JSON.parse(event.data).message);
         } else if (event.data.indexOf("{\"invite-error\":") === 0) {
             invitation();
         } else if (event.data.indexOf("{\"invite\":") === 0) {
@@ -223,29 +227,29 @@ const title:Element = document.getElementsByClassName("title")[0],
                 invite.respond(invitation);
             }
         } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            remote.event(JSON.parse(event.data)["test-browser"], false);
-        } else if (event.data.indexOf("{\"test-browser-close\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            window.close();
+            testBrowser();
         } else if (event.data === "reload") {
             location.reload();
         }
     },
-    webSocket = function local_webSocket(callback:() => void):WebSocket {
+    webSocket = function browser_webSocket(callback:() => void):void {
         const scheme:string = (location.protocol === "http:")
                 ? ""
                 : "s",
             socket:WebSocket = new sock(`ws${scheme}://localhost:${browser.localNetwork.wsPort}/`),
-            open = function local_webSocket_socketOpen():void {
+            testIndex:number = location.href.indexOf("?test_browser"),
+            open = function browser_webSocket_socketOpen():void {
                 const device:Element = (browser.data.hashDevice === "")
                     ? null
                     : document.getElementById(browser.data.hashDevice);
+                browser.socket = socket;
                 if (device !== null) {
                     device.setAttribute("class", "active");
                 }
                 title.getElementsByTagName("h1")[0].innerHTML = titleText;
                 title.setAttribute("class", "title");
             },
-            close = function local_webSocket_socketClose():void {
+            close = function browser_webSocket_socketClose():void {
                 const device:Element = (browser.data.hashDevice === "")
                         ? null
                         : document.getElementById(browser.data.hashDevice),
@@ -265,22 +269,15 @@ const title:Element = document.getElementsByClassName("title")[0],
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }
-                browser.socket = local_webSocket(function local_webSocket_callback():void {
-                    return;
-                });
-            },
-            error = function local_webSocket_socketError(message):void {
-                // eslint-disable-next-line
-                console.log(message);
             };
 
         /* Handle Web Socket responses */
-        socket.onopen = open;
-        socket.onmessage = message;
-        socket.onclose = close;
-        socket.onerror = error;
-        callback();
-        return socket;
+        if ((browser.testBrowser === null && testIndex < 0) || (browser.testBrowser !== null && testIndex > 0)) {
+            socket.onopen = open;
+            socket.onmessage = socketMessage;
+            socket.onclose = close;
+            callback();
+        }
     };
 
 export default webSocket;

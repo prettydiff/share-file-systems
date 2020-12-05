@@ -1,14 +1,14 @@
 
 /* lib/terminal/utilities/error - A utility for processing and logging errors from the terminal application. */
-import commas from "../../common/commas.js";
+import common from "../../common/common.js";
 import humanTime from "./humanTime.js";
 import vars from "./vars.js";
 
 // uniform error formatting
-const error = function terminal_error(errText:string[]):void {
+const error = function terminal_utilities_error(errText:string[]):void {
     // eslint-disable-next-line
     const logger:(input:string|object) => void = console.log,
-        bell = function terminal_error_bell():void {
+        bell = function terminal_utilities_error_bell():void {
             humanTime(true);
             if (vars.command === "build" || vars.command === "simulation" || vars.command === "validation") {
                 logger("\u0007"); // bell sound
@@ -19,20 +19,19 @@ const error = function terminal_error(errText:string[]):void {
                 process.exit(1);
             }
         },
-        errorOut = function terminal_error_errorOut():void {
-            if (vars.command === "server") {
+        errorOut = function terminal_utilities_error_errorOut():void {
+            if (vars.command === "service") {
                 const stackTrace:string[] = new Error().stack.replace(/^Error/, "").replace(/\s+at\s/g, ")splitMe").split("splitMe"),
-                    server:serverError = {
+                    server:error = {
                         stack: stackTrace.slice(1),
                         error: errText.join(" ")
                     };
-                if (vars.ws.broadcast === undefined) {
-                    logger(server);
-                } else {
+                if (vars.ws.broadcast !== undefined) {
                     vars.ws.broadcast(JSON.stringify({
                         error: server
                     }));
                 }
+                logger(server);
             } else {
                 const stack:string = new Error().stack.replace("Error", `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------`);
                 vars.flags.error = true;
@@ -44,7 +43,7 @@ const error = function terminal_error(errText:string[]):void {
                 if (errText[0] === "" && errText.length < 2) {
                     logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
                 } else {
-                    errText.forEach(function terminal_error_errorOut_each(value:string):void {
+                    errText.forEach(function terminal_utilities_error_errorOut_each(value:string):void {
                         logger(value);
                     });
                 }
@@ -52,7 +51,7 @@ const error = function terminal_error(errText:string[]):void {
                 bell();
             }
         },
-        debug = function terminal_error_debug():void {
+        debug = function terminal_utilities_error_debug():void {
             const stack:string = new Error().stack,
                 totalmem:number = vars.node.os.totalmem(),
                 freemem:number = vars.node.os.freemem();
@@ -68,7 +67,7 @@ const error = function terminal_error(errText:string[]):void {
                 logger(`${vars.text.yellow}No error message supplied${vars.text.none}`);
             } else {
                 logger("```");
-                errText.forEach(function terminal_error_each(value:string):void {
+                errText.forEach(function terminal_utilities_error_each(value:string):void {
                     // eslint-disable-next-line
                     logger(value.replace(/\u001b/g, "\\u001b"));
                 });
@@ -82,7 +81,7 @@ const error = function terminal_error(errText:string[]):void {
             logger("");
             logger(`${vars.text.green}## Environment${vars.text.none}`);
             logger(`* OS - **${vars.node.os.platform()} ${vars.node.os.release()}**`);
-            logger(`* Mem - ${commas(totalmem)} - ${commas(freemem)} = **${commas(totalmem - freemem)}**`);
+            logger(`* Mem - ${common.commas(totalmem)} - ${common.commas(freemem)} = **${common.commas(totalmem - freemem)}**`);
             logger(`* CPU - ${vars.node.os.arch()} ${vars.node.os.cpus().length} cores`);
             logger("");
             logger(`${vars.text.green}## Command Line Instruction${vars.text.none}`);

@@ -23,7 +23,7 @@ A data structure for describing various actions to perform upon a file system re
 
 ```typescript
 interface fileService {
-    action      : serviceType | "shareUpdate";
+    action      : serviceType;
     agent       : string;
     copyAgent   : string;
     depth       : number;
@@ -144,20 +144,5 @@ interface invite {
 * **port** - The port number the remote user is running their application on.  If no port is specified the default port will be attempted.
 * **shares** - The share list from the inviting user.  Once the remote user accepts the invitation the inviting user name, and their shares, are automatically added to their local application.
 * **status** - The remote user status upon the invitation.
-
----
-
-## shareUpdate
-A service to inform remote users when the local user modifies their list of shares.
-
-```typescript
-interface shareUpdate {
-    user: string;
-    shares: userShares;
-}
-```
-
-* **user** - The name of the remote agent on which the change originated.
-* **shares** - The updated shares from that remote agent.
 
 ---

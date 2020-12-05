@@ -89,7 +89,7 @@ type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save
 
 ### type modal_types, The type of modal supported
 ```typescript
-type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "systems" | "textPad";
+type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "shares" | "share_delete" | "textPad";
 ```
 
 * **details** - Details recursive details about a file system artifact.
@@ -100,7 +100,6 @@ type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-ac
 * **invite-request** - The modal that appears on the local device when starting the invitation process.
 * **shares** The modal that displays a user's current shares when click on the user's button from the right side user list.
 * **share_delete** - The modal that displays when attempting to terminal a relationship with another user/device.
-* **systems** - A systems utility modal that logs various system information, such as errors.
 * **textPad** - A minimal modal where the body area is filled with a textarea HTML element for free type text.
 
 ### type modalStatus, The visual state of a modal

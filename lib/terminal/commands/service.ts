@@ -1,8 +1,8 @@
 
-/* lib/terminal/commands/server - A command driven HTTP server for running the terminal instance of the application. */
+/* lib/terminal/commands/service - A command driven HTTP server for running the terminal instance of the application. */
 import { AddressInfo } from "net";
 
-import WebSocket from "../../../ws-es6/index.js";
+import WebSocket from "../../ws-es6/index.js";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -18,7 +18,7 @@ import serverWatch from "../server/serverWatch.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
-const server = function terminal_server(serverCallback:serverCallback):void {
+const service = function terminal_commands_service(serverCallback:serverCallback):void {
     // at this time the serverCallback argument is only used by test automation and so its availability
     // * locks the server to address ::1 (loopback)
     // * bypasses messaging users on server start up
@@ -37,27 +37,19 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         },
         portString:string = "",
         certLogs:string[] = null;
+    (function terminal_commands_service_insecure():void {
+        const index:number = process.argv.indexOf("insecure");
+        if (index > -1) {
+            serverVars.secure = false;
+            process.argv.splice(index, 1);
+        }
+    }());
     const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
-        insecure:boolean = (serverVars.secure === false)
-            ? true
-            : (function terminal_server_insecure():boolean {
-                const index:number = process.argv.indexOf("insecure");
-                if (index < 0) {
-                    return false;
-                }
-                serverVars.secure = false;
-                process.argv.splice(index, 1);
-                return true;
-            }()),
-        browserFlag:boolean = (function terminal_server_browserTest():boolean {
+        testBrowserRemote:boolean = (serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
+        browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
-            serverVars.storage = (vars.command === "test_browser")
-                ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
-                : (vars.command.indexOf("test") === 0 || test > -1)
-                    ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageService${vars.sep}`
-                    : `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
             if (test > -1) {
                process.argv.splice(test, 1);
             }
@@ -68,10 +60,10 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }
             return false;
         }()),
-        scheme:string = (insecure === true)
-            ? "http"
-            : "https",
-        browser = function terminal_server_browser(httpServer:httpServer):void {
+        scheme:string = (serverVars.secure === true)
+            ? "https"
+            : "http",
+        browser = function terminal_commands_service_browser(httpServer:httpServer):void {
             // open a browser from the command line
             serverCallback.callback({
                 agent: serverCallback.agent,
@@ -87,7 +79,7 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                             ? "start"
                             : "xdg-open",
                     browserCommand:string = `${keyword} ${scheme}://localhost${portString}/`;
-                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_server_browser(errs:nodeError, stdout:string, stdError:string|Buffer):void {
+                vars.node.child(browserCommand, {cwd: vars.cwd}, function terminal_commands_service_browser_child(errs:nodeError, stdout:string, stdError:string|Buffer):void {
                     if (errs !== null) {
                         error([errs.toString()]);
                         return;
@@ -100,12 +92,12 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 });
             }
         },
-        service = function terminal_server_service():void {
+        certCheck = function terminal_commands_service_certCheck():void {
             if (https.flag.crt === true && https.flag.key === true) {
                 if (https.certificate.cert === "" || https.certificate.key === "") {
                     certificate({
                         caDomain: "share-file-ca",
-                        callback: function terminal_server_service_callback(logs:string[]):void {
+                        callback: function terminal_commands_service_certCheck_callback(logs:string[]):void {
                             https.flag.crt = false;
                             https.flag.key = false;
                             httpsRead("crt");
@@ -127,8 +119,8 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 }
             }
         },
-        httpsRead = function terminal_server_httpsRead(certType:certKey):void {
-            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_server_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
+        httpsRead = function terminal_commands_service_httpsRead(certType:certKey):void {
+            vars.node.fs.readFile(`${certLocation + certName}.${certType}`, "utf8", function terminal_commands_service_httpsFile_stat_read(fileError:nodeError, fileData:string):void {
                 https.flag[certType] = true;
                 if (fileError === null) {
                     if (certType === "crt") {
@@ -137,27 +129,42 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         https.certificate[certType] = fileData;
                     }
                 }
-                service();
+                certCheck();
             });
         },
-        httpsFile = function terminal_server_httpsFile(certType:certKey):void {
-            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_server_httpsFile_stat(statError:nodeError):void {
+        httpsFile = function terminal_commands_service_httpsFile(certType:certKey):void {
+            vars.node.fs.stat(`${certLocation + certName}.${certType}`, function terminal_commands_service_httpsFile_stat(statError:nodeError):void {
                 if (statError === null) {
                     httpsRead(certType);
                 } else {
                     https.flag[certType] = true;
-                    service();
+                    certCheck();
                 }
             });
         },
-        port:number = (vars.command === "test_service" || vars.command === "test")
-            ? 0
-            : (isNaN(Number(process.argv[0])) === true)
-                ? (insecure === true && vars.version.port === 443)
-                    ? 80
-                    : vars.version.port
-                : Number(process.argv[0]),
-        serverError = function terminal_server_serverError(errorMessage:nodeError):void {
+        port:number = (function terminal_commands_service_port():number {
+            const len:number = process.argv.length;
+            let index:number = 0,
+                item:number = -1;
+            do {
+                item = Number(process.argv[index]);
+                if (isNaN(item) === false) {
+                    break;
+                }
+                index = index + 1;
+            } while (index < len);
+            if (index === len) {
+                item = -1;
+            }
+            return (vars.command.indexOf("test") === 0 && testBrowserRemote === false)
+                ? 0
+                : (item > -1)
+                    ? item
+                    : (vars.version.port === 443 && serverVars.secure === false)
+                        ? 80
+                        : vars.version.port;
+        }()),
+        serverError = function terminal_commands_service_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
                     error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP server.`]);
@@ -168,26 +175,50 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                 error([errorMessage.toString()]);
             }
         },
-        start = function terminal_server_start(httpServer:httpServer) {
-            const logOutput = function terminal_server_start_logger(storageData:storageItems):void {
+        start = function terminal_commands_service_start(httpServer:httpServer) {
+            const logOutput = function terminal_commands_service_start_logger(storageData:storageItems):void {
                     const output:string[] = [],
-                        localAddresses = function terminal_server_start_logger_localAddresses(value:[string, string, string]):void {
-                            a = value[0].length;
-                            if (a < serverVars.addresses[1]) {
-                                do {
-                                    value[0] = value[0] + " ";
-                                    a = a + 1;
-                                } while (a < serverVars.addresses[1]);
-                            }
-                            if (value[0].charAt(0) === " ") {
-                                output.push(`     ${value[0]}: ${value[1]}`);
-                            } else {
-                                output.push(`   ${vars.text.angry}*${vars.text.none} ${value[0]}: ${value[1]}`);
-                            }
+                        localAddresses = function terminal_commands_service_start_logger_localAddresses():void {
+                            let longest:number = 0;
+                            const nameLength = function terminal_commands_service_start_logger_localAddresses_nameLength(scheme:"IPv6"|"IPv4"):void {
+                                    let a:number = 0;
+                                    const total:number = serverVars.addresses[scheme].length;
+                                    if (total > 0) {
+                                        do {
+                                            if (serverVars.addresses[scheme][a][1].length > longest) {
+                                                longest = serverVars.addresses[scheme][a][1].length;
+                                            }
+                                            a = a + 1;
+                                        } while (a < total);
+                                    }
+                                },
+                                format = function terminal_commands_service_start_logger_localAddresses_format(scheme:"IPv6"|"IPv4"):void {
+                                    let a:number = 0,
+                                        b:number,
+                                        name:string;
+                                    const total:number = serverVars.addresses[scheme].length;
+                                    if (total > 0) {
+                                        do {
+                                            b = serverVars.addresses[scheme][a][1].length;
+                                            name = serverVars.addresses[scheme][a][1];
+                                            if (b < longest) {
+                                                do {
+                                                    name = `${name} `;
+                                                    b = b + 1;
+                                                } while (b < longest);
+                                            }
+                                            output.push(`   ${vars.text.angry}*${vars.text.none} ${name}: ${serverVars.addresses[scheme][a][0]}`);
+                                            a = a + 1;
+                                        } while (a < total);
+                                    }
+                                };
+                            nameLength("IPv6");
+                            nameLength("IPv4");
+                            format("IPv6");
+                            format("IPv4");
                         };
-                    let a:number = 0;
 
-                    if (vars.command !== "test_service") {
+                    if (vars.command !== "test" && vars.command !== "test_service") {
                         serverVars.device = storageData.device;
                         serverVars.hashDevice = storageData.settings.hashDevice;
                         serverVars.user = storageData.user;
@@ -199,46 +230,53 @@ const server = function terminal_server(serverCallback:serverCallback):void {
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
-                    if (vars.command.indexOf("test") !== 0) {
+                    if (testBrowserRemote === true || vars.command.indexOf("test") !== 0) {
 
                         // log the port information to the terminal
                         output.push(`${vars.text.cyan}HTTP server${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWeb + vars.text.none}`);
                         output.push(`${vars.text.cyan}Web Sockets${vars.text.none} on port: ${vars.text.bold + vars.text.green + portWs + vars.text.none}`);
-                        if (serverVars.addresses[0].length === 1) {
+
+                        output.push("");
+                        if (serverVars.addresses.IPv6.length + serverVars.addresses.IPv4.length === 1) {
                             output.push("Local IP address is:");
                         } else {
                             output.push("Local IP addresses are:");
                         }
-    
-                        serverVars.addresses[0].forEach(localAddresses);
+                        localAddresses();
+                        output.push("");
+
                         output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
                         output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${serverVars.ipAddress + portString + vars.text.none}`);
-                        if (serverVars.addresses[0][0][1] !== serverVars.ipAddress) {
-                            if (serverVars.addresses[0][0][2] === "ipv4") {
-                                output.push(`or                 : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses[0][0][1] + vars.text.none}`);
+                        if (portString !== "") {
+                            if (serverVars.ipFamily === "IPv6") {
+                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://[${serverVars.addresses.IPv6[0][0]}]${portString + vars.text.none}`);
                             } else {
-                                output.push(`or                 : ${vars.text.bold + vars.text.green+ scheme}://[${serverVars.addresses[0][0][1]}]${portString + vars.text.none}`);
+                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses.IPv4[0][0]}:${portString + vars.text.none}`);
                             }
                         }
                         if (certLogs !== null) {
-                            certLogs.forEach(function terminal_server_start_logger_certLogs(value:string):void {
+                            certLogs.forEach(function terminal_commands_service_start_logger_certLogs(value:string):void {
                                 output.push(value);
                             });
                         }
                         output.push("");
-                        log.title("Local Server");
+                        if (testBrowserRemote === true) {
+                            output.push("");
+                        } else {
+                            log.title("Local Server");
+                        }
                         log(output, true);
                     }
                     browser(httpServer);
                 },
-                readComplete = function terminal_server_start_readComplete(storageData:storageItems) {
+                readComplete = function terminal_commands_service_start_readComplete(storageData:storageItems) {
                     serverVars.brotli = storageData.settings.brotli;
                     serverVars.hashDevice = storageData.settings.hashDevice;
                     serverVars.hashType = storageData.settings.hashType;
                     serverVars.hashUser = storageData.settings.hashUser;
                     serverVars.nameDevice = storageData.settings.nameDevice;
                     serverVars.nameUser = storageData.settings.nameUser;
-                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || serverVars.addresses[0][0][0] === "disconnected") {
+                    if (Object.keys(serverVars.device).length + Object.keys(serverVars.user).length < 2 || ((serverVars.addresses.IPv6.length < 1 || serverVars.addresses.IPv6[0][1] === "disconnected") && serverVars.addresses.IPv4[0][1] === "disconnected")) {
                         logOutput(storageData);
                     } else {
                         const hbConfig:heartbeatUpdate = {
@@ -253,13 +291,13 @@ const server = function terminal_server(serverCallback:serverCallback):void {
                         heartbeat.update(hbConfig);
                     }
                 },
-                listen = function terminal_server_start_listen():void {
+                listen = function terminal_commands_service_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
-                        wsServer:httpServer = (insecure === true)
-                            ? vars.node.http.createServer(function terminal_server_start_listen_wsListenerInsecure():void {
+                        wsServer:httpServer = (serverVars.secure === true)
+                            ? vars.node.https.createServer(function terminal_commands_service_start_listen_wsListenerSecure():void {
                                 return;
                             })
-                            : vars.node.https.createServer(https.certificate, function terminal_server_start_listen_wsListener():void {
+                            : vars.node.http.createServer(https.certificate, function terminal_commands_service_start_listen_wsListener():void {
                                 return;
                             });
                     serverVars.webPort = serverAddress.port;
@@ -269,22 +307,22 @@ const server = function terminal_server(serverCallback:serverCallback):void {
 
                     httpServer.port = serverAddress.port;
                     portWeb = serverAddress.port;
-                    portString = ((portWeb === 443 && insecure === false) || (portWeb === 80 && insecure === true))
+                    portString = ((portWeb === 443 && serverVars.secure === true) || (portWeb === 80 && serverVars.secure === false))
                         ? ""
-                        : (serverVars.addresses[0].length > 1)
+                        : (serverVars.ipFamily === "IPv6")
                             ? `[${portWeb}]`
                             :`:${portWeb}`;
                     wsServer.listen({
-                        host: (serverVars.addresses[0].length > 1)
+                        host: (serverVars.ipFamily === "IPv6")
                             ? "::1"
                             : "127.0.0.1",
                         port: serverVars.wsPort
-                    }, function terminal_server_start_listen_wsListen():void {
+                    }, function terminal_commands_service_start_listen_wsListen():void {
                         vars.ws = new WebSocket.Server({
                             server: wsServer
                         });
-                        vars.ws.broadcast = function terminal_server_start_listen_socketBroadcast(data:string):void {
-                            vars.ws.clients.forEach(function terminal_server_start_listen_socketBroadcast_clients(client):void {
+                        vars.ws.broadcast = function terminal_commands_service_start_listen_socketBroadcast(data:string):void {
+                            vars.ws.clients.forEach(function terminal_commands_service_start_listen_socketBroadcast_clients(client):void {
                                 if (client.readyState === WebSocket.OPEN) {
                                     client.send(data);
                                 }
@@ -306,13 +344,10 @@ const server = function terminal_server(serverCallback:serverCallback):void {
             }, serverWatch);
             httpServer.on("error", serverError);
             httpServer.listen({
-                port: port,
-                host: (serverVars.addresses[0].length > 1)
-                    ? "::1"
-                    : "127.0.0.1"
+                port: port
             }, listen);
         };
-    if (vars.command.indexOf("test_") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
+    if (vars.command.indexOf("test") !== 0 && process.argv[0] !== undefined && isNaN(Number(process.argv[0])) === true) {
         error([`Specified port, ${vars.text.angry + process.argv[0] + vars.text.none}, is not a number.`]);
         return;
     }
@@ -320,15 +355,15 @@ const server = function terminal_server(serverCallback:serverCallback):void {
         serverCallback = {
             agent: "",
             agentType: "device",
-            callback: function terminal_server_falseCallback():void {}
+            callback: function terminal_commands_service_falseCallback():void {}
         };
     }
-    if (insecure === true) {
-        start(vars.node.http.createServer(createServer));
-    } else {
+    if (serverVars.secure === true) {
         httpsFile("crt");
         httpsFile("key");
+    } else {
+        start(vars.node.http.createServer(createServer));
     }
 };
 
-export default server;
+export default service;

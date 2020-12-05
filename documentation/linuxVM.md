@@ -118,6 +118,9 @@ Modify the prompt into something informative matching the style of this applicat
 2. If found change that line to `PS1="[\[\033[01;34m\]\h-\T\[\033[00m\]]\[\033[01;32m\]\w\[\033[00m\]> "`
 3. If not found then add the code above to the end of the file.
 
+## Customize Firefox
+1. Prevent restore session tab: `about:config` -> `browser.sessionStore.resume_from_crash` value **false**
+
 ## Vim Configuration
 <!-- cspell:disable -->
 1. `rm ~/.vimrc`

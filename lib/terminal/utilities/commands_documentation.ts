@@ -313,31 +313,31 @@ const commands_documentation = {
             }
         ]
     },
-    server: {
+    service: {
         description: "Launches a HTTP service and web sockets so that the web tool is automatically refreshed once code changes in the local file system.",
         example: [
             {
-                code: `${vars.version.command} server`,
+                code: `${vars.version.command} service`,
                 defined: `Launches the server on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
             },
             {
-                code: `${vars.version.command} server 8080`,
+                code: `${vars.version.command} service 8080`,
                 defined: "If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port."
             },
             {
-                code: `${vars.version.command} server 0`,
+                code: `${vars.version.command} service 0`,
                 defined: "To receive a random available port specify port number 0."
             },
             {
-                code: `${vars.version.command} server browser`,
+                code: `${vars.version.command} service browser`,
                 defined: "The 'browser' argument launches the default location in the user's default web browser."
             },
             {
-                code: `${vars.version.command} server test`,
+                code: `${vars.version.command} service test`,
                 defined: "The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data."
             },
             {
-                code: `${vars.version.command} server test browser 9000`,
+                code: `${vars.version.command} service test browser 9000`,
                 defined: "An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             }
         ]
@@ -369,6 +369,22 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test_browser demo`,
                 defined: "Same as the 'no_close' argument but also imposes a half second delay between actions so that a person can watch the interactions."
+            },
+            {
+                code: `${vars.version.command} test_browser mode:"self"`,
+                defined: "The mode parameter determines what tests to execute. The value 'self', the default value, only execute tests using the local computer.",
+            },
+            {
+                code: `${vars.version.command} test_browser mode:"agents"`,
+                defined: "The value 'agents' only executes tests requiring additional computers. This mode requires 4 other computers executing in mode 'remote'."
+            },
+            {
+                code: `${vars.version.command} test_browser mode:"remote"`,
+                defined: "The value 'remote' puts a computer into listening mode awaiting instructions from a computer executing 'agents' tests. Computers in this mode will not exit the service automatically."
+            },
+            {
+                code: `${vars.version.command} test_browser mode:"full"`,
+                defined: "The value 'full' executes all the browser tests starting with 'self' tests and directly executing the 'agents' tests as though they are a single list."
             },
             {
                 code: `${vars.version.command} test_browser "C:\\Program Files\\Mozilla Firefox\\firefox.exe" no_close`,

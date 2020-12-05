@@ -10,14 +10,14 @@ const simulation:testSimulationApplication = {
     tests: tests
 };
 
-simulation.execute = function test_simulations_execute(config:testExecute):void {
+simulation.execute = function terminal_test_application_simulations_execute(config:testExecute):void {
     const testArg:string = (vars.testLogFlag === "simulation")
             ? " application_test_log_argument"
             : "",
         index:number = (config.list.length < 1)
             ? config.index
             : config.list[config.index];
-    vars.node.child(`${vars.version.command} ${simulation.tests[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function test_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+    vars.node.child(`${vars.version.command} ${simulation.tests[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
         const test:string = (typeof simulation.tests[index].test === "string")
                 ? <string>simulation.tests[index].test
                 : JSON.stringify(simulation.tests[index].test),

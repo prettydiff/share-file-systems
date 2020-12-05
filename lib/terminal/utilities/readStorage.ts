@@ -11,14 +11,9 @@ const readStorage = function terminal_utilities_readStorage(callback:(storage:st
             return;
         }
         let length:number = fileList.length;
-        const flag:storageFlag = {},
+        const flag:flagList = {},
             storage:storageItems = {
                 device: {},
-                messages: {
-                    errors: [],
-                    status: [],
-                    users: []
-                },
                 settings: {
                     audio: false,
                     brotli: 0,
