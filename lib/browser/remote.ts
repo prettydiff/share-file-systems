@@ -271,10 +271,10 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
     do {
         node = dom[a];
         if (node[0] === "getElementById" && a > 0) {
-            fail = "getElementById";
+            fail = "Bad test. Method 'getElementById' must only occur as the first DOM method";
         }
-        if (node[0] === "childNodes" && node[2] === null) {
-            fail = "childNodes";
+        if (node[2] === null && (node[0] === "childNodes" || node[0] === "getElementsByAttribute" || node[0] === "getElementsByClassName" || node[0] === "getElementsByName" || node[0] === "getElementsByTagName" || node[0] === "getElementsByText" || node[0] === "getModalsByModalType" || node[0] === "getNodesByType")) {
+            fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: [\"${node[0]}\", "value", 1]`;
         }
         if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
             if (fail === "") {
@@ -328,16 +328,9 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
         a = a + 1;
     } while (a < nodeLength);
     dom.nodeString = str.join("");
-    if (fail === "getElementById") {
+    if (fail !== "") {
         network.testBrowser([
-            [false, "Bad test. Method 'getElementById' must only occur as the first DOM method", dom.nodeString]
-        ], remote.index, remote.action);
-        remote.domFailure = true;
-        return null;
-    }
-    if (fail === "childNodes") {
-        network.testBrowser([
-            [false, "Bad test. Property 'childNodes' requires an index value as the third data point of a DOM item: [\"childNodes\", null, 1]", dom.nodeString]
+            [false, fail, dom.nodeString]
         ], remote.index, remote.action);
         remote.domFailure = true;
         return null;

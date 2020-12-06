@@ -33,7 +33,6 @@ const browser:testBrowserApplication = {
         exitMessage: "",
         exitType: 0,
         index: -1,
-        indexRemote: -1,
         ip: "",
         methods: {
             close: function terminal_test_application_browser_close(data:testBrowserRoute):void {
@@ -146,10 +145,7 @@ const browser:testBrowserApplication = {
                     },
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            const type:string = (browser.exitType === 0)
-                                ? `${vars.text.green + vars.text.bold}0${vars.text.none}`
-                                : `${vars.text.angry}1${vars.text.none}`
-                            log(["", `Test exit type ${type}`, browser.exitMessage]);
+                            log(["", time(browser.exitMessage, true, browser.timeStart)[0]]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
                             vars.ws.broadcast(JSON.stringify({
@@ -316,14 +312,6 @@ const browser:testBrowserApplication = {
                                 log([errorMessage.toString()]);
                             },
                         });
-                        browser.indexRemote = index;
-                        setTimeout(function terminal_test_application_browser_iterate_timeout():void {
-                            if (browser.indexRemote === index + 1) {
-                                browser.exitMessage = `Timeout exceeded on text index ${index + 1} to remote ${tests[index + 1].machine}. `;
-                                browser.exitType = 1;
-                                browser.methods.exit(index + 1);
-                            }
-                        }, 10000);
                     }
                 } else {
                     vars.verbose = true;
@@ -456,28 +444,48 @@ const browser:testBrowserApplication = {
                                 }
                             };
                         vars.node.child(browserCommand, child);
+                    },
+                    start = function terminal_test_application_browser_resetRequest_readdir_start():void {
+                        let length:number = files.length,
+                            flags:number = length,
+                            timeStore:[string, number] = time("Resetting Test Environment", false, 0);
+                        log(["", "", timeStore[0]]);
+                        browser.timeStart = timeStore[1];
+                        serverVars.device = {};
+                        serverVars.user = {};
+                        if (length === 1) {
+                            browserLaunch();
+                        } else {
+                            do {
+                                length = length - 1;
+                                if (files[length] !== "storage.txt") {
+                                    remove(serverVars.storage + files[length], function terminal_test_application_browser_resetRequest_readdir_remove():void {
+                                        flags = flags - 1;
+                                        if (flags === 1) {
+                                            browserLaunch();
+                                        }
+                                    });
+                                }
+                            } while (length > 0);
+                        }
                     };
-                    let length:number = files.length,
-                        flags:number = length,
-                        timeStore:[string, number] = time("Resetting Test Environment", false, 0);
-                    log(["", "", timeStore[0]]);
-                    browser.timeStart = timeStore[1];
-                    serverVars.device = {};
-                    serverVars.user = {};
-                    if (length === 1) {
-                        browserLaunch();
+                    if (browser.args.mode === "remote") {
+                        const close:testBrowserRoute = {
+                            action: "close",
+                            exit: "",
+                            index: -1,
+                            result: [],
+                            test: null,
+                            transfer: null
+                        };
+                        vars.ws.broadcast(JSON.stringify({
+                            "test-browser": close
+                        }));
+                        setTimeout(function terminal_test_application_browser_resetRequest_readdir_delay():void {
+                            start();
+                        }, 2000);
                     } else {
-                        do {
-                            length = length - 1;
-                            if (files[length] !== "storage.txt") {
-                                remove(serverVars.storage + files[length], function terminal_test_application_browser_resetRequest_readdir_remove():void {
-                                    flags = flags - 1;
-                                    if (flags === 1) {
-                                        browserLaunch();
-                                    }
-                                });
-                            }
-                        } while (length > 0);
+                        start();
                     }
                 });
             },
@@ -736,7 +744,12 @@ const browser:testBrowserApplication = {
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        browser.methods.iterate(index + 1);
+                        const delay:number = (tests[index].machine !== "self" && tests[index].interaction[0].event === "refresh")
+                            ? 2000
+                            : 0
+                        setTimeout(function terminal_test_application_browser_result_iteration():void {
+                            browser.methods.iterate(index + 1);
+                        }, delay);
                     } else {
                         completion(true);
                     }

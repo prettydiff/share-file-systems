@@ -52,7 +52,6 @@ declare global {
         exitMessage: string;
         exitType: 0 | 1;
         index: number;
-        indexRemote: number;
         ip: string;
         methods: {
             close: (data:testBrowserRoute) => void;
