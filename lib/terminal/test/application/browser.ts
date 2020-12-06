@@ -680,7 +680,7 @@ const browser:testBrowserApplication = {
                     },
                     failureMessage = function terminal_test_application_browser_result_failureMessage():void {
                         if (result[a][2] === "error") {
-                            let error:string = result[a][1]
+                            const error:string = result[a][1]
                                 .replace("{\"file\":"   , `{\n    "${vars.text.cyan}file${vars.text.none}"   :`)
                                 .replace(",\"column\":" , `,\n    "${vars.text.cyan}column${vars.text.none}" :`)
                                 .replace(",\"line\":"   , `,\n    "${vars.text.cyan}line${vars.text.none}"   :`)
@@ -690,6 +690,13 @@ const browser:testBrowserApplication = {
                                 .replace(/@http/g, "  -  http")
                                 .replace(/\s*"\s*\}$/, "\n}");
                             failure.push(`     ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
+                        } else if (result[a][1].indexOf("Bad test. ") === 0) {
+                            const segments:string[] = result[a][1].split(": [");
+                            failure.push(`     ${segments[0].replace("Bad test.", `${vars.text.angry}Bad test.${vars.text.none}`)}.`);
+                            if (segments.length > 1) {
+                                failure.push(`     Provided: ${vars.text.angry}[${segments[1] + vars.text.none}`);
+                            }
+                            failure.push(`     ${vars.text.cyan + result[a][2] + vars.text.none}`);
                         } else if ((delay === false && result[a][2] === buildNode(tests[index].unit[a], true)) || (delay === true && result[a][2] === buildNode(tests[index].delay, true))) {
                             failure.push(`     Actual value: ${vars.text.cyan + result[a][1] + vars.text.none}`);
                         } else if ((delay === false && tests[index].unit[a].value === null) || (delay === true && tests[index].delay.value === null)) {
