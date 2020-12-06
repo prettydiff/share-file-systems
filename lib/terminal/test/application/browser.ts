@@ -105,7 +105,7 @@ const browser:testBrowserApplication = {
                 serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 serverVars.testBrowser = {
                     action: (args.mode === "remote")
-                        ? "reset-browser"
+                        ? "nothing"
                         : "reset-request",
                     exit: "",
                     index: -1,
@@ -136,7 +136,7 @@ const browser:testBrowserApplication = {
                 finished = true;
                 const close:testBrowserRoute = {
                         action: (browser.args.noClose === true)
-                            ? "reset-browser"
+                            ? "nothing"
                             : "close",
                         exit: browser.exitMessage,
                         index: index,
@@ -501,7 +501,7 @@ const browser:testBrowserApplication = {
                         test: null,
                         transfer: null
                     };
-                serverVars.testBrowser.action = "reset-browser";
+                serverVars.testBrowser.action = "nothing";
                 httpClient({
                     agentType: "device",
                     callback: function terminal_test_application_browser_respond_callback():void {
@@ -736,12 +736,7 @@ const browser:testBrowserApplication = {
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        const delay:number = (tests[index].machine !== "self" && tests[index].interaction[0].event === "refresh")
-                            ? 2000
-                            : 0;
-                        setTimeout(function terminal_test_application_browser_result_iteration():void {
-                            browser.methods.iterate(index + 1);
-                        }, delay);
+                        browser.methods.iterate(index + 1);
                     } else {
                         completion(true);
                     }
@@ -749,7 +744,9 @@ const browser:testBrowserApplication = {
             },
             route: function terminal_test_application_browser_route(data:testBrowserRoute, serverResponse:ServerResponse):void {
                 response(serverResponse, "text/plain", "Responding to browser test automation request.");
-                browser.methods[data.action](data);
+                if (data.action !== "nothing") {
+                    browser.methods[data.action](data);
+                }
                 // close
                 // * tells the test browser to close
                 // * from browser.exit on mode:agents sent to mode:remote

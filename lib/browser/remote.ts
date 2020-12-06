@@ -119,6 +119,9 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         };
     const eventLength:number = item.test.interaction.length;
+    if (item.action === "nothing") {
+        return;
+    }
     remote.action = item.action;
     if (remote.index < item.index) {
         remote.index = item.index;
