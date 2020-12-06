@@ -33,6 +33,7 @@ const browser:testBrowserApplication = {
         exitMessage: "",
         exitType: 0,
         index: -1,
+        indexRemote: -1,
         ip: "",
         methods: {
             close: function terminal_test_application_browser_close(data:testBrowserRoute):void {
@@ -134,28 +135,32 @@ const browser:testBrowserApplication = {
                 }
                 finished = true;
                 const close:testBrowserRoute = {
-                        action: "close",
+                        action: (browser.args.noClose === true)
+                            ? "reset-browser"
+                            : "close",
                         exit: browser.exitMessage,
                         index: index,
                         result: [],
                         test: null,
                         transfer: null
                     },
-                    exitTasks = function terminal_test_application_browser_exit_exitTasks():void {
-                        browser.index = -1;
-                        serverVars.secure = true;
-                        serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
-                        serverVars.testBrowser = null;
-                        browser.args.callback(browser.exitMessage, browser.exitType);
-                    },
                     closing = (browser.args.noClose === true)
-                        ? exitTasks
+                        ? function terminal_test_application_browser_exit_noClose():void {
+                            const type:string = (browser.exitType === 0)
+                                ? `${vars.text.green + vars.text.bold}0${vars.text.none}`
+                                : `${vars.text.angry}1${vars.text.none}`
+                            log(["", `Test exit type ${type}`, browser.exitMessage]);
+                        }
                         : function terminal_test_application_browser_exit_closing():void {
                             vars.ws.broadcast(JSON.stringify({
                                 "test-browser": close
                             }));
                             setTimeout(function terminal_test_application_browser_exit_closing_delay():void {
-                                exitTasks();
+                                browser.index = -1;
+                                serverVars.secure = true;
+                                serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+                                serverVars.testBrowser = null;
+                                browser.args.callback(browser.exitMessage, browser.exitType);
                             }, 1000);
                         };
                 if (browser.args.mode === "agents" || browser.args.mode === "full") {
@@ -311,6 +316,14 @@ const browser:testBrowserApplication = {
                                 log([errorMessage.toString()]);
                             },
                         });
+                        browser.indexRemote = index;
+                        setTimeout(function terminal_test_application_browser_iterate_timeout():void {
+                            if (browser.indexRemote === index + 1) {
+                                browser.exitMessage = `Timeout exceeded on text index ${index + 1} to remote ${tests[index + 1].machine}. `;
+                                browser.exitType = 1;
+                                browser.methods.exit(index + 1);
+                            }
+                        }, 10000);
                     }
                 } else {
                     vars.verbose = true;
@@ -669,11 +682,11 @@ const browser:testBrowserApplication = {
                                 .replace(/@http/g, "  -  http")
                                 .replace(/\s*"\s*\}$/, "\n}");
                             failure.push(`     ${vars.text.angry}JavaScript Error${vars.text.none}\n${error}`);
-                        } else if ((delay === false && result[a][2] === buildNode(tests[index].unit[index], true)) || (delay === true && result[a][2] === buildNode(tests[index].delay, true))) {
+                        } else if ((delay === false && result[a][2] === buildNode(tests[index].unit[a], true)) || (delay === true && result[a][2] === buildNode(tests[index].delay, true))) {
                             failure.push(`     Actual value: ${vars.text.cyan + result[a][1] + vars.text.none}`);
-                        } else if ((delay === false && tests[index].unit[index].value === null) || (delay === true && tests[index].delay.value === null)) {
+                        } else if ((delay === false && tests[index].unit[a].value === null) || (delay === true && tests[index].delay.value === null)) {
                             failure.push(`     DOM node is not null: ${vars.text.cyan + result[a][2] + vars.text.none}`);
-                        } else if ((delay === false && tests[index].unit[index].value === undefined) || (delay === true && tests[index].delay.value === undefined)) {
+                        } else if ((delay === false && tests[index].unit[a].value === undefined) || (delay === true && tests[index].delay.value === undefined)) {
                             failure.push(`     DOM node is not undefined: ${vars.text.cyan + result[a][2] + vars.text.none}`);
                         } else {
                             failure.push(`     DOM node is ${result[a][1]}: ${vars.text.cyan + result[a][2] + vars.text.none}`);
@@ -723,7 +736,12 @@ const browser:testBrowserApplication = {
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        browser.methods.iterate(index + 1);
+                        const delay:number = (tests[index].machine !== "self" && tests[index].interaction[0].event === "refresh")
+                            ? 2000
+                            : 0;
+                        setTimeout(function terminal_test_application_browser_result_iteration():void {
+                            browser.methods.iterate(index + 1);
+                        }, delay);
                     } else {
                         completion(true);
                     }

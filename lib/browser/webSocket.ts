@@ -199,7 +199,9 @@ const title:Element = document.getElementsByClassName("title")[0],
                     window.close();
                     return;
                 }
-                remote.event(data, false);
+                if (data.action !== "reset-browser") {
+                    remote.event(data, false);
+                }
             };
         if (event.data.indexOf("{\"error\":") === 0) {
             error();
