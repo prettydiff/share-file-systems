@@ -15,6 +15,8 @@ import share from "./share.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
 
+import disallowed from "../common/disallowed.js";
+
 (function browser_init():void {
 
     util.fixHeight();
@@ -23,6 +25,7 @@ import webSocket from "./webSocket.js";
 
     // Extend the browser interface
     dom();
+    disallowed(true);
 
     let storage:storageItems,
         a:number = 0,

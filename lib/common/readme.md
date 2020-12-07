@@ -4,4 +4,5 @@ These files are generic libraries that environment agnostic and will work both i
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[common.ts](common.ts)** - A collection of tools available to any environment.
+* **[common.ts](common.ts)**         - A collection of tools available to any environment.
+* **[disallowed.ts](disallowed.ts)** - Reassignments from default conventions that either dated or most frequently misused.

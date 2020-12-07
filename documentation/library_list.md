@@ -35,6 +35,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                           - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * Directory *[../lib/common](../lib/common)*
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                   - A collection of tools available to any environment.
+   - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                           - Reassignments from default conventions that either dated or most frequently misused.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
    - **[../lib/terminal/commands/agent_data.ts](../lib/terminal/commands/agent_data.ts)**                                     - Writes agent data to the shell.
    - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                                 - A connectivity tester to shared remote agents.

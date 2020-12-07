@@ -858,7 +858,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "storage device, Local device storage without HTTP response",
         qualifier: "is",
-        test: "device storage written with false response for testing."
+        test: "device storage written"
     });
     service.push(<testTemplateStorage>{
         command: {
@@ -910,7 +910,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "storage settings, Local settings storage without HTTP response",
         qualifier: "is",
-        test: "settings storage written with false response for testing."
+        test: "settings storage written"
     });
     service.push(<testTemplateStorage>{
         command: {
@@ -936,7 +936,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "storage user, Local user storage without HTTP response",
         qualifier: "is",
-        test: "user storage written with false response for testing."
+        test: "user storage written"
     });
     service.push(<testTemplateInvite>{
         command: {
@@ -1125,7 +1125,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "heartbeat-broadcast, from Browser",
         qualifier: "is",
-        test: "Heartbeat broadcast sent."
+        test: "response from heartbeat.update"
     });
     service.push(<testTemplateHeartbeatUpdate>{
         command: {
@@ -1138,7 +1138,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "heartbeat-broadcast, from Terminal",
         qualifier: "is",
-        test: "Heartbeat broadcast sent."
+        test: "response from heartbeat.update"
     });
     service.push(<testTemplateHeartbeatComplete>{
         command: {
