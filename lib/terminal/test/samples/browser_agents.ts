@@ -756,14 +756,14 @@ const browserAgents:testBrowserItem[] = [
         {
             delay: {
                 node: [
-                    ["getElementsByClassName", "device", null],
+                    ["getElementById", "device", null],
                     ["getElementsByTagName", "li", 2],
                     ["getElementsByTagName", "button", 0]
                 ],
                 qualifier: "is",
-                target: ["innerHTML"],
+                target: ["lastChild", "textContent"],
                 type: "property",
-                value: "VM1"
+                value: " VM1"
             },
             interaction: [
                 {

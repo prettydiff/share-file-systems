@@ -47,9 +47,10 @@ const browser:testBrowserApplication = {
                 vars.ws.broadcast(JSON.stringify({
                     "test-browser": close
                 }));
-                log([time(data.exit, true, browser.timeStart)[0], ""], true);
+                log([data.exit]);
             },
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
+                let a:number = serverVars.addresses.IPv4.length;
                 const agents = function terminal_test_application_browser_execute_agents():void {
                         const list:string[] = Object.keys(machines),
                             listLength:number = list.length;
@@ -93,7 +94,16 @@ const browser:testBrowserApplication = {
                     remote = function terminal_test_application_browser_execute_remoteServer():void {
                         log([`${vars.text.cyan}Environment ready. Listening for instructions...${vars.text.none}`]);
                     };
-                browser.args = args;
+
+                do {
+                    a = a - 1;
+                    if (serverVars.addresses.IPv4[a][0].indexOf("192.168.56") === 0) {
+                        serverVars.ipAddress = serverVars.addresses.IPv4[a][0];
+                        break;
+                    }
+                } while (a > 0);
+                serverVars.ipFamily = "IPv4";
+                browser.args = args;console.log(serverVars.ipAddress);
                 tests = (args.mode === "self")
                     ? test_self
                     : (args.mode === "full")
@@ -145,7 +155,7 @@ const browser:testBrowserApplication = {
                     },
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            log(["", time(browser.exitMessage, true, browser.timeStart)[0]]);
+                            log([browser.exitMessage]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
                             vars.ws.broadcast(JSON.stringify({
@@ -450,7 +460,6 @@ const browser:testBrowserApplication = {
                             flags:number = length,
                             timeStore:[string, number] = time("Resetting Test Environment", false, 0);
                         log(["", "", timeStore[0]]);
-                        browser.timeStart = timeStore[1];
                         serverVars.device = {};
                         serverVars.user = {};
                         if (length === 1) {
@@ -576,12 +585,12 @@ const browser:testBrowserApplication = {
                             const passPlural:string = (index === 1)
                                 ? ""
                                 : "s";
-                            browser.exitMessage = `${vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`;
+                            browser.exitMessage = `${humanTime(false) + vars.text.green + vars.text.bold}Passed${vars.text.none} all ${totalTests} evaluations from ${index + 1} test${passPlural}.`;
                             browser.methods.exit(index);
                             browser.exitType = 0;
                             return;
                         }
-                        browser.exitMessage = `${vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
+                        browser.exitMessage = `${humanTime(false) + vars.text.angry}Failed${vars.text.none} on test ${vars.text.angry + (index + 1) + vars.text.none}: "${vars.text.cyan + tests[index].name + vars.text.none}" out of ${tests.length} total test${plural} and ${totalTests} evaluations.`;
                         browser.methods.exit(index);
                         browser.exitType = 1;
                     },
@@ -766,6 +775,8 @@ const browser:testBrowserApplication = {
                 response(serverResponse, "text/plain", "Responding to browser test automation request.");
                 if (data.action !== "nothing") {
                     browser.methods[data.action](data);
+                } else if (data.exit !== "") {
+                    log([data.exit]);
                 }
                 // close
                 // * tells the test browser to close
@@ -803,8 +814,7 @@ const browser:testBrowserApplication = {
             }
         },
         port: 0,
-        remoteAgents: 0,
-        timeStart: 0
+        remoteAgents: 0
     },
     assign = function terminal_test_application_browser_assign(index:number):void {
         serverVars.testBrowser = {

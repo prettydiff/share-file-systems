@@ -21,7 +21,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             const testResult:[boolean, string, string] = remote.evaluate(config.delay);
             if (testResult[0] === true) {
                 if (config.unit.length > 0) {
-                    remote.test(config.unit, remote.index);
+                    remote.report(config.unit, remote.index);
                 } else {
                     network.testBrowser([testResult], remote.index, remote.action);
                 }
@@ -40,7 +40,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
     // eslint-disable-next-line
     console.log(`Executing delay on test index ${remote.index}: ${config.name}`);
     if (config.delay === undefined) {
-        remote.test(config.unit, remote.index);
+        remote.report(config.unit, remote.index);
     } else {
         setTimeout(delayFunction, delay);
     }
@@ -63,7 +63,7 @@ remote.error = function browser_remote_error(message:string, source:string, line
 // determine whether a given test item is pass or fail
 remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
     const rawValue:primitive|Element = (test.type === "element")
-            ? remote.node(test.node)
+            ? remote.node(test.node, test.target[0])
             : remote.getProperty(test),
         qualifier:qualifier = test.qualifier,
         configString:string = <string>test.value;
@@ -148,7 +148,7 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                     return;
                 }
             } else if (item.test.interaction[a].event !== "refresh-interaction") {
-                element = <HTMLElement>remote.node(config.node);
+                element = <HTMLElement>remote.node(config.node, null);
                 if (remote.domFailure === true) {
                     remote.domFailure = false;
                     return;
@@ -224,7 +224,7 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
 
 // get the value of the specified property/attribute
 remote.getProperty = function browser_remote_getProperty(test:testBrowserTest):primitive {
-    const element:Element = remote.node(test.node),
+    const element:Element = remote.node(test.node, test.target[0]),
         pLength = test.target.length - 1,
         method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
             if (name.slice(name.length - 2) === "()") {
@@ -261,7 +261,7 @@ remote.getProperty = function browser_remote_getProperty(test:testBrowserTest):p
 };
 
 // gather a DOM node using instructions from a data structure
-remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
+remote.node = function browser_remote_node(dom:testBrowserDOM, property:string):Element {
     let element:Element|Document = document,
         node:[domMethod, string, number],
         a:number = 0,
@@ -274,7 +274,9 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
             fail = "Bad test. Method 'getElementById' must only occur as the first DOM method.";
         }
         if (node[2] === null && (node[0] === "childNodes" || node[0] === "getElementsByAttribute" || node[0] === "getElementsByClassName" || node[0] === "getElementsByName" || node[0] === "getElementsByTagName" || node[0] === "getElementsByText" || node[0] === "getModalsByModalType" || node[0] === "getNodesByType")) {
-            fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: ["${node[0]}", "${node[1]}", ${node[2]}]`;
+            if (property !== "length" && a !== nodeLength - 1) {
+                fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: ["${node[0]}", "${node[1]}", ${node[2]}]`;
+            }
         }
         if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
             if (fail === "") {
@@ -338,15 +340,8 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
     return <Element>element;
 };
 
-// converts a primitive of any type into a string for presentation
-remote.stringify = function browser_remote_raw(primitive:primitive):string {
-    return (typeof primitive === "string")
-        ? `"${primitive.replace(/"/g, "\\\"")}"`
-        : String(primitive);
-};
-
 //process all cases of a test scenario for a given test item
-remote.test = function browser_remote_test(test:testBrowserTest[], index:number):void {
+remote.report = function browser_remote_report(test:testBrowserTest[], index:number):void {
     let a:number = 0;
     const result:[boolean, string, string][] = [],
         length:number = test.length;
@@ -361,6 +356,13 @@ remote.test = function browser_remote_test(test:testBrowserTest[], index:number)
         } while (a < length);
         network.testBrowser(result, index, remote.action);
     }
+};
+
+// converts a primitive of any type into a string for presentation
+remote.stringify = function browser_remote_raw(primitive:primitive):string {
+    return (typeof primitive === "string")
+        ? `"${primitive.replace(/"/g, "\\\"")}"`
+        : String(primitive);
 };
 
 

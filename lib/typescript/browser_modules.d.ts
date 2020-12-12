@@ -104,9 +104,9 @@ interface module_remote {
     keyAlt: boolean;
     keyControl: boolean;
     keyShift: boolean;
-    node?: (dom:testBrowserDOM) => Element;
+    node?: (dom:testBrowserDOM, property:string) => Element;
+    report?: (test:testBrowserTest[], index:number) => void;
     stringify?: (primitive:primitive) => string;
-    test?: (test:testBrowserTest[], index:number) => void;
 }
 interface module_settings {
     addUserColor?: (agent:string, type:agentType, settingsBody:Element) => void;
