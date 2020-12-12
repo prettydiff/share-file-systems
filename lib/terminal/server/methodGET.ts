@@ -66,14 +66,15 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                             type:string = "";
                         const pageState = function terminal_server_methodGET_readCallback_pageState(pageType:string):void {
                                 const appliedData = function terminal_server_methodGET_readCallback_pageState_appliedData(storageData:storageItems):void {
-                                        const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
+                                        const testBrowser:string = (serverVars.testBrowser !== null && serverVars.testBrowser.action !== "nothing" && request.url.indexOf("?test_browser") > 0)
                                                 ? `<!--test_browser:${JSON.stringify(serverVars.testBrowser)}-->`
                                                 : "",
                                             dataString:string = (typeof data === "string")
                                                 ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                                 : "";
-                                        if (serverVars.testBrowser !== null && (serverVars.testBrowser.action === "reset-request" || (serverVars.testBrowser.test !== null && serverVars.testBrowser.test.interaction[0].event === "refresh"))) {
+                                        if (serverVars.testBrowser !== null) {
                                             serverVars.testBrowser.action = "nothing";
+                                            serverVars.testBrowser.test = null;
                                         }
                                         serverResponse.setHeader("content-security-policy", csp);
                                         serverResponse.setHeader("connection", "keep-alive");

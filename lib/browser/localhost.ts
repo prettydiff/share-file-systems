@@ -44,9 +44,7 @@ import disallowed from "../common/disallowed.js";
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
-                    setTimeout(function browser_init_testBrowserLoad_delay():void {
-                        remote.event(browser.testBrowser, true);
-                    }, 500);
+                    remote.event(browser.testBrowser, true);
                 }
             }
         },
@@ -121,16 +119,16 @@ import disallowed from "../common/disallowed.js";
             });
         },
         loadComplete = function browser_init_complete():void {
-            const idleness = function browser_init_complete_idleness():void {
-                    const time:number = Date.now(),
-                        offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
-                    if (offline.length < 1 && time - active > idleTime && localDevice !== null) {
-                        localDevice.setAttribute("class", "idle");
-                        network.heartbeat("idle", false);
-                    }
-                    setTimeout(browser_init_complete_idleness, idleTime);
-                },
-                activate = function browser_init_complete_activate():void {
+            const activate = function browser_init_complete_activate():void {
+                    const idleness = function browser_init_complete_idleness():void {
+                        const time:number = Date.now(),
+                            offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
+                        if (offline.length < 1 && time - active > idleTime && localDevice !== null) {
+                            localDevice.setAttribute("class", "idle");
+                            network.heartbeat("idle", false);
+                        }
+                        setTimeout(browser_init_complete_idleness, idleTime);
+                    };
                     if (localDevice !== null) {
                         const status:string = localDevice.getAttribute("class");
                         if (status !== "active" && browser.socket.readyState === 1) {
@@ -144,6 +142,10 @@ import disallowed from "../common/disallowed.js";
                         }
                     }
                     active = Date.now();
+                    idleness();
+                    if (loginFlag === true) {
+                        testBrowserLoad();
+                    }
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = <Element>event.target,
@@ -212,12 +214,9 @@ import disallowed from "../common/disallowed.js";
             if (loginFlag === true) {
                 webSocket(function browser_init_applyLogin_socket():void {
                     activate();
-                    idleness();
-                    testBrowserLoad();
                 });
             } else {
                 activate();
-                idleness();
             }
         };
     do {

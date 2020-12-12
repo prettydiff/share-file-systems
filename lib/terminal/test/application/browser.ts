@@ -522,9 +522,7 @@ const browser:testBrowserApplication = {
                 httpClient({
                     agentType: "device",
                     callback: function terminal_test_application_browser_respond_callback():void {
-                        if (finished === true) {
-                            browser.methods.exit(item.index);
-                        }
+                        return;
                     },
                     errorMessage: `Failed to return test ${item.index} result from remote agent ${serverVars.nameDevice}.`,
                     ip: browser.ip,
