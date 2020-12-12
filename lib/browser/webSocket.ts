@@ -200,14 +200,7 @@ const title:Element = document.getElementsByClassName("title")[0],
                     return;
                 }
                 if (data.action !== "nothing") {
-                    const delay = function browser_socketMessage_testBrowser_delay():void {
-                        if (browser.loadTest === true) {
-                            setTimeout(browser_socketMessage_testBrowser_delay, 50);
-                        } else {
-                            remote.event(data, false);
-                        }
-                    };
-                    delay();
+                    remote.event(data, false);
                 }
             };
         if (event.data.indexOf("{\"error\":") === 0) {

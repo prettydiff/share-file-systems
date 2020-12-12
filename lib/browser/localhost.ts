@@ -43,11 +43,19 @@ import disallowed from "../common/disallowed.js";
                 window.onerror = remote.error;
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
-                } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
-                    if (browser.loadTest === true) {
-                        setTimeout(browser_init_testBrowserLoad, 50);
+                } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {console.log(loginFlag);
+                    if (loginFlag === false) {
+                        if (document.getElementById("login") !== null && document.getElementById("login").clientHeight > 400) {
+                            remote.event(browser.testBrowser, true);
+                        } else {
+                            setTimeout(browser_init_testBrowserLoad, 50);
+                        }
                     } else {
-                        remote.event(browser.testBrowser, true);
+                        if (document.getElementById("device").getElementsByTagName("li").length > 1) {
+                            remote.event(browser.testBrowser, true);
+                        } else {
+                            setTimeout(browser_init_testBrowserLoad, 50);
+                        }
                     }
                 }
             }
@@ -115,6 +123,7 @@ import disallowed from "../common/disallowed.js";
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = action;
+            browser.loadTest = false;
             webSocket(function browser_init_applyLogin_socket():void {
                 testBrowserLoad();
             });
@@ -210,9 +219,7 @@ import disallowed from "../common/disallowed.js";
                 a = a + 1;
             } while (a < buttonsLength);
 
-            setTimeout(function browser_init_complete_delay():void {
-                browser.loadTest = false;
-            }, 500);
+            browser.loadTest = false;
 
             if (loginFlag === true) {
                 webSocket(function browser_init_applyLogin_socket():void {
