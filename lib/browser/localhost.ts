@@ -44,12 +44,11 @@ import disallowed from "../common/disallowed.js";
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
-                    const delay:number = (browser.testBrowser.test !== null && browser.testBrowser.test.interaction[0].event === "refresh")
-                        ? 0
-                        : 500
-                    setTimeout(function browser_init_testBrowserLoad_delay():void {
+                    if (browser.loadTest === true) {
+                        setTimeout(browser_init_testBrowserLoad, 50);
+                    } else {
                         remote.event(browser.testBrowser, true);
-                    }, delay);
+                    }
                 }
             }
         },
@@ -211,7 +210,9 @@ import disallowed from "../common/disallowed.js";
                 a = a + 1;
             } while (a < buttonsLength);
 
-            browser.loadTest = false;
+            setTimeout(function browser_init_complete_delay():void {
+                browser.loadTest = false;
+            }, 500);
 
             if (loginFlag === true) {
                 webSocket(function browser_init_applyLogin_socket():void {

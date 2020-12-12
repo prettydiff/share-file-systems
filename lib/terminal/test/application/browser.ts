@@ -758,12 +758,7 @@ const browser:testBrowserApplication = {
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        const delay:number = (tests[index].machine !== "self" && tests[index].interaction[0].event === "refresh")
-                            ? 2000
-                            : 0
-                        setTimeout(function terminal_test_application_browser_result_iteration():void {
-                            browser.methods.iterate(index + 1);
-                        }, delay);
+                        browser.methods.iterate(index + 1);
                     } else {
                         completion(true);
                     }
