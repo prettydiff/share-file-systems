@@ -43,20 +43,10 @@ import disallowed from "../common/disallowed.js";
                 window.onerror = remote.error;
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
-                } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {console.log(loginFlag);
-                    if (loginFlag === false) {
-                        if (document.getElementById("login") !== null && document.getElementById("login").clientHeight > 400) {
-                            remote.event(browser.testBrowser, true);
-                        } else {
-                            setTimeout(browser_init_testBrowserLoad, 50);
-                        }
-                    } else {
-                        if (document.getElementById("device").getElementsByTagName("li").length > 1) {
-                            remote.event(browser.testBrowser, true);
-                        } else {
-                            setTimeout(browser_init_testBrowserLoad, 50);
-                        }
-                    }
+                } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
+                    setTimeout(function browser_init_testBrowserLoad_delay():void {
+                        remote.event(browser.testBrowser, true);
+                    }, 500);
                 }
             }
         },
@@ -117,13 +107,15 @@ import disallowed from "../common/disallowed.js";
                     if (event.key === "Enter") {
                         action();
                     }
+                },
+                handlerMouse = function browser_init_applyLogin_handleMouse():void {
+                    action();
                 };
             defaultModals();
             browser.pageBody.setAttribute("class", "login");
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
-            button.onclick = action;
-            browser.loadTest = false;
+            button.onclick = handlerMouse;
             webSocket(function browser_init_applyLogin_socket():void {
                 testBrowserLoad();
             });
@@ -139,6 +131,7 @@ import disallowed from "../common/disallowed.js";
                         }
                         setTimeout(browser_init_complete_idleness, idleTime);
                     };
+                    idleness();
                     if (localDevice !== null) {
                         const status:string = localDevice.getAttribute("class");
                         if (status !== "active" && browser.socket.readyState === 1) {
@@ -152,7 +145,6 @@ import disallowed from "../common/disallowed.js";
                         }
                     }
                     active = Date.now();
-                    idleness();
                     if (loginFlag === true) {
                         testBrowserLoad();
                     }

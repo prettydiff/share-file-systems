@@ -66,7 +66,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                             type:string = "";
                         const pageState = function terminal_server_methodGET_readCallback_pageState(pageType:string):void {
                                 const appliedData = function terminal_server_methodGET_readCallback_pageState_appliedData(storageData:storageItems):void {
-                                        const testBrowser:string = (serverVars.testBrowser !== null && serverVars.testBrowser.action !== "nothing" && request.url.indexOf("?test_browser") > 0)
+                                        const testBrowser:string = (serverVars.testBrowser !== null && request.url.indexOf("?test_browser") > 0)
                                                 ? `<!--test_browser:${JSON.stringify(serverVars.testBrowser)}-->`
                                                 : "",
                                             dataString:string = (typeof data === "string")

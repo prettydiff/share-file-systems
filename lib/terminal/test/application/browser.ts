@@ -103,7 +103,7 @@ const browser:testBrowserApplication = {
                     }
                 } while (a > 0);
                 serverVars.ipFamily = "IPv4";
-                browser.args = args;console.log(serverVars.ipAddress);
+                browser.args = args;
                 tests = (args.mode === "self")
                     ? test_self
                     : (args.mode === "full")
@@ -758,7 +758,11 @@ const browser:testBrowserApplication = {
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        browser.methods.iterate(index + 1);
+                        setTimeout(function terminal_test_application_browser_result_iteration():void {
+                            browser.methods.iterate(index + 1);
+                        }, (tests[index].machine !== "self" && tests[index].interaction[0].event === "refresh")
+                            ? 2000
+                            : 0);
                     } else {
                         completion(true);
                     }
