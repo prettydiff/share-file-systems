@@ -45,7 +45,7 @@ import disallowed from "../common/disallowed.js";
                     network.testBrowser(null, -1, "reset-browser");
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
                     const delay:number = (browser.testBrowser.test !== null && browser.testBrowser.test.interaction[0].event === "refresh")
-                        ? 2000
+                        ? 0
                         : 500
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
