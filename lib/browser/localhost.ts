@@ -44,7 +44,12 @@ import disallowed from "../common/disallowed.js";
                 if (browser.testBrowser.action === "reset-request") {
                     network.testBrowser(null, -1, "reset-browser");
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
-                    remote.event(browser.testBrowser, true);
+                    const delay:number = (browser.testBrowser.test !== null && browser.testBrowser.test.interaction[0].event === "refresh")
+                        ? 2000
+                        : 500
+                    setTimeout(function browser_init_testBrowserLoad_delay():void {
+                        remote.event(browser.testBrowser, true);
+                    }, delay);
                 }
             }
         },
@@ -105,15 +110,12 @@ import disallowed from "../common/disallowed.js";
                     if (event.key === "Enter") {
                         action();
                     }
-                },
-                handlerMouse = function browser_init_applyLogin_handleMouse():void {
-                    action();
                 };
             defaultModals();
             browser.pageBody.setAttribute("class", "login");
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
-            button.onclick = handlerMouse;
+            button.onclick = action;
             webSocket(function browser_init_applyLogin_socket():void {
                 testBrowserLoad();
             });
