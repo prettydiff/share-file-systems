@@ -134,10 +134,10 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                         remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
                         return;
                     }
-                } else if (item.test.interaction[index].event === "wait") {
-                    delay = (isNaN(Number(item.test.interaction[index].value)) === true)
+                } else if (config.event === "wait") {
+                    delay = (isNaN(Number(config.value)) === true)
                         ? 0
-                        : Number(item.test.interaction[index].value);
+                        : Number(config.value);
                     index = index + 1;
                     setTimeout(function browser_remote_event_action_delayNext ():void {
                         if (index < eventLength) {
@@ -146,8 +146,8 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                             complete(refresh);
                         }
                     }, delay);
-                    break;
-                } else if (item.test.interaction[index].event !== "refresh-interaction") {
+                    return;
+                } else if (config.event !== "refresh-interaction") {
                     element = <HTMLElement>remote.node(config.node, null);
                     if (remote.domFailure === true) {
                         remote.domFailure = false;

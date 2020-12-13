@@ -148,6 +148,32 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ]
         },
 
+        // test for idle state
+        {
+            interaction: [
+                {
+                    event: "wait",
+                    node: [],
+                    value: "15000"
+                }
+            ],
+            machine: "self",
+            name: "Wait for idle state",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "idle"
+                }
+            ]
+        },
+
         // access the primary menu
         mainMenu("self"),
 

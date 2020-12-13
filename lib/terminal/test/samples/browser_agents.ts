@@ -804,7 +804,8 @@ const browserAgents:testBrowserItem[] = [
                 {
                     node: [
                         ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -814,7 +815,8 @@ const browserAgents:testBrowserItem[] = [
                 {
                     node: [
                         ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -839,7 +841,8 @@ const browserAgents:testBrowserItem[] = [
                 {
                     node: [
                         ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -849,7 +852,8 @@ const browserAgents:testBrowserItem[] = [
                 {
                     node: [
                         ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
