@@ -787,6 +787,76 @@ const browserAgents:testBrowserItem[] = [
                     value: undefined
                 }
             ]
+        },
+
+        // test for idle state on VM1
+        {
+            interaction: [
+                {
+                    event: "wait",
+                    node: [],
+                    value: "15000"
+                }
+            ],
+            machine: "VM1",
+            name: "Test for idle state on VM1",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "idle"
+                },
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "idle"
+                }
+            ]
+        },
+
+        // test for idle state on VM2
+        {
+            interaction: [
+                {
+                    event: "wait",
+                    node: [],
+                    value: "0"
+                }
+            ],
+            machine: "VM2",
+            name: "Test for idle state on VM2",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "idle"
+                },
+                {
+                    node: [
+                        ["getElementById", "device", null],
+                        ["getElementsByTagName", "li", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "idle"
+                }
+            ]
         }
     ];
 
