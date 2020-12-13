@@ -57,27 +57,29 @@ const browser:testBrowserApplication = {
                         let index:number = 0;
                         log(["Preparing remote machines"]);
                         do {
-                            httpClient({
-                                agentType: "device",
-                                callback: function terminal_test_application_browser_execute_agents_callback():void {
-                                    return;
-                                },
-                                errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
-                                ip: machines[list[index]].ip,
-                                payload: JSON.stringify({
-                                    "test-browser": serverVars.testBrowser
-                                }),
-                                port: machines[list[index]].port,
-                                remoteName: browser.agent,
-                                requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:nodeError):void {
-                                    log([errorMessage.toString()]);
-                                },
-                                requestType: "testBrowser-reset",
-                                responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:nodeError):void {
-                                    log([errorMessage.toString()]);
-                                },
-                                responseStream: httpClient.stream
-                            });
+                            if (list[index] !== "self") {
+                                httpClient({
+                                    agentType: "device",
+                                    callback: function terminal_test_application_browser_execute_agents_callback():void {
+                                        return;
+                                    },
+                                    errorMessage: `Failed to send reset instructions to remote machine ${list[index]}.`,
+                                    ip: machines[list[index]].ip,
+                                    payload: JSON.stringify({
+                                        "test-browser": serverVars.testBrowser
+                                    }),
+                                    port: machines[list[index]].port,
+                                    remoteName: browser.agent,
+                                    requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:nodeError):void {
+                                        log([errorMessage.toString()]);
+                                    },
+                                    requestType: "testBrowser-reset",
+                                    responseError: function terminal_test_application_browser_execute_agents_responseError(errorMessage:nodeError):void {
+                                        log([errorMessage.toString()]);
+                                    },
+                                    responseStream: httpClient.stream
+                                });
+                            }
                             index = index + 1;
                         } while (index < listLength);
                     },
@@ -173,30 +175,32 @@ const browser:testBrowserApplication = {
                     let count:number = 0;
                     const agents:string[] = Object.keys(machines);
                     agents.forEach(function terminal_test_application_browser_exit_agents(name:string):void {
-                        httpClient({
-                            agentType: "device",
-                            callback: function terminal_test_application_browser_exit_callback():void {
-                                count = count + 1;
-                                if (count === agents.length) {
-                                    closing();
+                        if (name !== "self") {
+                            httpClient({
+                                agentType: "device",
+                                callback: function terminal_test_application_browser_exit_callback():void {
+                                    count = count + 1;
+                                    if (count === agents.length) {
+                                        closing();
+                                    }
+                                },
+                                errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
+                                ip: machines[name].ip,
+                                port: machines[name].port,
+                                payload: JSON.stringify({
+                                    "test-browser": close
+                                }),
+                                remoteName: browser.agent,
+                                requestError:  function terminal_test_application_browser_exit_requestError():void {
+                                    return;
+                                },
+                                requestType: "testBrowser-close",
+                                responseStream: httpClient.stream,
+                                responseError: function terminal_test_application_browser_exit_responseError():void {
+                                    return;
                                 }
-                            },
-                            errorMessage: `Failed to return test ${index} result from remote agent ${serverVars.nameDevice}.`,
-                            ip: machines[name].ip,
-                            port: machines[name].port,
-                            payload: JSON.stringify({
-                                "test-browser": close
-                            }),
-                            remoteName: browser.agent,
-                            requestError:  function terminal_test_application_browser_exit_requestError():void {
-                                return;
-                            },
-                            requestType: "testBrowser-close",
-                            responseStream: httpClient.stream,
-                            responseError: function terminal_test_application_browser_exit_responseError():void {
-                                return;
-                            }
-                        });
+                            });
+                        }
                     });
                 } else {
                     closing();
@@ -384,7 +388,7 @@ const browser:testBrowserApplication = {
             },
             ["reset-complete"]: function terminal_test_application_browser_resetComplete():void {
                 const list:string[] = Object.keys(machines),
-                    listLength:number = list.length,
+                    listLength:number = list.length - 1,
                     boldGreen:string = vars.text.green + vars.text.bold,
                     color:string = (browser.remoteAgents === listLength - 1)
                         ? boldGreen

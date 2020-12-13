@@ -310,7 +310,7 @@ remote.node = function browser_remote_node(dom:testBrowserDOM, property:string):
             str.push(".childNodes[");
             str.push(String(node[2]));
             str.push("]");
-        } else if (node[2] === null) {
+        } else if (node[2] === null || node[0] === "getElementById") {
             if (fail === "") {
                 element = element[node[0]](node[1]);
             }

@@ -1,6 +1,11 @@
 /* lib/terminal/test/samples/browser_machines - An object expressing a map of the various remote machines. */
 
 const machines:testBrowserMachines = {
+    self: {
+        ip: "192.168.56.1",
+        port: 80,
+        secure: false
+    },
     VM1: {
         ip: "192.168.56.125",
         port: 80,
