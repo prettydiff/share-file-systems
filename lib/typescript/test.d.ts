@@ -55,6 +55,7 @@ declare global {
         ip: string;
         methods: {
             close: (data:testBrowserRoute) => void;
+            delay: (config:testBrowserDelay) => void;
             execute: (args:testBrowserArgs) => void;
             exit: (index:number) => void;
             iterate: (index:number) => void;
@@ -74,6 +75,12 @@ declare global {
         demo: boolean;
         mode: testBrowserMode;
         noClose: boolean;
+    }
+    interface testBrowserDelay {
+        action: () => void;
+        browser: boolean;
+        delay: number;
+        message: string;
     }
     interface testBrowserDOM extends Array<browserDOM> {
         nodeString?: string;

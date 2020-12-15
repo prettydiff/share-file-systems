@@ -209,7 +209,7 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                             element.dispatchEvent(event);
                         } else {
                             event = document.createEvent("Event");
-                            event.initEvent(config.event, false, true);
+                            event.initEvent(config.event, true, true);
                             element.dispatchEvent(event);
                         }
                     }

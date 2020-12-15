@@ -154,7 +154,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 {
                     event: "wait",
                     node: [],
-                    value: "15000"
+                    value: "20000"
                 }
             ],
             machine: "self",
