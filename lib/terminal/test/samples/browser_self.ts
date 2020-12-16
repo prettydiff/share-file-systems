@@ -1,15 +1,12 @@
 
 /* lib/terminal/test/samples/browser_self - A list of tests that execute in the web browser only on this computer. */
 
-import vars from "../../utilities/vars.js";
-
+import browserPath from "../application/browser_path.js";
 import showContextMenu from "../application/browser_showContextMenu.js"
 import mainMenu from "../application/browser_mainMenu.js";
 import projectDirectory from "../application/browser_projectDirectory.js";
 
-const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
-    windowsSep:string = vars.sep.replace(/\\/g, "\\\\"),
-    browserSelf:testBrowserItem[] = [
+const browserSelf:testBrowserItem[] = [
         {
             interaction: [
                 {
@@ -1472,7 +1469,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByTagName", "input", 0]
                     ],
-                    value: `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser`
+                    value: browserPath("lib/terminal/test/storageBrowser", true)
                 },
                 {
                     event: "blur",
@@ -1743,7 +1740,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: `${vars.sep}_newDirectory-1`
+                value: browserPath("/_newDirectory-1", false)
             },
             interaction: [
                 {
@@ -1852,7 +1849,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: `${vars.sep}_newDirectory-2`
+                value: browserPath("/_newDirectory-2", false)
             },
             interaction: [
                 {
@@ -2120,7 +2117,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: `${vars.sep}_newFile-1`
+                value: browserPath("/_newFile-1", false)
             },
             interaction: [
                 {
@@ -2229,7 +2226,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                 qualifier: "contains",
                 target: ["innerHTML"],
                 type: "property",
-                value: `${vars.sep}_newFile-2`
+                value: browserPath("/_newFile-2", false)
             },
             interaction: [
                 {
@@ -2544,7 +2541,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "textarea", 0]
                     ],
-                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"string-replace-hash-hashDevice":["fff","eee"]},"user":{}},"hashDevice":"string-replace-hash-hashDevice","hashType":"sha3-512","hashUser":"string-replace-hash-hashUser","modals":{"settings-modal":{"agent":"","agentType":"device","content":{},"read_only":false,"single":true,"status":"hidden","title":"<span class=\\"icon-settings\\">⚙</span> Settings","type":"settings","inputs":["close"],"zIndex":1,"id":"settings-modal","left":200,"top":200,"height":400,"width":565},"fileNavigate-0.399721304278451331":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${windowsPath}.git","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":16,"id":"fileNavigate-0.399721304278451331","left":893,"top":524,"height":400,"status":"normal","history":["${windowsSep}","${windowsPath}","${windowsPath}.git"],"search":["",""]},"shares-0.566106401484579841":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"text_value":"🖳 Shares for device - Primary Device","title":"🖳 Shares for device - Primary Device","type":"shares","width":800,"zIndex":14,"id":"shares-0.566106401484579841","left":860,"top":65,"height":400,"status":"normal"},"fileNavigate-0.505560485994826251":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${windowsPath}lib${windowsSep}terminal${windowsSep}test${windowsSep}storageBrowser","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":10,"id":"fileNavigate-0.505560485994826251","left":67,"top":36,"height":400,"status":"normal","history":["${windowsSep}","${windowsPath}lib${windowsSep}terminal${windowsSep}test${windowsSep}storageBrowser"],"search":["",""]},"textPad-0.881811492258500361":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"title":"<span class=\\"icon-textPad\\">⍑</span> Text Pad","type":"textPad","width":800,"zIndex":12,"id":"textPad-0.881811492258500361","left":67,"top":568,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":16}`
+                    value: `{"audio":true,"brotli":7,"color":"default","colors":{"device":{"string-replace-hash-hashDevice":["fff","eee"]},"user":{}},"hashDevice":"string-replace-hash-hashDevice","hashType":"sha3-512","hashUser":"string-replace-hash-hashUser","modals":{"settings-modal":{"agent":"","agentType":"device","content":{},"read_only":false,"single":true,"status":"hidden","title":"<span class=\\"icon-settings\\">⚙</span> Settings","type":"settings","inputs":["close"],"zIndex":1,"id":"settings-modal","left":200,"top":200,"height":400,"width":565},"fileNavigate-0.399721304278451331":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${browserPath(".git", true)}","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":16,"id":"fileNavigate-0.399721304278451331","left":893,"top":524,"height":400,"status":"normal","history":["${browserPath("/", false)}","${browserPath("", true)}","${browserPath(".git", true)}"],"search":["",""]},"shares-0.566106401484579841":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"text_value":"🖳 Shares for device - Primary Device","title":"🖳 Shares for device - Primary Device","type":"shares","width":800,"zIndex":14,"id":"shares-0.566106401484579841","left":860,"top":65,"height":400,"status":"normal"},"fileNavigate-0.505560485994826251":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize","text"],"read_only":false,"selection":{},"share":"","status_bar":true,"text_placeholder":"Optionally type a file system address here.","text_value":"${browserPath("lib/terminal/test/storageBrowser", true)}","title":"<span class=\\"icon-fileNavigator\\">⌹</span> File Navigator - Device, Primary Device","type":"fileNavigate","width":800,"zIndex":10,"id":"fileNavigate-0.505560485994826251","left":67,"top":36,"height":400,"status":"normal","history":["${browserPath("/", false)}","${browserPath("lib/terminal/test/storageBrowser", true)}"],"search":["",""]},"textPad-0.881811492258500361":{"agent":"string-replace-hash-hashDevice","agentType":"device","content":{},"inputs":["close","maximize","minimize"],"read_only":false,"title":"<span class=\\"icon-textPad\\">⍑</span> Text Pad","type":"textPad","width":800,"zIndex":12,"id":"textPad-0.881811492258500361","left":67,"top":568,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":16}`
                 },
                 {
                     event: "click",
@@ -2615,7 +2612,7 @@ const windowsPath:string = vars.projectPath.replace(/\\/g, "\\\\"),
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByText", `${vars.projectPath}js`, 0],
+            ["getElementsByText", browserPath("js", true), 0],
             ["parentNode", null, null]
         ], [
             {
