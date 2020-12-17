@@ -59,7 +59,6 @@ declare global {
             execute: (args:testBrowserArgs) => void;
             exit: (index:number) => void;
             iterate: (index:number) => void;
-            projectPath: (testItem:testBrowserItem) => testBrowserItem;
             request: (item:testBrowserRoute) => void;
             ["reset-browser"]: (data:testBrowserRoute) => void;
             ["reset-complete"]: () => void;

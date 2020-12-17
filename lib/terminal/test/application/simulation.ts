@@ -1,9 +1,10 @@
 
 /* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
-import testEvaluation from "../application/evaluation.js";
+import filePathDecode from "./file_path_decode.js";
+import testEvaluation from "./evaluation.js";
 import vars from "../../utilities/vars.js";
-
+ 
 import tests from "../samples/simulation.js";
 
 const simulation:testSimulationApplication = {
@@ -16,15 +17,23 @@ simulation.execute = function terminal_test_application_simulations_execute(conf
             : "",
         index:number = (config.list.length < 1)
             ? config.index
-            : config.list[config.index];
-    vars.node.child(`${vars.version.command} ${simulation.tests[index].command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
+            : config.list[config.index],
+        command:string = <string>filePathDecode(null, simulation.tests[index].command);
+    simulation.tests[index].command = command;
+    if (typeof simulation.tests[index].artifact === "string") {
+        simulation.tests[index].artifact = <string>filePathDecode(null, simulation.tests[index].artifact);
+    }
+    if (typeof simulation.tests[index].file === "string") {
+        simulation.tests[index].file = <string>filePathDecode(null, simulation.tests[index].file);
+    }
+    vars.node.child(`${vars.version.command} ${command + testArg}`, {cwd: vars.cwd, maxBuffer: 2048 * 500}, function terminal_test_application_simulations_execution_child(errs:nodeError, stdout:string, stdError:string|Buffer) {
         const test:string = (typeof simulation.tests[index].test === "string")
                 ? <string>simulation.tests[index].test
                 : JSON.stringify(simulation.tests[index].test),
             error:string = (errs === null)
                 ? ""
                 : errs.toString();
-        simulation.tests[index].test = test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name);
+        simulation.tests[index].test = <string>filePathDecode(null, test.replace("version[command]", vars.version.command).replace("version[name]", vars.version.name));
         testEvaluation({
             callback: config.complete,
             fail: config.fail,

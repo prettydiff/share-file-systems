@@ -14,10 +14,10 @@ import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
 import time from "../../utilities/time.js";
 
+import filePathDecode from "./file_path_decode.js";
 import machines from "./browser_machines.js";
 import test_agents from "../samples/browser_agents.js";
 import test_self from "../samples/browser_self.js";
-import test from "../../commands/test.js";
 
 let finished:boolean = false,
     tests:testBrowserItem[];
@@ -59,7 +59,7 @@ const browser:testBrowserApplication = {
                         ? ""
                         : "s";
                 if (config.delay > 0 && config.message !== "demo") {
-                    console.log(`${humanTime(false)}Delaying for ${vars.text.cyan + seconds + vars.text.none} second${plural}: ${vars.text.cyan + config.message + vars.text.none}`);
+                    log([`${humanTime(false)}Delaying for ${vars.text.cyan + seconds + vars.text.none} second${plural}: ${vars.text.cyan + config.message + vars.text.none}`]);
                 }
                 setTimeout(function terminal_test_application_browser_delay_action():void {
                     config.action();
@@ -290,7 +290,7 @@ const browser:testBrowserApplication = {
                 // * because serverVars.testBrowser is not updated to methodGET library fast enough
                 if (validate() === true) {
                     if (tests[index].machine === "self") {
-                        tests[index] = browser.methods.projectPath(tests[index]);
+                        tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
                         assign(index);
                         browser.methods.delay({
                             action: function terminal_test_application_browser_iterate_demoDelay():void {
@@ -379,79 +379,8 @@ const browser:testBrowserApplication = {
                     }
                 }
             },
-            projectPath: function terminal_test_application_browser_projectPath(testItem:testBrowserItem):testBrowserItem {
-                const path = function terminal_test_application_browser_projectPath_path(input:string):string {
-                    let index:number = input.indexOf("<PATH>");
-                    const sep:string = (vars.sep === "/")
-                            ? "/"
-                            : ((input.charAt(0) === "{" && input.charAt(input.length - 1) === "}") || (input.charAt(0) === "[" && input.charAt(input.length - 1) === "]"))
-                                ? "\\\\"
-                                : "\\",
-                        alter = function terminal_test_application_browser_projectPath_path_adjust():void {
-                            const endIndex:number = input.indexOf("</PATH>"),
-                                start:string = (index > 0)
-                                    ? input.slice(0, index)
-                                    : "",
-                                middle:string = input.slice(index + 6, endIndex).replace(/\*\*projectPath\*\*/g, vars.projectPath).replace(/\/|\\/g, sep),
-                                end:string = input.slice(endIndex + 7);
-                            input = start + middle + end;
-                        };
-                    if (index < 0) {
-                        return input;
-                    }
-                    do {
-                        alter();
-                        index = input.indexOf("<PATH>");
-                    } while(index > -1);
-                    return input;
-                };
-                let a:number = testItem.interaction.length,
-                    b:number = 0;
-                do {
-                    a = a - 1;
-                    if (typeof testItem.interaction[a].value === "string") {
-                        testItem.interaction[a].value = path(testItem.interaction[a].value);
-                    }
-                    if (testItem.interaction[a].node !== null && testItem.interaction[a].node.length > 0) {
-                        b = testItem.interaction[a].node.length;
-                        do {
-                            b = b - 1;
-                            if (typeof testItem.interaction[a].node[b][1] === "string") {
-                                testItem.interaction[a].node[b][1] = path(testItem.interaction[a].node[b][1]);
-                            }
-                        } while (b > 0);
-                    }
-                } while (a > 0);
-                a = testItem.unit.length;
-                if (a > 0) {
-                    do {
-                        a = a - 1;
-                        if (typeof testItem.unit[a].value === "string") {
-                            testItem.unit[a].value = path(<string>testItem.unit[a].value);
-                        }
-                        b = testItem.unit[a].node.length;
-                        do {
-                            b = b - 1;
-                            if (typeof testItem.unit[a].node[b][1] === "string") {
-                                testItem.unit[a].node[b][1] = path(testItem.unit[a].node[b][1]);
-                            }
-                        } while (b > 0);
-                    } while (a > 0);
-                }
-                if (testItem.delay !== undefined && typeof testItem.delay.value === "string") {
-                    testItem.delay.value = path(testItem.delay.value);
-                    b = testItem.delay.node.length;
-                    do {
-                        b = b - 1;
-                        if (typeof testItem.delay.node[b][1] === "string") {
-                            testItem.delay.node[b][1] = path(testItem.delay.node[b][1]);
-                        }
-                    } while (b > 0);
-                }
-                return testItem;
-            },
             request: function terminal_test_application_browser_request(item:testBrowserRoute):void {
-                item.test = browser.methods.projectPath(item.test);
+                item.test = <testBrowserItem>filePathDecode(item.test, "");
                 const route:testBrowserRoute = {
                     action: "respond",
                     exit: "",
