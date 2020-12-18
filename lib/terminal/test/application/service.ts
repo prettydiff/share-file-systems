@@ -11,8 +11,9 @@ import server from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import vars from "../../utilities/vars.js";
 
-import testComplete from "../application/complete.js";
-import testEvaluation from "../application/evaluation.js";
+import filePathDecode from "./file_path_decode.js";
+import testComplete from "./complete.js";
+import testEvaluation from "./evaluation.js";
 import tests from "../samples/service.js";
 
 // tests structure
@@ -128,6 +129,15 @@ service.execute = function terminal_test_application_services_execute(config:tes
         testItem:testServiceInstance = service.tests[index],
         keyword:string = (function terminal_test_application_services_execute_keyword():string {
             const words:string[] = Object.keys(testItem.command);
+            if (words[0] === "fs") {
+                let a:number = testItem.command.fs.location.length;
+                if (a > 0) {
+                    do {
+                        a = a - 1;
+                        testItem.command.fs.location[a] = filePathDecode(null, testItem.command.fs.location[a]);
+                    } while (a > 0);
+                }
+            }
             return words[0];
         }()),
         agent:string = testItem.command[keyword].agent,
@@ -144,7 +154,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                     testItem.command.invite.port = serverVars.device[serverVars.hashDevice].port;
                 }
             }
-            return JSON.stringify(testItem.command);
+            return <string>filePathDecode(null, JSON.stringify(testItem.command));
         }()),
         name:string = (testItem.name === undefined)
             ? command
@@ -179,6 +189,27 @@ service.execute = function terminal_test_application_services_execute(config:tes
             timeout: 1000
         },
         evaluator = function terminal_test_application_service_execute_evaluator(message:string):void {
+            const test:object|string = service.tests[index].test;
+            if (typeof test === "string") {
+                service.tests[index].test = filePathDecode(null, <string>test);
+            } else if (Array.isArray(test) === true && typeof test[0].path === "string") {
+                const arr:stringData[] = <Array<stringData>>test;
+                let a:number = arr.length;
+                if (a > 0) {
+                    do {
+                        a = a - 1;
+                        test[a].path = filePathDecode(null, test[a].path);
+                    } while (a > 0);
+                }
+            } else if (test["dirs"] !== undefined) {
+                let a:number = test["dirs"].length;
+                if (a > 0) {
+                    do {
+                        a = a -1;
+                        test["dirs"][a][0] = filePathDecode(null, test["dirs"][a][0]);
+                    } while (a > 0);
+                }
+            }
             testEvaluation({
                 callback: config.complete,
                 fail: config.fail,
@@ -205,6 +236,13 @@ service.execute = function terminal_test_application_services_execute(config:tes
             });
         },
         httpRequest:ClientRequest = request(payload, requestCallback);
+    service.tests[index].command = command;
+    if (typeof service.tests[index].artifact === "string") {
+        service.tests[index].artifact = <string>filePathDecode(null, service.tests[index].artifact);
+    }
+    if (typeof service.tests[index].file === "string") {
+        service.tests[index].file = <string>filePathDecode(null, service.tests[index].file);
+    }
     httpRequest.on("error", function terminal_test_application_service_execute_error(reqError:nodeError):void {
         evaluator(`fail - Failed to execute on service test: ${name}: ${reqError.toString()}`);
     });
