@@ -294,10 +294,10 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 listen = function terminal_commands_service_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
                         wsServer:httpServer = (serverVars.secure === true)
-                            ? vars.node.https.createServer(function terminal_commands_service_start_listen_wsListenerSecure():void {
+                            ? vars.node.https.createServer(https.certificate, function terminal_commands_service_start_listen_wsListenerSecure():void {
                                 return;
                             })
-                            : vars.node.http.createServer(https.certificate, function terminal_commands_service_start_listen_wsListener():void {
+                            : vars.node.http.createServer(function terminal_commands_service_start_listen_wsListener():void {
                                 return;
                             });
                     serverVars.webPort = serverAddress.port;

@@ -537,7 +537,107 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
         idle("VM3", 0),
 
         // test for idle state on VM4
-        idle("VM4", 0)
+        idle("VM4", 0),
+
+        //open shares on self
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "shares", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementsByClassName", "all-shares", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Open shares modal on self of all shares",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 0],
+                        ["getElementsByTagName", "li", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 3
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 1],
+                        ["getElementsByTagName", "li", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 1
+                }
+            ]
+        },
+
+        //open shares on user VM3
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "shares", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementsByClassName", "all-shares", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "VM3",
+            name: "Open shares modal on self of all shares",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 0],
+                        ["getElementsByTagName", "li", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 2
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "ul", 1],
+                        ["getElementsByTagName", "li", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 1
+                }
+            ]
+        }
     ];
 
 export default browserAgents;

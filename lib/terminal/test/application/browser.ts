@@ -257,8 +257,11 @@ const browser:testBrowserApplication = {
                                 }
                             }
                         } while (a > 0);
-                        return value;
+                        return count;
                     }()),
+                    waitText = function terminal_test_application_browser_iterate_waitText(machine:string):string {
+                        return `Pausing for 'wait' event in browser on machine ${machine}.`
+                    },
             
                     // determine if non-interactive events have required matching data properties
                     validate = function terminal_test_application_browser_iterate_validate():boolean {
@@ -284,7 +287,7 @@ const browser:testBrowserApplication = {
                         }
                         return false;
                     },
-                    demo:boolean = (browser.args.demo === true && wait < 500);
+                    demo:boolean = (browser.args.demo === true && wait < 501);
                 // delay is necessary to prevent a race condition
                 // * about 1 in 10 times this will fail following event "refresh"
                 // * because serverVars.testBrowser is not updated to methodGET library fast enough
@@ -325,50 +328,57 @@ const browser:testBrowserApplication = {
                                     }
                                 }
                             },
-                            browser: (demo === false),
+                            browser: (demo === false && wait > 0),
                             delay: (demo === true)
                                 ? 500
                                 : wait,
                             message: (demo === true)
                                 ? "demo"
-                                : "Pausing for 'wait' event in browser."
+                                : waitText("self")
                         });
                     } else {
-                        const payload:testBrowserTransfer = {
-                                agent: serverVars.hashUser,
-                                ip: serverVars.ipAddress,
-                                port: serverVars.webPort
+                        browser.methods.delay({
+                            action: function terminal_test_application_browser_iterate_agentDelay():void {
+                                const payload:testBrowserTransfer = {
+                                        agent: serverVars.hashUser,
+                                        ip: serverVars.ipAddress,
+                                        port: serverVars.webPort
+                                    },
+                                    route:testBrowserRoute = {
+                                        action: "request",
+                                        exit: "",
+                                        index: index,
+                                        result: [],
+                                        test: tests[index],
+                                        transfer: payload
+                                    };
+                                httpClient({
+                                    agentType: "device",
+                                    callback: function terminal_test_application_browser_iterate_httpClient():void {
+                                        if (finished === true) {
+                                            browser.methods.exit(index);
+                                        }
+                                    },
+                                    errorMessage: `Browser test ${index} received a transmission error sending the test.`,
+                                    ip: machines[tests[index].machine].ip,
+                                    payload: JSON.stringify({
+                                        "test-browser": route
+                                    }),
+                                    port: machines[tests[index].machine].port,
+                                    requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:nodeError):void {
+                                        log([errorMessage.toString()]);
+                                    },
+                                    requestType: "testBrowser-request",
+                                    remoteName: "test-browser-request",
+                                    responseStream: httpClient.stream,
+                                    responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
+                                        log([errorMessage.toString()]);
+                                    },
+                                });
                             },
-                            route:testBrowserRoute = {
-                                action: "request",
-                                exit: "",
-                                index: index,
-                                result: [],
-                                test: tests[index],
-                                transfer: payload
-                            };
-                        httpClient({
-                            agentType: "device",
-                            callback: function terminal_test_application_browser_iterate_httpClient():void {
-                                if (finished === true) {
-                                    browser.methods.exit(index);
-                                }
-                            },
-                            errorMessage: `Browser test ${index} received a transmission error sending the test.`,
-                            ip: machines[tests[index].machine].ip,
-                            payload: JSON.stringify({
-                                "test-browser": route
-                            }),
-                            port: machines[tests[index].machine].port,
-                            requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:nodeError):void {
-                                log([errorMessage.toString()]);
-                            },
-                            requestType: "testBrowser-request",
-                            remoteName: "test-browser-request",
-                            responseStream: httpClient.stream,
-                            responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
-                                log([errorMessage.toString()]);
-                            },
+                            browser: (wait > 0),
+                            delay: wait,
+                            message: waitText(tests[index].machine)
                         });
                     }
                 } else {
