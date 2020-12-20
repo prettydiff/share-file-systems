@@ -56,7 +56,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                             algorithm: "sha3-512",
                             callback: callbackUser,
                             directInput: true,
-                            source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime().join("")
+                            source: nameData.user + vars.node.os.hostname() + process.env.os + process.hrtime.bigint().toString()
                         };
                     vars.testLogger("service", "hashDevice", "Create a hash to name a device.");
                     hash(input);

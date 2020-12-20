@@ -1,6 +1,6 @@
 /* lib/terminal/test/samples/browser_projectDirectory - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
 
-import vars from "../../utilities/vars.js";
+import filePathEncode from "./file_path_encode.js";
 
 const projectDirectory = function terminal_test_samples_projectDirectory(index:number, machine:string):testBrowserItem {
     return {
@@ -31,7 +31,7 @@ const projectDirectory = function terminal_test_samples_projectDirectory(index:n
                     ["getModalsByModalType", "fileNavigate", index],
                     ["getElementsByTagName", "input", 0]
                 ],
-                value: vars.projectPath
+                value: filePathEncode("absolute", "")
             },
             {
                 event: "blur",

@@ -3,6 +3,8 @@
 
 import machines from "../application/browser_machines.js";
 import mainMenu from "../application/browser_mainMenu.js";
+import projectDirectory from "../application/browser_projectDirectory.js";
+import showContextMenu from "../application/browser_showContextMenu.js";
 
 const idle = function terminal_test_application_samples_browserAgents_idle(machine:string, delay:number):testBrowserItem {
         return {
@@ -585,6 +587,17 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     target: ["length"],
                     type: "property",
                     value: 1
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "share", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 0
                 }
             ]
         },
@@ -610,7 +623,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM3",
-            name: "Open shares modal on self of all shares",
+            name: "Open shares modal on VM3 of all shares",
             unit: [
                 {
                     node: [
@@ -635,8 +648,239 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     target: ["length"],
                     type: "property",
                     value: 1
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "share", null]
+                    ],
+                    qualifier: "is",
+                    target: ["length"],
+                    type: "property",
+                    value: 0
                 }
             ]
+        },
+
+        mainMenu("VM3"),
+
+        // open file navigator modal on VM3
+        {
+            delay: {
+                // the file navigator modal is created
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "ul", 0]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "fileList"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "fileNavigator", null]
+                    ]
+                }
+            ],
+            machine: "VM3",
+            name: "Launch 'File Navigator' modal from primary menu",
+            unit: [
+                {
+                    // that file navigation modal contains an address bar
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["placeholder"],
+                    type: "attribute",
+                    value: "Optionally type a file system address here."
+                },
+                {
+                    // the file navigate modal contains a search field
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["placeholder"],
+                    type: "attribute",
+                    value: "⌕ Search"
+                },
+                {
+                    // the file navigate modal contains a status bar
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "status-bar", 0]
+                    ],
+                    qualifier: "contains",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "<p>"
+                },
+                {
+                    // that file navigator modal contains a back button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "backDirectory"
+                },
+                {
+                    // that file navigator modal contains a reload button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "reloadDirectory"
+                },
+                {
+                    // that file navigator modal contains a parent navigation button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "header", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "parentDirectory"
+                },
+                {
+                    // that file navigator modal contains a minimize button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "minimize"
+                },
+                {
+                    // that file navigator modal contains a maximize button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "maximize"
+                },
+                {
+                    // that file navigator modal contains a close button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "buttons", 0],
+                        ["getElementsByTagName", "button", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "close"
+                },
+                {
+                    // the file navigate modal displays file system results with a directory
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory"
+                },
+                {
+                    // that directory contains an expansion button
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "expansion"
+                }
+            ]
+        },
+
+        // change address location of file navigator modal on VM3
+        projectDirectory(0, "VM3"),
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "li", 3],
+            ["getElementsByTagName", "label", 0]
+        ], [
+            {
+                // the context menu is visible
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 2
+            },
+            {
+                // the context menu is visible
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "is",
+                target: ["style", "display"],
+                type: "property",
+                value: ""
+            }
+        ], "VM3"),
+
+        // share a directory from VM3
+        {
+            delay: {
+                // text of the first button
+                node: [
+                    ["getModalsByModalType", "shares", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByClassName", "share", 0],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                qualifier: "ends",
+                target: ["firstChild", "textContent()"],
+                type: "property",
+                value: "documentation"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "VM3",
+            name: "Share a directory from VM3",
+            unit: []
         }
     ];
 

@@ -29,9 +29,9 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
             }
             return `${numberString(x) + y}s `;
         },
-        finalMem:string = common.prettyBytes(process.memoryUsage().rss),
+        finalMem:string   = common.prettyBytes(process.memoryUsage().rss),
         elapsed:bigint    = process.hrtime.bigint() - vars.startTime,
-        factorSec:bigint  = 1000000000n,
+        factorSec:bigint  = BigInt(1e9),
         factorMin:bigint  = (60n * factorSec),
         factorHour:bigint = (3600n * factorSec),
         hours:bigint      = (elapsed / factorHour),
