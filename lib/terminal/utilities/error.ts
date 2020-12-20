@@ -33,10 +33,11 @@ const error = function terminal_utilities_error(errText:string[]):void {
                 }
                 logger(server);
             } else {
-                const stack:string = new Error().stack.replace("Error", `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------`);
+                const stack:string = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),
+                    stackMessage:string = `${vars.text.cyan}Stack trace${vars.text.none + vars.node.os.EOL}-----------${vars.node.os.EOL + stack.split("splitMe")[1]}`;
                 vars.flags.error = true;
                 logger("");
-                logger(stack);
+                logger(stackMessage);
                 logger("");
                 logger(`${vars.text.angry}Error Message${vars.text.none}`);
                 logger("------------");

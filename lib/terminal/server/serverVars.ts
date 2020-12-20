@@ -58,22 +58,21 @@ const serverVars:serverVars = {
         hashDevice: "",
         hashType: "sha3-512",
         hashUser: "",
-        ipAddress: (address.IPv6.length > 0)
-            ? address.IPv6[0][0]
-            : address.IPv4[0][0],
+        ipAddress: (function terminal_server_ipAddress():string {
+            if (address.IPv6.length > 0) {
+                return address.IPv6[0][0];
+            }
+            return address.IPv4[0][0];
+        }()),
         ipFamily: (address.IPv6.length > 0)
             ? "IPv6"
             : "IPv4",
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
         requests: 0,
-        secure: (vars.command === "test_browser")
-            ? false
-            : true,
+        secure: false,
         status: "active",
-        storage: (vars.command === "test_browser")
-            ? `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`
-            : `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
+        storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
         timeStore: 0,
         testBrowser: null,
         user: {},

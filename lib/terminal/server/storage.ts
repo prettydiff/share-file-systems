@@ -58,7 +58,7 @@ const storage = function terminal_server_storage(data:storage):void {
     } else {
         vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
     }
-    response(data.response, "text/plain", `${data.type} written`);
+    response(data.response, "text/plain", `${data.type} storage written`);
 };
 
 export default storage;

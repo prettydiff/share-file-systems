@@ -338,7 +338,15 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} service test browser 9000`,
-                defined: "An example with all supported arguments.  The three supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
+                defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
+            },
+            {
+                code: `${vars.version.command} service secure`,
+                defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS."
+            },
+            {
+                code: `${vars.version.command} service insecure`,
+                defined: "The 'insecure' argument forces the service to use insecure protocols: HTTP and WS."
             }
         ]
     },

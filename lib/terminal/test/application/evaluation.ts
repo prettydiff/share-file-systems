@@ -9,8 +9,9 @@ import vars from "../../utilities/vars.js";
 
 import common from "../../../common/common.js";
 
-import service from "../application/service.js";
-import simulation from "../application/simulation.js";
+import filePathDecode from "./file_path_decode.js";
+import service from "./service.js";
+import simulation from "./simulation.js";
 
 import testComplete from "./complete.js";
 

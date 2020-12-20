@@ -1,7 +1,7 @@
 
 /* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
-import testEvaluation from "../application/evaluation.js";
+import filePathEncode from "../application/file_path_encode.js";
 import vars from "../../utilities/vars.js";
 
 // tests structure
@@ -11,27 +11,7 @@ import vars from "../../utilities/vars.js";
 // * qualifier - how to test, see simulationItem in index.d.ts for appropriate values
 // * test - the value to compare against
 
-const sep:string = vars.sep,
-    projectPath:string = vars.projectPath,
-    superSep:string = (sep === "\\")
-        ? "\\\\"
-        : sep,
-    text:any     = {
-        angry    : "\u001b[1m\u001b[31m",
-        blue     : "\u001b[34m",
-        bold     : "\u001b[1m",
-        boldLine : "\u001b[1m\u001b[4m",
-        clear    : "\u001b[24m\u001b[22m",
-        cyan     : "\u001b[36m",
-        green    : "\u001b[32m",
-        noColor  : "\u001b[39m",
-        none     : "\u001b[0m",
-        purple   : "\u001b[35m",
-        red      : "\u001b[31m",
-        underline: "\u001b[4m",
-        yellow   : "\u001b[33m"
-    },
-    // the tsconfig.json file hash used in multiple tests
+const // the tsconfig.json file hash used in multiple tests
     hash:string = "af4c67a18bf237f9f2eeac165d73ce69ce9d53596387cc02789af512e71b098c04f87dd5e1c222aeaab2c5ec5014856d272fa71ce8f556888e3efed57f4acc29",
     simulation:testItem[] = [
         {
@@ -47,7 +27,7 @@ const sep:string = vars.sep,
         {
             command: "b",
             qualifier: "is",
-            test: `Command '${text.angry}b${text.none}' is ambiguous as it could refer to any of: [${text.cyan}base64, build${text.none}]`
+            test: `Command '${vars.text.angry}b${vars.text.none}' is ambiguous as it could refer to any of: [${vars.text.cyan}base64, build${vars.text.none}]`
         },
         {
             command: "base64",
@@ -55,7 +35,7 @@ const sep:string = vars.sep,
             test: "No path to encode."
         },
         {
-            command: `base64 ${projectPath}tsconfig.json`,
+            command: `base64 ${filePathEncode("absolute", "tsconfig.json")}`,
             qualifier: "is",
             test: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9"
         },
@@ -84,51 +64,51 @@ const sep:string = vars.sep,
             //cspell:enable
         },
         {
-            artifact: `${projectPath}test`,
+            artifact: filePathEncode("absolute", "test"),
             command: "certificate test \"contains share-file-ca.crt\"",
             qualifier: "filesystem contains",
-            test: `${projectPath}test${sep}share-file-ca.crt`
+            test: filePathEncode("absolute", "test/share-file-ca.crt")
         },
         {
-            artifact: `${projectPath}test`,
+            artifact: filePathEncode("absolute", "test"),
             command: "certificate test \"contains share-file.crt\"",
             qualifier: "filesystem contains",
-            test: `${projectPath}test${sep}share-file.crt`
+            test: filePathEncode("absolute", "test/share-file-ca.crt")
         },
         {
-            artifact: `${projectPath}test`,
+            artifact: filePathEncode("absolute", "test"),
             command: "certificate test name:\"xyz\"",
             qualifier: "filesystem contains",
-            test: `${projectPath}test${sep}xyz.crt`
+            test: filePathEncode("absolute", "test/xyz.crt")
         },
         {
-            artifact: `${projectPath}test`,
+            artifact: filePathEncode("absolute", "test"),
             command: "certificate test ca-name:\"abc\"",
             qualifier: "filesystem contains",
-            test: `${projectPath}test${sep}abc.crt`
+            test: filePathEncode("absolute", "test/abc.crt")
         },
         {
             command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
         },
         {
             command: "certificate test self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}`
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") +vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}`
         },
         {
             command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "contains",
-            test: `${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}abc.crt\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}abc.key\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}abc.srl\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}xyz.crt\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}xyz.csr\n${vars.text.angry}*${vars.text.none} Removing file ${projectPath}test${sep}xyz.key\n\n${vars.text.underline}Certificate removed!${vars.text.none}\nApplication mode: ${vars.text.cyan}remove${vars.text.none}\nRemoved from:     ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}\n\n`
+            test: `${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/abc.crt")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/abc.key")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/abc.srl")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/xyz.crt")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/xyz.csr")}\n${vars.text.angry}*${vars.text.none} Removing file ${filePathEncode("absolute", "test/xyz.key")}\n\n${vars.text.underline}Certificate removed!${vars.text.none}\nApplication mode: ${vars.text.cyan}remove${vars.text.none}\nRemoved from:     ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}true${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}\n\n`
         },
         {
             command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
         },
         {
-            artifact: `${projectPath}test`,
+            artifact: filePathEncode("absolute", "test"),
             command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "filesystem not contains",
             test: "abc.crt"
@@ -136,10 +116,10 @@ const sep:string = vars.sep,
         {
             command: "certificate test name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "contains",
-            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + projectPath}test${vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
+            test: `${vars.text.underline}Certificate created!${vars.text.none}\nApplication mode: ${vars.text.cyan}create${vars.text.none}\nCreated at:       ${vars.text.cyan + filePathEncode("absolute", "test") + vars.text.none}\nNamed:            ${vars.text.cyan}xyz${vars.text.none}\nDomain:           ${vars.text.cyan}my-domain${vars.text.none}\nOrganization:     ${vars.text.cyan}my-organization${vars.text.none}\nSelf Signed:      ${vars.text.cyan}false${vars.text.none}\nAuthority name:   ${vars.text.cyan}abc${vars.text.none}\nAuthority domain: ${vars.text.cyan}ca-domain${vars.text.none}`
         },
         {
-            artifact: `${projectPath}test`,
+            artifact: filePathEncode("absolute", "test"),
             command: "certificate test remove self-sign name:\"xyz\" ca-name:\"abc\" domain:\"my-domain\" ca-domain:\"ca-domain\" organization:\"my-organization\"",
             qualifier: "filesystem not contains",
             test: "xyz.crt"
@@ -152,12 +132,12 @@ const sep:string = vars.sep,
         {
             command: "commands",
             qualifier: "contains",
-            test: `Commands are tested using the ${text.green}test_simulation${text.none} command.`
+            test: `Commands are tested using the ${vars.text.green}test_simulation${vars.text.none} command.`
         },
         {
             command: "commands base64",
             qualifier: "contains",
-            test: `   ${text.cyan}version[command] base64 encode string:"my string to encode"${text.none}`
+            test: `   ${vars.text.cyan}version[command] base64 encode string:"my string to encode"${vars.text.none}`
         },
         {
             command: "commands version",
@@ -175,75 +155,75 @@ const sep:string = vars.sep,
             test: "The copy command requires a source path and a destination path."
         },
         {
-            artifact: `${projectPath}temp`,
-            command: `copy ${projectPath}js ${projectPath}temp`,
+            artifact: filePathEncode("absolute", "temp"),
+            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", "temp")}`,
             qualifier: "filesystem contains",
-            test: `temp${sep}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`
+            test: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js")
         },
         {
-            artifact: `${projectPath}temp`,
-            command: `copy ${projectPath}js ${projectPath}temp 2`,
-            file: `${projectPath}temp${sep}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`,
+            artifact: filePathEncode("absolute", "temp"),
+            command: `copy ${filePathEncode("absolute", "js")} ${filePathEncode("absolute", "temp")} 2`,
+            file: filePathEncode("relative", "temp/js/lib/terminal/test/samples/simulation.js"),
             qualifier: "file contains",
             test: `import vars from "../utilities/vars.js";`
         },
         {
-            command: `directory ".${superSep}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
+            command: `directory "${filePathEncode("relative", "./")}" ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"] --verbose`,
             qualifier: "contains",
             test: " matching items from address"
         },
         {
-            command: `directory ${projectPath}js`,
+            command: `directory ${filePathEncode("absolute", "js")}`,
             qualifier: "contains",
-            test: `js${superSep}lib${superSep}terminal${superSep}test${superSep}samples${superSep}simulation.js","file"`
+            test: `${filePathEncode("relative", "js/lib/terminal/test/samples/simulation.js", true)}","file"`
         },
         {
-            command: `directory ${projectPath}js 2`,
+            command: `directory ${filePathEncode("absolute", "js")} 2`,
             qualifier: "contains",
             test: `,"ctime":`
         },
         {
-            command: `directory ${projectPath}js ignore ["test"]`,
+            command: `directory ${filePathEncode("absolute", "js")} ignore ["test"]`,
             qualifier: "not contains",
-            test: `js${superSep}test${superSep}samples${superSep}simulation.js"`
+            test: `${filePathEncode("relative", "js/test/samples/simulation.js")}"`
         },
         {
-            command: `directory ${projectPath}js array`,
+            command: `directory ${filePathEncode("absolute", "js")} array`,
             qualifier: "not contains",
             test: `,"ctime":`
         },
         {
-            command: `directory ${projectPath} array depth:1`,
+            command: `directory ${filePathEncode("absolute", "")} array depth:1`,
             qualifier: "not contains",
-            test: `bin${superSep}spaces`
+            test: filePathEncode("relative", "bin/spaces")
         },
         {
-            command: `directory ${projectPath} list depth:1`,
+            command: `directory ${filePathEncode("absolute", "")} list depth:1`,
             qualifier: "contains",
-            test: `file       34,080  ${projectPath}license`
+            test: `file       34,080  ${filePathEncode("absolute", "license")}`
         },
         {
-            command: `directory ${projectPath} list relative depth:1`,
+            command: `directory ${filePathEncode("absolute", "")} list relative depth:1`,
             qualifier: "contains",
             test: `file       34,080  license`
         },
         {
-            command: `directory ${projectPath}js typeof`,
+            command: `directory ${filePathEncode("absolute", "js")} typeof`,
             qualifier: "is",
             test: "directory"
         },
         {
-            command: `directory ${projectPath}tsconfig.json hash`,
+            command: `directory ${filePathEncode("absolute", "tsconfig.json")} hash`,
             qualifier: "contains",
             test: hash
         },
         {
-            command: `directory typeof ${projectPath}js`,
+            command: `directory typeof ${filePathEncode("absolute", "js")}`,
             qualifier: "is",
             test: "directory"
         },
         {
-            command: `directory typeof ${projectPath}js${sep}lib${sep}terminal${sep}test${sep}samples${sep}simulation.js`,
+            command: `directory typeof ${filePathEncode("absolute", "js/lib/terminal/test/samples/simulation.js")}`,
             qualifier: "is",
             test: "file"
         },
@@ -265,20 +245,20 @@ const sep:string = vars.sep,
         {
             command: "hash",
             qualifier: "contains",
-            test: `Command ${text.cyan}hash${text.none} requires some form of address of something to analyze, ${text.angry}but no address is provided${text.none}.`
+            test: `Command ${vars.text.cyan}hash${vars.text.none} requires some form of address of something to analyze, ${vars.text.angry}but no address is provided${vars.text.none}.`
         },
         {
             command: "hash anUnsupportedPath",
             qualifier: "contains",
-            test: `${sep}anUnsupportedPath${text.none} is not a file or directory.`
+            test: `${filePathEncode("relative", "/anUnsupportedPath") + vars.text.none} is not a file or directory.`
         },
         {
-            command: `hash ${projectPath}tsconfig.json`,
+            command: `hash ${filePathEncode("absolute", "tsconfig.json")}`,
             qualifier: "is",
             test: hash
         },
         {
-            command: `hash ${projectPath}tsconfig.json algorithm:md5`,
+            command: `hash ${filePathEncode("absolute", "tsconfig.json")} algorithm:md5`,
             qualifier: "is",
             test: "15f534c5296421402d3709a012a8bb15"
         },
@@ -293,24 +273,24 @@ const sep:string = vars.sep,
             test: "9a3e06cfa3f81d2e3e02957d1f573194987440206ceab8ad5456bfd0316cd2b9"
         },
         {
-            command: `hash ${projectPath}tsconfig.json --verbose`,
+            command: `hash ${filePathEncode("absolute", "tsconfig.json")} --verbose`,
             qualifier: "contains",
             test: `seconds total time`
         },
         {
-            command: `hash ${projectPath} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"]`,
+            command: `hash ${filePathEncode("absolute", "")} list ignore ["node_modules", ".git", ".DS_Store", "2", "3", "beta", "ignore"]`,
             qualifier: "contains",
             test: `tsconfig.json":"${hash}"`
         },
         {
-            command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "js", "css", 'space test']`,
+            command: `hash ${filePathEncode("absolute", "")} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "js", "css", 'space test']`,
             qualifier: "contains",
             test: `tsconfig.json":"${hash}"`
         },
         {
-            command: `hash ${projectPath} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "js", "css", "space test"]`,
+            command: `hash ${filePathEncode("absolute", "")} list ignore [.git, "node_modules", ".DS_Store", "2", "3", "beta", "ignore", "js", "css", "space test"]`,
             qualifier: "not contains",
-            test: `js${superSep}lib`
+            test: filePathEncode("relative", "js/lib")
         },
         {
             command: "hash https://duckduckgo.com/assets/logo_homepage.normal.v107.svg",
@@ -328,44 +308,44 @@ const sep:string = vars.sep,
             test: " seconds total time"
         },
         {
-            command: `lint .${sep}js${sep}application.js`,
+            command: `lint ${filePathEncode("absolute", "js/application.js")}`,
             qualifier: "contains",
-            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + projectPath}js${sep}application.js${vars.text.none}`
+            test: `${vars.text.green}Lint complete${vars.text.none} for ${vars.text.cyan + vars.text.bold + filePathEncode("absolute", "js/application.js") + vars.text.none}`
         },
         {
-            command: `lint .${sep}js${sep}application.js`,
+            command: `lint ${filePathEncode("absolute", "js/application.js")}`,
             qualifier: "contains",
             test: "of memory consumed"
         },
         {
-            command: `lint .${sep}lib`,
+            command: `lint ${filePathEncode("relative", "./lib")}`,
             qualifier: "contains",
-            test: `No files matching the pattern "${projectPath}lib" were found.`
+            test: `No files matching the pattern "${filePathEncode("absolute", "lib")}" were found.`
         },
         {
-            command: `mkdir ${projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+            command: `mkdir ${filePathEncode("absolute", "lib/terminal/test/testDir")} --verbose`,
             qualifier: "contains",
-            test: `Directory created at ${vars.text.cyan + projectPath}lib${sep}terminal${sep}test${sep}testDir${vars.text.none}`
+            test: `Directory created at ${vars.text.cyan + filePathEncode("absolute", "lib/terminal/test/testDir") + vars.text.none}`
         },
         {
-            command: `remove ${projectPath}lib${sep}terminal${sep}test${sep}testDir --verbose`,
+            command: `remove ${filePathEncode("absolute", "lib/terminal/test/testDir")} --verbose`,
             qualifier: "contains",
             test: `Share File Systems removed ${vars.text.angry}1${vars.text.none} directory, ${vars.text.angry}0${vars.text.none} file, ${vars.text.angry}0${vars.text.none} symbolic links at ${vars.text.angry}0${vars.text.none} bytes.`
         },
         {
-            command: `mkdir ${projectPath}lib${sep}terminal${sep}test${sep}testDir`,
+            command: `mkdir ${filePathEncode("absolute", "lib/terminal/test/testDir")}`,
             qualifier: "is",
             test: ""
         },
         {
-            command: `remove ${projectPath}lib${sep}terminal${sep}test${sep}testDir`,
+            command: `remove ${filePathEncode("absolute", "lib/terminal/test/testDir")}`,
             qualifier: "is",
             test: ""
         },
         {
             command: "version 1",
             qualifier: "contains",
-            test: `Version ${text.angry}`
+            test: `Version ${vars.text.angry}`
         },
         {
             command: "version 2",

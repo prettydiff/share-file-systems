@@ -38,10 +38,15 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         portString:string = "",
         certLogs:string[] = null;
     (function terminal_commands_service_insecure():void {
-        const index:number = process.argv.indexOf("insecure");
-        if (index > -1) {
+        const insecure:number = process.argv.indexOf("insecure"),
+            secure:number = process.argv.indexOf("secure");
+        if (insecure > -1) {
             serverVars.secure = false;
-            process.argv.splice(index, 1);
+            process.argv.splice(insecure, 1);
+        }
+        if (secure > -1) {
+            serverVars.secure = true;
+            process.argv.splice(secure, 1);
         }
     }());
     const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
@@ -52,6 +57,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             const test:number = process.argv.indexOf("test");
             if (test > -1) {
                process.argv.splice(test, 1);
+               serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
             }
             index = process.argv.indexOf("browser");
             if (index > -1) {
@@ -294,10 +300,10 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 listen = function terminal_commands_service_start_listen():void {
                     const serverAddress:AddressInfo = <AddressInfo>httpServer.address(),
                         wsServer:httpServer = (serverVars.secure === true)
-                            ? vars.node.https.createServer(function terminal_commands_service_start_listen_wsListenerSecure():void {
+                            ? vars.node.https.createServer(https.certificate, function terminal_commands_service_start_listen_wsListenerSecure():void {
                                 return;
                             })
-                            : vars.node.http.createServer(https.certificate, function terminal_commands_service_start_listen_wsListener():void {
+                            : vars.node.http.createServer(function terminal_commands_service_start_listen_wsListener():void {
                                 return;
                             });
                     serverVars.webPort = serverAddress.port;

@@ -9,7 +9,7 @@ import remote from "./remote.js";
 import share from "./share.js";
 import util from "./util.js";
 
-const title:Element = document.getElementsByClassName("title")[0],
+const title:Element = document.getElementById("title-bar"),
     titleText:string = title.getElementsByTagName("h1")[0].innerHTML,
     sock:WebSocketLocal = (function browser_socket():WebSocketLocal {
         // A minor security circumvention.
@@ -199,7 +199,9 @@ const title:Element = document.getElementsByClassName("title")[0],
                     window.close();
                     return;
                 }
-                remote.event(data, false);
+                if (data.action !== "nothing") {
+                    remote.event(data, false);
+                }
             };
         if (event.data.indexOf("{\"error\":") === 0) {
             error();

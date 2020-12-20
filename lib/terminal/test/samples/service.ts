@@ -1,15 +1,11 @@
 
 /* lib/terminal/test/samples/service - A list of service tests. */
 
+import filePathEncode from "../application/file_path_encode.js";
 import serverVars from "../../server/serverVars.js";
-import vars from "../../utilities/vars.js";
 
 const serviceTests = function terminal_test_samples_services():testServiceInstance[] {
     const service:testServiceInstance[] = [],
-        projectPath:string = vars.projectPath,
-        sep:string = vars.sep,
-        windowsPath:string = projectPath.replace(/\\/g, "\\\\"),
-        windowsSep:string = sep.replace(/\\/g, "\\\\"),
         hash:string = "af4c67a18bf237f9f2eeac165d73ce69ce9d53596387cc02789af512e71b098c04f87dd5e1c222aeaab2c5ec5014856d272fa71ce8f556888e3efed57f4acc29",
         loopback:string = (serverVars.ipFamily === "IPv6")
             ? "::1"
@@ -25,7 +21,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`some-modal-id:${projectPath}tsconfig.json`],
+                location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
                 watch: "no"
             }
@@ -35,7 +31,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: [{
             content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
             id: "some-modal-id",
-            path: `${projectPath}tsconfig.json`
+            path: filePathEncode("absolute", "tsconfig.json")
         }]
     });
     service.push(<testTemplateFileService>{
@@ -48,7 +44,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`some-modal-id:${projectPath}tsconfig.json`],
+                location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
                 watch: "no"
             }
@@ -58,7 +54,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: [{
             content: "ewogICAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICAgICAibW9kdWxlUmVzb2x1dGlvbiI6ICJub2RlIiwKICAgICAgICAib3V0RGlyIjogImpzIiwKICAgICAgICAicHJldHR5IjogdHJ1ZSwKICAgICAgICAidGFyZ2V0IjogIkVTNiIsCiAgICAgICAgInR5cGVzIjogWyJub2RlIl0sCiAgICAgICAgInR5cGVSb290cyI6IFsibm9kZV9tb2R1bGVzL0B0eXBlcyJdCiAgICB9LAogICAgImV4Y2x1ZGUiOiBbCiAgICAgICAgImpzIiwKICAgICAgICAibGliL3Rlcm1pbmFsL3Rlc3Qvc3RvcmFnZUJyb3dzZXIiLAogICAgICAgICJsaWIvd3MtZXM2IiwKICAgICAgICAiKiovbm9kZV9tb2R1bGVzIiwKICAgICAgICAiKiovLiovIgogICAgXSwKICAgICJpbmNsdWRlIjogWwogICAgICAgICIqKi8qLnRzIgogICAgXQp9",
             id: "some-modal-id",
-            path: `${projectPath}tsconfig.json`
+            path: filePathEncode("absolute", "tsconfig.json")
         }]
     });
     service.push(<testTemplateFileService>{
@@ -71,14 +67,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}lib`],
+                location: [filePathEncode("absolute", "lib")],
                 name: "",
                 watch: "no"
             }
         },
         name: "fs:fs-close, Close Local",
         qualifier: "begins",
-        test: `Watcher ${projectPath}lib closed.`
+        test: `Watcher ${filePathEncode("absolute", "lib")} closed.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -90,7 +86,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}lib`],
+                location: [filePathEncode("absolute", "lib")],
                 name: "",
                 watch: "no"
             }
@@ -100,7 +96,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: "{\"fs-update-remote\":{\"agent\":\"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e\",\"agentType\":\"device\",\"dirs\":[["
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
+        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             fs: {
                 action: "fs-copy",
@@ -110,8 +106,8 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}lib${sep}storage`,
+                location: [filePathEncode("absolute", "tsconfig.json")],
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
@@ -127,7 +123,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         }
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
+        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             fs: {
                 action: "fs-copy",
@@ -137,8 +133,8 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}lib${sep}storage`,
+                location: [filePathEncode("absolute", "tsconfig.json")],
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
@@ -148,7 +144,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"",
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
+        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             fs: {
                 action: "fs-copy",
@@ -158,8 +154,8 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}lib${sep}storage`,
+                location: [filePathEncode("absolute", "tsconfig.json")],
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
@@ -179,7 +175,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 depth: 1,
                 id: "test-ID",
                 location: [`${projectPath}version.json`],
-                name: `${projectPath}lib${sep}storage`,
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
@@ -195,7 +191,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         }
     });*/
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
+        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             fs: {
                 action: "fs-copy",
@@ -205,8 +201,8 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}lib${sep}storage`,
+                location: [filePathEncode("absolute", "tsconfig.json")],
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
@@ -216,7 +212,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: "fs-update-remote"
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
+        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             fs: {
                 action: "fs-copy",
@@ -226,18 +222,18 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}lib${sep}storage`,
+                location: [filePathEncode("absolute", "tsconfig.json")],
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
         },
         name: "fs:fs-copy, Copy Remote Device to Same Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}lib${windowsSep}storage","directory"`
+        test: `["${filePathEncode("absolute", "lib/storage", true)}","directory"`
     });
     service.push(<testTemplateFileService>{
-        artifact: `${projectPath}lib${sep}storage${sep}tsconfig.json`,
+        artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {
             fs: {
                 action: "fs-copy",
@@ -247,8 +243,8 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
-                name: `${projectPath}lib${sep}storage`,
+                location: [filePathEncode("absolute", "tsconfig.json")],
+                name: filePathEncode("absolute", "lib/storage"),
                 share: "",
                 watch: "no"
             }
@@ -267,7 +263,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
+                location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "",
                 watch: "no"
             }
@@ -276,7 +272,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         qualifier: "is",
         test: {
             dirs: [
-                [`${projectPath}tsconfig.json`, "file", "", 0, 0, null]
+                [filePathEncode("absolute", "tsconfig.json"), "file", "", 0, 0, null]
             ],
             fail: [],
             id: "test-ID"
@@ -292,7 +288,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}tsconfig.json`],
+                location: [filePathEncode("absolute", "tsconfig.json")],
                 name: "",
                 watch: "no"
             }
@@ -301,7 +297,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         qualifier: "is",
         test: {
             dirs: [
-                [`${projectPath}tsconfig.json`, "file", "", 0, 0, null]
+                [filePathEncode("absolute", "tsconfig.json"), "file", "", 0, 0, null]
             ],
             fail: [],
             id: "test-ID"
@@ -317,14 +313,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestLocal`],
+                location: [filePathEncode("absolute", "serviceTestLocal")],
                 name: "directory",
                 watch: "no"
             }
         },
         name: "fs:fs-new, Local New Directory",
         qualifier: "is",
-        test: `${projectPath}serviceTestLocal created.`
+        test: `${filePathEncode("absolute", "serviceTestLocal")} created.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -336,14 +332,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestLocal.json`],
+                location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "file",
                 watch: "no"
             }
         },
         name: "fs:fs-new, Local New File",
         qualifier: "is",
-        test: `${projectPath}serviceTestLocal.json created.`
+        test: `${filePathEncode("absolute", "serviceTestLocal.json")} created.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -355,14 +351,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestRemote`],
+                location: [filePathEncode("absolute", "serviceTestRemote")],
                 name: "directory",
                 watch: "no"
             }
         },
         name: "fs:fs-new, Remote Device New Directory",
         qualifier: "is",
-        test: `${projectPath}serviceTestRemote created.`
+        test: `${filePathEncode("absolute", "serviceTestRemote")} created.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -374,14 +370,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestRemote.json`],
+                location: [`${filePathEncode("absolute", "serviceTestRemote.json")}`],
                 name: "file",
                 watch: "no"
             }
         },
         name: "fs:fs-new, Remote Device New File",
         qualifier: "is",
-        test: `${projectPath}serviceTestRemote.json created.`
+        test: `${filePathEncode("absolute", "serviceTestRemote.json")} created.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -393,14 +389,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestLocal.json`],
+                location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "local text fragment",
                 watch: "no"
             }
         },
         name: "fs:fs-write, Write Local",
         qualifier: "is",
-        test: `File ${projectPath}serviceTestLocal.json saved to disk on local device.`
+        test: `File ${filePathEncode("absolute", "serviceTestLocal.json")} saved to disk on local device.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -412,14 +408,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestRemote.json`],
+                location: [filePathEncode("absolute", "serviceTestRemote.json")],
                 name: "remote device text fragment",
                 watch: "no"
             }
         },
         name: "fs:fs-write, Write Remote Device to Local",
         qualifier: "is",
-        test: `File ${projectPath}serviceTestRemote.json saved to disk on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+        test: `File ${filePathEncode("absolute", "serviceTestRemote.json")} saved to disk on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -431,7 +427,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`new-window-id:${projectPath}serviceTestLocal.json`],
+                location: [`new-window-id:${filePathEncode("absolute", "serviceTestLocal.json")}`],
                 name: "",
                 watch: "no"
             }
@@ -441,7 +437,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: [{
             content: "local text fragment",
             id: "new-window-id",
-            path: `${projectPath}serviceTestLocal.json`
+            path: filePathEncode("absolute", "serviceTestLocal.json")
         }]
     });
     service.push(<testTemplateFileService>{
@@ -454,7 +450,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`new-window-id:${projectPath}serviceTestRemote.json`],
+                location: [`new-window-id:${filePathEncode("absolute", "serviceTestRemote.json")}`],
                 name: "",
                 watch: "no"
             }
@@ -464,7 +460,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: [{
             content: "remote device text fragment",
             id: "new-window-id",
-            path: `${projectPath}serviceTestRemote.json`
+            path: filePathEncode("absolute", "serviceTestRemote.json")
         }]
     });
     service.push(<testTemplateFileService>{
@@ -477,14 +473,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestLocal`],
+                location: [filePathEncode("absolute", "serviceTestLocal")],
                 name: "serviceLocal",
                 watch: "no"
             }
         },
         name: "fs:fs-rename, Rename Local Directory",
         qualifier: "is",
-        test: `Path ${projectPath}serviceTestLocal on device ${serverVars.hashDevice} renamed to ${projectPath}serviceLocal.`
+        test: `Path ${filePathEncode("absolute", "serviceTestLocal")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal")}.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -496,14 +492,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestLocal.json`],
+                location: [filePathEncode("absolute", "serviceTestLocal.json")],
                 name: "serviceLocal.json",
                 watch: "no"
             }
         },
         name: "fs:fs-rename, Rename Local File",
         qualifier: "is",
-        test: `Path ${projectPath}serviceTestLocal.json on device ${serverVars.hashDevice} renamed to ${projectPath}serviceLocal.json.`
+        test: `Path ${filePathEncode("absolute", "serviceTestLocal.json")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal.json")}.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -515,14 +511,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestRemote`],
+                location: [filePathEncode("absolute", "serviceTestRemote")],
                 name: "serviceRemote",
                 watch: "no"
             }
         },
         name: "fs:fs-rename, Rename Remote Device Directory",
         qualifier: "is",
-        test: `Path ${projectPath}serviceTestRemote on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${projectPath}serviceRemote.`
+        test: `Path ${filePathEncode("absolute", "serviceTestRemote")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote")}.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -534,14 +530,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceTestRemote.json`],
+                location: [filePathEncode("absolute", "serviceTestRemote.json")],
                 name: "serviceRemote.json",
                 watch: "no"
             }
         },
         name: "fs:fs-rename, Rename Remote Device File",
         qualifier: "is",
-        test: `Path ${projectPath}serviceTestRemote.json on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${projectPath}serviceRemote.json.`
+        test: `Path ${filePathEncode("absolute", "serviceTestRemote.json")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote.json")}.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -553,14 +549,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceLocal`],
+                location: [filePathEncode("absolute", "serviceLocal")],
                 name: "",
                 watch: "no"
             }
         },
         name: "fs:fs-destroy, Destroy Local Directory",
         qualifier: "is",
-        test: `Path(s) ${projectPath}serviceLocal destroyed on device ${serverVars.hashDevice}.`
+        test: `Path(s) ${filePathEncode("absolute", "serviceLocal")} destroyed on device ${serverVars.hashDevice}.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -572,14 +568,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceLocal.json`],
+                location: [filePathEncode("absolute", "serviceLocal.json")],
                 name: "",
                 watch: "no"
             }
         },
         name: "fs:fs-destroy, Destroy Local File",
         qualifier: "is",
-        test: `Path(s) ${projectPath}serviceLocal.json destroyed on device ${serverVars.hashDevice}.`
+        test: `Path(s) ${filePathEncode("absolute", "serviceLocal.json")} destroyed on device ${serverVars.hashDevice}.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -591,14 +587,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceRemote`],
+                location: [filePathEncode("absolute", "serviceRemote")],
                 name: "",
                 watch: "no"
             }
         },
         name: "fs:fs-destroy, Destroy Remote Device Directory",
         qualifier: "is",
-        test: `Path(s) ${projectPath}serviceRemote destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+        test: `Path(s) ${filePathEncode("absolute", "serviceRemote")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -610,14 +606,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`${projectPath}serviceRemote.json`],
+                location: [filePathEncode("absolute", "serviceRemote.json")],
                 name: "",
                 watch: "no"
             }
         },
         name: "fs:fs-destroy, Destroy Remote Device File",
         qualifier: "is",
-        test: `Path(s) ${projectPath}serviceRemote.json destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+        test: `Path(s) ${filePathEncode("absolute", "serviceRemote.json")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -629,7 +625,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`some-modal-id:${projectPath}tsconfig.json`],
+                location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
                 watch: "no"
             }
@@ -639,7 +635,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: [{
             content: hash,
             id: "some-modal-id",
-            path: `${projectPath}tsconfig.json`
+            path: filePathEncode("absolute", "tsconfig.json")
         }]
     });
     service.push(<testTemplateFileService>{
@@ -652,7 +648,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 1,
                 id: "test-ID",
-                location: [`some-modal-id:${projectPath}tsconfig.json`],
+                location: [`some-modal-id:${filePathEncode("absolute", "tsconfig.json")}`],
                 name: "",
                 watch: "no"
             }
@@ -662,7 +658,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         test: [{
             content: hash,
             id: "some-modal-id",
-            path: `${projectPath}tsconfig.json`
+            path: filePathEncode("absolute", "tsconfig.json")
         }]
     });
     service.push(<testTemplateFileService>{
@@ -675,7 +671,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${sep}lib`],
+                location: [filePathEncode("absolute", "js/lib")],
                 name: ".js",
                 watch: "no"
             }
@@ -694,14 +690,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${sep}lib`],
+                location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js",
                 watch: "no"
             }
         },
         name: "fs:fs-directory, Directory Local 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
+        test: `["${filePathEncode("absolute", "tsconfig.json", true)}","file"`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -713,7 +709,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${sep}lib`],
+                location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js",
                 watch: "no"
             }
@@ -732,14 +728,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 2,
                 id: "test-ID",
-                location: [`${projectPath}js${sep}lib`],
+                location: [filePathEncode("absolute", "tsconfig.json")],
                 name: ".js",
                 watch: "no"
             }
         },
         name: "fs:fs-directory, Directory Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
+        test: `["${filePathEncode("absolute", "tsconfig.json", true)}","file"`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -751,7 +747,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 0,
                 id: "test-ID",
-                location: [`${projectPath}`],
+                location: [filePathEncode("absolute", "")],
                 name: ".js",
                 watch: "no"
             }
@@ -770,14 +766,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 0,
                 id: "test-ID",
-                location: [`${projectPath}`],
+                location: [filePathEncode("absolute", "")],
                 name: ".js",
                 watch: "no"
             }
         },
         name: "fs:fs-search, Search Local 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
+        test: `["${filePathEncode("absolute", "js/lib/browser/fileBrowser.js", true)}","file"`
     });
     service.push(<testTemplateFileService>{
         command: {
@@ -789,7 +785,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 0,
                 id: "test-ID",
-                location: [`${projectPath}`],
+                location: [filePathEncode("absolute", "")],
                 name: ".js",
                 watch: "no"
             }
@@ -808,14 +804,14 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 copyType: "device",
                 depth: 0,
                 id: "test-ID",
-                location: [`${projectPath}`],
+                location: [filePathEncode("absolute", "")],
                 name: ".js",
                 watch: "no"
             }
         },
         name: "fs:fs-search, Search Remote Device 2",
         qualifier: "contains",
-        test: `["${windowsPath}js${windowsSep}lib${windowsSep}browser${windowsSep}fileBrowser.js","file"`
+        test: `["${filePathEncode("absolute", "js/lib/browser/fileBrowser.js", true)}","file"`
     });
     service.push(<testTemplateUpdateRemote>{
         command: {
@@ -823,16 +819,16 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
                 agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
                 agentType: "device",
                 dirs: [
-                    [`${projectPath}lib${sep}storage${sep}storage.txt`, "file", "", 0, 0, null]
+                    [filePathEncode("absolute", "lib/storage/storage.txt"), "file", "", 0, 0, null]
                 ],
                 fail: [],
-                location: `${projectPath}lib${sep}storage`,
+                location: filePathEncode("absolute", "lib/storage"),
                 status: {}
             }
         },
         name: "fs-update-remote, Local",
         qualifier: "is",
-        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${windowsPath}lib${windowsSep}storage${windowsSep}storage.txt","file","",0,0,null]],"fail":[],"location":"${windowsPath}lib${windowsSep}storage","status":{}}} at XXXX `
+        test: `Received directory watch for {"fs-update-remote":{"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${filePathEncode("absolute", "lib/storage/storage.txt", true)}","file","",0,0,null]],"fail":[],"location":"${filePathEncode("absolute", "lib/storage", true)}","status":{}}} at XXXX `
     });
     service.push(<testTemplateStorage>{
         command: {
@@ -858,7 +854,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "storage device, Local device storage without HTTP response",
         qualifier: "is",
-        test: "device storage written with false response for testing."
+        test: "device storage written"
     });
     service.push(<testTemplateStorage>{
         command: {
@@ -910,7 +906,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "storage settings, Local settings storage without HTTP response",
         qualifier: "is",
-        test: "settings storage written with false response for testing."
+        test: "settings storage written"
     });
     service.push(<testTemplateStorage>{
         command: {
@@ -936,7 +932,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "storage user, Local user storage without HTTP response",
         qualifier: "is",
-        test: "user storage written with false response for testing."
+        test: "user storage written"
     });
     service.push(<testTemplateInvite>{
         command: {
@@ -1125,7 +1121,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "heartbeat-broadcast, from Browser",
         qualifier: "is",
-        test: "Heartbeat broadcast sent."
+        test: "response from heartbeat.update"
     });
     service.push(<testTemplateHeartbeatUpdate>{
         command: {
@@ -1138,7 +1134,7 @@ const serviceTests = function terminal_test_samples_services():testServiceInstan
         },
         name: "heartbeat-broadcast, from Terminal",
         qualifier: "is",
-        test: "Heartbeat broadcast sent."
+        test: "response from heartbeat.update"
     });
     service.push(<testTemplateHeartbeatComplete>{
         command: {

@@ -191,17 +191,6 @@ const dom = function browser_dom():void {
                 a = a + 1;
             } while (a < length);
             return output;
-        },
-        disallowed = function browser_dom_disallowed():void {
-            // eslint-disable-next-line
-            new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
-            return undefined;
-        },
-        disallowedList = function browser_dom_disallowedList():NodeListOf<HTMLElement> {
-            const list:any = [];
-            // eslint-disable-next-line
-            new Error(`Disallowed feature used on ${this}\n The feature is not supported in this application.`);
-            return list;
         };
 
     // Create a document method
@@ -215,30 +204,6 @@ const dom = function browser_dom():void {
     Element.prototype.getElementsByAttribute = getElementsByAttribute;
     Element.prototype.getNodesByType         = getNodesByType;
     Element.prototype.getElementsByText      = getElementsByText;
-
-    // Disabling popular but slow conventions. Enhancements to the project must consider performance and scale
-    Element.prototype.addEventListener       = disallowed;
-    Element.prototype.querySelector          = disallowed;
-    Element.prototype.querySelectorAll       = disallowedList;
-    Element.prototype.closest                = disallowed;
-    document.write                           = disallowed;
-    document.querySelector                   = disallowed;
-    document.querySelectorAll                = disallowedList;
-
-    // Disabling commonly used but completely unnecessary methods that harm performance and complicate code
-    Function.prototype.apply                 = disallowed;
-    Function.prototype.bind                  = disallowed;
-    Function.prototype.call                  = disallowed;
-    Object.create                            = disallowed;
-
-    // Prevent third party authors from overriding these performance measures
-    Object.freeze(Document);
-    Object.freeze(Function.prototype);
-    Object.freeze(Object);
-    Object.freeze(document.write);
-    Object.freeze(document.querySelector);
-    Object.freeze(document.querySelectorAll);
-    Object.freeze(Element.prototype);
 }
 
 export default dom;

@@ -11,7 +11,7 @@ const mainMenu = function terminal_test_samples_mainMenu(machine:string):testBro
             }
         ],
         machine: machine,
-        name: "Display the primary menu",
+        name: `Display the primary menu on ${machine}`,
         unit: [
             {
                 // primary menu is visible

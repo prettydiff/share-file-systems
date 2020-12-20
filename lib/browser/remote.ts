@@ -21,7 +21,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             const testResult:[boolean, string, string] = remote.evaluate(config.delay);
             if (testResult[0] === true) {
                 if (config.unit.length > 0) {
-                    remote.test(config.unit, remote.index);
+                    remote.report(config.unit, remote.index);
                 } else {
                     network.testBrowser([testResult], remote.index, remote.action);
                 }
@@ -40,7 +40,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
     // eslint-disable-next-line
     console.log(`Executing delay on test index ${remote.index}: ${config.name}`);
     if (config.delay === undefined) {
-        remote.test(config.unit, remote.index);
+        remote.report(config.unit, remote.index);
     } else {
         setTimeout(delayFunction, delay);
     }
@@ -63,7 +63,7 @@ remote.error = function browser_remote_error(message:string, source:string, line
 // determine whether a given test item is pass or fail
 remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolean, string, string] {
     const rawValue:primitive|Element = (test.type === "element")
-            ? remote.node(test.node)
+            ? remote.node(test.node, test.target[0])
             : remote.getProperty(test),
         qualifier:qualifier = test.qualifier,
         configString:string = <string>test.value;
@@ -108,17 +108,120 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolea
 // process a single event instance
 remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boolean):void {
     let a:number = 0,
-        element:HTMLElement,
-        config:testBrowserEvent,
-        htmlElement:HTMLInputElement,
-        event:Event,
-        refresh:boolean = false,
-        stringReplace = function browser_remote_event_stringReplace(str:string):string {
+        refresh:boolean = false;
+    const stringReplace = function browser_remote_event_stringReplace(str:string):string {
             return str
                 .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
-        };
-    const eventLength:number = item.test.interaction.length;
+        },
+        complete = function browser_remote_event_complete(execute:boolean):void {
+            if (execute === false) {
+                remote.delay(item.test);
+            }
+        },
+        action = function browser_remote_event_action(index:number):void {
+            let element:HTMLElement,
+                event:Event,
+                config:testBrowserEvent,
+                htmlElement:HTMLInputElement,
+                delay:number;
+            do {
+                config = item.test.interaction[index];
+                if (config.event === "refresh") {
+                    if (index === 0) {
+                        location.reload();
+                    } else {
+                        remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
+                        return;
+                    }
+                } else if (config.event === "wait") {
+                    delay = (isNaN(Number(config.value)) === true)
+                        ? 0
+                        : Number(config.value);
+                    index = index + 1;
+                    setTimeout(function browser_remote_event_action_delayNext ():void {
+                        if (index < eventLength) {
+                            browser_remote_event_action(index);
+                        } else {
+                            complete(refresh);
+                        }
+                    }, delay);
+                    return;
+                } else if (config.event !== "refresh-interaction") {
+                    element = <HTMLElement>remote.node(config.node, null);
+                    if (remote.domFailure === true) {
+                        remote.domFailure = false;
+                        return;
+                    }
+                    if (element === null || element === undefined) {
+                        network.testBrowser([
+                            [false, `event error ${String(element)}`, config.node.nodeString]
+                        ], item.index, item.action);
+                        browser.testBrowser = null;
+                        return;
+                    }
+                    if (config.event === "move") {
+                        htmlElement = <HTMLInputElement>element;
+                        htmlElement.style.top = `${config.coords[0]}em`;
+                        htmlElement.style.left = `${config.coords[1]}em`;
+                    } else if (config.event === "setValue") {
+                        htmlElement = <HTMLInputElement>element;
+                        htmlElement.value = stringReplace(config.value);
+                    } else {
+                        if (config.event === "keydown" || config.event === "keyup") {
+                            if (config.value === "Alt") {
+                                if (config.event === "keydown") {
+                                    remote.keyAlt = true;
+                                } else {
+                                    remote.keyAlt = false;
+                                }
+                            } else if (config.value === "Control") {
+                                if (config.event === "keydown") {
+                                    remote.keyControl = true;
+                                } else {
+                                    remote.keyControl = false;
+                                }
+                            } else if (config.value === "Shift") {
+                                if (config.event === "keydown") {
+                                    remote.keyShift = true;
+                                } else {
+                                    remote.keyShift = false;
+                                }
+                            } else {
+                                const tabIndex:number = element.tabIndex;
+                                event = new KeyboardEvent(config.event, {
+                                    key: config.value,
+                                    altKey: remote.keyAlt,
+                                    ctrlKey: remote.keyControl,
+                                    shiftKey: remote.keyShift
+                                });
+                                element.tabIndex = 0;
+                                element.dispatchEvent(new Event("focus"));
+                                element.dispatchEvent(event);
+                                element.tabIndex = tabIndex;
+                            }
+                        } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
+                            event = new MouseEvent(config.event, {
+                                altKey: remote.keyAlt,
+                                ctrlKey: remote.keyControl,
+                                shiftKey: remote.keyShift
+                            });
+                            element.dispatchEvent(event);
+                        } else {
+                            event = document.createEvent("Event");
+                            event.initEvent(config.event, true, true);
+                            element.dispatchEvent(event);
+                        }
+                    }
+                }
+                index = index + 1;
+            } while (index < eventLength);
+            complete(refresh);
+        },
+        eventLength:number = item.test.interaction.length;
+    if (item.action === "nothing") {
+        return;
+    }
     remote.action = item.action;
     if (remote.index < item.index) {
         remote.index = item.index;
@@ -134,94 +237,13 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
             a = a + 1;
         } while (a < eventLength);
 
-        a = 0;
-        do {
-            config = item.test.interaction[a];
-            if (config.event === "refresh") {
-                if (a === 0) {
-                    location.reload();
-                } else {
-                    remote.error("The event 'refresh' was provided not as the first event of a test", "", 0, 0, null);
-                    return;
-                }
-            } else if (item.test.interaction[a].event !== "refresh-interaction") {
-                element = <HTMLElement>remote.node(config.node);
-                if (remote.domFailure === true) {
-                    remote.domFailure = false;
-                    return;
-                }
-                if (element === null || element === undefined) {
-                    network.testBrowser([
-                        [false, `event error ${String(element)}`, config.node.nodeString]
-                    ], item.index, item.action);
-                    browser.testBrowser = null;
-                    return;
-                }
-                if (config.event === "move") {
-                    htmlElement = <HTMLInputElement>element;
-                    htmlElement.style.top = `${config.coords[0]}em`;
-                    htmlElement.style.left = `${config.coords[1]}em`;
-                } else if (config.event === "setValue") {
-                    htmlElement = <HTMLInputElement>element;
-                    htmlElement.value = stringReplace(config.value);
-                } else {
-                    if (config.event === "keydown" || config.event === "keyup") {
-                        if (config.value === "Alt") {
-                            if (config.event === "keydown") {
-                                remote.keyAlt = true;
-                            } else {
-                                remote.keyAlt = false;
-                            }
-                        } else if (config.value === "Control") {
-                            if (config.event === "keydown") {
-                                remote.keyControl = true;
-                            } else {
-                                remote.keyControl = false;
-                            }
-                        } else if (config.value === "Shift") {
-                            if (config.event === "keydown") {
-                                remote.keyShift = true;
-                            } else {
-                                remote.keyShift = false;
-                            }
-                        } else {
-                            const tabIndex:number = element.tabIndex;
-                            event = new KeyboardEvent(config.event, {
-                                key: config.value,
-                                altKey: remote.keyAlt,
-                                ctrlKey: remote.keyControl,
-                                shiftKey: remote.keyShift
-                            });
-                            element.tabIndex = 0;
-                            element.dispatchEvent(new Event("focus"));
-                            element.dispatchEvent(event);
-                            element.tabIndex = tabIndex;
-                        }
-                    } else if (config.event === "click" || config.event === "contextmenu" || config.event === "dblclick" || config.event === "mousedown" || config.event === "mouseenter" || config.event === "mouseleave" || config.event === "mousemove" || config.event === "mouseout" || config.event === "mouseover" || config.event === "mouseup" || config.event === "touchend" || config.event === "touchstart") {
-                        event = new MouseEvent(config.event, {
-                            altKey: remote.keyAlt,
-                            ctrlKey: remote.keyControl,
-                            shiftKey: remote.keyShift
-                        });
-                        element.dispatchEvent(event);
-                    } else {
-                        event = document.createEvent("Event");
-                        event.initEvent(config.event, false, true);
-                        element.dispatchEvent(event);
-                    }
-                }
-            }
-            a = a + 1;
-        } while (a < eventLength);
-        if (refresh === false) {
-            remote.delay(item.test);
-        }
+        action(0);
     }
 };
 
 // get the value of the specified property/attribute
 remote.getProperty = function browser_remote_getProperty(test:testBrowserTest):primitive {
-    const element:Element = remote.node(test.node),
+    const element:Element = remote.node(test.node, test.target[0]),
         pLength = test.target.length - 1,
         method = function browser_remote_getProperty_method(prop:Object, name:string):primitive {
             if (name.slice(name.length - 2) === "()") {
@@ -258,7 +280,7 @@ remote.getProperty = function browser_remote_getProperty(test:testBrowserTest):p
 };
 
 // gather a DOM node using instructions from a data structure
-remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
+remote.node = function browser_remote_node(dom:testBrowserDOM, property:string):Element {
     let element:Element|Document = document,
         node:[domMethod, string, number],
         a:number = 0,
@@ -268,10 +290,12 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
     do {
         node = dom[a];
         if (node[0] === "getElementById" && a > 0) {
-            fail = "getElementById";
+            fail = "Bad test. Method 'getElementById' must only occur as the first DOM method.";
         }
-        if (node[0] === "childNodes" && node[2] === null) {
-            fail = "childNodes";
+        if (node[2] === null && (node[0] === "childNodes" || node[0] === "getElementsByAttribute" || node[0] === "getElementsByClassName" || node[0] === "getElementsByName" || node[0] === "getElementsByTagName" || node[0] === "getElementsByText" || node[0] === "getModalsByModalType" || node[0] === "getNodesByType")) {
+            if (property !== "length" && a !== nodeLength - 1) {
+                fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: ["${node[0]}", "${node[1]}", ${node[2]}]`;
+            }
         }
         if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
             if (fail === "") {
@@ -286,7 +310,7 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
             str.push(".childNodes[");
             str.push(String(node[2]));
             str.push("]");
-        } else if (node[2] === null) {
+        } else if (node[2] === null || node[0] === "getElementById") {
             if (fail === "") {
                 element = element[node[0]](node[1]);
             }
@@ -325,16 +349,9 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
         a = a + 1;
     } while (a < nodeLength);
     dom.nodeString = str.join("");
-    if (fail === "getElementById") {
+    if (fail !== "") {
         network.testBrowser([
-            [false, "Bad test. Method 'getElementById' must only occur as the first DOM method", dom.nodeString]
-        ], remote.index, remote.action);
-        remote.domFailure = true;
-        return null;
-    }
-    if (fail === "childNodes") {
-        network.testBrowser([
-            [false, "Bad test. Property 'childNodes' requires an index value as the third data point of a DOM item: [\"childNodes\", null, 1]", dom.nodeString]
+            [false, fail, dom.nodeString]
         ], remote.index, remote.action);
         remote.domFailure = true;
         return null;
@@ -342,15 +359,8 @@ remote.node = function browser_remote_node(dom:testBrowserDOM):Element {
     return <Element>element;
 };
 
-// converts a primitive of any type into a string for presentation
-remote.stringify = function browser_remote_raw(primitive:primitive):string {
-    return (typeof primitive === "string")
-        ? `"${primitive.replace(/"/g, "\\\"")}"`
-        : String(primitive);
-};
-
 //process all cases of a test scenario for a given test item
-remote.test = function browser_remote_test(test:testBrowserTest[], index:number):void {
+remote.report = function browser_remote_report(test:testBrowserTest[], index:number):void {
     let a:number = 0;
     const result:[boolean, string, string][] = [],
         length:number = test.length;
@@ -365,6 +375,13 @@ remote.test = function browser_remote_test(test:testBrowserTest[], index:number)
         } while (a < length);
         network.testBrowser(result, index, remote.action);
     }
+};
+
+// converts a primitive of any type into a string for presentation
+remote.stringify = function browser_remote_raw(primitive:primitive):string {
+    return (typeof primitive === "string")
+        ? `"${primitive.replace(/"/g, "\\\"")}"`
+        : String(primitive);
 };
 
 

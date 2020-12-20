@@ -15,6 +15,8 @@ import share from "./share.js";
 import util from "./util.js";
 import webSocket from "./webSocket.js";
 
+import disallowed from "../common/disallowed.js";
+
 (function browser_init():void {
 
     util.fixHeight();
@@ -23,6 +25,7 @@ import webSocket from "./webSocket.js";
 
     // Extend the browser interface
     dom();
+    disallowed(true);
 
     let storage:storageItems,
         a:number = 0,
@@ -109,7 +112,6 @@ import webSocket from "./webSocket.js";
                     action();
                 };
             defaultModals();
-            browser.pageBody.setAttribute("class", "login");
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
@@ -118,16 +120,16 @@ import webSocket from "./webSocket.js";
             });
         },
         loadComplete = function browser_init_complete():void {
-            const idleness = function browser_init_complete_idleness():void {
-                    const time:number = Date.now(),
-                        offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
-                    if (offline.length < 1 && time - active > idleTime && localDevice !== null) {
-                        localDevice.setAttribute("class", "idle");
-                        network.heartbeat("idle", false);
-                    }
-                    setTimeout(browser_init_complete_idleness, idleTime);
-                },
-                activate = function browser_init_complete_activate():void {
+            const activate = function browser_init_complete_activate():void {
+                    const idleness = function browser_init_complete_idleness():void {
+                        const time:number = Date.now();
+                        if (localDevice.getAttribute("class") === "active" && time - active > idleTime && localDevice !== null) {
+                            localDevice.setAttribute("class", "idle");
+                            network.heartbeat("idle", false);
+                        }
+                        setTimeout(browser_init_complete_idleness, idleTime);
+                    };
+                    idleness();
                     if (localDevice !== null) {
                         const status:string = localDevice.getAttribute("class");
                         if (status !== "active" && browser.socket.readyState === 1) {
@@ -141,6 +143,9 @@ import webSocket from "./webSocket.js";
                         }
                     }
                     active = Date.now();
+                    if (loginFlag === true) {
+                        testBrowserLoad();
+                    }
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = <Element>event.target,
@@ -209,12 +214,9 @@ import webSocket from "./webSocket.js";
             if (loginFlag === true) {
                 webSocket(function browser_init_applyLogin_socket():void {
                     activate();
-                    idleness();
-                    testBrowserLoad();
                 });
             } else {
                 activate();
-                idleness();
             }
         };
     do {
@@ -282,6 +284,7 @@ import webSocket from "./webSocket.js";
                         };
                     let count:number = 0;
                     loginFlag = true;
+                    browser.pageBody.removeAttribute("class");
                     browser.data.colors = storage.settings.colors;
                     browser.data.nameUser = storage.settings.nameUser;
                     browser.data.nameDevice = storage.settings.nameDevice;

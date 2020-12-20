@@ -66,7 +66,7 @@ const vars:terminalVariables = {
                         }
                         a = a + 1;
                     } while (a < len);
-                    if (process.argv[a] !== "ignore[") {
+                    if (a < len && process.argv[a] !== "ignore[") {
                         process.argv[a] = process.argv[a].slice(7);
                         if (process.argv[a].charAt(process.argv[a].length - 1) === "]") {
                             list.push(process.argv[a].replace(/,$/, "").slice(0, process.argv[a].length - 1));

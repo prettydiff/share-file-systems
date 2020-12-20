@@ -72,8 +72,9 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                             dataString:string = (typeof data === "string")
                                                 ? data.replace("<!--network:-->", `${testBrowser}<!--network:{"family":"ipv6","ip":"::1","httpPort":${serverVars.webPort},"wsPort":${serverVars.wsPort}}--><!--storage:${JSON.stringify(storageData).replace(/--/g, "&#x2d;&#x2d;")}-->`)
                                                 : "";
-                                        if (serverVars.testBrowser !== null && serverVars.testBrowser.action === "reset-request") {
-                                            serverVars.testBrowser.action = "reset-browser";
+                                        if (serverVars.testBrowser !== null) {
+                                            serverVars.testBrowser.action = "nothing";
+                                            serverVars.testBrowser.test = null;
                                         }
                                         serverResponse.setHeader("content-security-policy", csp);
                                         serverResponse.setHeader("connection", "keep-alive");

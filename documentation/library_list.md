@@ -35,6 +35,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/browser/webSocket.ts](../lib/browser/webSocket.ts)**                                                           - Handles web socket events and associated errors. This where most communications from outside the browser are processed.
 * Directory *[../lib/common](../lib/common)*
    - **[../lib/common/common.ts](../lib/common/common.ts)**                                                                   - A collection of tools available to any environment.
+   - **[../lib/common/disallowed.ts](../lib/common/disallowed.ts)**                                                           - Reassignments from default conventions that either dated or most frequently misused.
 * Directory *[../lib/terminal/commands](../lib/terminal/commands)*
    - **[../lib/terminal/commands/agent_data.ts](../lib/terminal/commands/agent_data.ts)**                                     - Writes agent data to the shell.
    - **[../lib/terminal/commands/agent_online.ts](../lib/terminal/commands/agent_online.ts)**                                 - A connectivity tester to shared remote agents.
@@ -96,6 +97,8 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/test/samples/browser_projectDirectory.ts](../lib/terminal/test/samples/browser_projectDirectory.ts)** - A convenience function that tests a file navigation modal to go to the project's location for browser tests.
    - **[../lib/terminal/test/samples/browser_self.ts](../lib/terminal/test/samples/browser_self.ts)**                         - A list of tests that execute in the web browser only on this computer.
    - **[../lib/terminal/test/samples/browser_showContextMenu.ts](../lib/terminal/test/samples/browser_showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
+   - **[../lib/terminal/test/samples/file_path_decode.ts](../lib/terminal/test/samples/file_path_decode.ts)**                 - Transforms a custom encoded file path into a local operation system specific file path.
+   - **[../lib/terminal/test/samples/file_path_encode.ts](../lib/terminal/test/samples/file_path_encode.ts)**                 - Creates an encoding around file system addresses so that the test code can ensure the paths are properly formed per operating system.
    - **[../lib/terminal/test/samples/service.ts](../lib/terminal/test/samples/service.ts)**                                   - A list of service tests.
    - **[../lib/terminal/test/samples/simulation.ts](../lib/terminal/test/samples/simulation.ts)**                             - A list of command related tests for running shell simulations against the supported commands.
    - **[../lib/terminal/test/samples/simulation.ts](../lib/terminal/test/samples/simulation.ts)**                             - A list of command related tests for running shell simulations against the supported commands.

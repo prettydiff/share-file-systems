@@ -145,12 +145,12 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     });
     request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            log(["POST request", "", body, "", vars.text.angry + errorMessage.toString() + vars.text.none]);
+            log([`${vars.text.cyan}POST request${vars.text.none}`, body, vars.text.angry + errorMessage.toString() + vars.text.none, ""]);
         }
     });
     serverResponse.on("error", function terminal_server_methodPOST_errorResponse(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            log(["POST response", "", body, "", vars.text.angry + errorMessage.toString() + vars.text.none]);
+            log([`${vars.text.cyan}POST response${vars.text.none}`, body, vars.text.angry + errorMessage.toString() + vars.text.none, ""]);
         }
     });
 

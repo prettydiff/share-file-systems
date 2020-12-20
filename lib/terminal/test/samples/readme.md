@@ -10,6 +10,8 @@ The files that contain test samples and any sample type specific utilities.
 * **[browser_projectDirectory.ts](browser_projectDirectory.ts)** - A convenience function that tests a file navigation modal to go to the project's location for browser tests.
 * **[browser_self.ts](browser_self.ts)**                         - A list of tests that execute in the web browser only on this computer.
 * **[browser_showContextMenu.ts](browser_showContextMenu.ts)**   - A convenience function that launches the modal context menu in browser tests.
+* **[file_path_decode.ts](file_path_decode.ts)**                 - Transforms a custom encoded file path into a local operation system specific file path.
+* **[file_path_encode.ts](file_path_encode.ts)**                 - Creates an encoding around file system addresses so that the test code can ensure the paths are properly formed per operating system.
 * **[service.ts](service.ts)**                                   - A list of service tests.
 * **[simulation.ts](simulation.ts)**                             - A list of command related tests for running shell simulations against the supported commands.
 * **[simulation.ts](simulation.ts)**                             - A list of command related tests for running shell simulations against the supported commands.
