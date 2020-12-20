@@ -838,7 +838,7 @@ const defaultSecure:boolean = serverVars.secure,
                                     if (tests[index].machine === "self") {
                                         return 500;
                                     }
-                                    return 1000;
+                                    return 1250;
                                 }
                             }
                             return 0;
@@ -851,7 +851,7 @@ const defaultSecure:boolean = serverVars.secure,
                             delay: wait,
                             message: (wait === 500)
                                 ? "Providing local device browser time following a refresh."
-                                : (wait === 1000)
+                                : (wait === 1250)
                                     ? "Providing remote machine browser time following a refresh."
                                     : "Providing remote machine browser time before a refresh."
                         });

@@ -79,8 +79,8 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                 agency:agency = util.getAgent(element),
                 agentType:agentType = <agentType>element.getAttribute("class"),
                 parent:Element = <Element>element.parentNode,
-                agentNode:Element = element.getAncestor("agent", "class"),
-                agent:string = (agency[0] === "")
+                agentNode:Element = parent.getAncestor(agentType, "class"),
+                agent:string = (agency[0] === "" || agency[0] === null)
                     ? agentNode.getAttribute("data-hash")
                     : agency[0],
                 share:string = parent.getAttribute("data-hash"),

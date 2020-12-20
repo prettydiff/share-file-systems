@@ -530,7 +530,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
         invite4("self", "VM3", "user"),
 
         // test for idle state on VM1
-        idle("VM1", 24000),
+        idle("VM1", 28000),
 
         // test for idle state on VM2
         idle("VM2", 0),
@@ -856,15 +856,14 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
         // share a directory from VM3
         {
             delay: {
-                // text of the first button
                 node: [
                     ["getModalsByModalType", "shares", 0],
                     ["getElementsByClassName", "body", 0],
                     ["getElementsByClassName", "share", 0],
-                    ["getElementsByTagName", "button", 0]
+                    ["getElementsByTagName", "button", 1]
                 ],
                 qualifier: "ends",
-                target: ["firstChild", "textContent()"],
+                target: ["firstChild", "textContent"],
                 type: "property",
                 value: "documentation"
             },
@@ -881,6 +880,74 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
             machine: "VM3",
             name: "Share a directory from VM3",
             unit: []
+        },
+
+        // share a directory from VM3
+        {
+            interaction: [
+                {
+                    event: "wait",
+                    node: []
+                }
+            ],
+            machine: "self",
+            name: "Verify shared directory from VM3 on self",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "user", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["firstChild", "textContent"],
+                    type: "property",
+                    value: "documentation"
+                }
+            ]
+        },
+
+        // access VM3's share directory on self
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "user", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Open VM3's share on self",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "label", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["firstChild", "textContent"],
+                    type: "property",
+                    value: "api.md"
+                }
+            ]
         }
     ];
 
