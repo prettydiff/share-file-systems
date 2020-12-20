@@ -21,7 +21,9 @@ import test_self from "../samples/browser_self.js";
 
 let finished:boolean = false,
     tests:testBrowserItem[];
-const browser:testBrowserApplication = {
+const defaultSecure:boolean = serverVars.secure,
+    defaultStorage:string = serverVars.storage,
+    browser:testBrowserApplication = {
         agent: "",
         args: {
             callback: function terminal_test_application_browser_callback():void {
@@ -182,8 +184,8 @@ const browser:testBrowserApplication = {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
-                                    serverVars.secure = true;
-                                    serverVars.storage = `${vars.projectPath}lib${vars.sep}storage${vars.sep}`;
+                                    serverVars.secure = defaultSecure;
+                                    serverVars.storage = defaultStorage;
                                     serverVars.testBrowser = null;
                                     browser.args.callback(browser.exitMessage, browser.exitType);
                                 },

@@ -108,7 +108,7 @@ interface terminalVariables {
     };
     projectPath: string;
     sep: string;
-    startTime: [number, number];
+    startTime: bigint;
     testLogFlag: testLogFlag;
     testLogger: (library:string, container:string, message:string) => void;
     testLogStore: string[];

@@ -2,7 +2,6 @@
 /* lib/terminal/test/application/service - A list of service test related utilities. */
 
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, RequestOptions } from "http";
-import { request } from "https";
 
 import common from "../../../common/common.js";
 import remove from "../../commands/remove.js";
@@ -30,6 +29,8 @@ const projectPath:string = vars.projectPath,
     loopback:string = (serverVars.ipFamily === "IPv6")
         ? "::1"
         : "127.0.0.1",
+    defaultSecure:boolean = serverVars.secure,
+    defaultStorage:string = serverVars.storage,
 
     // start test list
     service:testServiceApplication = {
@@ -116,7 +117,7 @@ service.addServers = function terminal_test_application_services_addServers(call
                 remove(value, removeCallback);
             });
         };
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+    serverVars.secure = false;
     serverVars.storage = `${projectPath}lib${sep}terminal${sep}test${sep}storageService${sep}`;
     readStorage(storageComplete);
     removal();
@@ -235,7 +236,10 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 }, 25);
             });
         },
-        httpRequest:ClientRequest = request(payload, requestCallback);
+        scheme:string = (serverVars.secure === true)
+            ? "https"
+            : "http",
+        httpRequest:ClientRequest = vars.node[scheme].request(payload, requestCallback);
     service.tests[index].command = command;
     if (typeof service.tests[index].artifact === "string") {
         service.tests[index].artifact = <string>filePathDecode(null, service.tests[index].artifact);
@@ -259,6 +263,8 @@ service.killServers = function terminal_test_application_services_killServers(co
             testComplete(complete);
         }
     };
+    serverVars.secure = defaultSecure;
+    serverVars.storage = defaultStorage;
     common.agents({
         complete: agentComplete,
         countBy: "agent",

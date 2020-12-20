@@ -116,7 +116,7 @@ const vars:terminalVariables = {
             return projectPath;
         }()),
         sep: "/",
-        startTime: process.hrtime(),
+        startTime: process.hrtime.bigint(),
         testLogFlag: "",
         testLogger: function vars_utilities_vars_testLogger(library:string, container:string, message:string):void {
             if (vars.testLogFlag !== "") {
