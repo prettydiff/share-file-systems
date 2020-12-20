@@ -70,7 +70,7 @@ const serverVars:serverVars = {
         nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
         nameUser: "",
         requests: 0,
-        secure: true,
+        secure: false,
         status: "active",
         storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
         timeStore: 0,

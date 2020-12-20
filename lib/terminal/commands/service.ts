@@ -38,10 +38,15 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         portString:string = "",
         certLogs:string[] = null;
     (function terminal_commands_service_insecure():void {
-        const index:number = process.argv.indexOf("insecure");
-        if (index > -1) {
+        const insecure:number = process.argv.indexOf("insecure"),
+            secure:number = process.argv.indexOf("secure");
+        if (insecure > -1) {
             serverVars.secure = false;
-            process.argv.splice(index, 1);
+            process.argv.splice(insecure, 1);
+        }
+        if (secure > -1) {
+            serverVars.secure = true;
+            process.argv.splice(secure, 1);
         }
     }());
     const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
@@ -52,6 +57,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             const test:number = process.argv.indexOf("test");
             if (test > -1) {
                process.argv.splice(test, 1);
+               serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
             }
             index = process.argv.indexOf("browser");
             if (index > -1) {

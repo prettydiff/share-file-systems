@@ -17,7 +17,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .warning{font-weight:bold}
 
 /* Login prompt */
-.login #spaces .title,
+.login #spaces #title-bar,
 .login #spaces #content-area{display:none}
 .login #spaces #login{border-style:solid;border-width:0.1em;display:block;margin:0 auto;padding:2em;width:80em}
 #spaces #login{display:none}
