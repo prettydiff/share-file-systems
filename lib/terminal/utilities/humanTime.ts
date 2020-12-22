@@ -29,16 +29,18 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
             }
             return `${numberString(x) + y}s `;
         },
-        finalMem:string   = common.prettyBytes(process.memoryUsage().rss),
-        elapsed:bigint    = process.hrtime.bigint() - vars.startTime,
-        factorSec:bigint  = BigInt(1e9),
-        factorMin:bigint  = (60n * factorSec),
-        factorHour:bigint = (3600n * factorSec),
-        hours:bigint      = (elapsed / factorHour),
-        minutes:bigint    = ((elapsed - (hours * factorHour)) / factorMin),
-        seconds:bigint    = ((elapsed - ((hours * factorHour) + (minutes * factorMin))) / factorSec),
-        nanosecond:bigint = (elapsed - ((hours * factorHour) + (minutes * factorMin) + (seconds * factorSec))),
-        nanoString:string = (function terminal_utilities_humanTime_nanoString():string {
+        finalMem:string    = common.prettyBytes(process.memoryUsage().rss),
+        elapsed:bigint     = process.hrtime.bigint() - vars.startTime,
+        factorSec:bigint   = BigInt(1e9),
+        factorMin:bigint   = (60n * factorSec),
+        factorHour:bigint  = (3600n * factorSec),
+        hours:bigint       = (elapsed / factorHour),
+        elapsedHour:bigint = (hours * factorHour),
+        minutes:bigint     = ((elapsed - elapsedHour) / factorMin),
+        elapsedMin:bigint  = (minutes * factorMin),
+        seconds:bigint     = ((elapsed - (elapsedHour + elapsedMin)) / factorSec),
+        nanosecond:bigint  = (elapsed - (elapsedHour + elapsedMin + (seconds * factorSec))),
+        nanoString:string  = (function terminal_utilities_humanTime_nanoString():string {
             let nano:string = nanosecond.toString(),
                 a:number = nano.length;
             if (a < 9) {

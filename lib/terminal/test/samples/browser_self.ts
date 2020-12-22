@@ -151,7 +151,7 @@ const browserSelf:testBrowserItem[] = [
                 {
                     event: "wait",
                     node: [],
-                    value: "20000"
+                    value: "24000"
                 }
             ],
             machine: "self",
@@ -3090,13 +3090,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2],
-                    ["getElementsByTagName", "span", 1]
+                    ["getElementsByTagName", "li", 8],
+                    ["getElementsByTagName", "span", 0]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 14 items"
+                value: "file - 145 bytes"
             },
             interaction: [
                 {
@@ -3108,7 +3108,7 @@ const browserSelf:testBrowserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Update file list",
+            name: "Update file list 2",
             unit: [
                 {
                     node: [

@@ -37,9 +37,12 @@ const filePathDecode = function terminal_test_application_filePathDecode(testIte
                     start:string = (index > 0)
                         ? input.slice(0, index)
                         : "",
-                    middle:string = input.slice(index + 6, endIndex).replace(/\*\*projectPath\*\*/g, vars.projectPath).replace(/\/|\\/g, sep),
+                    middle:string = input.slice(index + 6, endIndex),
+                    middleParsed:string = (middle === "**projectPath**")
+                        ? middle.replace(/\*\*projectPath\*\*/g, vars.projectPath.slice(0, vars.projectPath.length - 1)).replace(/\/|\\/g, sep)
+                        : middle.replace(/\*\*projectPath\*\*/g, vars.projectPath).replace(/\/|\\/g, sep),
                     end:string = input.slice(endIndex + endLength);
-                input = start + middle.replace(/(\/|\\)$/, "") + end;
+                input = start + middleParsed + end;
             };
         if (index < 0) {
             return input;

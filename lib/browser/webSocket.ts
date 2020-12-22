@@ -267,7 +267,7 @@ const title:Element = document.getElementById("title-bar"),
                     } while (a > 0);
                 }
                 title.setAttribute("class", "title offline");
-                title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+                title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }

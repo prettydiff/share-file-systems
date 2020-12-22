@@ -381,23 +381,23 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
 
         // complete the login
         login("self"),
-        loginRefresh("self"),
+        //loginRefresh("self"),
 
         // complete the login on VM1
         login("VM1"),
-        loginRefresh("VM1"),
+        //loginRefresh("VM1"),
 
         // complete the login on VM2
         login("VM2"),
-        loginRefresh("VM2"),
+        //loginRefresh("VM2"),
 
         // complete the login on VM3
         login("VM3"),
-        loginRefresh("VM3"),
+        //loginRefresh("VM3"),
 
         // complete the login on VM4
         login("VM4"),
-        loginRefresh("VM4"),
+        //loginRefresh("VM4"),
 
         // invite device VM2 from VM1
         mainMenu("VM1"),
@@ -528,7 +528,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
             ]
         },
         invite4("self", "VM3", "user"),
-
+/*
         // test for idle state on VM1
         idle("VM1", 28000),
 
@@ -540,7 +540,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
 
         // test for idle state on VM4
         idle("VM4", 0),
-
+*/
         //open shares on self
         {
             delay: {
@@ -830,28 +830,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "li", 3],
             ["getElementsByTagName", "label", 0]
-        ], [
-            {
-                // the context menu is visible
-                node: [
-                    ["getElementById", "contextMenu", null]
-                ],
-                qualifier: "greater",
-                target: ["clientHeight"],
-                type: "property",
-                value: 2
-            },
-            {
-                // the context menu is visible
-                node: [
-                    ["getElementById", "contextMenu", null]
-                ],
-                qualifier: "is",
-                target: ["style", "display"],
-                type: "property",
-                value: ""
-            }
-        ], "VM3"),
+        ], [], "VM3"),
 
         // share a directory from VM3
         {
@@ -905,6 +884,34 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     target: ["firstChild", "textContent"],
                     type: "property",
                     value: "documentation"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "user", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0],
+                        ["getElementsByTagName", "strong", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["firstChild", "textContent"],
+                    type: "property",
+                    value: "(Read Only)"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "user", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0],
+                        ["getElementsByTagName", "strong", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "read-only-status"
                 }
             ]
         },
@@ -913,12 +920,15 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 0]
+                    ["getModalsByModalType", "fileNavigate", 0],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0],
+                    ["getElementsByTagName", "label", 0]
                 ],
-                qualifier: "greater",
-                target: ["clientHeight"],
+                qualifier: "ends",
+                target: ["firstChild", "textContent"],
                 type: "property",
-                value: 200
+                value: "api.md"
             },
             interaction: [
                 {
@@ -937,15 +947,80 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileList", 0],
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "user", 0],
                         ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "label", 0]
+                        ["getElementsByTagName", "button", 0],
+                        ["getElementsByTagName", "strong", 0]
                     ],
-                    qualifier: "ends",
+                    qualifier: "is",
                     target: ["firstChild", "textContent"],
                     type: "property",
-                    value: "api.md"
+                    value: "(Read Only)"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "user", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0],
+                        ["getElementsByTagName", "strong", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "read-only-status"
+                },
+            ]
+        },
+
+        // open file navigate context menu at self
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByTagName", "li", 0],
+            ["getElementsByTagName", "label", 0]
+        ],
+        [], "self"),
+
+        // on self read from a VM3 file
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "textPad", 0],
+                    ["getElementsByClassName", "body", 0],
+                    ["getElementsByTagName", "textarea", 0]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 200
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "On self open a file from VM3",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "textarea", 0]
+                    ],
+                    qualifier: "begins",
+                    target: ["value"],
+                    type: "property",
+                    value: "<!-- documentation/api - This documentation is"
                 }
             ]
         }

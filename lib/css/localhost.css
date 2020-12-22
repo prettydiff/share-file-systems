@@ -53,7 +53,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* Context menu, right click */
 #spaces #contextMenu{border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
-#spaces #contextMenu button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:10em}
+#spaces #contextMenu button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:100%}
 #spaces #contextMenu button:hover{text-decoration:underline}
 #spaces #contextMenu .destroy[disabled],
 #spaces #contextMenu button[disabled]{cursor:not-allowed}
