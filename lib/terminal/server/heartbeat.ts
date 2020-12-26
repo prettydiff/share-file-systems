@@ -57,9 +57,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                                 shareType: agentNames.agentType,
                                 status: "offline"
                             };
-                            vars.ws.broadcast(JSON.stringify({
-                                "heartbeat-complete": data
-                            }));
+                            vars.broadcast("heartbeat-complete", JSON.stringify(data));
                             if (errorMessage.code !== "ETIMEDOUT" && errorMessage.code !== "ECONNREFUSED") {
                                 error([
                                     `Error sending or receiving heartbeat to ${agentNames.agentType} ${agentNames.agent}`,
@@ -74,7 +72,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             httpConfig:httpConfiguration = {
                 agentType: "user",
                 callback: function terminal_server_heartbeat_broadcast_callback(message:Buffer|string):void {
-                    vars.ws.broadcast(message.toString());
+                    vars.broadcast(config.requestType, message.toString());
                 },
                 errorMessage: "",
                 ip: "",
@@ -112,9 +110,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                         httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
                         httpConfig.remoteName = agentNames.agent;
-                        httpConfig.payload = JSON.stringify({
-                            [config.requestType]: payload
-                        });
+                        httpConfig.payload = JSON.stringify(payload);
                         httpClient(httpConfig);
                     }
                 },
@@ -167,9 +163,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                         httpConfig.port = serverVars.device[agent].port;
                         httpConfig.remoteName = agent;
                         payload.agentTo = agent;
-                        httpConfig.payload = JSON.stringify({
-                            "heartbeat-complete": payload
-                        });
+                        httpConfig.payload = JSON.stringify(payload);
                         httpClient(httpConfig);
                     }
                 } while (a > 0);
@@ -217,9 +211,7 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         } else {
             data.shares = {};
         }
-        vars.ws.broadcast(JSON.stringify({
-            "heartbeat-complete": data
-        }));
+        vars.broadcast("heartbeat-complete", JSON.stringify(data));
         if (data.agentType === "user") {
             const list:string[] = Object.keys(serverVars.device).slice(1);
             broadcast({
@@ -245,9 +237,12 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         data.agentFrom = (data.agentType === "device")
             ? serverVars.hashDevice
             : serverVars.hashUser;
-        response(serverResponse, "application/json", JSON.stringify({
-            "heartbeat-status": data
-        }));
+        response({
+            message: JSON.stringify(data),
+            mimeType: "application/json",
+            responseType: "heartbeat-status",
+            serverResponse: serverResponse
+        });
     },
     // This logic will push out heartbeat data
     heartbeat:heartbeatObject = {
@@ -261,7 +256,12 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
             });
             removeByType(deleted.device, "device");
             removeByType(deleted.user, "user");
-            response(serverResponse, "text/plain", "response from heartbeat.delete");
+            response({
+                message: "response from heartbeat.delete",
+                mimeType: "text/plain",
+                responseType: "heartbeat-delete-agents",
+                serverResponse: serverResponse
+            });
         },
         deleteResponse: function terminal_server_heartbeat_deleteResponse(data:heartbeat, serverResponse:ServerResponse):void {
             if (data.agentType === "device") {
@@ -283,10 +283,13 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                     type: "user"
                 });
             }
-            vars.ws.broadcast(JSON.stringify({
-                "heartbeat-delete-agents": data
-            }));
-            response(serverResponse, "text/plain", "response from heartbeat.deleteResponse");
+            vars.broadcast("heartbeat-delete-agents", JSON.stringify(data));
+            response({
+                message: "response from heartbeat.deleteResponse",
+                mimeType: "text/plain",
+                responseType: "heartbeat-delete-agents",
+                serverResponse: serverResponse
+            });
         },
         parse: parse,
         update: function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
@@ -314,7 +317,12 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 sendShares: share,
                 status: data.status
             });
-            response(data.response, "text/plain", "response from heartbeat.update");
+            response({
+                message: "response from heartbeat.update",
+                mimeType: "text/plain",
+                responseType: "heartbeat-update",
+                serverResponse: data.response
+            });
         }
     };
 

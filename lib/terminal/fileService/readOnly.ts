@@ -10,8 +10,18 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const readOnly = function terminal_fileService_readOnly(request:IncomingMessage, serverResponse:ServerResponse, dataString:string):void {
-    const data:fileService = JSON.parse(dataString).fs,
+const readOnly = function terminal_fileService_readOnly(request:IncomingMessage, serverResponse:ServerResponse, data:fileService):void {
+    if (data.agentType === "device" && serverVars.device[data.agent] !== undefined) {
+        fileService(serverResponse, data);
+    } else {
+        response({
+            message: `{"id":"${data.id}","dirs":"noShare"}`,
+            mimeType: "application/json",
+            responseType: "file-list-status",
+            serverResponse: serverResponse
+        });
+    }
+    /*const data:fileService = JSON.parse(dataString).fs,
         copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)
             ? [data.name]
@@ -88,7 +98,7 @@ const readOnly = function terminal_fileService_readOnly(request:IncomingMessage,
         } else {
             response(serverResponse, "application/json", `{"id":"${data.id}","dirs":"noShare"}`);
         }
-    }
+    }*/
 };
 
 export default readOnly;

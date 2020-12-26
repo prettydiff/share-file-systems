@@ -84,6 +84,7 @@ interface serverVars {
 // terminal, universal
 interface terminalVariables {
     binary_check: RegExp;
+    broadcast: (type:requestType, data:string) => void;
     cli: string;
     command: string;
     commands: commandList;

@@ -19,9 +19,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         responseError = function terminal_server_message_responseError(message:nodeError):void {
             if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                 error([errorMessage, errorMessage.toString()]);
-                vars.ws.broadcast(JSON.stringify({
-                    error: errorMessage
-                }));
+                vars.broadcast("error", JSON.stringify(errorMessage));
             }
         },
         errorMessage:string = `Failed to send text message to ${data.agentTo}`,
@@ -40,7 +38,12 @@ const message = function terminal_server_message(messageText:string, serverRespo
             responseStream: httpClient.stream,
             responseError: responseError
         };
-    response(serverResponse, "text/plain", "Responding to message.");
+    response({
+        message: "Responding to message.",
+        mimeType: "text/plain",
+        responseType: "message",
+        serverResponse: serverResponse
+    });
     if (data.agentFrom === data.agentTo) {
         // broadcast
         let agentLength:number = agents.length;
@@ -54,7 +57,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
         } while (agentLength > 0);
     } else if ((data.agentType === "device" && data.agentTo === serverVars.hashDevice) || (data.agentType === "user" && data.agentTo === serverVars.hashUser)) {
         // message receipt
-        vars.ws.broadcast(messageText);
+        vars.broadcast("message", messageText);
     } else {
         // message send
         httpClient(config);

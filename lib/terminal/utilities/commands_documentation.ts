@@ -408,7 +408,7 @@ const commands_documentation = {
                 defined: "Runs tests server utility."
             },
             {
-                code: `${vars.version.command} test_service fs:fs-copy`,
+                code: `${vars.version.command} test_service fs-copy`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {

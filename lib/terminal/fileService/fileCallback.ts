@@ -15,13 +15,16 @@ const fileCallback = function terminal_fileService_fileCallback(serverResponse:S
             target: `remote-${data.id}`
         },
         payload:string = (message.indexOf("Copy complete.") === 0)
-            ? JSON.stringify({
-                "file-list-status": copyStatus
-            })
+            ? JSON.stringify(copyStatus)
         : message;
     if (localDevice === true) {
         vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
-        response(serverResponse, "application/json", payload);
+        response({
+            message: payload,
+            mimeType: "application/json",
+            responseType: "file-list-status",
+            serverResponse: serverResponse
+        });
     } else {
         const dirConfig:readDirectory = {
             callback: function terminal_fileService_fileCallback_dir(directory:directoryList):void {
@@ -36,9 +39,12 @@ const fileCallback = function terminal_fileService_fileCallback(serverResponse:S
                         location: location,
                         status: copyStatus
                     };
-                response(serverResponse, "application/json", JSON.stringify({
-                    "fs-update-remote": update
-                }));
+                response({
+                    message: JSON.stringify(update),
+                    mimeType: "application/json",
+                    responseType: "fs-update-remote",
+                    serverResponse: serverResponse
+                });
             },
             depth: 2,
             exclusions: [],

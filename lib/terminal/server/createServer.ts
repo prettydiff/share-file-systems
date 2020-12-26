@@ -36,9 +36,10 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                 request.method === "POST" && (
                     host === "localhost" || (
                         host !== "localhost" && (
-                            serverVars.user[<string>request.headers["agent-name"]] !== undefined ||
-                            request.headers.invite === "invite-request" ||
-                            request.headers.invite === "invite-complete" ||
+                            (serverVars[<agentType>request.headers["agent-type"]] !== undefined && serverVars[<agentType>request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) ||
+                            request.headers["request-type"] === "hash-device" ||
+                            request.headers["request-type"] === "invite-request" ||
+                            request.headers["request-type"] === "invite-complete" ||
                             (serverVars.testBrowser !== null && vars.command === "test_browser")
                         )
                     )
@@ -55,21 +56,22 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
 
     serverVars.requests = serverVars.requests + 1;
     if (host === "") {
-        response(serverResponse, "text/plain", `ForbiddenAccess: unknown user`);
-    } else  if (request.method === "GET" && (request.headers["agent-type"] === "device" || request.headers["agent-type"] === "user") && serverVars[request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) {
-        if (request.headers["agent-type"] === "device") {
-            serverResponse.setHeader("agent-hash", serverVars.hashDevice);
-            serverResponse.setHeader("agent-type", "device");
-        } else {
-            serverResponse.setHeader("agent-hash", serverVars.hashUser);
-            serverResponse.setHeader("agent-type", "user");
-        }
-        response(serverResponse, "text/plain", `response from ${serverVars.hashDevice}`);
+        response({
+            message: "ForbiddenAccess: unknown user",
+            mimeType: "text/plain",
+            responseType: "forbidden",
+            serverResponse: serverResponse
+        });
     } else if (request.method === "GET") {
         if (host === "localhost") {
             methodGET(request, serverResponse);
         } else {
-            response(serverResponse, "text/plain", "ForbiddenAccess:GET method from external agent.");
+            response({
+                message: "ForbiddenAccess:GET method from external agent.",
+                mimeType: "text/plain",
+                responseType: "forbidden",
+                serverResponse: serverResponse
+            });
         }
     } else if (postTest() === true) {
         methodPOST(request, serverResponse);
@@ -84,7 +86,12 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                         forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"]);
                     }
                 });
-                response(serverResponse, "text/plain", `ForbiddenAccess:${request.headers["remote-user"]}`);
+                response({
+                    message: `ForbiddenAccess:${request.headers["remote-user"]}`,
+                    mimeType: "text/plain",
+                    responseType: "forbidden",
+                    serverResponse: serverResponse
+                });
             }
         }, 50);
     }

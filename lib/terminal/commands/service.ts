@@ -327,13 +327,6 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         vars.ws = new WebSocket.Server({
                             server: wsServer
                         });
-                        vars.ws.broadcast = function terminal_commands_service_start_listen_socketBroadcast(data:string):void {
-                            vars.ws.clients.forEach(function terminal_commands_service_start_listen_socketBroadcast_clients(client):void {
-                                if (client.readyState === WebSocket.OPEN) {
-                                    client.send(data);
-                                }
-                            });
-                        };
                         portWs = vars.ws._server.address().port;
                         serverVars.wsPort = portWs;
                         readStorage(readComplete);

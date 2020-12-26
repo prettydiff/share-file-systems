@@ -21,14 +21,17 @@ declare global {
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
     type inviteAction = "invite" | "invite-request" | "invite-response" | "invite-complete";
     type inviteStatus = "accepted" | "declined" | "invited";
+    type mimeType = "application/javascript" | "application/json" | "application/octet-stream" | "application/x-www-form-urlencoded" | "application/xhtml+xml" | "image/jpeg" | "image/png" | "image/svg+xml" | "text/css" | "text/html" | "text/plain";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
     type modalType = "details" | "export" | "fileEdit" | "fileNavigate" | "invite-accept" | "invite-request" | "message" | "shares" | "share_delete" | "settings" | "textPad";
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
+
+    type requestType = "delete-agents" | "device" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | "hash-device" | "hash-share" | "hash-user" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "invite-complete" | "invite-error" | "invite-request" | "invite-response" | "message" | "reload" | "settings" | "test-browser" | "user";
+    
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut" | "fs-cut-file" | "fs-cut-list" | "fs-cut-list-remote" | "fs-cut-remove" | "fs-cut-request" | "fs-cut-self" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
-    type serverTask = "delete-agents" | "fs" | "fs-update-remote" | "hashDevice" | "hashShare" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "storage" | "test-browser";
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";
@@ -36,6 +39,5 @@ declare global {
     type testBrowserMode = "agents" | "full" | "remote" | "self";
     type testListType = "browser" | "service" | "simulation";
     type testLogFlag = "" | testListType;
-    type testServiceFileTarget = fsRemote | string | stringData[] | testTemplateCopyStatus;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 }

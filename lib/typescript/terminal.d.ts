@@ -224,11 +224,20 @@ declare global {
     }
     // ------------------------------------
 
+    // response
+    interface responseConfig {
+        message: string|Buffer;
+        mimeType: mimeType;
+        responseType: requestType;
+        serverResponse: ServerResponse;
+    }
+    // ------------------------------------
+
     // server
     interface serverCallback {
         agent: string;
         agentType: agentType;
-        callback:(output:serverOutput) => void;
+        callback: (output:serverOutput) => void;
     }
     // ------------------------------------
 

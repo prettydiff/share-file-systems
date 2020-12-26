@@ -44,6 +44,7 @@ interface module_invite {
     addAgents?: (invitation:invite) => void;
     complete?: (invitation:invite) => void;
     decline?: EventHandlerNonNull;
+    error?: (inviteData:invite) => void;
     payload?: (config:invitePayload) => invite;
     portValidation?: EventHandlerNonNull;
     request?: (event:MouseEvent, options:modal) => void;

@@ -253,7 +253,7 @@ Launches the 'server' command as a child process to issue HTTP requests against 
 ### Examples
 1. `node js/application test_service`
    - Runs tests server utility.
-1. `node js/application test_service fs:fs-copy`
+1. `node js/application test_service fs-copy`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
 1. `node js/application test_service log`
    - The log argument turns on verbose logging output with annotations.

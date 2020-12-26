@@ -124,6 +124,23 @@ invite.decline = function browser_invite_decline(event:MouseEvent):void {
     modal.close(event);  
 };
 
+/* Error handler */
+invite.error = function browser_invite_error(inviteData:invite):void {
+    const modal:Element = document.getElementById(inviteData.modal);
+    if (modal === null) {
+        return;
+    }
+    let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
+        content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
+        p:Element = document.createElement("p");
+    p.innerHTML = inviteData.message;
+    p.setAttribute("class", "error");
+    content.appendChild(p);
+    content.parentNode.removeChild(content.parentNode.lastChild);
+    content.style.display = "block";
+    footer.style.display = "block";
+};
+
 /* Prepare the big invitation payload object from a reduced set of data */
 invite.payload = function browser_invite_payload(config:invitePayload):invite {
     return {

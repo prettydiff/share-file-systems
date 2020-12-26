@@ -26,11 +26,7 @@ const error = function terminal_utilities_error(errText:string[]):void {
                         stack: stackTrace.slice(1),
                         error: errText.join(" ")
                     };
-                if (vars.ws.broadcast !== undefined) {
-                    vars.ws.broadcast(JSON.stringify({
-                        error: server
-                    }));
-                }
+                vars.broadcast("error", JSON.stringify(server));
                 logger(server);
             } else {
                 const stack:string = new Error().stack.replace(/error\.js:\d+:\d+\)\r?\n/, "splitMe"),

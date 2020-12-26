@@ -1,6 +1,5 @@
 
 /* lib/terminal/server/forbiddenUser - A single function for handling rejected HTTP responses associated with disallowed requests. */
-import { ServerResponse } from "http";
 
 import vars from "../utilities/vars.js";
 
@@ -16,9 +15,7 @@ const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, a
             response: null,
             type: agentType
         });
-        vars.ws.broadcast(JSON.stringify({
-            [`delete-${agentType}`]: agentName
-        }));
+        vars.broadcast("delete-agents", `${agentName},${agentType}`);
     }
 };
 

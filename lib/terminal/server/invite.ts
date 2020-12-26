@@ -14,9 +14,8 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
-const invite = function terminal_server_invite(dataString:string, serverResponse:ServerResponse):void {
-    const data:invite = JSON.parse(dataString).invite,
-        inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
+const invite = function terminal_server_invite(data:invite, serverResponse:ServerResponse):void {
+    const inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
             const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
                     const ip:string = data.ip,
                         port:number = data.port;
@@ -24,9 +23,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                     data.userName = serverVars.nameUser;
                     data.ip = serverVars.ipAddress;
                     data.port = serverVars.webPort;
-                    output = JSON.stringify({
-                        invite: data
-                    });
+                    output = JSON.stringify(data);
                     data.ip = ip;
                     data.port = port;
                     return output;
@@ -49,14 +46,10 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                         if (errorMessage.code === "ETIMEDOUT") {
                             if (data.action === "invite-request") {
                                 data.message = `Remote user, ip - ${data.ip} and port - ${data.port}, timed out. Invitation not sent.`;
-                                vars.ws.broadcast(JSON.stringify({
-                                    "invite-error": data
-                                }));
+                                vars.broadcast("invite-error", JSON.stringify(data));
                             } else if (data.action === "invite-complete") {
                                 data.message = `Originator, ip - ${serverVars.ipAddress} and port - ${serverVars.webPort}, timed out. Invitation incomplete.`;
-                                vars.ws.broadcast(JSON.stringify({
-                                    "invite-error": data
-                                }));
+                                vars.broadcast("invite-error", JSON.stringify(data));
                             }
                         }
                         error([data.action, errorMessage.toString()]);
@@ -153,7 +146,7 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
             data.status = "accepted";
             inviteHttp(data.ip, data.port);
         } else {
-            vars.ws.broadcast(dataString);
+            vars.broadcast("invite", JSON.stringify(data));
         }
     } else if (data.action === "invite-response") {
         const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`,
@@ -197,10 +190,15 @@ const invite = function terminal_server_invite(dataString:string, serverResponse
                 ? `Declined${respond}`
                 : `Ignored${respond}`;
         }
-        vars.ws.broadcast(dataString);
+        vars.broadcast("invite-complete", JSON.stringify(data));
     }
     //log([responseString]);
-    response(serverResponse, "text/plain", responseString);
+    response({
+        message: responseString,
+        mimeType: "text/plain",
+        responseType: data.action,
+        serverResponse: serverResponse
+    });
 };
 
 export default invite;

@@ -67,7 +67,7 @@ const serverVars:serverVars = {
         ipFamily: (address.IPv6.length > 0)
             ? "IPv6"
             : "IPv4",
-        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
+        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`,
         nameUser: "",
         requests: 0,
         secure: false,

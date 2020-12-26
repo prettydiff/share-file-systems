@@ -1,8 +1,6 @@
-# lib/typescript Code Files
-The various TypeScript type and interface definitions
 
-## Files
-<!-- Do not edit below this line.  Contents dynamically populated. -->
+
+* **[browser.d.ts](browser.d.ts)
 
 * **[browser.d.ts](browser.d.ts)**                 - TypeScript interfaces used by browser specific libraries.
 * **[browser_modules.d.ts](browser_modules.d.ts)** - TypeScript interfaces that define master library modules used in the browser.

@@ -8,22 +8,14 @@ import error from "../utilities/error.js";
 import vars from "../utilities/vars.js";
 
 const httpClient:httpClient = function terminal_server_httpClient(config:httpConfiguration):void {
-    const invite:string = (config.payload.indexOf("{\"invite\":{\"action\":\"invite-request\"") === 0)
-            ? "invite-request"
-            : (config.payload.indexOf("{\"invite\":{\"action\":\"invite-complete\"") === 0)
-                ? "invite-complete"
-                : (serverVars.testBrowser !== null)
-                    ? "test-browser"
-                    : "",
-        headers:OutgoingHttpHeaders = {
+    const headers:OutgoingHttpHeaders = {
             "content-type": "application/x-www-form-urlencoded",
             "content-length": Buffer.byteLength(config.payload),
             "agent-hash": serverVars.hashUser,
             "agent-name": serverVars.nameUser,
             "agent-type": config.agentType,
             "remote-user": config.remoteName,
-            "request-type": config.requestType,
-            "invite": invite
+            "request-type": config.requestType
         },
         payload:RequestOptions = {
             headers: headers,

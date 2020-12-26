@@ -5,9 +5,9 @@ import { ServerResponse } from "http";
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
 
-const response = function terminal_server_response(serverResponse:ServerResponse, type:string, message:string|Buffer):void {
-    if (serverResponse !== null) {
-        if (serverResponse.writableEnded === true) {
+const response = function terminal_server_response(config:responseConfig):void {
+    if (config.serverResponse !== null) {
+        if (config.serverResponse.writableEnded === true) {
             error(["Write after end of HTTP response."]);
         } else {
             const textTypes:string[] = [
@@ -22,31 +22,32 @@ const response = function terminal_server_response(serverResponse:ServerResponse
                     "application/xhtml+xml"
                 ],
                 contains = function terminal_server_response_contains(input:string):boolean {
-                    const stringMessage:string = (Buffer.isBuffer(message) === true)
+                    const stringMessage:string = (Buffer.isBuffer(config.message) === true)
                             ? ""
-                            : <string>message,
+                            : <string>config.message,
                         lower:string = stringMessage.toLowerCase();
                     if (lower.indexOf(input) > -1 && lower.indexOf(input) < 10) {
                         return true;
                     }
                     return false;
-                };
+                },
+                type:string = (textTypes.indexOf(config.mimeType) > -1)
+                    ? `${config.mimeType}; charset=utf-8`
+                    : `${config.mimeType}; charset=binary`;
             let status:number;
-            if (Buffer.isBuffer(message) === true) {
+            if (Buffer.isBuffer(config.message) === true) {
                 status = 200;
             } else if (contains("ENOENT") === true || contains("not found") === true) {
                 status = 404;
-            } else if (contains("forbidden") === true || message === "Unexpected user.") {
+            } else if (contains("forbidden") === true || config.message === "Unexpected user.") {
                 status = 403;
             } else {
                 status = 200;
             }
-            type = (textTypes.indexOf(type) > -1)
-                ? `${type}; charset=utf-8`
-                : `${type}; charset=binary`;
-            serverResponse.writeHead(status, {"Content-Type": type});
-            serverResponse.write(message);
-            serverResponse.end();
+            config.serverResponse.setHeader("response-type", config.responseType);
+            config.serverResponse.writeHead(status, {"Content-Type": type});
+            config.serverResponse.write(config.message);
+            config.serverResponse.end();
             serverVars.requests = serverVars.requests - 1;
         }
     }

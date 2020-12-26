@@ -21,9 +21,8 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     let body:string = "";
     const decoder:StringDecoder = new StringDecoder("utf8"),
         end = function terminal_server_methodPOST_end():void {
-            const hashDevice = function terminal_server_methodPOST_end_hashDevice():void {
-                const nameData:hashAgent = JSON.parse(body).hashDevice,
-                        hashes:hashAgent = {
+            const hashDevice = function terminal_server_methodPOST_end_hashDevice(nameData:hashAgent):void {
+                const hashes:hashAgent = {
                             device: "",
                             user: ""
                         },
@@ -43,7 +42,12 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                     response: null,
                                     type: "device"
                                 });
-                                response(serverResponse, "application/json", JSON.stringify(hashes));
+                                response({
+                                    message: JSON.stringify(hashes),
+                                    mimeType: "application/json",
+                                    responseType: "hash-user",
+                                    serverResponse: serverResponse
+                                });
                             };
                             serverVars.hashUser = hashUser.hash;
                             serverVars.nameUser = nameData.user;
@@ -61,19 +65,23 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     vars.testLogger("service", "hashDevice", "Create a hash to name a device.");
                     hash(input);
                 },
-                hashShare = function terminal_server_methodPOST_end_hashShare():void {
-                    const hashShare:hashShare = JSON.parse(body).hashShare,
-                        input:hashInput = {
+                hashShare = function terminal_server_methodPOST_end_hashShare(hashShare:hashShare):void {
+                    const input:hashInput = {
                             algorithm: "sha3-512",
                             callback: function terminal_server_methodPOST_end_shareHash(hashData:hashOutput) {
-                                const outputBody:hashShare = JSON.parse(hashData.id).hashShare,
+                                const outputBody:hashShare = JSON.parse(hashData.id),
                                     hashResponse:hashShareResponse = {
                                         device: outputBody.device,
                                         hash: hashData.hash,
                                         share: outputBody.share,
                                         type: outputBody.type
                                     };
-                                response(serverResponse, "application/json", JSON.stringify({shareHashResponse:hashResponse}));
+                                response({
+                                    message: JSON.stringify({shareHashResponse:hashResponse}),
+                                    mimeType: "application/json",
+                                    responseType: "hash-share",
+                                    serverResponse: serverResponse
+                                });
                             },
                             directInput: true,
                             id: body,
@@ -84,55 +92,65 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 },
                 updateRemote = function terminal_server_methodPOST_end_updateRemote():void {
                     vars.testLogger("service", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
-                    vars.ws.broadcast(body);
-                    response(serverResponse, "text/plain", `Received directory watch for ${body} at ${serverVars.ipAddress}.`);
+                    vars.broadcast("fs-update-remote", body);
+                    response({
+                        message: `Received directory watch for ${body} at ${serverVars.ipAddress}.`,
+                        mimeType: "text/plain",
+                        responseType: "fs-update-remote",
+                        serverResponse: serverResponse
+                    });
                 };
-            let task:serverTask = <serverTask>body.slice(0, body.indexOf(":")).replace("{", "").replace(/"/g, "");
+            let task:requestType = <requestType>request.headers["request-type"];
             if (task === "heartbeat-update") {
                 // * prepare heartbeat pulse for connected agents
-                const dataPackage:heartbeatUpdate = JSON.parse(body)["heartbeat-update"];
+                const dataPackage:heartbeatUpdate = JSON.parse(body);
                 dataPackage.response = serverResponse;
                 heartbeat.update(dataPackage);
             } else if (task === "heartbeat-complete") {
                 // * receipt of a heartbeat pulse on the distant end
-                heartbeat.parse(JSON.parse(body)["heartbeat-complete"], serverResponse);
+                heartbeat.parse(JSON.parse(body), serverResponse);
             } else if (task === "heartbeat-status") {
                 // * the response to a heartbeat at the original requestor
-                vars.ws.broadcast(body);
-                response(serverResponse, "text/plain", "heartbeat-status");
+                vars.broadcast("heartbeat-status", body);
+                response({
+                    message: "heartbeat-status",
+                    mimeType: "text/plain",
+                    responseType: "heartbeat-status",
+                    serverResponse: serverResponse
+                });
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
-                readOnly(request, serverResponse, body);
+                readOnly(request, serverResponse, JSON.parse(body));
             } else if (task === "fs-update-remote") {
                 // * remote: Changes to the remote user's file system
                 // * local : Update local "File Navigator" modals for the respective remote user
                 updateRemote();
             } else if (task === "delete-agents") {
                 // * received a request from the browser to delete agents
-                heartbeat.delete(JSON.parse(body)["delete-agents"], serverResponse);
+                heartbeat.delete(JSON.parse(body), serverResponse);
             } else if (task === "heartbeat-delete-agents") {
                 // * received instructions from remote to delete agents
-                heartbeat.deleteResponse(JSON.parse(body)["heartbeat-delete-agents"], serverResponse);
+                heartbeat.deleteResponse(JSON.parse(body), serverResponse);
             } else if (task === "message") {
                 // * process text messages
                 message(body, serverResponse);
-            } else if (task === "storage") {
+            } else if (task === "device" || task === "settings" || task === "user") {
                 // * local: Writes changes to storage files
-                const dataPackage:storage = JSON.parse(body).storage;
+                const dataPackage:storage = JSON.parse(body);
                 dataPackage.response = serverResponse;
                 storage(dataPackage);
-            } else if (task === "hashShare") {
+            } else if (task === "hash-share") {
                 // * generate a hash string to name a share
-                hashShare();
-            } else if (task === "hashDevice") {
+                hashShare(JSON.parse(body));
+            } else if (task === "hash-device") {
                 // * produce a hash that describes a new device
-                hashDevice();
-            } else if (task === "invite") {
+                hashDevice(JSON.parse(body));
+            } else if (task.indexOf("invite") === 0) {
                 // * Handle all stages of invitation
-                invite(body, serverResponse);
+                invite(JSON.parse(body), serverResponse);
             } else if (task === "test-browser") {
                 // * validate a browser test iteration
-                browser.methods.route(JSON.parse(body)["test-browser"], serverResponse);
+                browser.methods.route(JSON.parse(body), serverResponse);
             }
         };
 
@@ -145,12 +163,22 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
     });
     request.on("error", function terminal_server_methodPOST_errorRequest(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            log([`${vars.text.cyan}POST request${vars.text.none}`, body, vars.text.angry + errorMessage.toString() + vars.text.none, ""]);
+            log([
+                `${vars.text.cyan}POST request, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
+                body,
+                vars.text.angry + errorMessage.toString() + vars.text.none,
+                ""
+            ]);
         }
     });
     serverResponse.on("error", function terminal_server_methodPOST_errorResponse(errorMessage:nodeError):void {
         if (errorMessage.code !== "ETIMEDOUT") {
-            log([`${vars.text.cyan}POST response${vars.text.none}`, body, vars.text.angry + errorMessage.toString() + vars.text.none, ""]);
+            log([
+                `${vars.text.cyan}POST response, ${request.headers["request-type"]}, methodPOST.ts${vars.text.none}`,
+                body,
+                vars.text.angry + errorMessage.toString() + vars.text.none,
+                ""
+            ]);
         }
     });
 

@@ -12,7 +12,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
         error([`Count not resolve IP address for agent ${config.data.agent} of type ${config.data.agentType}.`]);
         return;
     }
-    const test:boolean = (vars.command.indexOf("test") === 0 && (config.data.action === "fs-base64" || config.data.action === "fs-destroy" || config.data.action === "fs-details" || config.data.action === "fs-hash" || config.data.action === "fs-new" || config.data.action === "fs-read" || config.data.action === "fs-rename" || config.data.action === "fs-search" || config.data.action === "fs-write")),
+    const test:boolean = (vars.command.indexOf("test") === 0),
         payload:fileService = {
             action: config.data.action,
             agent: (test === true)
@@ -21,7 +21,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                     : serverVars.hashUser
                 : config.data.agent,
             agentType: (test === true && config.data.copyAgent !== "")
-                ? <agentType>config.data.copyAgent
+                ? <agentType>config.data.copyType
                 : config.data.agentType,
             copyAgent: (test === true)
                 ? config.data.agent
@@ -64,14 +64,17 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                 error([config.errorMessage, httpError.toString()]);
             }
-            response(config.serverResponse, "application/json", JSON.stringify(fsRemote));
+            response({
+                message: JSON.stringify(fsRemote),
+                mimeType: "application/json",
+                responseType: "file-list-status",
+                serverResponse: config.serverResponse
+            });
         },
         responseError = function terminal_fileService_httpRequest_responseError(httpError:nodeError):void {
             if (httpError.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
                 log([config.errorMessage, config.errorMessage.toString()]);
-                vars.ws.broadcast(JSON.stringify({
-                    error: config.errorMessage
-                }));
+                vars.broadcast("error", config.errorMessage);
             }
         },
         httpConfig:httpConfiguration = {
@@ -79,13 +82,11 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             callback: config.callback,
             errorMessage: config.errorMessage,
             ip: serverVars[config.data.agentType][config.data.agent].ip,
-            payload: JSON.stringify({
-                fs: payload
-            }),
+            payload: JSON.stringify(payload),
             port: serverVars[config.data.agentType][config.data.agent].port,
             remoteName: config.data.agent,
             requestError: requestError,
-            requestType: config.data.action,
+            requestType: "fs",
             responseStream: config.stream,
             responseError: responseError
         };

@@ -97,19 +97,22 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 }
             });
             if (data.id.indexOf("|Copying ") > 0) {
-                vars.ws.broadcast(JSON.stringify({
-                    "file-list-status": {
-                        failures: [],
-                        message: data.id.slice(data.id.indexOf("|") + 1),
-                        target: data.id.slice(0, data.id.indexOf("|"))
-                    }
+                vars.broadcast("file-list-status", JSON.stringify({
+                    failures: [],
+                    message: data.id.slice(data.id.indexOf("|") + 1),
+                    target: data.id.slice(0, data.id.indexOf("|"))
                 }));
             }
         },
         copyListLocal = function terminal_fileService_fileService_copyListLocal():void {
             const listData:remoteCopyList = {
                 callback: function terminal_fileService_fileService_copyListLocal_callback(listData:remoteCopyListData):void {
-                    response(serverResponse, "application/octet-stream", JSON.stringify(listData));
+                    response({
+                        message: JSON.stringify(listData),
+                        mimeType: "application/octet-stream",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
                 },
                 data: data,
                 files: [],
@@ -145,7 +148,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     const httpCall = function terminal_fileService_fileService_copyLocalToRemote_callback_http():void {
                             httpRequest({
                                 callback: function terminal_fileService_fileService_copyLocalToRemote_callback_http_request(message:Buffer|string):void {
-                                    response(serverResponse, "application/json", message.toString());
+                                    response({
+                                        message: message.toString(),
+                                        mimeType: "application/json",
+                                        responseType: "fs",
+                                        serverResponse: serverResponse
+                                    });
                                 },
                                 data: data,
                                 errorMessage: "Error sending list of files to remote for copy from local device.",
@@ -191,7 +199,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             data.action = <serviceType>`${data.action}-self`;
             httpRequest({
                 callback: function terminal_fileService_fileService_copyRemoteSameAgent(message:Buffer|string):void {
-                    response(serverResponse, "application/json", message.toString());
+                    response({
+                        message: message.toString(),
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
                 },
                 data: data,
                 errorMessage: `Error copying files to and ${data.agentType} ${serverVars[data.agentType][data.agent].name}.`,
@@ -294,12 +307,13 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                                     fail: dirItems.failures,
                                     location: data.watch
                                 };
-                                vars.ws.broadcast(JSON.stringify({
-                                    "fs-update-local": dirItems
-                                }));
-                                response(serverResponse, "application/json", JSON.stringify({
-                                    "fs-update-remote": remote
-                                }));
+                                vars.broadcast("fs-update-local", JSON.stringify(dirItems));
+                                response({
+                                    message: JSON.stringify(remote),
+                                    mimeType: "application/json",
+                                    responseType: "fs-update-remote",
+                                    serverResponse: serverResponse
+                                });
                             },
                             depth: 2,
                             exclusions: [],
@@ -343,7 +357,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                                         fail: directoryList.failures,
                                         id: data.id
                                     };
-                                    response(serverResponse, "application/json", JSON.stringify(responseData));
+                                    response({
+                                        message: JSON.stringify(responseData),
+                                        mimeType: "application/json",
+                                        responseType: "fs",
+                                        serverResponse: serverResponse
+                                    });
                                 },
                                 depth: 2,
                                 exclusions: [],
@@ -376,11 +395,21 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         watchLocal(dirs.join(slash), logRecursion);
                     } else {
                         error([erNewFile.toString()]);
-                        response(serverResponse, "text/plain", erNewFile.toString());
+                        response({
+                            message: erNewFile.toString(),
+                            mimeType: "text/plain",
+                            responseType: "error",
+                            serverResponse: serverResponse
+                        });
                     }
                 });
             } else {
-                response(serverResponse, "text/plain", `unsupported type ${data.name}`);
+                response({
+                    message: `unsupported type ${data.name}`,
+                    mimeType: "text/plain",
+                    responseType: "error",
+                    serverResponse: serverResponse
+                });
             }
         },
         read = function terminal_fileService_fileService_read():void {
@@ -399,7 +428,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     storage.push(stringData);
                     if (b === length) {
                         vars.testLogger("fileService", "dataString callback", `Callback to action ${data.action} that writes an HTTP response.`);
-                        response(serverResponse, "application/json", JSON.stringify(storage));
+                        response({
+                            message: JSON.stringify(storage),
+                            mimeType: "application/json",
+                            responseType: "fs",
+                            serverResponse: serverResponse
+                        });
                     }
                 },
                 fileReader = function terminal_fileService_fileService_read_fileReader(fileInput:base64Input):void {
@@ -412,9 +446,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         vars.testLogger("fileService", "fileReader", `Reading a file for action fs-read, ${input.source}`);
                         if (readError !== null) {
                             error([readError.toString()]);
-                            vars.ws.broadcast(JSON.stringify({
-                                error: readError
-                            }));
+                            vars.broadcast("error", readError.toString());
                             return;
                         }
                         input.callback(inputConfig);
@@ -475,11 +507,21 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                             id: data.id
                         };
                         if (output.length < 1) {
-                            response(serverResponse, "application/json", JSON.stringify(responseData));
+                            response({
+                                message: JSON.stringify(responseData),
+                                mimeType: "application/json",
+                                responseType: "fs",
+                                serverResponse: serverResponse
+                            });
                         } else {
                             responseData.dirs = output;
                             responseData.fail = failures;
-                            response(serverResponse, "application/json", JSON.stringify(responseData));
+                            response({
+                                message: JSON.stringify(responseData),
+                                mimeType: "application/json",
+                                responseType: "fs",
+                                serverResponse: serverResponse
+                            });
                         }
                         
                         // please note
@@ -546,7 +588,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                                     fail: failures,
                                     id: data.id
                                 };
-                                response(serverResponse, "application/json", JSON.stringify(responseData));
+                                response({
+                                    message: JSON.stringify(responseData),
+                                    mimeType: "application/json",
+                                    responseType: "fs",
+                                    serverResponse: serverResponse
+                                });
                             }
                         } else {
                             pathRead();
@@ -559,7 +606,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             vars.testLogger("fileService", "not local agent", "Most of the primitive file system operations only need to occur on the target agent.");
             httpRequest({
                 callback: function terminal_fileService_fileService_remoteUserRead_callback(message:Buffer|string):void {
-                    response(serverResponse, "application/json", message.toString());
+                    response({
+                        message: message.toString(),
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
                 },
                 data: data,
                 errorMessage: `Error requesting ${data.action} from remote.`,
@@ -580,7 +632,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         serverResponse.setHeader("cut_path", headers.cut_path);
                         serverResponse.setHeader("compression", headers.compression);
                     }
-                    response(serverResponse, "application/json", message.toString());
+                    response({
+                        message: message.toString(),
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
                 },
                 data: data,
                 errorMessage: `Error request ${data.action} from remote user device ${serverVars.device[remoteUsers[0]].name}`,
@@ -593,11 +650,21 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             // remote file server access
             httpRequest({
                 callback: function terminal_fileService_fileService_remoteWatch_callback(message:Buffer|string):void {
-                    if (message.toString().indexOf("{\"fs-update-remote\":") === 0) {
-                        vars.ws.broadcast(message.toString());
-                        response(serverResponse, "text/plain", "Terminal received file system response from remote.");
+                    if (message.toString().indexOf(",\"status\":") > 0) {
+                        vars.broadcast("fs-update-remote", message.toString());
+                        response({
+                            message: "Terminal received file system response from remote.",
+                            mimeType: "text/plain",
+                            responseType: "fs-update-remote",
+                            serverResponse: serverResponse
+                        });
                     } else {
-                        response(serverResponse, "application/json", message.toString());
+                        response({
+                            message: message.toString(),
+                            mimeType: "application/json",
+                            responseType: "fs",
+                            serverResponse: serverResponse
+                        });
                     }
                 },
                 data: data,
@@ -624,7 +691,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 } else {
                     error([erRename.toString()]);
                     vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
-                    response(serverResponse, "text/plain", erRename.toString());
+                    response({
+                        message: erRename.toString(),
+                        mimeType: "text/plain",
+                        responseType: "error",
+                        serverResponse: serverResponse
+                    });
                 }
             });
         },
@@ -636,7 +708,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         id: data.id
                     };
                     delete result.failures;
-                    response(serverResponse, "application/json", JSON.stringify(output));
+                    response({
+                        message: JSON.stringify(output),
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
                 },
                 dirConfig:readDirectory = {
                     callback: callback,
@@ -666,12 +743,15 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     : `File ${data.location[0]} saved to disk on ${type} ${agent}.`;
                 if (erw !== null) {
                     error([erw.toString()]);
-                    vars.ws.broadcast(JSON.stringify({
-                        error: erw
-                    }));
+                    vars.broadcast("error", erw.toString());
                     message = `Error writing file: ${erw.toString()}`;
                 }
-                response(serverResponse, "text/plain", message);
+                response({
+                    message: message,
+                    mimeType: "text/plain",
+                    responseType: "fs",
+                    serverResponse: serverResponse
+                });
             });
         };
     if (rootIndex > -1) {

@@ -14,7 +14,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
                 ? `0${str}`
                 : str;
         },
-        plural       = function terminal_utilities_humanTime_plural(x:bigint, y:string):string {
+        plural = function terminal_utilities_humanTime_plural(x:bigint, y:string):string {
             if (y === " second") {
                 if (x === 1n) {
                     if (nanosecond === 0n) {
@@ -31,6 +31,7 @@ const humanTime = function terminal_utilities_humanTime(finished:boolean):string
         },
         finalMem:string    = common.prettyBytes(process.memoryUsage().rss),
         elapsed:bigint     = process.hrtime.bigint() - vars.startTime,
+        // eslint-disable-next-line
         factorSec:bigint   = BigInt(1e9),
         factorMin:bigint   = (60n * factorSec),
         factorHour:bigint  = (3600n * factorSec),

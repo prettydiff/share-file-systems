@@ -51,8 +51,10 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                     config.data.watch = config.fileData.list[0][0].slice(0, config.fileData.list[0][0].lastIndexOf(config.fileData.list[0][2])).replace(/(\/|\\)+$/, "");
                     httpRequest({
                         callback: function terminal_fileService_requestFiles_respond_cut_cutCall(message:Buffer|string):void {
-                            if (message.toString().indexOf("{\"fs-update-remote\":") === 0) {
-                                vars.ws.broadcast(message.toString());
+                            if (message.toString().indexOf(",\"status\":") > 0) {
+                                vars.broadcast("fs-update-remote", message.toString());
+                            } else {
+                                vars.broadcast("file-list-status", message.toString());
                             }
                         },
                         data: config.data,
@@ -77,13 +79,14 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                             message: copyMessage(status),
                             target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
                         };
-                    vars.ws.broadcast(JSON.stringify({
-                        "file-list-status": output
-                    }));
+                    vars.broadcast("file-list-status", JSON.stringify(output));
                     output.target = `remote-${config.data.id}`;
-                    response(config.serverResponse, "application/json", JSON.stringify({
-                        "file-list-status": output
-                    }));
+                    response({
+                        message: JSON.stringify(output),
+                        mimeType: "application/json",
+                        responseType: "file-list-status",
+                        serverResponse: config.serverResponse
+                    });
                 },
                 depth: 2,
                 exclusions: [],
@@ -125,9 +128,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         status.writtenSize = writtenSize;
                         output.message = copyMessage(status);
                     }
-                    vars.ws.broadcast(JSON.stringify({
-                        "file-list-status": output
-                    }));
+                    vars.broadcast("file-list-status", JSON.stringify(output));
                 }
                 if (index < fileQueue.length - 1) {
                     terminal_fileService_requestFiles_writeFile(index + 1);
@@ -179,9 +180,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         message: copyMessage(status),
                         target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
                     };
-                vars.ws.broadcast(JSON.stringify({
-                    "file-list-status": output
-                }));
+                vars.broadcast("file-list-status", JSON.stringify(output));
             });
             fileResponse.on("end", function terminal_fileService_requestFiles_writeStream_end():void {
                 const hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
@@ -333,9 +332,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 message: `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`,
                 target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
             };
-        vars.ws.broadcast(JSON.stringify({
-            "file-list-status": output
-        }));
+        vars.broadcast("file-list-status", JSON.stringify(output));
     }
     vars.testLogger("fileService", "requestFiles", "A giant function to request one or more files from a remote/user device.  Before files are requested the directory structure is locally created.");
     if (config.fileData.list[0][1] === "directory") {

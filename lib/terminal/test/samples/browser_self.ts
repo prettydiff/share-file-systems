@@ -151,7 +151,7 @@ const browserSelf:testBrowserItem[] = [
                 {
                     event: "wait",
                     node: [],
-                    value: "24000"
+                    value: "28000"
                 }
             ],
             machine: "self",
