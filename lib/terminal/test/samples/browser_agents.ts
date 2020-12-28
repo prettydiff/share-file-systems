@@ -530,7 +530,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
         invite4("self", "VM3", "user"),
 /*
         // test for idle state on VM1
-        idle("VM1", 28000),
+        idle("VM1", 16000),
 
         // test for idle state on VM2
         idle("VM2", 0),

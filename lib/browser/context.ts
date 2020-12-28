@@ -580,6 +580,8 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         return;
                     };
                 if (value.replace(/\s+/, "") !== "") {
+                    actionElement.onkeyup = null;
+                    actionElement.onblur = null;
                     actionParent.innerHTML = payload.location[0];
                     network.fileBrowser(payload, callback);
                 }
@@ -617,6 +619,8 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         callback = function browser_context_fsNew_actionBlur_callback():void {
                             return;
                         };
+                    actionElement.onkeyup = null;
+                    actionElement.onblur = null;
                     actionParent.innerHTML = payload.location[0];
                     network.fileBrowser(payload, callback);
                 }
