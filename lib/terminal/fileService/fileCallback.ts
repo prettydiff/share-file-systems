@@ -13,14 +13,11 @@ const fileCallback = function terminal_fileService_fileCallback(serverResponse:S
             failures: [],
             message: message,
             target: `remote-${data.id}`
-        },
-        payload:string = (message.indexOf("Copy complete.") === 0)
-            ? JSON.stringify(copyStatus)
-        : message;
+        };
     if (localDevice === true) {
         vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
         response({
-            message: payload,
+            message: JSON.stringify(copyStatus),
             mimeType: "application/json",
             responseType: "file-list-status",
             serverResponse: serverResponse

@@ -225,6 +225,8 @@ service.execute = function terminal_test_application_services_execute(config:tes
                         test["dirs"][a][0] = filePathDecode(null, test["dirs"][a][0]);
                     } while (a > 0);
                 }
+            } else if (test["message"] !== undefined) {
+                test["message"] = filePathDecode(null, test["message"]);
             }
             testEvaluation({
                 callback: config.complete,

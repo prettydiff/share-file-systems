@@ -77,7 +77,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                         type: outputBody.type
                                     };
                                 response({
-                                    message: JSON.stringify({shareHashResponse:hashResponse}),
+                                    message: JSON.stringify(hashResponse),
                                     mimeType: "application/json",
                                     responseType: "hash-share",
                                     serverResponse: serverResponse

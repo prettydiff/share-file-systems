@@ -72,7 +72,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-close, Close Local",
         qualifier: "begins",
         requestType: "fs",
-        test: `Watcher ${filePathEncode("absolute", "lib")} closed.`
+        test: {
+            failures: [],
+            message: `Watcher ${filePathEncode("absolute", "lib")} closed.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -265,7 +269,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-new, Local New Directory",
         qualifier: "is",
         requestType: "fs",
-        test: `${filePathEncode("absolute", "serviceTestLocal")} created.`
+        test: {
+            failures: [],
+            message: `${filePathEncode("absolute", "serviceTestLocal")} created.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -283,7 +291,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-new, Local New File",
         qualifier: "is",
         requestType: "fs",
-        test: `${filePathEncode("absolute", "serviceTestLocal.json")} created.`
+        test: {
+            failures: [],
+            message: `${filePathEncode("absolute", "serviceTestLocal.json")} created.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -301,7 +313,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-new, Remote Device New Directory",
         qualifier: "is",
         requestType: "fs",
-        test: `${filePathEncode("absolute", "serviceTestRemote")} created.`
+        test: {
+            failures: [],
+            message: `${filePathEncode("absolute", "serviceTestRemote")} created.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -319,7 +335,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-new, Remote Device New File",
         qualifier: "is",
         requestType: "fs",
-        test: `${filePathEncode("absolute", "serviceTestRemote.json")} created.`
+        test: {
+            failures: [],
+            message: `${filePathEncode("absolute", "serviceTestRemote.json")} created.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -417,7 +437,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-rename, Rename Local Directory",
         qualifier: "is",
         requestType: "fs",
-        test: `Path ${filePathEncode("absolute", "serviceTestLocal")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal")}.`
+        test: {
+            failures: [],
+            message: `Path ${filePathEncode("absolute", "serviceTestLocal")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal")}.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -435,7 +459,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-rename, Rename Local File",
         qualifier: "is",
         requestType: "fs",
-        test: `Path ${filePathEncode("absolute", "serviceTestLocal.json")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal.json")}.`
+        test: {
+            failures: [],
+            message: `Path ${filePathEncode("absolute", "serviceTestLocal.json")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal.json")}.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -453,7 +481,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-rename, Rename Remote Device Directory",
         qualifier: "is",
         requestType: "fs",
-        test: `Path ${filePathEncode("absolute", "serviceTestRemote")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote")}.`
+        test: {
+            failures: [],
+            message: `Path ${filePathEncode("absolute", "serviceTestRemote")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote")}.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -471,7 +503,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-rename, Rename Remote Device File",
         qualifier: "is",
         requestType: "fs",
-        test: `Path ${filePathEncode("absolute", "serviceTestRemote.json")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote.json")}.`
+        test: {
+            failures: [],
+            message: `Path ${filePathEncode("absolute", "serviceTestRemote.json")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote.json")}.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -489,7 +525,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-destroy, Destroy Local Directory",
         qualifier: "is",
         requestType: "fs",
-        test: `Path(s) ${filePathEncode("absolute", "serviceLocal")} destroyed on device ${serverVars.hashDevice}.`
+        test: {
+            failures: [],
+            message: `Path(s) ${filePathEncode("absolute", "serviceLocal")} destroyed on device ${serverVars.hashDevice}.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -507,7 +547,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-destroy, Destroy Local File",
         qualifier: "is",
         requestType: "fs",
-        test: `Path(s) ${filePathEncode("absolute", "serviceLocal.json")} destroyed on device ${serverVars.hashDevice}.`
+        test: {
+            failures: [],
+            message: `Path(s) ${filePathEncode("absolute", "serviceLocal.json")} destroyed on device ${serverVars.hashDevice}.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -525,7 +569,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-destroy, Destroy Remote Device Directory",
         qualifier: "is",
         requestType: "fs",
-        test: `Path(s) ${filePathEncode("absolute", "serviceRemote")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+        test: {
+            failures: [],
+            message: `Path(s) ${filePathEncode("absolute", "serviceRemote")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {
@@ -543,7 +591,11 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         name: "fs-destroy, Destroy Remote Device File",
         qualifier: "is",
         requestType: "fs",
-        test: `Path(s) ${filePathEncode("absolute", "serviceRemote.json")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+        test: {
+            failures: [],
+            message: `Path(s) ${filePathEncode("absolute", "serviceRemote.json")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`,
+            target: "remote-test-ID"
+        }
     });
     service.push(<testService>{
         command: {

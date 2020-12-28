@@ -285,8 +285,8 @@ share.context = function browser_share_context():void {
         shareLength:number = shares.length,
         addressesLength:number = addresses.length,
         payload: hashShareConfiguration = {
-            callback: function browser_share_context_shareHash(responseBody:string):void {
-                const shareResponse:hashShareResponse = JSON.parse(responseBody).shareHashResponse;
+            callback: function browser_share_context_shareHash(responseType:requestType, responseBody:string):void {
+                const shareResponse:hashShareResponse = JSON.parse(responseBody);
                 browser.device[shareResponse.device].shares[shareResponse.hash] = {
                     execute: false,
                     name: shareResponse.share,

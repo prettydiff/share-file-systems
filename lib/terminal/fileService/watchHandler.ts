@@ -52,9 +52,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                         dirs: "missing",
                                         fail: [],
                                         id: (config.data.id.indexOf("|Copying ") > 0)
-                                            ? JSON.stringify({
-                                                "file-list-status": copyStatus
-                                            })
+                                            ? JSON.stringify(copyStatus)
                                             : config.data.id
                                     };
                                 if (message.code !== "ETIMEDOUT" && message.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {

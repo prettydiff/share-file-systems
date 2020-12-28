@@ -56,9 +56,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                     dirs: "missing",
                     fail: [],
                     id: (config.data.id.indexOf("|Copying ") > 0)
-                        ? JSON.stringify({
-                            "file-list-status": copyStatus
-                        })
+                        ? JSON.stringify(copyStatus)
                         : config.data.id
                 };
             if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {

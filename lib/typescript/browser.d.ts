@@ -159,13 +159,13 @@ interface modal {
 
 // networks
 interface hashShareConfiguration {
-    callback:(string) => void;
+    callback:(responseType:requestType, responseText:string) => void;
     device: string;
     share: string;
     type: shareType;
 }
 interface networkConfig {
-    callback: (responseText:string) => void;
+    callback: (responseType:requestType, responseText:string) => void;
     error: string;
     payload: string;
     type: string;
