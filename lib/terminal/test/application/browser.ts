@@ -21,7 +21,8 @@ import test_self from "../samples/browser_self.js";
 
 let finished:boolean = false,
     tests:testBrowserItem[];
-const defaultSecure:boolean = serverVars.secure,
+const defaultCommand:string = vars.command,
+    defaultSecure:boolean = serverVars.secure,
     defaultStorage:string = serverVars.storage,
     browser:testBrowserApplication = {
         agent: "",
@@ -126,6 +127,7 @@ const defaultSecure:boolean = serverVars.secure,
                         ? test_self.concat(test_agents.slice(3))
                         : test_agents;
 
+                vars.command = "test_browser";
                 serverVars.secure = false;
                 serverVars.storage = `${vars.projectPath}lib${vars.sep}terminal${vars.sep}test${vars.sep}storageBrowser${vars.sep}`;
                 serverVars.testBrowser = {
@@ -178,6 +180,7 @@ const defaultSecure:boolean = serverVars.secure,
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_exit_closing_delay():void {
                                     browser.index = -1;
+                                    vars.command = defaultCommand;
                                     serverVars.secure = defaultSecure;
                                     serverVars.storage = defaultStorage;
                                     serverVars.testBrowser = null;
@@ -537,7 +540,7 @@ const defaultSecure:boolean = serverVars.secure,
                             action: start,
                             browser: false,
                             delay: 2000,
-                            message: "Delaying for browser refresh"
+                            message: "Delaying to ensure existing browsers have time to close."
                         });
                     } else {
                         start();

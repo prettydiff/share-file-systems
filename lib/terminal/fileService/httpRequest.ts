@@ -59,7 +59,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                         ? JSON.stringify(copyStatus)
                         : config.data.id
                 };
-            if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+            if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && (vars.command.indexOf("test") === 0 || vars.command.indexOf("test") !== 0)) {
                 error([config.errorMessage, httpError.toString()]);
             }
             response({

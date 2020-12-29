@@ -120,14 +120,12 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         };
                     cutList.push([fileQueue[index][2], "file"]);
                     countFile = countFile + 1;
-                    if (vars.command.indexOf("test") !== 0) {
-                        writtenFiles = writtenFiles + 1;
-                        writtenSize = writtenSize + fileQueue[index][1];
-                        status.countFile = countFile;
-                        status.percent = ((writtenSize / config.fileData.fileSize) * 100);
-                        status.writtenSize = writtenSize;
-                        output.message = copyMessage(status);
-                    }
+                    writtenFiles = writtenFiles + 1;
+                    writtenSize = writtenSize + fileQueue[index][1];
+                    status.countFile = countFile;
+                    status.percent = ((writtenSize / config.fileData.fileSize) * 100);
+                    status.writtenSize = writtenSize;
+                    output.message = copyMessage(status);
                     vars.broadcast("file-list-status", JSON.stringify(output));
                 }
                 if (index < fileQueue.length - 1) {

@@ -236,6 +236,8 @@ const service = function terminal_commands_service(serverCallback:serverCallback
 
                     // discover the web socket port in case its a random port
                     serverVars.wsPort = vars.ws.address().port;
+
+                    // exclude from tests except for browser tests
                     if (testBrowserRemote === true || vars.command.indexOf("test") !== 0) {
 
                         // log the port information to the terminal
