@@ -150,6 +150,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                         ? "https"
                         : "http",
                     request:ClientRequest = vars.node[scheme].request(payload, callback);
+                request.setHeader("request-type", "agent-online");
                 request.on("error", requestError);
                 request.write(requestBody);
                 request.end();

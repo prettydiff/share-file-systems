@@ -49,6 +49,19 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             }
             return false;
         },
+        setIdentity = function terminal_server_createServer_setIdentity(forbidden:boolean):void {
+            if (forbidden === true) {
+                serverResponse.setHeader("agent-hash", request.headers["agent"]);
+                serverResponse.setHeader("agent-type", "user");
+            } else {
+                const type:agentType = <agentType>request.headers["agent-type"],
+                    self:string = (type === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser;
+                serverResponse.setHeader("agent-hash", self);
+                serverResponse.setHeader("agent-type", type);
+            }
+        },
         // eslint-disable-next-line
         requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
     // *** available for troubleshooting:
@@ -56,6 +69,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
 
     serverVars.requests = serverVars.requests + 1;
     if (host === "") {
+        setIdentity(true);
         response({
             message: "ForbiddenAccess: unknown user",
             mimeType: "text/plain",
@@ -64,8 +78,10 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         });
     } else if (request.method === "GET") {
         if (host === "localhost") {
+            setIdentity(true);
             methodGET(request, serverResponse);
         } else {
+            setIdentity(true);
             response({
                 message: "ForbiddenAccess:GET method from external agent.",
                 mimeType: "text/plain",
@@ -74,11 +90,13 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             });
         }
     } else if (postTest() === true) {
+        setIdentity(false);
         methodPOST(request, serverResponse, host);
     } else {
         // the delay is necessary to prevent a race condition between service execution and data storage writing
         setTimeout(function terminal_server_createServer_delay():void {
             if (postTest() === true) {
+                setIdentity(false);
                 methodPOST(request, serverResponse, host);
             } else {
                 vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
@@ -86,6 +104,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                         forbiddenUser(<string>request.headers["agent-hash"], <agentType>request.headers["agent-type"]);
                     }
                 });
+                setIdentity(true);
                 response({
                     message: `ForbiddenAccess:${request.headers["remote-user"]}`,
                     mimeType: "text/plain",

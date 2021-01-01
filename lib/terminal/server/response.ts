@@ -1,7 +1,5 @@
 /* lib/terminal/server/response - A uniform means of handling HTTP responses. */
 
-import { ServerResponse } from "http";
-
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
 
