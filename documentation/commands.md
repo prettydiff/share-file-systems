@@ -212,6 +212,8 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
    - The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data.
 1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
+1. `node js/application service ip:192.168.1.125`
+   - An argument that begins with 'ip:' forces use of the specified IP address.
 1. `node js/application service secure`
    - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.
 1. `node js/application service insecure`

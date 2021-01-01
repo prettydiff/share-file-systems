@@ -49,7 +49,29 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             process.argv.splice(secure, 1);
         }
     }());
-    const certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
+    const ip:string = (function terminal_commands_service_ip():string {
+            let a:number = process.argv.length,
+                address:string;
+            do {
+                a = a - 1;
+                if (process.argv[a].indexOf("ip:") === 0) {
+                    address = process.argv[a].replace("ip:", "");
+                    process.argv.splice(a, 1);
+                    if ((/^(\d{1,3}\.){3}\d{1,3}$/).test(address) === true) {
+                        serverVars.ipAddress = address;
+                        serverVars.ipFamily = "IPv4";
+                        return address;
+                    }
+                    if ((/[0-9a-f]{4}:/).test(address) === true || address.indexOf("::") > -1) {
+                        serverVars.ipAddress = address;
+                        serverVars.ipFamily = "IPv6";
+                        return address;
+                    }
+                }
+            } while (a > 0);
+            return serverVars.ipAddress;
+        }()),
+        certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
         testBrowserRemote:boolean = (serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
         browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
@@ -229,7 +251,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         serverVars.hashDevice = storageData.settings.hashDevice;
                         serverVars.user = storageData.user;
                         if (serverVars.device[serverVars.hashDevice] !== undefined) {
-                            serverVars.device[serverVars.hashDevice].ip = serverVars.ipAddress;
+                            serverVars.device[serverVars.hashDevice].ip = ip;
                             serverVars.device[serverVars.hashDevice].port = serverVars.webPort;
                         }
                     }
@@ -254,13 +276,9 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         output.push("");
 
                         output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
-                        output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${serverVars.ipAddress + portString + vars.text.none}`);
+                        output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
                         if (portString !== "") {
-                            if (serverVars.ipFamily === "IPv6") {
-                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://[${serverVars.addresses.IPv6[0][0]}]${portString + vars.text.none}`);
-                            } else {
-                                output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${serverVars.addresses.IPv4[0][0]}:${portString + vars.text.none}`);
-                            }
+                            output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
                         }
                         if (certLogs !== null) {
                             certLogs.forEach(function terminal_commands_service_start_logger_certLogs(value:string):void {

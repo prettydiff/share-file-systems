@@ -341,6 +341,10 @@ const commands_documentation = {
                 defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             },
             {
+                code: `${vars.version.command} service ip:192.168.1.125`,
+                defined: "An argument that begins with 'ip:' forces use of the specified IP address."
+            },
+            {
                 code: `${vars.version.command} service secure`,
                 defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS."
             },
