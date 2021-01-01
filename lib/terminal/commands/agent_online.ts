@@ -63,8 +63,8 @@ const agentOnline = function terminal_commands_agentOnline():void {
                 const agent:agent = storage[agentType][agentHash],
                     name:string = agent.name,
                     self:string = (agentType === "device")
-                        ? serverVars.hashDevice
-                        : serverVars.hashUser,
+                        ? storage.settings.hashDevice
+                        : storage.settings.hashUser,
                     requestBody:string = `${vars.version.name} agent test for ${name} from ${storage.settings.nameDevice}.`,
                     payload:RequestOptions = {
                         headers: {
@@ -81,7 +81,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
                             "request-type": "test_agent"
                         },
                         host: storage[agentType][agentHash].ip,
-                        method: "GET",
+                        method: "POST",
                         path: "/",
                         port: storage[agentType][agentHash].port,
                         timeout: 1000
@@ -93,7 +93,13 @@ const agentOnline = function terminal_commands_agentOnline():void {
                             preposition:string = (output.type === "request")
                                 ? "to"
                                 : "from";
-                        return `${status} ${output.type} ${preposition} ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
+                        if (output.agentType !== undefined && output.agent !== undefined) {
+                            if (storage[output.agentType][output.agent] === undefined) {
+                                return `${status} ${output.type} forbidden (${vars.text.cyan + output.agent + vars.text.none}).`;
+                            }
+                            return `${status} ${output.type} ${preposition} ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
+                        }
+                        return `${status} ${output.type}, ${output.agentType} ${vars.text.cyan + output.agent + vars.text.none} is not a listed agent.`;
                     },
                     callback = function terminal_commands_agentOnline_readStorage_request_callback(response:IncomingMessage):void {
                         const chunks:Buffer[] = [];

@@ -51,7 +51,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         },
         setIdentity = function terminal_server_createServer_setIdentity(forbidden:boolean):void {
             if (forbidden === true) {
-                serverResponse.setHeader("agent-hash", request.headers["agent"]);
+                serverResponse.setHeader("agent-hash", request.headers["agent-hash"]);
                 serverResponse.setHeader("agent-type", "user");
             } else {
                 const type:agentType = <agentType>request.headers["agent-type"],
