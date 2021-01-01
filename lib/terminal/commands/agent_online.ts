@@ -62,6 +62,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
             const requestWrapper = function terminal_commands_agentOnline_readStorage_request(agentType:agentType, agentHash:string):void {
                 const agent:agent = storage[agentType][agentHash],
                     name:string = agent.name,
+                    self:string = (agentType === "device")
+                        ? serverVars.hashDevice
+                        : serverVars.hashUser,
                     requestBody:string = `${vars.version.name} agent test for ${name} from ${storage.settings.nameDevice}.`,
                     payload:RequestOptions = {
                         headers: {
@@ -150,6 +153,8 @@ const agentOnline = function terminal_commands_agentOnline():void {
                         ? "https"
                         : "http",
                     request:ClientRequest = vars.node[scheme].request(payload, callback);
+                request.setHeader("agent-hash", self);
+                request.setHeader("agent-type", agentType);
                 request.setHeader("request-type", "agent-online");
                 request.on("error", requestError);
                 request.write(requestBody);
