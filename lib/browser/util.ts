@@ -374,6 +374,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
     let statusBar:Element,
         id:string,
         list:Element,
+        listData:[Element, number, string],
         body:Element,
         p:Element,
         clone:Element,
@@ -411,12 +412,14 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
                     id = modals[a].getAttribute("id");
                     body = modals[a].getElementsByClassName("body")[0];
                     body.innerHTML = "";
-                    list = fileBrowser.list(browser.data.modals[id].text_value, {
+                    listData = fileBrowser.list(browser.data.modals[id].text_value, {
                         dirs: data.fileList,
                         fail: [],
                         id: id
-                    })[0];
-                    body.appendChild(list);
+                    });
+                    if (listData !== null) {
+                        body.appendChild(listData[0]);
+                    }
                 }
             }
             a = a + 1;

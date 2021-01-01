@@ -1003,7 +1003,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     event: "click",
                     node: [
                         ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "li", 2],
                         ["getElementsByTagName", "button", 0]
                     ]
                 }

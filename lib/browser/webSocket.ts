@@ -43,9 +43,11 @@ const title:Element = document.getElementById("title-bar"),
                                 fail: fsData.failures,
                                 id: modalKeys[a]
                             });
-                        body.innerHTML = "";
-                        body.appendChild(list[0]);
-                        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+                        if (list !== null) {
+                            body.innerHTML = "";
+                            body.appendChild(list[0]);
+                            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+                        }
                     }
                     a = a + 1;
                 } while (a < keyLength);
@@ -82,6 +84,9 @@ const title:Element = document.getElementById("title-bar"),
                     body:Element,
                     box:Element,
                     status:Element;
+                if (list === null) {
+                    return;
+                }
                 do {
                     modalAgent = browser.data.modals[modalKeys[a]].agent;
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
@@ -99,7 +104,10 @@ const title:Element = document.getElementById("title-bar"),
                     a = a + 1;
                 } while (a < keyLength);
                 if (typeof data.status === "string") {
-                    util.fileListStatus(JSON.parse(data.status));
+                    const status:copyStatus = JSON.parse(data.status);
+                    if (status.target !== "" && status.target !== "remote-") {
+                        util.fileListStatus(status);
+                    }
                 }
             },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
@@ -192,7 +200,10 @@ const title:Element = document.getElementById("title-bar"),
                 agentType:agentType = <agentType>agents[1];
             share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status") {
-            util.fileListStatus(JSON.parse(data));
+            const status:copyStatus = JSON.parse(data);
+            if (status.target !== "" && status.target !== "remote-") {
+                util.fileListStatus(status);
+            }
         } else if (type === "fs-update-local" && browser.loadTest === false) {
             fsUpdateLocal(JSON.parse(data));
         } else if (type === "fs-update-remote") {

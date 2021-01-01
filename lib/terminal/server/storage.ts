@@ -43,10 +43,11 @@ const storage = function terminal_server_storage(data:storage):void {
                         serverVars.nameDevice = settings.nameDevice;
                     }
                 }
-                rename();
-            } else {
-                rename();
+            } else if ((vars.command.indexOf("test") < 0 || serverVars.testBrowser !== null) && (data.type === "device" || data.type === "user")) {
+                const agents:agents = <agents>data.data;
+                serverVars[data.type] = agents;
             }
+            rename();
         };
     vars.testLogger("storage", "", `Write application data to disk for type ${data.type}`);
     if (data.type === undefined) {

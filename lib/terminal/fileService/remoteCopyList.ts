@@ -1,7 +1,6 @@
 /* lib/terminal/fileService/remoteCopyList - Generates a file system list from a remote agent so that the source agent knows what artifacts to request by name. */
 
 import directory from "../commands/directory.js";
-import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const remoteCopyList = function terminal_fileService_remoteCopyList(config:remoteCopyList):void {

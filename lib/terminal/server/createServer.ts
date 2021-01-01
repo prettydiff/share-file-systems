@@ -74,12 +74,12 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             });
         }
     } else if (postTest() === true) {
-        methodPOST(request, serverResponse);
+        methodPOST(request, serverResponse, host);
     } else {
         // the delay is necessary to prevent a race condition between service execution and data storage writing
         setTimeout(function terminal_server_createServer_delay():void {
             if (postTest() === true) {
-                methodPOST(request, serverResponse);
+                methodPOST(request, serverResponse, host);
             } else {
                 vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
                     if (err === null) {

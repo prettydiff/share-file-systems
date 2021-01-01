@@ -18,7 +18,7 @@ const showContextMenu = function terminal_test_samples_showContextMenu(node:test
             }
         ],
         machine: machine,
-        name: "Show context menu on copied directory",
+        name: `On ${machine} show context menu`,
         unit: test
     };
 };

@@ -17,7 +17,7 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 import browser from "../test/application/browser.js";
 
-const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
+const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse, host:string) {
     let body:string = "";
     const decoder:StringDecoder = new StringDecoder("utf8"),
         end = function terminal_server_methodPOST_end():void {
@@ -120,7 +120,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 });
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
-                readOnly(request, serverResponse, JSON.parse(body));
+                readOnly(host, serverResponse, JSON.parse(body));
             } else if (task === "fs-update-remote") {
                 // * remote: Changes to the remote user's file system
                 // * local : Update local "File Navigator" modals for the respective remote user

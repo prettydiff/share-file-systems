@@ -365,6 +365,9 @@ import disallowed from "../common/disallowed.js";
                                                 return [p, 0, ""];
                                             }())
                                             : fileBrowser.list(modalItem.text_value, payload);
+                                    if (files === null) {
+                                        return;
+                                    }
                                     files[0].removeAttribute("title");
                                     if (responseText !== "") {
                                         const fsModal:Element = document.getElementById(id);

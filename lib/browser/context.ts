@@ -188,6 +188,9 @@ context.destroy = function browser_context_destroy():void {
                 plural:string = (count === 1)
                     ? ""
                     : "s";
+            if (list === null) {
+                return;
+            }
             if (box.parentNode !== null) {
                 body.innerHTML = "";
                 body.appendChild(list[0]);

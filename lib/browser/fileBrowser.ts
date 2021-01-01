@@ -39,6 +39,9 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
         id:string = box.getAttribute("id"),
         callback = function browser_fileBrowser_directory_callback(responseText:string):void {
             const list:[Element, number, string] = fileBrowser.list(path, JSON.parse(responseText));
+            if (list === null) {
+                return;
+            }
             body.innerHTML = "";
             body.appendChild(list[0]);
             fileBrowser.listFail(list[1], box);
@@ -313,6 +316,9 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
             },
             callback = function browser_fileBrowser_expand_callback(responseText:string) {
                 const list:[Element, number, string] = fileBrowser.list(li.firstChild.nextSibling.textContent, JSON.parse(responseText));
+                if (list === null) {
+                    return;
+                }
                 li.appendChild(list[0]);
             };
         button.innerHTML = "-<span>Collapse this folder</span>";
@@ -352,6 +358,9 @@ fileBrowser.list = function browser_fileBrowser_list(location:string, dirData:fs
     let a:number = 0,
         localLength:number = 0,
         status:string = "";
+    if (box === null) {
+        return null;
+    }
     if (dirData.dirs === "missing" || dirData.dirs === "noShare" || dirData.dirs === "readOnly") {
         const p:Element = document.createElement("p");
         p.setAttribute("class", "error");
@@ -591,6 +600,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             let loc:string = (replaceAddress === true)
                     ? payload.dirs[0][0]
                     : location,
+            list:[Element, number, string] = fileBrowser.list(loc, payload),
             body:Element = box.getElementsByClassName("body")[0],
                 files:Element = (payload.dirs === "missing")
                     ? (function browser_fileBrowser_navigate_callback_missing():Element {
@@ -599,7 +609,12 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
                         p.setAttribute("class", "error");
                         return p;
                     }())
-                    : fileBrowser.list(loc, payload)[0];
+                    : (list === null)
+                        ? null
+                        : list[0];
+            if (list === null) {
+                return;
+            }
             if (replaceAddress === true) {
                 const modal:modal = browser.data.modals[payload.id];
                 box.getElementsByTagName("input")[0].value = loc;
@@ -683,6 +698,9 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
         },
         callback = function browser_fileBrowser_parent_callback(responseText:string):void {
             const list:[Element, number, string] = fileBrowser.list(newAddress, JSON.parse(responseText));
+            if (list === null) {
+                return;
+            }
             input.value = newAddress;
             body.innerHTML = "";
             body.appendChild(list[0]);
@@ -1110,6 +1128,9 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                     parent.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
                     const list:[Element, number, string] = fileBrowser.list(element.value, JSON.parse(responseText));
+                    if (list === null) {
+                        return;
+                    }
                     parent.innerHTML = "";
                     parent.appendChild(list[0]);
                     fileBrowser.listFail(list[1], box);

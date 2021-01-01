@@ -67,7 +67,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/readOnly.ts](../lib/terminal/fileService/readOnly.ts)**                                   - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
    - **[../lib/terminal/fileService/remoteCopyList.ts](../lib/terminal/fileService/remoteCopyList.ts)**                       - Generates a file system list from a remote agent so that the source agent knows what artifacts to request by name.
    - **[../lib/terminal/fileService/requestFiles.ts](../lib/terminal/fileService/requestFiles.ts)**                           - Pulls files from one agent to another.
-   - **[../lib/terminal/fileService/reverseAgents.ts](../lib/terminal/fileService/reverseAgents.ts)**                         - Convert data.copyAgent to data.agent and data.agent to data.copyAgent.
    - **[../lib/terminal/fileService/watchHandler.ts](../lib/terminal/fileService/watchHandler.ts)**                           - An event handler for file system watch events.
    - **[../lib/terminal/fileService/watchLocal.ts](../lib/terminal/fileService/watchLocal.ts)**                               - Broadcasts local file system changes to the browser.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*

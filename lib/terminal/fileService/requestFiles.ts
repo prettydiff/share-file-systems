@@ -9,6 +9,7 @@ import { BrotliDecompress } from "zlib";
 import common from "../../common/common.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
+import httpClient from "../server/httpClient.js";
 import mkdir from "../commands/mkdir.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
@@ -16,7 +17,6 @@ import vars from "../utilities/vars.js";
 
 import copyMessage from "./copyMessage.js";
 import httpRequest from "./httpRequest.js";
-import httpClient from "../server/httpClient.js";
 
 const requestFiles = function terminal_fileService_requestFiles(config:fileServiceRequestFiles):void {
     let writeActive:boolean = false,

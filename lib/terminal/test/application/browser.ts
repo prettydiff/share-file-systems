@@ -540,7 +540,7 @@ const defaultCommand:string = vars.command,
                             action: start,
                             browser: false,
                             delay: 2000,
-                            message: "Delaying to ensure existing browsers have time to close."
+                            message: "Delaying to close any open browsers."
                         });
                     } else {
                         start();

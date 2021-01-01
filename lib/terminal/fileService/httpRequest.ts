@@ -60,12 +60,12 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                         : config.data.id
                 };
             if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && (vars.command.indexOf("test") === 0 || vars.command.indexOf("test") !== 0)) {
-                error([config.errorMessage, httpError.toString()]);
+                log([config.errorMessage, httpError.toString()]);
             }
             response({
                 message: JSON.stringify(fsRemote),
                 mimeType: "application/json",
-                responseType: "file-list-status",
+                responseType: "fs-update-remote",
                 serverResponse: config.serverResponse
             });
         },

@@ -20,8 +20,7 @@ import copySameAgent from "./copySameAgent.js";
 import fileCallback from "./fileCallback.js";
 import httpRequest from "./httpRequest.js";
 import remoteCopyList from "./remoteCopyList.js";
-import requestFiles from "./requestFiles.js";
-import reverseAgents from "./reverseAgents.js";
+import requestFiles from "./requestFiles.js"
 import watchHandler from "./watchHandler.js";
 import watchLocal from "./watchLocal.js";
 import httpClient from "../server/httpClient.js";
@@ -125,7 +124,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         },
         copyListRemote = function terminal_fileService_fileService_copyListRemote():void {
             vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
-            reverseAgents(data);
+            //reverseAgents(data);
             data.action = <serviceType>`${data.action.replace("-remote", "")}`;
             httpRequest({
                 callback: function terminal_fileService_fileService_copyListRemote_callback(message:Buffer|string):void {
@@ -167,7 +166,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                             data.copyType = "user";
                             httpCall();
                         };
-                    reverseAgents(data);
+                    //reverseAgents(data);
                     data.action = <serviceType>`${data.action}-request`;
                     data.remoteWatch = JSON.stringify(listData);
                     if (data.agentType === "user") {
@@ -214,7 +213,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         },
         copyRemoteToDifferentRemote = function terminal_fileService_fileService_copyRemoteToDifferentRemote():void {
             vars.testLogger("fileService", "fs-copy destination-origination-different", "When the origination and destination are different and neither is the local device the destination device must be told to start the destination-not-local operation and then respond back with status.");
-            reverseAgents(data);
+            //reverseAgents(data);
             data.action = <serviceType>`${data.action}-list-remote`;
             data.remoteWatch = serverVars.hashDevice;
             data.watch = "third party action";
@@ -256,7 +255,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         },
         copyRequest = function terminal_fileService_fileService_copyRequest():void {
             vars.testLogger("fileService", "fs-copy-request", "Calls the requestFiles function from a remote agent.");
-            reverseAgents(data);
+            //reverseAgents(data);
             data.watch = "remote";
             requestFiles({
                 data: data,
@@ -700,6 +699,17 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 }
             });
         },
+        reverseAgents = function terminal_fileService_fileService_reverseAgents(data:fileService):void {
+            const agent:string = data.agent,
+                type:agentType = data.agentType,
+                share:string = data.share;
+            data.agent = data.copyAgent;
+            data.agentType = data.copyType;
+            data.share = data.copyShare;
+            data.copyAgent = agent;
+            data.copyShare = share;
+            data.copyType = type;
+        },
         search = function terminal_fileService_fileService_search():void {
             const callback = function terminal_fileService_fileService_search_callback(result:directoryList):void {
                     const output:fsRemote = {
@@ -754,15 +764,15 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 });
             });
         };
-    if (rootIndex > -1) {
-        data.location[rootIndex] = vars.sep;
-    }
     if (remoteUsers[0] !== "") {
         remoteUserRemoteDevice();
     } else if (localDevice === false && (data.action === "fs-base64" || data.action === "fs-destroy" || data.action === "fs-details" || data.action === "fs-hash" || data.action === "fs-new" || data.action === "fs-read" || data.action === "fs-rename" || data.action === "fs-search" || data.action === "fs-write")) {
         remoteUserRead();
     } else if (data.action === "fs-directory" || data.action === "fs-details") {
         if (localDevice === true || (localDevice === false && typeof data.remoteWatch === "string" && data.remoteWatch.length > 0)) {
+            if (rootIndex > -1) {
+                data.location[rootIndex] = vars.sep;
+            }
             readDirectory();
         } else {
             remoteWatch();

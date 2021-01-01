@@ -243,7 +243,9 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
             }
             if (port === undefined || port.replace(/^\s+$/, "") === "") {
                 port = "";
-                portNumber = 443;
+                portNumber = (location.href.indexOf("https") === 0)
+                    ? 443
+                    : 80;
             } else {
                 portNumber = Number(port);
                 if (isNaN(portNumber) === true || portNumber < 0 || portNumber > 65535) {
