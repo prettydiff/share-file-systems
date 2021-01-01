@@ -52,23 +52,25 @@ const service = function terminal_commands_service(serverCallback:serverCallback
     const ip:string = (function terminal_commands_service_ip():string {
             let a:number = process.argv.length,
                 address:string;
-            do {
-                a = a - 1;
-                if (process.argv[a].indexOf("ip:") === 0) {
-                    address = process.argv[a].replace("ip:", "");
-                    process.argv.splice(a, 1);
-                    if ((/^(\d{1,3}\.){3}\d{1,3}$/).test(address) === true) {
-                        serverVars.ipAddress = address;
-                        serverVars.ipFamily = "IPv4";
-                        return address;
+            if (a > 0) {
+                do {
+                    a = a - 1;
+                    if (process.argv[a].indexOf("ip:") === 0) {
+                        address = process.argv[a].replace("ip:", "");
+                        process.argv.splice(a, 1);
+                        if ((/^(\d{1,3}\.){3}\d{1,3}$/).test(address) === true) {
+                            serverVars.ipAddress = address;
+                            serverVars.ipFamily = "IPv4";
+                            return address;
+                        }
+                        if ((/[0-9a-f]{4}:/).test(address) === true || address.indexOf("::") > -1) {
+                            serverVars.ipAddress = address;
+                            serverVars.ipFamily = "IPv6";
+                            return address;
+                        }
                     }
-                    if ((/[0-9a-f]{4}:/).test(address) === true || address.indexOf("::") > -1) {
-                        serverVars.ipAddress = address;
-                        serverVars.ipFamily = "IPv6";
-                        return address;
-                    }
-                }
-            } while (a > 0);
+                } while (a > 0);
+            }
             return serverVars.ipAddress;
         }()),
         certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
