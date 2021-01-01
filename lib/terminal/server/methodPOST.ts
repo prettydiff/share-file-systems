@@ -125,6 +125,13 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 // * remote: Changes to the remote user's file system
                 // * local : Update local "File Navigator" modals for the respective remote user
                 updateRemote();
+            } else if (task === "agent-online") {
+                response({
+                    message: `response from ${host}`,
+                    mimeType: "text/plain",
+                    responseType: "agent-online",
+                    serverResponse: serverResponse
+                });
             } else if (task === "delete-agents") {
                 // * received a request from the browser to delete agents
                 heartbeat.delete(JSON.parse(body), serverResponse);

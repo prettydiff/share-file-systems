@@ -12,26 +12,26 @@ import response from "./response.js";
 import serverVars from "./serverVars.js";
     
 const createServer = function terminal_server_createServer(request:IncomingMessage, serverResponse:ServerResponse):void {
-    const host:string = (function terminal_server_createServer_host():string {
-            let name:string = request.headers.host;
-            if (name === undefined) {
-                return;
-            }
-            if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
-                return "localhost";
-            }
-            if (name.indexOf(":") > 0) {
-                name = name.slice(0, name.lastIndexOf(":"));
-            }
-            if (name.charAt(0) === "[") {
-                name = name.slice(1, name.length - 1);
-            }
-            if (name === "::1" || name === "127.0.0.1") {
-                return "localhost";
-            }
-            return request.headers.host;
-        }()),
-        postTest = function terminal_server_createServer_postTest():boolean {
+    let host:string = (function terminal_server_createServer_host():string {
+        let name:string = request.headers.host;
+        if (name === undefined) {
+            return;
+        }
+        if (name === "localhost" || (/((localhost)|(\[::\])):\d{0,5}/).test(name) === true || name === "::1" || name === "[::1]" || name === "127.0.0.1") {
+            return "localhost";
+        }
+        if (name.indexOf(":") > 0) {
+            name = name.slice(0, name.lastIndexOf(":"));
+        }
+        if (name.charAt(0) === "[") {
+            name = name.slice(1, name.length - 1);
+        }
+        if (name === "::1" || name === "127.0.0.1") {
+            return "localhost";
+        }
+        return request.headers.host;
+    }());
+    const postTest = function terminal_server_createServer_postTest():boolean {
             if (
                 request.method === "POST" && (
                     host === "localhost" || (
@@ -58,6 +58,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                     self:string = (type === "device")
                         ? serverVars.hashDevice
                         : serverVars.hashUser;
+                host = self;
                 serverResponse.setHeader("agent-hash", self);
                 serverResponse.setHeader("agent-type", type);
             }
