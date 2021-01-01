@@ -85,9 +85,12 @@ const agentOnline = function terminal_commands_agentOnline():void {
                     },
                     outputString = function terminal_commands_agentOnline_readStorage_request_errorString(output:agentOutput):string {
                         const status = (output.status === "bad")
-                            ? `${vars.text.angry}Bad${vars.text.none}`
-                            : `${vars.text.green + vars.text.bold}Good${vars.text.none}`;
-                        return `${status} ${output.type} from ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
+                                ? `${vars.text.angry}Bad${vars.text.none}`
+                                : `${vars.text.green + vars.text.bold}Good${vars.text.none}`,
+                            preposition:string = (output.type === "request")
+                                ? "to"
+                                : "from";
+                        return `${status} ${output.type} ${preposition} ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
                     },
                     callback = function terminal_commands_agentOnline_readStorage_request_callback(response:IncomingMessage):void {
                         const chunks:Buffer[] = [];

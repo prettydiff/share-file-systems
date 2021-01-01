@@ -160,27 +160,39 @@ const agentData = function terminal_commands_agentData():void {
             }
         },
         deviceCallback = function terminal_commands_agentData_deviceCallback(readErr:nodeError, fileData:string):void {
-            if (readErr !== null && readErr.code !== "ENOENT") {
+            if (readErr === null) {
+                agents.device = JSON.parse(fileData);
+                readFlag[0] = true;
+                if (readFlag[1] === true) {
+                    output();
+                }
+            } else if (readErr.code === "ENOENT") {
+                readFlag[0] = true;
+                if (readFlag[1] === true) {
+                    output();
+                }
+            } else {
                 log([readErr.toString()]);
                 process.exit(0);
                 return;
-            }
-            agents.device = JSON.parse(fileData);
-            readFlag[0] = true;
-            if (readFlag[1] === true) {
-                output();
             }
         },
         userCallback = function terminal_commands_agentData_userCallback(readErr:nodeError, fileData:string):void {
-            if (readErr !== null && readErr.code !== "ENOENT") {
+            if (readErr === null) {
+                agents.user = JSON.parse(fileData);
+                readFlag[1] = true;
+                if (readFlag[0] === true) {
+                    output();
+                }
+            } else if (readErr.code === "ENOENT") {
+                readFlag[1] = true;
+                if (readFlag[0] === true) {
+                    output();
+                }
+            } else {
                 log([readErr.toString()]);
                 process.exit(0);
                 return;
-            }
-            agents.user = JSON.parse(fileData);
-            readFlag[1] = true;
-            if (readFlag[0] === true) {
-                output();
             }
         };
     vars.verbose = true;
