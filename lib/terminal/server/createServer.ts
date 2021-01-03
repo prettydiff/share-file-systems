@@ -31,12 +31,14 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         }
         return request.headers.host;
     }());
-    const postTest = function terminal_server_createServer_postTest():boolean {
+    const agentType:agentType = <agentType>request.headers["agent-type"],
+        agent:string = <string>request.headers["agent-hash"],
+        postTest = function terminal_server_createServer_postTest():boolean {
             if (
                 request.method === "POST" && (
                     host === "localhost" || (
                         host !== "localhost" && (
-                            (serverVars[<agentType>request.headers["agent-type"]] !== undefined && serverVars[<agentType>request.headers["agent-type"]][<string>request.headers["agent-hash"]] !== undefined) ||
+                            (serverVars[<agentType>request.headers["agent-type"]] !== undefined && serverVars[agentType][agent] !== undefined) ||
                             request.headers["request-type"] === "hash-device" ||
                             request.headers["request-type"] === "invite-request" ||
                             request.headers["request-type"] === "invite-complete" ||
@@ -50,6 +52,9 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
             return false;
         },
         setIdentity = function terminal_server_createServer_setIdentity(forbidden:boolean):void {
+            if (request.headers["agent-hash"] === undefined) {
+                return;
+            }
             if (forbidden === true) {
                 serverResponse.setHeader("agent-hash", request.headers["agent-hash"]);
                 serverResponse.setHeader("agent-type", "user");
@@ -66,7 +71,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         // eslint-disable-next-line
         requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
     // *** available for troubleshooting:
-    // console.log(requestType+" "+host+" "+postTest());
+    //console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
     serverVars.requests = serverVars.requests + 1;
     if (host === "") {

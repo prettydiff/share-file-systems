@@ -3,7 +3,7 @@
 # Services
 
 ## File System
-The file system service is called from *network.fs* and use **fileService** TypeScript interface as their data type, which is defined as follows:
+The file system service is called from *network.fileBrowser* and use **fileService** TypeScript interface as their data type, which is defined as follows:
 
 * **action**: string, The service name to execute.
 * **agent**: string, The agent (user) where the action must be performed.

@@ -53,8 +53,8 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
             action: "fs-directory",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: "",
-            copyType: "device",
+            copyAgent: agency[0],
+            copyType: agency[2],
             depth: 2,
             id: id,
             location: [path],
@@ -305,8 +305,8 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 action: "fs-directory",
                 agent: agency[0],
                 agentType: agency[2],
-                copyAgent: "",
-                copyType: "device",
+                copyAgent: agency[0],
+                copyType: agency[2],
                 depth: 2,
                 id: id,
                 location: [li.firstChild.nextSibling.textContent],
@@ -617,7 +617,9 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             }
             if (replaceAddress === true) {
                 const modal:modal = browser.data.modals[payload.id];
-                box.getElementsByTagName("input")[0].value = loc;
+                box.getElementsByTagName("input")[0].value = (typeof payload.dirs === "string")
+                    ? "/"
+                    : payload.dirs[0][0];
                 modal.text_value = loc;
                 modal.history[modal.history.length - 1] = loc;
                 network.storage("settings");
@@ -629,8 +631,8 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             action: "fs-directory",
             agent: agentName,
             agentType: agentType,
-            copyAgent: "",
-            copyType: "device",
+            copyAgent: agentName,
+            copyType: agentType,
             depth: 2,
             id: browser.data.hashDevice,
             location: [location],
@@ -687,8 +689,8 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             action: "fs-directory",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: "",
-            copyType: "device",
+            copyAgent: agency[0],
+            copyType: agency[2],
             depth: 2,
             id: id,
             location: [newAddress],
@@ -736,8 +738,8 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
                             action: "fs-rename",
                             agent: agency[0],
                             agentType: agency[2],
-                            copyAgent: "",
-                            copyType: "device",
+                            copyAgent: agency[0],
+                            copyType: agency[2],
                             depth: 1,
                             id: id,
                             location: [text.replace(/\\/g, "\\\\")],
@@ -746,9 +748,12 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
                             watch: "no"
                         },
                         callback = function browser_fileBrowser_rename_callback():void {
-                            label.removeChild(input);
-                            label.innerHTML = label.innerHTML + input.value;
+                            return;
                         };
+                    input.onblur = null;
+                    input.onkeyup = null;
+                    label.removeChild(input);
+                    label.innerHTML = label.innerHTML + input.value;
                     network.fileBrowser(payload, callback);
                 }
             } else if (action.type === "keyup") {
@@ -802,8 +807,8 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
             action: "fs-write",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: "",
-            copyType: "device",
+            copyAgent: agency[0],
+            copyType: agency[2],
             depth: 1,
             id: box.getAttribute("id"),
             location: [location[location.length - 1]],
@@ -852,8 +857,8 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
                 action: "fs-search",
                 agent: agency[0],
                 agentType: agency[2],
-                copyAgent: "",
-                copyType: "device",
+                copyAgent: agency[0],
+                copyType: agency[2],
                 depth: 0,
                 id: id,
                 location: [address],
@@ -1111,8 +1116,8 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                 action: "fs-directory",
                 agent: agency[0],
                 agentType: agency[2],
-                copyAgent: "",
-                copyType: "device",
+                copyAgent: agency[0],
+                copyType: agency[2],
                 depth: 2,
                 id: id,
                 location: [element.value],
