@@ -36,6 +36,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             id: config.data.id,
             location: config.data.location,
             name: config.data.name,
+            originAgent: config.data.originAgent,
             remoteWatch: (config.data.action === "fs-directory")
                 ? `${serverVars.ipAddress}_${serverVars.webPort}`
                 : (config.data.remoteWatch === undefined)

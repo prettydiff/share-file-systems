@@ -124,7 +124,6 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         },
         copyListRemote = function terminal_fileService_fileService_copyListRemote():void {
             vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
-            //reverseAgents(data);
             data.action = <serviceType>`${data.action.replace("-remote", "")}`;
             httpRequest({
                 callback: function terminal_fileService_fileService_copyListRemote_callback(message:Buffer|string):void {
@@ -166,7 +165,6 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                             data.copyType = "user";
                             httpCall();
                         };
-                    //reverseAgents(data);
                     data.action = <serviceType>`${data.action}-request`;
                     data.remoteWatch = JSON.stringify(listData);
                     if (data.agentType === "user") {
@@ -213,7 +211,6 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         },
         copyRemoteToDifferentRemote = function terminal_fileService_fileService_copyRemoteToDifferentRemote():void {
             vars.testLogger("fileService", "fs-copy destination-origination-different", "When the origination and destination are different and neither is the local device the destination device must be told to start the destination-not-local operation and then respond back with status.");
-            //reverseAgents(data);
             data.action = <serviceType>`${data.action}-list-remote`;
             data.remoteWatch = serverVars.hashDevice;
             data.watch = "third party action";
@@ -255,7 +252,6 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         },
         copyRequest = function terminal_fileService_fileService_copyRequest():void {
             vars.testLogger("fileService", "fs-copy-request", "Calls the requestFiles function from a remote agent.");
-            //reverseAgents(data);
             data.watch = "remote";
             requestFiles({
                 data: data,
@@ -502,7 +498,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     if (count === pathLength) {
                         const responseData:fsRemote = {
                             dirs: "missing",
-                            fail:[],
+                            fail: [],
                             id: data.id
                         };
                         if (output.length < 1) {
@@ -579,7 +575,9 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     pathRead();
                 } else {
                     vars.node.fs.stat(value, function terminal_fileService_fileService_readDirectory_pathEach_stat(erp:nodeError):void {
-                        if (erp !== null) {
+                        if (erp === null) {
+                            pathRead();
+                        } else {
                             failures.push(value);
                             if (failures.length === data.location.length) {
                                 const responseData:fsRemote = {
@@ -594,8 +592,6 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                                     serverResponse: serverResponse
                                 });
                             }
-                        } else {
-                            pathRead();
                         }
                     });
                 }
@@ -698,17 +694,6 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     });
                 }
             });
-        },
-        reverseAgents = function terminal_fileService_fileService_reverseAgents(data:fileService):void {
-            const agent:string = data.agent,
-                type:agentType = data.agentType,
-                share:string = data.share;
-            data.agent = data.copyAgent;
-            data.agentType = data.copyType;
-            data.share = data.copyShare;
-            data.copyAgent = agent;
-            data.copyShare = share;
-            data.copyType = type;
         },
         search = function terminal_fileService_fileService_search():void {
             const callback = function terminal_fileService_fileService_search_callback(result:directoryList):void {

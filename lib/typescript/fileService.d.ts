@@ -25,9 +25,19 @@ declare global {
         id          : string;
         location    : string[];
         name        : string;
+        originAgent : string;
         remoteWatch?: string;
         share       : string;
         watch       : string;
+    }
+    interface fileServiceActions {
+        close: (serverResponse:ServerResponse, data:fileService) => void;
+        destroy: (serverResponse:ServerResponse, data:fileService) => void;
+        directory: (serverResponse:ServerResponse, data:fileService) => void;
+        newArtifact: (serverResponse:ServerResponse, data:fileService) => void;
+        read: (serverResponse:ServerResponse, data:fileService) => void;
+        rename: (serverResponse:ServerResponse, data:fileService) => void;
+        write: (serverResponse:ServerResponse, data:fileService) => void;
     }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
@@ -42,6 +52,12 @@ declare global {
         logRecursion: boolean;
         serverResponse: ServerResponse;
     }
+    interface fileServiceSystem {
+        actions: fileServiceActions;
+        dirCallback: (serverResponse:ServerResponse, data:fileService) => void;
+        menu: (serverResponse:ServerResponse, data:fileService) => void;
+        respond: fsRespond;
+    }
     interface fileServiceWatch {
         data: fileService;
         logRecursion: boolean;
@@ -52,6 +68,11 @@ declare global {
         dirs: directoryList | "missing" | "noShare" | "readOnly";
         fail: string[];
         id: string;
+    }
+    interface fsRespond {
+        dir: (serverResponse:ServerResponse, data:fsRemote) => void;
+        error: (serverResponse:ServerResponse, message:string, action:serviceType) => void;
+        read: (serverResponse:ServerResponse, list:stringDataList, action:serviceType) => void;
     }
     interface fsUpdateRemote {
         agent: string;

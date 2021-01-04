@@ -63,6 +63,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/copySameAgent.ts](../lib/terminal/fileService/copySameAgent.ts)**                         - Copy items from one location to another on the same agent.
    - **[../lib/terminal/fileService/fileCallback.ts](../lib/terminal/fileService/fileCallback.ts)**                           - A callback to file system requests that provides directory tree data.
    - **[../lib/terminal/fileService/fileService.ts](../lib/terminal/fileService/fileService.ts)**                             - Manages various file system services.
+   - **[../lib/terminal/fileService/fileServices.ts](../lib/terminal/fileService/fileServices.ts)**                           - Manages various file system services.
    - **[../lib/terminal/fileService/httpRequest.ts](../lib/terminal/fileService/httpRequest.ts)**                             - Format a properly packaged http request for file services.
    - **[../lib/terminal/fileService/readOnly.ts](../lib/terminal/fileService/readOnly.ts)**                                   - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
    - **[../lib/terminal/fileService/remoteCopyList.ts](../lib/terminal/fileService/remoteCopyList.ts)**                       - Generates a file system list from a remote agent so that the source agent knows what artifacts to request by name.

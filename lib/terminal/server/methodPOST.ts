@@ -120,7 +120,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 });
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
-                readOnly(host, serverResponse, JSON.parse(body));
+                readOnly(host, serverResponse, body);
             } else if (task === "fs-update-remote") {
                 // * remote: Changes to the remote user's file system
                 // * local : Update local "File Navigator" modals for the respective remote user

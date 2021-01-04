@@ -311,6 +311,9 @@ import disallowed from "../common/disallowed.js";
                                     id: value,
                                     location: [modalItem.text_value],
                                     name: "",
+                                    originAgent: (modalItem.agentType === "device")
+                                        ? browser.data.hashDevice
+                                        : browser.data.hashUser,
                                     share: modalItem.share,
                                     watch: "yes"
                                 },

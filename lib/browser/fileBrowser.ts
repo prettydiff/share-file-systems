@@ -59,6 +59,9 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
             id: id,
             location: [path],
             name: "",
+            originAgent: (agency[2] === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: path
         };
@@ -198,6 +201,9 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     id       : id,
                     location : addresses,
                     name     : target,
+                    originAgent: (agency[2] === "device")
+                        ? browser.data.hashDevice
+                        : browser.data.hashUser,
                     share    : browser.data.modals[id].share,
                     watch    : "no"
                 },
@@ -311,6 +317,9 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 id: id,
                 location: [li.firstChild.nextSibling.textContent],
                 name : "",
+                originAgent: (agency[2] === "device")
+                    ? browser.data.hashDevice
+                    : browser.data.hashUser,
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
@@ -637,6 +646,9 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             id: browser.data.hashDevice,
             location: [location],
             name: "",
+            originAgent: (agentType === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: share,
             watch: "yes"
         },
@@ -695,6 +707,9 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             id: id,
             location: [newAddress],
             name: "",
+            originAgent: (agency[2] === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: value
         },
@@ -744,6 +759,9 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
                             id: id,
                             location: [text.replace(/\\/g, "\\\\")],
                             name: input.value,
+                            originAgent: (agency[2] === "device")
+                                ? browser.data.hashDevice
+                                : browser.data.hashUser,
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
@@ -813,6 +831,9 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
             id: box.getAttribute("id"),
             location: [location[location.length - 1]],
             name: content,
+            originAgent: (agency[2] === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -863,6 +884,9 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
                 id: id,
                 location: [address],
                 name: value,
+                originAgent: (agency[2] === "device")
+                    ? browser.data.hashDevice
+                    : browser.data.hashUser,
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
@@ -1122,6 +1146,9 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                 id: id,
                 location: [element.value],
                 name: "",
+                originAgent: (agency[2] === "device")
+                    ? browser.data.hashDevice
+                    : browser.data.hashUser,
                 share: browser.data.modals[id].share,
                 watch: watchValue
             },

@@ -62,6 +62,7 @@ const title:Element = document.getElementById("title-bar"),
                         id: "",
                         location: [root],
                         name: "",
+                        originAgent: browser.data.hashDevice,
                         share: "",
                         watch: "no"
                     },

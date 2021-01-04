@@ -88,6 +88,9 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
             id: id,
             location: [],
             name: "",
+            originAgent: (agency[2] === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -178,6 +181,9 @@ context.destroy = function browser_context_destroy():void {
             id: id,
             location: [],
             name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
+            originAgent: (agency[2] === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -258,6 +264,9 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 return output;
             }()),
             name: "",
+            originAgent: (agency[2] === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -576,6 +585,9 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         id: id,
                         location: [actionElement.getAttribute("data-location") + value],
                         name: actionElement.getAttribute("data-type"),
+                        originAgent: (agency[2] === "device")
+                            ? browser.data.hashDevice
+                            : browser.data.hashUser,
                         share: browser.data.modals[id].share,
                         watch: "no"
                     },
@@ -616,6 +628,9 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                             id: id,
                             location: [actionElement.getAttribute("data-location") + value],
                             name: actionElement.getAttribute("data-type"),
+                            originAgent: (agency[2] === "device")
+                                ? browser.data.hashDevice
+                                : browser.data.hashUser,
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
@@ -976,6 +991,9 @@ context.paste = function browser_context_paste():void {
             id       : id,
             location : clipData.data,
             name     : destination,
+            originAgent: (copyType === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser,
             share    : clipData.share,
             watch    : "no"
         },

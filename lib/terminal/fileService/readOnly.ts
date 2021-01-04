@@ -2,18 +2,103 @@
 /* lib/terminal/fileService/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
 
 import { Hash } from "crypto";
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 
-import fileService from "./fileService.js";
+import fileServices from "./fileServices.js";
 import hashIdentity from "../server/hashIdentity.js";
+import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const readOnly = function terminal_fileService_readOnly(host:string, serverResponse:ServerResponse, data:fileService):void {
-    if (data.agentType === "device" && serverVars.device[data.agent] !== undefined) {
-        fileService(serverResponse, data);
+const readOnly = function terminal_fileService_readOnly(host:string, serverResponse:ServerResponse, dataString:string):void {
+    const data:fileService = JSON.parse(dataString),
+        route = function terminal_fileService_readOnly_route():void {
+            httpClient({
+                agentType: data.agentType,
+                callback: function terminal_fileService_readOnly_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
+                    const responseType:requestType = <requestType>headers["response-type"];
+                    if (responseType === "error") {
+                        fileServices.respond.error(serverResponse, message.toString(), data.action);
+                    } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
+                        const list:stringDataList = JSON.parse(message.toString());
+                        fileServices.respond.read(serverResponse, list, data.action);
+                    } else {
+                        const dir:fsRemote = JSON.parse(message.toString());
+                        fileServices.respond.dir(serverResponse, dir);
+                    }
+                },
+                errorMessage: "",
+                ip: serverVars[data.agentType][data.agent].ip,
+                payload: dataString,
+                port: serverVars[data.agentType][data.agent].port,
+                remoteName: "",
+                requestError: function terminal_fileService_readOnly_route_requestError():void {
+                    return;
+                },
+                requestType: "fs",
+                responseStream: httpClient.stream,
+                responseError: function terminal_fileService_readOnly_route_requestError():void {
+                    return;
+                }
+            });
+        };
+    if (data.agentType === "device") {
+        if (data.agent === serverVars.hashDevice) {
+            fileServices.menu(serverResponse, data);
+        } else {
+            route();
+        }
     } else {
+        /*const shares:agentShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
+                ? serverVars[data.copyType][data.copyAgent].shares
+                : serverVars[data.agentType][data.agent].shares,
+            shareKeys:string[] = Object.keys(shares),
+            windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
+            readOnly:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
+        let dIndex:number = location.length,
+            sIndex:number = shareKeys.length,
+            place:string,
+            share:agentShare,
+            bestMatch:number = -1;
+        if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
+            readOnly.push("fs-copy-file");
+        }
+        if (sIndex > 0) {
+            do {
+                dIndex = dIndex - 1;
+                sIndex = shareKeys.length;
+                place = (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read")
+                    ? location[dIndex].slice(location[dIndex].indexOf(":") + 1)
+                    : location[dIndex];
+                do {
+                    sIndex = sIndex - 1;
+                    share = shares[shareKeys[sIndex]];
+                    if (place.indexOf(share.name) === 0 || (windows === true && place.toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
+                        if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
+                            bestMatch = sIndex;
+                        }
+                    }
+                } while (sIndex > 0);
+                if (bestMatch < 0) {
+                    location.splice(dIndex, 1);
+                } else {
+                    if (shares[shareKeys[bestMatch]].readOnly === true && readOnly.indexOf(data.action) < 0) {
+                        response(responsePayload);
+                        return;
+                    }
+                    bestMatch = -1;
+                }
+            } while (dIndex > 0);
+        } else {
+            response(responsePayload);
+            return;
+        }
+        if ((userTest === true && location.length > 0) || (userTest === false && devices.indexOf(data.agent) > -1) || data.agent === serverVars.hashUser) {
+            fileService(serverResponse, data);
+        } else {
+            response(responsePayload);
+        }*/
         response({
             message: `{"id":"${data.id}","dirs":"noShare"}`,
             mimeType: "application/json",
