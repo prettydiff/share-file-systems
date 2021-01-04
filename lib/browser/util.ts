@@ -635,14 +635,12 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     box = element.getAncestor("box", "class");
     dataModal = browser.data.modals[box.getAttribute("id")];
     itemList = (drag === true)
-        ? parent.getElementsByTagName("li")
-        : box.getElementsByClassName("fileList")[0].getElementsByTagName("li");
+        ? parent.getElementsByTagName("p")
+        : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
     length = itemList.length;
     do {
         if (itemList[a].getElementsByTagName("input")[0].checked === true) {
-            addressItem = (itemList[a].firstChild.nodeName.toLowerCase() === "button")
-                ? <Element>itemList[a].firstChild.nextSibling
-                : <Element>itemList[a].firstChild;
+            addressItem = <Element>itemList[a].firstChild;
             output.push([addressItem.innerHTML, <shareType>itemList[a].getAttribute("class").replace(util.selectExpression, ""), agent]);
             if (type === "cut") {
                 itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, " cut"));
@@ -669,14 +667,14 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     return output;
 };
 
-util.selectExpression = new RegExp("(\\s+((selected)|(cut)|(lastType)))+");
+util.selectExpression = new RegExp("(\\s*((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function browser_util_selectNone(element:Element):void {
     const box:Element = element.getAncestor("box", "class");
     let a:number = 0,
         inputLength:number,
-        li:HTMLCollectionOf<Element>,
+        p:HTMLCollectionOf<Element>,
         inputs:HTMLCollectionOf<HTMLInputElement>,
         fileList:Element;
     if (document.getElementById("newFileItem") !== null) {
@@ -684,13 +682,13 @@ util.selectNone = function browser_util_selectNone(element:Element):void {
     }
     fileList = <Element>box.getElementsByClassName("fileList")[0];
     inputs = fileList.getElementsByTagName("input");
-    li = fileList.getElementsByTagName("li");
+    p = fileList.getElementsByTagName("p");
     inputLength = inputs.length;
     if (inputLength > 0) {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                li[a].setAttribute("class", li[a].getAttribute("class").replace(util.selectExpression, ""));
+                p[a].setAttribute("class", p[a].getAttribute("class").replace(util.selectExpression, ""));
             }
             a = a + 1;
         } while (a < inputLength);

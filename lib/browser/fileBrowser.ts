@@ -237,7 +237,8 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     let a:number = 0,
                         length:number = checkbox.length,
                         listItem:Element,
-                        cut:boolean = true;
+                        cut:boolean = true,
+                        parent:HTMLElement;
                     init = true;
                     list.setAttribute("id", "file-list-drag");
                     list.setAttribute("class", "fileList");
@@ -253,11 +254,12 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     } else {
                         a = 0;
                         do {
-                            listItem = <HTMLElement>selected[a].parentNode.parentNode;
+                            parent = <HTMLElement>selected[a].parentNode.parentNode;
+                            listItem = parent.getElementsByTagName("p")[0];
                             if (listItem.getAttribute("class").indexOf("cut") < 0) {
                                 cut = false;
                             }
-                            list.appendChild(listItem.cloneNode(true));
+                            list.appendChild(listItem.parentNode.cloneNode(true));
                             a = a + 1;
                         } while (a < length);
                         if (cut === true) {
@@ -315,7 +317,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 copyType: agency[2],
                 depth: 2,
                 id: id,
-                location: [li.firstChild.nextSibling.textContent],
+                location: [li.firstChild.nextSibling.firstChild.textContent],
                 name : "",
                 originAgent: (agency[2] === "device")
                     ? browser.data.hashDevice
@@ -328,7 +330,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 if (list === null) {
                     return;
                 }
-                li.appendChild(list[0]);
+                li.appendChild(list[0]);console.log(li);
             };
         button.innerHTML = "-<span>Collapse this folder</span>";
         button.setAttribute("title", "Collapse this folder");
@@ -495,6 +497,7 @@ fileBrowser.listFocus = function browser_fileBrowser_listFocus(event:MouseEvent)
 fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem, extraClass:string):Element {
     const li:HTMLElement = document.createElement("li"),
         label:HTMLLabelElement = document.createElement("label"),
+        p:HTMLElement = document.createElement("p"),
         text:HTMLElement = document.createElement("label"),
         input:HTMLInputElement = document.createElement("input"),
         mouseOver = function browser_fileBrowser_listItem_mouseOver(event:MouseEvent):void {
@@ -548,12 +551,13 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
     text.innerHTML = item[0];
     text.oncontextmenu = context.menu;
     text.onclick = fileBrowser.select;
-    li.appendChild(text);
+    p.appendChild(text);
 
     // prepare the descriptive text
     span.onclick = fileBrowser.select;
     span.oncontextmenu = context.menu;
-    li.appendChild(span);
+    p.appendChild(span);
+    li.appendChild(p);
 
     // prepare the checkbox that provides accessibility and click functionality
     input.type = "checkbox";
@@ -995,12 +999,16 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     event.stopPropagation();
     context.menuRemove();
     const element:Element = <Element>event.target,
-        li:Element = (element.nodeName.toLowerCase() === "li")
+        p:Element = (element.nodeName.toLowerCase() === "p")
             ? element
-            : <Element>element.parentNode,
-        input:HTMLInputElement = li.getElementsByTagName("input")[0];
+            : (element.nodeName.toLowerCase() === "li")
+                ? element.getElementsByTagName("p")[0]
+                : <Element>element.parentNode,
+        classy:string = p.getAttribute("class"),
+        parent:HTMLElement = <HTMLElement>p.parentNode,
+        input:HTMLInputElement = parent.getElementsByTagName("input")[0];
     let state:boolean = input.checked,
-        body:Element = li,
+        body:Element = p,
         box:Element,
         modalData:modal;
     if (document.getElementById("newFileItem") !== null) {
@@ -1023,27 +1031,48 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     if (event.ctrlKey === true || fileBrowser.dragFlag === "control") {
         if (state === true) {
             input.checked = false;
-            li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
-            delete modalData.selection[li.getElementsByTagName("label")[0].innerHTML];
+            if (classy === "selected") {
+                p.removeAttribute("class");
+            } else if (classy !== null) {
+                p.setAttribute("class", classy.replace(util.selectExpression, ""));
+            }
+            delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
         } else {
             input.checked = true;
-            li.setAttribute("class", `${li.getAttribute("class")} selected`);
-            modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
+            if (classy === null || classy === "selected") {
+                p.setAttribute("class", "selected");
+            } else {
+                p.setAttribute("class", `${classy} selected`);
+            }
+            modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
     } else if (event.shiftKey === true || fileBrowser.dragFlag === "shift") {
-        const liList = body.getElementsByTagName("li"),
+        const liList = body.getElementsByTagName("p"),
             shift = function browser_fileBrowser_select_shift(index:number, end:number):void {
+                let liClassy:string,
+                    liParent:HTMLElement;
                 if (state === true) {
                     do {
-                        liList[index].getElementsByTagName("input")[0].checked = false;
-                        liList[index].setAttribute("class", liList[index].getAttribute("class").replace(util.selectExpression, ""));
+                        liClassy = liList[index].getAttribute("class");
+                        liParent = <HTMLElement>liList[index].parentNode;
+                        liParent.getElementsByTagName("input")[0].checked = false;
+                        if (liClassy === "selected") {
+                            liList[index].removeAttribute("class");
+                        } else if (liClassy !== null) {
+                            liList[index].setAttribute("class", liClassy.replace(util.selectExpression, ""));
+                        }
                         delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
                         index = index + 1;
                     } while (index < end);
                 } else {
                     do {
+                        liClassy = liList[index].getAttribute("class");
                         liList[index].getElementsByTagName("input")[0].checked = true;
-                        liList[index].setAttribute("class", `${liList[index].getAttribute("class")} selected`);
+                        if (liClassy === null || liClassy === "selected") {
+                            liList[index].setAttribute("class", "selected");
+                        } else {
+                            liList[index].setAttribute("class", `${liClassy} selected`);
+                        }
                         modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
                         index = index + 1;
                     } while (index < end);
@@ -1059,7 +1088,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
             focus = liList[0];
         }
         do {
-            if (liList[a] === li) {
+            if (liList[a] === p) {
                 elementIndex = a;
                 if (focusIndex > -1) {
                     break;
@@ -1075,12 +1104,16 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
         if (focusIndex === elementIndex) {
             if (state === true) {
                 input.checked = false;
-                li.setAttribute("class", li.getAttribute("class").replace(util.selectExpression, ""));
-                delete modalData.selection[li.getElementsByTagName("label")[0].innerHTML];
+                if (classy === "selected") {
+                    p.removeAttribute("class");
+                } else if (classy !== null) {
+                    p.setAttribute("class", classy.replace(util.selectExpression, ""));
+                }
+                delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
             } else {
                 input.checked = true;
-                li.setAttribute("class", `${li.getAttribute("class")} selected`);
-                modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
+                p.setAttribute("class", `${classy} selected`);
+                modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
             }
         } else if (focusIndex > elementIndex) {
             shift(elementIndex, focusIndex);
@@ -1090,25 +1123,37 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     } else {
         const inputs = body.getElementsByTagName("input"),
             inputsLength = inputs.length,
-            selected:boolean = (li.getAttribute("class").indexOf("selected") > 0);
+            selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > 0);
         let a:number = 0,
-            item:Element;
+            item:Element,
+            itemClass:string,
+            itemParent:HTMLElement;
         do {
             if (inputs[a].checked === true) {
                 inputs[a].checked = false;
-                item = <Element>inputs[a].parentNode.parentNode;
-                item.setAttribute("class", item.getAttribute("class").replace(util.selectExpression, ""));
+                itemParent = <HTMLElement>inputs[a].parentNode.parentNode;
+                item = itemParent.getElementsByTagName("p")[0];
+                itemClass = item.getAttribute("class");
+                if (itemClass === "selected") {
+                    item.removeAttribute("class");
+                } else if (itemClass !== null) {
+                    item.setAttribute("class", itemClass.replace(util.selectExpression, ""));
+                }
             }
             a = a + 1;
         } while (a < inputsLength);
         input.checked = true;
         if (selected === false) {
-            li.setAttribute("class", `${li.getAttribute("class").replace(util.selectExpression, "")} selected`);
+            if (classy === null || classy === "selected") {
+                p.setAttribute("class", "selected");
+            } else {
+                p.setAttribute("class", `${classy.replace(util.selectExpression, "")} selected`);
+            }
             modalData.selection = {};
-            modalData.selection[li.getElementsByTagName("label")[0].innerHTML] = "selected";
+            modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
     }
-    modalData.focus = li;
+    modalData.focus = p;
     network.storage("settings");
 };
 
