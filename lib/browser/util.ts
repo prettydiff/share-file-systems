@@ -625,6 +625,8 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
         drag:boolean = (parent.getAttribute("id") === "file-list-drag");
     let a:number = 0,
         length:number = 0,
+        itemParent:HTMLElement,
+        classy:string,
         itemList:HTMLCollectionOf<Element>,
         box:Element,
         dataModal:modal,
@@ -639,15 +641,23 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
         : box.getElementsByClassName("fileList")[0].getElementsByTagName("p");
     length = itemList.length;
     do {
-        if (itemList[a].getElementsByTagName("input")[0].checked === true) {
+        itemParent = <HTMLElement>itemList[a].parentNode;
+        classy = itemList[a].getAttribute("class");
+        if (itemParent.getElementsByTagName("input")[0].checked === true) {
             addressItem = <Element>itemList[a].firstChild;
-            output.push([addressItem.innerHTML, <shareType>itemList[a].getAttribute("class").replace(util.selectExpression, ""), agent]);
+            output.push([addressItem.innerHTML, <shareType>itemParent.getAttribute("class"), agent]);
             if (type === "cut") {
-                itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, " cut"));
+                if (classy === null) {
+                    itemList[a].setAttribute("class", "cut");
+                } else {
+                    itemList[a].setAttribute("class", classy.replace(util.selectExpression, " cut"));
+                }
                 dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
             }
         } else {
-            itemList[a].setAttribute("class", itemList[a].getAttribute("class").replace(util.selectExpression, ""));
+            if (classy !== null) {
+                itemList[a].setAttribute("class", classy.replace(util.selectExpression, ""));
+            }
             if (dataModal.selection === undefined) {
                 dataModal.selection = {};
             } else {
@@ -661,7 +671,12 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     }
     output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
     if (itemList[a] !== undefined && type === "cut") {
-        element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
+        classy = element.getAttribute("class");
+        if (classy === null) {
+            element.setAttribute("class", "cut");
+        } else {
+            element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
+        }
         dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
     }
     return output;

@@ -20,7 +20,7 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
     const addresses:string[] = [],
         element:Element = (context.element.nodeName.toLowerCase() === "li")
             ? context.element
-            : <Element>context.element.parentNode,
+            : <Element>context.element.getAncestor("li", "tag"),
         parent:Element = <Element>element.parentNode,
         box:Element = parent.getAncestor("box", "class"),
         contextElement:Element = <Element>event.target,
@@ -62,7 +62,9 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
 
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function browser_context_dataString(event:MouseEvent):void {
-    const element:Element = context.element,
+    const element:Element = (context.element.nodeName.toLowerCase() === "li")
+            ? context.element
+            : <Element>context.element.getAncestor("li", "tag"),
         contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
@@ -166,7 +168,9 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
 
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function browser_context_destroy():void {
-    let element:Element = context.element,
+    let element:Element = (context.element.nodeName.toLowerCase() === "li")
+            ? context.element
+            : <Element>context.element.getAncestor("li", "tag"),
         selected:[string, shareType, string][],
         box:Element = element.getAncestor("box", "class"),
         agency:agency = util.getAgent(element),
@@ -220,7 +224,9 @@ context.destroy = function browser_context_destroy():void {
 
 /* Handler for details action of context menu */
 context.details = function browser_context_details(event:MouseEvent):void {
-    const element:Element = context.element,
+    const element:Element = (context.element.nodeName.toLowerCase() === "li")
+            ? context.element
+            : <Element>context.element.getAncestor("li", "tag"),
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
@@ -846,7 +852,13 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             }
         };
-    let element:HTMLElement = <HTMLElement>event.target,
+    let element:HTMLElement = (function browser_context_menu_element():HTMLElement {
+            const target:HTMLElement = <HTMLElement>event.target;
+            if (target.nodeName.toLowerCase() === "p") {
+                return <HTMLElement>target.parentNode;
+            }
+            return target;
+        }()),
         nodeName:string = element.nodeName.toLowerCase(),
         parent:Element = <Element>element.parentNode,
         item:Element,
