@@ -1067,7 +1067,8 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
                 } else {
                     do {
                         liClassy = liList[index].getAttribute("class");
-                        liList[index].getElementsByTagName("input")[0].checked = true;
+                        liParent = <HTMLElement>liList[index].parentNode;
+                        liParent.getElementsByTagName("input")[0].checked = true;
                         if (liClassy === null || liClassy === "selected") {
                             liList[index].setAttribute("class", "selected");
                         } else {
