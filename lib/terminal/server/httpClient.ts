@@ -11,8 +11,12 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
     const headers:OutgoingHttpHeaders = {
             "content-type": "application/x-www-form-urlencoded",
             "content-length": Buffer.byteLength(config.payload),
-            "agent-hash": serverVars.hashUser,
-            "agent-name": serverVars.nameUser,
+            "agent-hash": (config.agentType === "device")
+                ? serverVars.hashDevice
+                : serverVars.hashUser,
+            "agent-name": (config.agentType === "device")
+                ? serverVars.nameDevice
+                : serverVars.nameUser,
             "agent-type": config.agentType,
             "remote-user": config.remoteName,
             "request-type": config.requestType
