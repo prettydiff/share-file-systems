@@ -6,6 +6,7 @@ import { ServerResponse } from "http";
 import common from "../../common/common.js";
 import copy from "../commands/copy.js";
 import fileServices from "./fileServices.js";
+import remove from "../commands/remove.js";
 import vars from "../utilities/vars.js";
 
 const copyService = function terminal_fileService_copyService(serverResponse:ServerResponse, data:fileService):void {
@@ -35,7 +36,22 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
                                     id: data.id,
                                     message: copyMessage(complete)
                                 };
-                                fileServices.respond.copy(serverResponse, status);
+                                if (data.cut === true) {
+                                    if (data.agent === data.originAgent) {
+                                        let cutCount:number = 0;
+                                        const removeCallback = function terminal_fileService_copyService_copySameAgent_each_copy_remove():void {
+                                            cutCount = cutCount + 1;
+                                            if (cutCount === data.location.length) {
+                                                fileServices.respond.copy(serverResponse, status);
+                                            }
+                                        };
+                                        data.location.forEach(function terminal_fileService_copyService_copySameAgent_each_copy_cut(filePath:string):void {
+                                            remove(filePath, removeCallback);
+                                        });
+                                    }
+                                } else {
+                                    fileServices.respond.copy(serverResponse, status);
+                                }
                             }
                         },
                         copyConfig:nodeCopyParams = {
@@ -62,7 +78,7 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
             return `${verb} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
         },
         menu = function terminal_fileService_copyService_menu():void {
-            if (data.action === "fs-copy" || data.action === "fs-cut") {
+            if (data.action === "fs-copy") {
                 if (data.agent === data.copyAgent) {
                     actions.sameAgent();
                 }

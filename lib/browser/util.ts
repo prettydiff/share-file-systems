@@ -525,6 +525,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             let a:number = 0,
                 classy:string;
             do {
+                classy = items[a].getAttribute("class");
                 if (classy !== null && classy.indexOf("cut") > -1) {
                     items[a].setAttribute("class", "selected cut");
                 } else {

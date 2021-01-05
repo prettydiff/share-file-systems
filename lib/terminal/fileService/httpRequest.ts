@@ -32,6 +32,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             copyType: (test === true)
                 ? config.data.agentType
                 : config.data.copyType,
+            cut: false,
             depth: config.data.depth,
             id: config.data.id,
             location: config.data.location,

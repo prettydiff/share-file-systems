@@ -307,6 +307,7 @@ import disallowed from "../common/disallowed.js";
                                     agentType: modalItem.agentType,
                                     copyAgent: agent,
                                     copyType: modalItem.agentType,
+                                    cut: false,
                                     depth: 2,
                                     id: value,
                                     location: [modalItem.text_value],

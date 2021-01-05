@@ -33,7 +33,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
         // prepares the HTTP response message if all requested files are written
         respond = function terminal_fileService_requestFiles_respond():void {
             const cut = function terminal_fileService_requestFiles_respond_cut():void {
-                if (config.data.action.indexOf("fs-cut") === 0) {
+                if (config.data.cut === true) {
                     const types:string[] = [];
                     cutList.sort(function terminal_fileService_requestFiles_respond_cut_cutSort(itemA:[string, string], itemB:[string, string]):number {
                         if (itemA[1] === "directory" && itemB[1] !== "directory") {

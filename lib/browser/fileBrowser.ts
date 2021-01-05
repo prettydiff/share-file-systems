@@ -55,6 +55,7 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
             agentType: agency[2],
             copyAgent: agency[0],
             copyType: agency[2],
+            cut: false,
             depth: 2,
             id: id,
             location: [path],
@@ -189,14 +190,13 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                 }()),
                 agency:agency = util.getAgent(element),
                 payload:fileService = {
-                    action   : (copy === true)
-                        ? "fs-copy"
-                        : "fs-cut",
+                    action   : "fs-copy",
                     agent    : browser.data.modals[id].agent,
                     agentType: browser.data.modals[id].agentType,
                     copyAgent: agency[0],
                     copyShare: browser.data.modals[box.getAttribute("id")].share,
                     copyType : agency[2],
+                    cut      : cut,
                     depth    : 1,
                     id       : id,
                     location : addresses,
@@ -237,7 +237,6 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     let a:number = 0,
                         length:number = checkbox.length,
                         listItem:Element,
-                        cut:boolean = true,
                         parent:HTMLElement;
                     init = true;
                     list.setAttribute("id", "file-list-drag");
@@ -256,15 +255,12 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                         do {
                             parent = <HTMLElement>selected[a].parentNode.parentNode;
                             listItem = parent.getElementsByTagName("p")[0];
-                            if (listItem.getAttribute("class").indexOf("cut") < 0) {
-                                cut = false;
+                            if (listItem.getAttribute("class").indexOf("cut") > -1) {
+                                cut = true;
                             }
                             list.appendChild(listItem.parentNode.cloneNode(true));
                             a = a + 1;
                         } while (a < length);
-                        if (cut === true) {
-                            copy = false;
-                        }
                     }
                     browser.content.appendChild(list);
                 }
@@ -280,7 +276,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
         };
     let outOfBounds:boolean = false,
         init:boolean = false,
-        copy:boolean = true;
+        cut:boolean = false;
     event.stopPropagation();
     document.onmousedown = mouseDown;
     if (element.nodeName.toLowerCase() === "button") {
@@ -315,6 +311,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 agentType: agency[2],
                 copyAgent: agency[0],
                 copyType: agency[2],
+                cut: false,
                 depth: 2,
                 id: id,
                 location: [li.firstChild.nextSibling.firstChild.textContent],
@@ -646,6 +643,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             agentType: agentType,
             copyAgent: agentName,
             copyType: agentType,
+            cut: false,
             depth: 2,
             id: browser.data.hashDevice,
             location: [location],
@@ -707,6 +705,7 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             agentType: agency[2],
             copyAgent: agency[0],
             copyType: agency[2],
+            cut: false,
             depth: 2,
             id: id,
             location: [newAddress],
@@ -759,6 +758,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
                             agentType: agency[2],
                             copyAgent: agency[0],
                             copyType: agency[2],
+                            cut: false,
                             depth: 1,
                             id: id,
                             location: [text.replace(/\\/g, "\\\\")],
@@ -831,6 +831,7 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
             agentType: agency[2],
             copyAgent: agency[0],
             copyType: agency[2],
+            cut: false,
             depth: 1,
             id: box.getAttribute("id"),
             location: [location[location.length - 1]],
@@ -884,6 +885,7 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
                 agentType: agency[2],
                 copyAgent: agency[0],
                 copyType: agency[2],
+                cut: false,
                 depth: 0,
                 id: id,
                 location: [address],
@@ -1192,6 +1194,7 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                 agentType: agency[2],
                 copyAgent: agency[0],
                 copyType: agency[2],
+                cut: false,
                 depth: 2,
                 id: id,
                 location: [element.value],

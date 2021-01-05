@@ -18,11 +18,11 @@ let clipboard:string = "";
 /* Handler for file system artifact copy */
 context.copy = function browser_context_copy(event:MouseEvent):void {
     const addresses:string[] = [],
-        element:Element = (context.element.nodeName.toLowerCase() === "li")
+        tagName:string = context.element.nodeName.toLowerCase(),
+        element:Element = (tagName === "li" || tagName === "ul")
             ? context.element
             : <Element>context.element.getAncestor("li", "tag"),
-        parent:Element = <Element>element.parentNode,
-        box:Element = parent.getAncestor("box", "class"),
+        box:Element = element.getAncestor("box", "class"),
         contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
@@ -86,6 +86,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
             agentType: agency[2],
             copyAgent: agency[0],
             copyType: agency[2],
+            cut: false,
             depth: 1,
             id: id,
             location: [],
@@ -181,6 +182,7 @@ context.destroy = function browser_context_destroy():void {
             agentType: agency[2],
             copyAgent: agency[0],
             copyType: agency[2],
+            cut: false,
             depth: 1,
             id: id,
             location: [],
@@ -253,6 +255,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
             agentType: agency[2],
             copyAgent: agency[0],
             copyType: agency[2],
+            cut: false,
             depth: 0,
             id: id,
             location: (function browser_context_details_addressList():string[] {
@@ -588,6 +591,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         agentType: agency[2],
                         copyAgent: agency[0],
                         copyType: agency[2],
+                        cut: false,
                         depth: 1,
                         id: id,
                         location: [actionElement.getAttribute("data-location") + value],
@@ -631,6 +635,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                             agentType: agency[2],
                             copyAgent: agency[0],
                             copyType: agency[2],
+                            cut: false,
                             depth: 1,
                             id: id,
                             location: [actionElement.getAttribute("data-location") + value],
@@ -977,16 +982,18 @@ context.paste = function browser_context_paste():void {
         clipData:clipboard = (clipboard === "")
             ? {}
             : JSON.parse(clipboard),
+        cut:boolean = (clipData.type === "cut"),
         id:string = element.getAttribute("id"),
         copyAgent:string = browser.data.modals[id].agent,
         copyType:agentType = browser.data.modals[id].agentType,
         payload:fileService = {
-            action   : <serviceType>`fs-${clipData.type}`,
+            action   : "fs-copy",
             agent    : clipData.agent,
             agentType: clipData.agentType,
             copyAgent: copyAgent,
             copyShare: browser.data.modals[id].share,
             copyType : copyType,
+            cut      : cut,
             depth    : 1,
             id       : id,
             location : clipData.data,

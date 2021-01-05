@@ -24,6 +24,7 @@ declare global {
         copyAgent   : string;
         copyShare?  : string;
         copyType    : agentType;
+        cut         : boolean;
         depth       : number;
         id          : string;
         location    : string[];

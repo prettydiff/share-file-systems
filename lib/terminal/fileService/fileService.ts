@@ -764,22 +764,22 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         }
     } else if (data.action === "fs-close") {
         close();
-    } else if (data.action === "fs-copy" || data.action === "fs-cut") {
+    } else if (data.action === "fs-copy") {
         copyService();
-    } else if (data.action === "fs-copy-list-remote" || data.action === "fs-cut-list-remote") {
+    } else if (data.action === "fs-copy-list-remote") {
         // issue a fs-copy-list on an agent from a different agent
         copyListRemote();
-    } else if (data.action === "fs-copy-file" || data.action === "fs-cut-file") {
+    } else if (data.action === "fs-copy-file") {
         // respond with a single file
         // * generated internally from function requestFiles
         // * fs-copy-list and fs-cut-list (copy from remote to local device)
         // * fs-copy-request and fs-cut-request (copy from local device to remote)
         copyFile();
-    } else if (data.action === "fs-copy-list" || data.action === "fs-cut-list") {
+    } else if (data.action === "fs-copy-list") {
         copyListLocal();
-    } else if (data.action === "fs-copy-request" || data.action === "fs-cut-request") {
+    } else if (data.action === "fs-copy-request") {
         copyRequest();
-    } else if (data.action === "fs-copy-self" || data.action === "fs-cut-self") {
+    } else if (data.action === "fs-copy-self") {
         vars.testLogger("fileService", "fs-copy-self", "Copies files from one location to another on the same local device as requested by a remote agent.");
         copySameAgent(serverResponse, data);
     } else if (data.action === "fs-cut-remove") {
