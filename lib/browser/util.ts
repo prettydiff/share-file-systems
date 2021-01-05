@@ -686,24 +686,24 @@ util.selectExpression = new RegExp("(\\s*((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function browser_util_selectNone(element:Element):void {
-    const box:Element = element.getAncestor("box", "class");
+    const box:Element = element.getAncestor("box", "class"),
+        fileList:Element = <Element>box.getElementsByClassName("fileList")[0],
+        inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
+        inputLength:number = inputs.length,
+        p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");
     let a:number = 0,
-        inputLength:number,
-        p:HTMLCollectionOf<Element>,
-        inputs:HTMLCollectionOf<HTMLInputElement>,
-        fileList:Element;
+        classy:string;
     if (document.getElementById("newFileItem") !== null) {
         return;
     }
-    fileList = <Element>box.getElementsByClassName("fileList")[0];
-    inputs = fileList.getElementsByTagName("input");
-    p = fileList.getElementsByTagName("p");
-    inputLength = inputs.length;
     if (inputLength > 0) {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                p[a].setAttribute("class", p[a].getAttribute("class").replace(util.selectExpression, ""));
+                classy = p[a].getAttribute("class");
+                if (classy !== null) {
+                    p[a].setAttribute("class", classy.replace(util.selectExpression, ""));
+                }
             }
             a = a + 1;
         } while (a < inputLength);

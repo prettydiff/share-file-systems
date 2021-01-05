@@ -224,7 +224,8 @@ context.destroy = function browser_context_destroy():void {
 
 /* Handler for details action of context menu */
 context.details = function browser_context_details(event:MouseEvent):void {
-    const element:Element = (context.element.nodeName.toLowerCase() === "li")
+    const name:string = context.element.nodeName.toLowerCase(),
+        element:Element = (name === "li" || name === "ul")
             ? context.element
             : <Element>context.element.getAncestor("li", "tag"),
         div:Element = util.delay(),
@@ -726,7 +727,18 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
 
 /* Creates context menu */
 context.menu = function browser_context_menu(event:MouseEvent):void {
-    const itemList:Element[] = [],
+    const element:HTMLElement = (function browser_context_menu_element():HTMLElement {
+            const target:HTMLElement = <HTMLElement>event.target,
+                name:string = target.nodeName.toLowerCase();
+            if (name === "li" || name === "ul") {
+                return target;
+            }
+            return <HTMLElement>target.getAncestor("li", "tag");
+        }()),
+        inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
+        root:boolean = (inputAddress === "/" || inputAddress === "\\"),
+        nodeName:string = element.nodeName.toLowerCase(),
+        itemList:Element[] = [],
         menu:HTMLElement = document.createElement("ul"),
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
@@ -757,13 +769,11 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             destroy: function browser_context_menu_destroy():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
-                input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Destroy <em>DEL</em>`;
                 button.setAttribute("class", "destroy");
-                if (input.value === "/" || input.value === "\\") {
+                if (root === true) {
                     button.disabled = true;
                 } else {
                     button.onclick = context.destroy;
@@ -820,22 +830,17 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 button = document.createElement("button");
                 button.innerHTML = `Paste <em>${command} + V</em>`;
                 button.onclick = context.paste;
-                if (clipboard === "" || (
-                    (element.getAttribute("class") === "fileList" || parent.getAttribute("class") === "fileList") &&
-                    (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)
-                )) {
+                if (clipboard === "" || (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)) {
                     button.disabled = true;
                 }
                 item.appendChild(button);
                 itemList.push(item);
             },
             rename: function browser_context_menu_rename():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
-                input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Rename <em>${command} + ALT + R</em>`;
-                if (input.value === "/" || input.value === "\\") {
+                if (root === true) {
                     button.disabled = true;
                 } else {
                     button.onclick = fileBrowser.rename;
@@ -852,16 +857,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             }
         };
-    let element:HTMLElement = (function browser_context_menu_element():HTMLElement {
-            const target:HTMLElement = <HTMLElement>event.target;
-            if (target.nodeName.toLowerCase() === "p") {
-                return <HTMLElement>target.parentNode;
-            }
-            return target;
-        }()),
-        nodeName:string = element.nodeName.toLowerCase(),
-        parent:Element = <Element>element.parentNode,
-        item:Element,
+    let item:Element,
         button:HTMLButtonElement,
         clientX:number,
         clientY:number,
@@ -870,21 +866,13 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
         reverse:boolean = false,
         a:number = 0;
     event.stopPropagation();
-    if (nodeName === "input") {
-        return;
-    }
-    if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
-        element = <HTMLElement>element.parentNode;
-        parent = <Element>parent.parentNode;
-        nodeName = element.nodeName.toLowerCase();
-    }
     context.element = element;
     context.menuRemove();
     event.preventDefault();
     event.stopPropagation();
     menu.setAttribute("id", "contextMenu");
     menu.onclick = context.menuRemove;
-    if (element.getAttribute("class") === "fileList") {
+    if (nodeName === "ul") {
         if (readOnly === true) {
             return;
         }
@@ -892,7 +880,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
         functions.newDirectory();
         functions.newFile();
         functions.paste();
-    } else if (parent.getAttribute("class") === "fileList") {
+    } else if (nodeName === "li") {
         functions.details();
         if (box.getAttribute("data-agentType") === "device") {
             functions.share();
