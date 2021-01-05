@@ -11,8 +11,8 @@ const fileCallback = function terminal_fileService_fileCallback(serverResponse:S
     const localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device"),
         copyStatus:copyStatus = {
             failures: [],
+            id: `remote-${data.id}`,
             message: message,
-            target: `remote-${data.id}`
         };
     if (localDevice === true) {
         vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");

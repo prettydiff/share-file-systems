@@ -25,9 +25,7 @@ network.fileBrowser = function local_network_fileBrowser(configuration:fileServi
             responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
             if (responseType === "file-list-status") {
                 const status:copyStatus = JSON.parse(responseText);
-                if (status.target !== "" && status.target !== "remote-") {
-                    util.fileListStatus(status);
-                }
+                util.fileListStatus(status);
             } else {
                 callback(responseText, configuration.agent);
             }

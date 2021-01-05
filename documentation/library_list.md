@@ -61,6 +61,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
    - **[../lib/terminal/fileService/copyMessage.ts](../lib/terminal/fileService/copyMessage.ts)**                             - Generates status messaging for a copy operation.
    - **[../lib/terminal/fileService/copySameAgent.ts](../lib/terminal/fileService/copySameAgent.ts)**                         - Copy items from one location to another on the same agent.
+   - **[../lib/terminal/fileService/copyService.ts](../lib/terminal/fileService/copyService.ts)**                             - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/fileService/fileCallback.ts](../lib/terminal/fileService/fileCallback.ts)**                           - A callback to file system requests that provides directory tree data.
    - **[../lib/terminal/fileService/fileService.ts](../lib/terminal/fileService/fileService.ts)**                             - Manages various file system services.
    - **[../lib/terminal/fileService/fileServices.ts](../lib/terminal/fileService/fileServices.ts)**                           - Manages various file system services.

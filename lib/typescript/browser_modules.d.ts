@@ -154,7 +154,6 @@ interface module_util {
     minimizeAll?: EventHandlerNonNull;
     minimizeAllFlag?: boolean;
     selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
-    selectExpression?: RegExp;
     selectNone?:(element:Element) => void;
     time?: (date:Date) => string;
 }

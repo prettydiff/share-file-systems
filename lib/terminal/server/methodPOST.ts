@@ -17,7 +17,7 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 import browser from "../test/application/browser.js";
 
-const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse, host:string) {
+const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, serverResponse:ServerResponse) {
     let body:string = "";
     const decoder:StringDecoder = new StringDecoder("utf8"),
         end = function terminal_server_methodPOST_end():void {
@@ -120,12 +120,15 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                 });
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
-                readOnly(host, serverResponse, body);
+                readOnly(serverResponse, body);
             } else if (task === "fs-update-remote") {
                 // * remote: Changes to the remote user's file system
                 // * local : Update local "File Navigator" modals for the respective remote user
                 updateRemote();
             } else if (task === "agent-online") {
+                const host:string = (request.headers["agent-type"] === "device")
+                    ? serverVars.hashDevice
+                    : serverVars.hashUser;
                 response({
                     message: `response from ${host}`,
                     mimeType: "text/plain",

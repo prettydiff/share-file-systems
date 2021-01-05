@@ -4,6 +4,7 @@
 import { Hash } from "crypto";
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 
+import copyService from "./copyService.js";
 import fileServices from "./fileServices.js";
 import hashIdentity from "../server/hashIdentity.js";
 import httpClient from "../server/httpClient.js";
@@ -11,14 +12,18 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const readOnly = function terminal_fileService_readOnly(host:string, serverResponse:ServerResponse, dataString:string):void {
+const readOnly = function terminal_fileService_readOnly(serverResponse:ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString),
+        copy:boolean = (data.action.indexOf("fs-copy") === 0 || data.action.indexOf("fs-cut") === 0),
         route = function terminal_fileService_readOnly_route():void {
             httpClient({
                 agentType: data.agentType,
                 callback: function terminal_fileService_readOnly_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
                     const responseType:requestType = <requestType>headers["response-type"];
-                    if (responseType === "error") {
+                    if (copy === true) {
+                        const status:copyStatus = JSON.parse(message.toString());
+                        fileServices.respond.copy(serverResponse, status);
+                    } else if (responseType === "error") {
                         fileServices.respond.error(serverResponse, message.toString(), data.action);
                     } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
                         const list:stringDataList = JSON.parse(message.toString());
@@ -45,7 +50,11 @@ const readOnly = function terminal_fileService_readOnly(host:string, serverRespo
         };
     if (data.agentType === "device") {
         if (data.agent === serverVars.hashDevice) {
-            fileServices.menu(serverResponse, data);
+            if (copy === true) {
+                copyService(serverResponse, data);
+            } else {
+                fileServices.menu(serverResponse, data);
+            }
         } else {
             route();
         }

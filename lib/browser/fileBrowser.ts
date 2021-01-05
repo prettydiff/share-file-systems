@@ -1003,7 +1003,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
             ? element
             : (element.nodeName.toLowerCase() === "li")
                 ? element.getElementsByTagName("p")[0]
-                : <Element>element.parentNode,
+                : element.getAncestor("li", "tag").getElementsByTagName("p")[0],
         classy:string = p.getAttribute("class"),
         parent:HTMLElement = <HTMLElement>p.parentNode,
         input:HTMLInputElement = parent.getElementsByTagName("input")[0];
@@ -1031,18 +1031,18 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     if (event.ctrlKey === true || fileBrowser.dragFlag === "control") {
         if (state === true) {
             input.checked = false;
-            if (classy === "selected") {
+            if (classy !== null && classy.indexOf("cut") > -1) {
+                p.setAttribute("class", "cut");
+            } else {
                 p.removeAttribute("class");
-            } else if (classy !== null) {
-                p.setAttribute("class", classy.replace(util.selectExpression, ""));
             }
             delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
         } else {
             input.checked = true;
-            if (classy === null || classy === "selected") {
-                p.setAttribute("class", "selected");
+            if (classy !== null && classy.indexOf("cut") > -1) {
+                p.setAttribute("class", "selected cut");
             } else {
-                p.setAttribute("class", `${classy} selected`);
+                p.setAttribute("class", "selected");
             }
             modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
         }
@@ -1056,10 +1056,10 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
                         liClassy = liList[index].getAttribute("class");
                         liParent = <HTMLElement>liList[index].parentNode;
                         liParent.getElementsByTagName("input")[0].checked = false;
-                        if (liClassy === "selected") {
+                        if (liClassy !== null && liClassy.indexOf("cut") > -1) {
+                            liList[index].setAttribute("class", "cut");
+                        } else {
                             liList[index].removeAttribute("class");
-                        } else if (liClassy !== null) {
-                            liList[index].setAttribute("class", liClassy.replace(util.selectExpression, ""));
                         }
                         delete  modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML];
                         index = index + 1;
@@ -1069,10 +1069,10 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
                         liClassy = liList[index].getAttribute("class");
                         liParent = <HTMLElement>liList[index].parentNode;
                         liParent.getElementsByTagName("input")[0].checked = true;
-                        if (liClassy === null || liClassy === "selected") {
-                            liList[index].setAttribute("class", "selected");
+                        if (liClassy !== null && liClassy.indexOf("cut") > -1) {
+                            liList[index].setAttribute("class", "selected cut");
                         } else {
-                            liList[index].setAttribute("class", `${liClassy} selected`);
+                            liList[index].setAttribute("class", "selected");
                         }
                         modalData.selection[liList[index].getElementsByTagName("label")[0].innerHTML] = "selected";
                         index = index + 1;
@@ -1105,15 +1105,19 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
         if (focusIndex === elementIndex) {
             if (state === true) {
                 input.checked = false;
-                if (classy === "selected") {
+                if (classy !== null && classy.indexOf("cut") > -1) {
+                    p.setAttribute("class", "cut");
+                } else {
                     p.removeAttribute("class");
-                } else if (classy !== null) {
-                    p.setAttribute("class", classy.replace(util.selectExpression, ""));
                 }
                 delete modalData.selection[p.getElementsByTagName("label")[0].innerHTML];
             } else {
                 input.checked = true;
-                p.setAttribute("class", `${classy} selected`);
+                if (classy !== null && classy.indexOf("cut") > -1) {
+                    p.setAttribute("class", "selected cut");
+                } else {
+                    p.setAttribute("class", "selected");
+                }
                 modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";
             }
         } else if (focusIndex > elementIndex) {
@@ -1124,7 +1128,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
     } else {
         const inputs = body.getElementsByTagName("input"),
             inputsLength = inputs.length,
-            selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > 0);
+            selected:boolean = (p.getAttribute("class") !== null && p.getAttribute("class").indexOf("selected") > -1);
         let a:number = 0,
             item:Element,
             itemClass:string,
@@ -1135,20 +1139,20 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
                 itemParent = <HTMLElement>inputs[a].parentNode.parentNode;
                 item = itemParent.getElementsByTagName("p")[0];
                 itemClass = item.getAttribute("class");
-                if (itemClass === "selected") {
+                if (itemClass !== null && itemClass.indexOf("cut") > -1) {
+                    item.setAttribute("class", "cut");
+                } else {
                     item.removeAttribute("class");
-                } else if (itemClass !== null) {
-                    item.setAttribute("class", itemClass.replace(util.selectExpression, ""));
                 }
             }
             a = a + 1;
         } while (a < inputsLength);
         input.checked = true;
         if (selected === false) {
-            if (classy === null || classy === "selected") {
-                p.setAttribute("class", "selected");
+            if (classy !== null && classy.indexOf("cut") > -1) {
+                p.setAttribute("class", "selected cut");
             } else {
-                p.setAttribute("class", `${classy.replace(util.selectExpression, "")} selected`);
+                p.setAttribute("class", "selected");
             }
             modalData.selection = {};
             modalData.selection[p.getElementsByTagName("label")[0].innerHTML] = "selected";

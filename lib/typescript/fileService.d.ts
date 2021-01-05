@@ -8,11 +8,14 @@ declare global {
         percent: number;
         writtenSize: number;
     }
+    interface copyActions {
+        sameAgent: () => void;
+    }
     interface copyStatus {
         failures: string[];
         fileList?: directoryList;
+        id: string;
         message: string;
-        target: string;
     }
     interface fileService {
         action      : serviceType;
@@ -70,6 +73,7 @@ declare global {
         id: string;
     }
     interface fsRespond {
+        copy: (serverResponse:ServerResponse, data:copyStatus) => void;
         dir: (serverResponse:ServerResponse, data:fsRemote) => void;
         error: (serverResponse:ServerResponse, message:string, action:serviceType) => void;
         read: (serverResponse:ServerResponse, list:stringDataList, action:serviceType) => void;

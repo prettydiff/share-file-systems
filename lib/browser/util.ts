@@ -352,78 +352,59 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void {
-    const modals:Element[] = (data.target.indexOf("remote-") === 0)
-            ? [document.getElementById(data.target.replace("remote-", ""))]
-            : (function browser_util_fileListStatus_modals():Element[] {
-                const names:string[] = Object.keys(browser.data.modals),
-                    address:string = data.target.replace("local-", ""),
-                    namesLength:number = names.length,
-                    output:Element[] = [];
-                let b:number = 0;
-                do {
-                    if (browser.data.modals[names[b]].text_value === address) {
-                        output.push(document.getElementById(names[b]));
-                    }
-                    b = b + 1;
-                } while (b < namesLength);
-                return output;
-            }()),
+    const modal:Element = document.getElementById(data.id),
         failLength:number = Math.min(10, data.failures.length),
         fails:Element = document.createElement("ul"),
-        length:number = modals.length;
-    let statusBar:Element,
-        id:string,
-        list:Element,
+        statusBar:Element = (modal === null)
+            ? undefined
+            : <HTMLElement>modal.getElementsByClassName("status-bar")[0],
+        list:Element = (modal === null)
+            ? undefined
+            : statusBar.getElementsByTagName("ul")[0],
+        p:Element = (modal === null)
+            ? undefined
+            : statusBar.getElementsByTagName("p")[0];
+    let id:string,
         listData:[Element, number, string],
         body:Element,
-        p:Element,
         clone:Element,
         a:number = 0;
-    if (length > 0) {
+    if (failLength > 0) {
+        let b:number = 0,
+            li:Element;
+        do {
+            li = document.createElement("li");
+            li.innerHTML = data.failures[b];
+            fails.appendChild(li);
+            b = b + 1;
+        } while (b < failLength);
+        if (data.failures.length > 10) {
+            li = document.createElement("li");
+            li.innerHTML = "more...";
+            fails.appendChild(li);
+        }
+    }
+    if (modal !== null) {
+        p.innerHTML = data.message;
+        if (list !== undefined) {
+            statusBar.removeChild(list);
+        }
         if (failLength > 0) {
-            let b:number = 0,
-                li:Element;
-            do {
-                li = document.createElement("li");
-                li.innerHTML = data.failures[b];
-                fails.appendChild(li);
-                b = b + 1;
-            } while (b < failLength);
-            if (data.failures.length > 10) {
-                li = document.createElement("li");
-                li.innerHTML = "more...";
-                fails.appendChild(li);
+            clone = <HTMLElement>fails.cloneNode(true);
+            statusBar.appendChild(clone);
+        }
+        if (data.fileList !== undefined) {
+            body = modal.getElementsByClassName("body")[0];
+            body.innerHTML = "";
+            listData = fileBrowser.list(browser.data.modals[id].text_value, {
+                dirs: data.fileList,
+                fail: [],
+                id: data.id
+            });
+            if (listData !== null) {
+                body.appendChild(listData[0]);
             }
         }
-        do {
-            if (modals[a] !== null) {
-                statusBar = <HTMLElement>modals[a].getElementsByClassName("status-bar")[0];
-                list = statusBar.getElementsByTagName("ul")[0];
-                p = statusBar.getElementsByTagName("p")[0];
-                p.innerHTML = data.message;
-                if (list !== undefined) {
-                    statusBar.removeChild(list);
-                }
-                if (failLength > 0) {
-                    clone = <HTMLElement>fails.cloneNode(true);
-                    statusBar.appendChild(clone);
-                }
-                if (data.fileList !== undefined) {
-                    id = modals[a].getAttribute("id");
-                    body = modals[a].getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    listData = fileBrowser.list(browser.data.modals[id].text_value, {
-                        dirs: data.fileList,
-                        fail: [],
-                        id: id
-                    });
-                    if (listData !== null) {
-                        body.appendChild(listData[0]);
-                    }
-                }
-            }
-            a = a + 1;
-        } while (a < length);
     }
 };
 
@@ -477,14 +458,15 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
                 return el;
             }
             return el.getAncestor("li", "tag");
-        }());
+        }()),
+        p:Element = element.getElementsByTagName("p")[0];
     if (key === "F5" || key === "f5" || (windowEvent.ctrlKey === true && (key === "r" || key === "R"))) {
         location.reload();
     }
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
-    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && element.getAttribute("class") === "directory selected" && util.selectedAddresses(element, "directory").length === 1) {
+    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
         fileBrowser.directory(event);
         return;
     }
@@ -540,9 +522,14 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
                     : <Element>element.parentNode,
                 items:HTMLCollectionOf<Element> = list.getElementsByTagName("li"),
                 length:number = items.length;
-            let a:number = 0;
+            let a:number = 0,
+                classy:string;
             do {
-                items[a].setAttribute("class", `${items[a].getAttribute("class").replace(" selected", "")} selected`);
+                if (classy !== null && classy.indexOf("cut") > -1) {
+                    items[a].setAttribute("class", "selected cut");
+                } else {
+                    items[a].setAttribute("class", "selected");
+                }
                 items[a].getElementsByTagName("input")[0].checked = true;
                 a = a + 1;
             } while (a < length);
@@ -647,17 +634,15 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
             addressItem = <Element>itemList[a].firstChild;
             output.push([addressItem.innerHTML, <shareType>itemParent.getAttribute("class"), agent]);
             if (type === "cut") {
-                if (classy === null) {
-                    itemList[a].setAttribute("class", "cut");
+                if (classy !== null && classy.indexOf("selected") > -1) {
+                    itemList[a].setAttribute("class", "selected cut");
                 } else {
-                    itemList[a].setAttribute("class", classy.replace(util.selectExpression, " cut"));
+                    itemList[a].setAttribute("class", "cut");
                 }
                 dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
             }
         } else {
-            if (classy !== null) {
-                itemList[a].setAttribute("class", classy.replace(util.selectExpression, ""));
-            }
+            itemList[a].removeAttribute("class");
             if (dataModal.selection === undefined) {
                 dataModal.selection = {};
             } else {
@@ -672,17 +657,15 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
     output.push([element.getElementsByTagName("label")[0].innerHTML, <shareType>element.getAttribute("class"), agent]);
     if (itemList[a] !== undefined && type === "cut") {
         classy = element.getAttribute("class");
-        if (classy === null) {
-            element.setAttribute("class", "cut");
+        if (classy !== null && classy.indexOf("selected") > -1) {
+            element.setAttribute("class", "selected cut");
         } else {
-            element.setAttribute("class", element.getAttribute("class").replace(util.selectExpression, " cut"));
+            element.setAttribute("class", "cut");
         }
         dataModal.selection[itemList[a].getElementsByTagName("label")[0].innerHTML] = itemList[a].getAttribute("class");
     }
     return output;
 };
-
-util.selectExpression = new RegExp("(\\s*((selected)|(cut)|(lastType)))+");
 
 /* Remove selections of file system artifacts in a given fileNavigator modal */
 util.selectNone = function browser_util_selectNone(element:Element):void {
@@ -700,10 +683,7 @@ util.selectNone = function browser_util_selectNone(element:Element):void {
         do {
             if (inputs[a].type === "checkbox") {
                 inputs[a].checked = false;
-                classy = p[a].getAttribute("class");
-                if (classy !== null) {
-                    p[a].setAttribute("class", classy.replace(util.selectExpression, ""));
-                }
+                p[a].removeAttribute("class");
             }
             a = a + 1;
         } while (a < inputLength);

@@ -76,11 +76,11 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         output:copyStatus = {
                             failures: hashFail,
                             fileList: dirItems,
+                            id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
                             message: copyMessage(status),
-                            target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
                         };
                     vars.broadcast("file-list-status", JSON.stringify(output));
-                    output.target = `remote-${config.data.id}`;
+                    output.id = `remote-${config.data.id}`;
                     response({
                         message: JSON.stringify(output),
                         mimeType: "application/json",
@@ -115,8 +115,8 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         },
                         output:copyStatus = {
                             failures: [],
-                            message: copyMessage(status),
-                            target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
+                            id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                            message: copyMessage(status)
                         };
                     cutList.push([fileQueue[index][2], "file"]);
                     countFile = countFile + 1;
@@ -175,8 +175,8 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                     },
                     output:copyStatus = {
                         failures: [],
-                        message: copyMessage(status),
-                        target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
+                        id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                        message: copyMessage(status)
                     };
                 vars.broadcast("file-list-status", JSON.stringify(output));
             });
@@ -327,8 +327,8 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 : "s",
             output:copyStatus = {
                 failures: [],
-                message: `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`,
-                target: `local-${config.data.name.replace(/\\/g, "\\\\")}`
+                id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                message: `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`
             };
         vars.broadcast("file-list-status", JSON.stringify(output));
     }

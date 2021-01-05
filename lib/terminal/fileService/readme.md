@@ -6,6 +6,7 @@ These files are libraries that comprise */lib/terminal/fileService/fileService.t
 
 * **[copyMessage.ts](copyMessage.ts)**       - Generates status messaging for a copy operation.
 * **[copySameAgent.ts](copySameAgent.ts)**   - Copy items from one location to another on the same agent.
+* **[copyService.ts](copyService.ts)**       - A library that stores instructions for copy and cut of file system artifacts.
 * **[fileCallback.ts](fileCallback.ts)**     - A callback to file system requests that provides directory tree data.
 * **[fileService.ts](fileService.ts)**       - Manages various file system services.
 * **[fileServices.ts](fileServices.ts)**     - Manages various file system services.

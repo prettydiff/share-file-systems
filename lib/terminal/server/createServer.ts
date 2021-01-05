@@ -97,13 +97,13 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         }
     } else if (postTest() === true) {
         setIdentity(false);
-        methodPOST(request, serverResponse, host);
+        methodPOST(request, serverResponse);
     } else {
         // the delay is necessary to prevent a race condition between service execution and data storage writing
         setTimeout(function terminal_server_createServer_delay():void {
             if (postTest() === true) {
                 setIdentity(false);
-                methodPOST(request, serverResponse, host);
+                methodPOST(request, serverResponse);
             } else {
                 vars.node.fs.stat(`${vars.projectPath}lib${vars.sep}storage${vars.sep}user.json`, function terminal_server_createServer_delay_userStat(err:nodeError):void {
                     if (err === null) {

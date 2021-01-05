@@ -324,6 +324,14 @@ const fileServices:fileServiceSystem = {
         }
     },
     respond: {
+        copy: function terminal_fileService_fileServices_respondCopy(serverResponse:ServerResponse, copy:copyStatus):void {
+            response({
+                message: JSON.stringify(copy),
+                mimeType: "application/json",
+                responseType: "file-list-status",
+                serverResponse: serverResponse
+            });
+        },
         dir: function terminal_fileService_fileServices_respondDir(serverResponse:ServerResponse, dirs:fsRemote):void {
             response({
                 message: JSON.stringify(dirs),

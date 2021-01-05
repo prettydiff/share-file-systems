@@ -106,9 +106,7 @@ const title:Element = document.getElementById("title-bar"),
                 } while (a < keyLength);
                 if (typeof data.status === "string") {
                     const status:copyStatus = JSON.parse(data.status);
-                    if (status.target !== "" && status.target !== "remote-") {
-                        util.fileListStatus(status);
-                    }
+                    util.fileListStatus(status);
                 }
             },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
@@ -202,9 +200,7 @@ const title:Element = document.getElementById("title-bar"),
             share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status") {
             const status:copyStatus = JSON.parse(data);
-            if (status.target !== "" && status.target !== "remote-") {
-                util.fileListStatus(status);
-            }
+            util.fileListStatus(status);
         } else if (type === "fs-update-local" && browser.loadTest === false) {
             fsUpdateLocal(JSON.parse(data));
         } else if (type === "fs-update-remote") {
