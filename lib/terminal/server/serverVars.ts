@@ -73,8 +73,9 @@ const serverVars:serverVars = {
         secure: false,
         status: "active",
         storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
-        timeStore: 0,
         testBrowser: null,
+        testType: "",
+        timeStore: 0,
         user: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser

@@ -7,6 +7,7 @@ import common from "../../common/common.js";
 import copy from "../commands/copy.js";
 import fileServices from "./fileServices.js";
 import remove from "../commands/remove.js";
+import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
 const copyService = function terminal_fileService_copyService(serverResponse:ServerResponse, data:fileService):void {
@@ -21,7 +22,7 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
                     const callback = function terminal_fileService_copyService_copySameAgent_each_copy([fileCount, fileSize]):void {
                             count = count + 1;
                             countFile = countFile + fileCount;
-                            writtenSize = (vars.command.indexOf("test") === 0)
+                            writtenSize = (serverVars.testType === "service")
                                 ? 0
                                 : writtenSize + fileSize;
                             if (count === length) {
@@ -71,11 +72,14 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
                 failPlural:string = (numbers.failures === 1)
                     ? ""
                     : "s",
-                verb:string = (numbers.percent === 100)
-                    ? "Copy"
-                    : `Copying ${numbers.percent.toFixed(2)}%`;
+                verb:string = (data.cut === true)
+                    ? "Cut"
+                    : "Copy",
+                action:string = (numbers.percent === 100)
+                    ? verb
+                    : `${verb}ing ${numbers.percent.toFixed(2)}%`;
             vars.testLogger("fileService", "copyMessage", "Status information about multiple file copy.");
-            return `${verb} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
+            return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
         },
         menu = function terminal_fileService_copyService_menu():void {
             if (data.action === "fs-copy") {

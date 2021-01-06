@@ -490,7 +490,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                         failures = failures.concat(result.failures);
                         output = output.concat(result);
                     }
-                    if ((vars.command === "test" && serverVars.testBrowser === null) || vars.command === "test_service") {
+                    if (serverVars.testType === "service") {
                         result.forEach(function terminal_fileService_fileService_readDirectory_callback_each(item:directoryItem):void {
                             item[5] = null;
                         });

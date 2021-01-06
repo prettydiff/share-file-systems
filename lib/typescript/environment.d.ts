@@ -71,6 +71,7 @@ interface serverVars {
     status: heartbeatStatus;
     storage: string;
     testBrowser: testBrowserRoute;
+    testType: testListType;
     timeStore: number;
     user: agents;
     watches: {

@@ -12,24 +12,23 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
         error([`Count not resolve IP address for agent ${config.data.agent} of type ${config.data.agentType}.`]);
         return;
     }
-    const test:boolean = (vars.command.indexOf("test") === 0),
-        payload:fileService = {
+    const payload:fileService = {
             action: config.data.action,
-            agent: (test === true)
+            agent: (serverVars.testType !== "")
                 ? (config.data.copyType === "device")
                     ? serverVars.hashDevice
                     : serverVars.hashUser
                 : config.data.agent,
-            agentType: (test === true && config.data.copyAgent !== "")
+            agentType: (serverVars.testType !== "" && config.data.copyAgent !== "")
                 ? <agentType>config.data.copyType
                 : config.data.agentType,
-            copyAgent: (test === true)
+            copyAgent: (serverVars.testType !== "")
                 ? config.data.agent
                 : config.data.copyAgent,
-            copyShare: (test === true)
+            copyShare: (serverVars.testType !== "")
                 ? config.data.share
                 : config.data.copyShare,
-            copyType: (test === true)
+            copyType: (serverVars.testType !== "")
                 ? config.data.agentType
                 : config.data.copyType,
             cut: false,
@@ -43,7 +42,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                 : (config.data.remoteWatch === undefined)
                     ? null
                     : config.data.remoteWatch,
-            share: (test === true)
+            share: (serverVars.testType !== "")
                 ? config.data.copyShare
                 : config.data.share,
             watch: config.data.watch
@@ -61,7 +60,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                         ? JSON.stringify(copyStatus)
                         : config.data.id
                 };
-            if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && (vars.command.indexOf("test") === 0 || vars.command.indexOf("test") !== 0)) {
+            if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && serverVars.testType === "") {
                 log([config.errorMessage, httpError.toString()]);
             }
             response({
@@ -72,7 +71,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             });
         },
         responseError = function terminal_fileService_httpRequest_responseError(httpError:nodeError):void {
-            if (httpError.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+            if (httpError.code !== "ETIMEDOUT") {
                 log([config.errorMessage, config.errorMessage.toString()]);
                 vars.broadcast("error", config.errorMessage);
             }

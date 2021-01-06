@@ -55,7 +55,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                             ? JSON.stringify(copyStatus)
                                             : config.data.id
                                     };
-                                if (message.code !== "ETIMEDOUT" && message.code !== "ECONNREFUSED" && (vars.command.indexOf("test") === 0 || vars.command.indexOf("test") !== 0)) {
+                                if (message.code !== "ETIMEDOUT" && message.code !== "ECONNREFUSED") {
                                     error([errorMessage, message.toString()]);
                                 }
                                 response({
@@ -66,7 +66,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                 });
                             },
                             responseError = function terminal_fileService_watchHandler_remote_responseError(message:nodeError):void {
-                                if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                                if (message.code !== "ETIMEDOUT") {
                                     log([errorMessage, errorMessage.toString()]);
                                     vars.broadcast("error", errorMessage);
                                 }

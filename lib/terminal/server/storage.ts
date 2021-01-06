@@ -10,10 +10,9 @@ import serverVars from "./serverVars.js";
 const storage = function terminal_server_storage(data:storage):void {
     const location:string = serverVars.storage + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
-        testFlag:boolean = (serverVars.testBrowser === null && vars.command.indexOf("test") === 0),
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
-            if (testFlag === false) {
+            if (serverVars.testType !== "browser") {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_rename_renameNode(erName:Error) {
                     if (erName !== null) {
                         vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
@@ -33,7 +32,7 @@ const storage = function terminal_server_storage(data:storage):void {
             }
             if (data.type === "settings") {
                 const settings:ui_data = <ui_data>data.data;
-                if (vars.command.indexOf("test") !== 0) {
+                if (serverVars.testType === "") {
                     serverVars.brotli = settings.brotli;
                     serverVars.hashType = settings.hashType;
                     serverVars.hashUser = settings.hashUser;
@@ -43,7 +42,7 @@ const storage = function terminal_server_storage(data:storage):void {
                         serverVars.nameDevice = settings.nameDevice;
                     }
                 }
-            } else if ((vars.command.indexOf("test") < 0 || serverVars.testBrowser !== null) && (data.type === "device" || data.type === "user")) {
+            } else if (serverVars.testType === "" && (data.type === "device" || data.type === "user")) {
                 const agents:agents = <agents>data.data;
                 serverVars[data.type] = agents;
             }
@@ -54,7 +53,7 @@ const storage = function terminal_server_storage(data:storage):void {
         error(["Submitted a 'type' value of undefined to the storage utility."]);
         return;
     }
-    if (testFlag === true) {
+    if (serverVars.testType === "browser") {
         writeCallback(null);
     } else {
         vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);

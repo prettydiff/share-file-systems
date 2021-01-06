@@ -217,7 +217,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
                         test[a].path = filePathDecode(null, test[a].path);
                     } while (a > 0);
                 }
-            } else if (test["dirs"] !== undefined) {
+            } else if (test["dirs"] !== undefined && test["dirs"] !== null) {
                 let a:number = test["dirs"].length;
                 if (a > 0) {
                     do {
@@ -246,7 +246,7 @@ service.execute = function terminal_test_application_services_execute(config:tes
             response.on("end", function terminal_test_application_service_execute_callback_end():void {
                 // A delay is built into the server to eliminate a race condition between service execution and data writing.
                 // * That service delay requires a delay between service test intervals to prevent tests from bleeding into each other.
-                // * The delay here is the HTTP round trip plus 10ms.
+                // * The delay here is the HTTP round trip plus 25ms.
                 setTimeout(function terminal_test_application_service_execute_callback_end_delay():void {
                     httpRequest.end();
                     evaluator(chunks.join(""));

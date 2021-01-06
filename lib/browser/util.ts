@@ -367,8 +367,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
     let id:string,
         listData:[Element, number, string],
         body:Element,
-        clone:Element,
-        a:number = 0;
+        clone:Element;
     if (failLength > 0) {
         let b:number = 0,
             li:Element;
@@ -675,8 +674,7 @@ util.selectNone = function browser_util_selectNone(element:Element):void {
         inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
         inputLength:number = inputs.length,
         p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");
-    let a:number = 0,
-        classy:string;
+    let a:number = 0;
     if (document.getElementById("newFileItem") !== null) {
         return;
     }

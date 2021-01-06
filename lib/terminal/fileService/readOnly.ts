@@ -49,7 +49,9 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
             });
         };
     if (data.agentType === "device") {
-        if (data.agent === serverVars.hashDevice) {
+        // service tests must be regarded as local device tests even they have a non-matching agent
+        // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
+        if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
             if (copy === true) {
                 copyService(serverResponse, data);
             } else {

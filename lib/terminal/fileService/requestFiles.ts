@@ -168,7 +168,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                     status:completeStatus = {
                         countFile: countFile,
                         failures: hashFail.length,
-                        percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                        percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
                             ? 100
                             : ((written / config.fileData.fileSize) * 100),
                         writtenSize: written
@@ -272,7 +272,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 const status:completeStatus = {
                     countFile: countFile,
                     failures: hashFail.length,
-                    percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || vars.command.indexOf("test") === 0)
+                    percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
                         ? 100
                         : ((writtenSize / config.fileData.fileSize) * 100),
                     writtenSize: writtenSize

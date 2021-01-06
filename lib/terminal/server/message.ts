@@ -17,7 +17,7 @@ const message = function terminal_server_message(messageText:string, serverRespo
             error([errorMessage, message.toString()]);
         },
         responseError = function terminal_server_message_responseError(message:nodeError):void {
-            if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+            if (message.code !== "ETIMEDOUT") {
                 error([errorMessage, errorMessage.toString()]);
                 vars.broadcast("error", JSON.stringify(errorMessage));
             }

@@ -327,7 +327,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 if (list === null) {
                     return;
                 }
-                li.appendChild(list[0]);console.log(li);
+                li.appendChild(list[0]);
             };
         button.innerHTML = "-<span>Collapse this folder</span>";
         button.setAttribute("title", "Collapse this folder");

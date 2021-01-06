@@ -18,9 +18,7 @@ const copySameAgent = function terminal_fileService_copySameAgent(serverResponse
         const callback = function terminal_fileService_copySameAgent_each_copy([fileCount, fileSize]):void {
                 count = count + 1;
                 countFile = countFile + fileCount;
-                writtenSize = (vars.command.indexOf("test") === 0)
-                    ? 0
-                    : writtenSize + fileSize;
+                writtenSize = writtenSize + fileSize;
                 if (count === length) {
                     const status:completeStatus = {
                         countFile: countFile,

@@ -31,7 +31,7 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                 httpConfig:httpConfiguration = {
                     agentType: data.type,
                     callback: function terminal_server_invite_request_callback(message:Buffer|string):void {
-                        if (vars.command.indexOf("test") !== 0) {
+                        if (serverVars.testType === "") {
                             log([message.toString()]);
                         }
                     },

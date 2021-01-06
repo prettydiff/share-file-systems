@@ -7,12 +7,12 @@ import error from "../../utilities/error.js";
 import httpClient from "../../server/httpClient.js";
 import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
-import server from "../../commands/service.js";
-import serverVars from "../../server/serverVars.js";
-import vars from "../../utilities/vars.js";
 import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
+import server from "../../commands/service.js";
+import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
+import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./file_path_decode.js";
 import machines from "./browser_machines.js";
@@ -146,6 +146,7 @@ const defaultCommand:string = vars.command,
                             port: serverVars.webPort
                         }
                 };
+                serverVars.testType = "browser";
                 server({
                     agent: "",
                     agentType: "device",
