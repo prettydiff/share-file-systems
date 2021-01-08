@@ -279,7 +279,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
 
                         output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
                         output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
-                        if (portString !== "") {
+                        if (portString !== "" && port !== 0) {
                             output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
                         }
                         if (certLogs !== null) {

@@ -85,6 +85,8 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
             if (data.action === "fs-copy") {
                 if (data.agent === data.copyAgent) {
                     actions.sameAgent();
+                } else {
+                    
                 }
             }
         };

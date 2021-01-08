@@ -12,7 +12,7 @@ const storage = function terminal_server_storage(data:storage):void {
         fileName:string = `${location}-${Math.random()}.json`,
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
-            if (serverVars.testType !== "browser") {
+            if (serverVars.testType !== "service") {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_rename_renameNode(erName:Error) {
                     if (erName !== null) {
                         vars.node.fs.unlink(fileName, function terminal_server_storage_rename_renameNode_unlink(erUnlink:Error) {
@@ -53,7 +53,7 @@ const storage = function terminal_server_storage(data:storage):void {
         error(["Submitted a 'type' value of undefined to the storage utility."]);
         return;
     }
-    if (serverVars.testType === "browser") {
+    if (serverVars.testType === "service") {
         writeCallback(null);
     } else {
         vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);

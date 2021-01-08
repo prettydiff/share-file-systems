@@ -3456,7 +3456,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copy complete. 2 files written"
+                value: "Cut complete. 2 files written"
             },
             interaction: [
                 {

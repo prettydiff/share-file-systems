@@ -53,6 +53,15 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
         if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
             if (copy === true) {
+                // x copy to and from local device works
+                // 1 copy to vm1 from local
+                // 2 copy to local from vm1
+                // 3 copy to and from vm1
+                // 4 cut to vm1 from local
+                // 5 cut to local from vm1
+                // 6 cut to and from vm1
+                // 7 copy to vm1 from vm2
+                // 8 cut to vm1 from vm2
                 copyService(serverResponse, data);
             } else {
                 fileServices.menu(serverResponse, data);
