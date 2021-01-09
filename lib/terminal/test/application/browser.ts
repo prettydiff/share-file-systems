@@ -84,7 +84,6 @@ const defaultCommand:string = vars.command,
                                     ip: machines[list[index]].ip,
                                     payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[list[index]].port,
-                                    remoteName: browser.agent,
                                     requestError: function terminal_test_application_browser_execute_agents_requestError(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
                                     },
@@ -209,7 +208,6 @@ const defaultCommand:string = vars.command,
                                 ip: machines[name].ip,
                                 port: machines[name].port,
                                 payload: JSON.stringify(close),
-                                remoteName: browser.agent,
                                 requestError:  function terminal_test_application_browser_exit_requestError():void {
                                     return;
                                 },
@@ -363,7 +361,6 @@ const defaultCommand:string = vars.command,
                                         log([errorMessage.toString()]);
                                     },
                                     requestType: "test-browser",
-                                    remoteName: "test-browser-request",
                                     responseStream: httpClient.stream,
                                     responseError: function terminal_test_application_browser_iterate_remoteResponse(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
@@ -423,7 +420,6 @@ const defaultCommand:string = vars.command,
                         ip: data.transfer.ip,
                         payload: JSON.stringify(payload),
                         port: data.transfer.port,
-                        remoteName: "",
                         requestError: function terminal_test_application_browser_resetBrowser_requestError():void {},
                         requestType: "test-browser",
                         responseError: function terminal_test_application_browser_resetBrowser_responseError():void {},
@@ -578,7 +574,6 @@ const defaultCommand:string = vars.command,
                     ip: browser.ip,
                     port: browser.port,
                     payload: JSON.stringify(route),
-                    remoteName: browser.agent,
                     requestError: function terminal_test_application_browser_respond_requestError(errorMessage:nodeError, agent:string, type:agentType):void {
                         errorCall({
                             callType: "request",

@@ -66,9 +66,10 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/fileService.ts](../lib/terminal/fileService/fileService.ts)**                             - Manages various file system services.
    - **[../lib/terminal/fileService/fileServices.ts](../lib/terminal/fileService/fileServices.ts)**                           - Manages various file system services.
    - **[../lib/terminal/fileService/httpRequest.ts](../lib/terminal/fileService/httpRequest.ts)**                             - Format a properly packaged http request for file services.
-   - **[../lib/terminal/fileService/readOnly.ts](../lib/terminal/fileService/readOnly.ts)**                                   - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result.
    - **[../lib/terminal/fileService/remoteCopyList.ts](../lib/terminal/fileService/remoteCopyList.ts)**                       - Generates a file system list from a remote agent so that the source agent knows what artifacts to request by name.
    - **[../lib/terminal/fileService/requestFiles.ts](../lib/terminal/fileService/requestFiles.ts)**                           - Pulls files from one agent to another.
+   - **[../lib/terminal/fileService/routeCopy.ts](../lib/terminal/fileService/routeCopy.ts)**                                 - A library to handle file system asset movement.
+   - **[../lib/terminal/fileService/routeFile.ts](../lib/terminal/fileService/routeFile.ts)**                                 - A library that manages all file system operations except copy/cut operations.
    - **[../lib/terminal/fileService/watchHandler.ts](../lib/terminal/fileService/watchHandler.ts)**                           - An event handler for file system watch events.
    - **[../lib/terminal/fileService/watchLocal.ts](../lib/terminal/fileService/watchLocal.ts)**                               - Broadcasts local file system changes to the browser.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*

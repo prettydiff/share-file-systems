@@ -1,10 +1,9 @@
 
-/* lib/terminal/fileService/readOnly - A library that stands before fileService.js to determine if the request for a remote resource is read only and then restrict access as a result. */
+/* lib/terminal/fileService/routeFile - A library that manages all file system operations except copy/cut operations. */
 
 import { Hash } from "crypto";
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 
-import copyService from "./copyService.js";
 import fileServices from "./fileServices.js";
 import hashIdentity from "../server/hashIdentity.js";
 import httpClient from "../server/httpClient.js";
@@ -12,18 +11,14 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const readOnly = function terminal_fileService_readOnly(serverResponse:ServerResponse, dataString:string):void {
+const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:fileService = JSON.parse(dataString),
-        copy:boolean = (data.action.indexOf("fs-copy") === 0 || data.action.indexOf("fs-cut") === 0),
-        route = function terminal_fileService_readOnly_route():void {
+        route = function terminal_fileService_routeFile_route():void {
             httpClient({
                 agentType: data.agentType,
-                callback: function terminal_fileService_readOnly_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
+                callback: function terminal_fileService_routeFile_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
                     const responseType:requestType = <requestType>headers["response-type"];
-                    if (copy === true) {
-                        const status:copyStatus = JSON.parse(message.toString());
-                        fileServices.respond.copy(serverResponse, status);
-                    } else if (responseType === "error") {
+                    if (responseType === "error") {
                         fileServices.respond.error(serverResponse, message.toString(), data.action);
                     } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
                         const list:stringDataList = JSON.parse(message.toString());
@@ -37,13 +32,12 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
                 ip: serverVars[data.agentType][data.agent].ip,
                 payload: dataString,
                 port: serverVars[data.agentType][data.agent].port,
-                remoteName: "",
-                requestError: function terminal_fileService_readOnly_route_requestError():void {
+                requestError: function terminal_fileService_routeFile_route_requestError():void {
                     return;
                 },
                 requestType: "fs",
                 responseStream: httpClient.stream,
-                responseError: function terminal_fileService_readOnly_route_requestError():void {
+                responseError: function terminal_fileService_routeFile_route_requestError():void {
                     return;
                 }
             });
@@ -52,20 +46,7 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
         // service tests must be regarded as local device tests even they have a non-matching agent
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
         if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
-            if (copy === true) {
-                // x copy to and from local device works
-                // 1 copy to vm1 from local
-                // 2 copy to local from vm1
-                // 3 copy to and from vm1
-                // 4 cut to vm1 from local
-                // 5 cut to local from vm1
-                // 6 cut to and from vm1
-                // 7 copy to vm1 from vm2
-                // 8 cut to vm1 from vm2
-                copyService(serverResponse, data);
-            } else {
-                fileServices.menu(serverResponse, data);
-            }
+            fileServices.menu(serverResponse, data);
         } else {
             route();
         }
@@ -75,14 +56,14 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
                 : serverVars[data.agentType][data.agent].shares,
             shareKeys:string[] = Object.keys(shares),
             windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-            readOnly:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
+            routeFile:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
         let dIndex:number = location.length,
             sIndex:number = shareKeys.length,
             place:string,
             share:agentShare,
             bestMatch:number = -1;
         if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-            readOnly.push("fs-copy-file");
+            routeFile.push("fs-copy-file");
         }
         if (sIndex > 0) {
             do {
@@ -103,7 +84,7 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
                 if (bestMatch < 0) {
                     location.splice(dIndex, 1);
                 } else {
-                    if (shares[shareKeys[bestMatch]].readOnly === true && readOnly.indexOf(data.action) < 0) {
+                    if (shares[shareKeys[bestMatch]].routeFile === true && routeFile.indexOf(data.action) < 0) {
                         response(responsePayload);
                         return;
                     }
@@ -146,7 +127,7 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
 
     // Most of this code evaluates whether the remote location is read only and limits actions that make changes
     if (data.watch === "remote" && data.action !== "fs-copy-file" && data.action !== "fs-cut-file") {
-        hashIdentity(data.share, function terminal_fileService_readOnly_hashIdentity(token:string):void {
+        hashIdentity(data.share, function terminal_fileService_routeFile_hashIdentity(token:string):void {
             if (token === "") {
                 response(responsePayload);
             } else {
@@ -167,14 +148,14 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
                     : serverVars[data.agentType][data.agent].shares,
                 shareKeys:string[] = Object.keys(shares),
                 windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-                readOnly:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
+                routeFile:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
             let dIndex:number = location.length,
                 sIndex:number = shareKeys.length,
                 place:string,
                 share:agentShare,
                 bestMatch:number = -1;
             if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-                readOnly.push("fs-copy-file");
+                routeFile.push("fs-copy-file");
             }
             if (sIndex > 0) {
                 do {
@@ -195,7 +176,7 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
                     if (bestMatch < 0) {
                         location.splice(dIndex, 1);
                     } else {
-                        if (shares[shareKeys[bestMatch]].readOnly === true && readOnly.indexOf(data.action) < 0) {
+                        if (shares[shareKeys[bestMatch]].routeFile === true && routeFile.indexOf(data.action) < 0) {
                             response(responsePayload);
                             return;
                         }
@@ -215,4 +196,4 @@ const readOnly = function terminal_fileService_readOnly(serverResponse:ServerRes
     }*/
 };
 
-export default readOnly;
+export default routeFile;

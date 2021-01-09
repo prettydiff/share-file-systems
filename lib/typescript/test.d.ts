@@ -156,7 +156,7 @@ declare global {
     }
     interface testService {
         artifact?: string;
-        command: fileService | fsUpdateRemote | heartbeat | invite | storage | testServiceStorage;
+        command: copyService | fileService | fsUpdateRemote | heartbeat | invite | storage | testServiceStorage;
         file?: string;
         name: string;
         qualifier: qualifier;

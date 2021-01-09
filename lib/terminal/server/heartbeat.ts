@@ -78,7 +78,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                 ip: "",
                 payload: "",
                 port: 443,
-                remoteName: "",
                 requestError: errorHandler,
                 requestType: config.requestType,
                 responseStream: httpClient.stream,
@@ -109,7 +108,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                         httpConfig.errorMessage = `Error with heartbeat to ${agentNames.agentType} ${agentNames.agent}.`;
                         httpConfig.ip = serverVars[agentNames.agentType][agentNames.agent].ip;
                         httpConfig.port = serverVars[agentNames.agentType][agentNames.agent].port;
-                        httpConfig.remoteName = agentNames.agent;
                         httpConfig.payload = JSON.stringify(payload);
                         httpClient(httpConfig);
                     }
@@ -161,7 +159,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
                         httpConfig.errorMessage = `Error with heartbeat to device ${serverVars.device[agent].name} (${agent}).`;
                         httpConfig.ip = serverVars.device[agent].ip;
                         httpConfig.port = serverVars.device[agent].port;
-                        httpConfig.remoteName = agent;
                         payload.agentTo = agent;
                         httpConfig.payload = JSON.stringify(payload);
                         httpClient(httpConfig);

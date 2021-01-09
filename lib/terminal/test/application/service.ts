@@ -179,9 +179,6 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 "content-length": Buffer.byteLength(command),
                 "agent-hash": serverVars.hashDevice,
                 "agent-type": "device",
-                "remote-user": (fs.copyAgent !== undefined && fs.copyAgent !== "" && fs.copyAgent !== serverVars.hashDevice)
-                    ? fs.copyAgent
-                    : "localUser",
                 "request-type": testItem.requestType
             }
             : {
@@ -189,7 +186,6 @@ service.execute = function terminal_test_application_services_execute(config:tes
                 "content-length": Buffer.byteLength(command),
                 "agent-hash": agent,
                 "agent-type": "user",
-                "remote-user": "localUser",
                 "request-type": testItem.requestType
             },
         payload:RequestOptions = {

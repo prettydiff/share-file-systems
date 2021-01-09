@@ -86,7 +86,6 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                 ip: serverVars[config.data.agentType][config.data.agent].ip,
                                 payload: payload,
                                 port: serverVars[config.data.agentType][config.data.agent].port,
-                                remoteName: config.data.agent,
                                 requestError: requestError,
                                 requestType: "fs-update-remote",
                                 responseStream: httpClient.stream,

@@ -77,7 +77,6 @@ const agentOnline = function terminal_commands_agentOnline():void {
                                 ? storage.settings.nameDevice
                                 : storage.settings.nameUser,
                             "agent-type": agentType,
-                            "remote-user": agentHash,
                             "request-type": "test_agent"
                         },
                         host: storage[agentType][agentHash].ip,

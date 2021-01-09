@@ -41,23 +41,23 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         copyService = function terminal_fileService_fileService_copyService():void {
             vars.testLogger("fileService", "fs-copy", "All branches of file system copy");
             if (localDevice === true) {
-                if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
+                //if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                     // * data.agent === local
                     // * data.copyAgent === local
                     vars.testLogger("fileService", "fs-copy copySameAgent", "Call copySameAgent if data.agent and data.copyAgent are the same agents.");
                     copySameAgent(serverResponse, data);
-                } else {
+                //} else {
                     // copy from local to remote
                     // * data.agent === local
                     // * data.copyAgent === remote
                     // * response here is just for maintenance.  A list of files is pushed and the remote needs to request from that list, but otherwise a response isn't needed here.
                     copyLocalToRemote();
-                }
-            } else if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
+                //}
+            //} else if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
                 // data.agent === remote
                 // data.copyAgent === local
                 copyRemoteToLocal();
-            } else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
+            //} else if (data.agent === data.copyAgent && data.agentType === data.copyType) {
                 // * data.agent === sameRemoteAgent
                 // * data.agent === sameRemoteAgent
                 copyRemoteSameAgent();
@@ -127,12 +127,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             data.action = <serviceType>`${data.action.replace("-remote", "")}`;
             httpRequest({
                 callback: function terminal_fileService_fileService_copyListRemote_callback(message:Buffer|string):void {
-                    requestFiles({
+                    /*requestFiles({
                         data: data,
                         fileData: JSON.parse(message.toString()),
                         logRecursion: logRecursion,
                         serverResponse: serverResponse
-                    });
+                    });*/
                 },
                 data: data,
                 errorMessage: "Error copying from remote to local device",
@@ -160,12 +160,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                             });
                         },
                         hashCallback = function terminal_fileService_fileService_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
-                            data.copyAgent = serverVars.hashUser;
-                            data.copyShare = hashOutput.hash;
-                            data.copyType = "user";
+                            //data.copyAgent = serverVars.hashUser;
+                            //data.copyShare = hashOutput.hash;
+                            //data.copyType = "user";
                             httpCall();
                         };
-                    data.action = <serviceType>`${data.action}-request`;
+                    //data.action = "fs-copy-request";
                     data.remoteWatch = JSON.stringify(listData);
                     if (data.agentType === "user") {
                         // A hash sequence is required only if copying to a remote user because
@@ -232,17 +232,17 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             vars.testLogger("fileService", "fs-copy origination-not-local", "When the files exist on the local device but are requested remotely then the remote agent must request the list of files to know what to request.");
             data.action = <serviceType>`${data.action}-list`;
             if (data.agentType === "user") {
-                data.copyAgent = serverVars.hashUser;
-                data.copyType = "user";
+                //data.copyAgent = serverVars.hashUser;
+                //data.copyType = "user";
             }
             httpRequest({
                 callback: function terminal_fileService_fileService_copyRemoteToLocal_callback(message:Buffer|string):void {
-                    requestFiles({
+                    /*requestFiles({
                         data: data,
                         fileData: JSON.parse(message.toString()),
                         logRecursion: logRecursion,
                         serverResponse: serverResponse
-                    });
+                    });*/
                 },
                 data: data,
                 errorMessage: "Error copying from remote to local device",
@@ -253,12 +253,12 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         copyRequest = function terminal_fileService_fileService_copyRequest():void {
             vars.testLogger("fileService", "fs-copy-request", "Calls the requestFiles function from a remote agent.");
             data.watch = "remote";
-            requestFiles({
+            /*requestFiles({
                 data: data,
                 fileData: JSON.parse(data.remoteWatch),
                 logRecursion: logRecursion,
                 serverResponse: serverResponse
-            });
+            });*/
         },
         cutRemote = function terminal_fileService_fileService_cutRemove():void {
             let a:number = 0;
@@ -337,13 +337,13 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     count = count + 1;
                     if (count === data.location.length) {
                         if (data.name === "") {
-                            const agent:string = (data.copyAgent === "")
+                            /*const agent:string = (data.copyAgent === "")
                                     ? serverVars.hashDevice
                                     : data.copyAgent,
                                 type:agentType = (data.copyAgent === "")
                                     ? "device"
                                     : data.copyType;
-                            fileCallback(serverResponse, data, `Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);
+                            fileCallback(serverResponse, data, `Path(s) ${data.location.join(", ")} destroyed on ${type} ${agent}.`);*/
                         } else {
                             directory({
                                 callback: function terminal_fileService_fileService_destroy_each_remove_callback(directoryList:directoryList):void {
@@ -675,14 +675,14 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_fileService_rename_callback(erRename:Error):void {
                 if (erRename === null) {
-                    const agent:string = (data.copyAgent === "")
+                    /*const agent:string = (data.copyAgent === "")
                             ? serverVars.hashDevice
                             : data.copyAgent,
                         type:agentType = (data.copyAgent === "")
                             ? "device"
                             : data.copyType;
                     vars.testLogger("fileService", "rs-rename response", `An error upon renaming artifact: ${erRename}`);
-                    fileCallback(serverResponse, data, `Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);
+                    fileCallback(serverResponse, data, `Path ${data.location[0]} on ${type} ${agent} renamed to ${newPath.join(vars.sep)}.`);*/
                 } else {
                     error([erRename.toString()]);
                     vars.testLogger("fileService", "fs-rename response", "All went well with renaming then write the HTTP response.");
@@ -727,7 +727,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         write = function terminal_fileService_fileService_write():void {
             vars.testLogger("fileService", "fs-write", "Writes or over-writes a file to disk.");
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_fileService_write_callback(erw:nodeError):void {
-                const agent:string = (data.copyAgent === "")
+                /*const agent:string = (data.copyAgent === "")
                         ? serverVars.hashDevice
                         : data.copyAgent,
                     type:agentType = (data.copyAgent === "")
@@ -746,7 +746,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                     mimeType: "text/plain",
                     responseType: "fs",
                     serverResponse: serverResponse
-                });
+                });*/
             });
         };
     if (remoteUsers[0] !== "") {
@@ -764,7 +764,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         }
     } else if (data.action === "fs-close") {
         close();
-    } else if (data.action === "fs-copy") {
+    /*} else if (data.action === "fs-copy") {
         copyService();
     } else if (data.action === "fs-copy-list-remote") {
         // issue a fs-copy-list on an agent from a different agent
@@ -784,7 +784,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
         copySameAgent(serverResponse, data);
     } else if (data.action === "fs-cut-remove") {
         cutRemote();
-    } else if (data.action === "fs-destroy") {
+    */} else if (data.action === "fs-destroy") {
         destroy();
     } else if (data.action === "fs-rename") {
         rename();

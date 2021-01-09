@@ -84,16 +84,10 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                 : <serviceType>`fs-${type.toLowerCase()}`,
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: agency[0],
-            copyType: agency[2],
-            cut: false,
             depth: 1,
             id: id,
             location: [],
             name: "",
-            originAgent: (agency[2] === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -180,16 +174,10 @@ context.destroy = function browser_context_destroy():void {
             action: "fs-destroy",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: agency[0],
-            copyType: agency[2],
-            cut: false,
             depth: 1,
             id: id,
             location: [],
             name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
-            originAgent: (agency[2] === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -253,9 +241,6 @@ context.details = function browser_context_details(event:MouseEvent):void {
             action: "fs-details",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: agency[0],
-            copyType: agency[2],
-            cut: false,
             depth: 0,
             id: id,
             location: (function browser_context_details_addressList():string[] {
@@ -274,9 +259,6 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 return output;
             }()),
             name: "",
-            originAgent: (agency[2] === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -589,16 +571,10 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         action: "fs-new",
                         agent: agency[0],
                         agentType: agency[2],
-                        copyAgent: agency[0],
-                        copyType: agency[2],
-                        cut: false,
                         depth: 1,
                         id: id,
                         location: [actionElement.getAttribute("data-location") + value],
                         name: actionElement.getAttribute("data-type"),
-                        originAgent: (agency[2] === "device")
-                            ? browser.data.hashDevice
-                            : browser.data.hashUser,
                         share: browser.data.modals[id].share,
                         watch: "no"
                     },
@@ -633,16 +609,10 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                             action: "fs-new",
                             agent: agency[0],
                             agentType: agency[2],
-                            copyAgent: agency[0],
-                            copyType: agency[2],
-                            cut: false,
                             depth: 1,
                             id: id,
                             location: [actionElement.getAttribute("data-location") + value],
                             name: actionElement.getAttribute("data-type"),
-                            originAgent: (agency[2] === "device")
-                                ? browser.data.hashDevice
-                                : browser.data.hashUser,
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
@@ -870,7 +840,6 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         reverse:boolean = false,
         a:number = 0;
-    event.stopPropagation();
     context.element = element;
     context.menuRemove();
     event.preventDefault();
@@ -984,25 +953,22 @@ context.paste = function browser_context_paste():void {
             : JSON.parse(clipboard),
         cut:boolean = (clipData.type === "cut"),
         id:string = element.getAttribute("id"),
-        copyAgent:string = browser.data.modals[id].agent,
-        copyType:agentType = browser.data.modals[id].agentType,
-        payload:fileService = {
-            action   : "fs-copy",
-            agent    : clipData.agent,
-            agentType: clipData.agentType,
-            copyAgent: copyAgent,
-            copyShare: browser.data.modals[id].share,
-            copyType : copyType,
-            cut      : cut,
-            depth    : 1,
-            id       : id,
-            location : clipData.data,
-            name     : destination,
-            originAgent: (copyType === "device")
+        agent:string = browser.data.modals[id].agent,
+        agentType:agentType = browser.data.modals[id].agentType,
+        payload:copyService = {
+            action     : "copy",
+            agent      : agent,
+            agentType  : agentType,
+            copyAgent  : clipData.agent,
+            copyType   : clipData.agentType,
+            cut        : cut,
+            destination: destination,
+            id         : id,
+            location   : clipData.data,
+            originAgent: (agentType === "device")
                 ? browser.data.hashDevice
-                : browser.data.hashUser,
-            share    : clipData.share,
-            watch    : "no"
+                : browser.data.hashUser
+            //share      : clipData.share
         },
         callback = function browser_context_paste_callback():void {
             clipboard = "";
@@ -1011,7 +977,7 @@ context.paste = function browser_context_paste():void {
     if (clipboard === "") {
         return;
     }
-    network.fileBrowser(payload, callback);
+    network.copy(payload, callback);
     context.element = null;
 };
 

@@ -11,6 +11,19 @@ declare global {
     interface copyActions {
         sameAgent: () => void;
     }
+    interface copyService {
+        action     : copyTypes;
+        agent      : string;
+        agentType  : agentType;
+        copyAgent  : string;
+        copyShare? : string;
+        copyType   : agentType;
+        cut        : boolean;
+        destination: string;
+        id         : string;
+        location   : string[];
+        originAgent: string;
+    }
     interface copyStatus {
         failures: string[];
         fileList?: directoryList;
@@ -21,15 +34,10 @@ declare global {
         action      : serviceType;
         agent       : string;
         agentType   : agentType;
-        copyAgent   : string;
-        copyShare?  : string;
-        copyType    : agentType;
-        cut         : boolean;
         depth       : number;
         id          : string;
         location    : string[];
         name        : string;
-        originAgent : string;
         remoteWatch?: string;
         share       : string;
         watch       : string;
@@ -51,7 +59,7 @@ declare global {
         stream: (message:IncomingMessage) => void;
     }
     interface fileServiceRequestFiles {
-        data: fileService;
+        data: copyService;
         fileData: remoteCopyListData;
         logRecursion: boolean;
         serverResponse: ServerResponse;

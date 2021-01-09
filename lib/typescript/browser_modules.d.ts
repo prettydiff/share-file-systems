@@ -81,6 +81,7 @@ interface module_modal {
     zTop?: (event:Event, elementInput?: Element) => void;
 }
 interface module_network {
+    copy?: (copyService, callback:Function, id?:string) => void;
     deleteAgents?: (deleted:agentList) => void;
     fileBrowser?: (localService, callback:Function, id?:string) => void;
     hashDevice?: (callback:Function) => void;

@@ -10,7 +10,7 @@ import remove from "../commands/remove.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const copyService = function terminal_fileService_copyService(serverResponse:ServerResponse, data:fileService):void {
+const copyService = function terminal_fileService_copyService(serverResponse:ServerResponse, data:copyService):void {
     const actions:copyActions = {
             sameAgent: function terminal_fileService_copyService_sameAgent():void {
                 let count:number = 0,
@@ -57,7 +57,7 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
                         },
                         copyConfig:nodeCopyParams = {
                             callback: callback,
-                            destination: data.name,
+                            destination: data.destination,
                             exclusions: [""],
                             target: value
                         };
@@ -82,7 +82,7 @@ const copyService = function terminal_fileService_copyService(serverResponse:Ser
             return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
         },
         menu = function terminal_fileService_copyService_menu():void {
-            if (data.action === "fs-copy") {
+            if (data.action === "copy") {
                 if (data.agent === data.copyAgent) {
                     actions.sameAgent();
                 } else {

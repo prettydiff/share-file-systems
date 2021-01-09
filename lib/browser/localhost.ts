@@ -185,6 +185,7 @@ import disallowed from "../common/disallowed.js";
 
             // watch for local idleness
             document.onclick = activate;
+            document.onkeydown = activate;
 
             if (browser.data.hashDevice !== "" && document.getElementById("settings-modal") === null) {
                 defaultModals();
@@ -305,16 +306,10 @@ import disallowed from "../common/disallowed.js";
                                     action: "fs-directory",
                                     agent: agent,
                                     agentType: modalItem.agentType,
-                                    copyAgent: agent,
-                                    copyType: modalItem.agentType,
-                                    cut: false,
                                     depth: 2,
                                     id: value,
                                     location: [modalItem.text_value],
                                     name: "",
-                                    originAgent: (modalItem.agentType === "device")
-                                        ? browser.data.hashDevice
-                                        : browser.data.hashUser,
                                     share: modalItem.share,
                                     watch: "yes"
                                 },

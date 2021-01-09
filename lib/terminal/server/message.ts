@@ -32,7 +32,6 @@ const message = function terminal_server_message(messageText:string, serverRespo
             ip: list[data.agentTo].ip,
             payload: messageText,
             port: list[data.agentTo].port,
-            remoteName: data.agentTo,
             requestError: requestError,
             requestType: "message",
             responseStream: httpClient.stream,
@@ -52,7 +51,6 @@ const message = function terminal_server_message(messageText:string, serverRespo
             config.errorMessage = `Failed to send text message to ${data.agentTo}`;
             config.ip = list[agents[agentLength]].ip;
             config.port = list[agents[agentLength]].port;
-            config.remoteName = agents[agentLength];
             httpClient(config);
         } while (agentLength > 0);
     } else if ((data.agentType === "device" && data.agentTo === serverVars.hashDevice) || (data.agentType === "user" && data.agentTo === serverVars.hashUser)) {

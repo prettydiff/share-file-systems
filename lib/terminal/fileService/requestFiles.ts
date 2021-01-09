@@ -46,10 +46,10 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         config.data.location.push(value[0]);
                         types.push(value[1]);
                     });
-                    config.data.action = "fs-cut-remove";
-                    config.data.name = JSON.stringify(types);
-                    config.data.watch = config.fileData.list[0][0].slice(0, config.fileData.list[0][0].lastIndexOf(config.fileData.list[0][2])).replace(/(\/|\\)+$/, "");
-                    httpRequest({
+                    //config.data.action = "fs-cut-remove";
+                    config.data.destination = JSON.stringify(types);
+                    //config.data.watch = config.fileData.list[0][0].slice(0, config.fileData.list[0][0].lastIndexOf(config.fileData.list[0][2])).replace(/(\/|\\)+$/, "");
+                    /*httpRequest({
                         callback: function terminal_fileService_requestFiles_respond_cut_cutCall(message:Buffer|string):void {
                             if (message.toString().indexOf(",\"status\":") > 0) {
                                 vars.broadcast("fs-update-remote", message.toString());
@@ -61,7 +61,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         errorMessage: "Error requesting file removal for fs-cut.",
                         serverResponse: config.serverResponse,
                         stream: httpClient.stream
-                    });
+                    });*/
                 }
             };
             vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
@@ -76,7 +76,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         output:copyStatus = {
                             failures: hashFail,
                             fileList: dirItems,
-                            id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                            id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                             message: copyMessage(status),
                         };
                     vars.broadcast("file-list-status", JSON.stringify(output));
@@ -92,7 +92,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 exclusions: [],
                 logRecursion: config.logRecursion,
                 mode: "read",
-                path: config.data.name,
+                path: config.data.destination,
                 symbolic: true
             });
             cut();
@@ -101,7 +101,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
         writeFile = function terminal_fileService_requestFiles_writeFile(index:number):void {
             const fileName:string = fileQueue[index][0];
             vars.testLogger("fileService", "writeFile", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
-            vars.node.fs.writeFile(config.data.name + vars.sep + fileName, fileQueue[index][3], function terminal_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
+            vars.node.fs.writeFile(config.data.destination + vars.sep + fileName, fileQueue[index][3], function terminal_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
                 const hashFailLength:number = hashFail.length;
                 if (wr !== null) {
                     error([`Error writing file ${fileName} from remote agent ${config.data.agent}`, wr.toString()]);
@@ -115,7 +115,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                         },
                         output:copyStatus = {
                             failures: [],
-                            id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                            id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                             message: copyMessage(status)
                         };
                     cutList.push([fileQueue[index][2], "file"]);
@@ -142,7 +142,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
         // stream handler if files are streamed, otherwise files are written in a single shot using writeFile
         writeStream = function terminal_fileService_requestFiles_writeStream(fileResponse:IncomingMessage):void {
             const fileName:string = <string>fileResponse.headers.file_name,
-                filePath:string = config.data.name + vars.sep + fileName,
+                filePath:string = config.data.destination + vars.sep + fileName,
                 decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                     ? vars.node.zlib.createBrotliDecompress()
                     : null,
@@ -175,7 +175,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                     },
                     output:copyStatus = {
                         failures: [],
-                        id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                        id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                         message: copyMessage(status)
                     };
                 vars.broadcast("file-list-status", JSON.stringify(output));
@@ -267,7 +267,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 ? writeStream
                 : fileRequestCallback;
             vars.testLogger("fileService", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
-            config.data.depth = config.fileData.list[a][3];
+            //config.data.depth = config.fileData.list[a][3];
             if (config.data.copyAgent !== serverVars.hashDevice) {
                 const status:completeStatus = {
                     countFile: countFile,
@@ -278,17 +278,17 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                     writtenSize: writtenSize
                 };
                 vars.testLogger("fileService", "requestFiles requestFile", "If copyAgent is not the local device then update the status data.");
-                config.data.id = `local-${config.data.name.replace(/\\/g, "\\\\")}|${copyMessage(status)}`;
+                config.data.id = `local-${config.data.destination.replace(/\\/g, "\\\\")}|${copyMessage(status)}`;
             }
             config.data.location = [config.fileData.list[a][0]];
-            config.data.remoteWatch = config.fileData.list[a][2];
-            httpRequest({
+            //config.data.remoteWatch = config.fileData.list[a][2];
+            /*httpRequest({
                 callback: null,
                 data: config.data,
                 errorMessage: `Error on requesting file ${config.fileData.list[a][2]} from ${serverVars[config.data.agentType][config.data.agent].name}`,
                 serverResponse: config.serverResponse,
                 stream: writeCallback
-            });
+            });*/
             if (config.fileData.stream === false) {
                 a = a + 1;
                 if (a < listLength) {
@@ -307,7 +307,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 if (config.fileData.list[a][1] === "directory") {
                     newDir();
                 } else {
-                    config.data.action = <serviceFS>config.data.action.replace(/((list)|(request))/, "file");
+                    //config.data.action = <serviceFS>config.data.action.replace(/((list)|(request))/, "file");
                     requestFile();
                 }
             }
@@ -318,7 +318,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
         },
         // recursively create new directories as necessary
         newDir = function terminal_fileService_requestFiles_makeLists():void {
-            mkdir(config.data.name + vars.sep + config.fileData.list[a][2], dirCallback, false);
+            mkdir(config.data.destination + vars.sep + config.fileData.list[a][2], dirCallback, false);
             cutList.push([config.fileData.list[a][0], "directory"]);
         };
     if (config.fileData.stream === true) {
@@ -327,7 +327,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
                 : "s",
             output:copyStatus = {
                 failures: [],
-                id: `local-${config.data.name.replace(/\\/g, "\\\\")}`,
+                id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                 message: `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`
             };
         vars.broadcast("file-list-status", JSON.stringify(output));
@@ -336,7 +336,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
     if (config.fileData.list[0][1] === "directory") {
         newDir();
     } else {
-        config.data.action = <serviceFS>config.data.action.replace(/((list)|(request))/, "file");
+        //config.data.action = <serviceFS>config.data.action.replace(/((list)|(request))/, "file");
         requestFile();
     }
 };

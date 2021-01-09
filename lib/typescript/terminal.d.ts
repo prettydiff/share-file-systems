@@ -197,7 +197,6 @@ declare global {
         ip: string;
         payload: Buffer|string;
         port: number;
-        remoteName: string;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: string;
         responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;

@@ -18,7 +18,6 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
                 ? serverVars.nameDevice
                 : serverVars.nameUser,
             "agent-type": config.agentType,
-            "remote-user": config.remoteName,
             "request-type": config.requestType
         },
         payload:RequestOptions = {

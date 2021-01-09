@@ -39,9 +39,6 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                     ip: ip,
                     payload: payload,
                     port: port,
-                    remoteName: (data.type === "device")
-                        ? serverVars.hashDevice
-                        : serverVars.hashUser,
                     requestError: function terminal_server_invite_request_requestError(errorMessage:nodeError):void {
                         if (errorMessage.code === "ETIMEDOUT") {
                             if (data.action === "invite-request") {

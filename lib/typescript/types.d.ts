@@ -10,6 +10,7 @@ declare global {
     type certKey = "crt" | "key";
     type color = [string, string];
     type colorScheme = "dark" | "default";
+    type copyTypes = "copy" | "copy-file" | "copy-list-remote" | "copy-request" | "copy-self" | "cut-remove";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
     type directoryMode = "array" | "hash" | "list" | "read" | "search";
@@ -27,9 +28,9 @@ declare global {
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
-    type requestType = "agent-online" | "delete-agents" | "device" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | "hash-device" | "hash-share" | "hash-user" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "invite-complete" | "invite-error" | "invite-request" | "invite-response" | "message" | "reload" | "settings" | "test-browser" | "user";
+    type requestType = "agent-online" | "copy" | "delete-agents" | "device" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | "hash-device" | "hash-share" | "hash-user" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "invite-complete" | "invite-error" | "invite-request" | "invite-response" | "message" | "reload" | "settings" | "test-browser" | "user";
     type selector = "class" | "id" | "tag";
-    type serviceFS = "fs-base64" | "fs-close" | "fs-copy" | "fs-copy-file" | "fs-copy-list" | "fs-copy-list-remote" | "fs-copy-request" | "fs-copy-self" | "fs-cut-remove" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
+    type serviceFS = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "settings";
     type shareType = "directory" | "file" | "link";
     type storageType = "device" | "message" | "settings" | "user";

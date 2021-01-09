@@ -112,7 +112,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                 });
                 setIdentity(true);
                 response({
-                    message: `ForbiddenAccess:${request.headers["remote-user"]}`,
+                    message: "ForbiddenAccess",
                     mimeType: "text/plain",
                     responseType: "forbidden",
                     serverResponse: serverResponse

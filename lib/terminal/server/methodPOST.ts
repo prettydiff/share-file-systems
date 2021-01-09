@@ -11,8 +11,9 @@ import vars from "../utilities/vars.js";
 import heartbeat from "./heartbeat.js";
 import invite from "./invite.js";
 import message from "./message.js";
-import readOnly from "../fileService/readOnly.js";
 import response from "./response.js";
+import routeCopy from "../fileService/routeCopy.js";
+import routeFile from "../fileService/routeFile.js";
 import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 import browser from "../test/application/browser.js";
@@ -118,9 +119,12 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     responseType: "heartbeat-status",
                     serverResponse: serverResponse
                 });
+            } else if (task === "copy") {
+                // * file system asset movement for both local and remote
+                routeCopy(serverResponse, body);
             } else if (task === "fs") {
                 // * file system interaction for both local and remote
-                readOnly(serverResponse, body);
+                routeFile(serverResponse, body);
             } else if (task === "fs-update-remote") {
                 // * remote: Changes to the remote user's file system
                 // * local : Update local "File Navigator" modals for the respective remote user

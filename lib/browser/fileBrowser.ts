@@ -53,16 +53,10 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
             action: "fs-directory",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: agency[0],
-            copyType: agency[2],
-            cut: false,
             depth: 2,
             id: id,
             location: [path],
             name: "",
-            originAgent: (agency[2] === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: path
         };
@@ -189,23 +183,19 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     return goal.getElementsByTagName("input")[0].value;
                 }()),
                 agency:agency = util.getAgent(element),
-                payload:fileService = {
-                    action   : "fs-copy",
-                    agent    : browser.data.modals[id].agent,
-                    agentType: browser.data.modals[id].agentType,
-                    copyAgent: agency[0],
-                    copyShare: browser.data.modals[box.getAttribute("id")].share,
-                    copyType : agency[2],
-                    cut      : cut,
-                    depth    : 1,
-                    id       : id,
-                    location : addresses,
-                    name     : target,
+                payload:copyService = {
+                    action     : "copy",
+                    agent      : agency[0],
+                    copyType   : agency[2],
+                    copyAgent  : browser.data.modals[id].agent,
+                    cut        : false,
+                    agentType  : browser.data.modals[id].agentType,
+                    destination: target,
+                    id         : id,
+                    location   : addresses,
                     originAgent: (agency[2] === "device")
                         ? browser.data.hashDevice
-                        : browser.data.hashUser,
-                    share    : browser.data.modals[id].share,
-                    watch    : "no"
+                        : browser.data.hashUser
                 },
                 callback = function browser_fileBrowser_drag_drop_callback():void {
                     return;
@@ -213,7 +203,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
             if (target === "") {
                 return;
             }
-            network.fileBrowser(payload, callback);
+            network.copy(payload, callback);
         },
         move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
@@ -309,16 +299,10 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 action: "fs-directory",
                 agent: agency[0],
                 agentType: agency[2],
-                copyAgent: agency[0],
-                copyType: agency[2],
-                cut: false,
                 depth: 2,
                 id: id,
                 location: [li.firstChild.nextSibling.firstChild.textContent],
                 name : "",
-                originAgent: (agency[2] === "device")
-                    ? browser.data.hashDevice
-                    : browser.data.hashUser,
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
@@ -340,7 +324,6 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
             li.removeChild(li.getElementsByTagName("ul")[0]);
         }
     }
-    event.stopPropagation();
 };
 
 /* Builds the HTML file list */
@@ -641,16 +624,10 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             action: "fs-directory",
             agent: agentName,
             agentType: agentType,
-            copyAgent: agentName,
-            copyType: agentType,
-            cut: false,
             depth: 2,
             id: browser.data.hashDevice,
             location: [location],
             name: "",
-            originAgent: (agentType === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: share,
             watch: "yes"
         },
@@ -703,16 +680,10 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             action: "fs-directory",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: agency[0],
-            copyType: agency[2],
-            cut: false,
             depth: 2,
             id: id,
             location: [newAddress],
             name: "",
-            originAgent: (agency[2] === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: value
         },
@@ -756,16 +727,10 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
                             action: "fs-rename",
                             agent: agency[0],
                             agentType: agency[2],
-                            copyAgent: agency[0],
-                            copyType: agency[2],
-                            cut: false,
                             depth: 1,
                             id: id,
                             location: [text.replace(/\\/g, "\\\\")],
                             name: input.value,
-                            originAgent: (agency[2] === "device")
-                                ? browser.data.hashDevice
-                                : browser.data.hashUser,
                             share: browser.data.modals[id].share,
                             watch: "no"
                         },
@@ -829,16 +794,10 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
             action: "fs-write",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: agency[0],
-            copyType: agency[2],
-            cut: false,
             depth: 1,
             id: box.getAttribute("id"),
             location: [location[location.length - 1]],
             name: content,
-            originAgent: (agency[2] === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser,
             share: browser.data.modals[id].share,
             watch: "no"
         },
@@ -883,16 +842,10 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
                 action: "fs-search",
                 agent: agency[0],
                 agentType: agency[2],
-                copyAgent: agency[0],
-                copyType: agency[2],
-                cut: false,
                 depth: 0,
                 id: id,
                 location: [address],
                 name: value,
-                originAgent: (agency[2] === "device")
-                    ? browser.data.hashDevice
-                    : browser.data.hashUser,
                 share: browser.data.modals[id].share,
                 watch: "no"
             },
@@ -998,7 +951,6 @@ fileBrowser.searchFocus = function browser_fileBrowser_searchFocus(event:Event):
 /* Select a file system item for an action */
 fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):void {
     event.preventDefault();
-    event.stopPropagation();
     context.menuRemove();
     const element:Element = <Element>event.target,
         p:Element = (element.nodeName.toLowerCase() === "p")
@@ -1192,16 +1144,10 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                 action: "fs-directory",
                 agent: agency[0],
                 agentType: agency[2],
-                copyAgent: agency[0],
-                copyType: agency[2],
-                cut: false,
                 depth: 2,
                 id: id,
                 location: [element.value],
                 name: "",
-                originAgent: (agency[2] === "device")
-                    ? browser.data.hashDevice
-                    : browser.data.hashUser,
                 share: browser.data.modals[id].share,
                 watch: watchValue
             },
