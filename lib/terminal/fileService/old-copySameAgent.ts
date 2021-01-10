@@ -5,8 +5,8 @@ import { ServerResponse } from "http";
 import copy from "../commands/copy.js";
 import vars from "../utilities/vars.js";
 
-import copyMessage from "./copyMessage.js";
-import fileCallback from "./fileCallback.js";
+import copyMessage from "./old-copyMessage.js";
+import fileCallback from "./old-fileCallback.js";
 
 const copySameAgent = function terminal_fileService_copySameAgent(serverResponse:ServerResponse, data:fileService):void {
     let count:number = 0,

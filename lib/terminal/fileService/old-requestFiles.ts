@@ -15,8 +15,8 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-import copyMessage from "./copyMessage.js";
-import httpRequest from "./httpRequest.js";
+import copyMessage from "./old-copyMessage.js";
+import httpRequest from "./old-httpRequest.js";
 
 const requestFiles = function terminal_fileService_requestFiles(config:fileServiceRequestFiles):void {
     let writeActive:boolean = false,
@@ -332,7 +332,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:fileServi
             };
         vars.broadcast("file-list-status", JSON.stringify(output));
     }
-    vars.testLogger("fileService", "requestFiles", "A giant function to request one or more files from a remote/user device.  Before files are requested the directory structure is locally created.");
+    vars.testLogger("fileService", "requestFiles", "A giant function to request one or more files from a remote user/device.  Before files are requested the directory structure is locally created.");
     if (config.fileData.list[0][1] === "directory") {
         newDir();
     } else {

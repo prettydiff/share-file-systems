@@ -8,8 +8,6 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-import watchLocal from "./watchLocal.js";
-
 const watchHandler = function terminal_fileService_watchHandler(config:fileServiceWatch):void {
     const localDevice:boolean = (config.data.agent === serverVars.hashDevice && config.data.agentType === "device");
     if (config.value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
@@ -18,7 +16,21 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                 const now:number = Date.now();
                 vars.testLogger("fileService", "watchHandler", "Central watch handler for local device file system");
                 if (serverVars.watches[config.value].time > now - 2000) {
-                    watchLocal(config.value, config.logRecursion);
+                    const fsUpdateCallback = function terminal_fileService_watchHandler_fsUpdateCallback(result:directoryList):void {
+                            vars.broadcast("fs-update-local", JSON.stringify(result));
+                        },
+                        dirConfig:readDirectory = {
+                            callback: fsUpdateCallback,
+                            depth: 2,
+                            exclusions: [],
+                            logRecursion: config.logRecursion,
+                            mode: "read",
+                            path: config.value,
+                            symbolic: true
+                        };
+                    vars.testLogger("fileService", "fsUpdateLocal", "Read from a directory and send the data to the local browser via websocket broadcast.");
+                    directory(dirConfig);
+                    config.logRecursion = false;
                 }
                 serverVars.watches[config.value].time = now;
             }

@@ -14,9 +14,8 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         route = function terminal_fileService_routeCopy_route():void {
             httpClient({
                 agentType: data.agentType,
-                callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
-                    const responseType:requestType = <requestType>headers["response-type"],
-                        status:copyStatus = JSON.parse(message.toString());
+                callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
+                    const status:copyStatus = JSON.parse(message.toString());
                         fileServices.respond.copy(serverResponse, status);
                 },
                 errorMessage: "",
@@ -26,7 +25,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 requestError: function terminal_fileService_routeCopy_route_requestError():void {
                     return;
                 },
-                requestType: "fs",
+                requestType: "copy",
                 responseStream: httpClient.stream,
                 responseError: function terminal_fileService_routeCopy_route_requestError():void {
                     return;

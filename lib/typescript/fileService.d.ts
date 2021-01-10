@@ -9,6 +9,7 @@ declare global {
         writtenSize: number;
     }
     interface copyActions {
+        requestList: (index:number) => void;
         sameAgent: () => void;
     }
     interface copyService {
@@ -100,14 +101,6 @@ declare global {
         destination: string;
         exclusions: string[];
         target: string;
-    }
-    interface remoteCopyList {
-        callback: Function;
-        data: fileService;
-        files: [string, string, string, number][];
-        index: number;
-        length: number;
-        logRecursion: boolean;
     }
     interface remoteCopyListData {
         directories: number;

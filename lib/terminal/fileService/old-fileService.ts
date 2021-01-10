@@ -16,13 +16,13 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-import copySameAgent from "./copySameAgent.js";
-import fileCallback from "./fileCallback.js";
-import httpRequest from "./httpRequest.js";
-import remoteCopyList from "./remoteCopyList.js";
-import requestFiles from "./requestFiles.js"
+import copySameAgent from "./old-copySameAgent.js";
+import fileCallback from "./old-fileCallback.js";
+import httpRequest from "./old-httpRequest.js";
+import remoteCopyList from "./old-remoteCopyList.js";
+import requestFiles from "./old-requestFiles.js"
 import watchHandler from "./watchHandler.js";
-import watchLocal from "./watchLocal.js";
+import watchLocal from "./old-watchLocal.js";
 import httpClient from "../server/httpClient.js";
 
 const fileService = function terminal_fileService_fileService(serverResponse:ServerResponse, data:fileService):void {
@@ -104,7 +104,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             }
         },
         copyListLocal = function terminal_fileService_fileService_copyListLocal():void {
-            const listData:remoteCopyList = {
+            /*const listData:remoteCopyList = {
                 callback: function terminal_fileService_fileService_copyListLocal_callback(listData:remoteCopyListData):void {
                     response({
                         message: JSON.stringify(listData),
@@ -120,7 +120,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 logRecursion: logRecursion
             };
             vars.testLogger("fileService", "fs-copy-list", "Call the remoteCopyList function so that a remote agent knows what files to request.");
-            remoteCopyList(listData);
+            remoteCopyList(listData);*/
         },
         copyListRemote = function terminal_fileService_fileService_copyListRemote():void {
             vars.testLogger("fileService", "fs-copy-list-remote", "Initiates the copy procedure from the destination agent when both the destination and origination are different and not the local device.");
@@ -141,7 +141,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
             });
         },
         copyLocalToRemote = function terminal_fileService_fileService_copyLocalToRemote():void {
-            const listData:remoteCopyList = {
+            /*const listData:remoteCopyList = {
                 callback: function terminal_fileService_fileService_copyLocalToRemote_callback(listData:remoteCopyListData):void {
                     const httpCall = function terminal_fileService_fileService_copyLocalToRemote_callback_http():void {
                             httpRequest({
@@ -189,7 +189,7 @@ const fileService = function terminal_fileService_fileService(serverResponse:Ser
                 logRecursion: logRecursion
             };
             vars.testLogger("fileService", "fs-copy destination-not-local", "When the destination is not the local device call the remoteCopyList function to get a list of artifacts to request.");
-            remoteCopyList(listData);
+            remoteCopyList(listData);*/
         },
         copyRemoteSameAgent = function terminal_fileService_fileService_copyRemoteSameAgent():void {
             vars.testLogger("fileService", "fs-copy destination-origination-same", "When the destination and origination are the same agent that remote agent must be told to perform a same agent copy.");

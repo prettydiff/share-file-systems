@@ -3,8 +3,8 @@
 import directory from "../commands/directory.js";
 import vars from "../utilities/vars.js";
 
-const remoteCopyList = function terminal_fileService_remoteCopyList(config:remoteCopyList):void {
-    const list: [string, string, string, number][] = [],
+const remoteCopyList = function terminal_fileService_remoteCopyList():void {
+/*    const list: [string, string, string, number][] = [],
         callback = function terminal_fileService_remoteCopyList_callback(dir:directoryList):void {
             const dirLength:number = dir.length,
                 location:string = (function terminal_fileServices_remoteCopyList_callback_location():string {
@@ -106,7 +106,7 @@ const remoteCopyList = function terminal_fileService_remoteCopyList(config:remot
         fileSize:number = 0;
     vars.testLogger("fileService", "remoteCopyList", "Gathers the directory data from the requested file system trees so that the local device may request each file from the remote.");
     directory(dirConfig);
-    config.logRecursion = false;
+    config.logRecursion = false;*/
 };
 
 export default remoteCopyList;
