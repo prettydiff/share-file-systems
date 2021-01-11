@@ -1,4 +1,4 @@
-/* lib/terminal/fileService/fileServices - Manages various file system services. */
+/* lib/terminal/fileService/serviceFile - Manages various file system services. */
 
 import { ServerResponse } from "http";
 
@@ -14,39 +14,39 @@ import vars from "../utilities/vars.js";
 import watchHandler from "./watchHandler.js";
 
 let logRecursion:boolean = true;
-const fileServices:fileServiceSystem = {
+const serviceFile:systemServiceFile = {
     actions: {
-        close: function terminal_fileService_fileServices_close(serverResponse:ServerResponse, data:fileService):void {
+        close: function terminal_fileService_serviceFile_close(serverResponse:ServerResponse, data:systemDataFile):void {
             vars.testLogger("fileService", "fs-close", "Close a file system watch.");
             if (serverVars.watches[data.location[0]] !== undefined) {
                 serverVars.watches[data.location[0]].close();
                 delete serverVars.watches[data.location[0]];
             }
-            fileServices.respond.dir(serverResponse, {
+            serviceFile.respond.dir(serverResponse, {
                 dirs: null,
                 fail: null,
                 id: ""
             });
         },
-        destroy: function terminal_fileService_fileServices_destroy(serverResponse:ServerResponse, data:fileService):void {
+        destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0;
             vars.testLogger("fileService", "fs-destroy", `Destroying: ${data.location}`);
-            data.location.forEach(function terminal_fileService_fileServices_destroy_each(value:string):void {
+            data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
                 if (serverVars.watches[value] !== undefined) {
                     serverVars.watches[value].close();
                     delete serverVars.watches[value];
                 }
-                remove(value, function terminal_fileService_fileServices_destroy_each_remove():void {
+                remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
                         directory({
-                            callback: function terminal_fileService_fileServices_destroy_each_remove_callback(directoryList:directoryList):void {
+                            callback: function terminal_fileService_serviceFile_destroy_each_remove_callback(directoryList:directoryList):void {
                                 const responseData:fsRemote = {
                                     dirs: directoryList,
                                     fail: directoryList.failures,
                                     id: data.id
                                 };
-                                fileServices.respond.dir(serverResponse, responseData);
+                                serviceFile.respond.dir(serverResponse, responseData);
                             },
                             depth: 2,
                             exclusions: [],
@@ -59,7 +59,7 @@ const fileServices:fileServiceSystem = {
                 });
             });
         },
-        directory: function terminal_fileService_fileServices_directory(serverResponse:ServerResponse, data:fileService):void {
+        directory: function terminal_fileService_serviceFile_directory(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0,
                 output:directoryList = [],
                 failures:string[] = [];
@@ -68,14 +68,14 @@ const fileServices:fileServiceSystem = {
                     ? [data.location[0]]
                     : data.location,
                 pathLength:number = pathList.length,
-                callback = function terminal_fileService_fileServices_directory_callback(result:directoryList):void {
+                callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList):void {
                     count = count + 1;
                     if (result.length > 0) {
                         failures = failures.concat(result.failures);
                         output = output.concat(result);
                     }
                     if (serverVars.testType === "service") {
-                        result.forEach(function terminal_fileService_fileService_directory_callback_each(item:directoryItem):void {
+                        result.forEach(function terminal_fileService_serviceFile_directory_callback_each(item:directoryItem):void {
                             item[5] = null;
                         });
                     }
@@ -89,7 +89,7 @@ const fileServices:fileServiceSystem = {
                                 : failures,
                             id: data.id
                         };
-                        fileServices.respond.dir(serverResponse, responseData);
+                        serviceFile.respond.dir(serverResponse, responseData);
                         
                         // please note
                         // watch is ignored on all operations other than fs-directory
@@ -103,7 +103,7 @@ const fileServices:fileServiceSystem = {
                             if (serverVars.watches[watchPath] === undefined) {
                                 serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
                                     recursive: (process.platform === "win32" || process.platform === "darwin")
-                                }, function terminal_fileService_fileService_directory_callback_watch(eventType:string, fileName:string):void {
+                                }, function terminal_fileService_serviceFile_directory_callback_watch(eventType:string, fileName:string):void {
                                     // throttling is necessary in the case of recursive watches in areas the OS frequently stores user settings
                                     if (fileName !== null && fileName.split(vars.sep).length < 2) {
                                         watchHandler({
@@ -137,8 +137,8 @@ const fileServices:fileServiceSystem = {
             }
             vars.testLogger("fileService", data.action, `Performs a directory search operation on ${data.location[0]} of agent ${data.agent}`);
             logRecursion = false;
-            pathList.forEach(function terminal_fileService_fileServices_directory_pathEach(value:string):void {
-                const pathRead = function terminal_fileService_fileServices_directory_pathEach_pathRead():void {
+            pathList.forEach(function terminal_fileService_serviceFile_directory_pathEach(value:string):void {
+                const pathRead = function terminal_fileService_serviceFile_directory_pathEach_pathRead():void {
                     if ((/^\w:$/).test(value) === true) {
                         value = value + "\\";
                     }
@@ -149,7 +149,7 @@ const fileServices:fileServiceSystem = {
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
                 } else {
-                    vars.node.fs.stat(value, function terminal_fileService_fileServices_directory_pathEach_stat(erp:nodeError):void {
+                    vars.node.fs.stat(value, function terminal_fileService_serviceFile_directory_pathEach_stat(erp:nodeError):void {
                         if (erp === null) {
                             pathRead();
                         } else {
@@ -160,39 +160,39 @@ const fileServices:fileServiceSystem = {
                                     fail: failures,
                                     id: data.id
                                 };
-                                fileServices.respond.dir(serverResponse, responseData);
+                                serviceFile.respond.dir(serverResponse, responseData);
                             }
                         }
                     });
                 }
             });
         },
-        newArtifact: function terminal_fileService_fileServices_newArtifact(serverResponse:ServerResponse, data:fileService):void {
+        newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
             vars.testLogger("fileService", "fs-new", `Create a new item of type ${data.name}`);
             if (data.name === "directory") {
-                mkdir(data.location[0], function terminal_fileService_fileServices_newArtifact_directory():void {
-                    fileServices.dirCallback(serverResponse, data);
+                mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
+                    serviceFile.dirCallback(serverResponse, data);
                 }, false);
             } else if (data.name === "file") {
-                vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_fileService_fileServices_newArtifact_file(erNewFile:Error):void {
+                vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
                     if (erNewFile === null) {
-                        fileServices.dirCallback(serverResponse, data);
+                        serviceFile.dirCallback(serverResponse, data);
                     } else {
                         error([erNewFile.toString()]);
-                        fileServices.respond.error(serverResponse, erNewFile.toString(), data.action);
+                        serviceFile.respond.error(serverResponse, erNewFile.toString(), data.action);
                     }
                 });
             } else {
-                fileServices.respond.error(serverResponse, `unsupported type ${data.name}`, data.action);
+                serviceFile.respond.error(serverResponse, `unsupported type ${data.name}`, data.action);
             }
         },
-        read: function terminal_fileService_fileServices_read(serverResponse:ServerResponse, data:fileService):void {
+        read: function terminal_fileService_serviceFile_read(serverResponse:ServerResponse, data:systemDataFile):void {
             const length:number = data.location.length,
                 storage:stringDataList = [],
                 type:string = (data.action === "fs-read")
                     ? "base64"
                     : data.action.replace("fs-", ""),
-                callback = function terminal_fileService_fileServices_read_callback(output:base64Output):void {
+                callback = function terminal_fileService_serviceFile_read_callback(output:base64Output):void {
                     const stringData:stringData = {
                         content: output[type],
                         id: output.id,
@@ -201,11 +201,11 @@ const fileServices:fileServiceSystem = {
                     b = b + 1;
                     storage.push(stringData);
                     if (b === length) {
-                        fileServices.respond.read(serverResponse, storage, data.action);
+                        serviceFile.respond.read(serverResponse, storage, data.action);
                     }
                 },
-                fileReader = function terminal_fileService_fileServices_read_fileReader(fileInput:base64Input):void {
-                    vars.node.fs.readFile(fileInput.source, "utf8", function terminal_fileService_fileServices_read_fileReader_readFile(readError:nodeError, fileData:string) {
+                fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
+                    vars.node.fs.readFile(fileInput.source, "utf8", function terminal_fileService_serviceFile_read_fileReader_readFile(readError:nodeError, fileData:string) {
                         const inputConfig:base64Output = {
                             base64: fileData,
                             id: fileInput.id,
@@ -256,39 +256,39 @@ const fileServices:fileServiceSystem = {
                 a = a + 1;
             } while (a < length);
         },
-        rename: function terminal_fileService_fileServices_rename(serverResponse:ServerResponse, data:fileService):void {
+        rename: function terminal_fileService_serviceFile_rename(serverResponse:ServerResponse, data:systemDataFile):void {
             const newPath:string[] = data.location[0].split(vars.sep);
             vars.testLogger("fileService", "fs-rename", `Renames an existing file system artifact, ${data.name}`);
             newPath.pop();
             newPath.push(data.name);
-            vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_fileService_rename_callback(erRename:Error):void {
+            vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
                 if (erRename === null) {
-                    fileServices.dirCallback(serverResponse, data);
+                    serviceFile.dirCallback(serverResponse, data);
                 } else {
                     error([erRename.toString()]);
-                    fileServices.respond.error(serverResponse, erRename.toString(), data.action);
+                    serviceFile.respond.error(serverResponse, erRename.toString(), data.action);
                 }
             });
         },
-        write: function terminal_fileService_fileServices_write(serverResponse:ServerResponse, data:fileService):void {
+        write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
             vars.testLogger("fileService", "fs-write", "Writes or over-writes a file to disk.");
-            vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_fileService_write_callback(erw:nodeError):void {
+            vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:nodeError):void {
                if (erw === null) {
-                    fileServices.dirCallback(serverResponse, data);
+                    serviceFile.dirCallback(serverResponse, data);
                 } else {
-                    fileServices.respond.error(serverResponse, erw.toString(), data.action);
+                    serviceFile.respond.error(serverResponse, erw.toString(), data.action);
                 }
             });
         }
     },
-    dirCallback: function terminal_fileService_fileServices_dirCallback(serverResponse:ServerResponse, data:fileService):void {
+    dirCallback: function terminal_fileService_serviceFile_dirCallback(serverResponse:ServerResponse, data:systemDataFile):void {
         vars.testLogger("fileService", `${data.action} response`, "A generic successful directory response to a file system request.");
         const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
                 ? "\\"
                 : "/",
             dirs = data.location[0].split(slash),
-            fsUpdateCallback = function terminal_fileService_fileServices_dirCallback_fsUpdateCallback(result:directoryList):void {
-                fileServices.respond.dir(serverResponse, {
+            fsUpdateCallback = function terminal_fileService_serviceFile_dirCallback_fsUpdateCallback(result:directoryList):void {
+                serviceFile.respond.dir(serverResponse, {
                     dirs: result,
                     fail: result.failures,
                     id: data.id
@@ -306,25 +306,25 @@ const fileServices:fileServiceSystem = {
         dirs.pop();
         directory(dirConfig);
     },
-    menu: function terminal_fileService_fileServices_menu(serverResponse:ServerResponse, data:fileService):void {
+    menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
-            fileServices.actions.read(serverResponse, data);
+            serviceFile.actions.read(serverResponse, data);
         } else if (data.action === "fs-close") {
-            fileServices.actions.close(serverResponse, data);
+            serviceFile.actions.close(serverResponse, data);
         } else if (data.action === "fs-destroy") {
-            fileServices.actions.destroy(serverResponse, data);
+            serviceFile.actions.destroy(serverResponse, data);
         } else if (data.action === "fs-details" || data.action === "fs-directory" || data.action === "fs-search") {
-            fileServices.actions.directory(serverResponse, data);
+            serviceFile.actions.directory(serverResponse, data);
         } else if (data.action === "fs-new") {
-            fileServices.actions.newArtifact(serverResponse, data);
+            serviceFile.actions.newArtifact(serverResponse, data);
         } else if (data.action === "fs-rename") {
-            fileServices.actions.rename(serverResponse, data);
+            serviceFile.actions.rename(serverResponse, data);
         } else if (data.action === "fs-write") {
-            fileServices.actions.write(serverResponse, data);
+            serviceFile.actions.write(serverResponse, data);
         }
     },
     respond: {
-        copy: function terminal_fileService_fileServices_respondCopy(serverResponse:ServerResponse, copy:copyStatus):void {
+        copy: function terminal_fileService_serviceFile_respondCopy(serverResponse:ServerResponse, copy:copyStatus):void {
             response({
                 message: JSON.stringify(copy),
                 mimeType: "application/json",
@@ -332,7 +332,7 @@ const fileServices:fileServiceSystem = {
                 serverResponse: serverResponse
             });
         },
-        dir: function terminal_fileService_fileServices_respondDir(serverResponse:ServerResponse, dirs:fsRemote):void {
+        dir: function terminal_fileService_serviceFile_respondDir(serverResponse:ServerResponse, dirs:fsRemote):void {
             response({
                 message: JSON.stringify(dirs),
                 mimeType: "application/json",
@@ -340,7 +340,7 @@ const fileServices:fileServiceSystem = {
                 serverResponse: serverResponse
             });
         },
-        error: function terminal_fileService_fileServices_respondError(serverResponse:ServerResponse, message:string, action:serviceType):void {
+        error: function terminal_fileService_serviceFile_respondError(serverResponse:ServerResponse, message:string, action:serviceType):void {
             vars.testLogger("fileService", `${action} error`, "Generic error messaging for a file system action.");
             response({
                 message: message,
@@ -349,7 +349,7 @@ const fileServices:fileServiceSystem = {
                 serverResponse: serverResponse
             });
         },
-        read: function terminal_fileService_fileServices_respondRead(serverResponse:ServerResponse, list:stringDataList, action:serviceType):void {
+        read: function terminal_fileService_serviceFile_respondRead(serverResponse:ServerResponse, list:stringDataList, action:serviceType):void {
             vars.testLogger("fileService", "dataString callback", `Callback to action ${action} that writes an HTTP response.`);
             response({
                 message: JSON.stringify(list),
@@ -361,4 +361,4 @@ const fileServices:fileServiceSystem = {
     }
 };
 
-export default fileServices;
+export default serviceFile;

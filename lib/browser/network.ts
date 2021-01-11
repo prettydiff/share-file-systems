@@ -9,7 +9,7 @@ const network:module_network = {},
     loc:string = location.href.split("?")[0];
 
 /* Accesses the file system */
-network.copy = function local_network_copy(configuration:copyService, callback:Function):void {
+network.copy = function local_network_copy(configuration:systemDataCopy, callback:Function):void {
     const type:string = (configuration.cut === true)
         ? "cut"
         : "copy";
@@ -40,7 +40,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
 };
 
 /* Accesses the file system */
-network.fileBrowser = function local_network_fileBrowser(configuration:fileService, callback:Function):void {
+network.fileBrowser = function local_network_fileBrowser(configuration:systemDataFile, callback:Function):void {
     network.xhr({
         callback: function local_network_fs_callback(responseType:requestType, responseText:string) {
             responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");

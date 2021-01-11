@@ -302,7 +302,7 @@ import disallowed from "../common/disallowed.js";
                         const modalItem:modal = storage.settings.modals[value];
                         if (modalItem.type === "fileNavigate") {
                             const agent:string = modalItem.agent,
-                                payload:fileService = {
+                                payload:systemDataFile = {
                                     action: "fs-directory",
                                     agent: agent,
                                     agentType: modalItem.agentType,

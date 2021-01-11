@@ -12,7 +12,7 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
         error([`Count not resolve IP address for agent ${config.data.agent} of type ${config.data.agentType}.`]);
         return;
     }
-    const payload:fileService = {
+    const payload:systemDataFile = {
             action: config.data.action,
             agent: config.data.agent,
             agentType: config.data.agentType,

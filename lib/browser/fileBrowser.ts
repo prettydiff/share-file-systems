@@ -49,7 +49,7 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
             network.storage("settings");
         },
-        payload:fileService = {
+        payload:systemDataFile = {
             action: "fs-directory",
             agent: agency[0],
             agentType: agency[2],
@@ -183,7 +183,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     return goal.getElementsByTagName("input")[0].value;
                 }()),
                 agency:agency = util.getAgent(element),
-                payload:copyService = {
+                payload:systemDataCopy = {
                     action     : "copy",
                     agent      : browser.data.modals[id].agent,
                     agentType  : browser.data.modals[id].agentType,
@@ -295,7 +295,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
         li:HTMLElement = <HTMLElement>button.parentNode;
     if (button.innerHTML.indexOf("+") === 0) {
         const agency:agency = util.getAgent(button),
-            payload:fileService = {
+            payload:systemDataFile = {
                 action: "fs-directory",
                 agent: agency[0],
                 agentType: agency[2],
@@ -620,7 +620,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             body.innerHTML = "";
             body.appendChild(files);
         },
-        payloadNetwork:fileService = {
+        payloadNetwork:systemDataFile = {
             action: "fs-directory",
             agent: agentName,
             agentType: agentType,
@@ -676,7 +676,7 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             }
             return value.slice(0, value.lastIndexOf(slash));
         }()),
-        payload:fileService = {
+        payload:systemDataFile = {
             action: "fs-directory",
             agent: agency[0],
             agentType: agency[2],
@@ -723,7 +723,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
                     label.innerHTML = text;
                 } else {
                     const agency:agency = util.getAgent(element),
-                        payload:fileService = {
+                        payload:systemDataFile = {
                             action: "fs-rename",
                             agent: agency[0],
                             agentType: agency[2],
@@ -790,7 +790,7 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
         agency:agency = util.getAgent(box),
         title:Element = box.getElementsByTagName("h2")[0].getElementsByTagName("button")[0],
         location:string[] = title.innerHTML.split(" - "),
-        payload:fileService = {
+        payload:systemDataFile = {
             action: "fs-write",
             agent: agency[0],
             agentType: agency[2],
@@ -838,7 +838,7 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
             id:string = box.getAttribute("id"),
             value:string = element.value,
             agency:agency = util.getAgent(box),
-            payload:fileService = {
+            payload:systemDataFile = {
                 action: "fs-search",
                 agent: agency[0],
                 agentType: agency[2],
@@ -1140,7 +1140,7 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
     parent = parent.getElementsByTagName("div")[0];
     if (element.value.replace(/\s+/, "") !== "" && (button === true || event.type === "blur" || (event.type === "keyup" && event.key === "Enter"))) {
         const agency:agency = util.getAgent(box),
-            payload:fileService = {
+            payload:systemDataFile = {
                 action: "fs-directory",
                 agent: agency[0],
                 agentType: agency[2],

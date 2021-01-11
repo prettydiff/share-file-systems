@@ -7,7 +7,7 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const fileCallback = function terminal_fileService_fileCallback(serverResponse:ServerResponse, data:fileService, message:string):void {
+const fileCallback = function terminal_fileService_fileCallback(serverResponse:ServerResponse, data:systemDataFile, message:string):void {
     const localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device"),
         copyStatus:copyStatus = {
             failures: [],

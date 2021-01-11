@@ -78,7 +78,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
         length:number = addresses.length,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
-        payloadNetwork:fileService = {
+        payloadNetwork:systemDataFile = {
             action: (type === "Edit")
                 ? "fs-read"
                 : <serviceType>`fs-${type.toLowerCase()}`,
@@ -170,7 +170,7 @@ context.destroy = function browser_context_destroy():void {
         box:Element = element.getAncestor("box", "class"),
         agency:agency = util.getAgent(element),
         id:string = box.getAttribute("id"),
-        payload:fileService = {
+        payload:systemDataFile = {
             action: "fs-destroy",
             agent: agency[0],
             agentType: agency[2],
@@ -237,7 +237,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
         },
         modalInstance:Element = modal.create(payloadModal),
         id:string = modalInstance.getAttribute("id"),
-        payloadNetwork:fileService = {
+        payloadNetwork:systemDataFile = {
             action: "fs-details",
             agent: agency[0],
             agentType: agency[2],
@@ -567,7 +567,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                     parent:Element = <Element>actionElement.parentNode,
                     id:string = parent.getAncestor("box", "class").getAttribute("id"),
                     agency:agency = util.getAgent(actionElement),
-                    payload:fileService = {
+                    payload:systemDataFile = {
                         action: "fs-new",
                         agent: agency[0],
                         agentType: agency[2],
@@ -605,7 +605,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                     const actionParent:Element = <Element>actionElement.parentNode,
                         agency:agency = util.getAgent(actionElement),
                         id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
-                        payload:fileService = {
+                        payload:systemDataFile = {
                             action: "fs-new",
                             agent: agency[0],
                             agentType: agency[2],
@@ -955,7 +955,7 @@ context.paste = function browser_context_paste():void {
         id:string = element.getAttribute("id"),
         agent:string = browser.data.modals[id].agent,
         agentType:agentType = browser.data.modals[id].agentType,
-        payload:copyService = {
+        payload:systemDataCopy = {
             action     : "copy",
             agent      : clipData.agent,
             agentType  : clipData.agentType,

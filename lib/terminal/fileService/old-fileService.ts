@@ -25,7 +25,7 @@ import watchHandler from "./watchHandler.js";
 import watchLocal from "./old-watchLocal.js";
 import httpClient from "../server/httpClient.js";
 
-const fileService = function terminal_fileService_fileService(serverResponse:ServerResponse, data:fileService):void {
+const fileService = function terminal_fileService_fileService(serverResponse:ServerResponse, data:systemDataFile):void {
     let logRecursion:boolean = true;
     const localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device"),
         remoteUsers:[string, string] = ["", ""],

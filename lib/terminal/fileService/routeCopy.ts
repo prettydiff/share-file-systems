@@ -3,20 +3,25 @@
 
 import { IncomingHttpHeaders, ServerResponse } from "http";
 
-import copyService from "./copyService.js";
-import fileServices from "./fileServices.js";
 import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
+import serviceCopy from "./serviceCopy.js";
+import serviceFile from "./serviceFile.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
-    const data:copyService = JSON.parse(dataString),
+    const dataFiles:systemRequestFiles = (dataString.indexOf("\"action\":\"copy-request-files\"") > 0)
+            ? JSON.parse(dataString)
+            : null,
+        data:systemDataCopy = (dataFiles !== null)
+            ? dataFiles.data
+            : JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route():void {
             httpClient({
                 agentType: data.agentType,
                 callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
                     const status:copyStatus = JSON.parse(message.toString());
-                        fileServices.respond.copy(serverResponse, status);
+                        serviceFile.respond.copy(serverResponse, status);
                 },
                 errorMessage: "",
                 ip: serverVars[data.agentType][data.agent].ip,
@@ -31,12 +36,22 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     return;
                 }
             });
+        },
+        menu = function terminal_fileService_routeCopy_menu():void {
+            if (data.action === "copy") {
+                if (data.agent === data.copyAgent) {
+                    serviceCopy.actions.sameAgent(serverResponse, data);
+                } else {
+                    serviceCopy.actions.requestList(serverResponse, data, 0);
+                }
+            }
         };
     if (data.agentType === "device") {
         // service tests must be regarded as local device tests even they have a non-matching agent
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
         if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
-            copyService(serverResponse, data);
+            menu();
+            //serviceCopy(serverResponse, data);
         } else {
             route();
         }

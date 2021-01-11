@@ -52,7 +52,7 @@ const title:Element = document.getElementById("title-bar"),
                     a = a + 1;
                 } while (a < keyLength);
                 if (a === keyLength) {
-                    const payload:fileService = {
+                    const payload:systemDataFile = {
                         action: "fs-close",
                         agent: browser.data.hashDevice,
                         agentType: "device",

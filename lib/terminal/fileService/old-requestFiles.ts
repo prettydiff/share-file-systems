@@ -18,7 +18,7 @@ import vars from "../utilities/vars.js";
 import copyMessage from "./old-copyMessage.js";
 import httpRequest from "./old-httpRequest.js";
 
-const requestFiles = function terminal_fileService_requestFiles(config:fileServiceRequestFiles):void {
+const requestFiles = function terminal_fileService_requestFiles(config:systemRequestFiles):void {
     let writeActive:boolean = false,
         writtenSize:number = 0,
         writtenFiles:number = 0,

@@ -61,15 +61,15 @@ This is a dynamically compiled list of supporting code files that comprise this 
 * Directory *[../lib/terminal/fileService](../lib/terminal/fileService)*
    - **[../lib/terminal/fileService/copyMessage.ts](../lib/terminal/fileService/copyMessage.ts)**                             - Generates status messaging for a copy operation.
    - **[../lib/terminal/fileService/copySameAgent.ts](../lib/terminal/fileService/copySameAgent.ts)**                         - Copy items from one location to another on the same agent.
-   - **[../lib/terminal/fileService/copyService.ts](../lib/terminal/fileService/copyService.ts)**                             - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/fileService/fileCallback.ts](../lib/terminal/fileService/fileCallback.ts)**                           - A callback to file system requests that provides directory tree data.
    - **[../lib/terminal/fileService/fileService.ts](../lib/terminal/fileService/fileService.ts)**                             - Manages various file system services.
-   - **[../lib/terminal/fileService/fileServices.ts](../lib/terminal/fileService/fileServices.ts)**                           - Manages various file system services.
    - **[../lib/terminal/fileService/httpRequest.ts](../lib/terminal/fileService/httpRequest.ts)**                             - Format a properly packaged http request for file services.
    - **[../lib/terminal/fileService/remoteCopyList.ts](../lib/terminal/fileService/remoteCopyList.ts)**                       - Generates a file system list from a remote agent so that the source agent knows what artifacts to request by name.
    - **[../lib/terminal/fileService/requestFiles.ts](../lib/terminal/fileService/requestFiles.ts)**                           - Pulls files from one agent to another.
    - **[../lib/terminal/fileService/routeCopy.ts](../lib/terminal/fileService/routeCopy.ts)**                                 - A library to handle file system asset movement.
    - **[../lib/terminal/fileService/routeFile.ts](../lib/terminal/fileService/routeFile.ts)**                                 - A library that manages all file system operations except copy/cut operations.
+   - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                             - A library that stores instructions for copy and cut of file system artifacts.
+   - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                             - Manages various file system services.
    - **[../lib/terminal/fileService/watchHandler.ts](../lib/terminal/fileService/watchHandler.ts)**                           - An event handler for file system watch events.
    - **[../lib/terminal/fileService/watchLocal.ts](../lib/terminal/fileService/watchLocal.ts)**                               - Broadcasts local file system changes to the browser.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*

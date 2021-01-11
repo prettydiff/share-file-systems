@@ -4,28 +4,28 @@
 import { Hash } from "crypto";
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
 
-import fileServices from "./fileServices.js";
 import hashIdentity from "../server/hashIdentity.js";
 import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
+import serviceFile from "./serviceFile.js";
 import vars from "../utilities/vars.js";
 
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
-    const data:fileService = JSON.parse(dataString),
+    const data:systemDataFile = JSON.parse(dataString),
         route = function terminal_fileService_routeFile_route():void {
             httpClient({
                 agentType: data.agentType,
                 callback: function terminal_fileService_routeFile_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
                     const responseType:requestType = <requestType>headers["response-type"];
                     if (responseType === "error") {
-                        fileServices.respond.error(serverResponse, message.toString(), data.action);
+                        serviceFile.respond.error(serverResponse, message.toString(), data.action);
                     } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
                         const list:stringDataList = JSON.parse(message.toString());
-                        fileServices.respond.read(serverResponse, list, data.action);
+                        serviceFile.respond.read(serverResponse, list, data.action);
                     } else {
                         const dir:fsRemote = JSON.parse(message.toString());
-                        fileServices.respond.dir(serverResponse, dir);
+                        serviceFile.respond.dir(serverResponse, dir);
                     }
                 },
                 errorMessage: "",
@@ -46,7 +46,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
         // service tests must be regarded as local device tests even they have a non-matching agent
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
         if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
-            fileServices.menu(serverResponse, data);
+            serviceFile.menu(serverResponse, data);
         } else {
             route();
         }

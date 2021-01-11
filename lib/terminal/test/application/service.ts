@@ -128,8 +128,8 @@ service.execute = function terminal_test_application_services_execute(config:tes
             ? config.index
             : config.list[config.index],
         testItem:testService = service.tests[index],
-        fs:fileService = (function terminal_test_application_services_execute_fileService():fileService {
-            const file:fileService = <fileService>testItem.command;
+        fs:systemDataFile = (function terminal_test_application_services_execute_fs():systemDataFile {
+            const file:systemDataFile = <systemDataFile>testItem.command;
             if (testItem.requestType === "fs") {
                 let a:number = file.location.length;
                 if (a > 0) {

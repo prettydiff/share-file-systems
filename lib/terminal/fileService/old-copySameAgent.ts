@@ -8,7 +8,7 @@ import vars from "../utilities/vars.js";
 import copyMessage from "./old-copyMessage.js";
 import fileCallback from "./old-fileCallback.js";
 
-const copySameAgent = function terminal_fileService_copySameAgent(serverResponse:ServerResponse, data:fileService):void {
+const copySameAgent = function terminal_fileService_copySameAgent(serverResponse:ServerResponse, data:systemDataFile):void {
     let count:number = 0,
         countFile:number = 0,
         writtenSize:number = 0;
