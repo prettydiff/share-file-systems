@@ -81,12 +81,12 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                         };
                     vars.broadcast("file-list-status", JSON.stringify(output));
                     output.id = `remote-${config.data.id}`;
-                    response({
+                    /*response({
                         message: JSON.stringify(output),
                         mimeType: "application/json",
                         responseType: "file-list-status",
                         serverResponse: config.serverResponse
-                    });
+                    });*/
                 },
                 depth: 2,
                 exclusions: [],

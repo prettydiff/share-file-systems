@@ -459,7 +459,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
                             } else {
-                                if (args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                if (vars.command !== "service" && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
                                     log([angryPath]);
                                 }
                                 populate("error");

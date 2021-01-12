@@ -88,11 +88,10 @@ declare global {
         data: systemDataCopy;
         fileData: remoteCopyListData;
         logRecursion: boolean;
-        serverResponse: ServerResponse;
     }
     interface systemServiceCopy {
         actions: {
-            requestFiles: (config:systemRequestFiles) => void;
+            requestFiles: (serverResponse:ServerResponse, config:systemRequestFiles) => void;
             requestList: (serverResponse:ServerResponse, data:systemDataCopy, index:number) => void;
             sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
         };
