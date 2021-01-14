@@ -10,12 +10,7 @@ import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
-    const dataFiles:systemRequestFiles = (dataString.indexOf("\"action\":\"copy-request-files\"") > 0)
-            ? JSON.parse(dataString)
-            : null,
-        data:systemDataCopy = (dataFiles !== null)
-            ? dataFiles.data
-            : JSON.parse(dataString),
+    const data:systemDataCopy = JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route():void {
             httpClient({
                 agentType: data.agentType,

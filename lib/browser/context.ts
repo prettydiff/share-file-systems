@@ -1,5 +1,8 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
+
+import { BigIntStats } from "fs";
+
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
@@ -271,7 +274,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
                 details:fsDetails = {
-                    size: 0,
+                    size: 0n,
                     files: 0,
                     directories: 0,
                     links: 0
@@ -317,7 +320,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
             td.innerHTML = "Total Size";
             tr.appendChild(td);
             td = document.createElement("td");
-            if (details.size > 1024) {
+            if (details.size > 1024n) {
                 td.innerHTML = `${common.commas(details.size)} bytes (${common.prettyBytes(details.size)})`;
             } else {
                 td.innerHTML = `${common.commas(details.size)} bytes`;
@@ -362,9 +365,9 @@ context.details = function browser_context_details(event:MouseEvent):void {
             table.appendChild(tbody);
             output.appendChild(table);
 
-            mTime = new Date(list[0][5].mtimeMs);
-            aTime = new Date(list[0][5].atimeMs);
-            cTime = new Date(list[0][5].ctimeMs);
+            mTime = new Date(Number(list[0][5].mtimeMs));
+            aTime = new Date(Number(list[0][5].atimeMs));
+            cTime = new Date(Number(list[0][5].ctimeMs));
             heading = document.createElement("h3");
             heading.innerHTML = "MAC";
             output.appendChild(heading);
@@ -474,7 +477,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
                         cell.innerHTML = fileList[aa][0];
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = util.dateFormat(new Date(fileList[aa][5].mtimeMs));
+                        cell.innerHTML = util.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)));
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         aa = aa + 1;

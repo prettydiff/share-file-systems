@@ -39,7 +39,7 @@ interface fsDetails {
     directories: number;
     files: number;
     links: number;
-    size: number;
+    size: bigint;
 }
 // ------------------------------------
 

@@ -30,7 +30,7 @@ const readFile = function terminal_utilities_readFile(args:readFile):void {
                 messageSize = (args.stat.size < 100)
                     ? args.stat.size
                     : 100;
-            let buff  = Buffer.alloc(messageSize);
+            let buff  = Buffer.alloc(Number(messageSize));
             if (ero !== null) {
                 failure(ero.toString());
                 return;
@@ -53,7 +53,7 @@ const readFile = function terminal_utilities_readFile(args:readFile):void {
                         bufferString = bufferA.toString("utf8", 0, bufferA.length);
                         bufferString = bufferString.slice(2, bufferString.length - 2);
                         if (vars.binary_check.test(bufferString) === true) {
-                            buff = Buffer.alloc(args.stat.size);
+                            buff = Buffer.alloc(Number(args.stat.size));
                             vars
                                 .node
                                 .fs

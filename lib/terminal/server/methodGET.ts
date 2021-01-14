@@ -1,6 +1,6 @@
 
 /* lib/terminal/server/methodGET - The library for handling all traffic related to HTTP requests with method GET. */
-import { Stats } from "fs";
+import { BigIntStats } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 
 import error from "../utilities/error.js";
@@ -21,7 +21,9 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
             ? `${vars.projectPath}lib${vars.sep}index.html`
             : vars.projectPath + uri.slice(1).replace(/\/$/, "").replace(/\//g, vars.sep);
     vars.testLogger("methodGet", "", "Handles all HTTP requests to the server of method 'GET' and dynamically populates the HTML with data.");
-    vars.node.fs.stat(localPath, function terminal_server_methodGET_stat(ers:nodeError, stat:Stats):void {
+    vars.node.fs.stat(localPath, {
+        bigint: true
+    }, function terminal_server_methodGET_stat(ers:nodeError, stat:BigIntStats):void {
         const random:number = Math.random(),
             // navigating a file structure in the browser by direct address, like apache HTTP
             xml:boolean = ((/\.xhtml/).test(localPath) === true),

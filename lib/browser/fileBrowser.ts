@@ -495,7 +495,7 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
     // preparation of descriptive text and assistive features
     if (item[1] === "file") {
         span = document.createElement("span");
-        if (item[5].size === 1) {
+        if (item[5].size === 1n) {
             plural = "";
         } else {
             plural = "s";
