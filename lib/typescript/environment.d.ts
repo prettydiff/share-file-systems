@@ -71,6 +71,7 @@ interface serverVars {
     status: heartbeatStatus;
     storage: string;
     testBrowser: testBrowserRoute;
+    testType: testListType;
     timeStore: number;
     user: agents;
     watches: {
@@ -84,6 +85,7 @@ interface serverVars {
 // terminal, universal
 interface terminalVariables {
     binary_check: RegExp;
+    broadcast: (type:requestType, data:string) => void;
     cli: string;
     command: string;
     commands: commandList;
@@ -108,7 +110,7 @@ interface terminalVariables {
     };
     projectPath: string;
     sep: string;
-    startTime: [number, number];
+    startTime: bigint;
     testLogFlag: testLogFlag;
     testLogger: (library:string, container:string, message:string) => void;
     testLogStore: string[];

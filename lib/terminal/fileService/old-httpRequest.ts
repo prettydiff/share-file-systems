@@ -12,26 +12,10 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
         error([`Count not resolve IP address for agent ${config.data.agent} of type ${config.data.agentType}.`]);
         return;
     }
-    const test:boolean = (vars.command.indexOf("test") === 0 && (config.data.action === "fs-base64" || config.data.action === "fs-destroy" || config.data.action === "fs-details" || config.data.action === "fs-hash" || config.data.action === "fs-new" || config.data.action === "fs-read" || config.data.action === "fs-rename" || config.data.action === "fs-search" || config.data.action === "fs-write")),
-        payload:fileService = {
+    const payload:systemDataFile = {
             action: config.data.action,
-            agent: (test === true)
-                ? (config.data.copyType === "device")
-                    ? serverVars.hashDevice
-                    : serverVars.hashUser
-                : config.data.agent,
-            agentType: (test === true && config.data.copyAgent !== "")
-                ? <agentType>config.data.copyAgent
-                : config.data.agentType,
-            copyAgent: (test === true)
-                ? config.data.agent
-                : config.data.copyAgent,
-            copyShare: (test === true)
-                ? config.data.share
-                : config.data.copyShare,
-            copyType: (test === true)
-                ? config.data.agentType
-                : config.data.copyType,
+            agent: config.data.agent,
+            agentType: config.data.agentType,
             depth: config.data.depth,
             id: config.data.id,
             location: config.data.location,
@@ -41,37 +25,36 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
                 : (config.data.remoteWatch === undefined)
                     ? null
                     : config.data.remoteWatch,
-            share: (test === true)
-                ? config.data.copyShare
-                : config.data.share,
+            share: config.data.share,
             watch: config.data.watch
         },
         requestError = function terminal_fileService_httpRequest_requestError(httpError:nodeError):void {
             const copyStatus:copyStatus = {
                     failures: [],
-                    message: config.data.id.slice(config.data.id.indexOf("|") + 1),
-                    target: config.data.id.slice(0, config.data.id.indexOf("|"))
+                    id: config.data.id.slice(0, config.data.id.indexOf("|")),
+                    message: config.data.id.slice(config.data.id.indexOf("|") + 1)
                 },
                 fsRemote:fsRemote = {
                     dirs: "missing",
                     fail: [],
                     id: (config.data.id.indexOf("|Copying ") > 0)
-                        ? JSON.stringify({
-                            "file-list-status": copyStatus
-                        })
+                        ? JSON.stringify(copyStatus)
                         : config.data.id
                 };
-            if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
-                error([config.errorMessage, httpError.toString()]);
+            if (httpError.code !== "ETIMEDOUT" && httpError.code !== "ECONNREFUSED" && serverVars.testType === "") {
+                log([config.errorMessage, httpError.toString()]);
             }
-            response(config.serverResponse, "application/json", JSON.stringify(fsRemote));
+            response({
+                message: JSON.stringify(fsRemote),
+                mimeType: "application/json",
+                responseType: "fs-update-remote",
+                serverResponse: config.serverResponse
+            });
         },
         responseError = function terminal_fileService_httpRequest_responseError(httpError:nodeError):void {
-            if (httpError.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && httpError.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+            if (httpError.code !== "ETIMEDOUT") {
                 log([config.errorMessage, config.errorMessage.toString()]);
-                vars.ws.broadcast(JSON.stringify({
-                    error: config.errorMessage
-                }));
+                vars.broadcast("error", config.errorMessage);
             }
         },
         httpConfig:httpConfiguration = {
@@ -79,23 +62,20 @@ const httpRequest = function terminal_fileService_httpRequest(config:fileService
             callback: config.callback,
             errorMessage: config.errorMessage,
             ip: serverVars[config.data.agentType][config.data.agent].ip,
-            payload: JSON.stringify({
-                fs: payload
-            }),
+            payload: JSON.stringify(payload),
             port: serverVars[config.data.agentType][config.data.agent].port,
-            remoteName: config.data.agent,
             requestError: requestError,
-            requestType: config.data.action,
+            requestType: "fs",
             responseStream: config.stream,
             responseError: responseError
         };
-    if (config.data.agentType === "user" && config.data.copyType !== "user") {
+    /*if (config.data.agentType === "user" && config.data.copyType !== "user") {
         config.data.copyAgent = serverVars.hashUser;
         config.data.copyType = "user";
     } else if (config.data.copyType === "user" && config.data.agentType !== "user") {
         config.data.agent = serverVars.hashUser;
         config.data.agentType = "user";
-    }
+    }*/
     vars.testLogger("fileService", "httpRequest", "An abstraction to the httpClient library for the fileService library.");
     httpClient(httpConfig);
 };

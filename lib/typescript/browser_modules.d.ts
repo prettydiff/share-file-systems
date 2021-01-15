@@ -3,9 +3,9 @@
 interface module_common {
     agents: (agents:agentsConfiguration) => void;
     capitalize: (input:string) => string;
-    commas: (number:number) => string;
+    commas: (number:number|bigint) => string;
     deviceShare: (devices:agents, deleted:agentList) => agentShares;
-    prettyBytes: (an_integer:number) => string; 
+    prettyBytes: (an_integer:number|bigint) => string; 
 }
 interface module_context {
     copy?: EventHandlerNonNull;
@@ -44,6 +44,7 @@ interface module_invite {
     addAgents?: (invitation:invite) => void;
     complete?: (invitation:invite) => void;
     decline?: EventHandlerNonNull;
+    error?: (inviteData:invite) => void;
     payload?: (config:invitePayload) => invite;
     portValidation?: EventHandlerNonNull;
     request?: (event:MouseEvent, options:modal) => void;
@@ -80,6 +81,7 @@ interface module_modal {
     zTop?: (event:Event, elementInput?: Element) => void;
 }
 interface module_network {
+    copy?: (copyService, callback:Function, id?:string) => void;
     deleteAgents?: (deleted:agentList) => void;
     fileBrowser?: (localService, callback:Function, id?:string) => void;
     hashDevice?: (callback:Function) => void;
@@ -153,7 +155,6 @@ interface module_util {
     minimizeAll?: EventHandlerNonNull;
     minimizeAllFlag?: boolean;
     selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
-    selectExpression?: RegExp;
     selectNone?:(element:Element) => void;
     time?: (date:Date) => string;
 }

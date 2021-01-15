@@ -8,8 +8,6 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-import watchLocal from "./watchLocal.js";
-
 const watchHandler = function terminal_fileService_watchHandler(config:fileServiceWatch):void {
     const localDevice:boolean = (config.data.agent === serverVars.hashDevice && config.data.agentType === "device");
     if (config.value.indexOf(vars.projectPath.replace(/(\\|\/)$/, "").replace(/\\/g, "\\\\")) !== 0) {
@@ -18,7 +16,21 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                 const now:number = Date.now();
                 vars.testLogger("fileService", "watchHandler", "Central watch handler for local device file system");
                 if (serverVars.watches[config.value].time > now - 2000) {
-                    watchLocal(config.value, config.logRecursion);
+                    const fsUpdateCallback = function terminal_fileService_watchHandler_fsUpdateCallback(result:directoryList):void {
+                            vars.broadcast("fs-update-local", JSON.stringify(result));
+                        },
+                        dirConfig:readDirectory = {
+                            callback: fsUpdateCallback,
+                            depth: 2,
+                            exclusions: [],
+                            logRecursion: config.logRecursion,
+                            mode: "read",
+                            path: config.value,
+                            symbolic: true
+                        };
+                    vars.testLogger("fileService", "fsUpdateLocal", "Read from a directory and send the data to the local browser via websocket broadcast.");
+                    directory(dirConfig);
+                    config.logRecursion = false;
                 }
                 serverVars.watches[config.value].time = now;
             }
@@ -41,50 +53,53 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                 fail: [],
                                 location: config.value
                             },
-                            payload:string = JSON.stringify({
-                                "fs-update-remote": update
-                            }),
+                            payload:string = JSON.stringify(update),
                             requestError = function terminal_fileService_watchHandler_remote_requestError(message:nodeError):void {
                                 const copyStatus:copyStatus = {
                                         failures: [],
-                                        message: config.data.id.slice(config.data.id.indexOf("|") + 1),
-                                        target: config.data.id.slice(0, config.data.id.indexOf("|"))
+                                        id: config.data.id.slice(0, config.data.id.indexOf("|")),
+                                        message: config.data.id.slice(config.data.id.indexOf("|") + 1)
                                     },
                                     fsRemote:fsRemote = {
                                         dirs: "missing",
                                         fail: [],
                                         id: (config.data.id.indexOf("|Copying ") > 0)
-                                            ? JSON.stringify({
-                                                "file-list-status": copyStatus
-                                            })
+                                            ? JSON.stringify(copyStatus)
                                             : config.data.id
                                     };
-                                if (message.code !== "ETIMEDOUT" && message.code !== "ECONNREFUSED" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                                if (message.code !== "ETIMEDOUT" && message.code !== "ECONNREFUSED") {
                                     error([errorMessage, message.toString()]);
                                 }
-                                response(config.serverResponse, "application/json", JSON.stringify(fsRemote));
+                                response({
+                                    message: JSON.stringify(fsRemote),
+                                    mimeType: "application/json",
+                                    responseType: "file-list-status",
+                                    serverResponse: config.serverResponse
+                                });
                             },
                             responseError = function terminal_fileService_watchHandler_remote_responseError(message:nodeError):void {
-                                if (message.code !== "ETIMEDOUT" && ((vars.command.indexOf("test") === 0 && message.code !== "ECONNREFUSED") || vars.command.indexOf("test") !== 0)) {
+                                if (message.code !== "ETIMEDOUT") {
                                     log([errorMessage, errorMessage.toString()]);
-                                    vars.ws.broadcast(JSON.stringify({
-                                        error: errorMessage
-                                    }));
+                                    vars.broadcast("error", errorMessage);
                                 }
                             },
                             errorMessage:string = `Error related to remote file system watch at ${config.data.agent}.`,
                             httpConfig:httpConfiguration = {
                                 agentType: config.data.agentType,
                                 callback: function terminal_fileService_watchHandler_remote_directoryCallback(message:Buffer|string):void {
-                                    response(config.serverResponse, "application/json", message.toString());
+                                    response({
+                                        message: message.toString(),
+                                        mimeType: "application/json",
+                                        responseType: "fs-update-remote",
+                                        serverResponse: config.serverResponse
+                                    });
                                 },
                                 errorMessage: errorMessage,
                                 ip: serverVars[config.data.agentType][config.data.agent].ip,
                                 payload: payload,
                                 port: serverVars[config.data.agentType][config.data.agent].port,
-                                remoteName: config.data.agent,
                                 requestError: requestError,
-                                requestType: config.data.action,
+                                requestType: "fs-update-remote",
                                 responseStream: httpClient.stream,
                                 responseError: responseError
                             };

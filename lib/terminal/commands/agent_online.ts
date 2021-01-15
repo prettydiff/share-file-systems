@@ -62,6 +62,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
             const requestWrapper = function terminal_commands_agentOnline_readStorage_request(agentType:agentType, agentHash:string):void {
                 const agent:agent = storage[agentType][agentHash],
                     name:string = agent.name,
+                    self:string = (agentType === "device")
+                        ? storage.settings.hashDevice
+                        : storage.settings.hashUser,
                     requestBody:string = `${vars.version.name} agent test for ${name} from ${storage.settings.nameDevice}.`,
                     payload:RequestOptions = {
                         headers: {
@@ -74,20 +77,28 @@ const agentOnline = function terminal_commands_agentOnline():void {
                                 ? storage.settings.nameDevice
                                 : storage.settings.nameUser,
                             "agent-type": agentType,
-                            "remote-user": agentHash,
                             "request-type": "test_agent"
                         },
                         host: storage[agentType][agentHash].ip,
-                        method: "GET",
+                        method: "POST",
                         path: "/",
                         port: storage[agentType][agentHash].port,
                         timeout: 1000
                     },
                     outputString = function terminal_commands_agentOnline_readStorage_request_errorString(output:agentOutput):string {
                         const status = (output.status === "bad")
-                            ? `${vars.text.angry}Bad${vars.text.none}`
-                            : `${vars.text.green + vars.text.bold}Good${vars.text.none}`;
-                        return `${status} ${output.type} from ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
+                                ? `${vars.text.angry}Bad${vars.text.none}`
+                                : `${vars.text.green + vars.text.bold}Good${vars.text.none}`,
+                            preposition:string = (output.type === "request")
+                                ? "to"
+                                : "from";
+                        if (output.agentType !== undefined && output.agent !== undefined) {
+                            if (storage[output.agentType][output.agent] === undefined) {
+                                return `${status} ${output.type} forbidden (${vars.text.cyan + output.agent + vars.text.none}).`;
+                            }
+                            return `${status} ${output.type} ${preposition} ${output.agentType} ${storage[output.agentType][output.agent].name} (${vars.text.cyan + output.agent + vars.text.none}).`;
+                        }
+                        return `${status} ${output.type}, ${output.agentType} ${vars.text.cyan + output.agent + vars.text.none} is not a listed agent.`;
                     },
                     callback = function terminal_commands_agentOnline_readStorage_request_callback(response:IncomingMessage):void {
                         const chunks:Buffer[] = [];
@@ -147,6 +158,9 @@ const agentOnline = function terminal_commands_agentOnline():void {
                         ? "https"
                         : "http",
                     request:ClientRequest = vars.node[scheme].request(payload, callback);
+                request.setHeader("agent-hash", self);
+                request.setHeader("agent-type", agentType);
+                request.setHeader("request-type", "agent-online");
                 request.on("error", requestError);
                 request.write(requestBody);
                 request.end();

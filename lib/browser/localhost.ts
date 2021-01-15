@@ -185,6 +185,7 @@ import disallowed from "../common/disallowed.js";
 
             // watch for local idleness
             document.onclick = activate;
+            document.onkeydown = activate;
 
             if (browser.data.hashDevice !== "" && document.getElementById("settings-modal") === null) {
                 defaultModals();
@@ -301,12 +302,10 @@ import disallowed from "../common/disallowed.js";
                         const modalItem:modal = storage.settings.modals[value];
                         if (modalItem.type === "fileNavigate") {
                             const agent:string = modalItem.agent,
-                                payload:fileService = {
+                                payload:systemDataFile = {
                                     action: "fs-directory",
                                     agent: agent,
                                     agentType: modalItem.agentType,
-                                    copyAgent: "",
-                                    copyType: "device",
                                     depth: 2,
                                     id: value,
                                     location: [modalItem.text_value],
@@ -365,6 +364,9 @@ import disallowed from "../common/disallowed.js";
                                                 return [p, 0, ""];
                                             }())
                                             : fileBrowser.list(modalItem.text_value, payload);
+                                    if (files === null) {
+                                        return;
+                                    }
                                     files[0].removeAttribute("title");
                                     if (responseText !== "") {
                                         const fsModal:Element = document.getElementById(id);

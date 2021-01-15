@@ -1,6 +1,6 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { Stats } from "fs";
+import { BigIntStats } from "fs";
 import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
 import { Server } from "net";
 declare global {
@@ -116,7 +116,7 @@ declare global {
         error: number;
         files: number;
         link: number;
-        size: number;
+        size: bigint;
     }
     // ------------------------------------
 
@@ -145,14 +145,14 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: Stats;
+        stat?: BigIntStats;
     }
     interface hashOutput {
         filePath: string;
         hash: string;
         id?: string;
         parent?: number;
-        stat?: Stats;
+        stat?: BigIntStats;
     }
     // ------------------------------------
 
@@ -197,7 +197,6 @@ declare global {
         ip: string;
         payload: Buffer|string;
         port: number;
-        remoteName: string;
         requestError: (error:nodeError, agent?:string, type?:agentType) => void;
         requestType: string;
         responseStream: (message:IncomingMessage, config?:httpConfiguration) => void;
@@ -220,7 +219,16 @@ declare global {
         id?: string;
         index: number;
         path: string;
-        stat: Stats;
+        stat: BigIntStats;
+    }
+    // ------------------------------------
+
+    // response
+    interface responseConfig {
+        message: string|Buffer;
+        mimeType: mimeType;
+        responseType: requestType;
+        serverResponse: ServerResponse;
     }
     // ------------------------------------
 
@@ -228,7 +236,7 @@ declare global {
     interface serverCallback {
         agent: string;
         agentType: agentType;
-        callback:(output:serverOutput) => void;
+        callback: (output:serverOutput) => void;
     }
     // ------------------------------------
 
@@ -244,4 +252,5 @@ declare global {
         user: agents;
     }
     // ------------------------------------
+
 }

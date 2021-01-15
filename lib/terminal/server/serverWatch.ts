@@ -53,17 +53,15 @@ const serverWatch = function terminal_server_serverWatch(type:"rename"|"change",
             output.push(time("Total Compile Time", true, serverVars.timeStore)[0]);
             log([stdout]);
             log(output);
-            vars.ws.broadcast("reload");
+            vars.broadcast("reload", "");
             return;
         });
     } else if (extension === "css" || extension === "xhtml") {
-        vars.ws.broadcast("reload");
+        vars.broadcast("reload", "");
     } else {
         const fsUpdateCallback = function terminal_server_serverWatch_fsUpdateCallback(result:directoryList):void {
                 if (serverVars.testBrowser === null) {
-                    vars.ws.broadcast(JSON.stringify({
-                        "fs-update-local": result
-                    }));
+                    vars.broadcast("fs-update-local", JSON.stringify(result));
                 }
             },
             dirConfig:readDirectory = {

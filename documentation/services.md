@@ -3,7 +3,7 @@
 # Services
 
 ## File System
-The file system service is called from *network.fs* and use **fileService** TypeScript interface as their data type, which is defined as follows:
+The file system service is called from *network.fileBrowser* and use **fileService** TypeScript interface as their data type, which is defined as follows:
 
 * **action**: string, The service name to execute.
 * **agent**: string, The agent (user) where the action must be performed.
@@ -26,18 +26,16 @@ All file system services begin with *fs-* in their name.  Output format of *dire
 ## Example
 ```json
 {
-   "fs": {
-      "action"   : "fs-search",
-      "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
-      "agentType": "device",
-      "copyAgent": "",
-      "depth"    : 0,
-      "id"       : "fileNavigate-0.276615431234143121",
-      "location" : ["e:\\mp3"],
-      "name"     : ".m4a",
-      "share"    : "",
-      "watch"    : "no"
-   }
+   "action"   : "fs-search",
+   "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+   "agentType": "device",
+   "copyAgent": "",
+   "depth"    : 0,
+   "id"       : "fileNavigate-0.276615431234143121",
+   "location" : ["e:\\mp3"],
+   "name"     : ".m4a",
+   "share"    : "",
+   "watch"    : "no"
 }
 ```
 
@@ -376,20 +374,18 @@ Stores systems and utility messaging from the browser.  At this time only error 
 <!-- cspell:disable -->
 ```json
 {
-   "messages": {
-      "status": [],
-      "users" : [],
-      "errors": [
-         [
-               "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
-                  "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
-                  "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
-                  "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
-                  "FSReqCallback.oncomplete (fs.js:154:23)"
-               ]
-         ]
+   "status": [],
+   "users" : [],
+   "errors": [
+      [
+            "[17 FEB 2020, 13:59:00.878]","EPERM: operation not permitted, rename 'settings-0.15976829605695686.json' -> 'settings.json'", [
+               "terminal_error_errorOut (file:///share-file-systems/js/lib/terminal/error.js:23:32))",
+               "Object.terminal_error [as error] (file:///share-file-systems/js/lib/terminal/error.js:103:9))",
+               "terminal_server_storage_renameNode (file:///share-file-systems/js/lib/terminal/server/storage.js:13:25))",
+               "FSReqCallback.oncomplete (fs.js:154:23)"
+            ]
       ]
-   }
+   ]
 }
 ```
 <!-- cspell:enable -->
@@ -403,125 +399,119 @@ Stores state of the GUI and content displayed in the browser
 #### Settings Example
 ```json
 {
-   "settings"  : {
-      "audio"     : true,
-      "brotli"    : 7,
-      "color"     : "default",
-      "colors"    : {
-         "device": {
-            "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60": ["fff", "eee"]
-         },
-         "user": {
-            "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": ["eee", "ddd"]
-         },
+   "audio"     : true,
+   "brotli"    : 7,
+   "color"     : "default",
+   "colors"    : {
+      "device": {
+         "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60": ["fff", "eee"]
       },
-      "deviceHash": "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
-      "hash"      : "sha3-512",
-      "modals"    : {
-         "settings-modal": {
-            "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
-            "agentType": "device",
-            "content"  : {},
-            "inputs"   : ["close"],
-            "read_only": false,
-            "single"   : true,
-            "status"   : "hidden",
-            "title"    : "<span class=\"icon-settings\">⚙</span> Settings",
-            "type"     : "settings",
-            "zIndex"   : 2,
-            "id"       : "settings-modal",
-            "left"     : 210,
-            "top"      : 210,
-            "width"    : 565,
-            "height"   : 400
-         },
-         "fileNavigate-0.684141281927165231": {
-            "agent"           : "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58",
-            "agentType"       : "user",
-            "content"         : {},
-            "inputs"          : ["close","maximize","minimize","text"],
-            "read_only"       : false,
-            "selection"       : {},
-            "status_bar"      : true,
-            "status_text"     : "13 directories, 15 files, 0 links, 0 errors",
-            "text_placeholder": "Optionally type a file system address here.",
-            "text_value"      : "C:\\Users\\username\\share-file-systems",
-            "title"           : "<span class=\"icon-fileNavigator\">⌹</span> File Navigator - Austin[Desktop]",
-            "type"            : "fileNavigate",
-            "width"           : 819,
-            "zIndex"          : 3,
-            "id"              : "fileNavigate-0.684141281927165231",
-            "left"            : 230,
-            "top"             : 230,
-            "height"          : 403,
-            "status"          : "normal",
-            "history"         : ["C:\\Users\\username\\share-file-systems"],
-            "search"          : ["",""]
-         }
+      "user": {
+         "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": ["eee", "ddd"]
       },
-      "modalTypes": ["settings","fileNavigate","invite-request"],
-      "nameDevice": "Old Desktop",
-      "nameUser"  : "Austin",
-      "zIndex"    : 6
    },
-   "send": true
+   "deviceHash": "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+   "hash"      : "sha3-512",
+   "modals"    : {
+      "settings-modal": {
+         "agent"    : "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60",
+         "agentType": "device",
+         "content"  : {},
+         "inputs"   : ["close"],
+         "read_only": false,
+         "single"   : true,
+         "status"   : "hidden",
+         "title"    : "<span class=\"icon-settings\">⚙</span> Settings",
+         "type"     : "settings",
+         "zIndex"   : 2,
+         "id"       : "settings-modal",
+         "left"     : 210,
+         "top"      : 210,
+         "width"    : 565,
+         "height"   : 400
+      },
+      "fileNavigate-0.684141281927165231": {
+         "agent"           : "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58",
+         "agentType"       : "user",
+         "content"         : {},
+         "inputs"          : ["close","maximize","minimize","text"],
+         "read_only"       : false,
+         "selection"       : {},
+         "status_bar"      : true,
+         "status_text"     : "13 directories, 15 files, 0 links, 0 errors",
+         "text_placeholder": "Optionally type a file system address here.",
+         "text_value"      : "C:\\Users\\username\\share-file-systems",
+         "title"           : "<span class=\"icon-fileNavigator\">⌹</span> File Navigator - Austin[Desktop]",
+         "type"            : "fileNavigate",
+         "width"           : 819,
+         "zIndex"          : 3,
+         "id"              : "fileNavigate-0.684141281927165231",
+         "left"            : 230,
+         "top"             : 230,
+         "height"          : 403,
+         "status"          : "normal",
+         "history"         : ["C:\\Users\\username\\share-file-systems"],
+         "search"          : ["",""]
+      }
+   },
+   "modalTypes": ["settings","fileNavigate","invite-request"],
+   "nameDevice": "Old Desktop",
+   "nameUser"  : "Austin",
+   "zIndex"    : 6
 }
 ```
 
 #### Settings Schema
 ```json
 {
-   "settings"  : {
-      "audio"     : "boolean, whether audio is executed in the browser GUI",
-      "brotli"    : "number, sets the compression level for transferring artifacts over the network.  The default is 7",
-      "color"     : "string, the name of an available color scheme",
-      "colors"    : {
-         "device": {
-            "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60": ["3 or 6 digit hex. this device's body/primary color", "3 or 6 digit hex. this device's heading/secondary color"]
-         },
-         "user"  : {
-            "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": ["3 or 6 digit hex. this user's body/primary color", "3 or 6 digit hex. this user's heading/secondary color"]
-         }
+   "audio"     : "boolean, whether audio is executed in the browser GUI",
+   "brotli"    : "number, sets the compression level for transferring artifacts over the network.  The default is 7",
+   "color"     : "string, the name of an available color scheme",
+   "colors"    : {
+      "device": {
+         "c50cb9c89b4b8314312f8b84d3cb5e18133d9b7b461c16e9330770390b8a20a90a24be06379a8a169b138eb0968f8b9393757a69f401ae8096bb159b77204c60": ["3 or 6 digit hex. this device's body/primary color", "3 or 6 digit hex. this device's heading/secondary color"]
       },
-      "deviceHash": "string, A unique identifier for only this specific local device",
-      "hash"      : "string, the name of a supported hash function.  The fault is sha3-512.  See hash command documentation or the index.d.ts file for the list of supported hash functions.",
-      "modals (list of populated modals by modal id)": {
-         "settings-modal (id of the modal)": {
-            "agent"           : "string, where the modal's content resides",
-            "agentType"       : "device/user. Device for a shared device of the local computer.  User for a remote user's data.",
-            "content"         : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the modal's generated content",
-            "focus"           : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the user's focus",
-            "height"          : "number, the modal content's height in pixels.  The actual modal will be taller than this value due to heading and other features outside the modal's content body.",
-            "history"         : ["string array, contains names of prior addresses"],
-            "id"              : "string, the id value of the modal.  This value is the same as this object's name.",
-            "inputs"          : ["string array, contains names of buttons and certain other additive interactive parts of the modal"],
-            "left"            : "number, the horizontal position of the modal as measured in pixels distance between the left edge of the browser's viewport and the modal's outer most left edge.",
-            "move"            : "boolean, whether the user is allowed drag the modal to a different location in the browser GUI.",
-            "read_only"       : "boolean, whether this modal's contents are set read only by remote users",
-            "resize"          : "boolean, whether the user is allowed to resize the modal to a different horizontal and/or vertical size.",
-            "search"          : "[string, string], The first index stores the address location on where the search should begin and the second index stores the search string.",
-            "selection"       : "string object, stores the current item selection state of the modal's contents in the case whether the modal's contents are a selectable list.",
-            "single"          : "boolean, indicates whether only one modal of this modal 'type' may populate in the browser GUI.",
-            "status"          : "string, indicates the modal's visual status whether 'normal', 'maximized', 'minimized', or in some special cases 'hidden'.",
-            "status_bar"      : "boolean, whether the modal should feature a status bar below the modal's content.",
-            "status_text"     : "string, the text value that is populated into the modal's status bar, if the modal features a status bar.",
-            "text_event"      : "function, this is not stored.  A reference to an event handler that executes changes to a text input field.  This text input is populated into the modal if the value 'text' is present in the 'inputs' property array.",
-            "text_placeholder": "string, the default place holder text that populates in the modal's text input field if the modal features a text input field.",
-            "text_value"      : "string, the text value populated into the modal's text input field if the modal features a text input field.",
-            "timer"           : "number, a delay supplied to modals whose content body is a text area.  This delay will automatically write settings changes if the modal remains in focus but is idle for longer than the set delay to ensure user populated text is periodically saved.",
-            "title"           : "string, the text title of the modal that is read by the user. Any icon associated with the modal title or modal type is also populated here.",
-            "top"             : "number, the vertical position of the modal in the browser GUI.  This is measured in pixel distance between the top of the browser's viewport and the top most edge of the modal.",
-            "type"            : "string, the type of modal from a list of supported modal types.",
-            "width"           : "number, the width of the modal's content area.  The actual modal will be wider than this value due to the modal's borders and scroll bars.",
-            "zIndex"          : "number, the visual stacking order of the modals."
-         }
-      },
-      "modalTypes": ["string array, the types of modals current populated"],
-      "nameDevice": "string, the human friendly name of this local device",
-      "nameUser"  : "string, the human friendly name of the local user",
-      "zIndex"    : "number, the z-index value of the top most modal"
+      "user"  : {
+         "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": ["3 or 6 digit hex. this user's body/primary color", "3 or 6 digit hex. this user's heading/secondary color"]
+      }
    },
-   "send": true
+   "deviceHash": "string, A unique identifier for only this specific local device",
+   "hash"      : "string, the name of a supported hash function.  The fault is sha3-512.  See hash command documentation or the index.d.ts file for the list of supported hash functions.",
+   "modals (list of populated modals by modal id)": {
+      "settings-modal (id of the modal)": {
+         "agent"           : "string, where the modal's content resides",
+         "agentType"       : "device/user. Device for a shared device of the local computer.  User for a remote user's data.",
+         "content"         : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the modal's generated content",
+         "focus"           : "object, this data is not stored.  This property is used in the browser GUI to reference a DOM element that stores the user's focus",
+         "height"          : "number, the modal content's height in pixels.  The actual modal will be taller than this value due to heading and other features outside the modal's content body.",
+         "history"         : ["string array, contains names of prior addresses"],
+         "id"              : "string, the id value of the modal.  This value is the same as this object's name.",
+         "inputs"          : ["string array, contains names of buttons and certain other additive interactive parts of the modal"],
+         "left"            : "number, the horizontal position of the modal as measured in pixels distance between the left edge of the browser's viewport and the modal's outer most left edge.",
+         "move"            : "boolean, whether the user is allowed drag the modal to a different location in the browser GUI.",
+         "read_only"       : "boolean, whether this modal's contents are set read only by remote users",
+         "resize"          : "boolean, whether the user is allowed to resize the modal to a different horizontal and/or vertical size.",
+         "search"          : "[string, string], The first index stores the address location on where the search should begin and the second index stores the search string.",
+         "selection"       : "string object, stores the current item selection state of the modal's contents in the case whether the modal's contents are a selectable list.",
+         "single"          : "boolean, indicates whether only one modal of this modal 'type' may populate in the browser GUI.",
+         "status"          : "string, indicates the modal's visual status whether 'normal', 'maximized', 'minimized', or in some special cases 'hidden'.",
+         "status_bar"      : "boolean, whether the modal should feature a status bar below the modal's content.",
+         "status_text"     : "string, the text value that is populated into the modal's status bar, if the modal features a status bar.",
+         "text_event"      : "function, this is not stored.  A reference to an event handler that executes changes to a text input field.  This text input is populated into the modal if the value 'text' is present in the 'inputs' property array.",
+         "text_placeholder": "string, the default place holder text that populates in the modal's text input field if the modal features a text input field.",
+         "text_value"      : "string, the text value populated into the modal's text input field if the modal features a text input field.",
+         "timer"           : "number, a delay supplied to modals whose content body is a text area.  This delay will automatically write settings changes if the modal remains in focus but is idle for longer than the set delay to ensure user populated text is periodically saved.",
+         "title"           : "string, the text title of the modal that is read by the user. Any icon associated with the modal title or modal type is also populated here.",
+         "top"             : "number, the vertical position of the modal in the browser GUI.  This is measured in pixel distance between the top of the browser's viewport and the top most edge of the modal.",
+         "type"            : "string, the type of modal from a list of supported modal types.",
+         "width"           : "number, the width of the modal's content area.  The actual modal will be wider than this value due to the modal's borders and scroll bars.",
+         "zIndex"          : "number, the visual stacking order of the modals."
+      }
+   },
+   "modalTypes": ["string array, the types of modals current populated"],
+   "nameDevice": "string, the human friendly name of this local device",
+   "nameUser"  : "string, the human friendly name of the local user",
+   "zIndex"    : "number, the z-index value of the top most modal"
 }
 ```
 
@@ -538,31 +528,29 @@ The user and device storage follow an identical schema.
 #### User Example
 ```json
 {
-   "user": {
-      "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3" : {
-         "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df5",
-         "name"  : "Tori",
-         "port"  : 443,
-         "shares": {
-            "75994bdcd0bdf3d69d043d904c45c14b0937ae2466b91b7b035c7aedf5cd99cf889eafafecd81bbc06a5cfbe075e9ec1888cb0f87c2392a451a31cd9d5737040": {
-               "execute" : false,
-               "name"    : "C:\\MP3\\_new",
-               "readOnly": true,
-               "type"    : "directory"
-            }
+   "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3" : {
+      "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df5",
+      "name"  : "Tori",
+      "port"  : 443,
+      "shares": {
+         "75994bdcd0bdf3d69d043d904c45c14b0937ae2466b91b7b035c7aedf5cd99cf889eafafecd81bbc06a5cfbe075e9ec1888cb0f87c2392a451a31cd9d5737040": {
+            "execute" : false,
+            "name"    : "C:\\MP3\\_new",
+            "readOnly": true,
+            "type"    : "directory"
          }
-      },
-      "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": {
-         "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df9",
-         "name"  : "Melissa",
-         "port"  : 443,
-         "shares": {
-            "1ac77231296c86e40f2bcfdefb2ab69926d7cfba916e10b154ff72be2b2f623bdd8fc769297277ffd7da941c492ff4e24a9a2323ef2ab9371259069c386d5421": {
-               "execute" : false,
-               "name"    : "D:\\movies",
-               "readOnly": true,
-               "type"    : "directory"
-            }
+      }
+   },
+   "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58": {
+      "ip"    : "2608:1700:1220:74c8:f982:507a:263b:3df9",
+      "name"  : "Melissa",
+      "port"  : 443,
+      "shares": {
+         "1ac77231296c86e40f2bcfdefb2ab69926d7cfba916e10b154ff72be2b2f623bdd8fc769297277ffd7da941c492ff4e24a9a2323ef2ab9371259069c386d5421": {
+            "execute" : false,
+            "name"    : "D:\\movies",
+            "readOnly": true,
+            "type"    : "directory"
          }
       }
    }
@@ -572,20 +560,20 @@ The user and device storage follow an identical schema.
 #### User Schema
 ```json
 {
-   "user": {
-      "user hash": {
-         "ip"    : "string, User's current IP address.",
-         "name"  : "string, Human friendly user name.",
-         "port"  : "number, Current network port for this application on the user's device.",
-         "shares": {
-            "share hash": {
-               "execute" : "boolean, is this something that this executed like an application?",
-               "name"    : "string, address of the shared artifact",
-               "readOnly": "boolean, if true this artifact cannot be altered or removed by remote users",
-               "type"    : "string, what type of artifact is it? (file, directory, symbolic link)"
-            }
+   "user hash": {
+      "ip"    : "string, User's current IP address.",
+      "name"  : "string, Human friendly user name.",
+      "port"  : "number, Current network port for this application on the user's device.",
+      "shares": {
+         "share hash": {
+            "execute" : "boolean, is this something that this executed like an application?",
+            "name"    : "string, address of the shared artifact",
+            "readOnly": "boolean, if true this artifact cannot be altered or removed by remote users",
+            "type"    : "string, what type of artifact is it? (file, directory, symbolic link)"
          }
       }
+   }
+}
 ```
 
 ---
@@ -623,31 +611,27 @@ The heartbeat makes use of two services:
 ### Heartbeat Example
 ```json
 {
-   "heartbeat-complete": {
-      "agent"  : "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3",
-      "shares" : [
-         {
-            "execute" : false,
-            "name"    : "C:\\mp3",
-            "readOnly": true,
-            "type"    : "file"
-         }
-      ],
-      "status" : "active",
-      "user"   : "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58"
-   }
+   "agent"  : "55f22971b0109b2f4ead7d8fae3ae15472a4b48ece1773f5781a8b0831a4bdd09890f10bc857e8dbf71e7bb0e87917db94b4939dd5bd6655ad801596a9126bc3",
+   "shares" : [
+      {
+         "execute" : false,
+         "name"    : "C:\\mp3",
+         "readOnly": true,
+         "type"    : "file"
+      }
+   ],
+   "status" : "active",
+   "user"   : "2a8710b0fba814d72c1001837f99ef66ead97fe18983f7932fd145b7ec0de34c4b9add373ccbcb6a0a8b1583cc5d271228f11f74a14bac1825f214f3ac07fb58"
 }
 ```
 
 ### Heartbeat Schema
 ```json
 {
-   "heartbeat": {
-      "agent" : "string, Name of local user at it appears to the remote users.",
-      "shares": "empty string or share object, This property is only populated for shares of the originating local device when the heartbeat originates in the browser, and so if this is not an empty string the status property must have an 'active' value.",
-      "status": "string: active, idle, offline",
-      "user"  : "empty string"
-   }
+   "agent" : "string, Name of local user at it appears to the remote users.",
+   "shares": "empty string or share object, This property is only populated for shares of the originating local device when the heartbeat originates in the browser, and so if this is not an empty string the status property must have an 'active' value.",
+   "status": "string: active, idle, offline",
+   "user"  : "empty string"
 }
 ```
 
@@ -661,28 +645,26 @@ The invitation process is how the application processes a request to add another
 ### Invitation Example
 ```json
 {
-   "invite": {
-      "action"    : "invite",
-      "deviceKey" : "",
-      "deviceName": "",
-      "ip"        : "192.168.0.45",
-      "message"   : "Hello",
-      "modal"     : "invite-request-0.929743434347059471",
-      "name"      : "Austin",
-      "port"      : 443,
-      "shares"    : [
-         {
-            "execute" : false,
-            "name"    : "C:\\MP3\\_new",
-            "readOnly": true,
-            "type"    : "directory"
-         }
-      ],
-      "status"    : "invited",
-      "type"      : "user",
-      "userHash"  : "",
-      "userName"  : ""
-   }
+   "action"    : "invite",
+   "deviceKey" : "",
+   "deviceName": "",
+   "ip"        : "192.168.0.45",
+   "message"   : "Hello",
+   "modal"     : "invite-request-0.929743434347059471",
+   "name"      : "Austin",
+   "port"      : 443,
+   "shares"    : [
+      {
+         "execute" : false,
+         "name"    : "C:\\MP3\\_new",
+         "readOnly": true,
+         "type"    : "directory"
+      }
+   ],
+   "status"    : "invited",
+   "type"      : "user",
+   "userHash"  : "",
+   "userName"  : ""
 }
 ```
 
@@ -696,21 +678,19 @@ The invitation is made up of 4 services:
 ### Invitation Schema
 ```json
 {
-   "invite": {
-      "action"    : "invite",
-      "deviceKey" : "string, a hash uniquely identifying the current device",
-      "deviceName": "string, the name of the current device",
-      "ip"        : "string, ip address to send the invitation",
-      "message"   : "string, text message from the invitation request.",
-      "modal"     : "string, id of the invitation request modal",
-      "name"      : "string, user name",
-      "port"      : "number, port number associated with the ip address",
-      "shares"    : ["array of share objects", "see Storage/Users for definitions"],
-      "status"    : "string, status of invitation: accepted, declined, invited",
-      "type"      : "string, the type of invitation whether its for a different device associated with the same user or a different user",
-      "userHash"  : "not yet used",
-      "userName"  : "not yet used"
-   }
+   "action"    : "invite",
+   "deviceKey" : "string, a hash uniquely identifying the current device",
+   "deviceName": "string, the name of the current device",
+   "ip"        : "string, ip address to send the invitation",
+   "message"   : "string, text message from the invitation request.",
+   "modal"     : "string, id of the invitation request modal",
+   "name"      : "string, user name",
+   "port"      : "number, port number associated with the ip address",
+   "shares"    : ["array of share objects", "see Storage/Users for definitions"],
+   "status"    : "string, status of invitation: accepted, declined, invited",
+   "type"      : "string, the type of invitation whether its for a different device associated with the same user or a different user",
+   "userHash"  : "not yet used",
+   "userName"  : "not yet used"
 }
 ```
 
@@ -739,18 +719,16 @@ The invitation *status* property will feature one of these values:
 ### fs-update-remote Example
 ```json
 {
-   "fs-update-remote": {
-      "agent"   : "remoteUser",
-      "dirs"    : [
-         ["storage.txt", "file", "", 0, 0, {}]
-      ],
-      "location": "storage",
-      "status"  : {
-         "failures": [],
-         "fileList": [],
-         "message": "Copy complete. 3 files written at size 6kb (5,765 bytes) with 0 integrity failures.",
-         "target": "remote-fileNavigator-0.5964026774904047121"
-      }
+   "agent"   : "remoteUser",
+   "dirs"    : [
+      ["storage.txt", "file", "", 0, 0, {}]
+   ],
+   "location": "storage",
+   "status"  : {
+      "failures": [],
+      "fileList": [],
+      "message": "Copy complete. 3 files written at size 6kb (5,765 bytes) with 0 integrity failures.",
+      "target": "remote-fileNavigator-0.5964026774904047121"
    }
 }
 // index 5 for each item in "dirs", empty above here, is of type Stats from "fs"
@@ -759,19 +737,14 @@ The invitation *status* property will feature one of these values:
 ### fs-update-remote Schema
 ```json
 {
-   "fs-update-remote": {
-      "agent"   : "string, who to send the update to",
-      "dirs"    : ["array of directory item data structure starting from the address in the location property"],
-      "location": "string, the file system address that is modified",
-      "status"  : "copyStatus"
+   "agent"   : "string, who to send the update to",
+   "dirs"    : ["array of directory item data structure starting from the address in the location property"],
+   "location": "string, the file system address that is modified",
+   "status"  : {
+      "failures": "string array, a list of any transmission failures",
+      "fileList": ["directory item array", "optional"],
+      "message": "string, a text summary for the user",
+      "target": "string, an identify of the browser modal that is receiving the copied items"
    }
-}
-
-// copyStatus
-{
-   "failures": "string array, a list of any transmission failures",
-   "fileList": ["directory item array", "optional"],
-   "message": "string, a text summary for the user",
-   "target": "string, an identify of the browser modal that is receiving the copied items"
 }
 ```

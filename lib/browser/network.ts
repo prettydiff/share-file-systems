@@ -8,34 +8,52 @@ import webSocket from "./webSocket.js";
 const network:module_network = {},
     loc:string = location.href.split("?")[0];
 
+/* Accesses the file system */
+network.copy = function local_network_copy(configuration:systemDataCopy, callback:Function):void {
+    const type:string = (configuration.cut === true)
+        ? "cut"
+        : "copy";
+    network.xhr({
+        callback: function local_network_fs_callback(responseType:requestType, responseText:string) {
+            responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
+            if (responseType === "file-list-status") {
+                const status:copyStatus = JSON.parse(responseText);
+                util.fileListStatus(status);
+            } else {
+                callback(responseText, configuration.agent);
+            }
+        },
+        error: `Transmission error when requesting ${type} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
+        payload: JSON.stringify(configuration),
+        type: "copy"
+    });
+};
+
 /* Send instructions to remove this local device/user from deleted remote agents */
 network.deleteAgents = function local_network_deleteAgents(deleted:agentList):void {
     network.xhr({
         callback: null,
         error: null,
-        payload: JSON.stringify({
-            "delete-agents": deleted
-        }),
+        payload: JSON.stringify(deleted),
         type: "delete-agents"
     });
 };
 
 /* Accesses the file system */
-network.fileBrowser = function local_network_fileBrowser(configuration:fileService, callback:Function):void {
+network.fileBrowser = function local_network_fileBrowser(configuration:systemDataFile, callback:Function):void {
     network.xhr({
-        callback: function local_network_fs_callback(responseText:string) {
+        callback: function local_network_fs_callback(responseType:requestType, responseText:string) {
             responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-            if (responseText.indexOf("{\"file-list-status\":") === 0) {
-                util.fileListStatus(JSON.parse(responseText)["file-list-status"]);
+            if (responseType === "file-list-status") {
+                const status:copyStatus = JSON.parse(responseText);
+                util.fileListStatus(status);
             } else {
                 callback(responseText, configuration.agent);
             }
         },
         error: `Transmission error when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-        payload: JSON.stringify({
-            fs: configuration
-        }),
-        type: configuration.action
+        payload: JSON.stringify(configuration),
+        type: "fs"
     });
 };
 
@@ -46,13 +64,13 @@ network.hashDevice = function local_network_hashDevice(callback:Function):void {
             user: browser.data.nameUser
         };
     network.xhr({
-        callback: function local_network_hashDevice_callback(responseText:string) {
+        callback: function local_network_hashDevice_callback(responseType:requestType, responseText:string) {
             const hashes:hashAgent = JSON.parse(responseText);
             callback(hashes);
         },
         error: null,
-        payload: JSON.stringify({hashDevice:hashes}),
-        type: "hashDevice"
+        payload: JSON.stringify(hashes),
+        type: "hash-device"
     });
 };
 
@@ -66,8 +84,8 @@ network.hashShare = function local_network_hashShare(configuration:hashShareConf
     network.xhr({
         callback: configuration.callback,
         error: null,
-        payload: JSON.stringify({hashShare:payload}),
-        type: "hashShare"
+        payload: JSON.stringify(payload),
+        type: "hash-share"
     });
 };
 
@@ -86,9 +104,7 @@ network.heartbeat = function local_network_heartbeat(status:heartbeatStatus, upd
     network.xhr({
         callback: null,
         error: null,
-        payload: JSON.stringify({
-            "heartbeat-update": heartbeat
-        }),
+        payload: JSON.stringify(heartbeat),
         type: "heartbeat-update"
     });
 };
@@ -98,9 +114,7 @@ network.inviteAccept = function local_network_invitationAcceptance(configuration
     network.xhr({
         callback: null,
         error: `Transmission error when requesting ${configuration.action} to ip ${configuration.ip} and port ${configuration.port}.`,
-        payload: JSON.stringify({
-            invite: configuration
-        }),
+        payload: JSON.stringify(configuration),
         type: configuration.action
     });
 };
@@ -110,9 +124,7 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     network.xhr({
         callback: null,
         error: `Transmission error related to an invitation response to ip ${inviteData.ip} and port ${inviteData.port}.`,
-        payload: JSON.stringify({
-            invite: inviteData
-        }),
+        payload: JSON.stringify(inviteData),
         type: inviteData.action
     });
 };
@@ -122,11 +134,9 @@ network.message = function local_network_message(message:messageItem):void {
         ? `Transmission error related to text message broadcast to ${message.agentType}s.`
         : `Transmission error related to text message for ${message.agentType} ${message.agentTo}.`;
     network.xhr({
-        callback:null,
+        callback: null,
         error: error,
-        payload: JSON.stringify({
-            message: message
-        }),
+        payload: JSON.stringify(message),
         type: "message"
     });
 };
@@ -144,14 +154,11 @@ network.storage = function local_network_storage(type:storageType):void {
                     : browser.user,
             response: null,
             type: type
-        },
-        payload:string = JSON.stringify({
-            storage: storage
-        });
+        };
     network.xhr({
         callback: null,
         error: null,
-        payload: payload,
+        payload: JSON.stringify(storage),
         type: type
     });
 };
@@ -169,9 +176,7 @@ network.testBrowser = function local_network_testBrowser(payload:[boolean, strin
     network.xhr({
         callback: null,
         error: null,
-        payload: JSON.stringify({
-            ["test-browser"]: data
-        }),
+        payload: JSON.stringify(data),
         type: "test-browser"
     });
 };
@@ -180,17 +185,17 @@ network.testBrowser = function local_network_testBrowser(payload:[boolean, strin
 network.xhr = function local_network_xhr(config:networkConfig):void {
     const xhr:XMLHttpRequest = new XMLHttpRequest(),
         testIndex:number = location.href.indexOf("?test_browser"),
-        readyState = function local_network_messages_callback():void {
+        readyState = function local_network_xhr_readyState():void {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 0) {
                     const offline:HTMLCollectionOf<Element> = document.getElementsByClassName("offline");
                     if (xhr.status === 200 && offline.length > 0 && offline[0].getAttribute("class") === "title offline") {
-                        webSocket(function local_network_messages_callback_webSocket():boolean {
+                        webSocket(function local_network_xhr_readyState_webSocket():boolean {
                             return true;
                         });
                     }
                     if (config.callback !== null) {
-                        config.callback(xhr.responseText);
+                        config.callback(<requestType>xhr.getResponseHeader("response-type"), xhr.responseText);
                     }
                 } else {
                     const error:error = {
@@ -215,6 +220,12 @@ network.xhr = function local_network_xhr(config:networkConfig):void {
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     xhr.setRequestHeader("request-type", config.type);
+    xhr.setRequestHeader("agent-type", "device");
+    if (config.type === "hash-device") {
+        xhr.setRequestHeader("agent-hash", "");
+    } else {
+        xhr.setRequestHeader("agent-hash", browser.data.hashDevice);
+    }
     xhr.send(config.payload);
 
 };

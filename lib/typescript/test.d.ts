@@ -22,7 +22,7 @@ declare global {
         fail: number;
         index: number;
         list: number[];
-        test: testItem;
+        test: testItem | testService;
         testType: testListType;
         values: [string, string, string];
     }
@@ -141,76 +141,28 @@ declare global {
                 [key:string]: httpServer;
             };
         };
-        tests?: testServiceInstance[];
-    }
-    interface testServiceInstance {
-        artifact?: string;
-        command: any;
-        file?: string;
-        name: string;
-        qualifier: qualifier;
-        shares?: testServiceShares;
-        test: object | string;
+        tests?: testService[];
     }
     interface testServiceShares {
         local?: agentShares;
         remote?: agentShares;
     }
-    interface testTemplateCopyStatus {
-        "file-list-status": copyStatus;
+    interface testServiceStorage {
+        "storage": {
+            data: agents | ui_data;
+            response: ServerResponse;
+            type: storageType;
+        }
     }
-    interface testTemplate {
-        command: {
-            [key: string]: any;
-        };
+    interface testService {
+        artifact?: string;
+        command: fsUpdateRemote | heartbeat | invite | systemDataCopy | systemDataFile | storage | testServiceStorage;
+        file?: string;
         name: string;
         qualifier: qualifier;
-        test: string;
-    }
-    interface testTemplateFileService {
-        command: {
-            "fs": fileService;
-        };
-        name: string;
-        qualifier: qualifier;
-        test: testServiceFileTarget;
-    }
-    interface testTemplateHeartbeatComplete {
-        command: {
-            "heartbeat-complete": heartbeat;
-        };
-        name: string;
-        qualifier: qualifier;
-        test: {
-            "heartbeat-status": heartbeat;
-        };
-    }
-    interface testTemplateHeartbeatUpdate {
-        command: {
-            "heartbeat-update": heartbeatUpdate;
-        };
-        name: string;
-        qualifier: qualifier;
-        test: string;
-    }
-    interface testTemplateInvite extends testTemplate {
-        command: {
-            "invite": invite;
-        };
-    }
-    interface testTemplateStorage extends testTemplate {
-        command: {
-            "storage": {
-                data: agents | ui_data;
-                response: ServerResponse;
-                type: storageType;
-            };
-        };
-    }
-    interface testTemplateUpdateRemote extends testTemplate{
-        command: {
-            "fs-update-remote": fsUpdateRemote;
-        };
+        requestType: requestType;
+        shares?: testServiceShares;
+        test: copyStatus | fsRemote | heartbeat | string | stringData[];
     }
     // ------------------------------------
 

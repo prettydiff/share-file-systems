@@ -2,7 +2,6 @@
 /* lib/terminal/server/hashIdentity - Compares a security token to a generated hash to bypass typical file service security restrictions */
 
 import { Hash } from "crypto";
-import { ReadStream } from "fs";
 
 import serverVars from "./serverVars.js";
 import vars from "../utilities/vars.js";

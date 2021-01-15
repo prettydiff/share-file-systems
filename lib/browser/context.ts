@@ -1,5 +1,8 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
+
+import { BigIntStats } from "fs";
+
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
@@ -18,11 +21,11 @@ let clipboard:string = "";
 /* Handler for file system artifact copy */
 context.copy = function browser_context_copy(event:MouseEvent):void {
     const addresses:string[] = [],
-        element:Element = (context.element.nodeName.toLowerCase() === "li")
+        tagName:string = context.element.nodeName.toLowerCase(),
+        element:Element = (tagName === "li" || tagName === "ul")
             ? context.element
-            : <Element>context.element.parentNode,
-        parent:Element = <Element>element.parentNode,
-        box:Element = parent.getAncestor("box", "class"),
+            : <Element>context.element.getAncestor("li", "tag"),
+        box:Element = element.getAncestor("box", "class"),
         contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
@@ -62,7 +65,9 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
 
 /* Handler for base64, edit, and hash operations from the context menu */
 context.dataString = function browser_context_dataString(event:MouseEvent):void {
-    const element:Element = context.element,
+    const element:Element = (context.element.nodeName.toLowerCase() === "li")
+            ? context.element
+            : <Element>context.element.getAncestor("li", "tag"),
         contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
             ? context.type
@@ -76,14 +81,12 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
         length:number = addresses.length,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
-        payloadNetwork:fileService = {
+        payloadNetwork:systemDataFile = {
             action: (type === "Edit")
                 ? "fs-read"
                 : <serviceType>`fs-${type.toLowerCase()}`,
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: "",
-            copyType: "device",
             depth: 1,
             id: id,
             location: [],
@@ -163,17 +166,17 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
 
 /* Handler for removing file system artifacts via context menu */
 context.destroy = function browser_context_destroy():void {
-    let element:Element = context.element,
+    let element:Element = (context.element.nodeName.toLowerCase() === "li")
+            ? context.element
+            : <Element>context.element.getAncestor("li", "tag"),
         selected:[string, shareType, string][],
         box:Element = element.getAncestor("box", "class"),
         agency:agency = util.getAgent(element),
         id:string = box.getAttribute("id"),
-        payload:fileService = {
+        payload:systemDataFile = {
             action: "fs-destroy",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: "",
-            copyType: "device",
             depth: 1,
             id: id,
             location: [],
@@ -188,6 +191,9 @@ context.destroy = function browser_context_destroy():void {
                 plural:string = (count === 1)
                     ? ""
                     : "s";
+            if (list === null) {
+                return;
+            }
             if (box.parentNode !== null) {
                 body.innerHTML = "";
                 body.appendChild(list[0]);
@@ -211,7 +217,10 @@ context.destroy = function browser_context_destroy():void {
 
 /* Handler for details action of context menu */
 context.details = function browser_context_details(event:MouseEvent):void {
-    const element:Element = context.element,
+    const name:string = context.element.nodeName.toLowerCase(),
+        element:Element = (name === "li" || name === "ul")
+            ? context.element
+            : <Element>context.element.getAncestor("li", "tag"),
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
@@ -231,12 +240,10 @@ context.details = function browser_context_details(event:MouseEvent):void {
         },
         modalInstance:Element = modal.create(payloadModal),
         id:string = modalInstance.getAttribute("id"),
-        payloadNetwork:fileService = {
+        payloadNetwork:systemDataFile = {
             action: "fs-details",
             agent: agency[0],
             agentType: agency[2],
-            copyAgent: "",
-            copyType: "device",
             depth: 0,
             id: id,
             location: (function browser_context_details_addressList():string[] {
@@ -267,7 +274,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
                 details:fsDetails = {
-                    size: 0,
+                    size: 0n,
                     files: 0,
                     directories: 0,
                     links: 0
@@ -313,7 +320,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
             td.innerHTML = "Total Size";
             tr.appendChild(td);
             td = document.createElement("td");
-            if (details.size > 1024) {
+            if (details.size > 1024n) {
                 td.innerHTML = `${common.commas(details.size)} bytes (${common.prettyBytes(details.size)})`;
             } else {
                 td.innerHTML = `${common.commas(details.size)} bytes`;
@@ -358,9 +365,9 @@ context.details = function browser_context_details(event:MouseEvent):void {
             table.appendChild(tbody);
             output.appendChild(table);
 
-            mTime = new Date(list[0][5].mtimeMs);
-            aTime = new Date(list[0][5].atimeMs);
-            cTime = new Date(list[0][5].ctimeMs);
+            mTime = new Date(Number(list[0][5].mtimeMs));
+            aTime = new Date(Number(list[0][5].atimeMs));
+            cTime = new Date(Number(list[0][5].ctimeMs));
             heading = document.createElement("h3");
             heading.innerHTML = "MAC";
             output.appendChild(heading);
@@ -470,7 +477,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
                         cell.innerHTML = fileList[aa][0];
                         row.appendChild(cell);
                         cell = document.createElement("td");
-                        cell.innerHTML = util.dateFormat(new Date(fileList[aa][5].mtimeMs));
+                        cell.innerHTML = util.dateFormat(new Date(Number(fileList[aa][5].mtimeMs)));
                         row.appendChild(cell);
                         tableBody.appendChild(row);
                         aa = aa + 1;
@@ -563,12 +570,10 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                     parent:Element = <Element>actionElement.parentNode,
                     id:string = parent.getAncestor("box", "class").getAttribute("id"),
                     agency:agency = util.getAgent(actionElement),
-                    payload:fileService = {
+                    payload:systemDataFile = {
                         action: "fs-new",
                         agent: agency[0],
                         agentType: agency[2],
-                        copyAgent: "",
-                        copyType: "device",
                         depth: 1,
                         id: id,
                         location: [actionElement.getAttribute("data-location") + value],
@@ -580,6 +585,8 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         return;
                     };
                 if (value.replace(/\s+/, "") !== "") {
+                    actionElement.onkeyup = null;
+                    actionElement.onblur = null;
                     actionParent.innerHTML = payload.location[0];
                     network.fileBrowser(payload, callback);
                 }
@@ -601,12 +608,10 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                     const actionParent:Element = <Element>actionElement.parentNode,
                         agency:agency = util.getAgent(actionElement),
                         id:string = actionParent.getAncestor("box", "class").getAttribute("id"),
-                        payload:fileService = {
+                        payload:systemDataFile = {
                             action: "fs-new",
                             agent: agency[0],
                             agentType: agency[2],
-                            copyAgent: "",
-                            copyType: "device",
                             depth: 1,
                             id: id,
                             location: [actionElement.getAttribute("data-location") + value],
@@ -617,6 +622,8 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         callback = function browser_context_fsNew_actionBlur_callback():void {
                             return;
                         };
+                    actionElement.onkeyup = null;
+                    actionElement.onblur = null;
                     actionParent.innerHTML = payload.location[0];
                     network.fileBrowser(payload, callback);
                 }
@@ -698,7 +705,18 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
 
 /* Creates context menu */
 context.menu = function browser_context_menu(event:MouseEvent):void {
-    const itemList:Element[] = [],
+    const element:HTMLElement = (function browser_context_menu_element():HTMLElement {
+            const target:HTMLElement = <HTMLElement>event.target,
+                name:string = target.nodeName.toLowerCase();
+            if (name === "li" || name === "ul") {
+                return target;
+            }
+            return <HTMLElement>target.getAncestor("li", "tag");
+        }()),
+        inputAddress:string = element.getAncestor("border", "class").getElementsByTagName("input")[0].value,
+        root:boolean = (inputAddress === "/" || inputAddress === "\\"),
+        nodeName:string = element.nodeName.toLowerCase(),
+        itemList:Element[] = [],
         menu:HTMLElement = document.createElement("ul"),
         command:string = (navigator.userAgent.indexOf("Mac OS X") > 0)
             ? "Command"
@@ -729,13 +747,11 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             },
             destroy: function browser_context_menu_destroy():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
-                input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Destroy <em>DEL</em>`;
                 button.setAttribute("class", "destroy");
-                if (input.value === "/" || input.value === "\\") {
+                if (root === true) {
                     button.disabled = true;
                 } else {
                     button.onclick = context.destroy;
@@ -792,22 +808,17 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 button = document.createElement("button");
                 button.innerHTML = `Paste <em>${command} + V</em>`;
                 button.onclick = context.paste;
-                if (clipboard === "" || (
-                    (element.getAttribute("class") === "fileList" || parent.getAttribute("class") === "fileList") &&
-                    (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)
-                )) {
+                if (clipboard === "" || (clipboard.indexOf("\"type\":") < 0 || clipboard.indexOf("\"data\":") < 0)) {
                     button.disabled = true;
                 }
                 item.appendChild(button);
                 itemList.push(item);
             },
             rename: function browser_context_menu_rename():void {
-                let input:HTMLInputElement = <HTMLInputElement>parent.getAncestor("border", "class");
-                input = input.getElementsByTagName("input")[0];
                 item = document.createElement("li");
                 button = document.createElement("button");
                 button.innerHTML = `Rename <em>${command} + ALT + R</em>`;
-                if (input.value === "/" || input.value === "\\") {
+                if (root === true) {
                     button.disabled = true;
                 } else {
                     button.onclick = fileBrowser.rename;
@@ -824,10 +835,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
                 itemList.push(item);
             }
         };
-    let element:HTMLElement = <HTMLElement>event.target,
-        nodeName:string = element.nodeName.toLowerCase(),
-        parent:Element = <Element>element.parentNode,
-        item:Element,
+    let item:Element,
         button:HTMLButtonElement,
         clientX:number,
         clientY:number,
@@ -835,22 +843,13 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
         readOnly:boolean = browser.data.modals[box.getAttribute("id")].read_only,
         reverse:boolean = false,
         a:number = 0;
-    event.stopPropagation();
-    if (nodeName === "input") {
-        return;
-    }
-    if (nodeName === "span" || nodeName === "label" || element.getAttribute("class") === "expansion") {
-        element = <HTMLElement>element.parentNode;
-        parent = <Element>parent.parentNode;
-        nodeName = element.nodeName.toLowerCase();
-    }
     context.element = element;
     context.menuRemove();
     event.preventDefault();
     event.stopPropagation();
     menu.setAttribute("id", "contextMenu");
     menu.onclick = context.menuRemove;
-    if (element.getAttribute("class") === "fileList") {
+    if (nodeName === "ul") {
         if (readOnly === true) {
             return;
         }
@@ -858,7 +857,7 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
         functions.newDirectory();
         functions.newFile();
         functions.paste();
-    } else if (parent.getAttribute("class") === "fileList") {
+    } else if (nodeName === "li") {
         functions.details();
         if (box.getAttribute("data-agentType") === "device") {
             functions.share();
@@ -955,22 +954,24 @@ context.paste = function browser_context_paste():void {
         clipData:clipboard = (clipboard === "")
             ? {}
             : JSON.parse(clipboard),
+        cut:boolean = (clipData.type === "cut"),
         id:string = element.getAttribute("id"),
-        copyAgent:string = browser.data.modals[id].agent,
-        copyType:agentType = browser.data.modals[id].agentType,
-        payload:fileService = {
-            action   : <serviceType>`fs-${clipData.type}`,
-            agent    : clipData.agent,
-            agentType: clipData.agentType,
-            copyAgent: copyAgent,
-            copyShare: browser.data.modals[id].share,
-            copyType : copyType,
-            depth    : 1,
-            id       : id,
-            location : clipData.data,
-            name     : destination,
-            share    : clipData.share,
-            watch    : "no"
+        agent:string = browser.data.modals[id].agent,
+        agentType:agentType = browser.data.modals[id].agentType,
+        payload:systemDataCopy = {
+            action     : "copy",
+            agent      : clipData.agent,
+            agentType  : clipData.agentType,
+            copyAgent  : agent,
+            copyType   : agentType,
+            cut        : cut,
+            destination: destination,
+            id         : id,
+            location   : clipData.data,
+            originAgent: (agentType === "device")
+                ? browser.data.hashDevice
+                : browser.data.hashUser
+            //share      : clipData.share
         },
         callback = function browser_context_paste_callback():void {
             clipboard = "";
@@ -979,7 +980,7 @@ context.paste = function browser_context_paste():void {
     if (clipboard === "") {
         return;
     }
-    network.fileBrowser(payload, callback);
+    network.copy(payload, callback);
     context.element = null;
 };
 

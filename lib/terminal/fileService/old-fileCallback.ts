@@ -7,21 +7,21 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 
-const fileCallback = function terminal_fileService_fileCallback(serverResponse:ServerResponse, data:fileService, message:string):void {
+const fileCallback = function terminal_fileService_fileCallback(serverResponse:ServerResponse, data:systemDataFile, message:string):void {
     const localDevice:boolean = (data.agent === serverVars.hashDevice && data.agentType === "device"),
         copyStatus:copyStatus = {
             failures: [],
+            id: `remote-${data.id}`,
             message: message,
-            target: `remote-${data.id}`
-        },
-        payload:string = (message.indexOf("Copy complete.") === 0)
-            ? JSON.stringify({
-                "file-list-status": copyStatus
-            })
-        : message;
+        };
     if (localDevice === true) {
         vars.testLogger("fileService", "fileCallback", "When the operation is limited to the local device simply issue the HTTP response with payload.");
-        response(serverResponse, "application/json", payload);
+        response({
+            message: JSON.stringify(copyStatus),
+            mimeType: "application/json",
+            responseType: "file-list-status",
+            serverResponse: serverResponse
+        });
     } else {
         const dirConfig:readDirectory = {
             callback: function terminal_fileService_fileCallback_dir(directory:directoryList):void {
@@ -36,9 +36,12 @@ const fileCallback = function terminal_fileService_fileCallback(serverResponse:S
                         location: location,
                         status: copyStatus
                     };
-                response(serverResponse, "application/json", JSON.stringify({
-                    "fs-update-remote": update
-                }));
+                response({
+                    message: JSON.stringify(update),
+                    mimeType: "application/json",
+                    responseType: "fs-update-remote",
+                    serverResponse: serverResponse
+                });
             },
             depth: 2,
             exclusions: [],

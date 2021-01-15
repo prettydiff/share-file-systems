@@ -24,11 +24,10 @@ const title:Element = document.getElementById("title-bar"),
         }
         const error = function browser_socketMessage_error():void {
                 // eslint-disable-next-line
-                console.error(event.data);
+                console.error(data);
             },
-            fsUpdateLocal = function browser_socketMessage_fsUpdateLocal():void {
+            fsUpdateLocal = function browser_socketMessage_fsUpdateLocal(fsData:directoryList):void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
-                    fsData:directoryList = JSON.parse(event.data)["fs-update-local"],
                     keyLength:number = modalKeys.length;
                 let root:string = fsData[0][0],
                     a:number = 0;
@@ -44,19 +43,19 @@ const title:Element = document.getElementById("title-bar"),
                                 fail: fsData.failures,
                                 id: modalKeys[a]
                             });
-                        body.innerHTML = "";
-                        body.appendChild(list[0]);
-                        box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+                        if (list !== null) {
+                            body.innerHTML = "";
+                            body.appendChild(list[0]);
+                            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
+                        }
                     }
                     a = a + 1;
                 } while (a < keyLength);
                 if (a === keyLength) {
-                    const payload:fileService = {
+                    const payload:systemDataFile = {
                         action: "fs-close",
                         agent: browser.data.hashDevice,
                         agentType: "device",
-                        copyAgent: "",
-                        copyType: "device",
                         depth: 1,
                         id: "",
                         location: [root],
@@ -70,9 +69,8 @@ const title:Element = document.getElementById("title-bar"),
                     network.fileBrowser(payload, callback);
                 }
             },
-            fsUpdateRemote = function browser_socketMessage_fsUpdateRemote():void {
-                const data:fsUpdateRemote = JSON.parse(event.data)["fs-update-remote"],
-                    list:[Element, number, string] = fileBrowser.list(data.location, {
+            fsUpdateRemote = function browser_socketMessage_fsUpdateRemote(data:fsUpdateRemote):void {
+                const list:[Element, number, string] = fileBrowser.list(data.location, {
                         dirs: data.dirs,
                         id: data.location,
                         fail: data.fail
@@ -84,6 +82,9 @@ const title:Element = document.getElementById("title-bar"),
                     body:Element,
                     box:Element,
                     status:Element;
+                if (list === null) {
+                    return;
+                }
                 do {
                     modalAgent = browser.data.modals[modalKeys[a]].agent;
                     if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
@@ -101,11 +102,11 @@ const title:Element = document.getElementById("title-bar"),
                     a = a + 1;
                 } while (a < keyLength);
                 if (typeof data.status === "string") {
-                    util.fileListStatus(JSON.parse(data.status));
+                    const status:copyStatus = JSON.parse(data.status);
+                    util.fileListStatus(status);
                 }
             },
-            heartbeatDelete = function browser_socketMessage_heartbeatDelete():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-delete-agents"];
+            heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
                 if (heartbeat.agentType === "device") {
                     const deletion:agentList = <agentList>heartbeat.status,
                         removeSelf:boolean = (deletion.device.indexOf(browser.data.hashDevice) > -1),
@@ -134,8 +135,7 @@ const title:Element = document.getElementById("title-bar"),
                     button.setAttribute("class", <heartbeatStatus>heartbeat.status);
                 }
             },
-            heartbeat = function browser_socketMessage_heartbeat():void {
-                const heartbeat:heartbeat = JSON.parse(event.data)["heartbeat-complete"];
+            heartbeat = function browser_socketMessage_heartbeat(heartbeat:heartbeat):void {
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
@@ -177,24 +177,7 @@ const title:Element = document.getElementById("title-bar"),
                     }
                 }
             },
-            invitation = function browser_socketMessage_invite():void {
-                const inviteData:invite = JSON.parse(event.data)["invite-error"],
-                    modal:Element = document.getElementById(inviteData.modal);
-                if (modal === null) {
-                    return;
-                }
-                let footer:HTMLElement = <HTMLElement>modal.getElementsByClassName("footer")[0],
-                    content:HTMLElement = <HTMLElement>modal.getElementsByClassName("inviteUser")[0],
-                    p:Element = document.createElement("p");
-                p.innerHTML = inviteData.message;
-                p.setAttribute("class", "error");
-                content.appendChild(p);
-                content.parentNode.removeChild(content.parentNode.lastChild);
-                content.style.display = "block";
-                footer.style.display = "block";
-            },
-            testBrowser = function browser_socketMessage_testBrowser():void {
-                const data:testBrowserRoute = JSON.parse(event.data)["test-browser"];
+            testBrowser = function browser_socketMessage_testBrowser(data:testBrowserRoute):void {
                 if (data.action === "close") {
                     window.close();
                     return;
@@ -202,35 +185,43 @@ const title:Element = document.getElementById("title-bar"),
                 if (data.action !== "nothing") {
                     remote.event(data, false);
                 }
-            };
-        if (event.data.indexOf("{\"error\":") === 0) {
+            },
+            index:number = event.data.indexOf(","),
+            type:requestType = <requestType>event.data.slice(0, index),
+            data:string = event.data.slice(index + 1);
+        if (type === "error") {
             error();
-        } else if (event.data.indexOf("{\"file-list-status\":") === 0) {
-            util.fileListStatus(JSON.parse(event.data)["file-list-status"]);
-        } else if (event.data.indexOf("{\"fs-update-local\":") === 0 && browser.loadTest === false) {
-            fsUpdateLocal();
-        } else if (event.data.indexOf("{\"fs-update-remote\":") === 0) {
-            fsUpdateRemote();
-        } else if (event.data.indexOf("{\"heartbeat-complete\":") === 0) {
-            heartbeat();
-        } else if (event.data.indexOf("{\"heartbeat-status\":") === 0) {
-            heartbeatStatus(JSON.parse(event.data)["heartbeat-status"]);
-        } else if (event.data.indexOf("{\"heartbeat-delete-agents\":") === 0) {
-            heartbeatDelete();
-        } else if (event.data.indexOf("{\"message\":") === 0) {
-            message.post(JSON.parse(event.data).message);
-        } else if (event.data.indexOf("{\"invite-error\":") === 0) {
-            invitation();
-        } else if (event.data.indexOf("{\"invite\":") === 0) {
-            const invitation:invite = JSON.parse(event.data).invite;
-            if (invitation.action === "invite-complete") {
+        } else if (type === "delete-agents") {
+            const agents:string[] = data.split(","),
+                agentType:agentType = <agentType>agents[1];
+            share.deleteAgent(agents[0], agentType);
+        } else if (type === "file-list-status") {
+            const status:copyStatus = JSON.parse(data);
+            util.fileListStatus(status);
+        } else if (type === "fs-update-local" && browser.loadTest === false) {
+            fsUpdateLocal(JSON.parse(data));
+        } else if (type === "fs-update-remote") {
+            fsUpdateRemote(JSON.parse(data));
+        } else if (type === "heartbeat-complete") {
+            heartbeat(JSON.parse(data));
+        } else if (type === "heartbeat-status") {
+            heartbeatStatus(JSON.parse(data));
+        } else if (type === "heartbeat-delete-agents") {
+            heartbeatDelete(JSON.parse(data));
+        } else if (type === "message") {
+            message.post(JSON.parse(data));
+        } else if (type.indexOf("invite") === 0) {
+            const invitation:invite = JSON.parse(data);
+            if (type === "invite-error") {
+                invite.error(JSON.parse(data));
+            } else if (invitation.action === "invite-complete") {
                 invite.complete(invitation);
             } else {
                 invite.respond(invitation);
             }
-        } else if (event.data.indexOf("{\"test-browser\":") === 0 && location.href.indexOf("?test_browser") > 0) {
-            testBrowser();
-        } else if (event.data === "reload") {
+        } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
+            testBrowser(JSON.parse(data));
+        } else if (type === "reload") {
             location.reload();
         }
     },
@@ -267,7 +258,7 @@ const title:Element = document.getElementById("title-bar"),
                     } while (a > 0);
                 }
                 title.setAttribute("class", "title offline");
-                title.getElementsByTagName("h1")[0].innerHTML = "Local service terminated.";
+                title.getElementsByTagName("h1")[0].innerHTML = "Disconnected.";
                 if (device !== null) {
                     device.setAttribute("class", "offline");
                 }

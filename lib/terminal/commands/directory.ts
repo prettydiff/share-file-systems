@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/directory - A command driven utility to walk the file system and return a data structure. */
-import { Stats } from "fs";
+import { BigIntStats } from "fs";
 
 import common from "../../common/common.js";
 import hash from "./hash.js";
@@ -26,7 +26,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
         // 5. stat (fs.Stats)
         // * property "failures" is a list of file paths that could not be read or opened
         let dirTest:boolean = false,
-            size:number = 0,
+            size:bigint = 0n,
             dirs:number = 0,
             longest:number = 0,
             search:string,
@@ -246,7 +246,9 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                 }
             },
             statWrapper = function terminal_commands_directory_statWrapper(filePath:string, parent:number):void {
-                vars.node.fs[method](filePath, function terminal_commands_directory_statWrapper_stat(er:Error, stat:Stats):void {
+                vars.node.fs[method](filePath, {
+                    bigint: true
+                }, function terminal_commands_directory_statWrapper_stat(er:Error, stat:BigIntStats):void {
                     const driveLetter = function terminal_commands_directory_statWrapper_stat_driveLetter(input:string):string {
                             return `${input}\\`;
                         },
@@ -423,20 +425,24 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                             };
                         er = null;
                         stat = {
-                            dev: 0,
-                            ino: 0,
-                            mode: 0,
-                            nlink: 0,
-                            uid: 0,
-                            gid: 0,
-                            rdev: 0,
-                            size: 0,
-                            blksize: 0,
-                            blocks: 0,
-                            atimeMs: 0,
-                            mtimeMs: 0,
-                            ctimeMs: 0,
-                            birthtimeMs: 0,
+                            dev: 0n,
+                            ino: 0n,
+                            mode: 0n,
+                            nlink: 0n,
+                            uid: 0n,
+                            gid: 0n,
+                            rdev: 0n,
+                            size: 0n,
+                            blksize: 0n,
+                            blocks: 0n,
+                            atimeMs: 0n,
+                            atimeNs: 0n,
+                            mtimeMs: 0n,
+                            mtimeNs: 0n,
+                            ctimeMs: 0n,
+                            ctimeNs: 0n,
+                            birthtimeMs: 0n,
+                            birthtimeNs: 0n,
                             atime: date,
                             mtime: date,
                             ctime: date,
@@ -459,7 +465,7 @@ const directory = function terminal_commands_directory(parameters:readDirectory)
                                 log([`Requested artifact, ${vars.text.cyan + args.path + vars.text.none}, ${vars.text.angry}is missing${vars.text.none}.`]);
                                 populate("error");
                             } else {
-                                if (args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
+                                if (vars.command !== "service" && args.callback.name.indexOf("remove_") < 0 && args.callback.name.indexOf("_remove") < 0) {
                                     log([angryPath]);
                                 }
                                 populate("error");

@@ -67,14 +67,15 @@ const serverVars:serverVars = {
         ipFamily: (address.IPv6.length > 0)
             ? "IPv6"
             : "IPv4",
-        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime().join("|")}`,
+        nameDevice: `${mac}|${vars.node.os.hostname()}|${process.env.os}|${process.hrtime.bigint().toString()}`,
         nameUser: "",
         requests: 0,
         secure: false,
         status: "active",
         storage: `${vars.projectPath}lib${vars.sep}storage${vars.sep}`,
-        timeStore: 0,
         testBrowser: null,
+        testType: "",
+        timeStore: 0,
         user: {},
         watches: {},
         webPort: 0, // webPort - http port for requests from browser

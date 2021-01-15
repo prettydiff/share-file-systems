@@ -5,45 +5,29 @@ declare global {
     interface completeStatus {
         countFile: number;
         failures: number;
-        percent: number;
-        writtenSize: number;
+        percent: string;
+        writtenSize: bigint;
+    }
+    interface copyFileRequest {
+        brotli: number;
+        location: string;
+        size: bigint;
     }
     interface copyStatus {
         failures: string[];
         fileList?: directoryList;
+        id: string;
         message: string;
-        target: string;
-    }
-    interface fileService {
-        action      : serviceType;
-        agent       : string;
-        agentType   : agentType;
-        copyAgent   : string;
-        copyShare?  : string;
-        copyType    : agentType;
-        depth       : number;
-        id          : string;
-        location    : string[];
-        name        : string;
-        remoteWatch?: string;
-        share       : string;
-        watch       : string;
     }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
-        data: fileService;
+        data: systemDataFile;
         errorMessage: string;
         serverResponse: ServerResponse;
         stream: (message:IncomingMessage) => void;
     }
-    interface fileServiceRequestFiles {
-        data: fileService;
-        fileData: remoteCopyListData;
-        logRecursion: boolean;
-        serverResponse: ServerResponse;
-    }
     interface fileServiceWatch {
-        data: fileService;
+        data: systemDataFile;
         logRecursion: boolean;
         serverResponse: ServerResponse;
         value: string;
@@ -52,6 +36,12 @@ declare global {
         dirs: directoryList | "missing" | "noShare" | "readOnly";
         fail: string[];
         id: string;
+    }
+    interface fsRespond {
+        copy: (serverResponse:ServerResponse, data:copyStatus) => void;
+        dir: (serverResponse:ServerResponse, data:fsRemote) => void;
+        error: (serverResponse:ServerResponse, message:string, action:serviceType) => void;
+        read: (serverResponse:ServerResponse, list:stringDataList, action:serviceType) => void;
     }
     interface fsUpdateRemote {
         agent: string;
@@ -67,19 +57,65 @@ declare global {
         exclusions: string[];
         target: string;
     }
-    interface remoteCopyList {
-        callback: Function;
-        data: fileService;
-        files: [string, string, string, number][];
-        index: number;
-        length: number;
-        logRecursion: boolean;
-    }
     interface remoteCopyListData {
         directories: number;
         fileCount: number;
-        fileSize: number;
-        list: [string, string, string, number][];
+        fileSize: bigint;
+        list: [string, string, string, bigint][];
         stream: boolean;
+    }
+    interface systemDataCopy {
+        action     : copyTypes;
+        agent      : string;
+        agentType  : agentType;
+        copyAgent  : string;
+        copyShare? : string;
+        copyType   : agentType;
+        cut        : boolean;
+        destination: string;
+        id         : string;
+        location   : string[];
+        originAgent: string;
+    }
+    interface systemDataFile {
+        action      : serviceType;
+        agent       : string;
+        agentType   : agentType;
+        depth       : number;
+        id          : string;
+        location    : string[];
+        name        : string;
+        remoteWatch?: string;
+        share       : string;
+        watch       : string;
+    }
+    interface systemRequestFiles {
+        data: systemDataCopy;
+        fileData: remoteCopyListData;
+        logRecursion: boolean;
+    }
+    interface systemServiceCopy {
+        actions: {
+            requestFiles: (serverResponse:ServerResponse, config:systemRequestFiles) => void;
+            requestList: (serverResponse:ServerResponse, data:systemDataCopy, index:number) => void;
+            sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
+            sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
+        };
+        copyMessage: (numbers:completeStatus, cut:boolean) => string;
+        percent: (numerator:bigint, denominator:bigint) => string;
+    }
+    interface systemServiceFile {
+        actions: {
+            close: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            destroy: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            directory: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            newArtifact: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            read: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            rename: (serverResponse:ServerResponse, data:systemDataFile) => void;
+            write: (serverResponse:ServerResponse, data:systemDataFile) => void;
+        };
+        dirCallback: (serverResponse:ServerResponse, data:systemDataFile) => void;
+        menu: (serverResponse:ServerResponse, data:systemDataFile) => void;
+        respond: fsRespond;
     }
 }

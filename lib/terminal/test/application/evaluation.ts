@@ -9,15 +9,14 @@ import vars from "../../utilities/vars.js";
 
 import common from "../../../common/common.js";
 
-import filePathDecode from "./file_path_decode.js";
 import service from "./service.js";
 import simulation from "./simulation.js";
 
 import testComplete from "./complete.js";
 
 const testEvaluation = function terminal_test_application_testEvaluation(output:testEvaluation):void {
-    const serviceItem:testItem|testServiceInstance = (output.testType === "service")
-            ? <testServiceInstance>output.test
+    const serviceItem:testService = (output.testType === "service")
+            ? <testService>output.test
             : null,
         command:string = (output.testType === "service")
             ? JSON.stringify(serviceItem.command)
@@ -36,8 +35,8 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             const command:string = (typeof output.test.command === "string")
                     ? <string>output.test.command
                     : JSON.stringify(output.test.command),
-                serviceItem:testServiceInstance = (output.testType === "service")
-                    ? <testServiceInstance>output.test
+                serviceItem:testService = (output.testType === "service")
+                    ? <testService>output.test
                     : null,
                 name = (output.testType === "service")
                     ? serviceItem.name

@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/base64 - A command driven utility for performing base64 encoding/decoding. */
-import { Stats } from "fs";
+import { BigIntStats } from "fs";
 
 import error from "../utilities/error.js";
 import get from "./get.js";
@@ -50,12 +50,14 @@ const base64 = function terminal_commands_base64(input:base64Input):void {
             },
             fileWrapper = function terminal_commands_base64_fileWrapper(filePath):void {
                 vars.testLogger("base64", "fileWrapper", "stat the file path to ensure it exists.");
-                vars.node.fs.stat(filePath, function terminal_commands_base64_fileWrapper_stat(er:Error, stat:Stats):void {
+                vars.node.fs.stat(filePath, {
+                    bigint: true
+                }, function terminal_commands_base64_fileWrapper_stat(er:Error, stat:BigIntStats):void {
                     const angryPath:string = `File path ${vars.text.angry + filePath + vars.text.none} is not a file or directory.`,
                         file = function terminal_commands_base64_fileWrapper_stat_file():void {
                             vars.testLogger("base64", "file", "file path points to a file, so now to open it as a byte stream.");
                             vars.node.fs.open(filePath, "r", function terminal_commands_base64_fileWrapper_stat_file_open(ero:Error, fd:number):void {
-                                let buff  = Buffer.alloc(stat.size);
+                                let buff  = Buffer.alloc(Number(stat.size));
                                 if (ero !== null) {
                                     if (http === true) {
                                         remove(filePath, function terminal_commands_base64_fileWrapper_stat_file_open_removeCallback():void {

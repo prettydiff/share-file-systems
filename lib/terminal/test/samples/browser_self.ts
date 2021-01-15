@@ -151,7 +151,7 @@ const browserSelf:testBrowserItem[] = [
                 {
                     event: "wait",
                     node: [],
-                    value: "20000"
+                    value: "16000"
                 }
             ],
             machine: "self",
@@ -1734,7 +1734,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["getElementsByTagName", "li", 3]
 
                 ],
                 qualifier: "contains",
@@ -1774,7 +1774,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 3]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -1801,7 +1801,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 3]
                     ]
                 },
                 {
@@ -1843,7 +1843,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 1]
+                    ["getElementsByTagName", "li", 4]
 
                 ],
                 qualifier: "contains",
@@ -1882,7 +1882,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 4]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -1909,7 +1909,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 3]
                     ]
                 },
                 {
@@ -1957,6 +1957,33 @@ const browserSelf:testBrowserItem[] = [
             ],
             machine: "self",
             name: "Blur new file field",
+            unit: []
+        },
+
+        // refresh the file list
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 2]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "file"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "reloadDirectory", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Refresh the file navigator file list",
             unit: []
         },
 
@@ -2111,7 +2138,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 2]
+                    ["getElementsByTagName", "li", 5]
 
                 ],
                 qualifier: "contains",
@@ -2151,7 +2178,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 5]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -2220,7 +2247,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 3]
+                    ["getElementsByTagName", "li", 6]
 
                 ],
                 qualifier: "contains",
@@ -2259,7 +2286,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 6]
                     ],
                     qualifier: "contains",
                     target: ["class"],
@@ -2613,6 +2640,7 @@ const browserSelf:testBrowserItem[] = [
             ["getElementsByClassName", "body", 0],
             ["getElementsByClassName", "fileList", 0],
             ["getElementsByText", filePathEncode("absolute", "js"), 0],
+            ["parentNode", null, null],
             ["parentNode", null, null]
         ], [
             {
@@ -2889,12 +2917,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 5]
+                    ["getElementsByTagName", "li", 5],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "directory selected"
+                value: "selected"
             },
             interaction: [
                 {
@@ -2917,12 +2946,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 4]
+                    ["getElementsByTagName", "li", 4],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "directory selected"
+                value: "selected"
             },
             interaction: [
                 {
@@ -2959,12 +2989,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5]
+                        ["getElementsByTagName", "li", 5],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "directory selected"
+                    value: "selected"
                 }
             ]
         },
@@ -3090,13 +3121,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2],
-                    ["getElementsByTagName", "span", 1]
+                    ["getElementsByTagName", "li", 8],
+                    ["getElementsByTagName", "span", 0]
                 ],
                 qualifier: "is",
                 target: ["innerHTML"],
                 type: "property",
-                value: "directory - 14 items"
+                value: "file - 145 bytes"
             },
             interaction: [
                 {
@@ -3108,7 +3139,7 @@ const browserSelf:testBrowserItem[] = [
                 }
             ],
             machine: "self",
-            name: "Update file list",
+            name: "Update file list 2",
             unit: [
                 {
                     node: [
@@ -3139,12 +3170,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3]
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "directory lastType selected"
+                value: "selected"
             },
             interaction: [
                 {
@@ -3189,12 +3221,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "directory selected"
+                    value: "selected"
                 }
             ]
         },
@@ -3255,12 +3288,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 3]
+                    ["getElementsByTagName", "li", 3],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "file selected"
+                value: "selected"
             },
             interaction: [
                 {
@@ -3305,12 +3339,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "file selected"
+                    value: "selected"
                 }
             ]
         },
@@ -3328,12 +3363,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 2]
+                    ["getElementsByTagName", "li", 2],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "file cut"
+                value: "selected cut"
             },
             interaction: [
                 {
@@ -3352,12 +3388,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "file cut"
+                    value: "selected cut"
                 }
             ]
         },
@@ -3419,7 +3456,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copy complete. 2 files written"
+                value: "Cut complete. 2 files written"
             },
             interaction: [
                 {
@@ -3505,12 +3542,13 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 1]
+                    ["getElementsByTagName", "li", 1],
+                    ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "is",
                 target: ["class"],
                 type: "attribute",
-                value: "file cut"
+                value: "cut"
             },
             interaction: [
                 {
@@ -3569,12 +3607,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "file cut"
+                    value: "cut"
                 }
             ]
         }

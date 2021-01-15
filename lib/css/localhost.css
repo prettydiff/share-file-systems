@@ -53,7 +53,7 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* Context menu, right click */
 #spaces #contextMenu{border-style:solid solid none;border-width:0.1em;position:absolute;margin:0;padding:0}
 #spaces #contextMenu li{display:block;list-style:none;margin:0;padding:0}
-#spaces #contextMenu button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:10em}
+#spaces #contextMenu button{border-style:none none solid;border-width:0.05em;cursor:pointer;display:block;font-size:2em;margin:0;padding:0.25em 0.5em;text-align:left;width:100%}
 #spaces #contextMenu button:hover{text-decoration:underline}
 #spaces #contextMenu .destroy[disabled],
 #spaces #contextMenu button[disabled]{cursor:not-allowed}
@@ -286,23 +286,25 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 /* file navigator modal content */
 #spaces .fileList{cursor:context-menu;margin:0;min-height:100%;padding:0 5em}
 #spaces .fileList label{cursor:text;display:inline-block}
-#spaces .fileList li{border-style:none none solid;border-width:0 0 0.1em;display:block;font-size:1.4em;list-style-type:none;padding:0.2em 0 1.2em;white-space:pre}
-#spaces .fileList li ul{border-style:solid none none;border-width:0.1em 0 0;margin:1.25em 0 0;padding-left:3.5em}
+#spaces .fileList li{display:block;font-size:1.4em;list-style-type:none;padding:0;white-space:pre}
+#spaces .fileList li ul{margin:0;padding-left:3.5em}
+#spaces .fileList ul{padding-right:0}
 #spaces .agentList .directory::before,
 #spaces .fileList .directory::before{content: "📂 "}
 #spaces .agentList .file::before,
 #spaces .fileList .file::before{content: "📃 "}
 #spaces .agentList .link::before,
 #spaces .fileList .link::before{content: "🔗 "}
-#spaces .fileList .lastType{border-color:#000}
+#spaces .fileList li p.lastType{border-color:#000}
 #spaces .fileList .last{border-style:none;padding:0}
-#spaces .fileList li.selected{outline-style:solid;outline-width:0.2em}
-#spaces .fileList li.selected.cut{outline-style:solid;outline-width:0.2em}
-#spaces .fileList li.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
+#spaces .fileList li p{border-style:none none solid;border-width:0 0 0.1em;display:inline-block;margin:0;padding:0.2em 0 1.2em;width:100%}
+#spaces .fileList li p.selected{outline-style:solid;outline-width:0.2em}
+#spaces .fileList li p.selected.cut{outline-style:solid;outline-width:0.2em}
+#spaces .fileList li p.cut{opacity:0.5;outline-style:solid;outline-width:0.2em}
 #spaces .fileList li li{font-size:1em}
 #spaces .fileList li span{display:block;float:right;margin:0 0 0 1em;white-space:normal;width:14em}
 #spaces .fileList li .selection{clear:both;left:-200em;position:absolute}
-#spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -2.1em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
+#spaces .fileList .expansion{font-size:2em;font-weight:normal;height:0.75em;line-height:0.775;margin:0.15em 1.2em 0 -1.95em;padding:0 0 0 0.1em;vertical-align:top;width:0.75em}
 #spaces #file-list-drag{min-height:auto;opacity:0.75;padding:0;position:absolute}
 
 #spaces .agentInvitation{padding:1em}

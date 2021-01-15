@@ -5,9 +5,7 @@ import vars from "../utilities/vars.js";
 
 const watchLocal = function terminal_fileService_watchLocal(readLocation:string, logRecursion:boolean):void {
     const fsUpdateCallback = function terminal_fileService_watchLocal_fsUpdateCallback(result:directoryList):void {
-            vars.ws.broadcast(JSON.stringify({
-                "fs-update-local": result
-            }));
+            vars.broadcast("fs-update-local", JSON.stringify(result));
         },
         dirConfig:readDirectory = {
             callback: fsUpdateCallback,

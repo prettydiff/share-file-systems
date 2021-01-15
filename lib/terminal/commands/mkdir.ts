@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/mkdir - A utility for recursively creating directories in the file system. */
-import { Stats } from "fs";
+import { BigIntStats } from "fs";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -27,7 +27,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Functi
             : vars.node.path.resolve(dirToMake),
         dirs:string[] = dir.split(vars.sep),
         len:number = dirs.length,
-        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:nodeError, statInstance:Stats, errorCallback:() => void):void {
+        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:nodeError, statInstance:BigIntStats, errorCallback:() => void):void {
             if (errorInstance !== null) {
                 if (errorInstance.toString().indexOf("no such file or directory") > 0 || errorInstance.code === "ENOENT") {
                     errorCallback();
@@ -62,7 +62,10 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Functi
             const target:string = dirs.slice(0, ind).join(vars.sep);
             vars.node.fs.stat(
                 target,
-                function terminal_commands_mkdir_recursiveStat_callback(errA:nodeError, statA:Stats):void {
+                {
+                    bigint: true
+                },
+                function terminal_commands_mkdir_recursiveStat_callback(errA:nodeError, statA:BigIntStats):void {
                     errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
                         if (testLog.callback === true) {
                             testLog.callback = false;

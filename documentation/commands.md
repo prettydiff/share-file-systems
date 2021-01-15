@@ -212,6 +212,8 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
    - The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data.
 1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
+1. `node js/application service ip:192.168.1.125`
+   - An argument that begins with 'ip:' forces use of the specified IP address.
 1. `node js/application service secure`
    - The 'secure' argument forces the service to use secure protocols: HTTPS and WSS.
 1. `node js/application service insecure`
@@ -253,7 +255,7 @@ Launches the 'server' command as a child process to issue HTTP requests against 
 ### Examples
 1. `node js/application test_service`
    - Runs tests server utility.
-1. `node js/application test_service fs:fs-copy`
+1. `node js/application test_service fs-copy`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
 1. `node js/application test_service log`
    - The log argument turns on verbose logging output with annotations.

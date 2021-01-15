@@ -341,6 +341,10 @@ const commands_documentation = {
                 defined: "An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number."
             },
             {
+                code: `${vars.version.command} service ip:192.168.1.125`,
+                defined: "An argument that begins with 'ip:' forces use of the specified IP address."
+            },
+            {
                 code: `${vars.version.command} service secure`,
                 defined: "The 'secure' argument forces the service to use secure protocols: HTTPS and WSS."
             },
@@ -408,7 +412,7 @@ const commands_documentation = {
                 defined: "Runs tests server utility."
             },
             {
-                code: `${vars.version.command} test_service fs:fs-copy`,
+                code: `${vars.version.command} test_service fs-copy`,
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
