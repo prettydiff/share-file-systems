@@ -10,9 +10,9 @@ const copyMessage = function terminal_fileService_copyMessage(numbers:completeSt
         failPlural:string = (numbers.failures === 1)
             ? ""
             : "s",
-        verb:string = (numbers.percent === 100)
+        verb:string = (numbers.percent === "100")
             ? "Copy"
-            : `Copying ${numbers.percent.toFixed(2)}%`;
+            : `Copying ${numbers.percent}%`;
     vars.testLogger("fileService", "copyMessage", "Status information about multiple file copy.");
     return `${verb} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
 };

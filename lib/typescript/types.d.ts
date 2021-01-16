@@ -28,7 +28,7 @@ declare global {
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
-    type requestType = "agent-online" | "copy" | "copy-request-files" | "delete-agents" | "device" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | "hash-device" | "hash-share" | "hash-user" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "invite-complete" | "invite-error" | "invite-request" | "invite-response" | "message" | "reload" | "settings" | "test-browser" | "user";
+    type requestType = "agent-online" | "copy" | "copy-file" |  "copy-request-files" | "delete-agents" | "device" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | "hash-device" | "hash-share" | "hash-user" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "invite-complete" | "invite-error" | "invite-request" | "invite-response" | "message" | "reload" | "settings" | "test-browser" | "user";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "settings";

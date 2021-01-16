@@ -5,8 +5,13 @@ declare global {
     interface completeStatus {
         countFile: number;
         failures: number;
-        percent: number;
+        percent: string;
         writtenSize: number;
+    }
+    interface copyFileRequest {
+        brotli: number;
+        location: string;
+        size: number;
     }
     interface copyStatus {
         failures: string[];
@@ -94,8 +99,10 @@ declare global {
             requestFiles: (serverResponse:ServerResponse, config:systemRequestFiles) => void;
             requestList: (serverResponse:ServerResponse, data:systemDataCopy, index:number) => void;
             sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
+            sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
         copyMessage: (numbers:completeStatus, cut:boolean) => string;
+        percent: (numerator:number, denominator:number) => string;
     }
     interface systemServiceFile {
         actions: {

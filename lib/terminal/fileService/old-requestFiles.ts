@@ -70,7 +70,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                     const status:completeStatus = {
                             countFile: countFile,
                             failures: hashFail.length,
-                            percent: 100,
+                            percent: "100",
                             writtenSize: writtenSize
                         },
                         output:copyStatus = {
@@ -110,7 +110,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                     const status:completeStatus = {
                             countFile: countFile,
                             failures: hashFailLength,
-                            percent: ((writtenSize / config.fileData.fileSize) * 100),
+                            percent: "100",
                             writtenSize: writtenSize
                         },
                         output:copyStatus = {
@@ -123,7 +123,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                     writtenFiles = writtenFiles + 1;
                     writtenSize = writtenSize + fileQueue[index][1];
                     status.countFile = countFile;
-                    status.percent = ((writtenSize / config.fileData.fileSize) * 100);
+                    status.percent = "100";
                     status.writtenSize = writtenSize;
                     output.message = copyMessage(status);
                     vars.broadcast("file-list-status", JSON.stringify(output));
@@ -168,9 +168,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                     status:completeStatus = {
                         countFile: countFile,
                         failures: hashFail.length,
-                        percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
-                            ? 100
-                            : ((written / config.fileData.fileSize) * 100),
+                        percent: "100",
                         writtenSize: written
                     },
                     output:copyStatus = {
@@ -272,9 +270,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                 const status:completeStatus = {
                     countFile: countFile,
                     failures: hashFail.length,
-                    percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
-                        ? 100
-                        : ((writtenSize / config.fileData.fileSize) * 100),
+                    percent: "100",
                     writtenSize: writtenSize
                 };
                 vars.testLogger("fileService", "requestFiles requestFile", "If copyAgent is not the local device then update the status data.");

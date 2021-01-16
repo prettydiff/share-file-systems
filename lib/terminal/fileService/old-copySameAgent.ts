@@ -23,7 +23,7 @@ const copySameAgent = function terminal_fileService_copySameAgent(serverResponse
                     const status:completeStatus = {
                         countFile: countFile,
                         failures: 0,
-                        percent: 100,
+                        percent: "100",
                         writtenSize: writtenSize
                     };
                     fileCallback(serverResponse, data, copyMessage(status));
