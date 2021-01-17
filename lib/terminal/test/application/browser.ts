@@ -62,9 +62,7 @@ const defaultCommand:string = vars.command,
                 if (config.delay > 0 && config.message !== "demo") {
                     log([`${humanTime(false)}Delaying for ${vars.text.cyan + seconds + vars.text.none} second${plural}: ${vars.text.cyan + config.message + vars.text.none}`]);
                 }
-                setTimeout(function terminal_test_application_browser_delay_action():void {
-                    config.action();
-                }, wait);
+                setTimeout(config.action, wait);
             },
             execute: function terminal_test_application_browser_execute(args:testBrowserArgs):void {
                 let a:number = serverVars.addresses.IPv4.length;
@@ -809,6 +807,8 @@ const defaultCommand:string = vars.command,
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
+                        let localRefresh:boolean = false,
+                            remoteRefresh:boolean = false;
                         const wait:number = (function terminal_test_application_browser_result_wait():number {
                             if (index < tests.length - 1) {
                                 let a:number = tests[index + 1].interaction.length;
@@ -823,8 +823,10 @@ const defaultCommand:string = vars.command,
                                 }
                                 if (tests[index].interaction[0].event === "refresh") {
                                     if (tests[index].machine === "self") {
-                                        return 500;
+                                        localRefresh = true;
+                                        return 5000;
                                     }
+                                    remoteRefresh = true;
                                     return 1250;
                                 }
                             }
@@ -836,9 +838,9 @@ const defaultCommand:string = vars.command,
                             },
                             browser: false,
                             delay: wait,
-                            message: (wait === 500)
+                            message: (localRefresh === true)
                                 ? "Providing local device browser time following a refresh."
-                                : (wait === 1250)
+                                : (remoteRefresh === true)
                                     ? "Providing remote machine browser time following a refresh."
                                     : "Providing remote machine browser time before a refresh."
                         });

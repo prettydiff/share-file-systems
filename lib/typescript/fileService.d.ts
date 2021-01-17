@@ -6,12 +6,12 @@ declare global {
         countFile: number;
         failures: number;
         percent: string;
-        writtenSize: bigint;
+        writtenSize: number;
     }
     interface copyFileRequest {
         brotli: number;
         location: string;
-        size: bigint;
+        size: number;
     }
     interface copyStatus {
         failures: string[];
@@ -60,8 +60,8 @@ declare global {
     interface remoteCopyListData {
         directories: number;
         fileCount: number;
-        fileSize: bigint;
-        list: [string, string, string, bigint][];
+        fileSize: number;
+        list: [string, string, string, number][];
         stream: boolean;
     }
     interface systemDataCopy {
@@ -102,7 +102,7 @@ declare global {
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
         copyMessage: (numbers:completeStatus, cut:boolean) => string;
-        percent: (numerator:bigint, denominator:bigint) => string;
+        percent: (numerator:number, denominator:number) => string;
     }
     interface systemServiceFile {
         actions: {

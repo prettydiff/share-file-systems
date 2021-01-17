@@ -96,7 +96,7 @@ const common:module_common = {
     capitalize: function common_capitalize(input:string):string {
         return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
     },
-    commas:  function common_commas(number:number|bigint):string {
+    commas:  function common_commas(number:number):string {
         const str:string = String(number);
         let arr:string[] = [],
             a:number   = str.length;
@@ -134,7 +134,7 @@ const common:module_common = {
         }
         return shareList;
     },
-    prettyBytes: function common_prettyBytes(an_integer:number|bigint):string {
+    prettyBytes: function common_prettyBytes(an_integer:number):string {
         //find the string length of input and divide into triplets
         let output:string = "",
             length:number  = an_integer

@@ -25,13 +25,13 @@ const serviceCopy:systemServiceCopy = {
     actions: {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
             let writeActive:boolean = false,
-                writtenSize:bigint = 0n,
+                writtenSize:number = 0,
                 writtenFiles:number = 0,
                 a:number = 0,
                 activeRequests:number = 0,
                 countDir:number = 0,
                 countFile:number = 0;
-            const fileQueue:[string, bigint, string, Buffer][] = [],
+            const fileQueue:[string, number, string, Buffer][] = [],
                 hashFail:string[] = [],
                 listLength = config.fileData.list.length,
                 cutList:[string, string][] = [],
@@ -130,13 +130,13 @@ const serviceCopy:systemServiceCopy = {
                         fileResponse.pipe(writeStream);
                     }
                     fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_writeStream_data():void {
-                        const written:bigint = BigInt(writeStream.bytesWritten) + writtenSize,
+                        const written:number = writeStream.bytesWritten + writtenSize,
                             status:completeStatus = {
                                 countFile: countFile,
                                 failures: hashFail.length,
-                                percent: (config.fileData.fileSize === 0n || config.fileData.fileSize === undefined || serverVars.testType === "service")
+                                percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
                                     ? "100%"
-                                    : serviceCopy.percent(written, config.fileData.fileSize),
+                                    : serviceCopy.percent(writtenSize, config.fileData.fileSize),
                                 writtenSize: written
                             },
                             output:copyStatus = {
@@ -182,7 +182,7 @@ const serviceCopy:systemServiceCopy = {
                                 hashString:string = hash.digest("hex");
                             vars.testLogger("fileService", "requestFiles fileRequestCallback responseEnd", "Handler for completely received HTTP response of requested artifact.");
                             if (hashString === fileResponse.headers.hash) {
-                                fileQueue.push([fileName, BigInt(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
+                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
                                 if (writeActive === false) {
                                     writeActive = true;
                                     writeFile(fileQueue.length - 1);
@@ -244,7 +244,7 @@ const serviceCopy:systemServiceCopy = {
                         const status:completeStatus = {
                             countFile: countFile,
                             failures: hashFail.length,
-                            percent: (config.fileData.fileSize === 0n || config.fileData.fileSize === undefined || serverVars.testType === "service")
+                            percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
                                 ? "100%"
                                 : serviceCopy.percent(writtenSize, config.fileData.fileSize),
                             writtenSize: writtenSize
@@ -283,7 +283,6 @@ const serviceCopy:systemServiceCopy = {
                         if (config.fileData.list[a][1] === "directory") {
                             newDir();
                         } else {
-                            //config.data.action = <serviceFS>config.data.action.replace(/((list)|(request))/, "file");
                             requestFile();
                         }
                     }
@@ -317,7 +316,7 @@ const serviceCopy:systemServiceCopy = {
             }
         },
         requestList: function terminal_fileService_serviceCopy_remoteCopyList(serverResponse:ServerResponse, data:systemDataCopy, index:number):void {
-            const list: [string, string, string, bigint][] = [],
+            const list: [string, string, string, number][] = [],
                 dirCallback = function terminal_fileService_serviceCopy_remoteCopyList_dirCallback(dir:directoryList):void {
                     const dirLength:number = dir.length,
                         location:string = (function terminal_fileServices_remoteCopyList_dirCallback_location():string {
@@ -331,8 +330,8 @@ const serviceCopy:systemServiceCopy = {
                             return address.join(remoteSep) + remoteSep;
                         }());
                     let b:number = 0,
-                        size:bigint,
-                        largest:bigint = 0n,
+                        size:number,
+                        largest:number = 0,
                         largeFile:number = 0;
                     // list schema:
                     // 0. full item path
@@ -355,7 +354,7 @@ const serviceCopy:systemServiceCopy = {
                                 largeFile = largeFile + 1;
                             }
                         } else {
-                            size = 0n;
+                            size = 0;
                             directories = directories + 1;
                         }
                         list.push([dir[b][0], dir[b][1], dir[b][0].replace(location, ""), size]);
@@ -382,7 +381,7 @@ const serviceCopy:systemServiceCopy = {
                                 fileCount: fileCount,
                                 fileSize: fileSize,
                                 list: list,
-                                stream: (largest > 12884901888n || largeFile > 3 || (fileSize / BigInt(fileCount)) > 4294967296n)
+                                stream: (largest > 12884901888n || largeFile > 3 || (fileSize / fileCount) > 4294967296n)
                             },
                             sendList = function terminal_fileService_serviceCopy_remoteCopyList_sendList():void {
                                 const copyType:string = (data.cut === true)
@@ -405,7 +404,7 @@ const serviceCopy:systemServiceCopy = {
                                                     serviceFile.respond.copy(serverResponse, status);
                                                 }
                                             };
-                                            list.forEach(function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback_cut(fileItem:[string, string, string, bigint]):void {
+                                            list.forEach(function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
@@ -428,7 +427,7 @@ const serviceCopy:systemServiceCopy = {
                                 data.copyType = "user";
                                 sendList();
                             };
-                        list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:[string, string, string, bigint], itemB:[string, string, string, bigint]):number {
+                        list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
                             if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                 return -1;
                             }
@@ -474,7 +473,7 @@ const serviceCopy:systemServiceCopy = {
                 };
             let directories:number =0,
                 fileCount:number = 0,
-                fileSize:bigint = 0n;
+                fileSize:number = 0;
             vars.testLogger("fileService", "remoteCopyList", "Gathers the directory data from the requested file system trees so that the local device may request each file from the remote.");
             directory(dirConfig);
             logRecursion = false;
@@ -482,7 +481,7 @@ const serviceCopy:systemServiceCopy = {
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
             let count:number = 0,
                 countFile:number = 0,
-                writtenSize:bigint = 0n;
+                writtenSize:number = 0;
             const length:number = data.location.length;
             vars.testLogger("fileService", "copySameAgent", "Copying artifacts from one location to another on the same agent.");
             data.location.forEach(function terminal_fileService_serviceCopy_copySameAgent_each(value:string):void {
@@ -533,11 +532,11 @@ const serviceCopy:systemServiceCopy = {
         },
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                hashStream:ReadStream = vars.node.fs.ReadStream(data.location[0]);
-            vars.testLogger("fileService", "fs-copy-file", "Respond to a file request with the file and its hash value.");
+                hashStream:ReadStream = vars.node.fs.ReadStream(data.location);
+            vars.testLogger("fileService", "copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
-            hashStream.on("close", function terminal_fileService_fileService_copyFile_close():void {
-                const readStream:ReadStream = vars.node.fs.ReadStream(data.location),
+            hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
+                const readStream:ReadStream = vars.node.fs.readStream(data.location),
                     compress:BrotliCompress = (data.brotli > 0)
                         ? vars.node.zlib.createBrotliCompress({
                             params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
@@ -576,8 +575,8 @@ const serviceCopy:systemServiceCopy = {
         vars.testLogger("fileService", "copyMessage", "Status information about multiple file copy.");
         return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
     },
-    percent: function terminal_fileService_serviceCopy_percent(numerator:bigint, denominator:bigint):string {
-        return `${(Number(numerator) / Number(denominator) * 100).toFixed(2)}%`;
+    percent: function terminal_fileService_serviceCopy_copyMessage(numerator:number, denominator:number):string {
+        return `${(numerator / denominator).toFixed(2)}%`;
     }
 };
 

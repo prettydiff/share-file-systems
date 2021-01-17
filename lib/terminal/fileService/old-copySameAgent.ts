@@ -11,7 +11,7 @@ import fileCallback from "./old-fileCallback.js";
 const copySameAgent = function terminal_fileService_copySameAgent(serverResponse:ServerResponse, data:systemDataFile):void {
     let count:number = 0,
         countFile:number = 0,
-        writtenSize:bigint = 0n;
+        writtenSize:number = 0;
     const length:number = data.location.length;
     vars.testLogger("fileService", "copySameAgent", "Copying artifacts from one location to another on the same agent.");
     data.location.forEach(function terminal_fileService_copySameAgent_each(value:string):void {

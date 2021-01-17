@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/copy - A command driven utility to perform bit by bit file artifact copy. */
-import { BigIntStats } from "fs";
+import { Stats } from "fs";
 import { Stream, Writable } from "stream";
 
 import common from "../../common/common.js";
@@ -30,7 +30,7 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             error: 0,
             files: 0,
             link : 0,
-            size : 0n
+            size : 0
         },
         testLog:copyLog = {
             file: true,
@@ -90,9 +90,7 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                     vars.node.fs.readLink(source, function terminal_commands_copy_dirCallback_link_readLink(linkError:nodeError, resolvedLink:string):void {
                         if (linkError === null) {
                             numb.link = numb.link + 1;
-                            vars.node.fs.stat(resolvedLink, {
-                                bigint: true
-                            }, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:nodeError, stat:BigIntStats):void {
+                            vars.node.fs.stat(resolvedLink, function terminal_commands_copy_dirCallback_link_readLink_stat(statError:nodeError, stat:Stats):void {
                                 if (statError === null) {
                                     vars.node.fs.symlink(
                                         resolvedLink,

@@ -1,6 +1,6 @@
 /* lib/typescript/terminal.d - TypeScript interfaces used by terminal specific libraries. */
 
-import { BigIntStats } from "fs";
+import { Stats } from "fs";
 import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
 import { Server } from "net";
 declare global {
@@ -116,7 +116,7 @@ declare global {
         error: number;
         files: number;
         link: number;
-        size: bigint;
+        size: number;
     }
     // ------------------------------------
 
@@ -145,14 +145,14 @@ declare global {
         id?: string;
         parent?: number;
         source: Buffer | string;
-        stat?: BigIntStats;
+        stat?: Stats;
     }
     interface hashOutput {
         filePath: string;
         hash: string;
         id?: string;
         parent?: number;
-        stat?: BigIntStats;
+        stat?: Stats;
     }
     // ------------------------------------
 
@@ -219,7 +219,7 @@ declare global {
         id?: string;
         index: number;
         path: string;
-        stat: BigIntStats;
+        stat: Stats;
     }
     // ------------------------------------
 

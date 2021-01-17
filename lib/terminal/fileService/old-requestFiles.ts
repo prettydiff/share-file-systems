@@ -20,13 +20,13 @@ import httpRequest from "./old-httpRequest.js";
 
 const requestFiles = function terminal_fileService_requestFiles(config:systemRequestFiles):void {
     let writeActive:boolean = false,
-        writtenSize:bigint = 0n,
+        writtenSize:number = 0,
         writtenFiles:number = 0,
         a:number = 0,
         activeRequests:number = 0,
         countDir:number = 0,
         countFile:number = 0;
-    const fileQueue:[string, bigint, string, Buffer][] = [],
+    const fileQueue:[string, number, string, Buffer][] = [],
         hashFail:string[] = [],
         listLength = config.fileData.list.length,
         cutList:[string, string][] = [],
@@ -164,7 +164,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                 fileResponse.pipe(writeStream);
             }
             fileResponse.on("data", function terminal_fileService_requestFiles_writeStream_data():void {
-                const written:bigint = BigInt(writeStream.bytesWritten) + writtenSize,
+                const written:number = writeStream.bytesWritten + writtenSize,
                     status:completeStatus = {
                         countFile: countFile,
                         failures: hashFail.length,
@@ -214,7 +214,7 @@ const requestFiles = function terminal_fileService_requestFiles(config:systemReq
                         hashString:string = hash.digest("hex");
                     vars.testLogger("fileService", "requestFiles fileRequestCallback responseEnd", "Handler for completely received HTTP response of requested artifact.");
                     if (hashString === fileResponse.headers.hash) {
-                        fileQueue.push([fileName, BigInt(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
+                        fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
                         if (writeActive === false) {
                             writeActive = true;
                             writeFile(fileQueue.length - 1);

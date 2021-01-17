@@ -1,6 +1,6 @@
 /* lib/typescript/types.d - TypeScript static types. */
 
-import { BigIntStats } from "fs";
+import { Stats } from "fs";
 declare global {
     type agency = [string, boolean, agentType];
     type agentTextList = [agentType, string][];
@@ -12,7 +12,7 @@ declare global {
     type colorScheme = "dark" | "default";
     type copyTypes = "copy" | "copy-file" | "copy-list-remote" | "copy-request" | "copy-self" | "cut-remove";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
-    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, BigIntStats];
+    type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
     type directoryMode = "array" | "hash" | "list" | "read" | "search";
     type domMethod = "activeElement" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling";
     type dragFlag = "" | "control" | "shift";

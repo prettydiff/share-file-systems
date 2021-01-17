@@ -1,7 +1,7 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
 
-import { BigIntStats } from "fs";
+import { Stats } from "fs";
 
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
@@ -274,7 +274,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
                 details:fsDetails = {
-                    size: 0n,
+                    size: 0,
                     files: 0,
                     directories: 0,
                     links: 0
