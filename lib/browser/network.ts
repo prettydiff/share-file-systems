@@ -143,7 +143,7 @@ network.message = function local_network_message(message:messageItem):void {
 
 /* Writes configurations to file storage */
 network.storage = function local_network_storage(type:storageType):void {
-    if (browser.loadTest === true && type !== "settings") {
+    if (browser.loadFlag === true && type !== "settings") {
         return;
     }
     const storage:storage = {

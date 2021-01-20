@@ -54,7 +54,6 @@ declare global {
         index: number;
         ip: string;
         methods: {
-            close: (data:testBrowserRoute) => void;
             delay: (config:testBrowserDelay) => void;
             execute: (args:testBrowserArgs) => void;
             exit: (index:number) => void;

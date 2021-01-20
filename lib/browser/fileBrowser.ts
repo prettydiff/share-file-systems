@@ -930,7 +930,7 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
             browser.data.modals[id].search = [address, ""];
             return;
         }
-        if (browser.loadTest === false) {
+        if (browser.loadFlag === false) {
             browser.data.modals[id].search = [address, value];
             browser.data.modals[id].selection = {};
             network.storage("settings");

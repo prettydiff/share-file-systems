@@ -56,7 +56,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
     button.onclick = sharesModal;
     li.appendChild(button);
     document.getElementById(input.type).getElementsByTagName("ul")[0].appendChild(li);
-    if (browser.loadTest === false) {
+    if (browser.loadFlag === false) {
         settings.addUserColor(input.hash, input.type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         share.update("");
         if (input.save === true) {

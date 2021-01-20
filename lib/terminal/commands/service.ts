@@ -361,7 +361,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
 
             // start the server
             serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
-                recursive: (process.platform === "win32" || process.platform === "darwin")
+                recursive: (serverVars.testType !== "browser" && (process.platform === "win32" || process.platform === "darwin"))
             }, serverWatch);
             httpServer.on("error", serverError);
             httpServer.listen({

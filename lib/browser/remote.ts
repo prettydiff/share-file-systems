@@ -38,7 +38,7 @@ remote.delay = function browser_remote_delay(config:testBrowserItem):void {
             setTimeout(browser_remote_delay_timeout, delay);
         };
     // eslint-disable-next-line
-    console.log(`Executing delay on test index ${remote.index}: ${config.name}`);
+    console.log(`Executing delay on test number ${remote.index + 1}: ${config.name}`);
     if (config.delay === undefined) {
         remote.report(config.unit, remote.index);
     } else {
@@ -109,21 +109,21 @@ remote.evaluate = function browser_remote_evaluate(test:testBrowserTest):[boolea
 remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boolean):void {
     let a:number = 0,
         refresh:boolean = false;
-    const stringReplace = function browser_remote_event_stringReplace(str:string):string {
+    const complete = function browser_remote_event_complete():void {
+            if (refresh === false) {
+                remote.delay(item.test);
+            }
+        },
+        stringReplace = function browser_remote_event_stringReplace(str:string):string {
             return str
                 .replace(/string-replace-hash-hashDevice/g, browser.data.hashDevice)
                 .replace(/string-replace-hash-hashUser/g, browser.data.hashUser);
         },
-        complete = function browser_remote_event_complete(execute:boolean):void {
-            if (execute === false) {
-                remote.delay(item.test);
-            }
-        },
         action = function browser_remote_event_action(index:number):void {
             let element:HTMLElement,
-                event:Event,
                 config:testBrowserEvent,
                 htmlElement:HTMLInputElement,
+                event:Event,
                 delay:number;
             do {
                 config = item.test.interaction[index];
@@ -143,7 +143,7 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                         if (index < eventLength) {
                             browser_remote_event_action(index);
                         } else {
-                            complete(refresh);
+                            complete();
                         }
                     }, delay);
                     return;
@@ -216,29 +216,27 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                 }
                 index = index + 1;
             } while (index < eventLength);
-            complete(refresh);
+            complete();
         },
         eventLength:number = item.test.interaction.length;
     if (item.action === "nothing") {
         return;
     }
     remote.action = item.action;
-    if (remote.index < item.index) {
-        remote.index = item.index;
-        browser.testBrowser = item;
-        do {
-            if (item.test.interaction[a].event === "refresh-interaction") {
-                if (pageLoad === true) {
-                    remote.delay(item.test);
-                    return;
-                }
-                refresh = true;
+    remote.index = item.index;
+    browser.testBrowser = item;
+    do {
+        if (item.test.interaction[a].event === "refresh-interaction") {
+            if (pageLoad === true) {
+                remote.delay(item.test);
+                return;
             }
-            a = a + 1;
-        } while (a < eventLength);
-
-        action(0);
-    }
+            refresh = true;
+            break;
+        }
+        a = a + 1;
+    } while (a < eventLength);
+    action(0);
 };
 
 // get the value of the specified property/attribute

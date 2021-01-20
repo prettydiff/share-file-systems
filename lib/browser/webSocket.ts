@@ -24,7 +24,7 @@ const title:Element = document.getElementById("title-bar"),
         }
         const error = function browser_socketMessage_error():void {
                 // eslint-disable-next-line
-                console.error(data);
+                console.error(body);
             },
             fsUpdateLocal = function browser_socketMessage_fsUpdateLocal(fsData:directoryList):void {
                 const modalKeys:string[] = Object.keys(browser.data.modals),
@@ -188,39 +188,39 @@ const title:Element = document.getElementById("title-bar"),
             },
             index:number = event.data.indexOf(","),
             type:requestType = <requestType>event.data.slice(0, index),
-            data:string = event.data.slice(index + 1);
+            body:string = event.data.slice(index + 1);
         if (type === "error") {
             error();
         } else if (type === "delete-agents") {
-            const agents:string[] = data.split(","),
+            const agents:string[] = body.split(","),
                 agentType:agentType = <agentType>agents[1];
             share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status") {
-            const status:copyStatus = JSON.parse(data);
+            const status:copyStatus = JSON.parse(body);
             util.fileListStatus(status);
-        } else if (type === "fs-update-local" && browser.loadTest === false) {
-            fsUpdateLocal(JSON.parse(data));
+        } else if (type === "fs-update-local" && browser.loadFlag === false) {
+            fsUpdateLocal(JSON.parse(body));
         } else if (type === "fs-update-remote") {
-            fsUpdateRemote(JSON.parse(data));
+            fsUpdateRemote(JSON.parse(body));
         } else if (type === "heartbeat-complete") {
-            heartbeat(JSON.parse(data));
+            heartbeat(JSON.parse(body));
         } else if (type === "heartbeat-status") {
-            heartbeatStatus(JSON.parse(data));
+            heartbeatStatus(JSON.parse(body));
         } else if (type === "heartbeat-delete-agents") {
-            heartbeatDelete(JSON.parse(data));
+            heartbeatDelete(JSON.parse(body));
         } else if (type === "message") {
-            message.post(JSON.parse(data));
+            message.post(JSON.parse(body));
         } else if (type.indexOf("invite") === 0) {
-            const invitation:invite = JSON.parse(data);
+            const invitation:invite = JSON.parse(body);
             if (type === "invite-error") {
-                invite.error(JSON.parse(data));
+                invite.error(invitation);
             } else if (invitation.action === "invite-complete") {
                 invite.complete(invitation);
             } else {
                 invite.respond(invitation);
             }
         } else if (type === "test-browser" && location.href.indexOf("?test_browser") > 0) {
-            testBrowser(JSON.parse(data));
+            testBrowser(JSON.parse(body));
         } else if (type === "reload") {
             location.reload();
         }
@@ -241,6 +241,7 @@ const title:Element = document.getElementById("title-bar"),
                 }
                 title.getElementsByTagName("h1")[0].innerHTML = titleText;
                 title.setAttribute("class", "title");
+                callback();
             },
             close = function browser_webSocket_socketClose():void {
                 const device:Element = (browser.data.hashDevice === "")
@@ -269,7 +270,6 @@ const title:Element = document.getElementById("title-bar"),
             socket.onopen = open;
             socket.onmessage = socketMessage;
             socket.onclose = close;
-            callback();
         }
     };
 

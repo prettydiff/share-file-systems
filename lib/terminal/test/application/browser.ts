@@ -39,18 +39,6 @@ const defaultCommand:string = vars.command,
         index: -1,
         ip: "",
         methods: {
-            close: function terminal_test_application_browser_close(data:testBrowserRoute):void {
-                const close:testBrowserRoute = {
-                    action: "close",
-                    exit: data.exit,
-                    index: -1,
-                    result: [],
-                    test: null,
-                    transfer: null
-                };
-                vars.broadcast("test-browser", JSON.stringify(close));
-                log([data.exit]);
-            },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
                 const wait:number = (config.browser === true)
                         ? 0
@@ -226,21 +214,15 @@ const defaultCommand:string = vars.command,
                 if (finished === true) {
                     return;
                 }
-                const route:testBrowserRoute = {
-                        action: "result",
-                        exit: "",
-                        index: index,
-                        result: [],
-                        test: tests[index],
-                        transfer: null
-                    },
-                    logs:string[] = [
+                let delayMessage:string = "",
+                    delayBrowser:boolean = false;
+                const logs:string[] = [
                         `Test ${index + 1} malformed: ${vars.text.angry + tests[index].name + vars.text.none}`,
                         ""
                     ],
                     wait:number = (function terminal_test_application_browser_iterate_wait():number {
                         let a:number = tests[index].interaction.length,
-                            value:number,
+                            value:number = 0,
                             count:number = 0;
                         do {
                             a = a - 1;
@@ -251,10 +233,33 @@ const defaultCommand:string = vars.command,
                                 }
                             }
                         } while (a > 0);
+                        value = 2000;
+                        if (tests[index].interaction[0].event === "refresh" && tests[index + 1].machine !== "self" && count < value) {
+                            delayMessage = "Providing remote machine browser time before a refresh.";
+                            return value;
+                        }
+                        if (tests[index - 1].interaction[0].event === "refresh") {
+                            value = 1250;
+                            if (tests[index - 1].machine === "self" && count < value) {
+                                delayMessage = "Providing local device browser time following a refresh.";
+                                return value;
+                            }
+                            value = 1250;
+                            if (count < value) {
+                                delayMessage = "Providing remote machine browser time following a refresh.";
+                                return value;
+                            }
+                        }
+                        if (browser.args.demo === true && count < 501) {
+                            return 500;
+                        }
+                        delayBrowser = true;
                         return count;
                     }()),
                     waitText = function terminal_test_application_browser_iterate_waitText(machine:string):string {
-                        return `Pausing for 'wait' event in browser on machine ${machine}.`
+                        return (delayMessage === "" && wait > 0)
+                            ? `Pausing for 'wait' event in browser on machine ${machine}.`
+                            : delayMessage;
                     },
             
                     // determine if non-interactive events have required matching data properties
@@ -280,54 +285,24 @@ const defaultCommand:string = vars.command,
                             return true;
                         }
                         return false;
-                    },
-                    demo:boolean = (browser.args.demo === true && wait < 501);
+                    };
                 // delay is necessary to prevent a race condition
                 // * about 1 in 10 times this will fail following event "refresh"
                 // * because serverVars.testBrowser is not updated to methodGET library fast enough
                 if (validate() === true) {
+                    tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
+                    serverVars.testBrowser = {
+                        action: "result",
+                        exit: "",
+                        index: index,
+                        result: [],
+                        test: tests[index],
+                        transfer: null
+                    };
                     if (tests[index].machine === "self") {
-                        tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
-                        assign(index);
-                        browser.methods.delay({
-                            action: function terminal_test_application_browser_iterate_demoDelay():void {
-                                const refresh:number = index + 1;
-                                vars.broadcast("test-browser", JSON.stringify(route));
-                                if (tests[index].interaction[0].event === "refresh") {
-                                    const payload: testBrowserRoute = {
-                                        action: (browser.args.noClose === true)
-                                            ? "result"
-                                            : "reset-browser",
-                                        exit: "",
-                                        index: index,
-                                        result: [],
-                                        test: null,
-                                        transfer: null
-                                    };
-                                    if (tests[index].delay !== undefined) {
-                                        vars.verbose = true;
-                                        logs.push(    `Test is a refresh test, but it must not contain a ${vars.text.angry}delay${vars.text.none} property.`);
-                                        log(logs, true);
-                                        if (browser.args.noClose === false) {
-                                            process.exit(1);
-                                        }
-                                        return;
-                                    }
-                                    if (refresh < tests.length) {
-                                        assign(refresh);
-                                    } else {
-                                        serverVars.testBrowser = payload;
-                                    }
-                                }
-                            },
-                            browser: (demo === false && wait > 0),
-                            delay: (demo === true)
-                                ? 500
-                                : wait,
-                            message: (demo === true)
-                                ? "demo"
-                                : waitText("self")
-                        });
+                        if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
+                            vars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
+                        }
                     } else {
                         browser.methods.delay({
                             action: function terminal_test_application_browser_iterate_agentDelay():void {
@@ -335,15 +310,9 @@ const defaultCommand:string = vars.command,
                                         agent: serverVars.hashUser,
                                         ip: serverVars.ipAddress,
                                         port: serverVars.webPort
-                                    },
-                                    route:testBrowserRoute = {
-                                        action: "request",
-                                        exit: "",
-                                        index: index,
-                                        result: [],
-                                        test: tests[index],
-                                        transfer: payload
                                     };
+                                serverVars.testBrowser.action = "request";
+                                serverVars.testBrowser.transfer = payload;
                                 httpClient({
                                     agentType: "device",
                                     callback: function terminal_test_application_browser_iterate_httpClient():void {
@@ -353,7 +322,7 @@ const defaultCommand:string = vars.command,
                                     },
                                     errorMessage: `Browser test ${index} received a transmission error sending the test.`,
                                     ip: machines[tests[index].machine].ip,
-                                    payload: JSON.stringify(route),
+                                    payload: JSON.stringify(serverVars.testBrowser),
                                     port: machines[tests[index].machine].port,
                                     requestError: function terminal_test_application_browser_iterate_remoteRequest(errorMessage:nodeError):void {
                                         log([errorMessage.toString()]);
@@ -365,7 +334,7 @@ const defaultCommand:string = vars.command,
                                     },
                                 });
                             },
-                            browser: (wait > 0),
+                            browser: delayBrowser,
                             delay: wait,
                             message: waitText(tests[index].machine)
                         });
@@ -807,43 +776,7 @@ const defaultCommand:string = vars.command,
                     }
                     log([summary(true)]);
                     if (index + 1 < tests.length) {
-                        let localRefresh:boolean = false,
-                            remoteRefresh:boolean = false;
-                        const wait:number = (function terminal_test_application_browser_result_wait():number {
-                            if (index < tests.length - 1) {
-                                let a:number = tests[index + 1].interaction.length;
-                                do {
-                                    a = a - 1;
-                                    if (tests[index + 1].interaction[a].event === "wait") {
-                                        return 0;
-                                    }
-                                } while (a > 0);
-                                if (tests[index + 1].interaction[0].event === "refresh" && tests[index + 1].machine !== "self") {
-                                    return 2000;
-                                }
-                                if (tests[index].interaction[0].event === "refresh") {
-                                    if (tests[index].machine === "self") {
-                                        localRefresh = true;
-                                        return 5000;
-                                    }
-                                    remoteRefresh = true;
-                                    return 1250;
-                                }
-                            }
-                            return 0;
-                        }());
-                        browser.methods.delay({
-                            action: function terminal_test_application_browser_result_iteration():void {
-                                browser.methods.iterate(index + 1);
-                            },
-                            browser: false,
-                            delay: wait,
-                            message: (localRefresh === true)
-                                ? "Providing local device browser time following a refresh."
-                                : (remoteRefresh === true)
-                                    ? "Providing remote machine browser time following a refresh."
-                                    : "Providing remote machine browser time before a refresh."
-                        });
+                        browser.methods.iterate(index + 1);
                     } else {
                         completion(true);
                     }
@@ -861,10 +794,6 @@ const defaultCommand:string = vars.command,
                 } else if (data.exit !== "") {
                     log([data.exit]);
                 }
-                // close
-                // * tells the test browser to close
-                // * from browser.exit on mode:agents sent to mode:remote
-                // -
                 // request
                 // * sends a test from mode:agents to a specified mode:remote
                 // * from browser.iterate
@@ -898,16 +827,6 @@ const defaultCommand:string = vars.command,
         },
         port: 0,
         remoteAgents: 0
-    },
-    assign = function terminal_test_application_browser_assign(index:number):void {
-        serverVars.testBrowser = {
-            action: "result",
-            exit: "",
-            index: index,
-            result: [],
-            test: tests[index],
-            transfer: null
-        };
     };
 
 export default browser;

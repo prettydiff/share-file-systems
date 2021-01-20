@@ -70,8 +70,8 @@ interface module_modal {
     create?: (options:modal) => Element;
     export?: EventHandlerNonNull;
     importSettings?: EventHandlerNonNull;
-    maximize?: EventHandlerNonNull;
-    minimize?: EventHandlerNonNull;
+    maximize?: (Event:Event, callback?:() => void) => void;
+    minimize?: (Event:Event, callback?:() => void) => void;
     move?: EventHandlerNonNull;
     resize?: EventHandlerNonNull;
     textPad?: (Event:Event, value?:string, title?:string) => void;

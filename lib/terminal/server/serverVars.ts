@@ -21,8 +21,10 @@ const serverVars:serverVars = {
             do {
                 if (interfaces[keys[a]][0].internal === false) {
                     if (interfaces[keys[a]][0].family === "IPv4") {
-                        mac4 = interfaces[keys[a]][0].mac;
-                        store.IPv4.push([interfaces[keys[a]][0].address, keys[a]]);
+                        if (interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
+                            mac4 = interfaces[keys[a]][0].mac;
+                            store.IPv4.push([interfaces[keys[a]][0].address, keys[a]]);
+                        }
                         if (interfaces[keys[a]][1].family === "IPv6" && interfaces[keys[a]][1].address.indexOf("fe80") !== 0) {
                             mac6 = interfaces[keys[a]][1].mac;
                             store.IPv6.push([interfaces[keys[a]][1].address, keys[a]]);
@@ -32,7 +34,7 @@ const serverVars:serverVars = {
                             mac6 = interfaces[keys[a]][0].mac;
                             store.IPv6.push([interfaces[keys[a]][0].address, keys[a]]);
                         }
-                        if (interfaces[keys[a]][1].family === "IPv4") {
+                        if (interfaces[keys[a]][1].family === "IPv4" && interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaces[keys[a]][1].mac;
                             store.IPv4.push([interfaces[keys[a]][1].address, keys[a]]);
                         }

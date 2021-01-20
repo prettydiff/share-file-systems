@@ -116,10 +116,10 @@ modal.create = function browser_modal_create(options:modal):Element {
     }
     options.id = id;
     if (options.left === undefined) {
-        options.left = 200 + (modalCount * 10);
+        options.left = 200 + (modalCount * 10) - modalCount;
     }
     if (options.top === undefined) {
-        options.top = 200 + (modalCount * 10);
+        options.top = 200 + (modalCount * 10) - modalCount;
     }
     if (options.width === undefined) {
         options.width = 565;
@@ -172,7 +172,13 @@ modal.create = function browser_modal_create(options:modal):Element {
                 button.innerHTML = "↙ <span>Minimize</span>";
                 button.setAttribute("class", "minimize");
                 button.setAttribute("title", "Minimize");
-                button.onclick = modal.minimize;
+                if (options.callback !== undefined && options.status === "minimized") {
+                    button.onclick = function browser_modal_create_minimize(event:MouseEvent):void {
+                        modal.minimize(event, options.callback);
+                    };
+                } else {
+                    button.onclick = modal.minimize;
+                }
                 section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
@@ -181,7 +187,13 @@ modal.create = function browser_modal_create(options:modal):Element {
                 button.innerHTML = "⇱ <span>Maximize</span>";
                 button.setAttribute("class", "maximize");
                 button.setAttribute("title", "Maximize");
-                button.onclick = modal.maximize;
+                if (options.callback !== undefined && options.status === "maximized") {
+                    button.onclick = function browser_modal_create_maximize(event:MouseEvent):void {
+                        modal.maximize(event, options.callback);
+                    };
+                } else {
+                    button.onclick = modal.maximize;
+                }
                 section.appendChild(button);
                 buttonCount = buttonCount + 1;
             }
@@ -389,12 +401,16 @@ modal.create = function browser_modal_create(options:modal):Element {
         const minimize:HTMLElement = <HTMLElement>box.getElementsByClassName("minimize")[0];
         options.status = "normal";
         minimize.click();
+        minimize.onclick = modal.minimize;
     } else if (options.status === "maximized" && options.inputs.indexOf("maximize") > -1) {
         const maximize:HTMLElement = <HTMLElement>box.getElementsByClassName("maximize")[0];
         options.status = "normal";
         maximize.click();
+        maximize.onclick = modal.maximize;
+    } else if (options.callback !== undefined) {
+        options.callback();
     }
-    if (browser.loadTest === false) {
+    if (browser.loadFlag === false) {
         network.storage("settings");
     }
     return box;
@@ -436,12 +452,14 @@ modal.importSettings = function browser_modal_importSettings(event:MouseEvent):v
     button.click();
     if (textArea.value !== dataString) {
         network.storage("settings");
-        location.replace(location.href);
+        setTimeout(function browser_modal_importSettings():void {
+            location.replace(location.href);
+        }, 250);
     }
 };
 
 /* The given modal consumes the entire view port of the content area */
-modal.maximize = function browser_modal_maximize(event:Event):void {
+modal.maximize = function browser_modal_maximize(event:Event, callback?:() => void):void {
     const element:Element = <Element>event.target,
         contentArea:Element = document.getElementById("content-area"),
         box:HTMLElement = <HTMLElement>element.getAncestor("box", "class"),
@@ -506,11 +524,14 @@ modal.maximize = function browser_modal_maximize(event:Event):void {
             return `${height / 10}em`;
         }());
     }
+    if (callback !== undefined) {
+        callback();
+    }
     network.storage("settings");
 };
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
-modal.minimize = function browser_modal_minimize(event:Event):void {
+modal.minimize = function browser_modal_minimize(event:Event, callback?:() => void):void {
     const element:Element = <Element>event.target,
         border:Element = element.getAncestor("border", "class"),
         box:HTMLElement = <HTMLElement>border.parentNode,
@@ -531,7 +552,7 @@ modal.minimize = function browser_modal_minimize(event:Event):void {
             body:HTMLElement = <HTMLElement>border.getElementsByClassName("body")[0];
         do {
             child = <HTMLElement>children[a];
-            child.style.display = "block";
+            child.style.removeProperty("display");
             a = a + 1;
         } while (a < children.length);
         document.getElementById("tray").removeChild(li);
@@ -563,6 +584,9 @@ modal.minimize = function browser_modal_minimize(event:Event):void {
         li.appendChild(box);
         document.getElementById("tray").appendChild(li);
         browser.data.modals[id].status = "minimized";
+    }
+    if (callback !== undefined) {
+        callback();
     }
     if (util.minimizeAllFlag === false) {
         network.storage("settings");

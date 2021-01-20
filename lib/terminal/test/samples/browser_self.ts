@@ -628,7 +628,7 @@ const browserSelf:testBrowserItem[] = [
                 qualifier: "is",
                 target: ["style", "display"],
                 type: "property",
-                value: "block"
+                value: ""
             },
             interaction: [
                 {
@@ -674,7 +674,7 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["getElementsByClassName", "maximize", 0]
                     ]
                 }
             ],
@@ -768,9 +768,9 @@ const browserSelf:testBrowserItem[] = [
                     ["getModalsByModalType", "fileNavigate", 0]
                 ],
                 qualifier: "is",
-                target: ["clientLeft"],
+                target: ["style", "top"],
                 type: "property",
-                value: 0
+                value: "20.9em"
             },
             interaction: [
                 {
@@ -778,23 +778,13 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["getElementsByClassName", "maximize", 0]
                     ]
                 }
             ],
             machine: "self",
             name: "Restore a maximized modal to its prior size and location",
             unit: [
-                {
-                    // the modal is at the top of the content area
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["style", "top"],
-                    type: "property",
-                    value: "21em"
-                },
                 {
                     // the modal is at the left of the content area
                     node: [
@@ -803,7 +793,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["style", "left"],
                     type: "property",
-                    value: "21em"
+                    value: "20.9em"
                 },
                 {
                     // the file navigator modal is a different size
@@ -1734,7 +1724,7 @@ const browserSelf:testBrowserItem[] = [
                 node: [
                     ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "li", 3]
+                    ["getElementsByClassName", "directory", 0]
 
                 ],
                 qualifier: "contains",
@@ -2544,7 +2534,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "ends",
                     target: ["value"],
                     type: "property",
-                    value: `","left":240,"top":240,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":5}`
+                    value: `","left":236,"top":236,"height":400,"status":"normal","text_value":"God bless kittens"}},"modalTypes":["settings","fileNavigate","shares","textPad"],"nameDevice":"Primary Device","nameUser":"Primary User","zIndex":5}`
                 }
             ]
         },

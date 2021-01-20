@@ -1,6 +1,5 @@
 
 /* lib/terminal/utilities/readFile - A utility to read files as text, if text, or as binary, if binary. */
-import error from "./error.js";
 import vars from "./vars.js";
 
 // similar to node's fs.readFile, but determines if the file is binary or text so that it can create either a buffer or text dump
@@ -17,83 +16,65 @@ const readFile = function terminal_utilities_readFile(args:readFile):void {
         .node
         .fs
         .open(args.path, "r", function terminal_utilities_readFile_open(ero:Error, fd:number):void {
-            const failure = function terminal_utilities_readFile_open_failure(message:string) {
-                    if (args.index > 0) {
-                        error([
-                            `Failed after ${args.index} files.`,
-                            message
-                        ]);
-                    } else {
-                        error([message]);
-                    }
-                },
-                messageSize = (args.stat.size < 100)
+            const messageSize = (args.stat.size < 100)
                     ? args.stat.size
                     : 100;
             let buff  = Buffer.alloc(Number(messageSize));
-            if (ero !== null) {
-                failure(ero.toString());
-                return;
+            if (ero === null) {
+                vars
+                    .node
+                    .fs
+                    .read(
+                        fd,
+                        buff,
+                        0,
+                        messageSize,
+                        1,
+                        function terminal_utilities_readFile_open_read(errA:Error, bytesA:number, bufferA:Buffer):number {
+                            let bufferString:string = "";
+                            if (errA === null) {
+                                bufferString = bufferA.toString("utf8", 0, bufferA.length);
+                                bufferString = bufferString.slice(2, bufferString.length - 2);
+                                if (vars.binary_check.test(bufferString) === true) {
+                                    buff = Buffer.alloc(Number(args.stat.size));
+                                    vars
+                                        .node
+                                        .fs
+                                        .read(
+                                            fd,
+                                            buff,
+                                            0,
+                                            args.stat.size,
+                                            0,
+                                            function terminal_utilities_readFile_open_read_readBinary(errB:Error, bytesB:number, bufferB:Buffer):void {
+                                                if (errB === null) {
+                                                    if (bytesB > 0) {
+                                                        vars.node.fs.close(fd, function terminal_utilities_readFile_open_read_readBinary_close():void {
+                                                            args.callback(args, bufferB);
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        );
+                                } else {
+                                    vars
+                                        .node
+                                        .fs
+                                        .readFile(args.path, {
+                                            encoding: "utf8"
+                                        }, function terminal_utilities_readFile_open_read_readFile(errC:Error, dump:string):void {
+                                            if (errC === null) {
+                                                vars.node.fs.close(fd, function terminal_utilities_readFile_open_read_readFile_close() {
+                                                    args.callback(args, dump);
+                                                });
+                                            }
+                                        });
+                                }
+                                return bytesA;
+                            }
+                        }
+                    );
             }
-            vars
-                .node
-                .fs
-                .read(
-                    fd,
-                    buff,
-                    0,
-                    messageSize,
-                    1,
-                    function terminal_utilities_readFile_open_read(errA:Error, bytesA:number, bufferA:Buffer):number {
-                        let bufferString:string = "";
-                        if (errA !== null) {
-                            failure(errA.toString());
-                            return;
-                        }
-                        bufferString = bufferA.toString("utf8", 0, bufferA.length);
-                        bufferString = bufferString.slice(2, bufferString.length - 2);
-                        if (vars.binary_check.test(bufferString) === true) {
-                            buff = Buffer.alloc(Number(args.stat.size));
-                            vars
-                                .node
-                                .fs
-                                .read(
-                                    fd,
-                                    buff,
-                                    0,
-                                    args.stat.size,
-                                    0,
-                                    function terminal_utilities_readFile_open_read_readBinary(errB:Error, bytesB:number, bufferB:Buffer):void {
-                                        if (errB !== null) {
-                                            failure(errB.toString());
-                                            return;
-                                        }
-                                        if (bytesB > 0) {
-                                            vars.node.fs.close(fd, function terminal_utilities_readFile_open_read_readBinary_close():void {
-                                                args.callback(args, bufferB);
-                                            });
-                                        }
-                                    }
-                                );
-                        } else {
-                            vars
-                                .node
-                                .fs
-                                .readFile(args.path, {
-                                    encoding: "utf8"
-                                }, function terminal_utilities_readFile_open_read_readFile(errC:Error, dump:string):void {
-                                    if (errC !== null && errC !== undefined) {
-                                        failure(errC.toString());
-                                        return;
-                                    }
-                                    vars.node.fs.close(fd, function terminal_utilities_readFile_open_read_readFile_close() {
-                                        args.callback(args, dump);
-                                    });
-                                });
-                        }
-                        return bytesA;
-                    }
-                );
         });
 };
 

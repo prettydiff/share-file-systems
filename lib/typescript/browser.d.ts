@@ -125,6 +125,7 @@ interface messageItem {
 interface modal {
     agent: string;
     agentType: agentType;
+    callback?: () => void;
     content: Element;
     focus?: Element;
     height?: number;

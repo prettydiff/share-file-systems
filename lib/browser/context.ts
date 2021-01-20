@@ -234,7 +234,9 @@ context.details = function browser_context_details(event:MouseEvent):void {
             read_only: agency[1],
             single: true,
             title: `Details - ${common.capitalize(agency[2])}, ${browser[agency[2]][agency[0]].name} - ${addresses.length} items`,
-            top: event.clientY - 60,
+            top: (event.clientY - 60 < 0)
+                ? 60
+                : event.clientY - 60,
             type: "details",
             width: 500
         },
@@ -542,7 +544,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
             body.innerHTML = "";
             body.appendChild(output);
         };
-    if (browser.loadTest === true) {
+    if (browser.loadFlag === true) {
         return;
     }
     network.fileBrowser(payloadNetwork, callback);

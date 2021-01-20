@@ -38,7 +38,7 @@ import disallowed from "../common/disallowed.js";
         commentLength:number = comments.length,
         idleTime:number = 15000,
         testBrowserReg:RegExp = (/^test_browser:/),
-        testBrowserLoad = function browser_init_testBrowserLoad():void {
+        testBrowserLoad = function browser_init_testBrowserLoad(delay:number):void {
             if (testBrowser === true && browser.testBrowser !== null) {
                 window.onerror = remote.error;
                 if (browser.testBrowser.action === "reset-request") {
@@ -46,7 +46,7 @@ import disallowed from "../common/disallowed.js";
                 } else if (browser.testBrowser.action === "respond" || browser.testBrowser.action === "result") {
                     setTimeout(function browser_init_testBrowserLoad_delay():void {
                         remote.event(browser.testBrowser, true);
-                    }, 500);
+                    }, delay);
                 }
             }
         },
@@ -111,12 +111,13 @@ import disallowed from "../common/disallowed.js";
                 handlerMouse = function browser_init_applyLogin_handleMouse():void {
                     action();
                 };
+            browser.loadFlag = false;
             defaultModals();
             nameUser.onkeyup = handlerKeyboard;
             nameDevice.onkeyup = handlerKeyboard;
             button.onclick = handlerMouse;
             webSocket(function browser_init_applyLogin_socket():void {
-                testBrowserLoad();
+                testBrowserLoad(500);
             });
         },
         loadComplete = function browser_init_complete():void {
@@ -143,9 +144,6 @@ import disallowed from "../common/disallowed.js";
                         }
                     }
                     active = Date.now();
-                    if (loginFlag === true) {
-                        testBrowserLoad();
-                    }
                 },
                 shareAll = function browser_init_complete_shareAll(event:MouseEvent):void {
                     const element:Element = <Element>event.target,
@@ -176,6 +174,7 @@ import disallowed from "../common/disallowed.js";
                 return;
             }
 
+            browser.loadFlag = false;
             localDevice = document.getElementById(browser.data.hashDevice);
 
             do {
@@ -209,16 +208,10 @@ import disallowed from "../common/disallowed.js";
                 buttons[a].onblur = util.menuBlur;
                 a = a + 1;
             } while (a < buttonsLength);
-
-            browser.loadTest = false;
-
-            if (loginFlag === true) {
-                webSocket(function browser_init_applyLogin_socket():void {
-                    activate();
-                });
-            } else {
+            webSocket(function browser_init_loadComplete_socket():void {
                 activate();
-            }
+                testBrowserLoad(0);
+            });
         };
     do {
         cString = comments[a].substringData(0, comments[a].length);
@@ -238,8 +231,10 @@ import disallowed from "../common/disallowed.js";
                 if (storage.settings === undefined || Object.keys(storage.settings).length < 1) {
                     applyLogin();
                 } else {
+                    let type:modalType;
                     const modalKeys:string[] = Object.keys(storage.settings.modals),
                         indexes:[number, string][] = [],
+                        // applies z-index to the modals in the proper sequence while restarting the value at 0
                         z = function browser_init_z(id:string) {
                             count = count + 1;
                             indexes.push([storage.settings.modals[id].zIndex, id]);
@@ -282,32 +277,17 @@ import disallowed from "../common/disallowed.js";
                                     a = a + 1;
                                 } while (a < listLength);
                             }
-                        };
-                    let count:number = 0;
-                    loginFlag = true;
-                    browser.pageBody.removeAttribute("class");
-                    browser.data.colors = storage.settings.colors;
-                    browser.data.nameUser = storage.settings.nameUser;
-                    browser.data.nameDevice = storage.settings.nameDevice;
-                    browser.data.hashDevice = storage.settings.hashDevice;
-                    browser.data.hashUser = storage.settings.hashUser;
-                    restoreShares("device");
-                    restoreShares("user");
-
-                    if (modalKeys.length < 1) {
-                        loadComplete();
-                    }
-
-                    modalKeys.forEach(function browser_init_modalKeys(value:string) {
-                        const modalItem:modal = storage.settings.modals[value];
-                        if (modalItem.type === "fileNavigate") {
-                            const agent:string = modalItem.agent,
+                        },
+                        modalFile = function browser_init_modalFile(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id],
+                                agent:string = modalItem.agent,
+                                delay:Element = util.delay(),
                                 payload:systemDataFile = {
                                     action: "fs-directory",
                                     agent: agent,
                                     agentType: modalItem.agentType,
                                     depth: 2,
-                                    id: value,
+                                    id: id,
                                     location: [modalItem.text_value],
                                     name: "",
                                     share: modalItem.share,
@@ -338,6 +318,7 @@ import disallowed from "../common/disallowed.js";
                                             b = b + 1;
                                         } while (b < length);
                                     }
+                                    z(id);
                                 },
                                 callback = function browser_init_modalKeys_fsCallback(responseText:string):void {
                                     // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
@@ -346,7 +327,6 @@ import disallowed from "../common/disallowed.js";
                                                 dirs: "missing"
                                             }
                                             : JSON.parse(responseText),
-                                        id:string = payload.id,
                                         files:[Element, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                                             ? (function browser_init_modalKeys_fsCallback_missing():[Element, number, string] {
                                                 const p:Element = document.createElement("p");
@@ -365,12 +345,14 @@ import disallowed from "../common/disallowed.js";
                                             }())
                                             : fileBrowser.list(modalItem.text_value, payload);
                                     if (files === null) {
+                                        z(id);
                                         return;
                                     }
                                     files[0].removeAttribute("title");
                                     if (responseText !== "") {
                                         const fsModal:Element = document.getElementById(id);
                                         if (fsModal === null) {
+                                            z(id);
                                             return;
                                         }
                                         let body:Element = fsModal.getElementsByClassName("body")[0];
@@ -381,29 +363,79 @@ import disallowed from "../common/disallowed.js";
                                         fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
                                     }
                                 };
-                            if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
-                                let search:HTMLInputElement;
-                                const delay:Element = util.delay();
-                                modalItem.content = delay;
-                                modalItem.id = value;
-                                modalItem.text_event = fileBrowser.text;
-                                modal.create(modalItem);
-                                search = document.getElementById(value).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                fileBrowser.search(null, search, function browser_init_modalKeys_searchCallback():void {
-                                    selection(value);
-                                });
-                                z(value);
-                            } else {
-                                const delay:Element = util.delay();
-                                modalItem.content = delay;
-                                modalItem.id = value;
-                                modalItem.text_event = fileBrowser.text;
-                                modal.create(modalItem);
-                                z(value);
-                                network.fileBrowser(payload, callback);
-                            }
-                        } else if (modalItem.type === "textPad" || modalItem.type === "export") {
-                            const textArea:HTMLTextAreaElement = document.createElement("textarea");
+                            modalItem.content = delay;
+                            modalItem.id = id;
+                            modalItem.text_event = fileBrowser.text;
+                            modalItem.callback = function browser_init_modalFile_callback():void {
+                                if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
+                                    let search:HTMLInputElement;
+                                    search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
+                                    fileBrowser.search(null, search, function browser_init_modalKeys_searchCallback():void {
+                                        selection(id);
+                                    });
+                                } else {
+                                    network.fileBrowser(payload, callback);
+                                }
+                            };
+                            modal.create(modalItem);
+                        },
+                        modalInvite = function browser_init_modalInvite(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            modalItem.callback = function browser_init_modalInvite_callback():void {
+                                z(id);
+                            };
+                            invite.start(null, modalItem);
+                        },
+                        modalMessage = function browser_init_modalMessage(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            modalItem.callback = function browser_init_modalMessage_callback():void {
+                                z(id);
+                            };
+                            message.modal(modalItem);
+                        },
+                        modalSettings = function browser_init_modalSettings(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            browser.data.brotli = storage.settings.brotli;
+                            browser.data.hashType = storage.settings.hashType;
+                            modalItem.callback = function browser_init_modalSettings_callback():void {
+                                const inputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("settings-modal").getElementsByTagName("input"),
+                                    length:number = inputs.length;
+                                let a:number = 0;
+                                do {
+                                    if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && storage.settings.audio === false) || (inputs[a].value === "on" && storage.settings.audio === true)) {
+                                        inputs[a].click();
+                                    } else if (inputs[a].name === "brotli") {
+                                        inputs[a].value = storage.settings.brotli.toString();
+                                    }
+                                    a = a + 1;
+                                } while (a < length);
+                                z(id);
+                            };
+                            modalItem.content = settings.modalContent();
+                            modal.create(modalItem);
+                        },
+                        modalShares = function browser_init_modalShares(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id],
+                                agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
+                                ? ""
+                                : modalItem.agentType;
+                            modalItem.callback = function browser_init_modalShares_callback():void {
+                                z(id);
+                            };
+                            share.modal(modalItem.agent, agentType, modalItem);
+                        },
+                        modalShareDelete = function browser_init_modalShareDelete(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id];
+                            modalItem.callback = function browser_init_modalShareDelete_callback():void {
+                                z(id);
+                            };
+                            share.deleteList(null, modalItem);
+                        },
+                        modalText = function browser_init_modalText(id:string):void {
+                            const modalItem:modal = storage.settings.modals[id],
+                                textArea:HTMLTextAreaElement = document.createElement("textarea");
                             if (modalItem.type === "textPad") {
                                 if (modalItem.text_value !== undefined) {
                                     textArea.value = modalItem.text_value;
@@ -413,48 +445,45 @@ import disallowed from "../common/disallowed.js";
                                 textArea.value = JSON.stringify(storage.settings);
                             }
                             modalItem.content = textArea;
-                            modalItem.id = value;
+                            modalItem.id = id;
+                            modalItem.callback = function browser_init_modalText_callback():void {
+                                z(id);
+                            };
                             modal.create(modalItem);
-                            z(value);
-                        } else if (modalItem.type === "message") {
-                            message.modal(modalItem);
-                            z(value);
-                        } else if (modalItem.type === "shares") {
-                            const agentType:agentType|"" = (modalItem.title.indexOf("All Shares") > -1)
-                                ? ""
-                                : modalItem.agentType;
-                            share.modal(modalItem.agent, agentType, modalItem);
-                            z(value);
-                        } else if (modalItem.type === "share_delete") {
-                            share.deleteList(null, modalItem);
-                            z(value);
-                        } else if (modalItem.type === "invite-request") {
-                            invite.start(null, modalItem);
-                            z(value);
-                        } else if (modalItem.type === "settings") {
-                            browser.data.brotli = storage.settings.brotli;
-                            browser.data.hashType = storage.settings.hashType;
-                            modalItem.content = settings.modalContent();
-                            modal.create(modalItem);
-                            const settingsModal:Element = document.getElementById("settings-modal"),
-                                inputs:HTMLCollectionOf<HTMLInputElement> = settingsModal.getElementsByTagName("input"),
-                                length:number = inputs.length;
-                            let a:number = 0;
-                            do {
-                                if (inputs[a].name.indexOf("color-scheme-") === 0 && inputs[a].value === storage.settings.color) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name.indexOf("audio-") === 0 && (inputs[a].value === "off" && storage.settings.audio === false) || (inputs[a].value === "on" && storage.settings.audio === true)) {
-                                    inputs[a].click();
-                                } else if (inputs[a].name === "brotli") {
-                                    inputs[a].value = storage.settings.brotli.toString();
-                                }
-                                a = a + 1;
-                            } while (a < length);
-                            z(value);
-                        } else {
-                            z(value);
-                        }
-                    });
+                        };
+                    let count:number = 0;
+                    loginFlag = true;
+                    browser.pageBody.removeAttribute("class");
+                    browser.data.colors = storage.settings.colors;
+                    browser.data.nameUser = storage.settings.nameUser;
+                    browser.data.nameDevice = storage.settings.nameDevice;
+                    browser.data.hashDevice = storage.settings.hashDevice;
+                    browser.data.hashUser = storage.settings.hashUser;
+                    restoreShares("device");
+                    restoreShares("user");
+
+                    if (modalKeys.length < 1) {
+                        loadComplete();
+                    } else {
+                        modalKeys.forEach(function browser_init_modalKeys(value:string) {
+                            type = storage.settings.modals[value].type;
+                            if (type === "export" || type === "textPad") {
+                                modalText(value);
+                            } else if (type === "fileNavigate") {
+                                modalFile(value);
+                            } else if (type === "invite-request") {
+                                modalInvite(value);
+                            } else if (type === "message") {
+                                modalMessage(value);
+                            } else if (type === "settings") {
+                                modalSettings(value);
+                            } else if (type === "shares") {
+                                modalShares(value);
+                            } else if (type === "share_delete") {
+                                modalShareDelete(value);
+                            }
+                        });
+                    }
                 }
             }
         }

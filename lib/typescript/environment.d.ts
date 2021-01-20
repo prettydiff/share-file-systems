@@ -5,7 +5,7 @@ interface browser {
     content: HTMLElement;
     data: ui_data;
     device: agents;
-    loadTest: boolean;
+    loadFlag: boolean;
     localNetwork: localNetwork;
     menu: {
         export: HTMLElement;

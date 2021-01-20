@@ -20,7 +20,7 @@ const browser:browser = {
         zIndex: 0
     },
     device: {},
-    loadTest: true,
+    loadFlag: true,
     localNetwork: (function browser_localNetwork():localNetwork {
         let str:string = document.getElementsByTagName("body")[0].innerHTML,
             pattern:string = "<!--network:";

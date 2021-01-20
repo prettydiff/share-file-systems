@@ -122,7 +122,7 @@ settings.audio = function browser_settings_audio(event:MouseEvent):void {
         browser.data.audio = false;
     }
     settings.radio(element);
-    if (browser.loadTest === false) {
+    if (browser.loadFlag === false) {
         network.storage("settings");
     }
 };
@@ -140,7 +140,7 @@ settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):v
             counts.count = counts.count + 1;
             if (counts.count === counts.total) {
                 browser.data.color = <colorScheme>element.value;
-                if (browser.loadTest === false) {
+                if (browser.loadFlag === false) {
                     network.storage("settings");
                 }
             }
