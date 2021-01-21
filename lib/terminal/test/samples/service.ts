@@ -153,7 +153,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "copy",
         test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\""
     });
-    /*service.push({
+    service.push({
         command: {
             action: "copy",
             agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
@@ -163,20 +163,14 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             cut: false,
             destination: filePathEncode("absolute", "lib/storage"),
             id: "test-ID",
-            location: [`${projectPath}version.json`],
+            location: [filePathEncode("absolute", "version.json")],
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy from Remote Device to different Remote Device",
-        qualifier: "is",
+        qualifier: "contains",
         requestType: "copy",
-        test: {
-            "file-list-status": {
-                failures: [],
-                message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.",
-                target: "test-ID"
-            }
-        }
-    });*/
+        test:  "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+    });
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
         command: {

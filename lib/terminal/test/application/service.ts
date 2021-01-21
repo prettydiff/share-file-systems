@@ -24,9 +24,7 @@ import tests from "../samples/service.js";
 // * share - optional object containing share data to test against
 // * test - the value to compare against
 
-const projectPath:string = vars.projectPath,
-    sep:string = vars.sep,
-    loopback:string = (serverVars.ipFamily === "IPv6")
+const loopback:string = (serverVars.ipFamily === "IPv6")
         ? "::1"
         : "127.0.0.1",
     defaultSecure:boolean = serverVars.secure,
@@ -41,7 +39,9 @@ const projectPath:string = vars.projectPath,
     };
 
 service.addServers = function terminal_test_application_services_addServers(callback:Function):void {
-    const flags = {
+    const projectPath:string = vars.projectPath,
+        sep:string = vars.sep,
+        flags = {
             removal: false,
             storage: false
         },

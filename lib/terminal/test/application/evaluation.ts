@@ -170,9 +170,11 @@ const testEvaluation = function terminal_test_application_testEvaluation(output:
             // replace port numbers in the standard output
             output.values[0] = output.values[0].replace(/\\"port\\":\d+,/g, "\\\"port\\\":0,");
             // replace wildcard IPv6 address
-            output.values[0] = output.values[0].replace(/\s::(\s|\.)/g, " XXXX ");
+            output.values[0] = output.values[0].replace(/\s::1?(\s|\.)/g, " XXXX ");
             // replace IPv6 addresses framed in square braces
             output.values[0] = output.values[0].replace(/\[::1\](:\d+)?(\.|\s)/g, "XXXX ");
+            // replace full IPv6 addresses
+            output.values[0] = output.values[0].replace(/\s([0-9a-f]{4}:)+:?[0-9a-f]{4}\s/, " XXXX ");
         }
     }
     if (output.test.qualifier.indexOf("file") === 0) {

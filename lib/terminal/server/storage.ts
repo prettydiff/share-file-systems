@@ -10,6 +10,14 @@ import serverVars from "./serverVars.js";
 const storage = function terminal_server_storage(data:storage):void {
     const location:string = serverVars.storage + data.type,
         fileName:string = `${location}-${Math.random()}.json`,
+        respond = function terminal_server_storage_respond():void {
+            response({
+                message: `${data.type} storage written`,
+                mimeType: "text/plain",
+                responseType: data.type,
+                serverResponse: data.response
+            });
+        },
         rename = function terminal_server_storage_rename():void {
             vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
             if (serverVars.testType !== "service") {
@@ -23,12 +31,7 @@ const storage = function terminal_server_storage(data:storage):void {
                     }
                 });
             }
-            response({
-                message: `${data.type} storage written`,
-                mimeType: "text/plain",
-                responseType: data.type,
-                serverResponse: data.response
-            });
+            respond();
         },
         writeCallback = function terminal_server_storage_writeCallback(erSettings:Error):void {
             vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
@@ -51,12 +54,14 @@ const storage = function terminal_server_storage(data:storage):void {
                 }
                 rename();
             } else {
+                respond();
                 error([erSettings.toString()]);
             }
         };
     vars.testLogger("storage", "", `Write application data to disk for type ${data.type}`);
     if (data.type === undefined) {
         error(["Submitted a 'type' value of undefined to the storage utility."]);
+        respond();
         return;
     }
     if (serverVars.testType === "service") {
