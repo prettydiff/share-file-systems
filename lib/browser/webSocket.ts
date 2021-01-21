@@ -127,7 +127,7 @@ const title:Element = document.getElementById("title-bar"),
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
                 }
-                network.storage("settings");
+                network.storage("settings", null);
             },
             heartbeatStatus = function browser_socketMessage_heartbeatStatus(heartbeat:heartbeat):void {
                 const button:Element = document.getElementById(heartbeat.agentFrom);
@@ -139,7 +139,7 @@ const title:Element = document.getElementById("title-bar"),
                 if (heartbeat.status === "deleted") {
                     share.deleteAgent(heartbeat.agentFrom, heartbeat.agentType);
                     share.update("");
-                    network.storage("settings");
+                    network.storage("settings", null);
                 } else {
                     const keys:string[] = Object.keys(heartbeat.shares);
                     heartbeatStatus(heartbeat);

@@ -23,30 +23,36 @@ const storage = function terminal_server_storage(data:storage):void {
                     }
                 });
             }
+            response({
+                message: `${data.type} storage written`,
+                mimeType: "text/plain",
+                responseType: data.type,
+                serverResponse: data.response
+            });
         },
         writeCallback = function terminal_server_storage_writeCallback(erSettings:Error):void {
             vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
-            if (erSettings !== null) {
-                error([erSettings.toString()]);
-                return;
-            }
-            if (data.type === "settings") {
-                const settings:ui_data = <ui_data>data.data;
-                if (serverVars.testType === "") {
-                    serverVars.brotli = settings.brotli;
-                    serverVars.hashType = settings.hashType;
-                    serverVars.hashUser = settings.hashUser;
-                    serverVars.nameUser = settings.nameUser;
-                    if (serverVars.hashDevice === "") {
-                        serverVars.hashDevice = settings.hashDevice;
-                        serverVars.nameDevice = settings.nameDevice;
+            if (erSettings === null) {
+                if (data.type === "settings") {
+                    const settings:ui_data = <ui_data>data.data;
+                    if (serverVars.testType === "") {
+                        serverVars.brotli = settings.brotli;
+                        serverVars.hashType = settings.hashType;
+                        serverVars.hashUser = settings.hashUser;
+                        serverVars.nameUser = settings.nameUser;
+                        if (serverVars.hashDevice === "") {
+                            serverVars.hashDevice = settings.hashDevice;
+                            serverVars.nameDevice = settings.nameDevice;
+                        }
                     }
+                } else if (serverVars.testType === "" && (data.type === "device" || data.type === "user")) {
+                    const agents:agents = <agents>data.data;
+                    serverVars[data.type] = agents;
                 }
-            } else if (serverVars.testType === "" && (data.type === "device" || data.type === "user")) {
-                const agents:agents = <agents>data.data;
-                serverVars[data.type] = agents;
+                rename();
+            } else {
+                error([erSettings.toString()]);
             }
-            rename();
         };
     vars.testLogger("storage", "", `Write application data to disk for type ${data.type}`);
     if (data.type === undefined) {
@@ -58,12 +64,6 @@ const storage = function terminal_server_storage(data:storage):void {
     } else {
         vars.node.fs.writeFile(fileName, JSON.stringify(data.data), "utf8", writeCallback);
     }
-    response({
-        message: `${data.type} storage written`,
-        mimeType: "text/plain",
-        responseType: data.type,
-        serverResponse: data.response
-    });
 };
 
 export default storage;

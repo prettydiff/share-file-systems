@@ -142,7 +142,7 @@ network.message = function local_network_message(message:messageItem):void {
 };
 
 /* Writes configurations to file storage */
-network.storage = function local_network_storage(type:storageType):void {
+network.storage = function local_network_storage(type:storageType, callback:() => void):void {
     if (browser.loadFlag === true && type !== "settings") {
         return;
     }
@@ -156,7 +156,7 @@ network.storage = function local_network_storage(type:storageType):void {
             type: type
         };
     network.xhr({
-        callback: null,
+        callback: callback,
         error: null,
         payload: JSON.stringify(storage),
         type: type

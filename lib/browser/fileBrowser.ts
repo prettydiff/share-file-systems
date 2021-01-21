@@ -47,7 +47,7 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
             fileBrowser.listFail(list[1], box);
             browser.data.modals[box.getAttribute("id")].text_value = path;
             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
-            network.storage("settings");
+            network.storage("settings", null);
         },
         payload:systemDataFile = {
             action: "fs-directory",
@@ -245,9 +245,6 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                         do {
                             parent = <HTMLElement>selected[a].parentNode.parentNode;
                             listItem = parent.getElementsByTagName("p")[0];
-                            if (listItem.getAttribute("class").indexOf("cut") > -1) {
-                                cut = true;
-                            }
                             list.appendChild(listItem.parentNode.cloneNode(true));
                             a = a + 1;
                         } while (a < length);
@@ -265,8 +262,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
             return false;
         };
     let outOfBounds:boolean = false,
-        init:boolean = false,
-        cut:boolean = false;
+        init:boolean = false;
     event.stopPropagation();
     document.onmousedown = mouseDown;
     if (element.nodeName.toLowerCase() === "button") {
@@ -615,7 +611,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
                     : payload.dirs[0][0];
                 modal.text_value = loc;
                 modal.history[modal.history.length - 1] = loc;
-                network.storage("settings");
+                network.storage("settings", null);
             }
             body.innerHTML = "";
             body.appendChild(files);
@@ -698,7 +694,7 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             fileBrowser.listFail(list[1], box);
             box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
             browser.data.modals[id].text_value = newAddress;
-            network.storage("settings");
+            network.storage("settings", null);
         };
     if (value === "\\" || value === "/") {
         return false;
@@ -933,7 +929,7 @@ fileBrowser.search = function browser_fileBrowser_search(event?:KeyboardEvent, s
         if (browser.loadFlag === false) {
             browser.data.modals[id].search = [address, value];
             browser.data.modals[id].selection = {};
-            network.storage("settings");
+            network.storage("settings", null);
         }
         network.fileBrowser(payload, netCallback);
     }
@@ -1113,7 +1109,7 @@ fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):vo
         }
     }
     modalData.focus = p;
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Requests file system data from a text field, such as manually typing an address */
@@ -1168,7 +1164,7 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                     box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
                     browser.data.modals[id].text_value = element.value;
                     element.removeAttribute("class");
-                    network.storage("settings");
+                    network.storage("settings", null);
                 }
             };
         if ((/^\w:/).test(element.value.replace(/\s+/, "")) === true) {

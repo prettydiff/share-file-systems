@@ -156,7 +156,7 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
                 document.onmousemove = null;
                 document.onmouseup   = null;
             }
-            network.storage("settings");
+            network.storage("settings", null);
             e.preventDefault();
             setTimeout(function browser_util_dragBox_drop_scroll():void {
                 body.scrollLeft = bodyScrollLeft;
@@ -599,7 +599,7 @@ util.minimizeAll = function browser_util_minimizeAll() {
         a = a + 1;
     } while (a < length);
     util.minimizeAllFlag = false;
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 util.minimizeAllFlag = false;

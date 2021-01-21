@@ -142,7 +142,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                 heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                 a = a + 1;
             } while (a < length);
-            network.storage("settings");
+            network.storage("settings", null);
         };
     let a:number = 0,
         delay:Element,

@@ -191,7 +191,7 @@ message.textareaResize = function browser_message_textareaResize(event:MouseEven
 /* event handler for textarea resizing */
 message.textareaUp = function browser_message_textareaUp():void {
     message.mousedown = false;
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 export default message;

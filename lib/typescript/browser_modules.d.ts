@@ -3,9 +3,9 @@
 interface module_common {
     agents: (agents:agentsConfiguration) => void;
     capitalize: (input:string) => string;
-    commas: (number:number|bigint) => string;
+    commas: (number:number) => string;
     deviceShare: (devices:agents, deleted:agentList) => agentShares;
-    prettyBytes: (an_integer:number|bigint) => string; 
+    prettyBytes: (an_integer:number) => string; 
 }
 interface module_context {
     copy?: EventHandlerNonNull;
@@ -90,7 +90,7 @@ interface module_network {
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
     message?: (message:messageItem) => void;
-    storage?: (type:storageType) => void;
+    storage?: (type:storageType, callback:() => void) => void;
     testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     xhr?: (config:networkConfig) => void;
 }

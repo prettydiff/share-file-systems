@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/mkdir - A utility for recursively creating directories in the file system. */
-import { BigIntStats } from "fs";
+import { Stats } from "fs";
 
 import error from "../utilities/error.js";
 import log from "../utilities/log.js";
@@ -27,7 +27,7 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Functi
             : vars.node.path.resolve(dirToMake),
         dirs:string[] = dir.split(vars.sep),
         len:number = dirs.length,
-        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:nodeError, statInstance:BigIntStats, errorCallback:() => void):void {
+        errorHandler = function terminal_commands_mkdir_errorHandler(errorInstance:nodeError, statInstance:Stats, errorCallback:() => void):void {
             if (errorInstance !== null) {
                 if (errorInstance.toString().indexOf("no such file or directory") > 0 || errorInstance.code === "ENOENT") {
                     errorCallback();
@@ -60,38 +60,32 @@ const mkdir = function terminal_commands_mkdir(dirToMake:string, callback:Functi
         recursiveStat = function terminal_commands_mkdir_recursiveStat():void {
             ind = ind + 1;
             const target:string = dirs.slice(0, ind).join(vars.sep);
-            vars.node.fs.stat(
-                target,
-                {
-                    bigint: true
-                },
-                function terminal_commands_mkdir_recursiveStat_callback(errA:nodeError, statA:BigIntStats):void {
-                    errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
-                        if (testLog.callback === true) {
-                            testLog.callback = false;
-                            vars.testLogger("mkdir", "recursiveStat_callback", "each recursive directory gets a new stat. When something already exists at the destination it will not be overwritten, so complete");
-                        }
-                        vars.node.fs.mkdir(
-                            target,
-                            function terminal_mkdir_recursiveStat_callback_errorHandler_mkdir(errB:Error):void {
-                                if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
-                                    error([errB.toString()]);
-                                    return;
-                                }
-                                if (testLog.callback_mkdir === true) {
-                                    testLog.callback_mkdir = false;
-                                    vars.testLogger("mkdir", "callback_mkdir", "directory created and so perform the next recursive operation or execute callback");
-                                }
-                                if (ind === len) {
-                                    callback();
-                                } else {
-                                    terminal_commands_mkdir_recursiveStat();
-                                }
+            vars.node.fs.stat(target, function terminal_commands_mkdir_recursiveStat_callback(errA:nodeError, statA:Stats):void {
+                errorHandler(errA, statA, function terminal_commands_mkdir_recursiveStat_callback_errorHandler():void {
+                    if (testLog.callback === true) {
+                        testLog.callback = false;
+                        vars.testLogger("mkdir", "recursiveStat_callback", "each recursive directory gets a new stat. When something already exists at the destination it will not be overwritten, so complete");
+                    }
+                    vars.node.fs.mkdir(
+                        target,
+                        function terminal_mkdir_recursiveStat_callback_errorHandler_mkdir(errB:Error):void {
+                            if (errB !== null && errB.toString().indexOf("file already exists") < 0) {
+                                error([errB.toString()]);
+                                return;
                             }
-                        );
-                    });
-                }
-            );
+                            if (testLog.callback_mkdir === true) {
+                                testLog.callback_mkdir = false;
+                                vars.testLogger("mkdir", "callback_mkdir", "directory created and so perform the next recursive operation or execute callback");
+                            }
+                            if (ind === len) {
+                                callback();
+                            } else {
+                                terminal_commands_mkdir_recursiveStat();
+                            }
+                        }
+                    );
+                });
+            });
         };
     if (vars.command === "mkdir") {
         if (vars.verbose === true) {

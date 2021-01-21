@@ -1,6 +1,6 @@
 
 /* lib/terminal/commands/build - The library that executes the build and test tasks. */
-import { BigIntStats } from "fs";
+import { Stats } from "fs";
 
 import commands_documentation from "../utilities/commands_documentation.js";
 import error from "../utilities/error.js";
@@ -580,7 +580,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                             html: false,
                             json: false
                         },
-                        packStat = function terminal_commands_build_version_packStat(ers:Error, stat:BigIntStats) {
+                        packStat = function terminal_commands_build_version_packStat(ers:Error, stat:Stats) {
                             if (ers !== null) {
                                 error([ers.toString()]);
                                 return;
@@ -717,9 +717,7 @@ const build = function terminal_commands_build(test:boolean, callback:Function):
                             vars.node.fs.readFile(pack, "utf8", readPack);
                         };
                     heading("Writing version data");
-                    vars.node.fs.stat(pack, {
-                        bigint: true
-                    }, packStat);
+                    vars.node.fs.stat(pack, packStat);
                 }
             };
         if (test === false || test === undefined) {

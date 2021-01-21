@@ -25,7 +25,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
                 body = settings.colorDefaults[browser.data.color][0];
                 heading = settings.colorDefaults[browser.data.color][1];
                 browser.data.colors[input.type][input.hash] = [body, heading];
-                network.storage("settings");
+                network.storage("settings", null);
             } else {
                 body = browser.data.colors[input.type][input.hash][0];
                 heading = browser.data.colors[input.type][input.hash][1];
@@ -60,7 +60,7 @@ share.addAgent = function browser_share_addAgent(input:addAgent):void {
         settings.addUserColor(input.hash, input.type, <Element>document.getElementById("settings-modal").getElementsByClassName("settings")[0]);
         share.update("");
         if (input.save === true) {
-            network.storage(input.type);
+            network.storage(input.type, null);
         }
     }
 };
@@ -405,7 +405,7 @@ share.deleteAgentList = function browser_shares_deleteAgentList(box:Element):voi
     }
     network.deleteAgents(deleted);
     share.update("");
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Delete a share from a device */
@@ -466,7 +466,7 @@ share.deleteList = function browser_share_deleteList(event:MouseEvent, configura
             payloadModal.inputs = ["confirm", "cancel", "close"];
         }
         modal.create(payloadModal);
-        network.storage("settings");
+        network.storage("settings", null);
     } else {
         configuration.agent = browser.data.hashDevice;
         configuration.content = content;

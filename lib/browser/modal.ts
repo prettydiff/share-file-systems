@@ -40,7 +40,7 @@ modal.close = function browser_modal_close(event:MouseEvent):void {
         browser.data.modalTypes.splice(browser.data.modalTypes.indexOf(type), 1);
     }
     delete browser.data.modals[id];
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Modal types that are enduring are hidden, not destroyed, when closed */
@@ -52,7 +52,7 @@ modal.closeEnduring = function browser_modal_closeEnduring(event:MouseEvent):voi
         // this must remain separated from modal identity as more than one thing users it
         browser.data.modals[box.getAttribute("id")].status = "hidden";
     }
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Event handler for the modal's "Confirm" button */
@@ -411,7 +411,7 @@ modal.create = function browser_modal_create(options:modal):Element {
         options.callback();
     }
     if (browser.loadFlag === false) {
-        network.storage("settings");
+        network.storage("settings", null);
     }
     return box;
 };
@@ -451,10 +451,9 @@ modal.importSettings = function browser_modal_importSettings(event:MouseEvent):v
     }
     button.click();
     if (textArea.value !== dataString) {
-        network.storage("settings");
-        setTimeout(function browser_modal_importSettings():void {
+        network.storage("settings", function browser_modal_importSettings():void {
             location.replace(location.href);
-        }, 250);
+        });
     }
 };
 
@@ -527,7 +526,7 @@ modal.maximize = function browser_modal_maximize(event:Event, callback?:() => vo
     if (callback !== undefined) {
         callback();
     }
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* Visually minimize a modal to the tray at the bottom of the content area */
@@ -589,7 +588,7 @@ modal.minimize = function browser_modal_minimize(event:Event, callback?:() => vo
         callback();
     }
     if (util.minimizeAllFlag === false) {
-        network.storage("settings");
+        network.storage("settings", null);
     }
 };
 
@@ -641,7 +640,7 @@ modal.move = function browser_modal_move(event:Event):void {
             box.style.height   = "auto";
             settings.top = boxTop;
             settings.left = boxLeft;
-            network.storage("settings");
+            network.storage("settings", null);
             dropEvent.preventDefault();
             return false;
         },
@@ -772,7 +771,7 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
             clientHeight           = body.clientHeight;
             settings.width = clientWidth - offsetWidth;
             settings.height = clientHeight - offsetHeight;
-            network.storage("settings");
+            network.storage("settings", null);
         },
         compute = function browser_modal_resize_compute(leftTest:boolean, topTest:boolean, values:[number, number]):void {
             const minWidth:number = 55.7;
@@ -973,7 +972,7 @@ modal.textSave = function browser_modal_textSave(event:MouseEvent):void {
         window.clearTimeout(data.timer);
     }
     data.text_value = element.value;
-    network.storage("settings");
+    network.storage("settings", null);
 };
 
 /* An idle delay is a good time to save written notes */
@@ -987,7 +986,7 @@ modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
     data.timer = window.setTimeout(function browser_modal_textTimer_delay() {
         window.clearTimeout(data.timer);
         data.text_value = element.value;
-        network.storage("settings");
+        network.storage("settings", null);
     }, 15000);
 }
 

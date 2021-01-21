@@ -238,22 +238,12 @@ const defaultCommand:string = vars.command,
                             delayMessage = "Providing remote machine browser time before a refresh.";
                             return value;
                         }
-                        if (tests[index - 1].interaction[0].event === "refresh") {
-                            value = 1250;
-                            if (tests[index - 1].machine === "self" && count < value) {
-                                delayMessage = "Providing local device browser time following a refresh.";
-                                return value;
-                            }
-                            value = 1250;
-                            if (count < value) {
-                                delayMessage = "Providing remote machine browser time following a refresh.";
-                                return value;
-                            }
-                        }
                         if (browser.args.demo === true && count < 501) {
                             return 500;
                         }
-                        delayBrowser = true;
+                        if (count > 0) {
+                            delayBrowser = true;
+                        }
                         return count;
                     }()),
                     waitText = function terminal_test_application_browser_iterate_waitText(machine:string):string {
@@ -301,7 +291,20 @@ const defaultCommand:string = vars.command,
                     };
                     if (tests[index].machine === "self") {
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
-                            vars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
+                            browser.methods.delay({
+                                action: function terminal_test_application_browser_iterate_selfDelay():void {
+                                    vars.broadcast("test-browser", JSON.stringify(serverVars.testBrowser));
+                                },
+                                browser: delayBrowser,
+                                delay: wait,
+                                message: waitText(tests[index].machine)
+                            });
+                        } else if (delayBrowser === true) {
+                            const second:number = (wait / 1000),
+                                plural:string = (second === 1)
+                                    ? ""
+                                    : "s";
+                            log([`${humanTime(false)}Delaying for ${vars.text.cyan + second + vars.text.none} second${plural}: ${vars.text.cyan + waitText(tests[index].machine) + vars.text.none}`]);
                         }
                     } else {
                         browser.methods.delay({

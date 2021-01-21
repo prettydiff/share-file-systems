@@ -53,7 +53,7 @@ invite.addAgents = function browser_invite_addAgents(invitation:invite):void {
         } while (a > 0);
         browser.data.nameUser = invitation.userName;
         browser.data.hashUser = invitation.userHash;
-        network.storage("settings");
+        network.storage("settings", null);
     } else if (invitation.type === "user") {
         browser.user[keyShares[0]] = {
             ip: invitation.ip,
@@ -264,7 +264,7 @@ invite.request = function browser_invite_request(event:MouseEvent, options:modal
             type: type
         };
     options.text_value = JSON.stringify(saved);
-    network.storage("settings");
+    network.storage("settings", null);
     if (input !== null) {
         const p:Element = <Element>input.parentNode.parentNode,
             warning:Element = document.createElement("p");
@@ -358,7 +358,7 @@ invite.start = function browser_invite_start(event:MouseEvent, settings?:modal):
                 textArea:HTMLTextAreaElement = box.getElementsByTagName("textarea")[0];
             invite.portValidation(event);
             browser.data.modals[id].text_value = inputs[0].value + separator + inputs[1].value + separator + textArea.value;
-            network.storage("settings");
+            network.storage("settings", null);
         },
         saved:inviteSaved = (settings !== undefined && settings.text_value !== undefined && settings.text_value.charAt(0) === "{" && settings.text_value.charAt(settings.text_value.length - 1) === "}")
             ? JSON.parse(settings.text_value)

@@ -75,7 +75,7 @@ settings.agentColor = function browser_settings_agentColor(event:KeyboardEvent):
                 settings.applyAgentColors(agent, type, [browser.data.colors[type][agent][0], color]);
             }
             swatch.style.background = `#${color}`;
-            network.storage("settings");
+            network.storage("settings", null);
         } else if (event.type === "keyup") {
             const span:HTMLElement = parent.getElementsByTagName("span")[0];
             span.style.background = color;
@@ -123,7 +123,7 @@ settings.audio = function browser_settings_audio(event:MouseEvent):void {
     }
     settings.radio(element);
     if (browser.loadFlag === false) {
-        network.storage("settings");
+        network.storage("settings", null);
     }
 };
 
@@ -141,7 +141,7 @@ settings.colorScheme = function browser_settings_colorScheme(event:MouseEvent):v
             if (counts.count === counts.total) {
                 browser.data.color = <colorScheme>element.value;
                 if (browser.loadFlag === false) {
-                    network.storage("settings");
+                    network.storage("settings", null);
                 }
             }
         };
@@ -220,7 +220,7 @@ settings.compressionText = function browser_settings_compressionText(event:Keybo
         } else if (parentText.indexOf("hash") > 0) {
             browser.data.hashType = <hash>element.value;
         }
-        network.storage("settings");
+        network.storage("settings", null);
     }
 };
 

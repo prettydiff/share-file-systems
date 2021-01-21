@@ -536,7 +536,7 @@ const serviceCopy:systemServiceCopy = {
             vars.testLogger("fileService", "copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const readStream:ReadStream = vars.node.fs.readStream(data.location),
+                const readStream:ReadStream = vars.node.fs.ReadStream(data.location),
                     compress:BrotliCompress = (data.brotli > 0)
                         ? vars.node.zlib.createBrotliCompress({
                             params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}

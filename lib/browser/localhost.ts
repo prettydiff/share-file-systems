@@ -32,8 +32,7 @@ import disallowed from "../common/disallowed.js";
         cString:string = "",
         localDevice:Element = null,
         active:number = Date.now(),
-        testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
-        loginFlag:boolean = false;
+        testBrowser:boolean = (location.href.indexOf("?test_browser") > 0);
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
@@ -231,7 +230,8 @@ import disallowed from "../common/disallowed.js";
                 if (storage.settings === undefined || Object.keys(storage.settings).length < 1) {
                     applyLogin();
                 } else {
-                    let type:modalType;
+                    let type:modalType,
+                        count:number = 0;
                     const modalKeys:string[] = Object.keys(storage.settings.modals),
                         indexes:[number, string][] = [],
                         // applies z-index to the modals in the proper sequence while restarting the value at 0
@@ -451,8 +451,6 @@ import disallowed from "../common/disallowed.js";
                             };
                             modal.create(modalItem);
                         };
-                    let count:number = 0;
-                    loginFlag = true;
                     browser.pageBody.removeAttribute("class");
                     browser.data.colors = storage.settings.colors;
                     browser.data.nameUser = storage.settings.nameUser;
