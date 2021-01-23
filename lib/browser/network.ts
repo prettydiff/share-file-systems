@@ -141,6 +141,16 @@ network.message = function local_network_message(message:messageItem):void {
     });
 };
 
+/* Publish browser logs to the terminal */
+network.log = function local_network_log(...params:any[]):void {
+    network.xhr({
+        callback: null,
+        error: null,
+        payload: JSON.stringify(params),
+        type: "browser-log"
+    });
+};
+
 /* Writes configurations to file storage */
 network.storage = function local_network_storage(type:storageType, callback:() => void):void {
     if (browser.loadFlag === true && type !== "settings") {
@@ -159,7 +169,7 @@ network.storage = function local_network_storage(type:storageType, callback:() =
         callback: callback,
         error: null,
         payload: JSON.stringify(storage),
-        type: type
+        type: "storage"
     });
 };
 

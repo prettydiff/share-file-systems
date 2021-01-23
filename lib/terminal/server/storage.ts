@@ -14,7 +14,7 @@ const storage = function terminal_server_storage(data:storage):void {
             response({
                 message: `${data.type} storage written`,
                 mimeType: "text/plain",
-                responseType: data.type,
+                responseType: "storage",
                 serverResponse: data.response
             });
         },

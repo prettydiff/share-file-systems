@@ -169,7 +169,7 @@ interface networkConfig {
     callback: (responseType:requestType, responseText:string) => void;
     error: string;
     payload: string;
-    type: string;
+    type: requestType;
 }
 // ------------------------------------
 

@@ -751,7 +751,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "storage device, Local device storage without HTTP response",
         qualifier: "is",
-        requestType: "device",
+        requestType: "storage",
         test: "device storage written"
     });
     service.push(<testService>{
@@ -802,7 +802,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "storage settings, Local settings storage without HTTP response",
         qualifier: "is",
-        requestType: "settings",
+        requestType: "storage",
         test: "settings storage written"
     });
     service.push(<testService>{
@@ -827,7 +827,7 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         },
         name: "storage user, Local user storage without HTTP response",
         qualifier: "is",
-        requestType: "user",
+        requestType: "storage",
         test: "user storage written"
     });
     service.push(<testService>{

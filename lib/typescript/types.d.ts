@@ -19,8 +19,10 @@ declare global {
     type eventCallback = (event:Event, callback:Function) => void;
     type eventName = "blur" | "click" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "move" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseover" | "mouseout" | "mouseup" | "refresh" | "refresh-interaction" | "select" | "setValue" | "touchend" | "touchend" | "touchstart" | "wait";
     type hash = "blake2d512" | "blake2s256" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512" | "sha512-224" | "sha512-256" | "shake128" | "shake256";
+    type hashTypes = "hash-device" | "hash-share" | "hash-user";
     type heartbeatStatus = "" | "active" | "deleted" | "idle" | "offline";
-    type inviteAction = "invite" | "invite-request" | "invite-response" | "invite-complete";
+    type heartbeatTypes = "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update";
+    type inviteAction = "invite" | "invite-complete" | "invite-request" | "invite-response";
     type inviteStatus = "accepted" | "declined" | "invited";
     type mimeType = "application/javascript" | "application/json" | "application/octet-stream" | "application/x-www-form-urlencoded" | "application/xhtml+xml" | "image/jpeg" | "image/png" | "image/svg+xml" | "text/css" | "text/html" | "text/plain";
     type modalStatus = "hidden" | "maximized" | "minimized" | "normal";
@@ -28,7 +30,7 @@ declare global {
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
-    type requestType = "agent-online" | "copy" | "copy-file" | "copy-request-files" | "delete-agents" | "device" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | "hash-device" | "hash-share" | "hash-user" | "heartbeat-complete" | "heartbeat-delete-agents" | "heartbeat-status" | "heartbeat-update" | "message" | "invite" | "invite-complete" | "invite-error" | "invite-request" | "invite-response" | "message" | "reload" | "settings" | "test-browser" | "user";
+    type requestType = "agent-online" | "browser-log" | "copy" | "copy-file" | "copy-request-files" | "delete-agents" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "storage" | "test-browser";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "settings";

@@ -213,6 +213,12 @@ declare global {
     }
     // ------------------------------------
 
+    // methodPOST
+    interface postActions {
+        [key:string]: () => void;
+    }
+    // ------------------------------------
+
     // readFile
     interface readFile {
         callback: Function;

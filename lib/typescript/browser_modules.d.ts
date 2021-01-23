@@ -90,6 +90,7 @@ interface module_network {
     inviteAccept?:(configuration:invite) => void;
     inviteRequest?: (configuration:invite) => void;
     message?: (message:messageItem) => void;
+    log?:(...params:any[]) => void;
     storage?: (type:storageType, callback:() => void) => void;
     testBrowser?: (payload:[boolean, string, string][], index:number, task:testBrowserAction) => void;
     xhr?: (config:networkConfig) => void;

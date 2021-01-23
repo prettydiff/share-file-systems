@@ -17,6 +17,17 @@ import webSocket from "./webSocket.js";
 
 import disallowed from "../common/disallowed.js";
 
+// intercept console.log in the browser and push its input to the terminal
+(function browser_log():void {
+    const log:(...params:any[]) => void = console.log;
+    console.log = function (...params:any[]):void {
+        network.log(...params);
+        params.forEach(function browser_low_params(value:any) {
+            log(value);
+        });
+    };
+}());
+
 (function browser_init():void {
 
     util.fixHeight();
