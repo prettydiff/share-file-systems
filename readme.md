@@ -1,18 +1,17 @@
 # Share File Systems
 
 ## Purpose
-The end state is to offer a cross-OS private one-to-many online point-to-point relationship that shares media, messaging, and file system access with end-to-end encryption from the browser.
+Virtually bind multiple physical devices into a single virtual computer using a network.  A cross-OS private one-to-many online point-to-point relationship that shares computer availability, such as execution contexts and file system.  Your personal devices should be fully available to you regardless of where you are and of limited availability to other people you choose.
 
 This application seeks to be inherently private which disallows information broadcasts such as unrestricted Facebook updates or Twitter posts.  *Privacy should be thought of as sharing restricted to persons specifically identified prior, opposed to publishing to anonymous users, without any third party access.*
 
 ## Features
 * Works the same on Windows, Linux, and Mac OSX.
-* A Windows like graphic user interface in just a few functions that are easy to extend and customize.
-* Application saves state on each user interaction, which allows application to resume without disruption when a browser closes and allows real time testing cross-browser.
-* Recursive file system display with file system details.
+* A Windows/OSX like graphic user interface in just a few functions that are easy to extend and customize.
+* Application saves state on each user interaction, which allows application to resume without disruption.
 * A robust security model.
 * File integrity checks via SHA3-512 hash.
-* A variety of tools available via terminal commands.
+* A variety of tools optionally available via terminal commands.
 
 ## License
 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html)
@@ -29,12 +28,7 @@ This application seeks to be inherently private which disallows information broa
 1. Locally install the TypeScript node type definitions.
    * `npm install`
 1. Compile to JavaScript.
-   * `tsc --pretty`
-   * If this command in not available in Windows close the current shell and open a new shell as administrator. Run the following commands:
-      - `SET PATH=%AppData%\npm;%PATH%` in *cmd* or ``SET PATH=%AppData%\npm`;%PATH%`` in *Powershell*.
-   * If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
-      - `Set-ExecutionPolicy RemoteSigned`
-      - Choose option **Y**
+   * `tsc --pretty` **
 1. Build the application.
    * `node js/application build`
 1. Execute the application. If the required HTTPS certificates are missing they will be created, but the one or two on screen instructions must be followed to ensure those certificates are trusted by your operating system.
@@ -44,19 +38,21 @@ This application seeks to be inherently private which disallows information broa
       - `sudo apt-get install libcap2-bin`
       - ```sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\`` ```
    <!-- cspell:enable-->
-1. Open your favorite modern browser to https://localhost
+1. Open your favorite modern browser to http://localhost
    * If this doesn't work make an exception in your local firewall for port 443, or which ever port you specify.
+
+* If the `npm` command in not available in Windows close the current shell and open a new shell as administrator. Run the following commands:
+   - `SET PATH=%AppData%\npm;%PATH%` in *cmd* or ``SET PATH=%AppData%\npm`;%PATH%`` in *Powershell*.
+* If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
+   - `Set-ExecutionPolicy RemoteSigned`
+   - Choose option **Y**
 
 ### Execute automated demo (opens your default browser)
 1. `node js/application test_browser demo`
 
-### Remove the generated certificates
-1. `node js/application certificate remove`
-1. Follow the on screen instruction to remove the certificates from your operating system's trust store.
-
 ### Later builds
 1. `npm restart` is a convenience command that contains the build and starts services so this is all you need even if you make code changes.
-1. If a browser isn't already open to the application then open it to https://localhost
+1. If a browser isn't already open to the application then open it to http://localhost
 
 ## A quick user introduction
 1. The first time you open the application it will ask you to create a user name and device name.
@@ -81,9 +77,9 @@ This application is currently in early development but is maturing rapidly.  The
 * Graphic User Interface - **mature**
 * File system display/interaction - **mature**
 * Terminal utilities - **mature**
+* Agent invitation and sharing real time updates - **mature**
+* Heartbeat and status notifications updates in real time - **mature**
 * Security model - **stable**
-* Agent invitation and sharing real time updates - **stable**
-* Heartbeat and status notifications updates in real time - **stable**
 * File system access via personal devices - **stable**
 * File system access via remote user - **development**
 * Remote execution - **absent**
@@ -91,9 +87,9 @@ This application is currently in early development but is maturing rapidly.  The
 * Device application list - **absent**
 * Test automation
    - terminal/commands - **mature**
-   - services - **stable**
-   - browser/GUI - **absent**
-   - end-to-end tests - **absent**
+   - services - **mature**
+   - browser/GUI - **mature**
+   - end-to-end tests - **development**
 
 ### Status Notes
 1. HTTP is used for all services at this time.  This has proven sufficient enough for heartbeat and invite services, but is proving to not be enough for file copy through the security model.  I will be investigating use of WebRTC.

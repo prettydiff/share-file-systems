@@ -15,6 +15,11 @@ It is necessary to run Linux and without additional hardware at the time of this
 ## Local VM password
 **share1234**
 
+## Virtual Hardware
+### Network
+1. Enable a first network adapter with defaults, **NAT**.
+2. Enable a second network adapter as **Host-only Adapter** with all other settings at default.
+
 ## Clone a VM
 ### Hostname
 On a relatively clean Linux box there are only two places that need updating to change the hostname.
@@ -55,8 +60,6 @@ exit 0
 cd share-file-systems
 git checkout master
 git pull origin master
-git checkout browser
-git pull origin browser
 
 node js/application build
 ```
@@ -72,12 +75,6 @@ I had the wonderful experience of my Ubuntu guest stealing access of the microph
    1. Go back into properties and change it to *24bit, 48000 hertz* and click *OK* button.
    1. The *Playback* tab is complete. Repeat that process for the microphone under the *Recoding* tab.
    1. Ensure the microphone is enabled in the Windows host recording application.
-
-## Adapters
-In the VM host configure 2 adapters for each guest machine.
-
-1. **NAT** - This should be the default configuration and all default settings are fine. This provides internet access to the guest machine.
-2. **Host Based Adapter** - The default settings for this adapter type are fine.  This provides connectivity between the host and guest machine.
 
 ## Ports
 Linux will not allow use of reserved ports (anything below 1024) for applications run by regular users, so we have to fix that.
@@ -107,7 +104,7 @@ Provide an alias to your *.bashrc* file
 2. `alias sharefs="authbind node ~/share-file-systems/js/application"`
 <!-- cspell:enable -->
 
-Then just execute the application as: <!-- cspell:disable -->`sharefs server`<!-- cspell:enable -->
+Then just execute the application as: <!-- cspell:disable -->`sharefs service`<!-- cspell:enable -->
 
 ## Custom Prompt
 Modify the prompt into something informative matching the style of this application
