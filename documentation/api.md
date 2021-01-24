@@ -1,7 +1,7 @@
-<!-- documentation/api - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts. -->
+<!-- documentation/api - This documentation details the various services offered by the application. -->
 
 # Share File Systems - API Documentation
-This documentation is collected from the interfaces defined in *index.d.ts* and their use in *lib/terminal/server.ts*.
+This documentation is collected from the interfaces defined in *index.d.ts* and their use in *lib/terminal/commands/service.ts*.
 
 ## fileListStatus
 Provides status update messaging about a file system segment on a remote device.  Used as the *status* property of the [fsUpdateRemote](#fsUpdateRemote) service.

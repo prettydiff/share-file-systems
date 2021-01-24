@@ -32,7 +32,7 @@ This application seeks to be inherently private which disallows information broa
 1. Build the application.
    * `node js/application build`
 1. Execute the application. If the required HTTPS certificates are missing they will be created, but the one or two on screen instructions must be followed to ensure those certificates are trusted by your operating system.
-   * `node js/application server`
+   * `node js/application service`
    <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps:
       - `sudo apt-get install libcap2-bin`

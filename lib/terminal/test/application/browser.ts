@@ -9,7 +9,7 @@ import humanTime from "../../utilities/humanTime.js";
 import log from "../../utilities/log.js";
 import remove from "../../commands/remove.js";
 import response from "../../server/response.js";
-import server from "../../commands/service.js";
+import service from "../../commands/service.js";
 import serverVars from "../../server/serverVars.js";
 import time from "../../utilities/time.js";
 import vars from "../../utilities/vars.js";
@@ -132,7 +132,7 @@ const defaultCommand:string = vars.command,
                         }
                 };
                 serverVars.testType = "browser";
-                server({
+                service({
                     agent: "",
                     agentType: "device",
                     callback: (args.mode === "remote")

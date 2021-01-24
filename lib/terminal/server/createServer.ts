@@ -1,5 +1,5 @@
 
-/* lib/terminal/server/createServer - This library launches the HTTP server and all supporting service utilities. */
+/* lib/terminal/server/createServer - This library launches the HTTP service and all supporting service utilities. */
 
 import { IncomingMessage, ServerResponse } from "http";
 

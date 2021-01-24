@@ -4,7 +4,7 @@
 This is a dynamically compiled list of supporting code files that comprise this application with a brief description of each file.
 
 * Directory *[../documentation](../documentation)*
-   - **[api.md](api.md)**                                                                                                     - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts.
+   - **[api.md](api.md)**                                                                                                     - This documentation details the various services offered by the application.
    - **[code_style.md](code_style.md)**                                                                                       - Describes rules for code conformance.
    - **[commands.md](commands.md)**                                                                                           - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
    - **[credits.md](credits.md)**                                                                                             - A list of external source material not originally created within this project.
@@ -51,7 +51,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/commands/lint.ts](../lib/terminal/commands/lint.ts)**                                                 - A command driven wrapper for executing external application ESLint.
    - **[../lib/terminal/commands/mkdir.ts](../lib/terminal/commands/mkdir.ts)**                                               - A utility for recursively creating directories in the file system.
    - **[../lib/terminal/commands/remove.ts](../lib/terminal/commands/remove.ts)**                                             - A command driven utility to recursively remove file system artifacts.
-   - **[../lib/terminal/commands/service.ts](../lib/terminal/commands/service.ts)**                                           - A command driven HTTP server for running the terminal instance of the application.
+   - **[../lib/terminal/commands/service.ts](../lib/terminal/commands/service.ts)**                                           - A command driven HTTP service for running the terminal instance of the application.
    - **[../lib/terminal/commands/test.ts](../lib/terminal/commands/test.ts)**                                                 - A command driven wrapper for all test utilities.
    - **[../lib/terminal/commands/test_browser.ts](../lib/terminal/commands/test_browser.ts)**                                 - A command driven wrapper for tests to be sent to the browser to impose changes to the DOM and test the result.
    - **[../lib/terminal/commands/test_service.ts](../lib/terminal/commands/test_service.ts)**                                 - A command driven wrapper for the service tests, which test the various services used by the application.
@@ -73,7 +73,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/watchHandler.ts](../lib/terminal/fileService/watchHandler.ts)**                           - An event handler for file system watch events.
    - **[../lib/terminal/fileService/watchLocal.ts](../lib/terminal/fileService/watchLocal.ts)**                               - Broadcasts local file system changes to the browser.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
-   - **[../lib/terminal/server/createServer.ts](../lib/terminal/server/createServer.ts)**                                     - This library launches the HTTP server and all supporting service utilities.
+   - **[../lib/terminal/server/createServer.ts](../lib/terminal/server/createServer.ts)**                                     - This library launches the HTTP service and all supporting service utilities.
    - **[../lib/terminal/server/forbiddenUser.ts](../lib/terminal/server/forbiddenUser.ts)**                                   - A single function for handling rejected HTTP responses associated with disallowed requests.
    - **[../lib/terminal/server/hashIdentity.ts](../lib/terminal/server/hashIdentity.ts)**                                     - Compares a security token to a generated hash to bypass typical file service security restrictions
    - **[../lib/terminal/server/heartbeat.ts](../lib/terminal/server/heartbeat.ts)**                                           - The code that manages sending and receiving user online status updates.

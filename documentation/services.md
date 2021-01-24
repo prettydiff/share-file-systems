@@ -596,7 +596,7 @@ The heartbeat makes use of two services:
    * a timed interval from the browser
    * if the current user status is *idle* and changes to *active*
    * a change to local device shares
-   * when the terminal application is running with the *server* command
+   * when the terminal application is running with the *service* command
 1. The *agent* property of the data is `localhost-browser` if it starts from the browser or `localhost-terminal` if it executes from the terminal application coming online
 1. The `serverVars.status` is updated to reflect the user's activity status in the browser.
 1. The *user* property is assigned the value of the username of the local device as it would appear to remote devices/users.

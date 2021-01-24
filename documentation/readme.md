@@ -4,7 +4,7 @@ These markdown files comprise the project's current informal notes and formal re
 ## Files
 <!-- Do not edit below this line.  Contents dynamically populated. -->
 
-* **[api.md](api.md)**                             - This documentation is collected from the interfaces defined in index.d.ts and their use in lib/terminal/server.ts.
+* **[api.md](api.md)**                             - This documentation details the various services offered by the application.
 * **[code_style.md](code_style.md)**               - Describes rules for code conformance.
 * **[commands.md](commands.md)**                   - This documentation describes the various supported terminal commands and is automatically generated from `lib/terminal/utilities/commands_documentation.ts`.
 * **[credits.md](credits.md)**                     - A list of external source material not originally created within this project.

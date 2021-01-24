@@ -31,8 +31,8 @@
     "scripts": {
         "prepublishOnly": "node js/application test",
         "prerestart": "node js/application build",
-        "restart": "node js/application server",
-        "start": "node js/application server",
+        "restart": "node js/application service",
+        "start": "node js/application service",
         "test": "node js/application test"
     },
     "type": "module",

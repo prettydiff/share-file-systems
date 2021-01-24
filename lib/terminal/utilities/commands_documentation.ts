@@ -318,11 +318,11 @@ const commands_documentation = {
         example: [
             {
                 code: `${vars.version.command} service`,
-                defined: `Launches the server on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
+                defined: `Launches the service on default port ${vars.version.port} and web sockets on port ${vars.version.port + 1}.`
             },
             {
                 code: `${vars.version.command} service 8080`,
-                defined: "If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port."
+                defined: "If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port."
             },
             {
                 code: `${vars.version.command} service 0`,
@@ -334,7 +334,7 @@ const commands_documentation = {
             },
             {
                 code: `${vars.version.command} service test`,
-                defined: "The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data."
+                defined: "The 'test' argument tells the service to use data from a separate storage location for running tests instead of the user's actual data."
             },
             {
                 code: `${vars.version.command} service test browser 9000`,
@@ -368,7 +368,7 @@ const commands_documentation = {
         ]
     },
     test_browser: {
-        description: "Launches the 'server' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
+        description: "Launches the 'service' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.",
         example: [
             {
                 code: `${vars.version.command} test_browser`,
@@ -405,11 +405,11 @@ const commands_documentation = {
         ]
     },
     test_service: {
-        description: "Launches the 'server' command as a child process to issue HTTP requests against it and test the results",
+        description: "Launches the 'service' command as a child process to issue HTTP requests against it and test the results",
         example: [
             {
                 code: `${vars.version.command} test_service`,
-                defined: "Runs tests server utility."
+                defined: "Runs tests service utility."
             },
             {
                 code: `${vars.version.command} test_service fs-copy`,

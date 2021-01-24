@@ -15,6 +15,7 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
 const invite = function terminal_server_invite(data:invite, serverResponse:ServerResponse):void {
+    let responseString:string;
     const inviteHttp = function terminal_server_invite_inviteHttp(ip:string, port:number):void {
             const payload:string = (function terminal_server_invite_inviteHTTP_payload():string {
                     const ip:string = data.ip,
@@ -106,89 +107,94 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                 type: data.type
             });
             responseString = `Accepted${respond}`;
-        };
-    let responseString:string;
-    if (data.action === "invite") {
-        vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
-        responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
-        data.action = "invite-request";
-        data.shares = (data.type === "device")
-            ? serverVars.device
-            : {
-                [serverVars.hashUser]: {
-                    ip: serverVars.ipAddress,
-                    name: serverVars.nameUser,
-                    port: serverVars.webPort,
-                    shares: common.deviceShare(serverVars.device, null)
+        },
+        actions:postActions = {
+            "invite": function terminal_server_invite_invite():void {
+                vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
+                responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
+                data.action = "invite-request";
+                data.shares = (data.type === "device")
+                    ? serverVars.device
+                    : {
+                        [serverVars.hashUser]: {
+                            ip: serverVars.ipAddress,
+                            name: serverVars.nameUser,
+                            port: serverVars.webPort,
+                            shares: common.deviceShare(serverVars.device, null)
+                        }
+                    };
+                inviteHttp(data.ip, data.port);
+            },
+            "invite-complete": function terminal_server_invite_inviteComplete():void {
+                const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
+                vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
+                if (data.status === "accepted") {
+                    accepted(respond);
+                } else {
+                    responseString = (data.status === "declined")
+                        ? `Declined${respond}`
+                        : `Ignored${respond}`;
                 }
-            };
-        inviteHttp(data.ip, data.port);
-    } else if (data.action === "invite-request") {
-        vars.testLogger("invite", "invite-request", "Process an invitation request from a remote agent by sending the request data to the browser.");
-        responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
-        if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
-            // if the agent is already registered with the remote then bypass the user by auto-approving the request
-            accepted(` invitation. Request processed at remote terminal ${data.ip}.  Agent already present, so auto accepted and returned to start terminal.`);
-            data.action = "invite-complete";
-            data.shares = (data.type === "device")
-                ? serverVars.device
-                : {
-                    [serverVars.hashUser]: {
-                        ip: serverVars.ipAddress,
-                        name: serverVars.nameUser,
-                        port: serverVars.webPort,
-                        shares: common.deviceShare(serverVars.device, null)
+                vars.broadcast("invite-complete", JSON.stringify(data));
+            },
+            "invite-request": function terminal_server_invite_inviteRequest():void {
+                vars.testLogger("invite", "invite-request", "Process an invitation request from a remote agent by sending the request data to the browser.");
+                responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
+                if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
+                    // if the agent is already registered with the remote then bypass the user by auto-approving the request
+                    accepted(` invitation. Request processed at remote terminal ${data.ip}.  Agent already present, so auto accepted and returned to start terminal.`);
+                    data.action = "invite-complete";
+                    data.shares = (data.type === "device")
+                        ? serverVars.device
+                        : {
+                            [serverVars.hashUser]: {
+                                ip: serverVars.ipAddress,
+                                name: serverVars.nameUser,
+                                port: serverVars.webPort,
+                                shares: common.deviceShare(serverVars.device, null)
+                            }
+                        };
+                    data.status = "accepted";
+                    inviteHttp(data.ip, data.port);
+                } else {
+                    vars.broadcast("invite", JSON.stringify(data));
+                }
+            },
+            "invite-response": function terminal_server_invite_inviteResponse():void {
+                const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`,
+                    ip:string = data.ip,
+                    port:number = data.port;
+                vars.testLogger("invite", "invite-response", "The user has made a decision about the invitation and now that decision must be sent back to the originating agent.");
+                if (data.status === "accepted") {
+                    accepted(respond);
+                    if (data.type === "device") {
+                        data.deviceHash = serverVars.hashDevice;
+                        data.deviceName = serverVars.nameDevice;
+                        data.shares = serverVars.device;
+                    } else {
+                        data.userHash = serverVars.hashUser;
+                        data.userName = serverVars.nameUser;
+                        data.shares = {
+                            [serverVars.hashUser]: {
+                                ip: serverVars.ipAddress,
+                                name: serverVars.nameUser,
+                                port: serverVars.webPort,
+                                shares: common.deviceShare(serverVars.device, null)
+                            }
+                        };
                     }
-                };
-            data.status = "accepted";
-            inviteHttp(data.ip, data.port);
-        } else {
-            vars.broadcast("invite", JSON.stringify(data));
-        }
-    } else if (data.action === "invite-response") {
-        const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`,
-            ip:string = data.ip,
-            port:number = data.port;
-        vars.testLogger("invite", "invite-response", "The user has made a decision about the invitation and now that decision must be sent back to the originating agent.");
-        if (data.status === "accepted") {
-            accepted(respond);
-            if (data.type === "device") {
-                data.deviceHash = serverVars.hashDevice;
-                data.deviceName = serverVars.nameDevice;
-                data.shares = serverVars.device;
-            } else {
-                data.userHash = serverVars.hashUser;
-                data.userName = serverVars.nameUser;
-                data.shares = {
-                    [serverVars.hashUser]: {
-                        ip: serverVars.ipAddress,
-                        name: serverVars.nameUser,
-                        port: serverVars.webPort,
-                        shares: common.deviceShare(serverVars.device, null)
-                    }
-                };
+                    data.ip = serverVars.ipAddress;
+                    data.port = serverVars.webPort;
+                } else {
+                    responseString = (data.status === "declined")
+                        ? `Declined${respond}`
+                        : `Ignored${respond}`;
+                }
+                data.action = "invite-complete";
+                inviteHttp(ip, port);
             }
-            data.ip = serverVars.ipAddress;
-            data.port = serverVars.webPort;
-        } else {
-            responseString = (data.status === "declined")
-                ? `Declined${respond}`
-                : `Ignored${respond}`;
-        }
-        data.action = "invite-complete";
-        inviteHttp(ip, port);
-    } else if (data.action === "invite-complete") {
-        const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
-        vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
-        if (data.status === "accepted") {
-            accepted(respond);
-        } else {
-            responseString = (data.status === "declined")
-                ? `Declined${respond}`
-                : `Ignored${respond}`;
-        }
-        vars.broadcast("invite-complete", JSON.stringify(data));
-    }
+        };
+    actions[data.action]();
     //log([responseString]);
     response({
         message: responseString,

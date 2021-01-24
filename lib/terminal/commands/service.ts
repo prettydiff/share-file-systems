@@ -1,5 +1,5 @@
 
-/* lib/terminal/commands/service - A command driven HTTP server for running the terminal instance of the application. */
+/* lib/terminal/commands/service - A command driven HTTP service for running the terminal instance of the application. */
 import { AddressInfo } from "net";
 
 import WebSocket from "../../ws-es6/index.js";
@@ -197,7 +197,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         serverError = function terminal_commands_service_serverError(errorMessage:nodeError):void {
             if (errorMessage.code === "EADDRINUSE") {
                 if (errorMessage.port === port + 1) {
-                    error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP server.`]);
+                    error([`Web socket channel port, ${vars.text.cyan + port + vars.text.none}, is in use!  The web socket channel is 1 higher than the port designated for the HTTP service.`]);
                 } else {
                     error([`Specified port, ${vars.text.cyan + port + vars.text.none}, is in use!`]);
                 }
@@ -359,7 +359,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                 process.chdir(vars.projectPath);
             }
 
-            // start the server
+            // start the service
             serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
                 recursive: (serverVars.testType !== "browser" && (process.platform === "win32" || process.platform === "darwin"))
             }, serverWatch);

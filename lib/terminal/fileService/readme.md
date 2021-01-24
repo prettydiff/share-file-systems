@@ -1,4 +1,4 @@
-# lib/terminal/server Code Files
+# lib/terminal/fileService Code Files
 These files are libraries that comprise */lib/terminal/fileService/fileService.ts* which are used to perform file system operations as a networked service.
 
 ## Files

@@ -29,7 +29,7 @@ const agentOnline = function terminal_commands_agentOnline():void {
         if (Object.keys(storage.device).length < 1) {
             error([
                 `${vars.text.angry}Device data is not present in storage.${vars.text.angry}`,
-                `Run the ${vars.text.cyan}server${vars.text.none} command and go to address ${vars.text.cyan}localhost${vars.text.none} in the web browser to initiate device data.`
+                `Run the ${vars.text.cyan}service${vars.text.none} command and go to address ${vars.text.cyan}localhost${vars.text.none} in the web browser to initiate device data.`
             ]);
             return;
         }
