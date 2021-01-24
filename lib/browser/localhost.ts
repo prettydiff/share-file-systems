@@ -19,7 +19,9 @@ import disallowed from "../common/disallowed.js";
 
 // intercept console.log in the browser and push its input to the terminal
 (function browser_log():void {
+    // eslint-disable-next-line
     const log:(...params:any[]) => void = console.log;
+    // eslint-disable-next-line
     console.log = function (...params:any[]):void {
         network.log(...params);
         params.forEach(function browser_low_params(value:any) {
@@ -43,7 +45,8 @@ import disallowed from "../common/disallowed.js";
         cString:string = "",
         localDevice:Element = null,
         active:number = Date.now(),
-        testBrowser:boolean = (location.href.indexOf("?test_browser") > 0);
+        testBrowser:boolean = (location.href.indexOf("?test_browser") > 0),
+        logInTest:boolean = false;
     const comments:Comment[] = <Comment[]>document.getNodesByType(8),
         commentLength:number = comments.length,
         idleTime:number = 15000,
@@ -218,10 +221,14 @@ import disallowed from "../common/disallowed.js";
                 buttons[a].onblur = util.menuBlur;
                 a = a + 1;
             } while (a < buttonsLength);
-            webSocket(function browser_init_loadComplete_socket():void {
+            if (logInTest === true) {
+                webSocket(function browser_init_loadComplete_socket():void {
+                    activate();
+                    testBrowserLoad(0);
+                });
+            } else {
                 activate();
-                testBrowserLoad(0);
-            });
+            }
         };
     do {
         cString = comments[a].substringData(0, comments[a].length);
@@ -462,6 +469,7 @@ import disallowed from "../common/disallowed.js";
                             };
                             modal.create(modalItem);
                         };
+                    logInTest = true;
                     browser.pageBody.removeAttribute("class");
                     browser.data.colors = storage.settings.colors;
                     browser.data.nameUser = storage.settings.nameUser;
