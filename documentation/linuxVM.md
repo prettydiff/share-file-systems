@@ -20,49 +20,19 @@ It is necessary to run Linux and without additional hardware at the time of this
 1. Enable a first network adapter with defaults, **NAT**.
 2. Enable a second network adapter as **Host-only Adapter** with all other settings at default.
 
-## Clone a VM
-### Hostname
-On a relatively clean Linux box there are only two places that need updating to change the hostname.
-
-<!-- cspell:disable -->
-1. `sudo vim /etc/hosts` - modify the existing hostname
-2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
-<!-- cspell:enable -->
-
-### Change Application Device Name
-This change is for the Share File Systems application not the OS.
-
-Settings:
-1. `vim ./storage/settings.json`
-2. Change the `nameDevice` property
-3. Optionally the `nameUser` can be changed as well
-
-Device:
-1. `vim ./storage/device.json`
-2. Change the `name` property to anything else
-
-### IP Address
-The IP address shouldn't need to be changed, because the host assigns the address from a <!-- cspell:disable -->DHCP<!-- cspell:enable --> pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
-1. <!-- cspell:disable --> `ifconfig` <!-- cspell:enable --> - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
-2. <!-- cspell:disable --> `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` <!-- cspell:enable --> where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the <!-- cspell:disable -->netmask<!-- cspell:enable -->.
-
-## Start up script
-### rc.local
-`sudo vim /etc/rc.local`
-
-```
-~/startup.sh || exit 1
-exit 0
-```
-
-### startup.sh
-```
-cd share-file-systems
-git checkout master
-git pull origin master
-
-node js/application build
-```
+## Application Checklist
+1. Run the software updater
+2. Install vim, `sudo apt-get install vim`
+3. Install curl, `sudo apt-get install curl`
+4. Install git, `sudo apt install git`
+5. Install net-tools, `sudo apt-get install net-tools`
+6. Install NVM, `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash`
+7. Install TypeScript, `npm install -g typescript`
+8. Install ESLint, `npm install -g eslint`
+9. Install an editor
+   * Lite for low memory images `sudo apt install lite-editor`
+   * VS Code for large memory images - download 64bit `deb` package from https://code.visualstudio.com/Download
+10. Install Chromium - `sudo apt install chromium-browser`
 
 ## Microphone
 I had the wonderful experience of my Ubuntu guest stealing access of the microphone away from the Windows host.  This was not an Ubuntu problem but rather a Virtual Box and Windows problem.  Here are the steps to solve this problem.
@@ -155,3 +125,29 @@ set t_Co=256       "enable 256 colors (the shell must support this value)
 set wildmenu       "display command line's tab complete options as a menu
 ```
 <!-- cspell:enable -->
+
+## Clone a VM
+### Hostname
+On a relatively clean Linux box there are only two places that need updating to change the hostname.
+
+<!-- cspell:disable -->
+1. `sudo vim /etc/hosts` - modify the existing hostname
+2. `sudo hostnamectl set-hostname myNewName` - set the new hostname
+<!-- cspell:enable -->
+
+### Change Application Device Name
+This change is for the Share File Systems application not the OS.
+
+Settings:
+1. `vim ./storage/settings.json`
+2. Change the `nameDevice` property
+3. Optionally the `nameUser` can be changed as well
+
+Device:
+1. `vim ./storage/device.json`
+2. Change the `name` property to anything else
+
+### IP Address
+The IP address shouldn't need to be changed, because the host assigns the address from a <!-- cspell:disable -->DHCP<!-- cspell:enable --> pool to the guest machine via the host-based adapter interface, but should the IP address be the same as another VM here are the steps:
+1. <!-- cspell:disable --> `ifconfig` <!-- cspell:enable --> - This command will display the current interfaces as well as their addresses.  Take note of the interface name of the interface we want to change. This is probably the interface with an address beginning 192.168
+2. <!-- cspell:disable --> `sudo ifconfig enp0s3 192.168.0.111 network 255.255.255.0` <!-- cspell:enable --> where `enp0s3` is the interface name and `192.168.0.111` is an example address.  Which ever address you chose should be an address that is not currently in use by another device on the host created network and within that network as defined by the <!-- cspell:disable -->netmask<!-- cspell:enable -->.

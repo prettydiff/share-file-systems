@@ -99,9 +99,11 @@ declare global {
     }
     interface testBrowserMachines {
         [key:string]: {
-            ip: string;
-            port: number;
-            secure: boolean;
+            [key:string]: {
+                ip: string;
+                port: number;
+                secure: boolean;
+            }
         }
     }
     interface testBrowserRoute {

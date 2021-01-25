@@ -201,15 +201,15 @@ Launches a HTTP service and web sockets so that the web tool is automatically re
 
 ### Examples
 1. `node js/application service`
-   - Launches the server on default port 443 and web sockets on port 444.
+   - Launches the service on default port 443 and web sockets on port 444.
 1. `node js/application service 8080`
-   - If a numeric argument is supplied the web server starts on the port specified and web sockets on the following port.
+   - If a numeric argument is supplied the web service starts on the port specified and web sockets on the following port.
 1. `node js/application service 0`
    - To receive a random available port specify port number 0.
 1. `node js/application service browser`
    - The 'browser' argument launches the default location in the user's default web browser.
 1. `node js/application service test`
-   - The 'test' argument tells the server to use data from a separate storage location for running tests instead of the user's actual data.
+   - The 'test' argument tells the service to use data from a separate storage location for running tests instead of the user's actual data.
 1. `node js/application service test browser 9000`
    - An example with all supported arguments.  The supported arguments may occur in any order, but the third argument (after 'browser' and 'test') must be a number.
 1. `node js/application service ip:192.168.1.125`
@@ -229,7 +229,7 @@ Builds the application and then runs all the test commands
    - The log argument turns on verbose logging output with annotations.
 
 ## test_browser
-Launches the 'server' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.
+Launches the 'service' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.
 
 ### Examples
 1. `node js/application test_browser`
@@ -250,11 +250,11 @@ Launches the 'server' command as a child process, launches the default browser t
    - By default tests only execute against the default browser.  To test against other locally installed browsers simply provide the absolute path to the browser binary.
 
 ## test_service
-Launches the 'server' command as a child process to issue HTTP requests against it and test the results
+Launches the 'service' command as a child process to issue HTTP requests against it and test the results
 
 ### Examples
 1. `node js/application test_service`
-   - Runs tests server utility.
+   - Runs tests service utility.
 1. `node js/application test_service fs-copy`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
 1. `node js/application test_service log`
