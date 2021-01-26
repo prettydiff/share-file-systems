@@ -311,7 +311,6 @@ const serviceCopy:systemServiceCopy = {
             if (config.fileData.list[0][1] === "directory") {
                 newDir();
             } else {
-                //config.data.action = <serviceFS>config.data.action.replace(/((list)|(request))/, "file");
                 requestFile();
             }
         },

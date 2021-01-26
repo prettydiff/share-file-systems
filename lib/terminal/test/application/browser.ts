@@ -795,7 +795,11 @@ const defaultCommand:string = vars.command,
                     serverResponse: serverResponse
                 });
                 if (data.action !== "nothing") {
-                    browser.methods[data.action](data);
+                    if (browser.methods[data.action] === undefined) {
+                        error([`Unsupported action in browser test automation: ${data.action}`]);
+                    } else {
+                        browser.methods[data.action](data);
+                    }
                 } else if (data.exit !== "") {
                     log([data.exit]);
                 }
