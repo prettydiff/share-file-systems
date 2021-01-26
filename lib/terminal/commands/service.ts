@@ -277,7 +277,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         localAddresses();
                         output.push("");
 
-                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost:${port + vars.text.none}`);
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString.replace("[", ":").replace("]", "") + vars.text.none}`);
                         output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
                         if (certLogs !== null) {
                             certLogs.forEach(function terminal_commands_service_start_logger_certLogs(value:string):void {

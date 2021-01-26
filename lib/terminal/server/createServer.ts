@@ -89,7 +89,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         } else {
             setIdentity(true);
             response({
-                message: "ForbiddenAccess:GET method from external agent.",
+                message: "ForbiddenAccess: GET method from external agent.",
                 mimeType: "text/plain",
                 responseType: "forbidden",
                 serverResponse: serverResponse

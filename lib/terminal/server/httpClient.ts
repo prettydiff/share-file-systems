@@ -61,8 +61,12 @@ httpClient.stream = function terminal_server_httpClient_callback(fsResponse:Inco
         const body:Buffer|string = (Buffer.isBuffer(chunks[0]) === true)
             ? Buffer.concat(chunks)
             : chunks.join("");
-        if (chunks.length > 0 && chunks[0].toString().indexOf("ForbiddenAccess:") === 0) {
-            forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+        if (fsResponse.headers["response-type"] === "forbidden") {
+            if (body.toString().indexOf("ForbiddenAccess:") === 0) {
+                forbiddenUser(body.toString().replace("ForbiddenAccess:", ""), "user");
+            } else {
+                error([body.toString()]);
+            }
         } else {
             config.callback(body, fsResponse.headers);
         }
