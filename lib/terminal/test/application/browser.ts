@@ -48,9 +48,7 @@ const defaultCommand:string = vars.command,
                     test: null,
                     transfer: null
                 };
-                vars.ws.broadcast(JSON.stringify({
-                    "test-browser": close
-                }));
+                vars.broadcast("test-browser", JSON.stringify(close));
                 log([data.exit]);
             },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
