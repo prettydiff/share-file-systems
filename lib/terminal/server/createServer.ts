@@ -42,7 +42,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
                             request.headers["request-type"] === "hash-device" ||
                             request.headers["request-type"] === "invite-request" ||
                             request.headers["request-type"] === "invite-complete" ||
-                            serverVars.testType === "browser"
+                            serverVars.testType.indexOf("browser") === 0
                         )
                     )
                 )

@@ -38,7 +38,7 @@ declare global {
     type storageType = "device" | "message" | "settings" | "user";
     type testBrowserAction = "close" | "nothing" | "request" | "reset-browser" | "reset-complete" | "reset-request" | "reset-response" | "respond" | "result";
     type testBrowserMode = "agents" | "full" | "remote" | "self";
-    type testListType = "" | "browser" | "service" | "simulation";
+    type testListType = "" | "browser_agents" | "browser_self" | "service" | "simulation";
     type testLogFlag = "" | testListType;
     type ui_input = "cancel" | "close" | "confirm" | "maximize" | "minimize" | "save" | "text";
 }

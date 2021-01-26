@@ -75,7 +75,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
         }()),
         certLocation:string = `${vars.projectPath}lib${vars.sep}certificate${vars.sep}`,
         certName:string = "share-file",
-        testBrowserRemote:boolean = (serverVars.testType === "browser" && serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
+        testBrowserRemote:boolean = (serverVars.testType === "browser_agents" && serverVars.testBrowser !== null && serverVars.testBrowser.index < 0),
         browserFlag:boolean = (function terminal_commands_service_browserTest():boolean {
             let index:number;
             const test:number = process.argv.indexOf("test");
@@ -186,7 +186,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             if (index === len) {
                 item = -1;
             }
-            return (serverVars.testType === "service" || testBrowserRemote === true)
+            return (serverVars.testType === "service" || serverVars.testType === "browser_self" )
                 ? 0
                 : (item > -1)
                     ? item
@@ -277,11 +277,8 @@ const service = function terminal_commands_service(serverCallback:serverCallback
                         localAddresses();
                         output.push("");
 
-                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost${portString + vars.text.none}`);
+                        output.push(`Address for web browser: ${vars.text.bold + vars.text.green + scheme}://localhost:${port + vars.text.none}`);
                         output.push(`Address for service    : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
-                        if (portString !== "" && port !== 0) {
-                            output.push(`or                     : ${vars.text.bold + vars.text.green + scheme}://${ip + portString + vars.text.none}`);
-                        }
                         if (certLogs !== null) {
                             certLogs.forEach(function terminal_commands_service_start_logger_certLogs(value:string):void {
                                 output.push(value);
@@ -361,7 +358,7 @@ const service = function terminal_commands_service(serverCallback:serverCallback
 
             // start the service
             serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
-                recursive: (serverVars.testType !== "browser" && (process.platform === "win32" || process.platform === "darwin"))
+                recursive: (serverVars.testType.indexOf("browser") < 0 && (process.platform === "win32" || process.platform === "darwin"))
             }, serverWatch);
             httpServer.on("error", serverError);
             httpServer.listen({

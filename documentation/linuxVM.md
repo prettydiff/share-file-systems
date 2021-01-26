@@ -1,7 +1,7 @@
 <!-- documentation/linuxVM - Notes about configuring Linux virtual machines in support of project development. -->
 
 # Share File Systems - Running a Linux VM on Windows
-It is necessary to run Linux and without additional hardware at the time of this writing I am running it as a VM in Virtual Box on Windows.  There are a couple import steps to enable this capability.
+It is necessary to run Linux and without additional hardware.  At the time of this writing I am running it as a VM in Virtual Box on Windows.  There are a couple import steps to enable this capability.
 
 1. Enable virtualization in the BIOS.  This might be specified as VT-x.  When Windows 10 comes up you can verify that hardware virtualization is enabled by opening the Task Manager, clicking the Performance tab, clicking the CPU view and looking at the data below the graph.  There should be an indication like, **Virtualization     Enabled**.
 1. In Windows 10 go to Control Panel -> Programs and Features -> Turn Windows features on or off (left side).  Changing some of the following features will require a restart.  Turn off everything related to virtualization:
@@ -15,10 +15,23 @@ It is necessary to run Linux and without additional hardware at the time of this
 ## Local VM password
 **share1234**
 
-## Virtual Hardware
-### Network
+
+## Network
+VirtualBox creates a private network on the host machine: 192.168.56.1/24.  The host and all guests need to connect through this network directly.
+
+### Host-Only network
+1. Look at the ip address for each guest.  There should be something like 192.168.x.x/24.  Ensure all guests have the same third octet, such as the 56 in 192.168.56.103.
+2. On the host go to the Virtual Box application.  From the main menu go to *File -> Network Operations Manager*.  A window for **Host Network Manager** will open.
+3. Look at the network list, if any, and see that there is a network present that matches the guest network.  If not then create one.  Any other networks present in the list can be deleted.  I gave my host the IP 192.168.56.1 with a subnet of 255.255.255.0.
+4. At this point there should be a viable host only network.  Go to one of the guests and *ping 192.168.56.1*.  The ping should work.  If not investigate if there is a firewall on the guest.
+
+### Firewall
+1. If you have a one way ping, such that a host can ping to a guest but that guest cannot ping the host (or the opposite), the connectivity problem is a firewall problem.
+2. If the host and guest can talk to each other only through the local network switch or router the connectivity problem is a firewall problem.  This scenario is evident when the host and guest are able to talk to each other so long as the network connection out of the host is online.
+
+### Guest Adapters
 1. Enable a first network adapter with defaults, **NAT**.
-2. Enable a second network adapter as **Host-only Adapter** with all other settings at default.
+2. Enable a second network adapter as **Host-only Adapter** with all other settings at default.  Ensure the *Name* matches the name of the virtual network created moments ago.
 
 ## Application Checklist
 1. Run the software updater

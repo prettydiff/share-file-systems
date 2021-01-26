@@ -38,8 +38,9 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         });
                     },
                     "browser-log": function terminal_server_methodPOST_end_browserLog():void {
-                        const data:any[] = JSON.parse(body);
-                        if (serverVars.testType !== "browser" || (serverVars.testType === "browser" && data[0].toString().indexOf("Executing delay on test number") !== 0)) {
+                        const data:any[] = JSON.parse(body),
+                            browserIndex:number = serverVars.testType.indexOf("browser");
+                        if (browserIndex < 0 || (browserIndex === 0 && data[0].toString().indexOf("Executing delay on test number") !== 0)) {
                             log(data);
                         }
                         response({

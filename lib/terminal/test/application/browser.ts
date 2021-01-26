@@ -131,7 +131,9 @@ const defaultCommand:string = vars.command,
                             port: serverVars.webPort
                         }
                 };
-                serverVars.testType = "browser";
+                serverVars.testType = (args.mode === "self")
+                    ? "browser_self"
+                    : "browser_agents";
                 service({
                     agent: "",
                     agentType: "device",
