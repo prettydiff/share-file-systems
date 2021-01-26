@@ -39,6 +39,20 @@ const defaultCommand:string = vars.command,
         index: -1,
         ip: "",
         methods: {
+            close: function terminal_test_application_browser_close(data:testBrowserRoute):void {
+                const close:testBrowserRoute = {
+                    action: "close",
+                    exit: data.exit,
+                    index: -1,
+                    result: [],
+                    test: null,
+                    transfer: null
+                };
+                vars.ws.broadcast(JSON.stringify({
+                    "test-browser": close
+                }));
+                log([data.exit]);
+            },
             delay: function terminal_test_application_browser_delay(config:testBrowserDelay):void {
                 const wait:number = (config.browser === true)
                         ? 0
