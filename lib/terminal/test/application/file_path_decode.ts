@@ -1,4 +1,4 @@
-/* lib/terminal/test/samples/file_path_decode - Transforms a custom encoded file path into a local operation system specific file path. */
+/* lib/terminal/test/application/file_path_decode - Transforms a custom encoded file path into a local operation system specific file path. */
 
 import vars from "../../utilities/vars.js";
 

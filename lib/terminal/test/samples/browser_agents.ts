@@ -562,7 +562,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "self",
-            name: "Open shares modal on self of all shares",
+            name: "On self open shares modal of all shares",
             unit: [
                 {
                     node: [
@@ -623,7 +623,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM1",
-            name: "Open shares modal on VM1 of all shares",
+            name: "On VM1 open shares modal of all shares",
             unit: [
                 {
                     node: [
@@ -688,7 +688,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM1",
-            name: "Launch 'File Navigator' modal from primary menu",
+            name: "On VM1 launch 'File Navigator' modal from primary menu",
             unit: [
                 {
                     // that file navigation modal contains an address bar

@@ -294,7 +294,6 @@ const defaultCommand:string = vars.command,
                 // * about 1 in 10 times this will fail following event "refresh"
                 // * because serverVars.testBrowser is not updated to methodGET library fast enough
                 if (validate() === true) {
-                    tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
                     serverVars.testBrowser = {
                         action: "result",
                         exit: "",
@@ -304,6 +303,7 @@ const defaultCommand:string = vars.command,
                         transfer: null
                     };
                     if (tests[index].machine === "self") {
+                        tests[index] = <testBrowserItem>filePathDecode(tests[index], "");
                         if (index === 0 || (index > 0 && tests[index - 1].interaction[0].event !== "refresh")) {
                             browser.methods.delay({
                                 action: function terminal_test_application_browser_iterate_selfDelay():void {
@@ -815,6 +815,10 @@ const defaultCommand:string = vars.command,
                 } else if (data.exit !== "") {
                     log([data.exit]);
                 }
+                // close
+                // * tells the test browser to close
+                // * from browser.exit on mode:agents sent to mode:remote
+                // -
                 // request
                 // * sends a test from mode:agents to a specified mode:remote
                 // * from browser.iterate

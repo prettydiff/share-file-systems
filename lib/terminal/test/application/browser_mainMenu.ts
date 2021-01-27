@@ -1,4 +1,4 @@
-/* lib/terminal/test/samples/browser_mainMenu - A convenience function that opens the main menu while in browser tests. */
+/* lib/terminal/test/application/browser_mainMenu - A convenience function that opens the main menu while in browser tests. */
 
 const mainMenu = function terminal_test_samples_mainMenu(machine:string):testBrowserItem {
     return {
@@ -11,7 +11,7 @@ const mainMenu = function terminal_test_samples_mainMenu(machine:string):testBro
             }
         ],
         machine: machine,
-        name: `Display the primary menu on ${machine}`,
+        name: `On ${machine} display the primary menu`,
         unit: [
             {
                 // primary menu is visible

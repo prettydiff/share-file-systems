@@ -1,4 +1,4 @@
-/* lib/terminal/test/samples/browser_projectDirectory - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
+/* lib/terminal/test/application/browser_projectDirectory - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
 
 import filePathEncode from "./file_path_encode.js";
 
@@ -42,7 +42,7 @@ const projectDirectory = function terminal_test_samples_projectDirectory(index:n
             }
         ],
         machine: machine,
-        name: "Change file navigator file system location",
+        name: `On ${machine} change file navigator ${index} to application directory`,
         unit: [
             {
                 // the first file system item is .git

@@ -1,5 +1,5 @@
 
-/* lib/terminal/test/samples/simulation - A list of command related tests for running shell simulations against the supported commands. */
+/* lib/terminal/test/application/simulation - A list of command related tests for running shell simulations against the supported commands. */
 
 import filePathDecode from "./file_path_decode.js";
 import testEvaluation from "./evaluation.js";

@@ -19,7 +19,7 @@ const serverVars:serverVars = {
                 mac6:string = "",
                 mac4:string = "";
             do {
-                if (interfaces[keys[a]][0].internal === false) {
+                if (interfaces[keys[a]][0].internal === false && interfaces[keys[a]][1] !== undefined) {
                     if (interfaces[keys[a]][0].family === "IPv4") {
                         if (interfaces[keys[a]][1].address.indexOf("169.254") !== 0) {
                             mac4 = interfaces[keys[a]][0].mac;

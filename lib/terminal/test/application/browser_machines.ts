@@ -1,4 +1,4 @@
-/* lib/terminal/test/samples/browser_machines - An object expressing a map of the various remote machines. */
+/* lib/terminal/test/application/browser_machines - An object expressing a map of the various remote machines. */
 
 import { cpus } from "os";
 
