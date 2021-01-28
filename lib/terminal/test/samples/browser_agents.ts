@@ -16,7 +16,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: machine,
-            name: `Test for idle state on ${machine}`,
+            name: `On ${machine} test for idle state`,
             unit: [
                 {
                     node: [
@@ -66,7 +66,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: from,
-            name: `Spawn invitation modal on ${from}`,
+            name: `On ${from} spawn invitation modal`,
             unit: []
         };
     },
@@ -146,7 +146,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: from,
-            name: `Send ${type} invitation from ${from} to ${to}`,
+            name: `On ${from} send ${type} invitation to ${to}`,
             unit: []
         };
     },
@@ -282,7 +282,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: machine,
-            name: `Login form on ${machine}`,
+            name: `On ${machine} complete login form`,
             unit: [
                 {
                     // that a local user button is present and active
@@ -943,7 +943,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "self",
-            name: "Open VM1's share on self",
+            name: "On self open VM1's share",
             unit: [
                 {
                     node: [
@@ -1443,7 +1443,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     qualifier: "begins",
                     target: ["value"],
                     type: "property",
-                    value: "<!-- documentation/api - This documentation is"
+                    value: "<!-- documentation/api - This documentation details"
                 }
             ]
         }

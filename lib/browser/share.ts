@@ -77,7 +77,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                     return item.getAncestor("button", "tag");
                 }()),
                 agency:agency = util.getAgent(element),
-                agentType:agentType = <agentType>element.getAttribute("class"),
+                agentType:agentType = <agentType>element.getAttribute("class").replace("-share", ""),
                 parent:Element = <Element>element.parentNode,
                 agentNode:Element = parent.getAncestor(agentType, "class"),
                 agent:string = (agency[0] === "" || agency[0] === null)
