@@ -171,6 +171,8 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                         data.deviceHash = serverVars.hashDevice;
                         data.deviceName = serverVars.nameDevice;
                         data.shares = serverVars.device;
+                        serverVars.hashUser = data.userHash;
+                        serverVars.nameUser = data.userName;
                     } else {
                         data.userHash = serverVars.hashUser;
                         data.userName = serverVars.nameUser;

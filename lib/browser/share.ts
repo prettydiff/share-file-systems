@@ -188,7 +188,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                 status:Element = document.createElement("strong"),
                 shareItem:agentShare = browser[agentNames.agentType][agentNames.agent].shares[agentNames.share],
                 shareType:string = shareItem.type;
-            button.setAttribute("class", agentNames.agentType);
+            button.setAttribute("class", `${agentNames.agentType}-share`);
             button.innerHTML = shareItem.name;
             status.setAttribute("class", "read-only-status");
             status.innerHTML = (shareItem.readOnly === true)

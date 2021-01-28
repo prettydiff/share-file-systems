@@ -212,7 +212,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 qualifier: "is",
                 target: ["lastChild", "textContent"],
                 type: "property",
-                value: ` ${(from === "self") ? "Device-self" : from}`
+                value: ` ${(from === "self") ? "User-self" : from}`
             },
             interaction: [
                 {
@@ -258,7 +258,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 {
                     event: "setValue",
                     node: [["getElementById", "login-user", null]],
-                    value: `Device-${machine}`
+                    value: `User-${machine}`
                 },
                 {
                     event: "click",
@@ -503,7 +503,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "User <strong>Device-self</strong> from"
+                    value: "User <strong>User-self</strong> from"
                 },
                 {
                     node: [
@@ -513,7 +513,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     qualifier: "begins",
                     target: ["innerHTML"],
                     type: "property",
-                    value: "Device-self said:"
+                    value: "User-self said:"
                 },
                 {
                     node: [
@@ -528,19 +528,19 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
             ]
         },
         invite4("self", "VM3", "user"),
-/*
+
         // test for idle state on VM1
-        idle("VM1", 16000),
+        //idle("VM1", 16000),
 
         // test for idle state on VM2
-        idle("VM2", 0),
+        //idle("VM2", 0),
 
         // test for idle state on VM3
-        idle("VM3", 0),
+        //idle("VM3", 0),
 
         // test for idle state on VM4
-        idle("VM4", 0),
-*/
+        //idle("VM4", 0),
+
         //open shares on self
         {
             delay: {
@@ -857,7 +857,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM1",
-            name: "Share a directory from VM1",
+            name: "On VM1 share a directory",
             unit: []
         },
 
@@ -870,7 +870,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "self",
-            name: "Verify shared directory from VM1 on self",
+            name: "On self verify shared directory from VM1",
             unit: [
                 {
                     node: [
@@ -1020,7 +1020,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                     qualifier: "begins",
                     target: ["value"],
                     type: "property",
-                    value: "<!-- documentation/api - This documentation is"
+                    value: "<!-- documentation/api - This documentation details"
                 }
             ]
         },
@@ -1046,7 +1046,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM3",
-            name: "Open shares modal on VM3 of all shares",
+            name: "On VM3 open shares modal of all shares",
             unit: [
                 {
                     node: [
@@ -1065,7 +1065,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
                         ["getElementsByTagName", "ul", 1],
-                        ["getElementsByTagName", "li", null]
+                        ["getElementsByClassName", "user", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -1111,7 +1111,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM3",
-            name: "Launch 'File Navigator' modal from primary menu",
+            name: "On VM3 launch 'File Navigator' modal from primary menu",
             unit: [
                 {
                     // that file navigation modal contains an address bar
@@ -1280,7 +1280,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "VM3",
-            name: "Share a directory from VM3",
+            name: "On VM3 share a directory",
             unit: []
         },
 
@@ -1293,7 +1293,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "self",
-            name: "Verify shared directory from VM3 on self",
+            name: "On self verify shared directory from VM3",
             unit: [
                 {
                     node: [
@@ -1366,7 +1366,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 }
             ],
             machine: "self",
-            name: "Open VM3's share on self",
+            name: "On self open VM3's share",
             unit: [
                 {
                     node: [
