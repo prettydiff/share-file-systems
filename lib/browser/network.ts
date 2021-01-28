@@ -6,27 +6,32 @@ import util from "./util.js";
 import webSocket from "./webSocket.js";
 
 const network:module_network = {},
-    loc:string = location.href.split("?")[0];
+    loc:string = location.href.split("?")[0],
+    fsConfig = function local_network_fsConfig(callback:(responseText:string, agent:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
+        const copy:systemDataCopy = <systemDataCopy>configuration,
+            actionType:string = (type === "fs")
+            ? configuration.action
+            : (copy.cut === true)
+                ? "cut"
+                : "copy";
+        return {
+            callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string) {
+                if (responseType === "file-list-status") {
+                    const status:copyStatus = JSON.parse(responseText);
+                    util.fileListStatus(status);
+                } else {
+                    callback(responseText, configuration.agent);
+                }
+            },
+            error: `Transmission error when requesting ${actionType} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
+            payload: JSON.stringify(configuration),
+            type: type
+        };
+    };
 
 /* Accesses the file system */
-network.copy = function local_network_copy(configuration:systemDataCopy, callback:Function):void {
-    const type:string = (configuration.cut === true)
-        ? "cut"
-        : "copy";
-    network.xhr({
-        callback: function local_network_fs_callback(responseType:requestType, responseText:string) {
-            responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-            if (responseType === "file-list-status") {
-                const status:copyStatus = JSON.parse(responseText);
-                util.fileListStatus(status);
-            } else {
-                callback(responseText, configuration.agent);
-            }
-        },
-        error: `Transmission error when requesting ${type} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-        payload: JSON.stringify(configuration),
-        type: "copy"
-    });
+network.copy = function local_network_copy(configuration:systemDataCopy, callback:(responseText:string, agent:string) => void):void {
+    network.xhr(fsConfig(callback, configuration, "copy"));
 };
 
 /* Send instructions to remove this local device/user from deleted remote agents */
@@ -40,21 +45,8 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
 };
 
 /* Accesses the file system */
-network.fileBrowser = function local_network_fileBrowser(configuration:systemDataFile, callback:Function):void {
-    network.xhr({
-        callback: function local_network_fs_callback(responseType:requestType, responseText:string) {
-            responseText = responseText.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/--/g, "&#x2d;&#x2d;");
-            if (responseType === "file-list-status") {
-                const status:copyStatus = JSON.parse(responseText);
-                util.fileListStatus(status);
-            } else {
-                callback(responseText, configuration.agent);
-            }
-        },
-        error: `Transmission error when requesting ${configuration.action} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
-        payload: JSON.stringify(configuration),
-        type: "fs"
-    });
+network.fileBrowser = function local_network_fileBrowser(configuration:systemDataFile, callback:(responseText:string, agent:string) => void):void {
+    network.xhr(fsConfig(callback, configuration, "fs"));
 };
 
 /* generate a share to describe a new share from the local device */

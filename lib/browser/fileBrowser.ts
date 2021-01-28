@@ -38,7 +38,7 @@ fileBrowser.directory = function browser_fileBrowser_directory(event:MouseEvent)
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
         callback = function browser_fileBrowser_directory_callback(responseText:string):void {
-            const list:[Element, number, string] = fileBrowser.list(path, JSON.parse(responseText));
+            const list:[Element, number, string] = fileBrowser.list(path, JSON.parse(util.sanitizeHTML(responseText)));
             if (list === null) {
                 return;
             }
@@ -684,7 +684,7 @@ fileBrowser.parent = function browser_fileBrowser_parent(event:MouseEvent):boole
             watch: value
         },
         callback = function browser_fileBrowser_parent_callback(responseText:string):void {
-            const list:[Element, number, string] = fileBrowser.list(newAddress, JSON.parse(responseText));
+            const list:[Element, number, string] = fileBrowser.list(newAddress, JSON.parse(util.sanitizeHTML(responseText)));
             if (list === null) {
                 return;
             }
@@ -803,7 +803,7 @@ fileBrowser.saveFile = function browser_fileBrowser_saveFile(event:MouseEvent):v
                 buttons:Element = footer.getElementsByClassName("footer-buttons")[0],
                 pList:HTMLCollectionOf<Element> = footer.getElementsByTagName("p"),
                 p:HTMLElement = document.createElement("p");
-            p.innerHTML = message;
+            p.innerHTML = util.sanitizeHTML(message);
             p.setAttribute("class", "status-message");
             if (pList[0] !== buttons) {
                 footer.removeChild(pList[0]);
@@ -1154,7 +1154,7 @@ fileBrowser.text = function browser_fileBrowser_text(event:KeyboardEvent):void {
                         : " or remote user is offline.";
                     parent.innerHTML = `<p class="error">Error 404: Requested location is no longer available${local}</p>`;
                 } else {
-                    const list:[Element, number, string] = fileBrowser.list(element.value, JSON.parse(responseText));
+                    const list:[Element, number, string] = fileBrowser.list(element.value, JSON.parse(util.sanitizeHTML(responseText)));
                     if (list === null) {
                         return;
                     }

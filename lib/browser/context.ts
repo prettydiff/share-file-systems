@@ -148,7 +148,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
         delay:Element,
         modalInstance:Element;
     do {
-        if (addresses[a][1] === "file") {
+        if (addresses[a][1].indexOf("file") === 0) {
             delay = util.delay();
             payloadModal.content = delay;
             payloadModal.left = event.clientX + (a * 10);
@@ -268,7 +268,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
             watch: "no"
         },
         callback = function browser_context_details_callback(response:string):void {
-            const payload:fsRemote = JSON.parse(response),
+            const payload:fsRemote = JSON.parse(util.sanitizeHTML(response)),
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,

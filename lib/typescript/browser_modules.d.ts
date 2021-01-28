@@ -155,6 +155,7 @@ interface module_util {
     menuBlur?: EventHandlerNonNull;
     minimizeAll?: EventHandlerNonNull;
     minimizeAllFlag?: boolean;
+    sanitizeHTML?: (input:string) => string;
     selectedAddresses?: (element:Element, type:string) => [string, shareType, string][];
     selectNone?:(element:Element) => void;
     time?: (date:Date) => string;

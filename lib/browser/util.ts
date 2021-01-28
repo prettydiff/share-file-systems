@@ -604,6 +604,11 @@ util.minimizeAll = function browser_util_minimizeAll() {
 
 util.minimizeAllFlag = false;
 
+/* Make a string safe to inject via innerHTML */
+util.sanitizeHTML = function browser_util_sanitizeHTML(input:string):string {
+    return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+};
+
 /* Gather the selected addresses and types of file system artifacts in a fileNavigator modal */
 util.selectedAddresses = function browser_util_selectedAddresses(element:Element, type:string):[string, shareType, string][] {
     const output:[string, shareType, string][] = [],

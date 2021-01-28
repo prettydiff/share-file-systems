@@ -344,7 +344,7 @@ import disallowed from "../common/disallowed.js";
                                             ? {
                                                 dirs: "missing"
                                             }
-                                            : JSON.parse(responseText),
+                                            : JSON.parse(util.sanitizeHTML(responseText)),
                                         files:[Element, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                                             ? (function browser_init_modalKeys_fsCallback_missing():[Element, number, string] {
                                                 const p:Element = document.createElement("p");
