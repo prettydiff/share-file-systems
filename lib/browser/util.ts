@@ -6,6 +6,7 @@ import context from "./context.js";
 import fileBrowser from "./fileBrowser.js";
 import network from "./network.js";
 import share from "./share.js";
+import modal from "./modal.js";
 
 const util:module_util = {};
 
@@ -583,20 +584,16 @@ util.menuBlur = function browser_util_menuBlur():void {
 };
 
 /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-util.minimizeAll = function browser_util_minimizeAll() {
+util.minimizeAll = function browser_util_minimizeAll(event:MouseEvent):void {
     const keys:string[] = Object.keys(browser.data.modals),
         length:number = keys.length;
     let a:number = 0,
-        status:modalStatus,
-        minimize:HTMLButtonElement;
+        status:modalStatus;
     util.minimizeAllFlag = true;
     do {
         status = browser.data.modals[keys[a]].status;
         if (status === "normal" || status === "maximized") {
-            minimize = <HTMLButtonElement>document.getElementById(keys[a]).getElementsByClassName("minimize")[0];
-            if (minimize !== undefined) {
-                minimize.click();
-            }
+            modal.forceMinimize(keys[a]);
         }
         a = a + 1;
     } while (a < length);

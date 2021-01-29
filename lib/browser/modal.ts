@@ -118,7 +118,7 @@ modal.create = function browser_modal_create(options:modal):Element {
     if (options.left === undefined) {
         options.left = 200 + (modalCount * 10) - modalCount;
     }
-    if (options.top === undefined) {
+    if (options.top === undefined || options.top < 20) {
         options.top = 200 + (modalCount * 10) - modalCount;
     }
     if (options.width === undefined) {
@@ -437,6 +437,15 @@ modal.export = function browser_modal_export(event:MouseEvent):void {
     textArea.value = JSON.stringify(browser.data);
     modal.create(payload);
     document.getElementById("menu").style.display = "none";
+};
+
+/* Modals that do not have a minimize button still need to conform to minimize from other interactions */
+modal.forceMinimize = function browser_modal_forceMinimize(id:string):void {
+    const modalItem:HTMLElement = <HTMLElement>document.getElementById(id).getElementsByClassName("body")[0],
+        handler:EventHandlerNonNull = modalItem.onclick;
+    modalItem.onclick = modal.minimize;
+    modalItem.click();
+    modalItem.onclick = handler;
 };
 
 /* Modifies saved settings from an imported JSON string then reloads the page */
@@ -993,10 +1002,9 @@ modal.textTimer = function browser_modal_textTimer(event:KeyboardEvent):void {
 /* Restore a minimized modal to its prior size and location */
 modal.unMinimize = function browser_modal_unMinimize(event:MouseEvent):void {
     const element:Element = <Element>event.target,
-        box:Element = element.getAncestor("box", "class"),
-        button:HTMLButtonElement = <HTMLButtonElement>box.getElementsByClassName("minimize")[0];
+        box:Element = element.getAncestor("box", "class");
     if (box.parentNode.nodeName.toLowerCase() === "li") {
-        button.click();
+        modal.forceMinimize(box.getAttribute("id"));
     }
 };
 

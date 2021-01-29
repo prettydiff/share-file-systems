@@ -69,6 +69,7 @@ interface module_modal {
     confirm?: EventHandlerNonNull;
     create?: (options:modal) => Element;
     export?: EventHandlerNonNull;
+    forceMinimize?: (id:string) => void;
     importSettings?: EventHandlerNonNull;
     maximize?: (Event:Event, callback?:() => void) => void;
     minimize?: (Event:Event, callback?:() => void) => void;

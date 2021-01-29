@@ -3606,6 +3606,218 @@ const browserSelf:testBrowserItem[] = [
                     value: "cut"
                 }
             ]
+        },
+
+        // display context menu
+        showContextMenu([
+            ["getModalsByModalType", "fileNavigate", 0],
+            ["getElementsByClassName", "body", 0],
+            ["getElementsByClassName", "file", 1]
+        ], [
+            {
+                // the context menu is visible
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "greater",
+                target: ["clientHeight"],
+                type: "property",
+                value: 2
+            },
+            {
+                // the context menu is visible
+                node: [
+                    ["getElementById", "contextMenu", null]
+                ],
+                qualifier: "is",
+                target: ["style", "display"],
+                type: "property",
+                value: ""
+            }
+        ], "self"),
+
+        // launch a file editor
+        {
+            delay: {
+                // text of the first button
+                node: [
+                    ["getModalsByModalType", "textPad", 1],
+                    ["getElementsByClassName", "body", 0]
+                ],
+                qualifier: "is",
+                target: ["firstChild", "nodeName", "toLowerCase()"],
+                type: "property",
+                value: "textarea"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "contextMenu", null],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Launch a file editor",
+            unit: []
+        },
+
+        // minimize all
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "textPad", 1],
+                    ["parentNode", null, null],
+                    ["parentNode", null, null]
+                ],
+                qualifier: "is",
+                target: ["id"],
+                type: "attribute",
+                value: "tray"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "minimize-all", null]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Click 'minimize-all' button",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["id"],
+                    type: "attribute",
+                    value: "tray"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["id"],
+                    type: "attribute",
+                    value: "tray"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["id"],
+                    type: "attribute",
+                    value: "tray"
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["parentNode", null, null],
+                        ["parentNode", null, null]
+                    ],
+                    qualifier: "is",
+                    target: ["id"],
+                    type: "attribute",
+                    value: "tray"
+                }
+            ]
+        },
+
+        // restore file editor from tray
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "textPad", 1],
+                    ["parentNode", null, null]
+                ],
+                qualifier: "is",
+                target: ["id"],
+                type: "attribute",
+                value: "content-area"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "textPad", 1],
+                        ["getElementsByClassName", "heading", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Restore file editor modal from minimize tray",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "textPad", 1],
+                        ["getElementsByClassName", "buttons", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "display"],
+                    type: "property",
+                    value: ""
+                }
+            ]
+        },
+
+        // restore file editor from tray
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "textPad", 0],
+                    ["parentNode", null, null]
+                ],
+                qualifier: "is",
+                target: ["id"],
+                type: "attribute",
+                value: "content-area"
+            },
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "heading", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "Restore file editor modal from minimize tray",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "textPad", 0],
+                        ["getElementsByClassName", "buttons", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "display"],
+                    type: "property",
+                    value: ""
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "textPad", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "top"],
+                    type: "property",
+                    value: "56.8em"
+                }
+            ]
         }
     ];
 
