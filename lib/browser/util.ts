@@ -584,7 +584,7 @@ util.menuBlur = function browser_util_menuBlur():void {
 };
 
 /* Minimize all modals to the bottom tray that are of modal status: normal and maximized */
-util.minimizeAll = function browser_util_minimizeAll(event:MouseEvent):void {
+util.minimizeAll = function browser_util_minimizeAll():void {
     const keys:string[] = Object.keys(browser.data.modals),
         length:number = keys.length;
     let a:number = 0,

@@ -44,10 +44,9 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
         };
     },
     invite1 = function terminal_test_application_samples_browserAgents_invite1(from:string):testBrowserItem {
-        // open invite modal on
+        // open invite modal
         return {
             delay: {
-                // the file navigator modal is created
                 node: [
                     ["getModalsByModalType", "invite-request", 0],
                     ["getElementsByTagName", "h3", 0]
@@ -72,10 +71,13 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
     },
     invite2 = function terminal_test_application_samples_browserAgents_invite2(from:string, to:string, type:agentType):testBrowserItem {
         // create invitation
+        const index:number = (from === "self" && to === "VM3")
+            ? 1
+            : 0;
         return {
             delay: {
                 node: [
-                    ["getModalsByModalType", "invite-request", 0],
+                    ["getModalsByModalType", "invite-request", index],
                     ["getElementsByClassName", "delay", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -88,21 +90,21 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "input", (type === "device") ? 0 : 1]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "input", 2]
                     ],
                     value: machines[to].ip
@@ -110,14 +112,14 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "input", 3]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "input", 3]
                     ],
                     value: machines[to].port.toString()
@@ -125,14 +127,14 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "textarea", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByTagName", "textarea", 0]
                     ],
                     value: `Hello to ${to} from ${(from === "self") ? "Primary Device" : from}.`
@@ -140,7 +142,7 @@ const idle = function terminal_test_application_samples_browserAgents_idle(machi
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "invite-request", 0],
+                        ["getModalsByModalType", "invite-request", index],
                         ["getElementsByClassName", "confirm", 0]
                     ]
                 }
