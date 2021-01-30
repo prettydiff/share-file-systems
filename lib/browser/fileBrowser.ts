@@ -424,6 +424,16 @@ fileBrowser.list = function browser_fileBrowser_list(location:string, dirData:fs
             }
             a = a + 1;
         } while (a < localLength);
+    } else {
+        const li:Element = document.createElement("li"),
+            label:Element = document.createElement("label"),
+            input:HTMLInputElement = document.createElement("input");
+        li.setAttribute("class", "empty-list");
+        label.innerHTML = "Empty list";
+        input.type = "checkbox";
+        label.appendChild(input);
+        li.appendChild(label);
+        output.appendChild(li);
     }
     output.tabIndex = 0;
     output.oncontextmenu = context.menu;
