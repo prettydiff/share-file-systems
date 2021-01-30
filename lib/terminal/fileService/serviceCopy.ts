@@ -63,50 +63,104 @@ const serviceCopy:systemServiceCopy = {
                         symbolic: true
                     });
                 },
-                // handler to write files if files are written in a single shot, otherwise files are streamed with writeStream
-                writeFile = function terminal_fileService_serviceCopy_requestFiles_writeFile(index:number):void {
-                    const fileName:string = fileQueue[index][0];
-                    vars.testLogger("fileService", "writeFile", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
-                    vars.node.fs.writeFile(config.data.destination + vars.sep + fileName, fileQueue[index][3], function terminal_fileServices_requestFiles_writeFile_write(wr:nodeError):void {
-                        const hashFailLength:number = hashFail.length;
-                        if (wr !== null) {
-                            error([`Error writing file ${fileName} from remote agent ${config.data.agent}`, wr.toString()]);
-                            hashFail.push(fileName);
-                        } else {
-                            const status:completeStatus = {
-                                    countFile: countFile,
-                                    failures: hashFailLength,
-                                    percent: serviceCopy.percent(writtenSize, config.fileData.fileSize),
-                                    writtenSize: writtenSize
-                                },
-                                output:copyStatus = {
-                                    failures: [],
-                                    id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
-                                    message: serviceCopy.copyMessage(status, config.data.cut)
-                                };
-                            cutList.push([fileQueue[index][2], "file"]);
-                            countFile = countFile + 1;
-                            writtenFiles = writtenFiles + 1;
-                            writtenSize = writtenSize + fileQueue[index][1];
-                            status.countFile = countFile;
-                            status.percent = serviceCopy.percent(writtenSize, config.fileData.fileSize);
-                            status.writtenSize = writtenSize;
-                            output.message = serviceCopy.copyMessage(status, config.data.cut);
-                            vars.broadcast("file-list-status", JSON.stringify(output));
-                        }
-                        if (index < fileQueue.length - 1) {
-                            terminal_fileService_serviceCopy_requestFiles_writeFile(index + 1);
-                        } else {
-                            if (countFile + countDir + hashFailLength === listLength) {
-                                respond();
+                // the callback for each file request
+                callbackRequest = function terminal_fileService_serviceCopy_requestFiles_callbackRequest(fileResponse:IncomingMessage):void {
+                    const fileChunks:Buffer[] = [],
+                        fileName:string = <string>fileResponse.headers.file_name,
+                        writeable:Writable = new Stream.Writable(),
+                        responseEnd = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_responseEnd(file:Buffer):void {
+                            const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
+                                hashString:string = hash.digest("hex");
+                            vars.testLogger("fileService", "requestFiles callbackRequest responseEnd", "Handler for completely received HTTP response of requested artifact.");
+                            if (hashString === fileResponse.headers.hash) {
+                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
+                                if (writeActive === false) {
+                                    const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
+                                        const fileName:string = fileQueue[index][0];
+                                        vars.testLogger("fileService", "callbackWrite", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
+                                        vars.node.fs.writeFile(config.data.destination + vars.sep + fileName, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
+                                            const hashFailLength:number = hashFail.length;
+                                            if (wr !== null) {
+                                                error([`Error writing file ${fileName} from remote agent ${config.data.agent}`, wr.toString()]);
+                                                hashFail.push(fileName);
+                                            } else {
+                                                const status:completeStatus = {
+                                                        countFile: countFile,
+                                                        failures: hashFailLength,
+                                                        percent: serviceCopy.percent(writtenSize, config.fileData.fileSize),
+                                                        writtenSize: writtenSize
+                                                    },
+                                                    output:copyStatus = {
+                                                        failures: [],
+                                                        id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
+                                                        message: serviceCopy.copyMessage(status, config.data.cut)
+                                                    };
+                                                cutList.push([fileQueue[index][2], "file"]);
+                                                countFile = countFile + 1;
+                                                writtenFiles = writtenFiles + 1;
+                                                writtenSize = writtenSize + fileQueue[index][1];
+                                                status.countFile = countFile;
+                                                status.percent = serviceCopy.percent(writtenSize, config.fileData.fileSize);
+                                                status.writtenSize = writtenSize;
+                                                output.message = serviceCopy.copyMessage(status, config.data.cut);
+                                                vars.broadcast("file-list-status", JSON.stringify(output));
+                                            }
+                                            if (index < fileQueue.length - 1) {
+                                                terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index + 1);
+                                            } else {
+                                                if (countFile + countDir + hashFailLength === listLength) {
+                                                    respond();
+                                                } else {
+                                                    writeActive = false;
+                                                }
+                                            }
+                                        });
+                                    };
+                                    writeActive = true;
+                                    callbackWrite(fileQueue.length - 1);
+                                }
                             } else {
-                                writeActive = false;
+                                hashFail.push(fileName);
+                                error([`Hashes do not match for file ${fileName} ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`]);
+                                if (countFile + countDir + hashFail.length === listLength) {
+                                    respond();
+                                }
                             }
+                            activeRequests = activeRequests - 1;
+                            if (a < listLength) {
+                                requestFile();
+                            }
+                        };
+                    vars.testLogger("fileService", "requestFiles callbackRequest", "Callback for the HTTP artifact request if the requests are not streams but the files are written as streams.");
+                    writeable.write = function (writeableChunk:Buffer):boolean {
+                        fileChunks.push(writeableChunk);
+                        return false;
+                    };
+                    fileResponse.on("data", function terminal_fileServices_requestFiles_callbackRequest_data(fileChunk:Buffer):void {
+                        fileChunks.push(fileChunk);
+                    });
+                    fileResponse.on("end", function terminal_fileServices_requestFiles_callbackRequest_end():void {
+                        if (fileResponse.headers.compression === "true") {
+                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_fileServices_requestFiles_callbackRequest_data_decompress(errDecompress:nodeError, file:Buffer):void {
+                                if (errDecompress !== null) {
+                                    error([
+                                        `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
+                                        errDecompress.toString()
+                                    ]);
+                                    return;
+                                }
+                                responseEnd(file);
+                            });
+                        } else {
+                            responseEnd(Buffer.concat(fileChunks));
                         }
                     });
+                    fileResponse.on("error", function terminal_fileServices_requestFiles_callbackRequest_error(fileError:nodeError):void {
+                        error([fileError.toString()]);
+                    });
                 },
-                // stream handler if files are streamed, otherwise files are written in a single shot using writeFile
-                writeStream = function terminal_fileService_serviceCopy_requestFiles_writeStream(fileResponse:IncomingMessage):void {
+                // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
+                callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
                     const fileName:string = <string>fileResponse.headers.file_name,
                         filePath:string = config.data.destination + vars.sep + fileName,
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
@@ -114,22 +168,22 @@ const serviceCopy:systemServiceCopy = {
                             : null,
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
                         hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                        fileError = function terminal_fileService_serviceCopy_requestFiles_writeStream_fileError(message:string, fileAddress:string):void {
+                        fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
                             hashFail.push(fileAddress);
                             error([message]);
-                            vars.node.fs.unlink(filePath, function terminal_fileService_serviceCopy_requestFiles_writeStream_fileError_unlink(unlinkErr:nodeError):void {
+                            vars.node.fs.unlink(filePath, function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError_unlink(unlinkErr:nodeError):void {
                                 if (unlinkErr !== null) {
                                     error([unlinkErr.toString()]);
                                 }
                             });
                         };
-                    vars.testLogger("fileService", "requestFiles writeStream", "Writing files to disk as a byte stream ensures the file's integrity so that it can be verified by hash comparison.");
+                    vars.testLogger("fileService", "requestFiles callbackStream", "Writing files to disk as a byte stream ensures the file's integrity so that it can be verified by hash comparison.");
                     if (fileResponse.headers.compression === "true") {
                         fileResponse.pipe(decompress).pipe(writeStream);
                     } else {
                         fileResponse.pipe(writeStream);
                     }
-                    fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_writeStream_data():void {
+                    fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
                         const written:number = writeStream.bytesWritten + writtenSize,
                             status:completeStatus = {
                                 countFile: countFile,
@@ -146,11 +200,11 @@ const serviceCopy:systemServiceCopy = {
                             };
                         vars.broadcast("file-list-status", JSON.stringify(output));
                     });
-                    fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_writeStream_end():void {
+                    fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
                         const hashStream:ReadStream = vars.node.fs.ReadStream(filePath);
                         decompress.end();
                         hashStream.pipe(hash);
-                        hashStream.on("close", function terminal_fileServices_requestFiles_writeStream_end_hash():void {
+                        hashStream.on("close", function terminal_fileServices_requestFiles_callbackStream_end_hash():void {
                             const hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
                                 cutList.push([<string>fileResponse.headers.cut_path, "file"]);
@@ -168,71 +222,16 @@ const serviceCopy:systemServiceCopy = {
                             }
                         });
                     });
-                    fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_writeStream_error(error:nodeError):void {
+                    fileResponse.on("error", function terminal_fileService_serviceCopy_requestFiles_callbackStream_error(error:nodeError):void {
                         fileError(error.toString(), filePath);
-                    });
-                },
-                // the callback for each file request
-                fileRequestCallback = function terminal_fileService_serviceCopy_requestFiles_fileRequestCallback(fileResponse:IncomingMessage):void {
-                    const fileChunks:Buffer[] = [],
-                        fileName:string = <string>fileResponse.headers.file_name,
-                        writeable:Writable = new Stream.Writable(),
-                        responseEnd = function terminal_fileService_serviceCopy_requestFiles_fileRequestCallback_responseEnd(file:Buffer):void {
-                            const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
-                                hashString:string = hash.digest("hex");
-                            vars.testLogger("fileService", "requestFiles fileRequestCallback responseEnd", "Handler for completely received HTTP response of requested artifact.");
-                            if (hashString === fileResponse.headers.hash) {
-                                fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
-                                if (writeActive === false) {
-                                    writeActive = true;
-                                    writeFile(fileQueue.length - 1);
-                                }
-                            } else {
-                                hashFail.push(fileName);
-                                error([`Hashes do not match for file ${fileName} ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`]);
-                                if (countFile + countDir + hashFail.length === listLength) {
-                                    respond();
-                                }
-                            }
-                            activeRequests = activeRequests - 1;
-                            if (a < listLength) {
-                                requestFile();
-                            }
-                        };
-                    vars.testLogger("fileService", "requestFiles fileRequestCallback", "Callback for the HTTP artifact request if the requests are not streams but the files are written as streams.");
-                    writeable.write = function (writeableChunk:Buffer):boolean {
-                        fileChunks.push(writeableChunk);
-                        return false;
-                    };
-                    fileResponse.on("data", function terminal_fileServices_requestFiles_fileRequestCallback_data(fileChunk:Buffer):void {
-                        fileChunks.push(fileChunk);
-                    });
-                    fileResponse.on("end", function terminal_fileServices_requestFiles_fileRequestCallback_end():void {
-                        if (fileResponse.headers.compression === "true") {
-                            vars.node.zlib.brotliDecompress(Buffer.concat(fileChunks), function terminal_fileServices_requestFiles_fileRequestCallback_data_decompress(errDecompress:nodeError, file:Buffer):void {
-                                if (errDecompress !== null) {
-                                    error([
-                                        `Decompression error on file ${vars.text.angry + fileName + vars.text.none}.`,
-                                        errDecompress.toString()
-                                    ]);
-                                    return;
-                                }
-                                responseEnd(file);
-                            });
-                        } else {
-                            responseEnd(Buffer.concat(fileChunks));
-                        }
-                    });
-                    fileResponse.on("error", function terminal_fileServices_requestFiles_fileRequestCallback_error(fileError:nodeError):void {
-                        error([fileError.toString()]);
                     });
                 },
                 // after directories are created, if necessary, request the each file from the file list
                 requestFile = function terminal_fileService_serviceCopy_requestFiles_requestFile():void {
                     const listLength:number = config.fileData.list.length,
                         writeCallback:(message:IncomingMessage) => void = (config.fileData.stream === true)
-                            ? writeStream
-                            : fileRequestCallback,
+                            ? callbackStream
+                            : callbackRequest,
                         payload:copyFileRequest = {
                             brotli: serverVars.brotli,
                             location: config.fileData.list[a][0],
@@ -531,7 +530,8 @@ const serviceCopy:systemServiceCopy = {
         },
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                hashStream:ReadStream = vars.node.fs.ReadStream(data.location);
+                hashStream:ReadStream = vars.node.fs.ReadStream(data.location),
+                name:string = data.location.split(vars.sep).pop();
             vars.testLogger("fileService", "copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
@@ -542,6 +542,7 @@ const serviceCopy:systemServiceCopy = {
                         })
                         : null;
                 serverResponse.setHeader("hash", hash.digest("hex"));
+                serverResponse.setHeader("file_name", name);
                 serverResponse.setHeader("file_size", data.size.toString());
                 serverResponse.setHeader("cut_path", data.location);
                 if (data.brotli > 0) {

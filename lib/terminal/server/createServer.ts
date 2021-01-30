@@ -71,7 +71,7 @@ const createServer = function terminal_server_createServer(request:IncomingMessa
         // eslint-disable-next-line
         requestType:string = (request.method === "GET") ? `GET ${request.url}` : <string>request.headers["request-type"];
     // *** available for troubleshooting:
-    //console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
+    // console.log(`${requestType} ${host} ${postTest()} ${agentType} ${agent}`);
 
     serverVars.requests = serverVars.requests + 1;
     if (host === "") {
