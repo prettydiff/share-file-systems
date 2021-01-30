@@ -40,9 +40,15 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
         target:string = (vars.command === "copy")
             ? vars.node.path.resolve(process.argv[0])
             : vars.node.path.resolve(params.target),
-        destination:string = (vars.command === "copy")
-            ? vars.node.path.resolve(process.argv[1]) + vars.sep
-            : vars.node.path.resolve(params.destination) + vars.sep,
+        destination:string = (function terminal_commands_copy_destination():string {
+            const source:string = (vars.command === "copy")
+                ? vars.node.path.resolve(process.argv[1])
+                : vars.node.path.resolve(params.destination);
+            if (source === "/") {
+                return "/";
+            }
+            return source + vars.sep;
+        }()),
         dirCallback = function terminal_commands_copy_dirCallback(list:directoryList):void {
             let a:number = 0;
             const len:number = list.length,
@@ -112,7 +118,7 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                 },
                 pathStat = function terminal_commands_copy_dirCallback_pathStat(item:directoryItem):void {
                     // establish destination path
-                    const path:string = destination + item[0].replace(prefix, "");
+                    const path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, "");
                     vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_stat(statError:nodeError):void {
                         const copyAction = function terminal_commands_copy_dirCallback_pathStat_stat_copyAction():void {
                             if (item[1] === "directory") {
@@ -140,7 +146,9 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                                 types(`error on address ${item[0]} from library directory`);
                             }
                         };
-                        if (statError === null) {
+                        if (item[0] === path) {
+                            types(`file ${path} cannot be copied onto itself`);
+                        } else if (statError === null) {
                             remove(path, copyAction);
                         } else {
                             if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
@@ -238,14 +246,20 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             target: target
         };
     }
-    directory({
-        callback: dirCallback,
-        depth: 0,
-        exclusions: params.exclusions,
-        logRecursion: false,
-        mode: "read",
-        path: target,
-        symbolic: true
+    vars.node.fs.stat(params.destination, function terminal_commands_copy_stat(erStat:Error):void {
+        if (erStat === null) {
+            directory({
+                callback: dirCallback,
+                depth: 0,
+                exclusions: params.exclusions,
+                logRecursion: false,
+                mode: "read",
+                path: target,
+                symbolic: true
+            });
+        } else {
+            error([erStat.toString()]);
+        }
     });
 };
 

@@ -455,7 +455,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
     const key:string = event.key,
         windowEvent:KeyboardEvent = <KeyboardEvent>window.event,
         element:Element = (function browser_util_keys_element():Element {
-            let el:Element = <Element>event.target;
+            let el:Element = document.activeElement;
             if (el.parentNode === null || el.nodeName.toLowerCase() === "li" || el.nodeName.toLowerCase() === "ul") {
                 return el;
             }

@@ -31,7 +31,7 @@ This application seeks to be inherently private which disallows information broa
    * `tsc --pretty` **
 1. Build the application.
    * `node js/application build`
-1. Execute the application. If the required HTTPS certificates are missing they will be created, but the one or two on screen instructions must be followed to ensure those certificates are trusted by your operating system.
+1. Execute the application.
    * `node js/application service`
    <!-- cspell:disable-->
    * If in Linux you receive issue starting with *EACCESS* follow these steps:
@@ -41,8 +41,11 @@ This application seeks to be inherently private which disallows information broa
 1. Open your favorite modern browser to http://localhost
    * If this doesn't work make an exception in your local firewall for port 443, or which ever port you specify.
 
-* If the `npm` command in not available in Windows close the current shell and open a new shell as administrator. Run the following commands:
-   - `SET PATH=%AppData%\npm;%PATH%` in *cmd* or ``SET PATH=%AppData%\npm`;%PATH%`` in *Powershell*.
+* If the `npm` command is not available in Windows:
+   - Install *NVM* (Node Version Manager) for Windows: https://github.com/coreybutler/nvm-windows
+   - Or, close the current shell and open a new shell as administrator. Run the command for your shell:
+      * cmd - `SET PATH=%AppData%\npm;%PATH%` or
+      * Powershell - ``SET PATH=%AppData%\npm`;%PATH%``
 * If Windows Powershell returns an error saying: *"execution of scripts is disabled on this system"* then run this command:
    - `Set-ExecutionPolicy RemoteSigned`
    - Choose option **Y**
