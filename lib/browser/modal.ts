@@ -563,7 +563,7 @@ modal.minimize = function browser_modal_minimize(event:Event, callback?:() => vo
             child.style.removeProperty("display");
             a = a + 1;
         } while (a < children.length);
-        document.getElementById("tray").removeChild(li);
+        document.getElementById("tray").getElementsByTagName("ul")[0].removeChild(li);
         li.removeChild(box);
         box.style.zIndex = browser.data.modals[id].zIndex.toString();
         title.style.cursor = "move";
@@ -590,7 +590,7 @@ modal.minimize = function browser_modal_minimize(event:Event, callback?:() => vo
         title.style.width = "11.5em";
         title.style.cursor = "pointer";
         li.appendChild(box);
-        document.getElementById("tray").appendChild(li);
+        document.getElementById("tray").getElementsByTagName("ul")[0].appendChild(li);
         browser.data.modals[id].status = "minimized";
     }
     if (callback !== undefined) {

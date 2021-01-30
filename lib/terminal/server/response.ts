@@ -14,8 +14,6 @@ const response = function terminal_server_response(config:responseConfig):void {
                     "text/html",
                     "application/javascript",
                     "text/css",
-                    "image/jpeg",
-                    "image/png",
                     "image/svg+xml",
                     "application/xhtml+xml"
                 ],
@@ -31,7 +29,7 @@ const response = function terminal_server_response(config:responseConfig):void {
                 },
                 type:string = (textTypes.indexOf(config.mimeType) > -1)
                     ? `${config.mimeType}; charset=utf-8`
-                    : `${config.mimeType}; charset=binary`;
+                    : config.mimeType;
             let status:number;
             if (Buffer.isBuffer(config.message) === true) {
                 status = 200;
@@ -42,7 +40,9 @@ const response = function terminal_server_response(config:responseConfig):void {
             } else {
                 status = 200;
             }
+            config.serverResponse.setHeader("cache-control", "no-store");
             config.serverResponse.setHeader("response-type", config.responseType);
+            config.serverResponse.setHeader("x-content-type-options", "nosniff");
             config.serverResponse.writeHead(status, {"Content-Type": type});
             config.serverResponse.write(config.message);
             config.serverResponse.end();

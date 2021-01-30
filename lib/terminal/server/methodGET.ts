@@ -101,9 +101,6 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                                         }
                                         serverResponse.setHeader("content-security-policy", csp);
                                         serverResponse.setHeader("connection", "keep-alive");
-                                        // cspell:disable
-                                        serverResponse.setHeader("X-FRAME-OPTIONS", "sameorigin");
-                                        // cspell:enable
                                         response({
                                             message: dataString,
                                             mimeType: mimeType,
@@ -140,6 +137,7 @@ const methodGET = function terminal_server_methodGET(request:IncomingMessage, se
                             }
                         } else if (localPath.indexOf(".html") === localPath.length - 5 || localPath.indexOf(".htm") === localPath.length - 4) {
                             if (localPath === `${vars.projectPath}lib${vars.sep}index.html` && typeof data === "string") {
+                                data = data.replace("xml:lang=", "lang=");
                                 pageState();
                             } else {
                                 type = mimeType;
