@@ -10,8 +10,9 @@ declare global {
     }
     interface copyFileRequest {
         brotli: number;
-        location: string;
+        file_location: string;
         size: number;
+        start_location: string;
     }
     interface copyStatus {
         failures: string[];

@@ -234,8 +234,9 @@ const serviceCopy:systemServiceCopy = {
                             : callbackRequest,
                         payload:copyFileRequest = {
                             brotli: serverVars.brotli,
-                            location: config.fileData.list[a][0],
-                            size: config.fileData.list[a][3]
+                            file_location: config.fileData.list[a][0],
+                            size: config.fileData.list[a][3],
+                            start_location: config.fileData.list[a][2]
                         };
                     vars.testLogger("fileService", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
                     //config.data.depth = config.fileData.list[a][3];
@@ -530,12 +531,12 @@ const serviceCopy:systemServiceCopy = {
         },
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                hashStream:ReadStream = vars.node.fs.ReadStream(data.location),
-                name:string = data.location.split(vars.sep).pop();
+                hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
+                name:string = data.file_location.replace(data.start_location + vars.sep, "");
             vars.testLogger("fileService", "copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
-                const readStream:ReadStream = vars.node.fs.ReadStream(data.location),
+                const readStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
                     compress:BrotliCompress = (data.brotli > 0)
                         ? vars.node.zlib.createBrotliCompress({
                             params: {[vars.node.zlib.constants.BROTLI_PARAM_QUALITY]: data.brotli}
@@ -544,7 +545,7 @@ const serviceCopy:systemServiceCopy = {
                 serverResponse.setHeader("hash", hash.digest("hex"));
                 serverResponse.setHeader("file_name", name);
                 serverResponse.setHeader("file_size", data.size.toString());
-                serverResponse.setHeader("cut_path", data.location);
+                serverResponse.setHeader("cut_path", data.file_location);
                 if (data.brotli > 0) {
                     serverResponse.setHeader("compression", "true");
                 } else {
