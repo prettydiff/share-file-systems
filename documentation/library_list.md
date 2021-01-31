@@ -76,7 +76,6 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/server/methodPOST.ts](../lib/terminal/server/methodPOST.ts)**                                                 - The library for handling all traffic related to HTTP requests with method POST.
    - **[../lib/terminal/server/response.ts](../lib/terminal/server/response.ts)**                                                     - A uniform means of handling HTTP responses.
    - **[../lib/terminal/server/serverVars.ts](../lib/terminal/server/serverVars.ts)**                                                 - A library of variables globally available for all server related tasks.
-   - **[../lib/terminal/server/serverWatch.ts](../lib/terminal/server/serverWatch.ts)**                                               - A library that establishes a file system watch respective to the application itself.
    - **[../lib/terminal/server/storage.ts](../lib/terminal/server/storage.ts)**                                                       - A library for writing data to storage.
 * Directory *[../lib/terminal/test/application](../lib/terminal/test/application)*
    - **[../lib/terminal/test/application/browser.ts](../lib/terminal/test/application/browser.ts)**                                   - The functions necessary to run browser test automation.

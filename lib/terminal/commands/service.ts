@@ -14,7 +14,6 @@ import certificate from "./certificate.js";
 import createServer from "../server/createServer.js";
 import heartbeat from "../server/heartbeat.js";
 import serverVars from "../server/serverVars.js";
-import serverWatch from "../server/serverWatch.js";
 
 
 // runs services: http, web sockets, and file system watch.  Allows rapid testing with automated rebuilds
@@ -357,9 +356,6 @@ const service = function terminal_commands_service(serverCallback:serverCallback
             }
 
             // start the service
-            serverVars.watches[vars.projectPath] = vars.node.fs.watch(vars.projectPath, {
-                recursive: (serverVars.testType.indexOf("browser") < 0 && (process.platform === "win32" || process.platform === "darwin"))
-            }, serverWatch);
             httpServer.on("error", serverError);
             httpServer.listen({
                 port: port

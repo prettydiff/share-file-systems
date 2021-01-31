@@ -92,9 +92,8 @@ const serviceFile:systemServiceFile = {
                         serviceFile.respond.dir(serverResponse, responseData);
                         
                         // please note
-                        // watch is ignored on all operations other than fs-directory
                         // fs-directory will only read from the first value in data.location
-                        if (data.action === "fs-directory" && result.length > 0 && data.watch !== "no" && data.watch !== vars.projectPath) {
+                        if (data.action === "fs-directory" && result.length > 0 && data.watch !== "no") {
                             const watchPath:string = result[0][0].replace(/\\/g, "\\\\");
                             if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
                                 serverVars.watches[data.watch].close();
