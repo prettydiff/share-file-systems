@@ -76,13 +76,13 @@ const serviceCopy:systemServiceCopy = {
                                 fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
                                 if (writeActive === false) {
                                     const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
-                                        const fileName:string = fileQueue[index][0];
+                                        const fileNameQueue:string = fileQueue[index][0];
                                         vars.testLogger("fileService", "callbackWrite", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
-                                        vars.node.fs.writeFile(config.data.destination + vars.sep + fileName, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
+                                        vars.node.fs.writeFile(config.data.destination + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
                                             const hashFailLength:number = hashFail.length;
                                             if (wr !== null) {
-                                                error([`Error writing file ${fileName} from remote agent ${config.data.agent}`, wr.toString()]);
-                                                hashFail.push(fileName);
+                                                error([`Error writing file ${fileNameQueue} from remote agent ${config.data.agent}`, wr.toString()]);
+                                                hashFail.push(fileNameQueue);
                                             } else {
                                                 const status:completeStatus = {
                                                         countFile: countFile,
@@ -234,9 +234,9 @@ const serviceCopy:systemServiceCopy = {
                             : callbackRequest,
                         payload:copyFileRequest = {
                             brotli: serverVars.brotli,
+                            file_name: config.fileData.list[a][2],
                             file_location: config.fileData.list[a][0],
-                            size: config.fileData.list[a][3],
-                            start_location: config.fileData.list[a][2]
+                            size: config.fileData.list[a][3]
                         };
                     vars.testLogger("fileService", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
                     //config.data.depth = config.fileData.list[a][3];
@@ -531,8 +531,7 @@ const serviceCopy:systemServiceCopy = {
         },
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
-                hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
-                name:string = data.file_location.replace(data.start_location + vars.sep, "");
+                hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
             vars.testLogger("fileService", "copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
@@ -543,7 +542,7 @@ const serviceCopy:systemServiceCopy = {
                         })
                         : null;
                 serverResponse.setHeader("hash", hash.digest("hex"));
-                serverResponse.setHeader("file_name", name);
+                serverResponse.setHeader("file_name", data.file_name);
                 serverResponse.setHeader("file_size", data.size.toString());
                 serverResponse.setHeader("cut_path", data.file_location);
                 if (data.brotli > 0) {
