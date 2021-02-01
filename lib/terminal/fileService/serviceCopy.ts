@@ -51,6 +51,8 @@ const serviceCopy:systemServiceCopy = {
                                 },
                                 output:copyStatus = {
                                     address: config.data.destination,
+                                    agent: config.data.copyAgent,
+                                    agentType: config.data.copyType,
                                     failures: hashFail,
                                     fileList: dirItems,
                                     message: serviceCopy.copyMessage(status, config.data.cut),
@@ -95,6 +97,8 @@ const serviceCopy:systemServiceCopy = {
                                                     },
                                                     output:copyStatus = {
                                                         address: config.data.destination,
+                                                        agent: config.data.copyAgent,
+                                                        agentType: config.data.copyType,
                                                         failures: [],
                                                         message: serviceCopy.copyMessage(status, config.data.cut)
                                                     };
@@ -198,6 +202,8 @@ const serviceCopy:systemServiceCopy = {
                             },
                             output:copyStatus = {
                                 address: config.data.destination,
+                                agent: config.data.copyAgent,
+                                agentType: config.data.copyType,
                                 failures: [],
                                 message: serviceCopy.copyMessage(status, config.data.cut)
                             };
@@ -305,6 +311,8 @@ const serviceCopy:systemServiceCopy = {
                         : "s",
                     output:copyStatus = {
                         address: config.data.destination,
+                        agent: config.data.copyAgent,
+                        agentType: config.data.copyType,
                         failures: [],
                         message: `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`
                     };
@@ -502,6 +510,8 @@ const serviceCopy:systemServiceCopy = {
                             },
                             status:copyStatus = {
                                 address: data.destination,
+                                agent: data.copyAgent,
+                                agentType: data.copyType,
                                 failures: [],
                                 message: serviceCopy.copyMessage(complete, data.cut)
                             };

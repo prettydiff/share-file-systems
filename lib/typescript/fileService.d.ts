@@ -16,6 +16,8 @@ declare global {
     }
     interface copyStatus {
         address: string;
+        agent: string;
+        agentType: agentType;
         failures: string[];
         fileList?: directoryList;
         message: string;
