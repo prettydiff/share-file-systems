@@ -68,22 +68,21 @@ const serviceCopy:systemServiceCopy = {
                                         vars.testLogger("serviceCopy", "callbackWrite", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
                                         vars.node.fs.writeFile(config.data.destination + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
                                             const hashFailLength:number = hashFail.length;
-                                            statusConfig.failures = hashFailLength;
+                                            statusConfig.countFile = statusConfig.countFile + 1;
+                                            statusConfig.writtenSize = statusConfig.writtenSize + fileQueue[index][1];
                                             if (wr !== null) {
                                                 error([`Error writing file ${fileNameQueue} from remote agent ${config.data.agent}`, wr.toString()]);
                                                 hashFail.push(fileNameQueue);
-                                            } else {
-                                                serviceCopy.status(statusConfig);
                                             }
                                             if (index < fileQueue.length - 1) {
                                                 terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index + 1);
                                             } else {
                                                 if (statusConfig.countFile + countDir + hashFailLength === listLength) {
                                                     statusConfig.serverResponse = serverResponse;
-                                                    serviceCopy.status(statusConfig);
                                                 } else {
                                                     writeActive = false;
                                                 }
+                                                serviceCopy.status(statusConfig);
                                             }
                                         });
                                     };
@@ -92,6 +91,7 @@ const serviceCopy:systemServiceCopy = {
                                 }
                             } else {
                                 hashFail.push(fileName);
+                                statusConfig.failures = statusConfig.failures + 1;
                                 error([`Hashes do not match for file ${fileName} ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`]);
                                 if (statusConfig.countFile + countDir + hashFail.length === listLength) {
                                     statusConfig.serverResponse = serverResponse;
@@ -173,6 +173,7 @@ const serviceCopy:systemServiceCopy = {
                                 writtenFiles = writtenFiles + 1;
                                 statusConfig.writtenSize = writtenSize + config.fileData.list[a][3];
                             } else {
+                                statusConfig.failures = statusConfig.failures + 1;
                                 fileError(`Hashes do not match for file ${fileName} from ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`, filePath);
                             }
                             a = a + 1;
@@ -523,7 +524,7 @@ const serviceCopy:systemServiceCopy = {
         return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
     },
     percent: function terminal_fileService_serviceCopy_copyMessage(numerator:number, denominator:number):string {
-        return `${(numerator / denominator).toFixed(2)}%`;
+        return `${((numerator / denominator) * 100).toFixed(2)}%`;
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         vars.testLogger("serviceCopy", "requestFiles", "Copy status messaging");
@@ -570,7 +571,7 @@ const serviceCopy:systemServiceCopy = {
                             responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_responseError():void {},
                             responseStream: httpClient.stream
                         });
-                    } else {
+                    } else if (config.serverResponse.writableEnded === false) {
                         fileServices.respond.copy(config.serverResponse, copyStatus);
                     }
                 }

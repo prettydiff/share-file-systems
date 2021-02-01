@@ -258,7 +258,17 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                 symbolic: true
             });
         } else {
-            error([erStat.toString()]);
+            mkdir(params.destination, function terminal_commands_copy_stat_mkdir():void {
+                directory({
+                    callback: dirCallback,
+                    depth: 0,
+                    exclusions: params.exclusions,
+                    logRecursion: false,
+                    mode: "read",
+                    path: target,
+                    symbolic: true
+                });
+            }, false);
         }
     });
 };
