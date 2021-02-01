@@ -110,8 +110,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "copy",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
         }
     });
@@ -249,8 +249,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `${filePathEncode("absolute", "serviceTestLocal")} created.`
         }
     });
@@ -269,8 +269,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `${filePathEncode("absolute", "serviceTestLocal.json")} created.`
         }
     });
@@ -288,8 +288,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `${filePathEncode("absolute", "serviceTestRemote")} created.`
         }
     });
@@ -308,8 +308,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `${filePathEncode("absolute", "serviceTestRemote.json")} created.`
         }
     });
@@ -400,8 +400,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path ${filePathEncode("absolute", "serviceTestLocal")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal")}.`,
         }
     });
@@ -420,8 +420,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path ${filePathEncode("absolute", "serviceTestLocal.json")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal.json")}.`
         }
     });
@@ -440,8 +440,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path ${filePathEncode("absolute", "serviceTestRemote")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote")}.`
         }
     });
@@ -460,8 +460,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path ${filePathEncode("absolute", "serviceTestRemote.json")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote.json")}.`
         }
     });
@@ -480,8 +480,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path(s) ${filePathEncode("absolute", "serviceLocal")} destroyed on device ${serverVars.hashDevice}.`
         }
     });
@@ -500,8 +500,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path(s) ${filePathEncode("absolute", "serviceLocal.json")} destroyed on device ${serverVars.hashDevice}.`
         }
     });
@@ -520,8 +520,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path(s) ${filePathEncode("absolute", "serviceRemote")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
         }
     });
@@ -540,8 +540,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "is",
         requestType: "fs",
         test: {
+            address: "test-ID",
             failures: [],
-            id: "test-ID",
             message: `Path(s) ${filePathEncode("absolute", "serviceRemote.json")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
         }
     });

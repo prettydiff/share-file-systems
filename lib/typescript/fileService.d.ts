@@ -15,9 +15,9 @@ declare global {
         size: number;
     }
     interface copyStatus {
+        address: string;
         failures: string[];
         fileList?: directoryList;
-        id: string;
         message: string;
     }
     interface fileServiceRequest {

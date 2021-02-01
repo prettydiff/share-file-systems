@@ -35,6 +35,9 @@ const serviceCopy:systemServiceCopy = {
                 hashFail:string[] = [],
                 listLength = config.fileData.list.length,
                 cutList:[string, string][] = [],
+                localize = function terminal_fileService_serviceCopy_requestFiles_localize(input:string):string {
+                    return input.replace(/(\\|\/)/g, vars.sep);
+                },
                 // prepares the HTTP response message if all requested files are written
                 respond = function terminal_fileService_serviceCopy_requestFiles_respond():void {
                     vars.testLogger("fileService", "requestFiles respond", "When all requested artifacts are written write the HTTP response to the browser.");
@@ -47,9 +50,9 @@ const serviceCopy:systemServiceCopy = {
                                     writtenSize: writtenSize
                                 },
                                 output:copyStatus = {
+                                    address: config.data.destination,
                                     failures: hashFail,
                                     fileList: dirItems,
-                                    id: config.data.destination.replace(/\\/g, "\\\\"),
                                     message: serviceCopy.copyMessage(status, config.data.cut),
                                 };
                             vars.broadcast("file-list-status", JSON.stringify(output));
@@ -66,7 +69,7 @@ const serviceCopy:systemServiceCopy = {
                 // the callback for each file request
                 callbackRequest = function terminal_fileService_serviceCopy_requestFiles_callbackRequest(fileResponse:IncomingMessage):void {
                     const fileChunks:Buffer[] = [],
-                        fileName:string = <string>fileResponse.headers.file_name,
+                        fileName:string = localize(<string>fileResponse.headers.file_name),
                         writeable:Writable = new Stream.Writable(),
                         responseEnd = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_responseEnd(file:Buffer):void {
                             const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
@@ -91,8 +94,8 @@ const serviceCopy:systemServiceCopy = {
                                                         writtenSize: writtenSize
                                                     },
                                                     output:copyStatus = {
+                                                        address: config.data.destination,
                                                         failures: [],
-                                                        id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                                                         message: serviceCopy.copyMessage(status, config.data.cut)
                                                     };
                                                 cutList.push([fileQueue[index][2], "file"]);
@@ -161,7 +164,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // files requested as a stream are written as a stream, otherwise files are requested/written in a single shot using callbackRequest
                 callbackStream = function terminal_fileService_serviceCopy_requestFiles_callbackStream(fileResponse:IncomingMessage):void {
-                    const fileName:string = <string>fileResponse.headers.file_name,
+                    const fileName:string = localize(<string>fileResponse.headers.file_name),
                         filePath:string = config.data.destination + vars.sep + fileName,
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
@@ -194,8 +197,8 @@ const serviceCopy:systemServiceCopy = {
                                 writtenSize: written
                             },
                             output:copyStatus = {
+                                address: config.data.destination,
                                 failures: [],
-                                id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                                 message: serviceCopy.copyMessage(status, config.data.cut)
                             };
                         vars.broadcast("file-list-status", JSON.stringify(output));
@@ -293,7 +296,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    mkdir(config.data.destination + vars.sep + config.fileData.list[a][2], dirCallback, false);
+                    mkdir(config.data.destination + vars.sep + localize(config.fileData.list[a][2]), dirCallback, false);
                     cutList.push([config.fileData.list[a][0], "directory"]);
                 };
             if (config.fileData.stream === true) {
@@ -301,8 +304,8 @@ const serviceCopy:systemServiceCopy = {
                         ? ""
                         : "s",
                     output:copyStatus = {
+                        address: config.data.destination,
                         failures: [],
-                        id: `local-${config.data.destination.replace(/\\/g, "\\\\")}`,
                         message: `Copy started for ${config.fileData.fileCount} file${filePlural} at ${common.prettyBytes(config.fileData.fileSize)} (${common.commas(config.fileData.fileSize)} bytes).`
                     };
                 vars.broadcast("file-list-status", JSON.stringify(output));
@@ -498,8 +501,8 @@ const serviceCopy:systemServiceCopy = {
                                 writtenSize: writtenSize
                             },
                             status:copyStatus = {
+                                address: data.destination,
                                 failures: [],
-                                id: data.id,
                                 message: serviceCopy.copyMessage(complete, data.cut)
                             };
                             if (data.cut === true) {

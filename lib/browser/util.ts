@@ -353,24 +353,21 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
 util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void {
-    const modal:Element = document.getElementById(data.id),
+    const address:string = data.address,
+        keys:string[] = Object.keys(browser.data.modals),
         failLength:number = (data.failures === undefined)
             ? 0
             : Math.min(10, data.failures.length),
-        fails:Element = document.createElement("ul"),
-        statusBar:Element = (modal === null)
-            ? undefined
-            : <HTMLElement>modal.getElementsByClassName("status-bar")[0],
-        list:Element = (modal === null)
-            ? undefined
-            : statusBar.getElementsByTagName("ul")[0],
-        p:Element = (modal === null)
-            ? undefined
-            : statusBar.getElementsByTagName("p")[0];
-    let id:string,
-        listData:[Element, number, string],
+        fails:Element = document.createElement("ul");
+    let listData:[Element, number, string],
         body:Element,
-        clone:Element;
+        clone:Element,
+        keyLength:number = keys.length,
+        statusBar:Element,
+        list:Element,
+        p:Element,
+        modal:modal,
+        box:Element;
     if (failLength > 0) {
         let b:number = 0,
             li:Element;
@@ -386,27 +383,37 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
             fails.appendChild(li);
         }
     }
-    if (modal !== null) {
-        p.innerHTML = data.message;
-        if (list !== undefined) {
-            statusBar.removeChild(list);
-        }
-        if (failLength > 0) {
-            clone = <HTMLElement>fails.cloneNode(true);
-            statusBar.appendChild(clone);
-        }
-        if (data.fileList !== undefined) {
-            body = modal.getElementsByClassName("body")[0];
-            body.innerHTML = "";
-            listData = fileBrowser.list(browser.data.modals[id].text_value, {
-                dirs: data.fileList,
-                fail: [],
-                id: data.id
-            });
-            if (listData !== null) {
-                body.appendChild(listData[0]);
+    if (keyLength > 0) {
+        do {
+            keyLength = keyLength - 1;
+            modal = browser.data.modals[keys[keyLength]];
+            if (modal.type === "fileNavigate" && modal.text_value === address) {
+                box = document.getElementById(keys[keyLength]);
+                statusBar = box.getElementsByClassName("status-bar")[0];
+                list = statusBar.getElementsByTagName("ul")[0];
+                p = statusBar.getElementsByTagName("p")[0];
+                p.innerHTML = data.message;
+                if (list !== undefined) {
+                    statusBar.removeChild(list);
+                }
+                if (failLength > 0) {
+                    clone = <HTMLElement>fails.cloneNode(true);
+                    statusBar.appendChild(clone);
+                }
+                if (data.fileList !== undefined) {
+                    body = box.getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    listData = fileBrowser.list(address, {
+                        dirs: data.fileList,
+                        fail: [],
+                        id: keys[keyLength]
+                    });
+                    if (listData !== null) {
+                        body.appendChild(listData[0]);
+                    }
+                }
             }
-        }
+        } while (keyLength > 0);
     }
 };
 
