@@ -8,6 +8,7 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
+import vars from "../utilities/vars.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
@@ -15,8 +16,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             httpClient({
                 agentType: data.agentType,
                 callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
-                    const status:copyStatus = JSON.parse(message.toString());
-                        serviceFile.respond.copy(serverResponse, status);
+                    vars.broadcast("file-list-status", message.toString());
                 },
                 errorMessage: "",
                 ip: serverVars[data.agentType][data.agent].ip,
