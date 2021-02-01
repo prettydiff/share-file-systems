@@ -946,13 +946,15 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
             ? title
             : element.innerHTML,
         textArea:HTMLTextAreaElement = document.createElement("textarea"),
+        label:Element = document.createElement("label"),
+        span:Element = document.createElement("span"),
         agency:agency = (element === document.getElementById("textPad"))
             ? [browser.data.hashDevice, false, "device"]
             : util.getAgent(element),
         payload:modal = {
             agent: agency[0],
             agentType: "device",
-            content: textArea,
+            content: label,
             inputs: ["close", "maximize", "minimize"],
             read_only: agency[1],
             title: titleText,
@@ -960,6 +962,10 @@ modal.textPad = function browser_modal_textPad(event:MouseEvent, value?:string, 
             width: 800
         };
     let box:Element;
+    span.innerHTML = "Text Pad";
+    label.setAttribute("class", "textPad");
+    label.appendChild(span);
+    label.appendChild(textArea);
     if (typeof value === "string") {
         textArea.value = value;
     }

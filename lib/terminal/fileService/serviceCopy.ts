@@ -28,8 +28,7 @@ const serviceCopy:systemServiceCopy = {
                 writtenFiles:number = 0,
                 a:number = 0,
                 activeRequests:number = 0,
-                countDir:number = 0,
-                countFile:number = 0;
+                countDir:number = 0;
             const statusConfig:copyStatusConfig = {
                     agent: config.data.copyAgent,
                     agentType: config.data.copyType,
@@ -79,7 +78,7 @@ const serviceCopy:systemServiceCopy = {
                                             if (index < fileQueue.length - 1) {
                                                 terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index + 1);
                                             } else {
-                                                if (countFile + countDir + hashFailLength === listLength) {
+                                                if (statusConfig.countFile + countDir + hashFailLength === listLength) {
                                                     statusConfig.serverResponse = serverResponse;
                                                     serviceCopy.status(statusConfig);
                                                 } else {
@@ -94,7 +93,7 @@ const serviceCopy:systemServiceCopy = {
                             } else {
                                 hashFail.push(fileName);
                                 error([`Hashes do not match for file ${fileName} ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`]);
-                                if (countFile + countDir + hashFail.length === listLength) {
+                                if (statusConfig.countFile + countDir + hashFail.length === listLength) {
                                     statusConfig.serverResponse = serverResponse;
                                     serviceCopy.status(statusConfig);
                                 }
@@ -139,6 +138,7 @@ const serviceCopy:systemServiceCopy = {
                         decompress:BrotliDecompress = (fileResponse.headers.compression === "true")
                             ? vars.node.zlib.createBrotliDecompress()
                             : null,
+                        writtenSize: number = statusConfig.writtenSize,
                         writeStream:WriteStream = vars.node.fs.createWriteStream(filePath),
                         hash:Hash = vars.node.crypto.createHash("sha3-512"),
                         fileError = function terminal_fileService_serviceCopy_requestFiles_callbackStream_fileError(message:string, fileAddress:string):void {
@@ -158,6 +158,7 @@ const serviceCopy:systemServiceCopy = {
                         fileResponse.pipe(writeStream);
                     }
                     fileResponse.on("data", function terminal_fileService_serviceCopy_requestFiles_callbackStream_data():void {
+                        statusConfig.writtenSize = writtenSize + writeStream.bytesWritten;
                         serviceCopy.status(statusConfig);
                     });
                     fileResponse.on("end", function terminal_fileService_serviceCopy_requestFiles_callbackStream_end():void {
@@ -168,9 +169,9 @@ const serviceCopy:systemServiceCopy = {
                             const hashString:string = hash.digest("hex");
                             if (hashString === fileResponse.headers.hash) {
                                 cutList.push([<string>fileResponse.headers.cut_path, "file"]);
-                                countFile = countFile + 1;
+                                statusConfig.countFile = statusConfig.countFile + 1;
                                 writtenFiles = writtenFiles + 1;
-                                statusConfig.writtenSize = statusConfig.writtenSize + config.fileData.list[a][3];
+                                statusConfig.writtenSize = writtenSize + config.fileData.list[a][3];
                             } else {
                                 fileError(`Hashes do not match for file ${fileName} from ${config.data.agentType} ${serverVars[config.data.agentType][config.data.agent].name}`, filePath);
                             }
@@ -200,10 +201,9 @@ const serviceCopy:systemServiceCopy = {
                             size: config.fileData.list[a][3]
                         };
                     vars.testLogger("serviceCopy", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
-                    //config.data.depth = config.fileData.list[a][3];
                     if (config.data.copyAgent !== serverVars.hashDevice) {
                         const status:completeStatus = {
-                            countFile: countFile,
+                            countFile: statusConfig.countFile,
                             failures: hashFail.length,
                             percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
                                 ? "100%"
@@ -247,7 +247,7 @@ const serviceCopy:systemServiceCopy = {
                             requestFile();
                         }
                     }
-                    if (countFile + countDir === listLength) {
+                    if (statusConfig.countFile + countDir === listLength) {
                         statusConfig.serverResponse = serverResponse;
                         serviceCopy.status(statusConfig);
                     }
@@ -548,28 +548,31 @@ const serviceCopy:systemServiceCopy = {
                     const removeCallback = function terminal_fileService_serviceCopy_copySameAgent_each_copy_remove():void {
                         cutCount = cutCount + 1;
                         if (cutCount === config.location.length) {
+                            vars.broadcast("file-list-status", JSON.stringify(copyStatus));
                             fileServices.respond.copy(config.serverResponse, copyStatus);
                         }
                     };
                     config.location.forEach(function terminal_fileService_serviceCopy_copySameAgent_each_copy_cut(filePath:string):void {
                         remove(filePath, removeCallback);
                     });
-                } else if (config.serverResponse === null) {
-                    httpClient({
-                        agentType: "device",
-                        callback: function terminal_fileService_serviceCopy_status_callbackDirectory_callback():void {},
-                        errorMessage: "Failure sending copy status information",
-                        ip: serverVars[config.responseType][config.responseAgent].ip,
-                        port: serverVars[config.responseType][config.responseAgent].port,
-                        payload: JSON.stringify(copyStatus),
-                        requestError: function terminal_fileService_serviceCopy_status_callbackDirectory_requestError():void {},
-                        requestType: "file-list-status",
-                        responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_responseError():void {},
-                        responseStream: httpClient.stream
-                    });
                 } else {
                     vars.broadcast("file-list-status", JSON.stringify(copyStatus));
-                    fileServices.respond.copy(config.serverResponse, copyStatus);
+                    if (config.serverResponse === null) {
+                        httpClient({
+                            agentType: "device",
+                            callback: function terminal_fileService_serviceCopy_status_callbackDirectory_callback():void {},
+                            errorMessage: "Failure sending copy status information",
+                            ip: serverVars[config.responseType][config.responseAgent].ip,
+                            port: serverVars[config.responseType][config.responseAgent].port,
+                            payload: JSON.stringify(copyStatus),
+                            requestError: function terminal_fileService_serviceCopy_status_callbackDirectory_requestError():void {},
+                            requestType: "file-list-status",
+                            responseError: function terminal_fileService_serviceCopy_status_callbackDirectory_responseError():void {},
+                            responseStream: httpClient.stream
+                        });
+                    } else {
+                        fileServices.respond.copy(config.serverResponse, copyStatus);
+                    }
                 }
             },
             dirConfig:readDirectory = {

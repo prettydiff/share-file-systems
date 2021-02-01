@@ -183,7 +183,8 @@ body{border-style:none;height:100%;margin:0;padding:0;width:100%}
 #spaces .box .delay{height:100%;width:100%}
 #spaces .box .delay svg{display:block;height:80%;margin:0 auto;width:50%}
 #spaces .box .delay p{font-size:2em;text-align:center}
-#spaces .box .body > textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
+#spaces .box .textPad span{display:block;position:absolute;text-indent:-2000em}
+#spaces .box .textPad textarea{border-style:none;display:block;font-size:2em;height:100%;margin:0;overflow:scroll;padding:0;resize:none;white-space:pre;width:100%}
 #spaces #dragBox{border-style:solid;border-width:0.2em;opacity:0.5;position:absolute}
 
 
