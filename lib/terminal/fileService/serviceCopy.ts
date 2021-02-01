@@ -253,7 +253,7 @@ const serviceCopy:systemServiceCopy = {
                             writtenSize: writtenSize
                         };
                         vars.testLogger("fileService", "requestFiles requestFile", "If copyAgent is not the local device then update the status data.");
-                        config.data.id = `local-${config.data.destination.replace(/\\/g, "\\\\")}|${serviceCopy.copyMessage(status, config.data.cut)}`;
+                        config.data.id = `${config.data.destination.replace(/\\/g, "\\\\")}|${serviceCopy.copyMessage(status, config.data.cut)}`;
                     }
                     config.data.location = [config.fileData.list[a][0]];
                     httpClient({

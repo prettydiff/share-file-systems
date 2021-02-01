@@ -56,9 +56,9 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                             payload:string = JSON.stringify(update),
                             requestError = function terminal_fileService_watchHandler_remote_requestError(message:nodeError):void {
                                 const copyStatus:copyStatus = {
+                                        address: "",
                                         failures: [],
-                                        id: config.data.id.slice(0, config.data.id.indexOf("|")),
-                                        message: config.data.id.slice(config.data.id.indexOf("|") + 1)
+                                        message: message.toString()
                                     },
                                     fsRemote:fsRemote = {
                                         dirs: "missing",
