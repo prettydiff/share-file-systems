@@ -111,7 +111,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "copy",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
         }
     });
@@ -250,7 +252,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `${filePathEncode("absolute", "serviceTestLocal")} created.`
         }
     });
@@ -270,7 +274,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `${filePathEncode("absolute", "serviceTestLocal.json")} created.`
         }
     });
@@ -289,7 +295,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `${filePathEncode("absolute", "serviceTestRemote")} created.`
         }
     });
@@ -309,7 +317,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `${filePathEncode("absolute", "serviceTestRemote.json")} created.`
         }
     });
@@ -401,7 +411,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path ${filePathEncode("absolute", "serviceTestLocal")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal")}.`,
         }
     });
@@ -421,7 +433,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path ${filePathEncode("absolute", "serviceTestLocal.json")} on device ${serverVars.hashDevice} renamed to ${filePathEncode("absolute", "serviceLocal.json")}.`
         }
     });
@@ -441,7 +455,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path ${filePathEncode("absolute", "serviceTestRemote")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote")}.`
         }
     });
@@ -461,7 +477,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path ${filePathEncode("absolute", "serviceTestRemote.json")} on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e renamed to ${filePathEncode("absolute", "serviceRemote.json")}.`
         }
     });
@@ -481,7 +499,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path(s) ${filePathEncode("absolute", "serviceLocal")} destroyed on device ${serverVars.hashDevice}.`
         }
     });
@@ -501,7 +521,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path(s) ${filePathEncode("absolute", "serviceLocal.json")} destroyed on device ${serverVars.hashDevice}.`
         }
     });
@@ -521,7 +543,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path(s) ${filePathEncode("absolute", "serviceRemote")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
         }
     });
@@ -541,7 +565,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         requestType: "fs",
         test: {
             address: "test-ID",
-            failures: [],
+            agent: serverVars.hashDevice,
+            agentType: "device",
+            fileList: null,
             message: `Path(s) ${filePathEncode("absolute", "serviceRemote.json")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
         }
     });
@@ -712,22 +738,6 @@ const serviceTests = function terminal_test_samples_services():testService[] {
         qualifier: "contains",
         requestType: "fs",
         test: `["${filePathEncode("absolute", "js/lib/browser/fileBrowser.js", true)}","file"`
-    });
-    service.push(<testService>{
-        command: {
-            agent: "a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e",
-            agentType: "device",
-            dirs: [
-                [filePathEncode("absolute", "lib/storage/storage.txt"), "file", "", 0, 0, null]
-            ],
-            fail: [],
-            location: filePathEncode("absolute", "lib/storage"),
-            status: {}
-        },
-        name: "fs-update-remote, Local",
-        qualifier: "is",
-        requestType: "fs-update-remote",
-        test: `Received directory watch for {"agent":"a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e","agentType":"device","dirs":[["${filePathEncode("absolute", "lib/storage/storage.txt", true)}","file","",0,0,null]],"fail":[],"location":"${filePathEncode("absolute", "lib/storage", true)}","status":{}} at XXXX `
     });
     service.push(<testService>{
         command: {

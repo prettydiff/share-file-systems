@@ -146,7 +146,7 @@ interface module_util {
     delay?: () => Element;
     dragBox?: eventCallback;
     dragList?: (event:Event, dragBox:Element) => void;
-    fileListStatus?: (data:copyStatus) => void;
+    fileListStatus?: (data:copyStatusMessage) => void;
     fixHeight?: () => void;
     formKeys?: (event:KeyboardEvent, submit:Function) => void;
     getAgent?: (element:Element) => agency;

@@ -73,15 +73,15 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * file system interaction for both local and remote
                         routeFile(serverResponse, body);
                     },
-                    "fs-update-remote": function terminal_server_methodPOST_requestEnd_fsUpdateRemote():void {
+                    "file-list-status": function terminal_server_methodPOST_requestEnd_fsUpdateRemote():void {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
                         vars.testLogger("service", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
-                        vars.broadcast("fs-update-remote", body);
+                        vars.broadcast("file-list-status", body);
                         response({
-                            message: `Received directory watch for ${body} at ${serverVars.ipAddress}.`,
+                            message: "File list status response.",
                             mimeType: "text/plain",
-                            responseType: "fs-update-remote",
+                            responseType: "file-list-status",
                             serverResponse: serverResponse
                         });
                     },

@@ -30,7 +30,7 @@ declare global {
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
-    type requestType = "agent-online" | "browser-log" | "copy" | "copy-file" | "copy-request-files" | "delete-agents" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "fs-update-remote" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "storage" | "test-browser";
+    type requestType = "agent-online" | "browser-log" | "copy" | "copy-file" | "copy-request-files" | "delete-agents" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "storage" | "test-browser";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "settings";

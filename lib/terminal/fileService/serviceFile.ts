@@ -323,7 +323,7 @@ const serviceFile:systemServiceFile = {
         }
     },
     respond: {
-        copy: function terminal_fileService_serviceFile_respondCopy(serverResponse:ServerResponse, copy:copyStatus):void {
+        copy: function terminal_fileService_serviceFile_respondCopy(serverResponse:ServerResponse, copy:copyStatusMessage):void {
             response({
                 message: JSON.stringify(copy),
                 mimeType: "application/json",

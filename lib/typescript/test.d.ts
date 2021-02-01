@@ -158,13 +158,13 @@ declare global {
     }
     interface testService {
         artifact?: string;
-        command: fsUpdateRemote | heartbeat | invite | systemDataCopy | systemDataFile | storage | testServiceStorage;
+        command: heartbeat | invite | systemDataCopy | systemDataFile | storage | testServiceStorage;
         file?: string;
         name: string;
         qualifier: qualifier;
         requestType: requestType;
         shares?: testServiceShares;
-        test: copyStatus | fsRemote | heartbeat | string | stringData[];
+        test: copyStatusMessage | fsRemote | heartbeat | string | stringData[];
     }
     // ------------------------------------
 

@@ -30,7 +30,8 @@ const title:Element = document.getElementById("title-bar"),
                 const modalKeys:string[] = Object.keys(browser.data.modals),
                     keyLength:number = modalKeys.length;
                 let root:string = fsData[0][0],
-                    a:number = 0;
+                    a:number = 0,
+                    openTest:boolean = false;
                 if ((/^\w:$/).test(root) === true) {
                     root = root + "\\";
                 }
@@ -43,6 +44,7 @@ const title:Element = document.getElementById("title-bar"),
                                 fail: fsData.failures,
                                 id: modalKeys[a]
                             });
+                        openTest = true;
                         if (list !== null) {
                             body.innerHTML = "";
                             body.appendChild(list[0]);
@@ -51,7 +53,7 @@ const title:Element = document.getElementById("title-bar"),
                     }
                     a = a + 1;
                 } while (a < keyLength);
-                if (a === keyLength) {
+                if (openTest === false) {
                     const payload:systemDataFile = {
                         action: "fs-close",
                         agent: browser.data.hashDevice,
@@ -67,43 +69,6 @@ const title:Element = document.getElementById("title-bar"),
                         return true;
                     };
                     network.fileBrowser(payload, callback);
-                }
-            },
-            fsUpdateRemote = function browser_socketMessage_fsUpdateRemote(data:fsUpdateRemote):void {
-                const list:[Element, number, string] = fileBrowser.list(data.location, {
-                        dirs: data.dirs,
-                        id: data.location,
-                        fail: data.fail
-                    }),
-                    modalKeys:string[] = Object.keys(browser.data.modals),
-                    keyLength:number = modalKeys.length;
-                let a:number = 0,
-                    modalAgent:string,
-                    body:Element,
-                    box:Element,
-                    status:Element;
-                if (list === null) {
-                    return;
-                }
-                do {
-                    modalAgent = browser.data.modals[modalKeys[a]].agent;
-                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === data.location && data.agent === modalAgent) {
-                        box = document.getElementById(browser.data.modals[modalKeys[a]].id);
-                        if (box !== null) {
-                            body = box.getElementsByClassName("body")[0];
-                            body.innerHTML = "";
-                            body.appendChild(list[0]);
-                            status = box.getElementsByClassName("status-bar")[0];
-                            if (status !== undefined) {
-                                status.getElementsByTagName("p")[0].innerHTML = list[2];
-                            }
-                        }
-                    }
-                    a = a + 1;
-                } while (a < keyLength);
-                if (typeof data.status === "string") {
-                    const status:copyStatus = JSON.parse(data.status);
-                    util.fileListStatus(status);
                 }
             },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
@@ -196,12 +161,10 @@ const title:Element = document.getElementById("title-bar"),
                 agentType:agentType = <agentType>agents[1];
             share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status") {
-            const status:copyStatus = JSON.parse(body);
+            const status:copyStatusMessage = JSON.parse(body);
             util.fileListStatus(status);
         } else if (type === "fs-update-local" && browser.loadFlag === false) {
             fsUpdateLocal(JSON.parse(body));
-        } else if (type === "fs-update-remote") {
-            fsUpdateRemote(JSON.parse(body));
         } else if (type === "heartbeat-complete") {
             heartbeat(JSON.parse(body));
         } else if (type === "heartbeat-status") {

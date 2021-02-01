@@ -46,20 +46,20 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                 },
                 dirConfig:readDirectory = {
                     callback: function terminal_fileService_watchHandler_remote(result:directoryList):void {
-                        const update:fsUpdateRemote = {
+                        const update:copyStatusMessage = {
+                                address: config.value,
                                 agent: config.data.agent,
                                 agentType: config.data.agentType,
-                                dirs: result,
-                                fail: [],
-                                location: config.value
+                                fileList: result,
+                                message: ""
                             },
                             payload:string = JSON.stringify(update),
                             requestError = function terminal_fileService_watchHandler_remote_requestError(message:nodeError):void {
-                                const copyStatus:copyStatus = {
-                                        address: "",
+                                const copyStatus:copyStatusMessage = {
+                                        address: config.value,
                                         agent: config.data.agent,
                                         agentType: config.data.agentType,
-                                        failures: [],
+                                        fileList: null,
                                         message: message.toString()
                                     },
                                     fsRemote:fsRemote = {
@@ -92,7 +92,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                     response({
                                         message: message.toString(),
                                         mimeType: "application/json",
-                                        responseType: "fs-update-remote",
+                                        responseType: "file-list-status",
                                         serverResponse: config.serverResponse
                                     });
                                 },
@@ -101,7 +101,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                 payload: payload,
                                 port: serverVars[config.data.agentType][config.data.agent].port,
                                 requestError: requestError,
-                                requestType: "fs-update-remote",
+                                requestType: "file-list-status",
                                 responseStream: httpClient.stream,
                                 responseError: responseError
                             };

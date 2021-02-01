@@ -14,12 +14,26 @@ declare global {
         file_location: string;
         size: number;
     }
-    interface copyStatus {
+    interface copyStatusConfig {
+        agent: string;
+        agentType: agentType;
+        countFile: number;
+        cut: boolean;
+        destination: string;
+        failures: number;
+        location: string[];
+        message: string;
+        responseAgent: string;
+        responseType: agentType;
+        serverResponse: ServerResponse;
+        totalSize: number;
+        writtenSize: number;
+    }
+    interface copyStatusMessage {
         address: string;
         agent: string;
         agentType: agentType;
-        failures: string[];
-        fileList?: directoryList;
+        fileList: directoryList;
         message: string;
     }
     interface fileServiceRequest {
@@ -39,20 +53,6 @@ declare global {
         dirs: directoryList | "missing" | "noShare" | "readOnly";
         fail: string[];
         id: string;
-    }
-    interface fsRespond {
-        copy: (serverResponse:ServerResponse, data:copyStatus) => void;
-        dir: (serverResponse:ServerResponse, data:fsRemote) => void;
-        error: (serverResponse:ServerResponse, message:string, action:serviceType) => void;
-        read: (serverResponse:ServerResponse, list:stringDataList, action:serviceType) => void;
-    }
-    interface fsUpdateRemote {
-        agent: string;
-        agentType: agentType;
-        dirs: directoryList;
-        fail: string[];
-        location: string;
-        status?: copyStatus;
     }
     interface nodeCopyParams {
         callback: Function;
@@ -106,6 +106,7 @@ declare global {
         };
         copyMessage: (numbers:completeStatus, cut:boolean) => string;
         percent: (numerator:number, denominator:number) => string;
+        status: (config:copyStatusConfig) => void;
     }
     interface systemServiceFile {
         actions: {
@@ -119,6 +120,11 @@ declare global {
         };
         dirCallback: (serverResponse:ServerResponse, data:systemDataFile) => void;
         menu: (serverResponse:ServerResponse, data:systemDataFile) => void;
-        respond: fsRespond;
+        respond: {
+            copy: (serverResponse:ServerResponse, data:copyStatusMessage) => void;
+            dir: (serverResponse:ServerResponse, data:fsRemote) => void;
+            error: (serverResponse:ServerResponse, message:string, action:serviceType) => void;
+            read: (serverResponse:ServerResponse, list:stringDataList, action:serviceType) => void;
+        };
     }
 }

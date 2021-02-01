@@ -352,12 +352,12 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
-util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void {
+util.fileListStatus = function browser_util_fileListStatus(data:copyStatusMessage):void {
     const address:string = data.address,
         keys:string[] = Object.keys(browser.data.modals),
-        failLength:number = (data.failures === undefined)
+        failLength:number = (data.fileList.failures === undefined)
             ? 0
-            : Math.min(10, data.failures.length),
+            : Math.min(10, data.fileList.failures.length),
         fails:Element = document.createElement("ul");
     let listData:[Element, number, string],
         body:Element,
@@ -373,11 +373,11 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
             li:Element;
         do {
             li = document.createElement("li");
-            li.innerHTML = data.failures[b];
+            li.innerHTML = data.fileList.failures[b];
             fails.appendChild(li);
             b = b + 1;
         } while (b < failLength);
-        if (data.failures.length > 10) {
+        if (data.fileList.failures.length > 10) {
             li = document.createElement("li");
             li.innerHTML = "more...";
             fails.appendChild(li);
@@ -387,29 +387,34 @@ util.fileListStatus = function browser_util_fileListStatus(data:copyStatus):void
         do {
             keyLength = keyLength - 1;
             modal = browser.data.modals[keys[keyLength]];
-            if (modal.type === "fileNavigate" && modal.text_value === address) {
+            if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === address) {
                 box = document.getElementById(keys[keyLength]);
                 statusBar = box.getElementsByClassName("status-bar")[0];
                 list = statusBar.getElementsByTagName("ul")[0];
                 p = statusBar.getElementsByTagName("p")[0];
-                p.innerHTML = data.message;
-                if (list !== undefined) {
-                    statusBar.removeChild(list);
-                }
                 if (failLength > 0) {
                     clone = <HTMLElement>fails.cloneNode(true);
                     statusBar.appendChild(clone);
+                } else if (data.message !== "") {
+                    p.innerHTML = data.message;
+                    if (list !== undefined) {
+                        statusBar.removeChild(list);
+                    }
                 }
-                if (data.fileList !== undefined) {
-                    body = box.getElementsByClassName("body")[0];
-                    body.innerHTML = "";
-                    listData = fileBrowser.list(address, {
-                        dirs: data.fileList,
-                        fail: [],
-                        id: keys[keyLength]
-                    });
-                    if (listData !== null) {
-                        body.appendChild(listData[0]);
+                body = box.getElementsByClassName("body")[0];
+                body.innerHTML = "";
+                listData = fileBrowser.list(address, {
+                    dirs: data.fileList,
+                    fail: [],
+                    id: keys[keyLength]
+                });
+                if (listData !== null) {
+                    body.appendChild(listData[0]);
+                    if (data.message === "" && failLength < 1) {
+                        p.innerHTML = listData[2];
+                        if (list !== undefined) {
+                            statusBar.removeChild(list);
+                        }
                     }
                 }
             }
