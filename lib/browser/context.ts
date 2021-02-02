@@ -268,7 +268,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
             watch: "no"
         },
         callback = function browser_context_details_callback(response:string):void {
-            const payload:fsRemote = JSON.parse(util.sanitizeHTML(response)),
+            const payload:fsUnique = JSON.parse(util.sanitizeHTML(response)),
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,

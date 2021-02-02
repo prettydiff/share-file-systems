@@ -25,7 +25,7 @@ interface module_fileBrowser {
     drag?: EventHandlerNonNull;
     dragFlag?: dragFlag;
     expand?: EventHandlerNonNull;
-    list?: (location:string, dirData:fsRemote) => [Element, number, string];
+    list?: (location:string, dirData:fsUnique) => [Element, number, string];
     listFail?: (count:number, box: Element) => void;
     listFocus?: EventHandlerNonNull;
     listItem?: (item:directoryItem, extraClass:string) => Element;

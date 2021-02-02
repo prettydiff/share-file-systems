@@ -1,15 +1,12 @@
 
 /* lib/terminal/fileService/routeFile - A library that manages all file system operations except copy/cut operations. */
 
-import { Hash } from "crypto";
-import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "http";
+import { IncomingHttpHeaders, ServerResponse } from "http";
 
-import hashIdentity from "../server/hashIdentity.js";
 import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
-import vars from "../utilities/vars.js";
 
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataFile = JSON.parse(dataString),
@@ -24,7 +21,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                         const list:stringDataList = JSON.parse(message.toString());
                         serviceFile.respond.read(serverResponse, list);
                     } else {
-                        const dir:fsRemote = JSON.parse(message.toString());
+                        const dir:fsUnique = JSON.parse(message.toString());
                         serviceFile.respond.dir(serverResponse, dir);
                     }
                 },

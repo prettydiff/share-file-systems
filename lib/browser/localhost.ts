@@ -340,7 +340,7 @@ import disallowed from "../common/disallowed.js";
                                 },
                                 callback = function browser_init_modalKeys_fsCallback(responseText:string):void {
                                     // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
-                                    const payload:fsRemote = (responseText === "")
+                                    const payload:fsUnique = (responseText === "")
                                             ? {
                                                 dirs: "missing"
                                             }

@@ -323,7 +323,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
 };
 
 /* Builds the HTML file list */
-fileBrowser.list = function browser_fileBrowser_list(location:string, dirData:fsRemote):[Element, number, string] {
+fileBrowser.list = function browser_fileBrowser_list(location:string, dirData:fsUnique):[Element, number, string] {
     const local:directoryList = [],
         list:directoryList = <directoryList>dirData.dirs,
         length:number = list.length,
@@ -590,7 +590,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             if (responseText === "") {
                 return;
             }
-            const payload:fsRemote = JSON.parse(responseText),
+            const payload:fsUnique = JSON.parse(responseText),
                 box:Element = document.getElementById(payload.id),
                 replaceAddress:boolean = (location === "**root**");
             if (box === null) {

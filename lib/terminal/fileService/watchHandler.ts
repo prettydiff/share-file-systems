@@ -58,7 +58,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                                         fileList: null,
                                         message: message.toString()
                                     },
-                                    fsRemote:fsRemote = {
+                                    fsRemote:fsUnique = {
                                         dirs: "missing",
                                         fail: [],
                                         id: (config.data.id.indexOf("|Copying ") > 0)

@@ -38,7 +38,7 @@ const serviceFile:systemServiceFile = {
                     if (count === data.location.length) {
                         directory({
                             callback: function terminal_fileService_serviceFile_destroy_each_remove_callback(directoryList:directoryList):void {
-                                const responseData:fsRemote = {
+                                const responseData:fsUnique = {
                                     dirs: directoryList,
                                     fail: directoryList.failures,
                                     id: data.id
@@ -76,7 +76,7 @@ const serviceFile:systemServiceFile = {
                         });
                     }
                     if (count === pathLength) {
-                        const responseData:fsRemote = {
+                        const responseData:fsUnique = {
                             dirs: (output.length < 1)
                                 ? "missing"
                                 : output,
@@ -145,7 +145,7 @@ const serviceFile:systemServiceFile = {
                         } else {
                             failures.push(value);
                             if (failures.length === data.location.length) {
-                                const responseData:fsRemote = {
+                                const responseData:fsUnique = {
                                     dirs: "missing",
                                     fail: failures,
                                     id: data.id
@@ -307,7 +307,7 @@ const serviceFile:systemServiceFile = {
         }
     },
     respond: {
-        dir: function terminal_fileService_serviceFile_respondDir(serverResponse:ServerResponse, dirs:fsRemote):void {
+        dir: function terminal_fileService_serviceFile_respondDir(serverResponse:ServerResponse, dirs:fsUnique):void {
             response({
                 message: JSON.stringify(dirs),
                 mimeType: "application/json",

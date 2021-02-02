@@ -35,17 +35,17 @@ declare global {
         serverResponse: ServerResponse;
         value: string;
     }
-    interface fsRemote {
-        dirs: directoryList | "missing" | "noShare" | "readOnly";
-        fail: string[];
-        id: string;
-    }
     interface fsStatusMessage {
         address: string;
         agent: string;
         agentType: agentType;
         fileList: directoryList;
         message: string;
+    }
+    interface fsUnique {
+        dirs: directoryList | "missing" | "noShare" | "readOnly";
+        fail: string[];
+        id: string;
     }
     interface nodeCopyParams {
         callback: Function;
@@ -112,7 +112,7 @@ declare global {
         dirCallback: (serverResponse:ServerResponse, data:systemDataFile) => void;
         menu: (serverResponse:ServerResponse, data:systemDataFile) => void;
         respond: {
-            dir: (serverResponse:ServerResponse, dirs:fsRemote) => void;
+            dir: (serverResponse:ServerResponse, dirs:fsUnique) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
             status: (serverResponse:ServerResponse, status:fsStatusMessage) => void;
