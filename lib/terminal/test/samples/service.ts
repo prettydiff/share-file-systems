@@ -102,8 +102,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             copyType: "device",
             cut: false,
             destination: filePathEncode("absolute", "lib/storage"),
-            id: "test-ID",
             location: [filePathEncode("absolute", "tsconfig.json")],
+            modalAddress: "test-ID",
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Local to Local",
@@ -121,8 +121,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             copyType: "device",
             cut: false,
             destination: filePathEncode("absolute", "lib/storage"),
-            id: "test-ID",
             location: [filePathEncode("absolute", "tsconfig.json")],
+            modalAddress: "test-ID",
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Local to Remote Device",
@@ -140,8 +140,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             copyType: "device",
             cut: false,
             destination: filePathEncode("absolute", "lib/storage"),
-            id: "test-ID",
             location: [filePathEncode("absolute", "tsconfig.json")],
+            modalAddress: "test-ID",
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Remote Device to Local",
@@ -158,8 +158,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             copyType: "device",
             cut: false,
             destination: filePathEncode("absolute", "lib/storage"),
-            id: "test-ID",
             location: [filePathEncode("absolute", "version.json")],
+            modalAddress: "test-ID",
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy from Remote Device to different Remote Device",
@@ -177,8 +177,8 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             copyType: "device",
             cut: false,
             destination: filePathEncode("absolute", "lib/storage"),
-            id: "test-ID",
             location: [filePathEncode("absolute", "tsconfig.json")],
+            modalAddress: "test-ID",
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",

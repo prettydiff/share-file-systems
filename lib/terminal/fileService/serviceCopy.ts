@@ -33,10 +33,10 @@ const serviceCopy:systemServiceCopy = {
                     agentType: config.data.copyType,
                     countFile: 0,
                     cut: config.data.cut,
-                    destination: config.data.destination,
                     failures: 0,
                     location: config.data.location,
                     message: "",
+                    modalAddress: config.data.modalAddress,
                     responseAgent: config.data.agent,
                     responseType: config.data.agentType,
                     serverResponse: null,
@@ -196,17 +196,6 @@ const serviceCopy:systemServiceCopy = {
                             file_location: config.fileData.list[a][0],
                             size: config.fileData.list[a][3]
                         };
-                    if (config.data.copyAgent !== serverVars.hashDevice) {
-                        const status:completeStatus = {
-                            countFile: statusConfig.countFile,
-                            failures: hashFail.length,
-                            percent: (config.fileData.fileSize === 0 || config.fileData.fileSize === undefined || serverVars.testType === "service")
-                                ? "100%"
-                                : serviceCopy.percent(statusConfig.writtenSize, config.fileData.fileSize),
-                            writtenSize: statusConfig.writtenSize
-                        };
-                        config.data.id = `${config.data.destination.replace(/\\/g, "\\\\")}|${serviceCopy.copyMessage(status, config.data.cut)}`;
-                    }
                     config.data.location = [config.fileData.list[a][0]];
                     httpClient({
                         agentType: config.data.agentType,
@@ -440,10 +429,10 @@ const serviceCopy:systemServiceCopy = {
                                 agentType: data.copyType,
                                 countFile: countFile,
                                 cut: data.cut,
-                                destination: data.destination,
                                 failures: 0,
                                 location: data.location,
                                 message: "",
+                                modalAddress: data.modalAddress,
                                 responseAgent: data.agent,
                                 responseType: data.agentType,
                                 serverResponse: serverResponse,
@@ -491,21 +480,6 @@ const serviceCopy:systemServiceCopy = {
             });
         }
     },
-    copyMessage: function terminal_fileService_serviceCopy_copyMessage(numbers:completeStatus, cut:boolean):string {
-        const filePlural:string = (numbers.countFile === 1)
-                ? ""
-                : "s",
-            failPlural:string = (numbers.failures === 1)
-                ? ""
-                : "s",
-            verb:string = (cut === true)
-                ? "Cut"
-                : "Copy",
-            action:string = (numbers.percent === "100%")
-                ? verb
-                : `${verb}ing ${numbers.percent}`;
-        return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
-    },
     percent: function terminal_fileService_serviceCopy_percent(numerator:number, denominator:number):string {
         const num:number = Number(numerator),
             dom:number = Number(denominator);
@@ -516,19 +490,29 @@ const serviceCopy:systemServiceCopy = {
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
-                const completeStatus:completeStatus = {
-                        countFile: config.countFile,
-                        failures: dirs.failures.length + config.failures,
-                        percent: serviceCopy.percent(Number(config.writtenSize), config.totalSize),
-                        writtenSize: config.writtenSize
-                    },
-                    copyStatus:fsStatusMessage = {
-                        address: config.destination,
+                const copyStatus:fsStatusMessage = {
+                        address: config.modalAddress,
                         agent: config.agent,
                         agentType: config.agentType,
                         fileList: dirs,
                         message: (config.message === "")
-                            ? serviceCopy.copyMessage(completeStatus, config.cut)
+                            ? (function terminal_fileService_serviceCopy_copyMessage():string {
+                                const failures:number = dirs.failures.length + config.failures,
+                                    percent:string = serviceCopy.percent(Number(config.writtenSize), config.totalSize),
+                                    filePlural:string = (config.countFile === 1)
+                                        ? ""
+                                        : "s",
+                                    failPlural:string = (failures === 1)
+                                        ? ""
+                                        : "s",
+                                    verb:string = (config.cut === true)
+                                        ? "Cut"
+                                        : "Copy",
+                                    action:string = (percent === "100%")
+                                        ? verb
+                                        : `${verb}ing ${percent}`;
+                                return `${action} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
+                            }())
                             : config.message
                     };
                 if (config.cut === true && config.writtenSize === config.totalSize && config.failures === 0) {
@@ -568,7 +552,7 @@ const serviceCopy:systemServiceCopy = {
                 depth: 2,
                 exclusions: [],
                 mode: "read",
-                path: config.destination,
+                path: config.modalAddress,
                 symbolic: true
             };
         directory(dirConfig);

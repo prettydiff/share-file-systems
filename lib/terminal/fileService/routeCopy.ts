@@ -51,12 +51,12 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             route();
         }
     } else {
-        response({
+        /*response({
             message: `{"id":"${data.id}","dirs":"noShare"}`,
             mimeType: "application/json",
             responseType: "file-list-status",
             serverResponse: serverResponse
-        });
+        });*/
     }
 };
 

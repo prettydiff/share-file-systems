@@ -2,12 +2,6 @@
 
 import { ServerResponse, IncomingHttpHeaders, IncomingMessage } from "http";
 declare global {
-    interface completeStatus {
-        countFile: number;
-        failures: number;
-        percent: string;
-        writtenSize: number;
-    }
     interface copyFileRequest {
         brotli: number;
         file_name: string;
@@ -19,10 +13,10 @@ declare global {
         agentType: agentType;
         countFile: number;
         cut: boolean;
-        destination: string;
         failures: number;
         location: string[];
         message: string;
+        modalAddress: string;
         responseAgent: string;
         responseType: agentType;
         serverResponse: ServerResponse;
@@ -67,17 +61,17 @@ declare global {
         stream: boolean;
     }
     interface systemDataCopy {
-        action     : copyTypes;
-        agent      : string;
-        agentType  : agentType;
-        copyAgent  : string;
-        copyShare? : string;
-        copyType   : agentType;
-        cut        : boolean;
-        destination: string;
-        id         : string;
-        location   : string[];
-        originAgent: string;
+        action      : copyTypes;
+        agent       : string;
+        agentType   : agentType;
+        copyAgent   : string;
+        copyShare?  : string;
+        copyType    : agentType;
+        cut         : boolean;
+        destination : string;
+        location    : string[];
+        modalAddress: string;
+        originAgent : string;
     }
     interface systemDataFile {
         action      : serviceType;
@@ -102,7 +96,6 @@ declare global {
             sameAgent: (serverResponse:ServerResponse, data:systemDataCopy) => void;
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
-        copyMessage: (numbers:completeStatus, cut:boolean) => string;
         percent: (numerator:number, denominator:number) => string;
         status: (config:copyStatusConfig) => void;
     }

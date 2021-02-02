@@ -957,20 +957,21 @@ context.paste = function browser_context_paste():void {
             ? {}
             : JSON.parse(clipboard),
         cut:boolean = (clipData.type === "cut"),
+        addressField:HTMLInputElement = element.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         id:string = element.getAttribute("id"),
         agent:string = browser.data.modals[id].agent,
         agentType:agentType = browser.data.modals[id].agentType,
         payload:systemDataCopy = {
-            action     : "copy",
-            agent      : clipData.agent,
-            agentType  : clipData.agentType,
-            copyAgent  : agent,
-            copyType   : agentType,
-            cut        : cut,
-            destination: destination,
-            id         : id,
-            location   : clipData.data,
-            originAgent: (agentType === "device")
+            action      : "copy",
+            agent       : clipData.agent,
+            agentType   : clipData.agentType,
+            copyAgent   : agent,
+            copyType    : agentType,
+            cut         : cut,
+            destination : destination,
+            location    : clipData.data,
+            modalAddress: addressField.value,
+            originAgent : (agentType === "device")
                 ? browser.data.hashDevice
                 : browser.data.hashUser
             //share      : clipData.share

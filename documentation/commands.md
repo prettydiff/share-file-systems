@@ -225,8 +225,6 @@ Builds the application and then runs all the test commands
 ### Examples
 1. `node js/application test`
    - Runs all the tests in the test suite.
-1. `node js/application test log`
-   - The log argument turns on verbose logging output with annotations.
 
 ## test_browser
 Launches the 'service' command as a child process, launches the default browser to execute DOM instructions as intervals of test automation, and then closes the browser upon completion.
@@ -257,11 +255,7 @@ Launches the 'service' command as a child process to issue HTTP requests against
    - Runs tests service utility.
 1. `node js/application test_service fs-copy`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
-1. `node js/application test_service log`
-   - The log argument turns on verbose logging output with annotations.
-1. `node js/application test_service log log`
-   - If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice.
-1. `node js/application test_service log "Copy from Remote Device to different Remote Device"`
+1. `node js/application test_service "Copy from Remote Device to different Remote Device"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
 ## test_simulation
@@ -272,11 +266,7 @@ Launches a test runner to execute the various commands of the services file.
    - Runs tests against the commands offered by the services file.
 1. `node js/application test_simulation help`
    - Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated.
-1. `node js/application test_simulation log`
-   - The log argument turns on verbose logging output with annotations.
-1. `node js/application test_simulation log log`
-   - If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice.
-1. `node js/application test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`
+1. `node js/application test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`
    - Using quotes the filter argument may contain spaces and other non-alpha characters.
 
 ## update

@@ -180,20 +180,20 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     }
                     goal = goal.getAncestor("box", "class");
                     id = goal.getAttribute("id");
-                    return goal.getElementsByTagName("input")[0].value;
+                    return goal.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value;
                 }()),
                 agency:agency = util.getAgent(element),
                 payload:systemDataCopy = {
-                    action     : "copy",
-                    agent      : browser.data.modals[id].agent,
-                    agentType  : browser.data.modals[id].agentType,
-                    copyAgent  : agency[0],
-                    copyType   : agency[2],
-                    cut        : false,
-                    destination: target,
-                    id         : id,
-                    location   : addresses,
-                    originAgent: (agency[2] === "device")
+                    action      : "copy",
+                    agent       : browser.data.modals[id].agent,
+                    agentType   : browser.data.modals[id].agentType,
+                    copyAgent   : agency[0],
+                    copyType    : agency[2],
+                    cut         : false,
+                    destination : target,
+                    location    : addresses,
+                    modalAddress: target,
+                    originAgent : (agency[2] === "device")
                         ? browser.data.hashDevice
                         : browser.data.hashUser
                 },
