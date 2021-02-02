@@ -172,7 +172,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         const keys:string[] = Object.keys(data.shares),
             length:number = keys.length;
         let store:boolean = false;
-        vars.testLogger("heartbeat", "response share-update", "If the heartbeat contains share data from a remote agent then add the updated share data locally.");
         if (length > 0) {
             if (data.shareType === "device") {
                 let a:number = 0;
@@ -292,7 +291,6 @@ const removeByType = function terminal_server_heartbeat_removeByType(list:string
         update: function terminal_server_heartbeat_update(data:heartbeatUpdate):void {
             // heartbeat from local, forward to each remote terminal
             const share:boolean = (JSON.stringify(data.shares) !== "{}");
-            vars.testLogger("heartbeat", "broadcast", "Blast out a heartbeat to all shared agents.");
             if (data.agentFrom === "localhost-browser") {
                 serverVars.status = data.status;
             }

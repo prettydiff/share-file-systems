@@ -32,11 +32,6 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             link : 0,
             size : 0
         },
-        testLog:copyLog = {
-            file: true,
-            link: true,
-            mkdir: true
-        },
         target:string = (vars.command === "copy")
             ? vars.node.path.resolve(process.argv[0])
             : vars.node.path.resolve(params.target),
@@ -123,24 +118,12 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                         const copyAction = function terminal_commands_copy_dirCallback_pathStat_stat_copyAction():void {
                             if (item[1] === "directory") {
                                 numb.dirs = numb.dirs + 1;
-                                if (testLog.mkdir === true) {
-                                    testLog.mkdir = false;
-                                    vars.testLogger("copy", "mkdir", `create first directory of copy: ${path}`);
-                                }
-                                mkdir(path, types, false);
+                                mkdir(path, types);
                             } else if (item[1] === "file") {
                                 numb.files = numb.files + 1;
                                 numb.size = numb.size + item[5].size;
-                                if (testLog.file === true) {
-                                    testLog.file = false;
-                                    vars.testLogger("copy", "file", `write first file of copy: ${path}`);
-                                }
                                 file(item, path);
                             } else if (item[1] === "link") {
-                                if (testLog.link === true) {
-                                    testLog.link = false;
-                                    vars.testLogger("copy", "link", `write first symbolic link: ${path}`);
-                                }
                                 link(item[0], path);
                             } else if (item[1] === "error") {
                                 types(`error on address ${item[0]} from library directory`);
@@ -165,7 +148,6 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                         error([typeError]);
                     }
                     if (a === len) {
-                        vars.testLogger("copy", "complete", `completion test for ${target}`);
                         params.callback([numb.files, numb.size]);
                     } else {
                         pathStat(list[a]);
@@ -188,7 +170,6 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
             types(null);
         };
     if (vars.command === "copy") {
-        vars.testLogger("copy", "command", "format output when the command is 'copy'.");
         if (vars.verbose === true) {
             log.title("Copy");
         }
@@ -252,7 +233,6 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                 callback: dirCallback,
                 depth: 0,
                 exclusions: params.exclusions,
-                logRecursion: false,
                 mode: "read",
                 path: target,
                 symbolic: true
@@ -263,12 +243,11 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                     callback: dirCallback,
                     depth: 0,
                     exclusions: params.exclusions,
-                    logRecursion: false,
                     mode: "read",
                     path: target,
                     symbolic: true
                 });
-            }, false);
+            });
         }
     });
 };

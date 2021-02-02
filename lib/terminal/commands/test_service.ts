@@ -17,9 +17,6 @@ const testService = function terminal_commands_testService():void {
             process.exit(0);
         }
     };
-    if (vars.testLogFlag !== "") {
-        vars.testLogFlag = "service";
-    }
     if (typeof process.argv[0] === "string") {
         const addCallback = function terminal_commands_testService_addCallback():void {
                 let a:number = 0,

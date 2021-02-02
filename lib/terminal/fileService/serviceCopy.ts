@@ -20,7 +20,6 @@ import vars from "../utilities/vars.js";
 import httpClient from "../server/httpClient.js";
 import serviceFile from "./serviceFile.js";
 
-let logRecursion:boolean = true;
 const serviceCopy:systemServiceCopy = {
     actions: {
         requestFiles: function terminal_fileService_serviceCopy_requestFiles(serverResponse:ServerResponse, config:systemRequestFiles):void {
@@ -59,13 +58,11 @@ const serviceCopy:systemServiceCopy = {
                         responseEnd = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_responseEnd(file:Buffer):void {
                             const hash:Hash = vars.node.crypto.createHash("sha3-512").update(file),
                                 hashString:string = hash.digest("hex");
-                            vars.testLogger("serviceCopy", "requestFiles callbackRequest responseEnd", "Handler for completely received HTTP response of requested artifact.");
                             if (hashString === fileResponse.headers.hash) {
                                 fileQueue.push([fileName, Number(fileResponse.headers.file_size), <string>fileResponse.headers.cut_path, file]);
                                 if (writeActive === false) {
                                     const callbackWrite = function terminal_fileService_serviceCopy_requestFiles_callbackRequest_callbackWrite(index:number):void {
                                         const fileNameQueue:string = fileQueue[index][0];
-                                        vars.testLogger("serviceCopy", "callbackWrite", "Writing files in a single shot is more efficient, due to concurrency, than piping into a file from an HTTP stream but less good for integrity.");
                                         vars.node.fs.writeFile(config.data.destination + vars.sep + fileNameQueue, fileQueue[index][3], function terminal_fileServices_requestFiles_callbackRequest_callbackWrite_write(wr:nodeError):void {
                                             const hashFailLength:number = hashFail.length;
                                             statusConfig.countFile = statusConfig.countFile + 1;
@@ -103,7 +100,6 @@ const serviceCopy:systemServiceCopy = {
                                 requestFile();
                             }
                         };
-                    vars.testLogger("serviceCopy", "requestFiles callbackRequest", "Callback for the HTTP artifact request if the requests are not streams but the files are written as streams.");
                     writeable.write = function (writeableChunk:Buffer):boolean {
                         fileChunks.push(writeableChunk);
                         return false;
@@ -151,7 +147,6 @@ const serviceCopy:systemServiceCopy = {
                                 }
                             });
                         };
-                    vars.testLogger("serviceCopy", "requestFiles callbackStream", "Writing files to disk as a byte stream ensures the file's integrity so that it can be verified by hash comparison.");
                     if (fileResponse.headers.compression === "true") {
                         fileResponse.pipe(decompress).pipe(writeStream);
                     } else {
@@ -201,7 +196,6 @@ const serviceCopy:systemServiceCopy = {
                             file_location: config.fileData.list[a][0],
                             size: config.fileData.list[a][3]
                         };
-                    vars.testLogger("serviceCopy", "requestFiles requestFile", "Issue the HTTP request for the given artifact and recursively request the next artifact if not streamed.");
                     if (config.data.copyAgent !== serverVars.hashDevice) {
                         const status:completeStatus = {
                             countFile: statusConfig.countFile,
@@ -211,7 +205,6 @@ const serviceCopy:systemServiceCopy = {
                                 : serviceCopy.percent(statusConfig.writtenSize, config.fileData.fileSize),
                             writtenSize: statusConfig.writtenSize
                         };
-                        vars.testLogger("serviceCopy", "requestFiles requestFile", "If copyAgent is not the local device then update the status data.");
                         config.data.id = `${config.data.destination.replace(/\\/g, "\\\\")}|${serviceCopy.copyMessage(status, config.data.cut)}`;
                     }
                     config.data.location = [config.fileData.list[a][0]];
@@ -255,7 +248,7 @@ const serviceCopy:systemServiceCopy = {
                 },
                 // recursively create new directories as necessary
                 newDir = function terminal_fileService_serviceCopy_requestFiles_makeLists():void {
-                    mkdir(config.data.destination + vars.sep + localize(config.fileData.list[a][2]), dirCallback, false);
+                    mkdir(config.data.destination + vars.sep + localize(config.fileData.list[a][2]), dirCallback);
                     cutList.push([config.fileData.list[a][0], "directory"]);
                 };
             if (config.fileData.stream === true) {
@@ -266,7 +259,6 @@ const serviceCopy:systemServiceCopy = {
                 serviceCopy.status(statusConfig);
                 statusConfig.message = "";
             }
-            vars.testLogger("serviceCopy", "requestFiles", "A giant function to request one or more files from a remote user/device.  Before files are requested the directory structure is locally created.");
             if (config.fileData.list[0][1] === "directory") {
                 newDir();
             } else {
@@ -324,13 +316,11 @@ const serviceCopy:systemServiceCopy = {
                             callback: terminal_fileService_serviceCopy_remoteCopyList_dirCallback,
                             depth: 0,
                             exclusions: [],
-                            logRecursion: logRecursion,
                             mode: "read",
                             path: data.location[index],
                             symbolic: false
                         };
                         directory(recursiveConfig);
-                        logRecursion = false;
                     } else {
                         // sort directories ahead of files and then sort shorter directories before longer directories
                         // * This is necessary to ensure directories are written before the files and child directories that go in them.
@@ -347,8 +337,7 @@ const serviceCopy:systemServiceCopy = {
                                         : "copy",
                                     payload:systemRequestFiles = {
                                         data: data,
-                                        fileData: details,
-                                        logRecursion: logRecursion
+                                        fileData: details
                                     };
                                 httpClient({
                                     agentType: data.copyType,
@@ -424,7 +413,6 @@ const serviceCopy:systemServiceCopy = {
                     callback: dirCallback,
                     depth: 0,
                     exclusions: [],
-                    logRecursion: logRecursion,
                     mode: "read",
                     path: data.location[index],
                     symbolic: false
@@ -432,16 +420,13 @@ const serviceCopy:systemServiceCopy = {
             let directories:number =0,
                 fileCount:number = 0,
                 fileSize:number = 0;
-            vars.testLogger("serviceCopy", "remoteCopyList", "Gathers the directory data from the requested file system trees so that the local device may request each file from the remote.");
             directory(dirConfig);
-            logRecursion = false;
         },
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
             let count:number = 0,
                 countFile:number = 0,
                 writtenSize:number = 0;
             const length:number = data.location.length;
-            vars.testLogger("serviceCopy", "copySameAgent", "Copying artifacts from one location to another on the same agent.");
             data.location.forEach(function terminal_fileService_serviceCopy_copySameAgent_each(value:string):void {
                 const callback = function terminal_fileService_serviceCopy_copySameAgent_each_copy([fileCount, fileSize]):void {
                         count = count + 1;
@@ -480,7 +465,6 @@ const serviceCopy:systemServiceCopy = {
         sendFile: function terminal_fileService_serviceCopy_sendFile(serverResponse:ServerResponse, data:copyFileRequest):void {
             const hash:Hash = vars.node.crypto.createHash("sha3-512"),
                 hashStream:ReadStream = vars.node.fs.ReadStream(data.file_location);
-            vars.testLogger("serviceCopy", "copy-file", "Respond to a file request with the file and its hash value.");
             hashStream.pipe(hash);
             hashStream.on("close", function terminal_fileService_serviceCopy_sendFile_close():void {
                 const readStream:ReadStream = vars.node.fs.ReadStream(data.file_location),
@@ -520,7 +504,6 @@ const serviceCopy:systemServiceCopy = {
             action:string = (numbers.percent === "100%")
                 ? verb
                 : `${verb}ing ${numbers.percent}`;
-        vars.testLogger("serviceCopy", "copyMessage", "Status information about multiple file copy.");
         return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
     },
     percent: function terminal_fileService_serviceCopy_percent(numerator:number, denominator:number):string {
@@ -532,7 +515,6 @@ const serviceCopy:systemServiceCopy = {
         return `${((num / dom) * 100).toFixed(2)}%`;
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
-        vars.testLogger("serviceCopy", "requestFiles", "Copy status messaging");
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
                 const completeStatus:completeStatus = {
                         countFile: config.countFile,
@@ -585,7 +567,6 @@ const serviceCopy:systemServiceCopy = {
                 callback: callbackDirectory,
                 depth: 2,
                 exclusions: [],
-                logRecursion: logRecursion,
                 mode: "read",
                 path: config.destination,
                 symbolic: true

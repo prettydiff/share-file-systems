@@ -15,9 +15,6 @@ const list:testTypeCollection = {
     },
     testListRunner = function terminal_test_application_testListRunner(testListType:testListType, callback:Function):void {
         serverVars.testType = testListType;
-        if (vars.testLogFlag !== "") {
-            vars.testLogFlag = testListType;
-        }
         if (vars.command === testListType) {
             callback = function terminal_test_application_testListRunner_callback(message:string):void {
                 log([message, "\u0007"], true); // bell sound

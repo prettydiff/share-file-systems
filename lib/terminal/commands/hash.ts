@@ -30,8 +30,7 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
     const http:RegExp = (/^https?:\/\//), //sha512, sha3-512, shake256
         dirComplete = function terminal_commands_hash_dirComplete(list:directoryList):void {
             let a:number = 0,
-                c:number = 0,
-                testLog:boolean = true;
+                c:number = 0;
             const listLength:number = list.length,
                 listObject:any = {},
                 hashes:string[] = [],
@@ -45,7 +44,6 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                             stat: input.stat
                         };
                     let hashString:string = "";
-                    vars.testLogger("hash", "hashComplete", "completion function that formats the output.");
                     if (hashList === true) {
                         hashString = JSON.stringify(listObject);
                     } else if (hashes.length > 1) {
@@ -63,10 +61,6 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 },
                 hashBack = function terminal_commands_hash_dirComplete_hashBack(data:readFile, item:string|Buffer, callback:Function):void {
                     const hash:Hash = vars.node.crypto.createHash(algorithm);
-                    if (testLog === true) {
-                        vars.testLogger("hash", "hashBack", "reading file as a stream.");
-                        testLog = false;
-                    }
                     hash.on("readable", function terminal_commands_hash_dirComplete_hashBack_hash():void {
                         let hashString:string = "";
                         const hashData:Buffer = <Buffer>hash.read();
@@ -132,7 +126,6 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                         end = (listLength - a < shortLimit)
                             ? listLength - a
                             : shortLimit;
-                    vars.testLogger("hash", "recursive", "the recursive function is called to throttle parallel tasks in the case the ulimit is reached.");
                     do {
                         typeHash(a, end);
                         a = a + 1;
@@ -145,9 +138,8 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                     }
                     return 1;
                 };
-            vars.testLogger("hash", "dirComplete", `reading the directory tree is complete with ${listLength} items and a ulimit of ${limit}.`);
             list.sort(sortFunction);
-            if (vars.verbose === true && vars.testLogFlag === "") {
+            if (vars.verbose === true) {
                 log([`${humanTime(false)}Completed analyzing the directory tree in the file system and found ${vars.text.green + common.commas(listLength) + vars.text.none} file system objects.`]);
             }
             if (limit < 1 || listLength < limit) {
@@ -198,7 +190,6 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
             }
         };
     if (vars.command === "hash") {
-        vars.testLogger("hash", "hash command", "prepare arguments if executing from command 'hash'.");
         const listIndex:number = process.argv.indexOf("list"),
             length:number = process.argv.length;
         let a:number = 0;
@@ -254,21 +245,18 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                 parent: input.parent,
                 stat: input.stat
             };
-        vars.testLogger("hash", "direct input", "when the input is a string from the terminal simply hash the string and write to standard output.");
         hash.update(input.source);
         hashOutput.hash = hash.digest("hex");
         input.callback(hashOutput);
         return;
     }
     if (http.test(<string>input.source) === true) {
-        vars.testLogger("hash", "http", "if the path is http(s) then request content from the internet.");
         get(<string>input.source, function terminal_commands_hash_get(fileData:string) {
             const hash:Hash = vars.node.crypto.createHash(algorithm);
             hash.update(fileData);
             log([hash.digest("hex")], true);
         });
     } else {
-        vars.testLogger("hash", "file path", "when the input is not the terminal's standard input or a http(s) scheme assume a file path, but first set ulimit on POSIX to prevent file system errors on large directory trees.");
         vars.node.child("ulimit -n", function terminal_commands_hash_ulimit(ulimit_err:Error, ulimit_out:string) {
             if (ulimit_err === null && ulimit_out !== "unlimited" && isNaN(Number(ulimit_out)) === false) {
                 limit = Number(ulimit_out);
@@ -284,7 +272,6 @@ const hash = function terminal_commands_hash(input:hashInput):hashOutput {
                             },
                             depth: 0,
                             exclusions: vars.exclusions,
-                            logRecursion: true,
                             mode: "read",
                             path: <string>input.source,
                             symbolic: true

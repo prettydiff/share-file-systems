@@ -36,7 +36,6 @@ const httpClient:httpClient = function terminal_server_httpClient(config:httpCon
         fsRequest:ClientRequest = vars.node[scheme].request(payload, function terminal_server_httpClient_streamRequest(message:IncomingMessage):void {
             config.responseStream(message, config);
         });
-    vars.testLogger("httpClient", "", "An abstraction over node.https.request in support of this application's data requirements.");
     if (fsRequest.writableEnded === true) {
         error([
             "Attempt to write to HTTP request after end:",

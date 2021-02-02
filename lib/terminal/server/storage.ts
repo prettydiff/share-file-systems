@@ -19,7 +19,6 @@ const storage = function terminal_server_storage(data:storage):void {
             });
         },
         rename = function terminal_server_storage_rename():void {
-            vars.testLogger("storage", "rename", "Storage file is renamed from random name to proper name to reduce the potential of write collisions.");
             if (serverVars.testType !== "service") {
                 vars.node.fs.rename(fileName, `${location}.json`, function terminal_server_storage_rename_renameNode(erName:Error) {
                     if (erName !== null) {
@@ -34,7 +33,6 @@ const storage = function terminal_server_storage(data:storage):void {
             respond();
         },
         writeCallback = function terminal_server_storage_writeCallback(erSettings:Error):void {
-            vars.testLogger("storage", "writeCallback", "Callback for writing a data storage file to disk with a random name.");
             if (erSettings === null) {
                 if (data.type === "settings") {
                     const settings:ui_data = <ui_data>data.data;
@@ -58,7 +56,6 @@ const storage = function terminal_server_storage(data:storage):void {
                 error([erSettings.toString()]);
             }
         };
-    vars.testLogger("storage", "", `Write application data to disk for type ${data.type}`);
     if (data.type === undefined) {
         error(["Submitted a 'type' value of undefined to the storage utility."]);
         respond();

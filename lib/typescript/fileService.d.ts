@@ -45,7 +45,6 @@ declare global {
     }
     interface fileServiceWatch {
         data: systemDataFile;
-        logRecursion: boolean;
         serverResponse: ServerResponse;
         value: string;
     }
@@ -95,7 +94,6 @@ declare global {
     interface systemRequestFiles {
         data: systemDataCopy;
         fileData: remoteCopyListData;
-        logRecursion: boolean;
     }
     interface systemServiceCopy {
         actions: {
@@ -123,8 +121,8 @@ declare global {
         respond: {
             copy: (serverResponse:ServerResponse, data:copyStatusMessage) => void;
             dir: (serverResponse:ServerResponse, data:fsRemote) => void;
-            error: (serverResponse:ServerResponse, message:string, action:serviceType) => void;
-            read: (serverResponse:ServerResponse, list:stringDataList, action:serviceType) => void;
+            error: (serverResponse:ServerResponse, message:string) => void;
+            read: (serverResponse:ServerResponse, list:stringDataList) => void;
         };
     }
 }

@@ -13,11 +13,9 @@ import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
 import watchHandler from "./watchHandler.js";
 
-let logRecursion:boolean = true;
 const serviceFile:systemServiceFile = {
     actions: {
         close: function terminal_fileService_serviceFile_close(serverResponse:ServerResponse, data:systemDataFile):void {
-            vars.testLogger("fileService", "fs-close", "Close a file system watch.");
             if (serverVars.watches[data.location[0]] !== undefined) {
                 serverVars.watches[data.location[0]].close();
                 delete serverVars.watches[data.location[0]];
@@ -30,7 +28,6 @@ const serviceFile:systemServiceFile = {
         },
         destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0;
-            vars.testLogger("fileService", "fs-destroy", `Destroying: ${data.location}`);
             data.location.forEach(function terminal_fileService_serviceFile_destroy_each(value:string):void {
                 if (serverVars.watches[value] !== undefined) {
                     serverVars.watches[value].close();
@@ -50,7 +47,6 @@ const serviceFile:systemServiceFile = {
                             },
                             depth: 2,
                             exclusions: [],
-                            logRecursion: false,
                             mode: "read",
                             path: data.name,
                             symbolic: true
@@ -107,7 +103,6 @@ const serviceFile:systemServiceFile = {
                                     if (fileName !== null && fileName.split(vars.sep).length < 2) {
                                         watchHandler({
                                             data: data,
-                                            logRecursion: logRecursion,
                                             serverResponse: serverResponse,
                                             value: watchPath
                                         });
@@ -123,7 +118,6 @@ const serviceFile:systemServiceFile = {
                     callback: callback,
                     depth: data.depth,
                     exclusions: [],
-                    logRecursion: logRecursion,
                     mode: (data.action === "fs-search")
                         ? "search"
                         : "read",
@@ -134,8 +128,6 @@ const serviceFile:systemServiceFile = {
             if (rootIndex > -1) {
                 data.location[rootIndex] = vars.sep;
             }
-            vars.testLogger("fileService", data.action, `Performs a directory search operation on ${data.location[0]} of agent ${data.agent}`);
-            logRecursion = false;
             pathList.forEach(function terminal_fileService_serviceFile_directory_pathEach(value:string):void {
                 const pathRead = function terminal_fileService_serviceFile_directory_pathEach_pathRead():void {
                     if ((/^\w:$/).test(value) === true) {
@@ -143,7 +135,6 @@ const serviceFile:systemServiceFile = {
                     }
                     dirConfig.path = value;
                     directory(dirConfig);
-                    logRecursion = false;
                 };
                 if (value === "\\" || value === "\\\\") {
                     pathRead();
@@ -167,22 +158,21 @@ const serviceFile:systemServiceFile = {
             });
         },
         newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
-            vars.testLogger("fileService", "fs-new", `Create a new item of type ${data.name}`);
             if (data.name === "directory") {
                 mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
                     serviceFile.dirCallback(serverResponse, data);
-                }, false);
+                });
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
                     if (erNewFile === null) {
                         serviceFile.dirCallback(serverResponse, data);
                     } else {
                         error([erNewFile.toString()]);
-                        serviceFile.respond.error(serverResponse, erNewFile.toString(), data.action);
+                        serviceFile.respond.error(serverResponse, erNewFile.toString());
                     }
                 });
             } else {
-                serviceFile.respond.error(serverResponse, `unsupported type ${data.name}`, data.action);
+                serviceFile.respond.error(serverResponse, `unsupported type ${data.name}`);
             }
         },
         read: function terminal_fileService_serviceFile_read(serverResponse:ServerResponse, data:systemDataFile):void {
@@ -200,7 +190,7 @@ const serviceFile:systemServiceFile = {
                     b = b + 1;
                     storage.push(stringData);
                     if (b === length) {
-                        serviceFile.respond.read(serverResponse, storage, data.action);
+                        serviceFile.respond.read(serverResponse, storage);
                     }
                 },
                 fileReader = function terminal_fileService_serviceFile_read_fileReader(fileInput:base64Input):void {
@@ -210,7 +200,6 @@ const serviceFile:systemServiceFile = {
                             id: fileInput.id,
                             filePath: fileInput.source
                         };
-                        vars.testLogger("fileService", "fileReader", `Reading a file for action fs-read, ${input.source}`);
                         if (readError !== null) {
                             error([readError.toString()]);
                             vars.broadcast("error", readError.toString());
@@ -234,7 +223,6 @@ const serviceFile:systemServiceFile = {
             let a:number = 0,
                 b:number = 0,
                 index:number;
-            vars.testLogger("fileService", "dataString", `Action ${data.action}`);
             do {
                 if (data.action === "fs-base64") {
                     index = data.location[a].indexOf(":");
@@ -257,7 +245,6 @@ const serviceFile:systemServiceFile = {
         },
         rename: function terminal_fileService_serviceFile_rename(serverResponse:ServerResponse, data:systemDataFile):void {
             const newPath:string[] = data.location[0].split(vars.sep);
-            vars.testLogger("fileService", "fs-rename", `Renames an existing file system artifact, ${data.name}`);
             newPath.pop();
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
@@ -265,23 +252,21 @@ const serviceFile:systemServiceFile = {
                     serviceFile.dirCallback(serverResponse, data);
                 } else {
                     error([erRename.toString()]);
-                    serviceFile.respond.error(serverResponse, erRename.toString(), data.action);
+                    serviceFile.respond.error(serverResponse, erRename.toString());
                 }
             });
         },
         write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
-            vars.testLogger("fileService", "fs-write", "Writes or over-writes a file to disk.");
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:nodeError):void {
                if (erw === null) {
                     serviceFile.dirCallback(serverResponse, data);
                 } else {
-                    serviceFile.respond.error(serverResponse, erw.toString(), data.action);
+                    serviceFile.respond.error(serverResponse, erw.toString());
                 }
             });
         }
     },
     dirCallback: function terminal_fileService_serviceFile_dirCallback(serverResponse:ServerResponse, data:systemDataFile):void {
-        vars.testLogger("fileService", `${data.action} response`, "A generic successful directory response to a file system request.");
         const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
                 ? "\\"
                 : "/",
@@ -297,7 +282,6 @@ const serviceFile:systemServiceFile = {
                 callback: fsUpdateCallback,
                 depth: 2,
                 exclusions: [],
-                logRecursion: logRecursion,
                 mode: "read",
                 path: dirs.join(slash),
                 symbolic: true
@@ -339,8 +323,7 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        error: function terminal_fileService_serviceFile_respondError(serverResponse:ServerResponse, message:string, action:serviceType):void {
-            vars.testLogger("fileService", `${action} error`, "Generic error messaging for a file system action.");
+        error: function terminal_fileService_serviceFile_respondError(serverResponse:ServerResponse, message:string):void {
             response({
                 message: message,
                 mimeType: "text/plain",
@@ -348,8 +331,7 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        read: function terminal_fileService_serviceFile_respondRead(serverResponse:ServerResponse, list:stringDataList, action:serviceType):void {
-            vars.testLogger("fileService", "dataString callback", `Callback to action ${action} that writes an HTTP response.`);
+        read: function terminal_fileService_serviceFile_respondRead(serverResponse:ServerResponse, list:stringDataList):void {
             response({
                 message: JSON.stringify(list),
                 mimeType: "application/json",

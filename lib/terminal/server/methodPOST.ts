@@ -76,7 +76,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                     "file-list-status": function terminal_server_methodPOST_requestEnd_fsUpdateRemote():void {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
-                        vars.testLogger("service", "fs-update-remote", "Sends updated file system data from a remote agent to the local browser.")
                         vars.broadcast("file-list-status", body);
                         response({
                             message: "File list status response.",
@@ -128,7 +127,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 directInput: true,
                                 source: data.user + vars.node.os.hostname() + process.env.os + process.hrtime.bigint().toString()
                             };
-                        vars.testLogger("service", "hashDevice", "Create a hash to name a device.");
                         hash(input);
                     },
                     "hash-share": function terminal_server_methodPOST_requestEnd_hashShare():void {
@@ -155,7 +153,6 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                                 id: body,
                                 source: serverVars.hashUser + serverVars.hashDevice + data.type + data.share
                             };
-                        vars.testLogger("service", "hashShare", "Create a hash to name a new share.");
                         hash(input);
                     },
                     "heartbeat-complete": function terminal_server_methodPOST_requestEnd_heartbeatComplete():void {

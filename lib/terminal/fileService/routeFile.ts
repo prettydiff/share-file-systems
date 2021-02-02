@@ -19,10 +19,10 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                 callback: function terminal_fileService_routeFile_route_callback(message:string|Buffer, headers:IncomingHttpHeaders):void {
                     const responseType:requestType = <requestType>headers["response-type"];
                     if (responseType === "error") {
-                        serviceFile.respond.error(serverResponse, message.toString(), data.action);
+                        serviceFile.respond.error(serverResponse, message.toString());
                     } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
                         const list:stringDataList = JSON.parse(message.toString());
-                        serviceFile.respond.read(serverResponse, list, data.action);
+                        serviceFile.respond.read(serverResponse, list);
                     } else {
                         const dir:fsRemote = JSON.parse(message.toString());
                         serviceFile.respond.dir(serverResponse, dir);

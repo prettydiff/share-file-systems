@@ -7,7 +7,6 @@ import serverVars from "./serverVars.js";
 import storage from "./storage.js";
 
 const forbiddenUser = function terminal_server_forbiddenUser(agentName:string, agentType:agentType):void {
-    vars.testLogger("forbiddenUser", "", "Messaging for connections from agents without a stored hash in the user or device lists.");
     if (serverVars[agentType][agentName] !== undefined) {
         delete serverVars[agentType][agentName];
         storage({

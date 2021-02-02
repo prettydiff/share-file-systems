@@ -129,23 +129,6 @@ const vars:terminalVariables = {
         }()),
         sep: "/",
         startTime: process.hrtime.bigint(),
-        testLogFlag: "",
-        testLogger: function vars_utilities_vars_testLogger(library:string, container:string, message:string):void {
-            if (vars.testLogFlag !== "") {
-                const contain:string = (container === "")
-                        ? ""
-                        : `(${vars.text.bold + container + vars.text.none}) `,
-                    lib:string = vars.text.green + library + vars.text.none,
-                    item:string = `   ${vars.text.angry}*${vars.text.none} ${lib}, ${contain + message.replace(/\s+$/, "")}`;
-                if (vars.testLogFlag === "simulation") {
-                    // eslint-disable-next-line
-                    console.log(`${vars.text.cyan}Log - ${vars.text.none + item}`);
-                } else if (vars.testLogFlag === "service") {
-                    vars.testLogStore.push(item);
-                }
-            }
-        },
-        testLogStore: [],
         text: {
             angry    : "\u001b[1m\u001b[31m",
             blue     : "\u001b[34m",

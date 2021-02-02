@@ -330,7 +330,7 @@ const certificate = function terminal_commands_certificate(config:certificate_in
             if (stat === null) {
                 create();
             } else if (stat.code === "ENOENT") {
-                mkdir(config.location, create, false);
+                mkdir(config.location, create);
             } else {
                 error([stat.toString()]);
             }

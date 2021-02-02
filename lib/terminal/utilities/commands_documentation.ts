@@ -360,10 +360,6 @@ const commands_documentation = {
             {
                 code: `${vars.version.command} test`,
                 defined: "Runs all the tests in the test suite."
-            },
-            {
-                code: `${vars.version.command} test log`,
-                defined: "The log argument turns on verbose logging output with annotations."
             }
         ]
     },
@@ -416,15 +412,7 @@ const commands_documentation = {
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
-                code: `${vars.version.command} test_service log`,
-                defined: "The log argument turns on verbose logging output with annotations."
-            },
-            {
-                code: `${vars.version.command} test_service log log`,
-                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
-            },
-            {
-                code: `${vars.version.command} test_service log "Copy from Remote Device to different Remote Device"`,
+                code: `${vars.version.command} test_service "Copy from Remote Device to different Remote Device"`,
                 defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]
@@ -441,15 +429,7 @@ const commands_documentation = {
                 defined: "Filter the tests to run by supplying a text fragment to filter against test names.  For example if there are 6 service tests whose names contain that string then only those 6 tests will be evaluated."
             },
             {
-                code: `${vars.version.command} test_simulation log`,
-                defined: "The log argument turns on verbose logging output with annotations."
-            },
-            {
-                code: `${vars.version.command} test_simulation log log`,
-                defined: "If you wish to enable verbose logging and filter tests by the word 'log' then simply include it twice."
-            },
-            {
-                code: `${vars.version.command} test_simulation log "hash ~/share-file-systems list ignore ['node_modules'"`,
+                code: `${vars.version.command} test_simulation "hash ~/share-file-systems list ignore ['node_modules'"`,
                 defined: "Using quotes the filter argument may contain spaces and other non-alpha characters."
             }
         ]

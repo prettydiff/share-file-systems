@@ -111,9 +111,6 @@ interface terminalVariables {
     projectPath: string;
     sep: string;
     startTime: bigint;
-    testLogFlag: testLogFlag;
-    testLogger: (library:string, container:string, message:string) => void;
-    testLogStore: string[];
     text: {
         [key:string]: string;
     };

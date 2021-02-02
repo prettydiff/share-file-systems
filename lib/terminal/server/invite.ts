@@ -58,7 +58,6 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                         error([data.action, errorMessage.toString()]);
                     }
                 };
-            vars.testLogger("invite", "inviteHttp", `Send out the invite data in support of action ${data.action}`);
             httpClient(httpConfig);
         },
         accepted = function terminal_server_invite_accepted(respond:string):void {
@@ -110,7 +109,6 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
         },
         actions:postActions = {
             "invite": function terminal_server_invite_invite():void {
-                vars.testLogger("invite", "invite", "Issue an invitation request to a remote agent.");
                 responseString = `Invitation received at start terminal ${serverVars.ipAddress} from start browser. Sending invitation to remote terminal: ${data.ip}.`;
                 data.action = "invite-request";
                 data.shares = (data.type === "device")
@@ -127,7 +125,6 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
             },
             "invite-complete": function terminal_server_invite_inviteComplete():void {
                 const respond:string = ` invitation returned to ${data.ip} from this local terminal ${serverVars.ipAddress} and to the local browser(s).`;
-                vars.testLogger("invite", "invite-complete", "The invitation is received back to the originating agent and must be sent to the browser.");
                 if (data.status === "accepted") {
                     accepted(respond);
                 } else {
@@ -138,7 +135,6 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                 vars.broadcast("invite-complete", JSON.stringify(data));
             },
             "invite-request": function terminal_server_invite_inviteRequest():void {
-                vars.testLogger("invite", "invite-request", "Process an invitation request from a remote agent by sending the request data to the browser.");
                 responseString = `Invitation received at remote terminal ${data.ip} and sent to remote browser.`;
                 if (serverVars[data.type][data[`${data.type}Hash`]] !== undefined) {
                     // if the agent is already registered with the remote then bypass the user by auto-approving the request
@@ -164,7 +160,6 @@ const invite = function terminal_server_invite(data:invite, serverResponse:Serve
                 const respond:string = ` invitation response processed at remote terminal ${data.ip} and sent to start terminal.`,
                     ip:string = data.ip,
                     port:number = data.port;
-                vars.testLogger("invite", "invite-response", "The user has made a decision about the invitation and now that decision must be sent back to the originating agent.");
                 if (data.status === "accepted") {
                     accepted(respond);
                     if (data.type === "device") {
