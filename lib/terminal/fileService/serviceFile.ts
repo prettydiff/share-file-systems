@@ -83,7 +83,7 @@ const serviceFile:systemServiceFile = {
                             fail: (output.length < 1 || data.action === "fs-search")
                                 ? []
                                 : failures,
-                            id: data.id
+                            id: data.name
                         };
                         serviceFile.respond.dir(serverResponse, responseData);
                         
@@ -307,14 +307,6 @@ const serviceFile:systemServiceFile = {
         }
     },
     respond: {
-        copy: function terminal_fileService_serviceFile_respondCopy(serverResponse:ServerResponse, copy:copyStatusMessage):void {
-            response({
-                message: JSON.stringify(copy),
-                mimeType: "application/json",
-                responseType: "file-list-status",
-                serverResponse: serverResponse
-            });
-        },
         dir: function terminal_fileService_serviceFile_respondDir(serverResponse:ServerResponse, dirs:fsRemote):void {
             response({
                 message: JSON.stringify(dirs),
@@ -338,8 +330,34 @@ const serviceFile:systemServiceFile = {
                 responseType: "fs",
                 serverResponse: serverResponse
             });
+        },
+        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fsStatusMessage):void {
+            response({
+                message: JSON.stringify(status),
+                mimeType: "application/json",
+                responseType: "file-list-status",
+                serverResponse: serverResponse
+            });
         }
-    }
+    }/*,
+    statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile):void {
+        const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
+                ? "\\"
+                : "/",
+            dirs = data.location[0].split(slash),
+            path:string = "",
+            dirConfig:readDirectory = {
+                callback: function terminal_fileService_serviceFile_statusMessage_callback(list:directoryList):void {
+
+                },
+                depth: 2,
+                exclusions: [],
+                mode: "read",
+                path: path,
+                symbolic: true
+            };
+        directory(dirConfig);
+    }*/
 };
 
 export default serviceFile;

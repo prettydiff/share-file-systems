@@ -342,20 +342,20 @@ const serviceCopy:systemServiceCopy = {
                                 httpClient({
                                     agentType: data.copyType,
                                     callback: function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback(message:string|Buffer):void {
-                                        const status:copyStatusMessage = JSON.parse(message.toString());
+                                        const status:fsStatusMessage = JSON.parse(message.toString());
                                         if (data.cut === true && status.fileList.failures.length === 0) {
                                             let a:number = 0;
                                             const removeCallback = function terminal_fileService_serviceCopy_remoteCopyList_sendList_removeCallback():void {
                                                 a = a + 1;
                                                 if (a === fileCount) {
-                                                    serviceFile.respond.copy(serverResponse, status);
+                                                    serviceFile.respond.status(serverResponse, status);
                                                 }
                                             };
                                             list.forEach(function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
                                                 remove(fileItem[0], removeCallback);
                                             });
                                         } else {
-                                            serviceFile.respond.copy(serverResponse, status);
+                                            serviceFile.respond.status(serverResponse, status);
                                         }
                                     },
                                     errorMessage: `Failed to request files during file ${copyType}.`,
@@ -522,7 +522,7 @@ const serviceCopy:systemServiceCopy = {
                         percent: serviceCopy.percent(Number(config.writtenSize), config.totalSize),
                         writtenSize: config.writtenSize
                     },
-                    copyStatus:copyStatusMessage = {
+                    copyStatus:fsStatusMessage = {
                         address: config.destination,
                         agent: config.agent,
                         agentType: config.agentType,
@@ -537,7 +537,7 @@ const serviceCopy:systemServiceCopy = {
                         cutCount = cutCount + 1;
                         if (cutCount === config.location.length) {
                             vars.broadcast("file-list-status", JSON.stringify(copyStatus));
-                            fileServices.respond.copy(config.serverResponse, copyStatus);
+                            fileServices.respond.status(config.serverResponse, copyStatus);
                         }
                     };
                     config.location.forEach(function terminal_fileService_serviceCopy_copySameAgent_each_copy_cut(filePath:string):void {
@@ -559,7 +559,7 @@ const serviceCopy:systemServiceCopy = {
                             responseStream: httpClient.stream
                         });
                     } else if (config.serverResponse.writableEnded === false) {
-                        fileServices.respond.copy(config.serverResponse, copyStatus);
+                        fileServices.respond.status(config.serverResponse, copyStatus);
                     }
                 }
             },

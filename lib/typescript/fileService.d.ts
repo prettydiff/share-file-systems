@@ -29,13 +29,6 @@ declare global {
         totalSize: number;
         writtenSize: number;
     }
-    interface copyStatusMessage {
-        address: string;
-        agent: string;
-        agentType: agentType;
-        fileList: directoryList;
-        message: string;
-    }
     interface fileServiceRequest {
         callback: (message:Buffer|string, headers:IncomingHttpHeaders) => void;
         data: systemDataFile;
@@ -52,6 +45,13 @@ declare global {
         dirs: directoryList | "missing" | "noShare" | "readOnly";
         fail: string[];
         id: string;
+    }
+    interface fsStatusMessage {
+        address: string;
+        agent: string;
+        agentType: agentType;
+        fileList: directoryList;
+        message: string;
     }
     interface nodeCopyParams {
         callback: Function;
@@ -119,10 +119,10 @@ declare global {
         dirCallback: (serverResponse:ServerResponse, data:systemDataFile) => void;
         menu: (serverResponse:ServerResponse, data:systemDataFile) => void;
         respond: {
-            copy: (serverResponse:ServerResponse, data:copyStatusMessage) => void;
-            dir: (serverResponse:ServerResponse, data:fsRemote) => void;
+            dir: (serverResponse:ServerResponse, dirs:fsRemote) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
+            status: (serverResponse:ServerResponse, status:fsStatusMessage) => void;
         };
     }
 }

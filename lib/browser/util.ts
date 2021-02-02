@@ -352,7 +352,7 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
-util.fileListStatus = function browser_util_fileListStatus(data:copyStatusMessage):void {
+util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage):void {
     const address:string = data.address,
         keys:string[] = Object.keys(browser.data.modals),
         failLength:number = (data.fileList.failures === undefined)

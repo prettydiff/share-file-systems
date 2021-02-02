@@ -161,7 +161,7 @@ const title:Element = document.getElementById("title-bar"),
                 agentType:agentType = <agentType>agents[1];
             share.deleteAgent(agents[0], agentType);
         } else if (type === "file-list-status") {
-            const status:copyStatusMessage = JSON.parse(body);
+            const status:fsStatusMessage = JSON.parse(body);
             util.fileListStatus(status);
         } else if (type === "fs-update-local" && browser.loadFlag === false) {
             fsUpdateLocal(JSON.parse(body));

@@ -42,7 +42,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                 },
                 dirConfig:readDirectory = {
                     callback: function terminal_fileService_watchHandler_remote(result:directoryList):void {
-                        const update:copyStatusMessage = {
+                        const update:fsStatusMessage = {
                                 address: config.value,
                                 agent: config.data.agent,
                                 agentType: config.data.agentType,
@@ -51,7 +51,7 @@ const watchHandler = function terminal_fileService_watchHandler(config:fileServi
                             },
                             payload:string = JSON.stringify(update),
                             requestError = function terminal_fileService_watchHandler_remote_requestError(message:nodeError):void {
-                                const copyStatus:copyStatusMessage = {
+                                const copyStatus:fsStatusMessage = {
                                         address: config.value,
                                         agent: config.data.agent,
                                         agentType: config.data.agentType,
