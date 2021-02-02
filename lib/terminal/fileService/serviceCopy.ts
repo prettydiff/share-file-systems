@@ -41,7 +41,7 @@ const serviceCopy:systemServiceCopy = {
                     responseAgent: config.data.agent,
                     responseType: config.data.agentType,
                     serverResponse: null,
-                    totalSize: config.fileData.fileSize,
+                    totalSize: Number(config.fileData.fileSize),
                     writtenSize: 0
                 },
                 fileQueue:[string, number, string, Buffer][] = [],
@@ -462,8 +462,8 @@ const serviceCopy:systemServiceCopy = {
                                 responseAgent: data.agent,
                                 responseType: data.agentType,
                                 serverResponse: serverResponse,
-                                totalSize: writtenSize,
-                                writtenSize: writtenSize
+                                totalSize: Number(writtenSize),
+                                writtenSize: Number(writtenSize)
                             };
                             serviceCopy.status(status);
                         }
@@ -523,8 +523,13 @@ const serviceCopy:systemServiceCopy = {
         vars.testLogger("serviceCopy", "copyMessage", "Status information about multiple file copy.");
         return `${action} complete. ${common.commas(numbers.countFile)} file${filePlural} written at size ${common.prettyBytes(numbers.writtenSize)} (${common.commas(numbers.writtenSize)} bytes) with ${numbers.failures} integrity failure${failPlural}.`
     },
-    percent: function terminal_fileService_serviceCopy_copyMessage(numerator:number, denominator:number):string {
-        return `${((numerator / denominator) * 100).toFixed(2)}%`;
+    percent: function terminal_fileService_serviceCopy_percent(numerator:number, denominator:number):string {
+        const num:number = Number(numerator),
+            dom:number = Number(denominator);
+        if (num === 0 || dom === 0) {
+            return "0.00%";
+        }
+        return `${((num / dom) * 100).toFixed(2)}%`;
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         vars.testLogger("serviceCopy", "requestFiles", "Copy status messaging");
@@ -532,7 +537,7 @@ const serviceCopy:systemServiceCopy = {
                 const completeStatus:completeStatus = {
                         countFile: config.countFile,
                         failures: dirs.failures.length + config.failures,
-                        percent: serviceCopy.percent(config.writtenSize, config.totalSize),
+                        percent: serviceCopy.percent(Number(config.writtenSize), config.totalSize),
                         writtenSize: config.writtenSize
                     },
                     copyStatus:copyStatusMessage = {

@@ -107,15 +107,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Local to Local",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "copy",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
-        }
+        test: `{"address":"${filePathEncode("absolute", "lib/storage", true)}","agent":"${serverVars.hashDevice}","agentType":"device","fileList":`
     });
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
@@ -132,9 +126,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Local to Remote Device",
-        qualifier: "contains",
+        qualifier: "ends",
         requestType: "copy",
-        test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"",
+        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"}"
     });
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
@@ -151,9 +145,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Remote Device to Local",
-        qualifier: "contains",
+        qualifier: "ends",
         requestType: "copy",
-        test: "\"message\":\"Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\""
+        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"}"
     });
     service.push({
         command: {
@@ -169,9 +163,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy from Remote Device to different Remote Device",
-        qualifier: "contains",
+        qualifier: "ends",
         requestType: "copy",
-        test:  "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+        test:  "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"}"
     });
     service.push(<testService>{
         artifact: filePathEncode("absolute", "lib/storage/tsconfig.json"),
@@ -188,9 +182,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             originAgent: serverVars.hashDevice
         },
         name: "copy, Copy Remote Device to Same Remote Device 1",
-        qualifier: "contains",
+        qualifier: "ends",
         requestType: "copy",
-        test: "Copy complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures."
+        test: "\"message\":\"Copying XXXX 00% complete. XXXX file written at size XXXX (XXXX bytes) with XXXX integrity failures.\"}"
     });
     service.push(<testService>{
         command: {
@@ -248,15 +242,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-new, Local New Directory",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `${filePathEncode("absolute", "serviceTestLocal")} created.`
-        }
+        test: `{"dirs":[["${filePathEncode("absolute", "serviceTestLocal", true)}","directory","",0,0`
     });
     service.push(<testService>{
         command: {
@@ -270,15 +258,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-new, Local New File",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `${filePathEncode("absolute", "serviceTestLocal.json")} created.`
-        }
+        test: `{"dirs":[["${filePathEncode("absolute", "serviceTestLocal.json", true)}","file","",0,0`
     });
     service.push(<testService>{
         command: {
@@ -291,15 +273,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-new, Remote Device New Directory",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `${filePathEncode("absolute", "serviceTestRemote")} created.`
-        }
+        test: `{"dirs":[["${filePathEncode("absolute", "serviceTestRemote", true)}","directory","",0,0`
     });
     service.push(<testService>{
         command: {
@@ -313,15 +289,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-new, Remote Device New File",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `${filePathEncode("absolute", "serviceTestRemote.json")} created.`
-        }
+        test: `{"dirs":[["${filePathEncode("absolute", "serviceTestRemote.json", true)}","file","",0,0`
     });
     service.push(<testService>{
         command: {
@@ -335,9 +305,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-write, Write Local",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "fs",
-        test: `File ${filePathEncode("absolute", "serviceTestLocal.json")} saved to disk on local device.`
+        test: `{"dirs":[["${filePathEncode("absolute", "serviceTestLocal.json", true)}","file","",0,0`
     });
     service.push(<testService>{
         command: {
@@ -351,9 +321,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-write, Write Remote Device to Local",
-        qualifier: "is",
+        qualifier: "begins",
         requestType: "fs",
-        test: `File ${filePathEncode("absolute", "serviceTestRemote.json")} saved to disk on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+        test: `{"dirs":[["${filePathEncode("absolute", "serviceTestRemote.json", true)}","file","",0,0`
     });
     service.push(<testService>{
         command: {
@@ -495,15 +465,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-destroy, Destroy Local Directory",
-        qualifier: "is",
+        qualifier: "not contains",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `Path(s) ${filePathEncode("absolute", "serviceLocal")} destroyed on device ${serverVars.hashDevice}.`
-        }
+        test: "serviceLocal\",\"directory\""
     });
     service.push(<testService>{
         command: {
@@ -517,15 +481,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-destroy, Destroy Local File",
-        qualifier: "is",
+        qualifier: "not contains",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `Path(s) ${filePathEncode("absolute", "serviceLocal.json")} destroyed on device ${serverVars.hashDevice}.`
-        }
+        test: "serviceLocal.json"
     });
     service.push(<testService>{
         command: {
@@ -539,15 +497,9 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-destroy, Destroy Remote Device Directory",
-        qualifier: "is",
+        qualifier: "not contains",
         requestType: "fs",
-        test: {
-            address: "test-ID",
-            agent: serverVars.hashDevice,
-            agentType: "device",
-            fileList: null,
-            message: `Path(s) ${filePathEncode("absolute", "serviceRemote")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
-        }
+        test: "serviceRemote\",\"directory\""
     });
     service.push(<testService>{
         command: {
@@ -561,14 +513,14 @@ const serviceTests = function terminal_test_samples_services():testService[] {
             watch: "no"
         },
         name: "fs-destroy, Destroy Remote Device File",
-        qualifier: "is",
+        qualifier: "not contains",
         requestType: "fs",
         test: {
             address: "test-ID",
             agent: serverVars.hashDevice,
             agentType: "device",
             fileList: null,
-            message: `Path(s) ${filePathEncode("absolute", "serviceRemote.json")} destroyed on device a5908e8446995926ab2dd037851146a2b3e6416dcdd68856e7350c937d6e92356030c2ee702a39a8a2c6c58dac9adc3d666c28b96ee06ddfcf6fead94f81054e.`
+            message: "serviceRemote.json"
         }
     });
     service.push(<testService>{
