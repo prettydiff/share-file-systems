@@ -4,7 +4,6 @@
 import { IncomingHttpHeaders, ServerResponse } from "http";
 
 import httpClient from "../server/httpClient.js";
-import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 
@@ -68,144 +67,74 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
             route();
         }
     } else {
-        /*const shares:agentShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
-                ? serverVars[data.copyType][data.copyAgent].shares
-                : serverVars[data.agentType][data.agent].shares,
-            shareKeys:string[] = Object.keys(shares),
-            windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-            routeFile:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
-        let dIndex:number = location.length,
-            sIndex:number = shareKeys.length,
-            place:string,
-            share:agentShare,
-            bestMatch:number = -1;
-        if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-            routeFile.push("fs-copy-file");
-        }
-        if (sIndex > 0) {
-            do {
-                dIndex = dIndex - 1;
-                sIndex = shareKeys.length;
-                place = (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read")
-                    ? location[dIndex].slice(location[dIndex].indexOf(":") + 1)
-                    : location[dIndex];
-                do {
-                    sIndex = sIndex - 1;
-                    share = shares[shareKeys[sIndex]];
-                    if (place.indexOf(share.name) === 0 || (windows === true && place.toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
-                        if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
-                            bestMatch = sIndex;
-                        }
-                    }
-                } while (sIndex > 0);
-                if (bestMatch < 0) {
-                    location.splice(dIndex, 1);
-                } else {
-                    if (shares[shareKeys[bestMatch]].routeFile === true && routeFile.indexOf(data.action) < 0) {
-                        response(responsePayload);
-                        return;
-                    }
-                    bestMatch = -1;
-                }
-            } while (dIndex > 0);
-        } else {
-            response(responsePayload);
-            return;
-        }
-        if ((userTest === true && location.length > 0) || (userTest === false && devices.indexOf(data.agent) > -1) || data.agent === serverVars.hashUser) {
-            fileService(serverResponse, data);
-        } else {
-            response(responsePayload);
-        }*/
-        serviceFile.statusMessage(serverResponse, data, null);
-    }
-    /*const copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
-        location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)
-            ? [data.name]
-            : data.location,
-        remoteUserTest:boolean = ((request.headers.host.indexOf("[::1]") === 0 || request.headers.host === serverVars.hashDevice) && data.agent.indexOf("remoteUser") === 0),
-        userTest:boolean = (data.agentType === "user" || data.copyType === "user"),
-        devices:string[] = Object.keys(serverVars.device),
-        responsePayload:responseConfig = {
-            message: JSON.stringify({
-                dirs: "noShare",
-                fail: [],
-                id: data.id
-            }),
-            mimeType: "application/json",
-            responseType: "fs-update-remote",
-            serverResponse: serverResponse
-        };
-
-    // Most of this code evaluates whether the remote location is read only and limits actions that make changes
-    if (data.watch === "remote" && data.action !== "fs-copy-file" && data.action !== "fs-cut-file") {
-        hashIdentity(data.share, function terminal_fileService_routeFile_hashIdentity(token:string):void {
-            if (token === "") {
-                response(responsePayload);
-            } else {
-                data.agent = token;
-                data.agentType = "device";
-                fileService(serverResponse, data);
-            }
-        });
-    } else if (data.agentType === "user" && data.copyType === "device" && serverVars.device[data.copyAgent] !== undefined && (data.action === "fs-copy" || data.action === "fs-cut")) {
-        const hash:Hash = vars.node.crypto.createHash("sha3-512");
-        hash.update(serverVars.hashUser + data.copyAgent);
-        data.copyShare = hash.digest("hex");
-        fileService(serverResponse, data);
-    } else {
-        if (userTest === true && data.agent !== serverVars.hashUser && remoteUserTest === false) {
-            const shares:agentShares = (copyTest === true && serverVars[data.copyType][data.copyAgent] !== undefined)
-                    ? serverVars[data.copyType][data.copyAgent].shares
-                    : serverVars[data.agentType][data.agent].shares,
-                shareKeys:string[] = Object.keys(shares),
-                windows:boolean = (location[0].charAt(0) === "\\" || (/^\w:\\/).test(location[0]) === true),
-                routeFile:string[] = ["fs-base64", "fs-close", "fs-details", "fs-directory", "fs-hash", "fs-read", "fs-search"];
-            let dIndex:number = location.length,
-                sIndex:number = shareKeys.length,
-                place:string,
-                share:agentShare,
-                bestMatch:number = -1;
-            if (data.copyAgent === serverVars.hashDevice && data.copyType === "device") {
-                routeFile.push("fs-copy-file");
-            }
-            if (sIndex > 0) {
-                do {
-                    dIndex = dIndex - 1;
-                    sIndex = shareKeys.length;
-                    place = (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read")
-                        ? location[dIndex].slice(location[dIndex].indexOf(":") + 1)
-                        : location[dIndex];
+        if (data.agent === serverVars.hashUser) {
+            const devices:string[] = Object.keys(serverVars.device),
+                shares:agentShare[] = (function terminal_fileService_routeFile_shares():agentShare[] {
+                    const list:agentShare[] = [];
+                    let a:number = devices.length,
+                        b:number = 0,
+                        shareList:string[];
                     do {
-                        sIndex = sIndex - 1;
-                        share = shares[shareKeys[sIndex]];
-                        if (place.indexOf(share.name) === 0 || (windows === true && place.toLowerCase().indexOf(share.name.toLowerCase()) === 0)) {
-                            if (bestMatch < 0 || share.name.length > shares[shareKeys[bestMatch]].name.length) {
-                                bestMatch = sIndex;
-                            }
+                        a = a - 1;
+                        shareList = Object.keys(serverVars[devices[a]].shares);
+                        b = shareList.length;
+                        if (b > 0) {
+                            do {
+                                b = b - 1;
+                                list.push(serverVars[devices[a]].shares[shareList[b]]);
+                            } while (b > 0);
                         }
-                    } while (sIndex > 0);
-                    if (bestMatch < 0) {
-                        location.splice(dIndex, 1);
-                    } else {
-                        if (shares[shareKeys[bestMatch]].routeFile === true && routeFile.indexOf(data.action) < 0) {
-                            response(responsePayload);
+                    } while (a > 0);
+                    return list;
+                }()),
+                shareLength:number = shares.length,
+                locationLength:number = data.location.length;
+            let a:number = 0,
+                b:number = 0;
+            shares.sort(function terminal_fileService_routeFile_sort(a:agentShare, b:agentShare):-1|1 {
+                if (a.name.length > b.name.length) {
+                    return -1;
+                }
+                return 1;
+            });
+            if (shareLength > 0) {
+                do {
+                    b = locationLength;
+                    do {
+                        b = b - 1;
+                        if ((shares[a].name.charAt(0) === "/" && data.location[b].indexOf(shares[a].name) === 0) || data.location[b].toLowerCase().indexOf(shares[a].name.toLowerCase()) === 0) {
+                            if (shares[a].readOnly === true && (data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
+                                serviceFile.respond.error(serverResponse, `Attempted action ${data.action.replace("fs-", "")} to location ${data.location[b]} which is in a read only share of: ${serverVars.user[data.agent].name}.`);
+                                return;
+                            }
+                            if (serverVars.device[serverVars.hashDevice].shares[data.share] === undefined) {
+                                a = devices.length;
+                                do {
+                                    a = a - 1;
+                                    if (serverVars.device[devices[a]].shares[data.share] !== undefined) {
+                                        data.agent = devices[a];
+                                        data.agentType = "device";
+                                        route();
+                                        return;
+                                    }
+                                } while (a > 0);
+                                serviceFile.respond.error(serverResponse, `User ${serverVars.nameUser} does not have share: ${data.share}.`);
+                                return;
+                            }
+                            serviceFile.menu(serverResponse, data);
                             return;
                         }
-                        bestMatch = -1;
-                    }
-                } while (dIndex > 0);
+                    } while (b > 0);
+                    a = a + 1;
+                } while (a < shareLength);
+                serviceFile.respond.error(serverResponse, `Requested location ${data.location[b]} is not in a location shared by user ${serverVars.user[data.agent].name}.`);
             } else {
-                response(responsePayload);
-                return;
+                serviceFile.respond.error(serverResponse, `User ${serverVars.nameUser} currently has no shares.`);
             }
-        }
-        if ((userTest === true && location.length > 0) || (userTest === false && devices.indexOf(data.agent) > -1) || data.agent === serverVars.hashUser) {
-            fileService(serverResponse, data);
         } else {
-            response(responsePayload);
+            route();
         }
-    }*/
+    }
 };
 
 export default routeFile;
