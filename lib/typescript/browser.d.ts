@@ -35,7 +35,7 @@ interface contextFunctions {
     rename: Function;
     share: Function;
 }
-interface fsDetails {
+interface fsDetailCounts {
     directories: number;
     files: number;
     links: number;

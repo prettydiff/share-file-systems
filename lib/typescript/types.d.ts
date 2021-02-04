@@ -14,6 +14,7 @@ declare global {
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
     type directoryMode = "array" | "hash" | "list" | "read" | "search";
+    type directoryResponse = directoryList | "missing" | "noShare" | "readOnly";
     type domMethod = "activeElement" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling";
     type dragFlag = "" | "control" | "shift";
     type eventCallback = (event:Event, callback:Function) => void;
@@ -30,7 +31,7 @@ declare global {
     type primitive = boolean | null | number | string | undefined;
     type qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not" | "not contains";
     type qualifierFile = "file begins" | "file contains" | "file ends" | "file is" | "file not" | "file not contains" | "filesystem contains" | "filesystem not contains";
-    type requestType = "agent-online" | "browser-log" | "copy" | "copy-file" | "copy-request-files" | "delete-agents" | "error" | "file-list-status" | "forbidden" | "fs" | "fs-update-local" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "storage" | "test-browser";
+    type requestType = "agent-online" | "browser-log" | "copy" | "copy-file" | "copy-request-files" | "delete-agents" | "error" | "file-list-status" | "forbidden" | "fs" | "GET" | hashTypes | heartbeatTypes | inviteAction | "invite-error" | "message" | "reload" | "storage" | "test-browser";
     type selector = "class" | "id" | "tag";
     type serviceFS = "fs-base64" | "fs-close" | "fs-destroy" | "fs-details" | "fs-directory" | "fs-hash" | "fs-new" | "fs-read" | "fs-rename" | "fs-search" | "fs-write";
     type serviceType = serviceFS | "invite-status" | "settings";

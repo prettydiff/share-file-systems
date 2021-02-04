@@ -78,6 +78,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                     : "Hash",
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
         box:Element = element.getAncestor("box", "class"),
+        addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         length:number = addresses.length,
         agency:agency = util.getAgent(box),
         id:string = box.getAttribute("id"),
@@ -88,8 +89,8 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
             agent: agency[0],
             agentType: agency[2],
             depth: 1,
-            id: id,
             location: [],
+            modalAddress: addressField.value,
             name: "",
             share: browser.data.modals[id].share,
             watch: "no"
@@ -115,6 +116,8 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                 length:number = data.length;
             let a:number = 0,
                 textArea:HTMLTextAreaElement,
+                label:Element,
+                span:Element,
                 modalResult:Element,
                 body:HTMLElement,
                 heading:HTMLElement;
@@ -123,6 +126,12 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
             }
             do {
                 textArea = document.createElement("textarea");
+                label = document.createElement("label");
+                span = document.createElement("span");
+                span.innerHTML = "Text Pad";
+                label.setAttribute("class", "textPad");
+                label.appendChild(span);
+                label.appendChild(textArea);
                 modalResult = document.getElementById(data[a].id),
                 body = <HTMLElement>modalResult.getElementsByClassName("body")[0];
                 textArea.onblur = modal.textSave;
@@ -137,7 +146,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                 browser.data.modals[data[a].id].text_value = data[a].content;
                 textArea.value = data[a].content;
                 body.innerHTML = "";
-                body.appendChild(textArea);
+                body.appendChild(label);
                 body.style.overflow = "hidden";
                 heading.style.width = `${(body.clientWidth - 50) / 18}em`;
                 a = a + 1;
@@ -171,6 +180,7 @@ context.destroy = function browser_context_destroy():void {
             : <Element>context.element.getAncestor("li", "tag"),
         selected:[string, shareType, string][],
         box:Element = element.getAncestor("box", "class"),
+        addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         agency:agency = util.getAgent(element),
         id:string = box.getAttribute("id"),
         payload:systemDataFile = {
@@ -178,27 +188,11 @@ context.destroy = function browser_context_destroy():void {
             agent: agency[0],
             agentType: agency[2],
             depth: 1,
-            id: id,
             location: [],
+            modalAddress: addressField.value,
             name: box.getElementsByClassName("header")[0].getElementsByTagName("input")[0].value,
             share: browser.data.modals[id].share,
             watch: "no"
-        },
-        callback = function browser_context_destroy_callback(responseText:string):void {
-            const list:[Element, number, string] = fileBrowser.list(payload.name, JSON.parse(responseText)),
-                body:Element = box.getElementsByClassName("body")[0],
-                count:number = payload.location.length,
-                plural:string = (count === 1)
-                    ? ""
-                    : "s";
-            if (list === null) {
-                return;
-            }
-            if (box.parentNode !== null) {
-                body.innerHTML = "";
-                body.appendChild(list[0]);
-                box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = `${payload.location.length} item${plural} deleted.`;
-            }
         }; 
     if (element.nodeName.toLowerCase() !== "li") {
         element = <HTMLElement>element.parentNode;
@@ -211,7 +205,7 @@ context.destroy = function browser_context_destroy():void {
             payload.location.push(value[0]);
         });
     }
-    network.fileBrowser(payload, callback);
+    network.fileBrowser(payload, null);
     context.element = null;
 };
 
@@ -223,6 +217,8 @@ context.details = function browser_context_details(event:MouseEvent):void {
             : <Element>context.element.getAncestor("li", "tag"),
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
+        box:Element = element.getAncestor("box", "class"),
+        addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
         payloadModal:modal = {
             agent: agency[0],
@@ -247,15 +243,12 @@ context.details = function browser_context_details(event:MouseEvent):void {
             agent: agency[0],
             agentType: agency[2],
             depth: 0,
-            id: id,
             location: (function browser_context_details_addressList():string[] {
                 const output:string[] = [],
                     length:number = addresses.length;
                 let a:number = 0;
                 if (context.element.nodeName.toLowerCase() === "ul") {
-                    const box:Element = context.element.getAncestor("box", "class"),
-                        input:HTMLInputElement = box.getElementsByTagName("input")[0];
-                    return [input.value];
+                    return [addressField.value];
                 }
                 do {
                     output.push(addresses[a][0]);
@@ -263,19 +256,20 @@ context.details = function browser_context_details(event:MouseEvent):void {
                 } while (a < length);
                 return output;
             }()),
-            name: "",
+            modalAddress: addressField.value,
+            name: id,
             share: browser.data.modals[id].share,
             watch: "no"
         },
         callback = function browser_context_details_callback(response:string):void {
-            const payload:fsUnique = JSON.parse(util.sanitizeHTML(response)),
+            const payload:fsDetails = JSON.parse(util.sanitizeHTML(response)),
                 list:directoryList = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
                     ? []
                     : payload.dirs,
                 fileList:directoryList = [],
                 body:Element = document.getElementById(payload.id).getElementsByClassName("body")[0],
                 length:number = list.length,
-                details:fsDetails = {
+                details:fsDetailCounts = {
                     size: 0,
                     files: 0,
                     directories: 0,
@@ -554,12 +548,14 @@ context.details = function browser_context_details(event:MouseEvent):void {
 /* Handler for creating new directories */
 context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
     const element:Element = <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
+        addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         cancel = function browser_context_fsNew_cancel(actionElement:Element):void {
             const list:Element = actionElement.getAncestor("fileList", "class"),
                 input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
             setTimeout(function browser_context_fsNew_cancel_delay():void {
-                if (actionElement.parentNode.parentNode.parentNode === list) {
-                    list.removeChild(actionElement.parentNode.parentNode);
+                if (actionElement.parentNode.parentNode.parentNode.parentNode === list) {
+                    list.removeChild(actionElement.parentNode.parentNode.parentNode);
                     input.focus();
                 }
             }, 10);
@@ -577,20 +573,17 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                         agent: agency[0],
                         agentType: agency[2],
                         depth: 1,
-                        id: id,
                         location: [actionElement.getAttribute("data-location") + value],
+                        modalAddress: addressField.value,
                         name: actionElement.getAttribute("data-type"),
                         share: browser.data.modals[id].share,
                         watch: "no"
-                    },
-                    callback = function browser_context_fsNew_actionKeyboard_callback():void {
-                        return;
                     };
                 if (value.replace(/\s+/, "") !== "") {
                     actionElement.onkeyup = null;
                     actionElement.onblur = null;
                     actionParent.innerHTML = payload.location[0];
-                    network.fileBrowser(payload, callback);
+                    network.fileBrowser(payload, null);
                 }
             } else {
                 if (actionEvent.key === "Escape") {
@@ -615,19 +608,16 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                             agent: agency[0],
                             agentType: agency[2],
                             depth: 1,
-                            id: id,
                             location: [actionElement.getAttribute("data-location") + value],
+                            modalAddress: addressField.value,
                             name: actionElement.getAttribute("data-type"),
                             share: browser.data.modals[id].share,
                             watch: "no"
-                        },
-                        callback = function browser_context_fsNew_actionBlur_callback():void {
-                            return;
                         };
                     actionElement.onkeyup = null;
                     actionElement.onblur = null;
                     actionParent.innerHTML = payload.location[0];
-                    network.fileBrowser(payload, callback);
+                    network.fileBrowser(payload, null);
                 }
             }
         },
@@ -637,6 +627,8 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
                 input:HTMLInputElement = document.createElement("input"),
                 field:HTMLInputElement = document.createElement("input"),
                 text:HTMLElement = document.createElement("label"),
+                p:HTMLElement = document.createElement("p"),
+                spanInfo:HTMLElement = document.createElement("span"),
                 parent:Element = (context.element === null)
                     ? null
                     : <Element>context.element.parentNode,
@@ -673,6 +665,11 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             label.innerHTML = "Selected";
             label.appendChild(input);
             label.setAttribute("class", "selection");
+            p.appendChild(text);
+            spanInfo.innerHTML = (type === "file")
+                ? "file - 0 bytes"
+                : "directory - 0 items";
+            p.appendChild(spanInfo);
             text.oncontextmenu = context.menu;
             text.onclick = fileBrowser.select;
             text.innerHTML = path;
@@ -682,7 +679,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
             field.setAttribute("data-type", type);
             field.setAttribute("data-location", path);
             text.appendChild(field);
-            li.appendChild(text);
+            li.appendChild(p);
             span = document.createElement("span");
             span.onclick = fileBrowser.select;
             span.oncontextmenu = context.menu;
@@ -951,38 +948,37 @@ context.menuRemove = function browser_context_menuRemove():void {
 
 /* Prepare the network action to write files */
 context.paste = function browser_context_paste():void {
-    const element:Element = context.element.getAncestor("box", "class"),
-        destination:string = element.getElementsByTagName("input")[0].value,
+    const box = context.element.getAncestor("box", "class"),
+        destination:string = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
         clipData:clipboard = (clipboard === "")
             ? {}
             : JSON.parse(clipboard),
         cut:boolean = (clipData.type === "cut"),
-        addressField:HTMLInputElement = element.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
-        id:string = element.getAttribute("id"),
-        agent:string = browser.data.modals[id].agent,
-        agentType:agentType = browser.data.modals[id].agentType,
         payload:systemDataCopy = {
             action      : "copy",
             agent       : clipData.agent,
             agentType   : clipData.agentType,
-            copyAgent   : agent,
-            copyType    : agentType,
+            copyAgent   : "",
+            copyType    : "device",
             cut         : cut,
             destination : destination,
             location    : clipData.data,
-            modalAddress: addressField.value,
-            originAgent : (agentType === "device")
-                ? browser.data.hashDevice
-                : browser.data.hashUser
-            //share      : clipData.share
+            modalAddress: destination,
+            originAgent : "device"
         },
         callback = function browser_context_paste_callback():void {
             clipboard = "";
             util.selectNone(document.getElementById(clipData.id));
         };
-    if (clipboard === "") {
+        let id:string = box.getAttribute("id");
+    if (clipboard === "" || box === document.documentElement) {
         return;
     }
+    payload.copyAgent = browser.data.modals[id].agent;
+    payload.copyType = browser.data.modals[id].agentType;
+    payload.originAgent = (payload.copyType === "device")
+        ? browser.data.hashDevice
+        : browser.data.hashUser;
     network.copy(payload, callback);
     context.element = null;
 };

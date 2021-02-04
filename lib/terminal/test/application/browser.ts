@@ -173,7 +173,7 @@ const defaultCommand:string = vars.command,
                     },
                     closing = (browser.args.noClose === true)
                         ? function terminal_test_application_browser_exit_noClose():void {
-                            log([browser.exitMessage]);
+                            log([browser.exitMessage, "\u0007"]);
                         }
                         : function terminal_test_application_browser_exit_closing():void {
                             vars.broadcast("test-browser", JSON.stringify(close));
@@ -644,9 +644,11 @@ const defaultCommand:string = vars.command,
                         do {
                             output.push(".");
                             output.push(node[b][0]);
-                            output.push("(\"");
-                            output.push(node[b][1]);
-                            output.push("\")");
+                            if (node[b][1] !== null) {
+                                output.push("(\"");
+                                output.push(node[b][1]);
+                                output.push("\")");
+                            }
                             if (node[b][2] !== null) {
                                 output.push("[");
                                 output.push(node[b][2].toString());

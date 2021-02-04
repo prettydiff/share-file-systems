@@ -35,17 +35,16 @@ declare global {
         serverResponse: ServerResponse;
         value: string;
     }
+    interface fsDetails {
+        dirs: directoryResponse;
+        id: string;
+    }
     interface fsStatusMessage {
         address: string;
         agent: string;
         agentType: agentType;
-        fileList: directoryList;
+        fileList: directoryResponse;
         message: string;
-    }
-    interface fsUnique {
-        dirs: directoryList | "missing" | "noShare" | "readOnly";
-        fail: string[];
-        id: string;
     }
     interface nodeCopyParams {
         callback: Function;
@@ -78,8 +77,8 @@ declare global {
         agent       : string;
         agentType   : agentType;
         depth       : number;
-        id          : string;
         location    : string[];
+        modalAddress: string;
         name        : string;
         remoteWatch?: string;
         share       : string;
@@ -109,13 +108,14 @@ declare global {
             rename: (serverResponse:ServerResponse, data:systemDataFile) => void;
             write: (serverResponse:ServerResponse, data:systemDataFile) => void;
         };
-        dirCallback: (serverResponse:ServerResponse, data:systemDataFile) => void;
         menu: (serverResponse:ServerResponse, data:systemDataFile) => void;
         respond: {
-            dir: (serverResponse:ServerResponse, dirs:fsUnique) => void;
+            details: (serverResponse:ServerResponse, details:fsDetails) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
-            status: (serverResponse:ServerResponse, status:fsStatusMessage) => void;
+            status: (serverResponse:ServerResponse, status:fsStatusMessage, type:requestType) => void;
+            write: (serverResponse:ServerResponse) => void;
         };
+        statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;
     }
 }

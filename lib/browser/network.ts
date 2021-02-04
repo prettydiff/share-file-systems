@@ -7,7 +7,7 @@ import webSocket from "./webSocket.js";
 
 const network:module_network = {},
     loc:string = location.href.split("?")[0],
-    fsConfig = function local_network_fsConfig(callback:(responseText:string, agent:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
+    fsConfig = function local_network_fsConfig(callback:(responseText:string) => void, configuration:systemDataCopy|systemDataFile, type:requestType):networkConfig {
         const copy:systemDataCopy = <systemDataCopy>configuration,
             actionType:string = (type === "fs")
             ? configuration.action
@@ -19,8 +19,9 @@ const network:module_network = {},
                 if (responseType === "file-list-status") {
                     const status:fsStatusMessage = JSON.parse(responseText);
                     util.fileListStatus(status);
-                } else {
-                    callback(responseText, configuration.agent);
+                }
+                if (callback !== null) {
+                    callback(responseText);
                 }
             },
             error: `Transmission error when requesting ${actionType} on ${configuration.location.join(",").replace(/\\/g, "\\\\")}.`,
@@ -30,7 +31,7 @@ const network:module_network = {},
     };
 
 /* Accesses the file system */
-network.copy = function local_network_copy(configuration:systemDataCopy, callback:(responseText:string, agent:string) => void):void {
+network.copy = function local_network_copy(configuration:systemDataCopy, callback:(responseText:string) => void):void {
     network.xhr(fsConfig(callback, configuration, "copy"));
 };
 
@@ -45,7 +46,7 @@ network.deleteAgents = function local_network_deleteAgents(deleted:agentList):vo
 };
 
 /* Accesses the file system */
-network.fileBrowser = function local_network_fileBrowser(configuration:systemDataFile, callback:(responseText:string, agent:string) => void):void {
+network.fileBrowser = function local_network_fileBrowser(configuration:systemDataFile, callback:(responseText:string) => void):void {
     network.xhr(fsConfig(callback, configuration, "fs"));
 };
 
@@ -135,6 +136,11 @@ network.message = function local_network_message(message:messageItem):void {
 
 /* Publish browser logs to the terminal */
 network.log = function local_network_log(...params:any[]):void {
+    params.forEach(function local_network_log_each(value:any, index:number, arr:any[]):void {
+        if (typeof value.nodeType === "number" && typeof value.parentNode === "object") {
+            arr[index] = value.outerHTML;
+        }
+    });
     network.xhr({
         callback: null,
         error: null,

@@ -11,7 +11,6 @@ import remove from "../commands/remove.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
-import watchHandler from "./watchHandler.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
@@ -20,11 +19,7 @@ const serviceFile:systemServiceFile = {
                 serverVars.watches[data.location[0]].close();
                 delete serverVars.watches[data.location[0]];
             }
-            serviceFile.respond.dir(serverResponse, {
-                dirs: null,
-                fail: null,
-                id: ""
-            });
+            serviceFile.statusMessage(serverResponse, data, null);
         },
         destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0;
@@ -36,21 +31,7 @@ const serviceFile:systemServiceFile = {
                 remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        directory({
-                            callback: function terminal_fileService_serviceFile_destroy_each_remove_callback(directoryList:directoryList):void {
-                                const responseData:fsUnique = {
-                                    dirs: directoryList,
-                                    fail: directoryList.failures,
-                                    id: data.id
-                                };
-                                serviceFile.respond.dir(serverResponse, responseData);
-                            },
-                            depth: 2,
-                            exclusions: [],
-                            mode: "read",
-                            path: data.name,
-                            symbolic: true
-                        });
+                        serviceFile.statusMessage(serverResponse, data, null);
                     }
                 });
             });
@@ -58,14 +39,29 @@ const serviceFile:systemServiceFile = {
         directory: function terminal_fileService_serviceFile_directory(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0,
                 output:directoryList = [],
-                failures:string[] = [];
+                failures:string[] = [],
+                store:directoryResponse;
             const rootIndex:number = data.location.indexOf("**root**"),
                 pathList:string[] = (data.action === "fs-search")
                     ? [data.location[0]]
                     : data.location,
                 pathLength:number = pathList.length,
+                complete = function terminal_fileService_serviceFile_directory_complete(result:directoryResponse):void {
+                    if (data.action === "fs-details") {
+                        serviceFile.respond.details(serverResponse, {
+                            dirs: result,
+                            id: data.name
+                        });
+                    } else {
+                        if (result === undefined) {
+                            result = "missing";
+                        }
+                        serviceFile.statusMessage(serverResponse, data, result);
+                    }
+                },
                 callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList):void {
                     count = count + 1;
+                    store = result;
                     if (result.length > 0) {
                         failures = failures.concat(result.failures);
                         output = output.concat(result);
@@ -76,42 +72,7 @@ const serviceFile:systemServiceFile = {
                         });
                     }
                     if (count === pathLength) {
-                        const responseData:fsUnique = {
-                            dirs: (output.length < 1)
-                                ? "missing"
-                                : output,
-                            fail: (output.length < 1 || data.action === "fs-search")
-                                ? []
-                                : failures,
-                            id: data.name
-                        };
-                        serviceFile.respond.dir(serverResponse, responseData);
-                        
-                        // please note
-                        // fs-directory will only read from the first value in data.location
-                        if (data.action === "fs-directory" && result.length > 0 && data.watch !== "no") {
-                            const watchPath:string = result[0][0].replace(/\\/g, "\\\\");
-                            if (data.watch !== "yes" && serverVars.watches[data.watch] !== undefined) {
-                                serverVars.watches[data.watch].close();
-                                delete serverVars.watches[data.watch];
-                            }
-                            if (serverVars.watches[watchPath] === undefined) {
-                                serverVars.watches[watchPath] = vars.node.fs.watch(watchPath, {
-                                    recursive: (process.platform === "win32" || process.platform === "darwin")
-                                }, function terminal_fileService_serviceFile_directory_callback_watch(eventType:string, fileName:string):void {
-                                    // throttling is necessary in the case of recursive watches in areas the OS frequently stores user settings
-                                    if (fileName !== null && fileName.split(vars.sep).length < 2) {
-                                        watchHandler({
-                                            data: data,
-                                            serverResponse: serverResponse,
-                                            value: watchPath
-                                        });
-                                    }
-                                });
-                            } else {
-                                serverVars.watches[watchPath].time = Date.now();
-                            }
-                        }
+                        complete(result);
                     }
                 },
                 dirConfig:readDirectory = {
@@ -145,12 +106,7 @@ const serviceFile:systemServiceFile = {
                         } else {
                             failures.push(value);
                             if (failures.length === data.location.length) {
-                                const responseData:fsUnique = {
-                                    dirs: "missing",
-                                    fail: failures,
-                                    id: data.id
-                                };
-                                serviceFile.respond.dir(serverResponse, responseData);
+                                complete(store);
                             }
                         }
                     });
@@ -160,12 +116,12 @@ const serviceFile:systemServiceFile = {
         newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
             if (data.name === "directory") {
                 mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
-                    serviceFile.dirCallback(serverResponse, data);
+                    serviceFile.statusMessage(serverResponse, data, null);
                 });
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
                     if (erNewFile === null) {
-                        serviceFile.dirCallback(serverResponse, data);
+                        serviceFile.statusMessage(serverResponse, data, null);
                     } else {
                         error([erNewFile.toString()]);
                         serviceFile.respond.error(serverResponse, erNewFile.toString());
@@ -249,7 +205,7 @@ const serviceFile:systemServiceFile = {
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
                 if (erRename === null) {
-                    serviceFile.dirCallback(serverResponse, data);
+                    serviceFile.statusMessage(serverResponse, data, null);
                 } else {
                     error([erRename.toString()]);
                     serviceFile.respond.error(serverResponse, erRename.toString());
@@ -259,35 +215,12 @@ const serviceFile:systemServiceFile = {
         write: function terminal_fileService_serviceFile_write(serverResponse:ServerResponse, data:systemDataFile):void {
             vars.node.fs.writeFile(data.location[0], data.name, "utf8", function terminal_fileService_serviceFile_write_callback(erw:nodeError):void {
                if (erw === null) {
-                    serviceFile.dirCallback(serverResponse, data);
+                    serviceFile.respond.write(serverResponse);
                 } else {
                     serviceFile.respond.error(serverResponse, erw.toString());
                 }
             });
         }
-    },
-    dirCallback: function terminal_fileService_serviceFile_dirCallback(serverResponse:ServerResponse, data:systemDataFile):void {
-        const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
-                ? "\\"
-                : "/",
-            dirs = data.location[0].split(slash),
-            fsUpdateCallback = function terminal_fileService_serviceFile_dirCallback_fsUpdateCallback(result:directoryList):void {
-                serviceFile.respond.dir(serverResponse, {
-                    dirs: result,
-                    fail: result.failures,
-                    id: data.id
-                });
-            },
-            dirConfig:readDirectory = {
-                callback: fsUpdateCallback,
-                depth: 2,
-                exclusions: [],
-                mode: "read",
-                path: dirs.join(slash),
-                symbolic: true
-            };
-        dirs.pop();
-        directory(dirConfig);
     },
     menu: function terminal_fileService_serviceFile_menu(serverResponse:ServerResponse, data:systemDataFile):void {
         if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
@@ -307,9 +240,9 @@ const serviceFile:systemServiceFile = {
         }
     },
     respond: {
-        dir: function terminal_fileService_serviceFile_respondDir(serverResponse:ServerResponse, dirs:fsUnique):void {
+        details: function terminal_fileService_serviceFile_respondDetails(serverResponse:ServerResponse, details:fsDetails):void {
             response({
-                message: JSON.stringify(dirs),
+                message: JSON.stringify(details),
                 mimeType: "application/json",
                 responseType: "fs",
                 serverResponse: serverResponse
@@ -331,33 +264,112 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fsStatusMessage):void {
+        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fsStatusMessage, type:requestType):void {
             response({
                 message: JSON.stringify(status),
                 mimeType: "application/json",
-                responseType: "file-list-status",
+                responseType: type,
+                serverResponse: serverResponse
+            });
+        },
+        write: function terminal_fileService_serviceFile_respondWrite(serverResponse:ServerResponse):void {
+            response({
+                message: "Saved to disk!",
+                mimeType: "text/plain",
+                responseType: "fs",
                 serverResponse: serverResponse
             });
         }
-    }/*,
-    statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile):void {
-        const slash:string = (data.location[0].indexOf("/") < 0 || (data.location[0].indexOf("\\") < data.location[0].indexOf("/") && data.location[0].indexOf("\\") > -1 && data.location[0].indexOf("/") > -1))
-                ? "\\"
-                : "/",
-            dirs = data.location[0].split(slash),
-            path:string = "",
-            dirConfig:readDirectory = {
-                callback: function terminal_fileService_serviceFile_statusMessage_callback(list:directoryList):void {
-
+    },
+    statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse):void {
+        const callback = function terminal_fileService_serviceFile_statusMessage_callback(list:directoryResponse) {
+            const count:[number, number, number, number] = (function terminal_fileService_serviceFile_statusMessage_callback_count():[number, number, number, number] {
+                    let a:number = (typeof list === "string")
+                        ? 0
+                        : list.length;
+                    const counts:[number, number, number, number] = [0, 0, 0, 0];
+                    if (a > 1) {
+                        do {
+                            a = a - 1;
+                            if (list[a][3] === 0) {
+                                if (list[a][1] === "directory") {
+                                    counts[0] = counts[0] + 1;
+                                } else if (list[a][1] === "file") {
+                                    counts[1] = counts[1] + 1;
+                                } else if (list[a][1] === "link") {
+                                    counts[2] = counts[2] + 1;
+                                } else {
+                                    counts[3] = counts[3] + 1;
+                                }
+                            }
+                        } while (a > 1);
+                    }
+                    return counts;
+                }()),
+                plural = function terminal_fileService_serviceFile_statusMessage_callback_plural(input:string, quantity:number):string {
+                    if (quantity === 1) {
+                        return input;
+                    }
+                    if (input === "directory") {
+                        return "directories";
+                    }
+                    return `${input}s`;
+                },
+                message:string = (function terminal_fileService_serviceFile_statusMessage_callback_message():string {
+                    if (data.action === "fs-destroy") {
+                        return `Destroyed ${data.location.length} file system ${plural("item", data.location.length)}`;
+                    }
+                    if (data.action === "fs-rename") {
+                        return `Renamed ${data.name} from ${data.location[0]}`;
+                    }
+                    return (data.modalAddress === "\\")
+                        ? `${count[0]} ${plural("drive", list.length)}`
+                        : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
+                }()),
+                status:fsStatusMessage = {
+                    address: data.modalAddress,
+                    agent: data.agent,
+                    agentType: data.agentType,
+                    fileList: list,
+                    message: message
+                };
+            if (serverResponse === null) {
+                vars.broadcast("file-list-status", JSON.stringify(status));
+            } else {
+                const type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
+                    if (data.action === "fs-directory") {
+                        if (data.name === "expand" || data.name === "navigate") {
+                            return "fs";
+                        }
+                        if (data.name.indexOf("loadPage:") === 0) {
+                            status.address = data.name.replace("loadPage:", "");
+                            return "fs";
+                        }
+                    }
+                    if (data.action === "fs-search") {
+                        return "fs";
+                    }
+                    return "file-list-status";
+                }());
+                serviceFile.respond.status(serverResponse, status, type);
+            }
+        };
+        if (dirs === null) {
+            const dirConfig:readDirectory = {
+                callback: function terminal_fileService_serviceFile_statusMessage_dirCallback(list:directoryList):void {
+                    callback(list);
                 },
                 depth: 2,
                 exclusions: [],
                 mode: "read",
-                path: path,
+                path: data.modalAddress,
                 symbolic: true
             };
-        directory(dirConfig);
-    }*/
+            directory(dirConfig);
+        } else {
+            callback(dirs);
+        }
+    }
 };
 
 export default serviceFile;

@@ -327,35 +327,38 @@ const serviceCopy:systemServiceCopy = {
                                     payload:systemRequestFiles = {
                                         data: data,
                                         fileData: details
-                                    };
-                                httpClient({
-                                    agentType: data.copyType,
-                                    callback: function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback(message:string|Buffer):void {
-                                        const status:fsStatusMessage = JSON.parse(message.toString());
-                                        if (data.cut === true && status.fileList.failures.length === 0) {
-                                            let a:number = 0;
-                                            const removeCallback = function terminal_fileService_serviceCopy_remoteCopyList_sendList_removeCallback():void {
-                                                a = a + 1;
-                                                if (a === fileCount) {
-                                                    serviceFile.respond.status(serverResponse, status);
-                                                }
-                                            };
-                                            list.forEach(function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
-                                                remove(fileItem[0], removeCallback);
-                                            });
-                                        } else {
-                                            serviceFile.respond.status(serverResponse, status);
-                                        }
                                     },
-                                    errorMessage: `Failed to request files during file ${copyType}.`,
-                                    ip: serverVars[data.copyType][data.copyAgent].ip,
-                                    payload: JSON.stringify(payload),
-                                    port: serverVars[data.copyType][data.copyAgent].port,
-                                    requestError: function terminal_fileService_serviceCopy_remoteCopyList_sendList_requestError():void {},
-                                    requestType: "copy-request-files",
-                                    responseError: function terminal_fileService_serviceCopy_remoteCopyList_sendList_responseError():void {},
-                                    responseStream: httpClient.stream
-                                });
+                                    copyAgent:agent = serverVars[data.copyType][data.copyAgent];
+                                if (copyAgent !== undefined) {
+                                    httpClient({
+                                        agentType: data.copyType,
+                                        callback: function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback(message:string|Buffer):void {
+                                            const status:fsStatusMessage = JSON.parse(message.toString());
+                                            if (data.cut === true && typeof status.fileList !== "string" && status.fileList.failures.length === 0) {
+                                                let a:number = 0;
+                                                const removeCallback = function terminal_fileService_serviceCopy_remoteCopyList_sendList_removeCallback():void {
+                                                    a = a + 1;
+                                                    if (a === fileCount) {
+                                                        serviceFile.respond.status(serverResponse, status, "file-list-status");
+                                                    }
+                                                };
+                                                list.forEach(function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
+                                                    remove(fileItem[0], removeCallback);
+                                                });
+                                            } else {
+                                                serviceFile.respond.status(serverResponse, status, "file-list-status");
+                                            }
+                                        },
+                                        errorMessage: `Failed to request files during file ${copyType}.`,
+                                        ip: serverVars[data.copyType][data.copyAgent].ip,
+                                        payload: JSON.stringify(payload),
+                                        port: serverVars[data.copyType][data.copyAgent].port,
+                                        requestError: function terminal_fileService_serviceCopy_remoteCopyList_sendList_requestError():void {},
+                                        requestType: "copy-request-files",
+                                        responseError: function terminal_fileService_serviceCopy_remoteCopyList_sendList_responseError():void {},
+                                        responseStream: httpClient.stream
+                                    });
+                                }
                             },
                             hashCallback = function terminal_fileService_serviceCopy_fileService_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
                                 data.copyAgent = serverVars.hashUser;
@@ -497,7 +500,9 @@ const serviceCopy:systemServiceCopy = {
                         fileList: dirs,
                         message: (config.message === "")
                             ? (function terminal_fileService_serviceCopy_copyMessage():string {
-                                const failures:number = dirs.failures.length + config.failures,
+                                const failures:number = (dirs.failures === undefined)
+                                        ? config.failures
+                                        : dirs.failures.length + config.failures,
                                     percent:string = serviceCopy.percent(Number(config.writtenSize), config.totalSize),
                                     filePlural:string = (config.countFile === 1)
                                         ? ""
@@ -506,12 +511,9 @@ const serviceCopy:systemServiceCopy = {
                                         ? ""
                                         : "s",
                                     verb:string = (config.cut === true)
-                                        ? "Cut"
-                                        : "Copy",
-                                    action:string = (percent === "100%")
-                                        ? verb
-                                        : `${verb}ing ${percent}`;
-                                return `${action} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
+                                        ? "Cutting"
+                                        : "Copying";
+                                return `${verb} ${percent} complete. ${common.commas(config.countFile)} file${filePlural} written at size ${common.prettyBytes(config.writtenSize)} (${common.commas(config.writtenSize)} bytes) with ${failures} integrity failure${failPlural}.`
                             }())
                             : config.message
                     };
@@ -521,7 +523,7 @@ const serviceCopy:systemServiceCopy = {
                         cutCount = cutCount + 1;
                         if (cutCount === config.location.length) {
                             vars.broadcast("file-list-status", JSON.stringify(copyStatus));
-                            fileServices.respond.status(config.serverResponse, copyStatus);
+                            fileServices.respond.status(config.serverResponse, copyStatus, "file-list-status");
                         }
                     };
                     config.location.forEach(function terminal_fileService_serviceCopy_copySameAgent_each_copy_cut(filePath:string):void {
@@ -543,7 +545,7 @@ const serviceCopy:systemServiceCopy = {
                             responseStream: httpClient.stream
                         });
                     } else if (config.serverResponse.writableEnded === false) {
-                        fileServices.respond.status(config.serverResponse, copyStatus);
+                        fileServices.respond.status(config.serverResponse, copyStatus, "file-list-status");
                     }
                 }
             },

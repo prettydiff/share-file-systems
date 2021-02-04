@@ -25,7 +25,7 @@ interface module_fileBrowser {
     drag?: EventHandlerNonNull;
     dragFlag?: dragFlag;
     expand?: EventHandlerNonNull;
-    list?: (location:string, dirData:fsUnique) => [Element, number, string];
+    list?: (location:string, dirs:directoryResponse) => Element;
     listFail?: (count:number, box: Element) => void;
     listFocus?: EventHandlerNonNull;
     listItem?: (item:directoryItem, extraClass:string) => Element;
@@ -82,9 +82,9 @@ interface module_modal {
     zTop?: (event:Event, elementInput?: Element) => void;
 }
 interface module_network {
-    copy?: (copyService, callback:Function, id?:string) => void;
+    copy?: (configuration:systemDataCopy, callback:Function, id?:string) => void;
     deleteAgents?: (deleted:agentList) => void;
-    fileBrowser?: (localService, callback:Function, id?:string) => void;
+    fileBrowser?: (configuration:systemDataFile, callback:Function, id?:string) => void;
     hashDevice?: (callback:Function) => void;
     hashShare?: (configuration:hashShareConfiguration) => void;
     heartbeat?: (status:heartbeatStatus, update:boolean) => void;

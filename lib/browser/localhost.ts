@@ -305,13 +305,13 @@ import disallowed from "../common/disallowed.js";
                                     agent: agent,
                                     agentType: modalItem.agentType,
                                     depth: 2,
-                                    id: id,
                                     location: [modalItem.text_value],
-                                    name: "",
+                                    modalAddress: modalItem.text_value,
+                                    name: `loadPage:${id}`,
                                     share: modalItem.share,
                                     watch: "yes"
                                 },
-                                selection = function browser_init_modalKeys_selection(id:string):void {
+                                selection = function browser_init_modalFile_selection(id:string):void {
                                     const box:Element = document.getElementById(id),
                                         modalData:modal = browser.data.modals[id],
                                         keys:string[] = (modalData.selection === undefined)
@@ -336,50 +336,16 @@ import disallowed from "../common/disallowed.js";
                                             b = b + 1;
                                         } while (b < length);
                                     }
-                                    z(id);
+                                   z(id);
                                 },
-                                callback = function browser_init_modalKeys_fsCallback(responseText:string):void {
-                                    // an empty response occurs when XHR delivers an HTTP status of not 200 and not 0, which probably means path not found
-                                    const payload:fsUnique = (responseText === "")
-                                            ? {
-                                                dirs: "missing"
-                                            }
-                                            : JSON.parse(util.sanitizeHTML(responseText)),
-                                        files:[Element, number, string] = (payload.dirs === "missing" || payload.dirs === "noShare" || payload.dirs === "readOnly")
-                                            ? (function browser_init_modalKeys_fsCallback_missing():[Element, number, string] {
-                                                const p:Element = document.createElement("p");
-                                                p.setAttribute("class", "error");
-                                                if (payload.dirs === "missing") {
-                                                    const local:string = (agent === browser.data.hashDevice)
-                                                        ? "."
-                                                        : " or remote user is offline.";
-                                                    p.innerHTML = `Error 404: Requested location is not available${local}`;
-                                                } else if (payload.dirs === "noShare"){
-                                                    p.innerHTML = "Error 403: Forbidden. Requested location is likely not shared.";
-                                                } else {
-                                                    p.innerHTML = "Error 406: Not accepted. Read only shares cannot be modified.";
-                                                }
-                                                return [p, 0, ""];
-                                            }())
-                                            : fileBrowser.list(modalItem.text_value, payload);
-                                    if (files === null) {
-                                        z(id);
-                                        return;
-                                    }
-                                    files[0].removeAttribute("title");
-                                    if (responseText !== "") {
-                                        const fsModal:Element = document.getElementById(id);
-                                        if (fsModal === null) {
-                                            z(id);
-                                            return;
-                                        }
-                                        let body:Element = fsModal.getElementsByClassName("body")[0];
-                                        fileBrowser.listFail(files[1], fsModal);
-                                        body.innerHTML = "";
-                                        body.appendChild(files[0]);
-                                        selection(id);
-                                        fsModal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = files[2];
-                                    }
+                                directoryCallback = function browser_init_modalFile_callback_directoryCallback(responseText:string):void {
+                                    const status:fsStatusMessage = JSON.parse(responseText),
+                                        modal:Element = document.getElementById(status.address),
+                                        body:Element = modal.getElementsByClassName("body")[0];
+                                    body.innerHTML = "";
+                                    body.appendChild(fileBrowser.list(storage.settings.modals[status.address].text_value, status.fileList));
+                                    modal.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = status.message;
+                                    selection(status.address);
                                 };
                             modalItem.content = delay;
                             modalItem.id = id;
@@ -388,11 +354,11 @@ import disallowed from "../common/disallowed.js";
                                 if (modalItem.search !== undefined && modalItem.search[0] === modalItem.text_value && modalItem.search[1] !== "") {
                                     let search:HTMLInputElement;
                                     search = document.getElementById(id).getElementsByClassName("fileSearch")[0].getElementsByTagName("input")[0];
-                                    fileBrowser.search(null, search, function browser_init_modalKeys_searchCallback():void {
+                                    fileBrowser.search(null, search, function browser_init_modalFile_callback_searchCallback():void {
                                         selection(id);
                                     });
                                 } else {
-                                    network.fileBrowser(payload, callback);
+                                    network.fileBrowser(payload, directoryCallback);
                                 }
                             };
                             modal.create(modalItem);
@@ -452,22 +418,18 @@ import disallowed from "../common/disallowed.js";
                             share.deleteList(null, modalItem);
                         },
                         modalText = function browser_init_modalText(id:string):void {
-                            const modalItem:modal = storage.settings.modals[id],
-                                textArea:HTMLTextAreaElement = document.createElement("textarea");
-                            if (modalItem.type === "textPad") {
-                                if (modalItem.text_value !== undefined) {
-                                    textArea.value = modalItem.text_value;
-                                }
-                                textArea.onblur = modal.textSave;
-                            } else {
-                                textArea.value = JSON.stringify(storage.settings);
-                            }
-                            modalItem.content = textArea;
-                            modalItem.id = id;
-                            modalItem.callback = function browser_init_modalText_callback():void {
-                                z(id);
-                            };
+                            const textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                                label:Element = document.createElement("label"),
+                                span:Element = document.createElement("span"),
+                                modalItem:modal = storage.settings.modals[id];
+                            span.innerHTML = "Text Pad";
+                            label.setAttribute("class", "textPad");
+                            label.appendChild(span);
+                            label.appendChild(textArea);
+                            textArea.innerHTML = modalItem.text_value;
+                            modalItem.content = label;
                             modal.create(modalItem);
+                            z(id);
                         };
                     logInTest = true;
                     browser.pageBody.removeAttribute("class");

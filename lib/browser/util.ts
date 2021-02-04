@@ -355,11 +355,14 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage):void {
     const address:string = data.address,
         keys:string[] = Object.keys(browser.data.modals),
-        failLength:number = (data.fileList.failures === undefined)
+        failures:string[] = (typeof data.fileList === "string" || data.fileList.failures === undefined)
+            ? []
+            : data.fileList.failures,
+        failLength:number = (typeof data.fileList === "string" || data.fileList.failures === undefined)
             ? 0
             : Math.min(10, data.fileList.failures.length),
         fails:Element = document.createElement("ul");
-    let listData:[Element, number, string],
+    let listData:Element,
         body:Element,
         clone:Element,
         keyLength:number = keys.length,
@@ -373,11 +376,11 @@ util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage)
             li:Element;
         do {
             li = document.createElement("li");
-            li.innerHTML = data.fileList.failures[b];
+            li.innerHTML = failures[b];
             fails.appendChild(li);
             b = b + 1;
         } while (b < failLength);
-        if (data.fileList.failures.length > 10) {
+        if (failures.length > 10) {
             li = document.createElement("li");
             li.innerHTML = "more...";
             fails.appendChild(li);
@@ -403,15 +406,11 @@ util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage)
                 }
                 body = box.getElementsByClassName("body")[0];
                 body.innerHTML = "";
-                listData = fileBrowser.list(address, {
-                    dirs: data.fileList,
-                    fail: [],
-                    id: keys[keyLength]
-                });
+                listData = fileBrowser.list(address, data.fileList);
                 if (listData !== null) {
-                    body.appendChild(listData[0]);
-                    if (data.message === "" && failLength < 1) {
-                        p.innerHTML = listData[2];
+                    body.appendChild(listData);
+                    if (failLength < 1) {
+                        p.innerHTML = data.message;
                         if (list !== undefined) {
                             statusBar.removeChild(list);
                         }
@@ -687,11 +686,12 @@ util.selectedAddresses = function browser_util_selectedAddresses(element:Element
 util.selectNone = function browser_util_selectNone(element:Element):void {
     const box:Element = element.getAncestor("box", "class"),
         fileList:Element = <Element>box.getElementsByClassName("fileList")[0],
+        child:Element = <Element>fileList.firstChild,
         inputs:HTMLCollectionOf<HTMLInputElement> = fileList.getElementsByTagName("input"),
         inputLength:number = inputs.length,
         p:HTMLCollectionOf<Element> = fileList.getElementsByTagName("p");
     let a:number = 0;
-    if (document.getElementById("newFileItem") !== null) {
+    if (document.getElementById("newFileItem") !== null || child.getAttribute("class") === "empty-list") {
         return;
     }
     if (inputLength > 0) {

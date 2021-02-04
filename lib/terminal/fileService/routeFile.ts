@@ -20,9 +20,11 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-base64" || data.action === "fs-hash" || data.action === "fs-read") {
                         const list:stringDataList = JSON.parse(message.toString());
                         serviceFile.respond.read(serverResponse, list);
+                    } else if (data.action === "fs-details") {
+                        const details:fsDetails = JSON.parse(message.toString());
+                        serviceFile.respond.details(serverResponse, details);
                     } else {
-                        const dir:fsUnique = JSON.parse(message.toString());
-                        serviceFile.respond.dir(serverResponse, dir);
+                        serviceFile.statusMessage(serverResponse, data, null);
                     }
                 },
                 errorMessage: "",
@@ -97,12 +99,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
         } else {
             response(responsePayload);
         }*/
-        response({
-            message: `{"id":"${data.id}","dirs":"noShare"}`,
-            mimeType: "application/json",
-            responseType: "file-list-status",
-            serverResponse: serverResponse
-        });
+        serviceFile.statusMessage(serverResponse, data, null);
     }
     /*const copyTest:boolean = (data.action === "fs-copy-file" || data.action === "fs-cut-file" || (data.copyType === "user" && (data.action === "fs-copy" || data.action === "fs-cut"))),
         location:string[] = (data.action === "fs-copy-request" || data.action === "fs-cut-request" || copyTest === true)

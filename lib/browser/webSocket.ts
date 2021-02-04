@@ -26,51 +26,6 @@ const title:Element = document.getElementById("title-bar"),
                 // eslint-disable-next-line
                 console.error(body);
             },
-            fsUpdateLocal = function browser_socketMessage_fsUpdateLocal(fsData:directoryList):void {
-                const modalKeys:string[] = Object.keys(browser.data.modals),
-                    keyLength:number = modalKeys.length;
-                let root:string = fsData[0][0],
-                    a:number = 0,
-                    openTest:boolean = false;
-                if ((/^\w:$/).test(root) === true) {
-                    root = root + "\\";
-                }
-                do {
-                    if (browser.data.modals[modalKeys[a]].type === "fileNavigate" && browser.data.modals[modalKeys[a]].text_value === root && browser.data.modals[modalKeys[a]].agent === browser.data.hashDevice) {
-                        const box:Element = document.getElementById(modalKeys[a]),
-                            body:Element = box.getElementsByClassName("body")[0],
-                            list:[Element, number, string] = fileBrowser.list(root, {
-                                dirs: fsData,
-                                fail: fsData.failures,
-                                id: modalKeys[a]
-                            });
-                        openTest = true;
-                        if (list !== null) {
-                            body.innerHTML = "";
-                            body.appendChild(list[0]);
-                            box.getElementsByClassName("status-bar")[0].getElementsByTagName("p")[0].innerHTML = list[2];
-                        }
-                    }
-                    a = a + 1;
-                } while (a < keyLength);
-                if (openTest === false) {
-                    const payload:systemDataFile = {
-                        action: "fs-close",
-                        agent: browser.data.hashDevice,
-                        agentType: "device",
-                        depth: 1,
-                        id: "",
-                        location: [root],
-                        name: "",
-                        share: "",
-                        watch: "no"
-                    },
-                    callback = function browser_socketMessage_closeCallback():boolean {
-                        return true;
-                    };
-                    network.fileBrowser(payload, callback);
-                }
-            },
             heartbeatDelete = function browser_socketMessage_heartbeatDelete(heartbeat:heartbeat):void {
                 if (heartbeat.agentType === "device") {
                     const deletion:agentList = <agentList>heartbeat.status,
@@ -163,8 +118,6 @@ const title:Element = document.getElementById("title-bar"),
         } else if (type === "file-list-status") {
             const status:fsStatusMessage = JSON.parse(body);
             util.fileListStatus(status);
-        } else if (type === "fs-update-local" && browser.loadFlag === false) {
-            fsUpdateLocal(JSON.parse(body));
         } else if (type === "heartbeat-complete") {
             heartbeat(JSON.parse(body));
         } else if (type === "heartbeat-status") {
