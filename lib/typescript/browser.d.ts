@@ -59,6 +59,12 @@ interface Element {
 // ------------------------------------
 
 // fileBrowser
+interface modalHistoryConfig {
+    address: string;
+    history: boolean;
+    id: string;
+    payload: systemDataFile;
+}
 interface navConfig {
     agentName: string;
     agentType: agentType;

@@ -29,6 +29,7 @@ interface module_fileBrowser {
     listFail?: (count:number, box: Element) => void;
     listFocus?: EventHandlerNonNull;
     listItem?: (item:directoryItem, extraClass:string) => Element;
+    modalAddress?: (config:modalHistoryConfig) => void;
     navigate?: (Event:Event, config?: navConfig) => void;
     parent?: EventHandlerNonNull;
     rename?: EventHandlerNonNull;
