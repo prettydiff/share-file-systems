@@ -184,7 +184,8 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     modalAddress: target,
                     originAgent : (agency[2] === "device")
                         ? browser.data.hashDevice
-                        : browser.data.hashUser
+                        : browser.data.hashUser,
+                    share       : browser.data.modals[box.getAttribute("id")].share
                 },
                 callback = function browser_fileBrowser_drag_drop_callback():void {
                     return;

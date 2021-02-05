@@ -63,6 +63,7 @@ This is a dynamically compiled list of supporting code files that comprise this 
    - **[../lib/terminal/fileService/routeFile.ts](../lib/terminal/fileService/routeFile.ts)**                                         - A library that manages all file system operations except copy/cut operations.
    - **[../lib/terminal/fileService/serviceCopy.ts](../lib/terminal/fileService/serviceCopy.ts)**                                     - A library that stores instructions for copy and cut of file system artifacts.
    - **[../lib/terminal/fileService/serviceFile.ts](../lib/terminal/fileService/serviceFile.ts)**                                     - Manages various file system services.
+   - **[../lib/terminal/fileService/user.ts](../lib/terminal/fileService/user.ts)**                                                   - Manages user security permissions.
 * Directory *[../lib/terminal/server](../lib/terminal/server)*
    - **[../lib/terminal/server/createServer.ts](../lib/terminal/server/createServer.ts)**                                             - This library launches the HTTP service and all supporting service utilities.
    - **[../lib/terminal/server/forbiddenUser.ts](../lib/terminal/server/forbiddenUser.ts)**                                           - A single function for handling rejected HTTP responses associated with disallowed requests.

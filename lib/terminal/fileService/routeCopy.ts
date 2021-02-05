@@ -1,18 +1,18 @@
 
 /* lib/terminal/fileService/routeCopy - A library to handle file system asset movement. */
 
-import { IncomingHttpHeaders, ServerResponse } from "http";
+import { ServerResponse } from "http";
 
 import httpClient from "../server/httpClient.js";
-import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
+import user from "./user.js";
 import vars from "../utilities/vars.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
-        route = function terminal_fileService_routeCopy_route():void {
+        route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             httpClient({
                 agentType: data.agentType,
                 callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
@@ -39,6 +39,14 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 } else {
                     serviceCopy.actions.requestList(serverResponse, data, 0);
                 }
+            } else {
+                serviceFile.respond.status(serverResponse, {
+                    address: data.modalAddress,
+                    agent: serverVars.hashUser,
+                    agentType: "user",
+                    fileList: [],
+                    message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
+                }, "file-list-status");
             }
         };
     if (data.agentType === "device") {
@@ -48,26 +56,11 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             menu();
             //serviceCopy(serverResponse, data);
         } else {
-            route();
+            route(serverResponse, data);
         }
     } else {
-        /*response({
-            message: `{"id":"${data.id}","dirs":"noShare"}`,
-            mimeType: "application/json",
-            responseType: "file-list-status",
-            serverResponse: serverResponse
-        });*/
+        user(serverResponse, data, route);
     }
 };
 
 export default routeCopy;
-
-    // x copy to and from local device works
-    // 1 copy to vm1 from local
-    // 2 copy to local from vm1
-    // 3 copy to and from vm1
-    // 4 cut to vm1 from local
-    // 5 cut to local from vm1
-    // 6 cut to and from vm1
-    // 7 copy to vm1 from vm2
-    // 8 cut to vm1 from vm2

@@ -964,7 +964,8 @@ context.paste = function browser_context_paste():void {
             destination : destination,
             location    : clipData.data,
             modalAddress: destination,
-            originAgent : "device"
+            originAgent : "device",
+            share       : ""
         },
         callback = function browser_context_paste_callback():void {
             clipboard = "";
@@ -979,6 +980,7 @@ context.paste = function browser_context_paste():void {
     payload.originAgent = (payload.copyType === "device")
         ? browser.data.hashDevice
         : browser.data.hashUser;
+    payload.share = browser.data.modals[id].share;
     network.copy(payload, callback);
     context.element = null;
 };

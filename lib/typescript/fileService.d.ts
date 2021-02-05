@@ -71,6 +71,7 @@ declare global {
         location    : string[];
         modalAddress: string;
         originAgent : string;
+        share       : string;
     }
     interface systemDataFile {
         action      : serviceType;
