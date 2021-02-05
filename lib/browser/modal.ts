@@ -762,10 +762,10 @@ modal.resize = function browser_modal_resize(event:MouseEvent|TouchEvent):void {
         direction:string = node.getAttribute("class").split("-")[1],
         offsetWidth:number    = (mac === true)
             ? 20
-            : 0,
+            : -20,
         offsetHeight:number    = (mac === true)
             ? 18
-            : 0,
+            : -20,
         sideHeight:number = headerHeight + statusHeight + footerHeight + 1,
         drop       = function browser_modal_resize_drop():void {
             const settings:modal = browser.data.modals[box.getAttribute("id")];
