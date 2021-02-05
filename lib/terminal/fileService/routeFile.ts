@@ -76,12 +76,12 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                         shareList:string[];
                     do {
                         a = a - 1;
-                        shareList = Object.keys(serverVars[devices[a]].shares);
+                        shareList = Object.keys(serverVars.device[devices[a]].shares);
                         b = shareList.length;
                         if (b > 0) {
                             do {
                                 b = b - 1;
-                                list.push(serverVars[devices[a]].shares[shareList[b]]);
+                                list.push(serverVars.device[devices[a]].shares[shareList[b]]);
                             } while (b > 0);
                         }
                     } while (a > 0);
@@ -104,7 +104,13 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                         b = b - 1;
                         if ((shares[a].name.charAt(0) === "/" && data.location[b].indexOf(shares[a].name) === 0) || data.location[b].toLowerCase().indexOf(shares[a].name.toLowerCase()) === 0) {
                             if (shares[a].readOnly === true && (data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
-                                serviceFile.respond.error(serverResponse, `Attempted action ${data.action.replace("fs-", "")} to location ${data.location[b]} which is in a read only share of: ${serverVars.user[data.agent].name}.`);
+                                serviceFile.respond.status(serverResponse, {
+                                    address: data.modalAddress,
+                                    agent: serverVars.hashUser,
+                                    agentType: "user",
+                                    fileList: [],
+                                    message: `Attempted action ${data.action.replace("fs-", "")} to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`
+                                }, "file-list-status");
                                 return;
                             }
                             if (serverVars.device[serverVars.hashDevice].shares[data.share] === undefined) {
@@ -118,7 +124,13 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                                         return;
                                     }
                                 } while (a > 0);
-                                serviceFile.respond.error(serverResponse, `User ${serverVars.nameUser} does not have share: ${data.share}.`);
+                                serviceFile.respond.status(serverResponse, {
+                                    address: data.modalAddress,
+                                    agent: serverVars.hashUser,
+                                    agentType: "user",
+                                    fileList: [],
+                                    message: `User ${serverVars.nameUser} does not have share: ${data.share}.`
+                                }, "file-list-status");
                                 return;
                             }
                             serviceFile.menu(serverResponse, data);
@@ -127,9 +139,21 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } while (b > 0);
                     a = a + 1;
                 } while (a < shareLength);
-                serviceFile.respond.error(serverResponse, `Requested location ${data.location[b]} is not in a location shared by user ${serverVars.user[data.agent].name}.`);
+                serviceFile.respond.status(serverResponse, {
+                    address: data.modalAddress,
+                    agent: serverVars.hashUser,
+                    agentType: "user",
+                    fileList: [],
+                    message: `Requested location ${data.location[b]} is not in a location shared by user ${serverVars.nameUser}.`
+                }, "file-list-status");
             } else {
-                serviceFile.respond.error(serverResponse, `User ${serverVars.nameUser} currently has no shares.`);
+                serviceFile.respond.status(serverResponse, {
+                    address: data.modalAddress,
+                    agent: serverVars.hashUser,
+                    agentType: "user",
+                    fileList: [],
+                    message: `User ${serverVars.nameUser} currently has no shares.`
+                }, "file-list-status");
             }
         } else {
             route();
