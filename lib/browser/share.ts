@@ -594,12 +594,13 @@ share.modal = function browser_shares_modal(agent:string, agentType:agentType|""
 share.readOnly = function browser_share_readOnly(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         parent:Element = <Element>element.parentNode,
-        agency:agency = util.getAgent(element),
-        hash:string = parent.getAttribute("data-hash"),
-        item:agentShare = browser.device[agency[0]].shares[hash];
-    if (agency[2] !== "device") {
+        hashDevice:string = element.getAncestor("device", "class").getAttribute("data-hash"),
+        hashShare:string = parent.getAttribute("data-hash");
+    let item:agentShare;
+    if (hashDevice === null) {
         return;
     }
+    item = browser.device[hashDevice].shares[hashShare];
     if (item.readOnly === true) {
         item.readOnly = false;
     } else {

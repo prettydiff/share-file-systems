@@ -2179,6 +2179,37 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     value: "Attempted action \"new\" to location "
                 }
             ]
+        },
+
+        // make vm3's share full control
+        {
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "share", 1],
+                        ["getElementsByTagName", "button", 2]
+                    ]
+                }
+            ],
+            machine: "VM3",
+            name: "On VM3 make the share full access.",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByClassName", "share", 1],
+                        ["getElementsByTagName", "strong", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "(Full Access)"
+                }
+            ]
         }
     ];
 
