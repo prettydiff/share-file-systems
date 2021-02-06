@@ -2210,6 +2210,212 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     value: "(Full Access)"
                 }
             ]
+        },
+
+        // on self create a new directory on VM3's modal
+        newDirectory("self", 3, "sandbox"),
+
+        // on self move inside VM3's new folder
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getElementsByClassName", "fileList", 0],
+                    ["getElementsByTagName", "li", 0]
+                ],
+                qualifier: "is",
+                target: ["class"],
+                type: "attribute",
+                value: "empty-list"
+            },
+            interaction: [
+                {
+                    event: "dblclick",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ]
+                }
+            ],
+            machine: "self",
+            name: "On self move inside VM3's new directory",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileAddress", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: "sandbox"
+                }
+            ]
+        },
+
+        // on self copy files to VM3
+        {
+            delay: {
+                node: [
+                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getElementsByClassName", "status-bar", 0],
+                    ["getElementsByTagName", "p", 0]
+                ],
+                qualifier: "is",
+                target: ["innerHTML"],
+                type: "property",
+                value: "0 directory, 4 files, 0 symbolic links, 0 errors"
+            },
+            interaction: [
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ]
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    value: "Control"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    value: "v"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0]
+                    ],
+                    value: "Control"
+                }
+            ],
+            machine: "self",
+            name: "On self copy files and then paste them into VM3",
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "label", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "device.json"
+                }
+            ]
         }
     ];
 

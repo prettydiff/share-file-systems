@@ -48,7 +48,6 @@ const response = function terminal_server_response(config:responseConfig):void {
             config.serverResponse.setHeader("connection", "keep-alive");
             config.serverResponse.setHeader("referrer-policy", "no-referrer");
             config.serverResponse.setHeader("response-type", config.responseType);
-            config.serverResponse.setHeader("x-frame-options", "DENY");
             config.serverResponse.setHeader("x-content-type-options", "nosniff");
             config.serverResponse.writeHead(status, {"Content-Type": type});
             config.serverResponse.write(config.message);
