@@ -208,7 +208,7 @@ share.content = function browser_share_content(agentName:string, agentType:agent
                     readOnly.setAttribute("class", "grant-full-access");
                     readOnly.innerHTML = ("Grant Full Access");
                 } else {
-                    li.setAttribute("class", "device full-access");
+                    li.setAttribute("class", "share full-access");
                     readOnly.setAttribute("class", "make-read-only");
                     readOnly.innerHTML = ("Make Read Only");
                 }
