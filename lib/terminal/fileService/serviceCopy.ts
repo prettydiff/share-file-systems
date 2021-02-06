@@ -384,7 +384,7 @@ const serviceCopy:systemServiceCopy = {
                             }
                             return 1;
                         });
-                        data.action = "copy-request";
+                        data.action = "copy-request-files";
                         if (data.agentType === "user") {
                             // A hash sequence is required only if copying to a remote user because
                             // * the remote user has to be allowed to bypass share limits of the file system

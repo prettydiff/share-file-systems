@@ -4,7 +4,7 @@
 import filePathEncode from "../application/file_path_encode.js";
 import showContextMenu from "../application/browser_showContextMenu.js"
 import mainMenu from "../application/browser_mainMenu.js";
-import projectDirectory from "../application/browser_projectDirectory.js";
+import modalAddress from "../application/browser_modalAddress.js";
 
 const browserSelf:testBrowserItem[] = [
         {
@@ -367,7 +367,12 @@ const browserSelf:testBrowserItem[] = [
         },
 
         // change the file system address by typing a new value
-        projectDirectory(0, "self"),
+        modalAddress({
+            address: "",
+            index: 0,
+            lastItem: "version.json",
+            machine: "self"
+        }),
 
         // double click into a child directory
         {
@@ -784,7 +789,12 @@ const browserSelf:testBrowserItem[] = [
         },
 
         // return to project directory
-        projectDirectory(0, "self"),
+        modalAddress({
+            address: "",
+            index: 0,
+            lastItem: "version.json",
+            machine: "self"
+        }),
 
         // display context menu
         showContextMenu([
@@ -1406,59 +1416,12 @@ const browserSelf:testBrowserItem[] = [
         },
 
         // change the file system address in second file navigator
-        {
-            delay: {
-                // the file navigator modal is created
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0]
-                ],
-                qualifier: "contains",
-                target: ["innerHTML"],
-                type: "property",
-                value: "storage.txt"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByTagName", "input", 0]
-                    ],
-                    value: filePathEncode("absolute", "lib/terminal/test/storageBrowser")
-                },
-                {
-                    event: "blur",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                }
-            ],
-            machine: "self",
-            name: "Change file navigator file system location to storageBrowser",
-            unit: [
-                {
-                    // the first file system item is .git
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "status-bar", 0]
-                    ],
-                    qualifier: "contains",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "0 errors"
-                }
-            ]
-        },
+        modalAddress({
+            address: "lib/terminal/test/storageBrowser",
+            index: 1,
+            lastItem: "user.json",
+            machine: "self"
+        }),
 
         // find new directory button
         showContextMenu([

@@ -166,7 +166,18 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                         htmlElement.style.left = `${config.coords[1]}em`;
                     } else if (config.event === "setValue") {
                         htmlElement = <HTMLInputElement>element;
-                        htmlElement.value = stringReplace(config.value);
+                        if (config.value.indexOf("replace||") === 0) {
+                            const values:[string, string] = ["", ""],
+                                sep:string = (htmlElement.value.charAt(0) === "/")
+                                    ? "/"
+                                    : "\\";
+                            config.value = config.value.replace("replace||", "");
+                            values[0] = config.value.slice(0, config.value.indexOf("||"));
+                            values[1] = config.value.slice(config.value.indexOf("||") + 2).replace(/(\\|\/)/g, sep);
+                            htmlElement.value = htmlElement.value.replace(values[0], sep + values[1]);
+                        } else {
+                            htmlElement.value = stringReplace(config.value);
+                        }
                     } else {
                         if (config.event === "keydown" || config.event === "keyup") {
                             if (config.value === "Alt") {

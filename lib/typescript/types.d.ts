@@ -10,7 +10,7 @@ declare global {
     type certKey = "crt" | "key";
     type color = [string, string];
     type colorScheme = "dark" | "default";
-    type copyTypes = "copy" | "copy-file" | "copy-list-remote" | "copy-request" | "copy-self" | "cut-remove";
+    type copyTypes = "copy" | "copy-file" | "copy-request-files";
     type contextType = "" | "Base64" | "copy" | "cut" | "directory" | "Edit" | "file" | "Hash";
     type directoryItem = [string, "error" | "file" | "directory" | "link", string, number, number, Stats];
     type directoryMode = "array" | "hash" | "list" | "read" | "search";

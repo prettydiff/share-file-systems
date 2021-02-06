@@ -336,9 +336,11 @@ import disallowed from "../common/disallowed.js";
                                             b = b + 1;
                                         } while (b < length);
                                     }
-                                   z(id);
                                 },
                                 directoryCallback = function browser_init_modalFile_callback_directoryCallback(responseText:string):void {
+                                    if (responseText === "") {
+                                        return;
+                                    }
                                     const status:fsStatusMessage = JSON.parse(responseText),
                                         modal:Element = document.getElementById(status.address),
                                         body:Element = modal.getElementsByClassName("body")[0];
@@ -362,6 +364,7 @@ import disallowed from "../common/disallowed.js";
                                 }
                             };
                             modal.create(modalItem);
+                            z(id);
                         },
                         modalInvite = function browser_init_modalInvite(id:string):void {
                             const modalItem:modal = storage.settings.modals[id];

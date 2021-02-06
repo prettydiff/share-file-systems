@@ -239,6 +239,9 @@ util.dragBox = function browser_util_dragBox(event:Event, callback:Function):voi
         };
     let viewportY:number = bodyTop + boxTop + bodyHeight + 50 + bodyScrollTop,
         viewportX:number = bodyLeft + boxLeft + 4 + bodyScrollLeft;
+    if (mouseEvent.button !== 1) {
+        return;
+    }
     if (oldDrag !== null) {
         oldDrag.parentNode.removeChild(oldDrag);
     }
@@ -500,7 +503,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             // key d, new directory
             context.element = element;
             context.type = "directory";
-            context.fsNew;
+            context.fsNew(event);
         } else if (key === "e" || key === "E") {
             // key e, edit file
             context.element = element;
@@ -510,7 +513,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
             // key f, new file
             context.element = element;
             context.type = "file";
-            context.fsNew;
+            context.fsNew(event);
         } else if ((key === "h" || key === "H") && element.nodeName.toLowerCase() === "li") {
             // key h, hash
             context.element = element;

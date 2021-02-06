@@ -6,6 +6,17 @@ import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import serverVars from "../server/serverVars.js";
 
+// you write to copyAgent
+// you must not read from agent if it is unshared
+//
+// exclude agent like normal AND
+// * data.cut is true
+//
+// exclude copyAgent if type user AND
+// * not shared
+// * read only
+
+
 const user = function terminal_fileService_user(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy, callback:(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy) => void):void {
     if (data.agent === serverVars.hashUser) {
         const devices:string[] = Object.keys(serverVars.device),

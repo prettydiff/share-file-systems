@@ -41,7 +41,14 @@ const response = function terminal_server_response(config:responseConfig):void {
                 status = 200;
             }
             config.serverResponse.setHeader("cache-control", "no-store");
+            if (serverVars.secure === true) {
+                config.serverResponse.setHeader("strip-transport-security", "max-age=63072000");
+            }
+            config.serverResponse.setHeader("alt-svc", "clear");
+            config.serverResponse.setHeader("connection", "keep-alive");
+            config.serverResponse.setHeader("referrer-policy", "no-referrer");
             config.serverResponse.setHeader("response-type", config.responseType);
+            config.serverResponse.setHeader("x-frame-options", "DENY");
             config.serverResponse.setHeader("x-content-type-options", "nosniff");
             config.serverResponse.writeHead(status, {"Content-Type": type});
             config.serverResponse.write(config.message);

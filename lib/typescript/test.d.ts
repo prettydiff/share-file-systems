@@ -127,6 +127,12 @@ declare global {
         ip: string;
         port: number;
     }
+    interface testModalAddress {
+        address: string;
+        index: number;
+        lastItem: string;
+        machine: string;
+    }
     // ------------------------------------
 
     // test services
