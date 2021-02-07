@@ -334,7 +334,7 @@ const serviceCopy:systemServiceCopy = {
                                         agentType: data.copyType,
                                         callback: function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback(message:string|Buffer):void {
                                             const status:fsStatusMessage = JSON.parse(message.toString());
-                                            if (data.cut === true && typeof status.fileList !== "string" && status.fileList.failures.length === 0) {
+                                            if (data.cut === true && typeof status.fileList !== "string" && (status.fileList.failures === undefined || status.fileList.failures.length === 0)) {
                                                 let a:number = 0;
                                                 const removeCallback = function terminal_fileService_serviceCopy_remoteCopyList_sendList_removeCallback():void {
                                                     a = a + 1;
