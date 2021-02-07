@@ -482,7 +482,7 @@ util.keys = function browser_util_keys(event:KeyboardEvent):void {
     if (element.parentNode === null || document.activeElement === document.getElementById("newFileItem")) {
         return;
     }
-    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
+    if (key === "Enter" && element.nodeName.toLowerCase() === "li" && (element.getAttribute("class") === "directory" || element.getAttribute("class") === "directory lastType" || element.getAttribute("class") === "directory selected") && p.getAttribute("class") === "selected" && util.selectedAddresses(element, "directory").length === 1) {
         fileBrowser.directory(event);
         return;
     }

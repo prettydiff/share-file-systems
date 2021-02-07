@@ -941,7 +941,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "li", 3],
-            ["getElementsByTagName", "label", 0]
+            ["getElementsByTagName", "p", 0]
         ], [], "VM1"),
 
         // share a directory from VM1
@@ -1093,7 +1093,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "li", 0],
-            ["getElementsByTagName", "label", 0]
+            ["getElementsByTagName", "p", 0]
         ],
         [], "self"),
 
@@ -1369,7 +1369,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "li", 3],
-            ["getElementsByTagName", "label", 0]
+            ["getElementsByTagName", "p", 0]
         ], [], "VM3"),
 
         // share a directory from VM3
@@ -1521,7 +1521,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "li", 0],
-            ["getElementsByTagName", "label", 0]
+            ["getElementsByTagName", "p", 0]
         ],
         [], "self"),
 
@@ -1835,7 +1835,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
             ["getElementsByTagName", "li", 3],
-            ["getElementsByTagName", "label", 0]
+            ["getElementsByTagName", "p", 0]
         ],
         [], "VM2"),
 
@@ -1908,16 +1908,18 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
 
         // on VM3 move the file navigate modal to the test folder
         {
-            delay: {
+            delay: 
+            {
                 node: [
                     ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0]
+                    ["lastChild", null, null],
+                    ["getElementsByTagName", "label", 0]
                 ],
-                qualifier: "is",
-                target: ["class"],
-                type: "attribute",
-                value: "directory"
+                qualifier: "ends",
+                target: ["firstChild", "textContent"],
+                type: "property",
+                value: "storageService"
             },
             interaction: [
                 {
@@ -1953,13 +1955,12 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["lastChild", null, null],
-                        ["getElementsByTagName", "label", 0]
+                        ["getElementsByTagName", "li", 0]
                     ],
-                    qualifier: "ends",
-                    target: ["firstChild", "textContent"],
-                    type: "property",
-                    value: "storageService"
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "directory"
                 }
             ]
         },
@@ -1968,7 +1969,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "fileList", 0],
             ["getElementsByTagName", "li", 2],
-            ["getElementsByTagName", "label", 0]
+            ["getElementsByTagName", "p", 0]
         ],
         [], "VM3"),
 
@@ -2263,18 +2264,28 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "0 directory, 4 files, 0 symbolic links, 0 errors"
+                value: "Copying 100.00% complete. 4 files written at size 1"
             },
             interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
                 {
                     event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 },
@@ -2283,7 +2294,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2291,7 +2303,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2299,15 +2312,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
-                    ]
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2315,7 +2321,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
                 },
@@ -2324,7 +2331,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
                 },
@@ -2333,7 +2341,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 },
@@ -2378,11 +2387,11 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                 }
             ],
             machine: "self",
-            name: "On self copy files and then paste them into VM3",
+            name: "On self copy files and then paste them into VM1",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
+                        ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "label", 0]

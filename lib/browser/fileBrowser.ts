@@ -496,6 +496,7 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
     // prepare the descriptive text
     p.oncontextmenu = context.menu;
     p.onclick = fileBrowser.select;
+    p.onkeydown = util.keys; // key combinations
     p.appendChild(span);
     li.appendChild(p);
 
@@ -513,7 +514,6 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
     } else {
         li.setAttribute("class", item[1]);
     }
-    li.onkeydown = util.keys; // key combinations
     li.onmousedown = fileBrowser.drag;
     li.onmouseover = mouseOver;
     li.ontouchstart = fileBrowser.drag;

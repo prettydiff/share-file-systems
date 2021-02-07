@@ -2945,7 +2945,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 },
@@ -2954,7 +2955,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
                 },
@@ -2963,7 +2965,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
                 },
@@ -2972,7 +2975,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 }
@@ -3181,7 +3185,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Delete"
                 },
@@ -3190,7 +3195,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Delete"
                 }
@@ -3362,7 +3368,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Enter"
                 },
@@ -3371,7 +3378,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Enter"
                 }
