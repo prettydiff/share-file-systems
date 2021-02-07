@@ -299,7 +299,8 @@ share.context = function browser_share_context():void {
             device: "",
             share: "",
             type: "file"
-        };
+        },
+        menu:Element = document.getElementById("contextMenu");
     context.element = null;
     let a:number = 0,
         b:number = 0;
@@ -330,6 +331,9 @@ share.context = function browser_share_context():void {
         } while (a < addressesLength);
     }
     util.selectNone(element);
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Terminate an agent from either a websocket request or from share.deleteAgentList */
@@ -593,8 +597,12 @@ share.modal = function browser_shares_modal(agent:string, agentType:agentType|""
 /* Toggle a share between read only and full access */
 share.readOnly = function browser_share_readOnly(event:MouseEvent):void {
     const element:Element = <Element>event.target,
+        box:Element = element.getAncestor("box", "class"),
+        boxHash:string = box.getAttribute("data-agent"),
         parent:Element = <Element>element.parentNode,
-        hashDevice:string = element.getAncestor("device", "class").getAttribute("data-hash"),
+        hashDevice:string = (boxHash === "")
+            ? element.getAncestor("device", "class").getAttribute("data-hash")
+            : boxHash,
         hashShare:string = parent.getAttribute("data-hash");
     let item:agentShare;
     if (hashDevice === null) {

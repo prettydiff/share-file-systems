@@ -2215,11 +2215,11 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
         // on self create a new directory on VM3's modal
         newDirectory("self", 3, "sandbox"),
 
-        // on self move inside VM3's new folder
+        // on self move inside VM1's new folder
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -2232,18 +2232,18 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                 {
                     event: "dblclick",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0]
                     ]
                 }
             ],
             machine: "self",
-            name: "On self move inside VM3's new directory",
+            name: "On self move inside VM1's new directory",
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
+                        ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -2255,11 +2255,11 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ]
         },
 
-        // on self copy files to VM3
+        // on self copy files to VM1
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
+                    ["getModalsByModalType", "fileNavigate", 0],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
@@ -2311,24 +2311,6 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     ]
                 },
                 {
-                    event: "keyup",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
-                    ],
-                    value: "Control"
-                },
-                {
-                    event: "keydown",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
-                    ],
-                    value: "Control"
-                },
-                {
                     event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
@@ -2358,44 +2340,39 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                 {
                     event: "click",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0]
                     ]
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "v"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0]
                     ],
                     value: "Control"
                 }

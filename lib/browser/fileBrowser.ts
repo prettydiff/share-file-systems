@@ -381,12 +381,14 @@ fileBrowser.list = function browser_fileBrowser_list(location:string, dirs:direc
     } else {
         const li:Element = document.createElement("li"),
             label:Element = document.createElement("label"),
-            input:HTMLInputElement = document.createElement("input");
+            input:HTMLInputElement = document.createElement("input"),
+            p:Element = document.createElement("p");
         li.setAttribute("class", "empty-list");
         label.innerHTML = "Empty list";
         input.type = "checkbox";
         label.appendChild(input);
-        li.appendChild(label);
+        p.appendChild(label);
+        li.appendChild(p);
         output.appendChild(li);
     }
     output.tabIndex = 0;
@@ -489,13 +491,11 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
 
     // prepare the primary item text (address)
     text.innerHTML = item[0];
-    text.oncontextmenu = context.menu;
-    text.onclick = fileBrowser.select;
     p.appendChild(text);
 
     // prepare the descriptive text
-    span.onclick = fileBrowser.select;
-    span.oncontextmenu = context.menu;
+    p.oncontextmenu = context.menu;
+    p.onclick = fileBrowser.select;
     p.appendChild(span);
     li.appendChild(p);
 
@@ -513,8 +513,6 @@ fileBrowser.listItem = function browser_fileBrowser_listItem(item:directoryItem,
     } else {
         li.setAttribute("class", item[1]);
     }
-    li.onclick = fileBrowser.select;
-    li.oncontextmenu = context.menu;
     li.onkeydown = util.keys; // key combinations
     li.onmousedown = fileBrowser.drag;
     li.onmouseover = mouseOver;
@@ -686,6 +684,7 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
         id:string = box.getAttribute("id"),
         input:HTMLInputElement = document.createElement("input"),
         li:Element = element.getAncestor("li", "tag"),
+        menu:Element = document.getElementById("contextMenu"),
         action = <EventHandlerNonNull>function browser_fileBrowser_rename_action(action:KeyboardEvent):void {
             if (action.type === "blur" || (action.type === "keyup" && action.key === "Enter")) {
                 input.value = input.value.replace(/(\s+|\.)$/, "");
@@ -746,6 +745,9 @@ fileBrowser.rename = function browser_fileBrowser_rename(event:MouseEvent):void 
     label.appendChild(input);
     input.focus();
     context.element = null;
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* A service to write file changes to the file system */
@@ -921,12 +923,14 @@ fileBrowser.searchFocus = function browser_fileBrowser_searchFocus(event:Event):
 fileBrowser.select = function browser_fileBrowser_select(event:KeyboardEvent):void {
     event.preventDefault();
     context.menuRemove();
-    const element:Element = <Element>event.target,
-        p:Element = (element.nodeName.toLowerCase() === "p")
-            ? element
-            : (element.nodeName.toLowerCase() === "li")
-                ? element.getElementsByTagName("p")[0]
-                : element.getAncestor("li", "tag").getElementsByTagName("p")[0],
+    const element:Element = (function browser_fileBrowser_select_element():Element {
+            const el:Element = <Element>event.target;
+            if (el.nodeName.toLowerCase() === "li") {
+                return el;
+            }
+            return el.getAncestor("li", "tag");
+        }()),
+        p:Element = element.getElementsByTagName("p")[0],
         classy:string = p.getAttribute("class"),
         parent:HTMLElement = <HTMLElement>p.parentNode,
         input:HTMLInputElement = parent.getElementsByTagName("input")[0];

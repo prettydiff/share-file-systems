@@ -122,6 +122,21 @@ network.inviteRequest = function local_network_invite(inviteData:invite):void {
     });
 };
 
+/* Publish browser logs to the terminal */
+network.log = function local_network_log(...params:any[]):void {
+    params.forEach(function local_network_log_each(value:any, index:number, arr:any[]):void {
+        if (value !== null && value !== undefined && typeof value.nodeType === "number" && typeof value.parentNode === "object") {
+            arr[index] = value.outerHTML;
+        }
+    });
+    network.xhr({
+        callback: null,
+        error: null,
+        payload: JSON.stringify(params),
+        type: "browser-log"
+    });
+};
+
 network.message = function local_network_message(message:messageItem):void {
     const error:string = (message.agentFrom === message.agentTo)
         ? `Transmission error related to text message broadcast to ${message.agentType}s.`
@@ -131,21 +146,6 @@ network.message = function local_network_message(message:messageItem):void {
         error: error,
         payload: JSON.stringify(message),
         type: "message"
-    });
-};
-
-/* Publish browser logs to the terminal */
-network.log = function local_network_log(...params:any[]):void {
-    params.forEach(function local_network_log_each(value:any, index:number, arr:any[]):void {
-        if (typeof value.nodeType === "number" && typeof value.parentNode === "object") {
-            arr[index] = value.outerHTML;
-        }
-    });
-    network.xhr({
-        callback: null,
-        error: null,
-        payload: JSON.stringify(params),
-        type: "browser-log"
     });
 };
 

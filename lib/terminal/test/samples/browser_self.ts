@@ -1068,7 +1068,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -1085,7 +1086,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -1240,7 +1242,7 @@ const browserSelf:testBrowserItem[] = [
                     qualifier: "is",
                     target: ["class"],
                     type: "attribute",
-                    value: "device full-access"
+                    value: "share full-access"
                 }
             ]
         },
@@ -1419,15 +1421,16 @@ const browserSelf:testBrowserItem[] = [
         modalAddress({
             address: "lib/terminal/test/storageBrowser",
             index: 1,
-            lastItem: "user.json",
+            lastItem: "storage.txt",
             machine: "self"
         }),
 
         // find new directory button
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 1],
-            ["getElementsByClassName", "body", 0],
-            ["getElementsByTagName", "li", 0]
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByTagName", "li", 0],
+            ["getElementsByTagName", "p", 0]
         ], [
             {
                 node: [
@@ -1527,7 +1530,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -1619,7 +1623,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -1933,7 +1938,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2025,7 +2031,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2134,7 +2141,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2577,26 +2585,10 @@ const browserSelf:testBrowserItem[] = [
         // open context menu on project js directory
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 0],
-            ["getElementsByClassName", "body", 0],
             ["getElementsByClassName", "fileList", 0],
             ["getElementsByText", filePathEncode("absolute", "js"), 0],
-            ["parentNode", null, null],
             ["parentNode", null, null]
-        ], [
-            {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByClassName", "lastType", 0],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["innerHTML"],
-                type: "property",
-                value: "node_modules"
-            }
-        ], "self"),
+        ], [], "self"),
 
         // copy directory using context menu
         {
@@ -2617,12 +2609,6 @@ const browserSelf:testBrowserItem[] = [
                         ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "button", 0]
                     ]
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "contextMenu", null]
-                    ]
                 }
             ],
             machine: "self",
@@ -2634,7 +2620,8 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "body", 0],
-            ["getElementsByClassName", "fileList", 0]
+            ["getElementsByClassName", "fileList", 0],
+            ["getElementsByTagName", "p", 0]
         ], [], "self"),
 
         // paste from context menu
@@ -2655,14 +2642,8 @@ const browserSelf:testBrowserItem[] = [
                     event: "click",
                     node: [
                         ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "li", 6],
                         ["getElementsByTagName", "button", 0]
-                    ]
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "contextMenu", null]
                     ]
                 }
             ],
@@ -2793,7 +2774,8 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByTagName", "li", 2]
+            ["getElementsByTagName", "li", 2],
+            ["getElementsByTagName", "p", 0]
         ], [], "self"),
 
         // delete js directory using context menu
@@ -2871,7 +2853,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 5]
+                        ["getElementsByTagName", "li", 5],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 }
             ],
@@ -2900,7 +2883,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 },
@@ -2909,7 +2893,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -2917,7 +2902,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4]
+                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 }
@@ -3124,7 +3110,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 },
@@ -3133,7 +3120,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -3141,7 +3129,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -3149,7 +3138,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 }
@@ -3242,7 +3232,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 },
@@ -3251,7 +3242,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 2]
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -3259,7 +3251,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -3267,7 +3260,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 3]
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
                 }
@@ -3294,7 +3288,8 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 1],
             ["getElementsByClassName", "fileList", 0],
-            ["getElementsByTagName", "li", 2]
+            ["getElementsByTagName", "li", 2],
+            ["getElementsByTagName", "p", 0]
         ], [], "self"),
 
         // cut two files using context menu
@@ -3358,7 +3353,8 @@ const browserSelf:testBrowserItem[] = [
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
                     ]
                 },
                 {
@@ -3576,7 +3572,8 @@ const browserSelf:testBrowserItem[] = [
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 0],
             ["getElementsByClassName", "body", 0],
-            ["getElementsByClassName", "file", 1]
+            ["getElementsByClassName", "file", 1],
+            ["getElementsByTagName", "p", 0]
         ], [
             {
                 // the context menu is visible

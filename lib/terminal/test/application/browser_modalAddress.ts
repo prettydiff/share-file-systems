@@ -1,4 +1,4 @@
-/* lib/terminal/test/application/browser_projectDirectory - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
+/* lib/terminal/test/application/browser_modalAddress - A convenience function that tests a file navigation modal to go to the project's location for browser tests. */
 
 import filePathEncode from "./file_path_encode.js";
 
@@ -8,11 +8,10 @@ const modalAddress = function terminal_test_samples_modalAddress(config:testModa
         : config.address
     return {
         delay: {
-            // the last file system item is version.json
             node: [
                 ["getModalsByModalType", "fileNavigate", config.index],
-                ["getElementsByClassName", "body", 0],
-                ["getElementsByTagName", "li", -1],
+                ["getElementsByClassName", "fileList", 0],
+                ["lastChild", null, null],
                 ["getElementsByTagName", "label", 0]
             ],
             qualifier: "ends",

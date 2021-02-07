@@ -25,6 +25,7 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
         element:Element = (tagName === "li" || tagName === "ul")
             ? context.element
             : <Element>context.element.getAncestor("li", "tag"),
+        menu:Element = document.getElementById("contextMenu"),
         box:Element = element.getAncestor("box", "class"),
         contextElement:Element = <Element>event.target,
         type:contextType = (context.type !== "")
@@ -61,6 +62,9 @@ context.copy = function browser_context_copy(event:MouseEvent):void {
     clipboard = JSON.stringify(clipData);
     context.element = null;
     context.type = "";
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Handler for base64, edit, and hash operations from the context menu */
@@ -76,6 +80,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
                 : (contextElement.innerHTML.indexOf("File as Text") > 0)
                     ? "Edit"
                     : "Hash",
+        menu:Element = document.getElementById("contextMenu"),
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "fileEdit"),
         box:Element = element.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
@@ -171,6 +176,9 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
     network.fileBrowser(payloadNetwork, callback);
     context.element = null;
     context.type = "";
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Handler for removing file system artifacts via context menu */
@@ -183,6 +191,7 @@ context.destroy = function browser_context_destroy():void {
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         agency:agency = util.getAgent(element),
         id:string = box.getAttribute("id"),
+        menu:Element = document.getElementById("contextMenu"),
         payload:systemDataFile = {
             action: "fs-destroy",
             agent: agency[0],
@@ -207,6 +216,9 @@ context.destroy = function browser_context_destroy():void {
     }
     network.fileBrowser(payload, null);
     context.element = null;
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Handler for details action of context menu */
@@ -218,6 +230,7 @@ context.details = function browser_context_details(event:MouseEvent):void {
         div:Element = util.delay(),
         agency:agency = util.getAgent(element),
         box:Element = element.getAncestor("box", "class"),
+        menu:Element = document.getElementById("contextMenu"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
         addresses:[string, shareType, string][] = util.selectedAddresses(element, "details"),
         payloadModal:modal = {
@@ -543,6 +556,9 @@ context.details = function browser_context_details(event:MouseEvent):void {
     }
     network.fileBrowser(payloadNetwork, callback);
     context.element = null;
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Handler for creating new directories */
@@ -550,6 +566,7 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
     const element:Element = <Element>event.target,
         box:Element = element.getAncestor("box", "class"),
         addressField:HTMLInputElement = box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0],
+        menu:Element = document.getElementById("contextMenu"),
         cancel = function browser_context_fsNew_cancel(actionElement:Element):void {
             const list:Element = actionElement.getAncestor("fileList", "class"),
                 input:HTMLElement = <HTMLElement>list.getElementsByTagName("input")[0];
@@ -700,6 +717,9 @@ context.fsNew = function browser_context_fsNew(event:MouseEvent):void {
     build();
     context.element = null;
     context.type = "";
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 /* Creates context menu */
@@ -849,10 +869,10 @@ context.menu = function browser_context_menu(event:MouseEvent):void {
     menu.setAttribute("id", "contextMenu");
     menu.onclick = context.menuRemove;
     if (nodeName === "ul") {
+        functions.details();
         if (readOnly === true) {
             return;
         }
-        functions.details();
         functions.newDirectory();
         functions.newFile();
         functions.paste();
@@ -953,6 +973,7 @@ context.paste = function browser_context_paste():void {
         clipData:clipboard = (clipboard === "")
             ? {}
             : JSON.parse(clipboard),
+        menu:Element = document.getElementById("contextMenu"),
         cut:boolean = (clipData.type === "cut"),
         payload:systemDataCopy = {
             action      : "copy",
@@ -983,6 +1004,9 @@ context.paste = function browser_context_paste():void {
     payload.share = browser.data.modals[id].share;
     network.copy(payload, callback);
     context.element = null;
+    if (menu !== null) {
+        menu.parentNode.removeChild(menu);
+    }
 };
 
 context.type = "";
