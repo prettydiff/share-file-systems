@@ -341,7 +341,7 @@ import disallowed from "../common/disallowed.js";
                                     if (responseText === "") {
                                         return;
                                     }
-                                    const status:fsStatusMessage = JSON.parse(responseText),
+                                    const status:fileStatusMessage = JSON.parse(responseText),
                                         modal:Element = document.getElementById(status.address),
                                         body:Element = modal.getElementsByClassName("body")[0];
                                     body.innerHTML = "";

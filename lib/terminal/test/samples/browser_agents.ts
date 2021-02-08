@@ -2831,14 +2831,14 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 1],
+                    ["getModalsByModalType", "fileNavigate", 2],
                     ["getElementsByClassName", "status-bar", 0],
                     ["getElementsByTagName", "p", 0]
                 ],
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Cutting 100.00% complete. 4 files written at size 1"
+                value: "0 directories, 0 files, 0 symbolic links, 0 errors"
             },
             interaction: [
                 {

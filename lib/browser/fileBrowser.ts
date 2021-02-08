@@ -294,7 +294,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
                 watch: "no"
             },
             callback = function browser_fileBrowser_expand_callback(responseText:string) {
-                const status:fsStatusMessage = JSON.parse(responseText),
+                const status:fileStatusMessage = JSON.parse(responseText),
                     list:Element = fileBrowser.list(li.firstChild.nextSibling.textContent, status.fileList);
                 if (list === null) {
                     return;
@@ -578,7 +578,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
             if (responseText === "") {
                 return;
             }
-            const status:fsStatusMessage = JSON.parse(responseText),
+            const status:fileStatusMessage = JSON.parse(responseText),
                 replaceAddress:boolean = (location === "**root**");
             if (box === null) {
                 return;

@@ -170,7 +170,7 @@ declare global {
         qualifier: qualifier;
         requestType: requestType;
         shares?: testServiceShares;
-        test: fsStatusMessage | fsDetails | heartbeat | string | stringData[];
+        test: fileStatusMessage | fsDetails | heartbeat | string | stringData[];
     }
     // ------------------------------------
 

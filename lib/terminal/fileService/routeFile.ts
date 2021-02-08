@@ -26,7 +26,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-write") {
                         serviceFile.respond.write(serverResponse);
                     } else {
-                        const status:fsStatusMessage = JSON.parse(message.toString()),
+                        const status:fileStatusMessage = JSON.parse(message.toString()),
                             type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
                                 if (data.action === "fs-directory") {
                                     if (data.name === "expand" || data.name === "navigate") {

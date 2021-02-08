@@ -39,7 +39,7 @@ declare global {
         dirs: directoryResponse;
         id: string;
     }
-    interface fsStatusMessage {
+    interface fileStatusMessage {
         address: string;
         agent: string;
         agentType: agentType;
@@ -114,7 +114,7 @@ declare global {
             details: (serverResponse:ServerResponse, details:fsDetails) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
-            status: (serverResponse:ServerResponse, status:fsStatusMessage, type:requestType) => void;
+            status: (serverResponse:ServerResponse, status:fileStatusMessage, type:requestType) => void;
             write: (serverResponse:ServerResponse) => void;
         };
         statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;

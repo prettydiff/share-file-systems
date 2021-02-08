@@ -973,6 +973,7 @@ context.paste = function browser_context_paste():void {
         clipData:clipboard = (clipboard === "")
             ? {}
             : JSON.parse(clipboard),
+        sourceBox:Element = document.getElementById(clipData.id),
         menu:Element = document.getElementById("contextMenu"),
         cut:boolean = (clipData.type === "cut"),
         payload:systemDataCopy = {
@@ -984,7 +985,11 @@ context.paste = function browser_context_paste():void {
             cut         : cut,
             destination : destination,
             location    : clipData.data,
-            modalAddress: destination,
+            modalAddress: (cut === true)
+                ? (sourceBox === null)
+                    ? ""
+                    : sourceBox.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
+                : destination,
             originAgent : "device",
             share       : ""
         },

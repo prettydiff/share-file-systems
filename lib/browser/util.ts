@@ -355,9 +355,8 @@ util.dragList = function browser_util_dragList(event:MouseEvent, dragBox:Element
 };
 
 /* A utility to format and describe status bar messaging in a file navigator modal */
-util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage):void {
-    const address:string = data.address,
-        keys:string[] = Object.keys(browser.data.modals),
+util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessage):void {
+    const keys:string[] = Object.keys(browser.data.modals),
         failures:string[] = (typeof data.fileList === "string" || data.fileList.failures === undefined)
             ? []
             : data.fileList.failures,
@@ -393,7 +392,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage)
         do {
             keyLength = keyLength - 1;
             modal = browser.data.modals[keys[keyLength]];
-            if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === address) {
+            if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === data.address) {
                 box = document.getElementById(keys[keyLength]);
                 statusBar = box.getElementsByClassName("status-bar")[0];
                 list = statusBar.getElementsByTagName("ul")[0];
@@ -409,7 +408,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:fsStatusMessage)
                 }
                 body = box.getElementsByClassName("body")[0];
                 body.innerHTML = "";
-                listData = fileBrowser.list(address, data.fileList);
+                listData = fileBrowser.list(data.address, data.fileList);
                 if (listData !== null) {
                     body.appendChild(listData);
                     if (failLength < 1) {

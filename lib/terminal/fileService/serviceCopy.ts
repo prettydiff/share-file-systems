@@ -333,15 +333,28 @@ const serviceCopy:systemServiceCopy = {
                                     httpClient({
                                         agentType: data.copyType,
                                         callback: function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback(message:string|Buffer):void {
-                                            const status:fsStatusMessage = JSON.parse(message.toString());
+                                            const status:fileStatusMessage = JSON.parse(message.toString());
                                             if (data.cut === true && typeof status.fileList !== "string" && (status.fileList.failures === undefined || status.fileList.failures.length === 0)) {
                                                 let a:number = 0;
-                                                const removeCallback = function terminal_fileService_serviceCopy_remoteCopyList_sendList_removeCallback():void {
-                                                    a = a + 1;
-                                                    if (a === fileCount) {
-                                                        serviceFile.respond.status(serverResponse, status, "file-list-status");
-                                                    }
-                                                };
+                                                const listLength:number = list.length,
+                                                    removeCallback = function terminal_fileService_serviceCopy_remoteCopyList_sendList_removeCallback():void {
+                                                        a = a + 1;
+                                                        if (a === listLength) {
+                                                            serviceFile.statusMessage(serverResponse, {
+                                                                action: "fs-directory",
+                                                                agent: (data.copyType === "user")
+                                                                    ? serverVars.hashUser
+                                                                    : serverVars.hashDevice,
+                                                                agentType: data.copyType,
+                                                                depth: 2,
+                                                                location: data.location,
+                                                                modalAddress: data.modalAddress,
+                                                                name: "",
+                                                                share: data.share,
+                                                                watch: "no"
+                                                            }, null);
+                                                        }
+                                                    };
                                                 list.forEach(function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback_cut(fileItem:[string, string, string, number]):void {
                                                     remove(fileItem[0], removeCallback);
                                                 });
@@ -493,7 +506,7 @@ const serviceCopy:systemServiceCopy = {
     },
     status: function terminal_fileService_serviceCopy_status(config:copyStatusConfig):void {
         const callbackDirectory = function terminal_fileService_serviceCopy_status_callbackDirectory(dirs:directoryList):void {
-                const copyStatus:fsStatusMessage = {
+                const copyStatus:fileStatusMessage = {
                         address: config.modalAddress,
                         agent: config.agent,
                         agentType: config.agentType,

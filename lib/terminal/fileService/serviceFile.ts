@@ -264,7 +264,7 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fsStatusMessage, type:requestType):void {
+        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fileStatusMessage, type:requestType):void {
             response({
                 message: JSON.stringify(status),
                 mimeType: "application/json",
@@ -326,7 +326,7 @@ const serviceFile:systemServiceFile = {
                         ? `${count[0]} ${plural("drive", list.length)}`
                         : `${count[0]} ${plural("directory", count[0])}, ${count[1]} ${plural("file", count[1])}, ${count[2]} ${plural("symbolic link", count[2])}, ${count[3]} ${plural("error", count[3])}`;
                 }()),
-                status:fsStatusMessage = {
+                status:fileStatusMessage = {
                     address: data.modalAddress,
                     agent: data.agent,
                     agentType: data.agentType,
