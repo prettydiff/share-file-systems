@@ -977,9 +977,8 @@ context.paste = function browser_context_paste():void {
         payload:systemDataCopy = {
             action      : "copy",
             agent       : clipData.agent,
-            agentType   : clipData.agentType,
+            agentType   : "device",
             copyAgent   : "",
-            copyType    : "device",
             cut         : cut,
             destination : destination,
             location    : clipData.data,
@@ -988,7 +987,7 @@ context.paste = function browser_context_paste():void {
                     ? ""
                     : sourceBox.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value
                 : destination,
-            originAgent : "device",
+            modalCut    : document.getElementById(clipData.id).getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
             share       : ""
         },
         callback = function browser_context_paste_callback():void {
@@ -1000,10 +999,12 @@ context.paste = function browser_context_paste():void {
         return;
     }
     payload.copyAgent = browser.data.modals[id].agent;
-    payload.copyType = browser.data.modals[id].agentType;
-    payload.originAgent = (payload.copyType === "device")
-        ? browser.data.hashDevice
-        : browser.data.hashUser;
+    payload.agentType = (browser.data.modals[id].agentType === "user" || clipData.agentType === "user")
+        ? "user"
+        : "device";
+    if (clipData.agentType === "device" && payload.agentType === "user") {
+        payload.agent = browser.data.hashUser;
+    }
     payload.share = browser.data.modals[id].share;
     network.copy(payload, callback);
     context.element = null;

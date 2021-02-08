@@ -30,7 +30,7 @@ const serviceCopy:systemServiceCopy = {
                 countDir:number = 0;
             const statusConfig:copyStatusConfig = {
                     agent: config.data.copyAgent,
-                    agentType: config.data.copyType,
+                    agentType: config.data.agentType,
                     countFile: 0,
                     cut: config.data.cut,
                     failures: 0,
@@ -328,10 +328,10 @@ const serviceCopy:systemServiceCopy = {
                                         data: data,
                                         fileData: details
                                     },
-                                    copyAgent:agent = serverVars[data.copyType][data.copyAgent];
+                                    copyAgent:agent = serverVars[data.agentType][data.copyAgent];
                                 if (copyAgent !== undefined) {
                                     httpClient({
-                                        agentType: data.copyType,
+                                        agentType: data.agentType,
                                         callback: function terminal_fileService_serviceCopy_remoteCopyList_sendList_callback(message:string|Buffer):void {
                                             const status:fileStatusMessage = JSON.parse(message.toString());
                                             if (data.cut === true && typeof status.fileList !== "string" && (status.fileList.failures === undefined || status.fileList.failures.length === 0)) {
@@ -342,10 +342,10 @@ const serviceCopy:systemServiceCopy = {
                                                         if (a === listLength) {
                                                             serviceFile.statusMessage(serverResponse, {
                                                                 action: "fs-directory",
-                                                                agent: (data.copyType === "user")
+                                                                agent: (data.agentType === "user")
                                                                     ? serverVars.hashUser
                                                                     : serverVars.hashDevice,
-                                                                agentType: data.copyType,
+                                                                agentType: data.agentType,
                                                                 depth: 2,
                                                                 location: data.location,
                                                                 modalAddress: data.modalAddress,
@@ -363,9 +363,9 @@ const serviceCopy:systemServiceCopy = {
                                             }
                                         },
                                         errorMessage: `Failed to request files during file ${copyType}.`,
-                                        ip: serverVars[data.copyType][data.copyAgent].ip,
+                                        ip: serverVars[data.agentType][data.copyAgent].ip,
                                         payload: JSON.stringify(payload),
-                                        port: serverVars[data.copyType][data.copyAgent].port,
+                                        port: serverVars[data.agentType][data.copyAgent].port,
                                         requestError: function terminal_fileService_serviceCopy_remoteCopyList_sendList_requestError():void {},
                                         requestType: "copy-request-files",
                                         responseError: function terminal_fileService_serviceCopy_remoteCopyList_sendList_responseError():void {},
@@ -376,7 +376,7 @@ const serviceCopy:systemServiceCopy = {
                             hashCallback = function terminal_fileService_serviceCopy_fileService_copyLocalToRemote_callback_hash(hashOutput:hashOutput):void {
                                 data.copyAgent = serverVars.hashUser;
                                 data.copyShare = hashOutput.hash;
-                                data.copyType = "user";
+                                data.agentType = "user";
                                 sendList();
                             };
                         list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
@@ -442,7 +442,7 @@ const serviceCopy:systemServiceCopy = {
                         if (count === length) {
                             const status:copyStatusConfig = {
                                 agent: data.copyAgent,
-                                agentType: data.copyType,
+                                agentType: data.agentType,
                                 countFile: countFile,
                                 cut: data.cut,
                                 failures: 0,

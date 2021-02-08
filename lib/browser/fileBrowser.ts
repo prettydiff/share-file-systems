@@ -177,14 +177,11 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     agent       : browser.data.modals[id].agent,
                     agentType   : browser.data.modals[id].agentType,
                     copyAgent   : agency[0],
-                    copyType    : agency[2],
                     cut         : false,
                     destination : target,
                     location    : addresses,
                     modalAddress: target,
-                    originAgent : (agency[2] === "device")
-                        ? browser.data.hashDevice
-                        : browser.data.hashUser,
+                    modalCut    : box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
                     share       : browser.data.modals[box.getAttribute("id")].share
                 },
                 callback = function browser_fileBrowser_drag_drop_callback():void {
@@ -192,6 +189,12 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                 };
             if (target === "") {
                 return;
+            }
+            payload.agentType = (agency[2] === "user" || browser.data.modals[id].agentType === "user")
+                ? "user"
+                : "device";
+            if (payload.agentType === "user" && browser.data.modals[id].agentType === "device") {
+                payload.agent = browser.data.hashUser;
             }
             network.copy(payload, callback);
         },

@@ -65,12 +65,11 @@ declare global {
         agentType   : agentType;
         copyAgent   : string;
         copyShare?  : string;
-        copyType    : agentType;
         cut         : boolean;
         destination : string;
         location    : string[];
         modalAddress: string;
-        originAgent : string;
+        modalCut    : string;
         share       : string;
     }
     interface systemDataFile {
