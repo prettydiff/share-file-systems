@@ -5,6 +5,7 @@ import { ServerResponse } from "http";
 import base64 from "../commands/base64.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
+import fileResponseType from "./fileResponseType.js";
 import hash from "../commands/hash.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
@@ -336,22 +337,7 @@ const serviceFile:systemServiceFile = {
             if (serverResponse === null) {
                 vars.broadcast("file-list-status", JSON.stringify(status));
             } else {
-                const type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
-                    if (data.action === "fs-directory") {
-                        if (data.name === "expand" || data.name === "navigate") {
-                            return "fs";
-                        }
-                        if (data.name.indexOf("loadPage:") === 0) {
-                            status.address = data.name.replace("loadPage:", "");
-                            return "fs";
-                        }
-                    }
-                    if (data.action === "fs-search") {
-                        return "fs";
-                    }
-                    return "file-list-status";
-                }());
-                serviceFile.respond.status(serverResponse, status, type);
+                fileResponseType(serverResponse, data, status);
             }
         };
         if (dirs === null) {

@@ -80,7 +80,7 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         response({
                             message: "File list status response.",
                             mimeType: "text/plain",
-                            responseType: "file-list-status",
+                            responseType: "response-no-action",
                             serverResponse: serverResponse
                         });
                     },

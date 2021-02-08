@@ -18,6 +18,7 @@ import serverVars from "../server/serverVars.js";
 
 
 const user = function terminal_fileService_user(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy, callback:(serverResponse:ServerResponse, data:systemDataFile|systemDataCopy) => void):void {
+    const copyData:systemDataCopy = <systemDataCopy>data;
     if (data.agent === serverVars.hashUser) {
         const devices:string[] = Object.keys(serverVars.device),
             shares:agentShare[] = (function terminal_fileService_routeFile_shares():agentShare[] {
@@ -54,13 +55,16 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                 do {
                     b = b - 1;
                     if ((shares[a].name.charAt(0) === "/" && data.location[b].indexOf(shares[a].name) === 0) || data.location[b].toLowerCase().indexOf(shares[a].name.toLowerCase()) === 0) {
-                        if (shares[a].readOnly === true && (data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
+                        if (shares[a].readOnly === true && (copyData.cut === true || data.action === "fs-destroy" || data.action === "fs-new" || data.action === "fs-rename" || data.action === "fs-write")) {
+                            const action:string = (copyData.cut === true)
+                                ? "cut"
+                                : data.action.replace("fs-", "").replace("copy-", "");
                             serviceFile.respond.status(serverResponse, {
                                 address: data.modalAddress,
                                 agent: serverVars.hashUser,
                                 agentType: "user",
                                 fileList: [],
-                                message: `Attempted action "${data.action.replace("fs-", "").replace("copy-", "")}" to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`
+                                message: `Attempted action "${action}" to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`
                             }, "file-list-status");
                             return;
                         }

@@ -1,8 +1,6 @@
 
 /* lib/browser/context - A collection of event handlers associated with the right click context menu. */
 
-import { Stats } from "fs";
-
 import browser from "./browser.js";
 import fileBrowser from "./fileBrowser.js";
 import modal from "./modal.js";
