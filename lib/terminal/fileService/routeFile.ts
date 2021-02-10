@@ -7,6 +7,7 @@ import httpClient from "../server/httpClient.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import user from "./user.js";
+import response from "../server/response.js";
 
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataFile = JSON.parse(dataString),
@@ -26,7 +27,27 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-write") {
                         serviceFile.respond.write(serverResponse);
                     } else {
-                        serviceFile.respond.text(serverResponse, "Message received at routeFile from client request");
+                        const status:fileStatusMessage = JSON.parse(message.toString());
+                        response({
+                            message: message,
+                            mimeType: "application/json",
+                            responseType: (function terminal_fileService_statusMessage_callback_type():requestType {
+                                if (data.action === "fs-directory") {
+                                    if (data.name === "expand" || data.name === "navigate") {
+                                        return "fs";
+                                    }
+                                    if (data.name.indexOf("loadPage:") === 0) {
+                                        status.address = data.name.replace("loadPage:", "");
+                                        return "fs";
+                                    }
+                                }
+                                if (data.action === "fs-search") {
+                                    return "fs";
+                                }
+                                return "file-list-status";
+                            }()),
+                            serverResponse: serverResponse
+                        });
                     }
                 },
                 errorMessage: "",

@@ -574,7 +574,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback = function browser_fileBrowser_navigate_callback(responseText:string):void {
+        callback = function browser_fileBrowser_navigate_callback(responseText:string):void {console.log(responseText);
             if (responseText === "") {
                 return;
             }

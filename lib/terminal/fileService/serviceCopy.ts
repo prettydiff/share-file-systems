@@ -425,7 +425,7 @@ const serviceCopy:systemServiceCopy = {
                 fileCount:number = 0,
                 fileSize:number = 0;
             directory(dirConfig);
-            serviceFile.respond.text(serverResponse, "Request for file list received.");
+            serviceFile.respond.text(serverResponse, "Request for copy file list received.");
         },
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
             let count:number = 0,
