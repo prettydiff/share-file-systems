@@ -271,12 +271,26 @@ const serviceCopy:systemServiceCopy = {
                     let b:number = 0,
                         size:number,
                         largest:number = 0,
-                        largeFile:number = 0;
+                        largeFile:number = 0,
+                        responseList:directoryList = (dir === undefined || dir[0] === undefined)
+                            ? []
+                            : dir;
                     // list schema:
                     // 0. full item path
                     // 1. item type: directory, file
                     // 2. relative path from point of user selection
                     // 3. size in bytes from Stats object
+                    serviceFile.statusMessage(serverResponse, {
+                        action: "fs-directory",
+                        agent: data.agent,
+                        agentType: data.agentType,
+                        depth: 2,
+                        location: data.location,
+                        modalAddress: data.modalCut,
+                        name: "",
+                        share: data.share,
+                        watch: "no"
+                    }, responseList);
                     if (dir === undefined || dir[0] === undefined) {
                         // something went wrong, probably the remote fell offline
                         return;
@@ -425,7 +439,6 @@ const serviceCopy:systemServiceCopy = {
                 fileCount:number = 0,
                 fileSize:number = 0;
             directory(dirConfig);
-            serviceFile.respond.text(serverResponse, "Request for copy file list received.");
         },
         sameAgent: function terminal_fileService_serviceCopy_sameAgent(serverResponse:ServerResponse, data:systemDataCopy):void {
             let count:number = 0,
