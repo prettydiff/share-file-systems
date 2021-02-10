@@ -29,6 +29,9 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else {
                         const status:fileStatusMessage = JSON.parse(message.toString()),
                             type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
+                                if (serverResponse.getHeader("responseType") === "fs") {
+                                    return "fs";
+                                }
                                 if (data.action === "fs-directory") {
                                     if (data.name === "expand" || data.name === "navigate") {
                                         return "fs";
@@ -51,7 +54,12 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                                 serverResponse: serverResponse
                             });
                         } else {
-                            serviceFile.respond.text(serverResponse, "Message received at routeFile from client request");
+                            response({
+                                message: "Message received at routeFile from client request",
+                                mimeType: "text/plain",
+                                responseType: "fs",
+                                serverResponse: serverResponse
+                            });
                         }
                     }
                 },

@@ -265,14 +265,6 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        text: function terminal_fileService_serviceFile_respondText(serverResponse:ServerResponse, message:string):void {
-            response({
-                message: message,
-                mimeType: "text/plain",
-                responseType: "response-no-action",
-                serverResponse: serverResponse
-            });
-        },
         write: function terminal_fileService_serviceFile_respondWrite(serverResponse:ServerResponse):void {
             response({
                 message: "Saved to disk!",
@@ -379,7 +371,7 @@ const serviceFile:systemServiceFile = {
                     if (data.agentType === "user") {
                         sendStatus(data.agent, "user");
                     }
-                    serviceFile.respond.text(serverResponse, "Response from serviceFile");
+                    statusResponse(statusString);
                 }
             }
         };
