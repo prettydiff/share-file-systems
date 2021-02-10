@@ -27,11 +27,8 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-write") {
                         serviceFile.respond.write(serverResponse);
                     } else {
-                        const status:fileStatusMessage = JSON.parse(message.toString());
-                        response({
-                            message: message,
-                            mimeType: "application/json",
-                            responseType: (function terminal_fileService_statusMessage_callback_type():requestType {
+                        const status:fileStatusMessage = JSON.parse(message.toString()),
+                            type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
                                 if (data.action === "fs-directory") {
                                     if (data.name === "expand" || data.name === "navigate") {
                                         return "fs";
@@ -45,9 +42,17 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                                     return "fs";
                                 }
                                 return "file-list-status";
-                            }()),
-                            serverResponse: serverResponse
-                        });
+                            }());
+                        if (type === "fs") {
+                            response({
+                                message: message,
+                                mimeType: "application/json",
+                                responseType: "fs",
+                                serverResponse: serverResponse
+                            });
+                        } else {
+                            serviceFile.respond.text(serverResponse, "Message received at routeFile from client request");
+                        }
                     }
                 },
                 errorMessage: "",
