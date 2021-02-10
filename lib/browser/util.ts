@@ -393,29 +393,31 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
             keyLength = keyLength - 1;
             modal = browser.data.modals[keys[keyLength]];
             if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === data.address) {
-                box = document.getElementById(keys[keyLength]);
-                statusBar = box.getElementsByClassName("status-bar")[0];
-                list = statusBar.getElementsByTagName("ul")[0];
-                p = statusBar.getElementsByTagName("p")[0];
-                if (failLength > 0) {
-                    clone = <HTMLElement>fails.cloneNode(true);
-                    statusBar.appendChild(clone);
-                } else if (data.message !== "") {
-                    p.innerHTML = data.message;
-                    if (list !== undefined) {
-                        statusBar.removeChild(list);
-                    }
-                }
-                body = box.getElementsByClassName("body")[0];
-                body.innerHTML = "";
-                listData = fileBrowser.list(data.address, data.fileList);
-                if (listData !== null) {
-                    body.appendChild(listData);
-                    if (failLength < 1) {
+                if (data.fileList.length > 0 || (data.fileList.length === 0 && data.message === "")) {
+                    box = document.getElementById(keys[keyLength]);
+                    statusBar = box.getElementsByClassName("status-bar")[0];
+                    list = statusBar.getElementsByTagName("ul")[0];
+                    p = statusBar.getElementsByTagName("p")[0];
+                    if (failLength > 0) {
+                        clone = <HTMLElement>fails.cloneNode(true);
+                        statusBar.appendChild(clone);
+                    } else if (data.message !== "") {
                         p.innerHTML = data.message;
                         if (list !== undefined) {
                             statusBar.removeChild(list);
                         }
+                    }
+                    body = box.getElementsByClassName("body")[0];
+                    body.innerHTML = "";
+                    listData = fileBrowser.list(data.address, data.fileList);
+                    if (listData !== null) {
+                        body.appendChild(listData);
+                    }
+                }
+                if (failLength < 1) {
+                    p.innerHTML = data.message;
+                    if (list !== undefined) {
+                        statusBar.removeChild(list);
                     }
                 }
             }

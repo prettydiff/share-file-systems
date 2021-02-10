@@ -40,7 +40,16 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                 return list;
             }()),
             shareLength:number = shares.length,
-            locationLength:number = data.location.length;
+            locationLength:number = data.location.length,
+            statusMessage = function terminal_fileService_user_statusMessage(message:string):void {
+                /*serviceFile.respond.status(serverResponse, {
+                    address: data.modalAddress,
+                    agent: serverVars.hashUser,
+                    agentType: "user",
+                    fileList: [],
+                    message: message
+                }, "file-list-status");*/
+            };
         let a:number = 0,
             b:number = 0;
         shares.sort(function terminal_fileService_routeFile_sort(a:agentShare, b:agentShare):-1|1 {
@@ -59,13 +68,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                             const action:string = (copyData.cut === true)
                                 ? "cut"
                                 : data.action.replace("fs-", "").replace("copy-", "");
-                            serviceFile.respond.status(serverResponse, {
-                                address: data.modalAddress,
-                                agent: serverVars.hashUser,
-                                agentType: "user",
-                                fileList: [],
-                                message: `Attempted action "${action}" to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`
-                            }, "file-list-status");
+                            statusMessage(`Attempted action "${action}" to location ${data.location[b]} which is in a read only share of: ${serverVars.nameUser}.`);
                             return;
                         }
                         if (serverVars.device[serverVars.hashDevice].shares[data.share] === undefined) {
@@ -79,13 +82,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                                     return;
                                 }
                             } while (a > 0);
-                            serviceFile.respond.status(serverResponse, {
-                                address: data.modalAddress,
-                                agent: serverVars.hashUser,
-                                agentType: "user",
-                                fileList: [],
-                                message: `User ${serverVars.nameUser} does not have share: ${data.share}.`
-                            }, "file-list-status");
+                            statusMessage(`User ${serverVars.nameUser} does not have share: ${data.share}.`);
                             return;
                         }
                         if (data.action.indexOf("copy") === 0) {
@@ -96,13 +93,7 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                                     serviceCopy.actions.requestList(serverResponse, data, 0);
                                 }
                             } else {
-                                serviceFile.respond.status(serverResponse, {
-                                    address: data.modalAddress,
-                                    agent: serverVars.hashUser,
-                                    agentType: "user",
-                                    fileList: [],
-                                    message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
-                                }, "file-list-status");
+                                statusMessage(`Requested action "${data.action.replace("copy-", "")}" is not supported.`);
                             }
                         } else {
                             serviceFile.menu(serverResponse, <systemDataFile>data);
@@ -112,21 +103,9 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
                 } while (b > 0);
                 a = a + 1;
             } while (a < shareLength);
-            serviceFile.respond.status(serverResponse, {
-                address: data.modalAddress,
-                agent: serverVars.hashUser,
-                agentType: "user",
-                fileList: [],
-                message: `Requested location "${data.location[b]}" is not in a location shared by user ${serverVars.nameUser}.`
-            }, "file-list-status");
+            statusMessage(`Requested location "${data.location[b]}" is not in a location shared by user ${serverVars.nameUser}.`);
         } else {
-            serviceFile.respond.status(serverResponse, {
-                address: data.modalAddress,
-                agent: serverVars.hashUser,
-                agentType: "user",
-                fileList: [],
-                message: `User ${serverVars.nameUser} currently has no shares.`
-            }, "file-list-status");
+            statusMessage(`User ${serverVars.nameUser} currently has no shares.`);
         }
     } else {
         callback(serverResponse, data);

@@ -4,20 +4,18 @@
 import { ServerResponse } from "http";
 
 import httpClient from "../server/httpClient.js";
+import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import user from "./user.js";
-import vars from "../utilities/vars.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             httpClient({
                 agentType: data.agentType,
-                callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
-                    vars.broadcast("file-list-status", message.toString());
-                },
+                callback: function terminal_fileService_routeCopy_route_callback():void {},
                 errorMessage: "",
                 ip: serverVars[data.agentType][data.agent].ip,
                 payload: dataString,
@@ -40,13 +38,19 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     serviceCopy.actions.requestList(serverResponse, data, 0);
                 }
             } else {
-                serviceFile.respond.status(serverResponse, {
+                const status:fileStatusMessage = {
                     address: data.modalAddress,
-                    agent: serverVars.hashUser,
-                    agentType: "user",
+                    agent: data.copyAgent,
+                    agentType: data.agentType,
                     fileList: [],
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
-                }, "file-list-status");
+                };
+                response({
+                    message: JSON.stringify(status),
+                    mimeType: "application/json",
+                    responseType: "file-list-status",
+                    serverResponse: serverResponse
+                });
             }
         };
     if (data.agentType === "device") {
@@ -54,7 +58,6 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         // otherwise there is an endless loop of http requests because service tests are only differentiated by port and not ip.
         if (data.agent === serverVars.hashDevice || serverVars.testType === "service") {
             menu();
-            //serviceCopy(serverResponse, data);
         } else {
             route(serverResponse, data);
         }

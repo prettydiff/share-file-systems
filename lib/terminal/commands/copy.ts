@@ -12,7 +12,7 @@ import vars from "../utilities/vars.js";
 import remove from "./remove.js";
 
 // bit-by-bit copy stream for the file system
-const copy = function terminal_commands_copy(params:nodeCopyParams):void {
+const copy = function terminal_commands_copy(params:copyParams):void {
     // parameters
     // * callback:Function - the instructions to execute when copy is complete
     // * destination:string - the file system location where to put the copied items
@@ -113,34 +113,35 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                 },
                 pathStat = function terminal_commands_copy_dirCallback_pathStat(item:directoryItem):void {
                     // establish destination path
-                    const path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, "");
-                    vars.node.fs.stat(path, function terminal_commands_copy_dirCallback_pathStat_stat(statError:nodeError):void {
-                        const copyAction = function terminal_commands_copy_dirCallback_pathStat_stat_copyAction():void {
-                            if (item[1] === "directory") {
-                                numb.dirs = numb.dirs + 1;
-                                mkdir(path, types);
-                            } else if (item[1] === "file") {
-                                numb.files = numb.files + 1;
-                                numb.size = numb.size + item[5].size;
-                                file(item, path);
-                            } else if (item[1] === "link") {
-                                link(item[0], path);
-                            } else if (item[1] === "error") {
-                                types(`error on address ${item[0]} from library directory`);
+                    const path:string = destination + item[0].replace(prefix, "").replace(/^(\\|\/)/, ""),
+                        statCallback = function terminal_commands_copy_dirCallback_pathStat_statCallback(statError:nodeError):void {
+                            const copyAction = function terminal_commands_copy_dirCallback_pathStat_statCallback_copyAction():void {
+                                if (item[1] === "directory") {
+                                    numb.dirs = numb.dirs + 1;
+                                    mkdir(path, types);
+                                } else if (item[1] === "file") {
+                                    numb.files = numb.files + 1;
+                                    numb.size = numb.size + item[5].size;
+                                    file(item, path);
+                                } else if (item[1] === "link") {
+                                    link(item[0], path);
+                                } else if (item[1] === "error") {
+                                    types(`error on address ${item[0]} from library directory`);
+                                }
+                            };
+                            if (item[0] === path) {
+                                types(`file ${path} cannot be copied onto itself`);
+                            } else if (statError === null) {
+                                remove(path, copyAction);
+                            } else {
+                                if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
+                                    copyAction();
+                                } else {
+                                    types(error.toString());
+                                }
                             }
                         };
-                        if (item[0] === path) {
-                            types(`file ${path} cannot be copied onto itself`);
-                        } else if (statError === null) {
-                            remove(path, copyAction);
-                        } else {
-                            if (statError.toString().indexOf("no such file or directory") > 0 || statError.code === "ENOENT") {
-                                copyAction();
-                            } else {
-                                types(error.toString());
-                            }
-                        }
-                    });
+                    vars.node.fs.stat(path, statCallback);
                 },
                 types = function terminal_commands_copy_dirCallback_types(typeError:string):void {
                     if (typeError !== null && typeError !== undefined) {
@@ -148,7 +149,7 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
                         error([typeError]);
                     }
                     if (a === len) {
-                        params.callback([numb.files, numb.size]);
+                        params.callback([numb.files, numb.size, numb.error]);
                     } else {
                         pathStat(list[a]);
                     }
@@ -228,25 +229,19 @@ const copy = function terminal_commands_copy(params:nodeCopyParams):void {
         };
     }
     vars.node.fs.stat(params.destination, function terminal_commands_copy_stat(erStat:Error):void {
+        const dirConfig:readDirectory = {
+            callback: dirCallback,
+            depth: 0,
+            exclusions: params.exclusions,
+            mode: "read",
+            path: target,
+            symbolic: true
+        };
         if (erStat === null) {
-            directory({
-                callback: dirCallback,
-                depth: 0,
-                exclusions: params.exclusions,
-                mode: "read",
-                path: target,
-                symbolic: true
-            });
+            directory(dirConfig);
         } else {
             mkdir(params.destination, function terminal_commands_copy_stat_mkdir():void {
-                directory({
-                    callback: dirCallback,
-                    depth: 0,
-                    exclusions: params.exclusions,
-                    mode: "read",
-                    path: target,
-                    symbolic: true
-                });
+                directory(dirConfig);
             });
         }
     });

@@ -118,6 +118,12 @@ declare global {
         link: number;
         size: number;
     }
+    interface copyParams {
+        callback: (output:[number, number, number]) => void;
+        destination: string;
+        exclusions: string[];
+        target: string;
+    }
     // ------------------------------------
 
     // directory

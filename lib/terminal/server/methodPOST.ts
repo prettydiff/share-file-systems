@@ -7,6 +7,7 @@ import { StringDecoder } from "string_decoder";
 import browser from "../test/application/browser.js";
 import hash from "../commands/hash.js";
 import heartbeat from "./heartbeat.js";
+import httpClient from "./httpClient.js";
 import invite from "./invite.js";
 import log from "../utilities/log.js";
 import message from "./message.js";
@@ -73,9 +74,34 @@ const methodPOST = function terminal_server_methodPOST(request:IncomingMessage, 
                         // * file system interaction for both local and remote
                         routeFile(serverResponse, body);
                     },
-                    "file-list-status": function terminal_server_methodPOST_requestEnd_fsUpdateRemote():void {
+                    "file-list-status": function terminal_server_methodPOST_requestEnd_fileListStatus():void {
                         // * remote: Changes to the remote user's file system
                         // * local : Update local "File Navigator" modals for the respective remote user
+                        const status:fileStatusMessage = JSON.parse(body);
+                        if (status.agentType === "user") {
+                            const devices:string[] = Object.keys(serverVars.device),
+                                sendStatus = function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus(agent:string):void {
+                                    httpClient({
+                                        agentType: "device",
+                                        callback: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_callback():void {},
+                                        errorMessage: `Error sending status update to ${agent} of type "device" about location ${status.address} from user ${status.agent}.`,
+                                        ip: serverVars.device[agent].ip,
+                                        payload: body,
+                                        port: serverVars.device[agent].port,
+                                        requestError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_requestError():void {},
+                                        requestType: "file-list-status",
+                                        responseError: function terminal_server_methodPOST_requestEnd_fileListStatus_sendStatus_responseError():void {},
+                                        responseStream: httpClient.stream
+                                    });
+                                };
+                            let a:number = devices.length;
+                            do {
+                                a = a - 1;
+                                if (devices[a] !== serverVars.hashDevice) {
+                                    sendStatus(devices[a]);
+                                }
+                            } while (a > 0);
+                        }
                         vars.broadcast("file-list-status", body);
                         response({
                             message: "File list status response.",

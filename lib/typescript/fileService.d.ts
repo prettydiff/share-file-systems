@@ -46,12 +46,6 @@ declare global {
         fileList: directoryResponse;
         message: string;
     }
-    interface nodeCopyParams {
-        callback: Function;
-        destination: string;
-        exclusions: string[];
-        target: string;
-    }
     interface remoteCopyListData {
         directories: number;
         fileCount: number;
@@ -113,7 +107,7 @@ declare global {
             details: (serverResponse:ServerResponse, details:fsDetails) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
-            status: (serverResponse:ServerResponse, status:fileStatusMessage, type:requestType) => void;
+            text: (serverResponse:ServerResponse, message:string) => void;
             write: (serverResponse:ServerResponse) => void;
         };
         statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;

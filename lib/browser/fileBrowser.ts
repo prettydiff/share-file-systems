@@ -183,9 +183,6 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
                     modalAddress: target,
                     modalCut    : box.getElementsByClassName("fileAddress")[0].getElementsByTagName("input")[0].value,
                     share       : browser.data.modals[box.getAttribute("id")].share
-                },
-                callback = function browser_fileBrowser_drag_drop_callback():void {
-                    return;
                 };
             if (target === "") {
                 return;
@@ -196,7 +193,7 @@ fileBrowser.drag = function browser_fileBrowser_drag(event:MouseEvent|TouchEvent
             if (payload.agentType === "user" && browser.data.modals[id].agentType === "device") {
                 payload.agent = browser.data.hashUser;
             }
-            network.copy(payload, callback);
+            network.copy(payload, null);
         },
         move = function browser_fileBrowser_drag_move(moveEvent:MouseEvent|TouchEvent):boolean {
             const touchMove:TouchEvent = (touch === true)
@@ -298,7 +295,7 @@ fileBrowser.expand = function browser_fileBrowser_expand(event:MouseEvent):void 
             },
             callback = function browser_fileBrowser_expand_callback(responseText:string) {
                 const status:fileStatusMessage = JSON.parse(responseText),
-                    list:Element = fileBrowser.list(li.firstChild.nextSibling.textContent, status.fileList);
+                    list:Element = fileBrowser.list(li.getElementsByTagName("label")[0].textContent, status.fileList);
                 if (list === null) {
                     return;
                 }
@@ -577,7 +574,7 @@ fileBrowser.navigate = function browser_fileBrowser_navigate(event:MouseEvent, c
         readOnlyString:string = (readOnly === true)
             ? "(Read Only) "
             : "",
-        callback:Function = function browser_fileBrowser_navigate_callback(responseText:string):void {
+        callback = function browser_fileBrowser_navigate_callback(responseText:string):void {
             if (responseText === "") {
                 return;
             }

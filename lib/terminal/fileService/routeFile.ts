@@ -3,7 +3,6 @@
 
 import { IncomingHttpHeaders, ServerResponse } from "http";
 
-import fileResponseType from "./fileResponseType.js";
 import httpClient from "../server/httpClient.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
@@ -27,8 +26,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-write") {
                         serviceFile.respond.write(serverResponse);
                     } else {
-                        const status:fileStatusMessage = JSON.parse(message.toString());
-                        fileResponseType(serverResponse, data, status);
+                        serviceFile.respond.text(serverResponse, "Message received at routeFile from client request");
                     }
                 },
                 errorMessage: "",

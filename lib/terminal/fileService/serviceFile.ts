@@ -5,8 +5,8 @@ import { ServerResponse } from "http";
 import base64 from "../commands/base64.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
-import fileResponseType from "./fileResponseType.js";
 import hash from "../commands/hash.js";
+import httpClient from "../server/httpClient.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import response from "../server/response.js";
@@ -265,11 +265,11 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fileStatusMessage, type:requestType):void {
+        text: function terminal_fileService_serviceFile_respondText(serverResponse:ServerResponse, message:string):void {
             response({
-                message: JSON.stringify(status),
-                mimeType: "application/json",
-                responseType: type,
+                message: message,
+                mimeType: "text/plain",
+                responseType: "response-no-action",
                 serverResponse: serverResponse
             });
         },
@@ -333,11 +333,54 @@ const serviceFile:systemServiceFile = {
                     agentType: data.agentType,
                     fileList: list,
                     message: message
+                },
+                devices:string[] = Object.keys(serverVars.device),
+                statusString:string = JSON.stringify(status),
+                sendStatus = function terminal_fileService_serviceFile_statusMessage_callback_sendStatus(agent:string, type:agentType):void {
+                    httpClient({
+                        agentType: type,
+                        callback: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_callback():void {},
+                        errorMessage: `Error sending status update to ${agent} of type ${type} about location ${status.address} from ${status.agentType} ${status.agent}.`,
+                        ip: serverVars[type][agent].ip,
+                        payload: statusString,
+                        port: serverVars[type][agent].port,
+                        requestError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_requestError():void {},
+                        requestType: "file-list-status",
+                        responseError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_responseError():void {},
+                        responseStream: httpClient.stream
+                    });
+                },
+                statusResponse = function terminal_fileService_serviceFile_statusMessage_callback_statusResponse(message:string):void {
+                    response({
+                        message: message,
+                        mimeType: "application/json",
+                        responseType: "fs",
+                        serverResponse: serverResponse
+                    });
                 };
-            if (serverResponse === null) {
-                vars.broadcast("file-list-status", JSON.stringify(status));
-            } else {
-                fileResponseType(serverResponse, data, status);
+            if (serverResponse !== null) {
+                if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate")) {
+                    statusResponse(statusString);
+                } else if (data.action === "fs-directory" && data.name.indexOf("loadPage:") === 0) {
+                    status.address = data.name.replace("loadPage:", "");
+                    statusResponse(JSON.stringify(status));
+                } else if (data.action === "fs-search") {
+                    statusResponse(statusString);
+                } else {
+                    let a:number = devices.length;
+                    do {
+                        a = a - 1;
+                        if (devices[a] === serverVars.hashDevice) {
+                            vars.broadcast("file-list-status", statusString);
+                        } else {
+                            sendStatus(devices[a], "device");
+                        }
+                    } while (a > 0);
+                    if (data.agentType === "user") {
+                        sendStatus(data.agent, "user");
+                    }
+                    serviceFile.respond.text(serverResponse, "Response from serviceFile");
+                }
             }
         };
         if (dirs === null) {
