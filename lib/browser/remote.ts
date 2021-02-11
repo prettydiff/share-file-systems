@@ -173,8 +173,8 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                                     : "\\";
                             config.value = config.value.replace("replace\u0000", "");
                             values[0] = config.value.slice(0, config.value.indexOf("\u0000"));
-                            values[1] = config.value.slice(config.value.indexOf("\u0000") + 2).replace(/(\\|\/)/g, sep);
-                            htmlElement.value = htmlElement.value.replace(values[0], sep + values[1]);
+                            values[1] = config.value.slice(config.value.indexOf("\u0000") + 1).replace(/(\\|\/)/g, sep);
+                            htmlElement.value = htmlElement.value.replace(values[0], values[1]);
                         } else {
                             htmlElement.value = stringReplace(config.value);
                         }
