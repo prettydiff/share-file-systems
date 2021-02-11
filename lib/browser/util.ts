@@ -393,7 +393,7 @@ util.fileListStatus = function browser_util_fileListStatus(data:fileStatusMessag
             keyLength = keyLength - 1;
             modal = browser.data.modals[keys[keyLength]];
             if (modal.agent === data.agent && modal.agentType === data.agentType && modal.type === "fileNavigate" && modal.text_value === data.address) {
-                if (data.fileList.length > 0 || (data.fileList.length === 0 && data.message === "")) {
+                if (data.agentType === "user" || data.fileList.length > 0 || (data.fileList.length === 0 && data.message === "")) {
                     box = document.getElementById(keys[keyLength]);
                     statusBar = box.getElementsByClassName("status-bar")[0];
                     list = statusBar.getElementsByTagName("ul")[0];

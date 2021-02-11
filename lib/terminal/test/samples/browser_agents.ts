@@ -76,7 +76,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                         ["getElementsByClassName", "fileAddress", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
-                    value: "replace||documentation||lib/terminal/test/storageBrowser"
+                    value: "replace\u0000documentation\u0000lib/terminal/test/storageBrowser"
                 },
                 {
                     event: "blur",

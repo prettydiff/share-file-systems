@@ -166,14 +166,14 @@ remote.event = function browser_remote_event(item:testBrowserRoute, pageLoad:boo
                         htmlElement.style.left = `${config.coords[1]}em`;
                     } else if (config.event === "setValue") {
                         htmlElement = <HTMLInputElement>element;
-                        if (config.value.indexOf("replace||") === 0) {
+                        if (config.value.indexOf("replace\u0000") === 0) {
                             const values:[string, string] = ["", ""],
                                 sep:string = (htmlElement.value.charAt(0) === "/")
                                     ? "/"
                                     : "\\";
-                            config.value = config.value.replace("replace||", "");
-                            values[0] = config.value.slice(0, config.value.indexOf("||"));
-                            values[1] = config.value.slice(config.value.indexOf("||") + 2).replace(/(\\|\/)/g, sep);
+                            config.value = config.value.replace("replace\u0000", "");
+                            values[0] = config.value.slice(0, config.value.indexOf("\u0000"));
+                            values[1] = config.value.slice(config.value.indexOf("\u0000") + 2).replace(/(\\|\/)/g, sep);
                             htmlElement.value = htmlElement.value.replace(values[0], sep + values[1]);
                         } else {
                             htmlElement.value = stringReplace(config.value);
