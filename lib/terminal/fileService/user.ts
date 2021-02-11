@@ -2,6 +2,7 @@
 /* lib/terminal/fileService/user - Manages user security permissions. */
 
 import { ServerResponse } from "http";
+import response from "../server/response.js";
 import serviceCopy from "./serviceCopy.js";
 import serviceFile from "./serviceFile.js";
 import serverVars from "../server/serverVars.js";
@@ -42,13 +43,19 @@ const user = function terminal_fileService_user(serverResponse:ServerResponse, d
             shareLength:number = shares.length,
             locationLength:number = data.location.length,
             statusMessage = function terminal_fileService_user_statusMessage(message:string):void {
-                /*serviceFile.respond.status(serverResponse, {
+                const status:fileStatusMessage = {
                     address: data.modalAddress,
                     agent: serverVars.hashUser,
                     agentType: "user",
                     fileList: [],
                     message: message
-                }, "file-list-status");*/
+                };
+                response({
+                    message: JSON.stringify(status),
+                    mimeType: "application/json",
+                    responseType: "file-list-status",
+                    serverResponse: serverResponse
+                });
             };
         let a:number = 0,
             b:number = 0;
