@@ -67,7 +67,7 @@ declare global {
         share       : string;
     }
     interface systemDataFile {
-        action      : serviceType;
+        action      : fileAction;
         agent       : string;
         agentType   : agentType;
         depth       : number;

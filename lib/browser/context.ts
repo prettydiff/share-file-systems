@@ -88,7 +88,7 @@ context.dataString = function browser_context_dataString(event:MouseEvent):void 
         payloadNetwork:systemDataFile = {
             action: (type === "Edit")
                 ? "fs-read"
-                : <serviceType>`fs-${type.toLowerCase()}`,
+                : <fileAction>`fs-${type.toLowerCase()}`,
             agent: agency[0],
             agentType: agency[2],
             depth: 1,

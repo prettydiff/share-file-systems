@@ -29,7 +29,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else {
                         const status:fileStatusMessage = JSON.parse(message.toString()),
                             type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
-                                if (serverResponse.getHeader("responseType") === "fs") {
+                                if (headers["response-type"] === "fs") {
                                     return "fs";
                                 }
                                 if (data.action === "fs-directory") {
