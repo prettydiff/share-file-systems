@@ -7,7 +7,6 @@ import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
-import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
@@ -30,6 +29,14 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 }
             });
         },
+        respond = function terminal_fileService_routeCopy_respond(message:string, type:mimeType):void {
+            response({
+                message: message,
+                mimeType: type,
+                responseType: "file-list-status",
+                serverResponse: serverResponse
+            });
+        },
         menu = function terminal_fileService_routeCopy_menu():void {
             if (data.action === "copy") {
                 if (data.agent === data.copyAgent) {
@@ -45,12 +52,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     fileList: [],
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
                 };
-                response({
-                    message: JSON.stringify(status),
-                    mimeType: "application/json",
-                    responseType: "file-list-status",
-                    serverResponse: serverResponse
-                });
+                respond(JSON.stringify(status), "application/json");
             }
         };
     if (data.agentType === "device") {
@@ -60,9 +62,11 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             menu();
         } else {
             route(serverResponse, data);
+            respond("Copy request transferred to source device.", "text/plain");
         }
     } else {
         user(serverResponse, data, route);
+        respond("Copy request transferred to source user.", "text/plain");
     }
 };
 

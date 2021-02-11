@@ -280,17 +280,6 @@ const serviceCopy:systemServiceCopy = {
                     // 1. item type: directory, file
                     // 2. relative path from point of user selection
                     // 3. size in bytes from Stats object
-                    serviceFile.statusMessage(serverResponse, {
-                        action: "fs-directory",
-                        agent: data.agent,
-                        agentType: data.agentType,
-                        depth: 2,
-                        location: data.location,
-                        modalAddress: data.modalCut,
-                        name: "",
-                        share: data.share,
-                        watch: "no"
-                    }, responseList);
                     if (dir === undefined || dir[0] === undefined) {
                         // something went wrong, probably the remote fell offline
                         return;
@@ -392,6 +381,17 @@ const serviceCopy:systemServiceCopy = {
                                 data.agentType = "user";
                                 sendList();
                             };
+                        serviceFile.statusMessage(serverResponse, {
+                            action: "fs-directory",
+                            agent: data.agent,
+                            agentType: data.agentType,
+                            depth: 2,
+                            location: data.location,
+                            modalAddress: data.modalAddress,
+                            name: "",
+                            share: data.share,
+                            watch: "no"
+                        }, responseList);
                         list.sort(function terminal_fileService_serviceCopy_sortFiles(itemA:[string, string, string, number], itemB:[string, string, string, number]):number {
                             if (itemA[1] === "directory" && itemB[1] !== "directory") {
                                 return -1;

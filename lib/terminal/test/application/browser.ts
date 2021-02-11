@@ -16,7 +16,7 @@ import vars from "../../utilities/vars.js";
 
 import filePathDecode from "./file_path_decode.js";
 import machines from "./browser_machines.js";
-import test_agents from "../samples/browser_agents.js";
+import test_devices from "../samples/browser_devices.js";
 import test_self from "../samples/browser_self.js";
 
 let finished:boolean = false,
@@ -121,8 +121,8 @@ const defaultCommand:string = vars.command,
                 tests = (args.mode === "self")
                     ? test_self
                     : (args.mode === "full")
-                        ? test_self.concat(test_agents.slice(3))
-                        : test_agents;
+                        ? test_self.concat(test_devices.slice(3))
+                        : test_devices;
 
                 vars.command = "test_browser";
                 serverVars.secure = false;

@@ -7,47 +7,10 @@ import mainMenu from "../application/browser_mainMenu.js";
 import modalAddress from "../application/browser_modalAddress.js";
 import showContextMenu from "../application/browser_showContextMenu.js";
 
-const idle = function terminal_test_samples_browserAgents_idle(machine:string, delay:number):testBrowserItem {
-        return {
-            interaction: [
-                {
-                    event: "wait",
-                    node: [],
-                    value: delay.toString()
-                }
-            ],
-            machine: machine,
-            name: `On ${machine} test for idle state`,
-            unit: [
-                {
-                    node: [
-                        ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "idle"
-                },
-                {
-                    node: [
-                        ["getElementById", "device", null],
-                        ["getElementsByTagName", "li", 2],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "idle"
-                }
-            ]
-        };
-    },
-    moveToSandbox = function terminal_test_samples_browserAgents_moveToSandbox(index:number, machine:string, test:string):testBrowserItem {
+const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbox(index:number, machine:string, test:string):testBrowserItem {
         const otherTest:string = (test === "empty-list")
             ? "Empty list"
-            : "user.json"
+            : "storage.txt"
         return {
             delay: {
                 node: [
@@ -105,7 +68,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ]
         };
     },
-    newDirectory = function terminal_test_samples_browserAgents_newDirectory(machine:string, index:number, name:string):testBrowserItem {
+    newDirectory = function terminal_test_samples_browserDevices_newDirectory(machine:string, index:number, name:string):testBrowserItem {
         return {
             delay: {
                 node: [
@@ -196,10 +159,22 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ],
             machine: machine,
             name: `On ${machine} create a new directory on file navigate modal index ${index}`,
-            unit: []
+            unit: [
+                {
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", index],
+                        ["getElementsByClassName", "status-bar", 0],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    qualifier: "begins",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "1 directory"
+                }
+            ]
         };
     },
-    invite1 = function terminal_test_samples_browserAgents_invite1(from:string):testBrowserItem {
+    invite1 = function terminal_test_samples_browserDevices_invite1(from:string):testBrowserItem {
         // open invite modal
         return {
             delay: {
@@ -225,7 +200,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             unit: []
         };
     },
-    invite2 = function terminal_test_samples_browserAgents_invite2(from:string, to:string, type:agentType):testBrowserItem {
+    invite2 = function terminal_test_samples_browserDevices_invite2(from:string, to:string, type:agentType):testBrowserItem {
         // create invitation
         const index:number = (from === "self" && to === "VM3")
             ? 1
@@ -308,7 +283,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             unit: []
         };
     },
-    invite3 = function terminal_test_samples_browserAgents_invite3(from:string, to:string, type:agentType):testBrowserItem {
+    invite3 = function terminal_test_samples_browserDevices_invite3(from:string, to:string, type:agentType):testBrowserItem {
         // read invitation
         const fromName:string = (from === "self")
             ? "Primary Device"
@@ -358,7 +333,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ]
         };
     },
-    invite4 = function terminal_test_samples_browserAgents_invite4(from:string, to:string, type:agentType):testBrowserItem {
+    invite4 = function terminal_test_samples_browserDevices_invite4(from:string, to:string, type:agentType):testBrowserItem {
         // accept invitation
         return {
             delay: {
@@ -396,7 +371,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ]
         };
     },
-    login = function terminal_test_samples_browserAgents_login(machine:string):testBrowserItem {
+    login = function terminal_test_samples_browserDevices_login(machine:string):testBrowserItem {
         return {
             delay: {
                 // that class is removed from body
@@ -466,7 +441,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ]
         };
     },
-    browserAgents:testBrowserItem[] = [
+    browserDevices:testBrowserItem[] = [
         {
             interaction: [
                 {
@@ -589,64 +564,6 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
         // invite user VM3 from self
         mainMenu("self"),
         invite1("self"),
-        invite2("self", "VM3", "user"),
-        {
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 read user invitation from self",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "h3", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "User <strong>User-self</strong> from"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "label", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "User-self said:"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "invite-accept", 0],
-                        ["getElementsByTagName", "textarea", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["value"],
-                    type: "property",
-                    value: "Hello to VM3 from Primary Device."
-                }
-            ]
-        },
-        invite4("self", "VM3", "user"),
-
-        // test for idle state on VM1
-        //idle("VM1", 16000),
-
-        // test for idle state on VM2
-        //idle("VM2", 0),
-
-        // test for idle state on VM3
-        //idle("VM3", 0),
-
-        // test for idle state on VM4
-        //idle("VM4", 0),
 
         //open shares on self
         {
@@ -687,8 +604,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "ul", 1],
-                        ["getElementsByTagName", "li", null]
+                        ["getElementsByTagName", "ul", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -705,6 +621,17 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     target: ["length"],
                     type: "property",
                     value: 0
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "h3", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "There are no <strong>user</strong> connections at this time."
                 }
             ]
         },
@@ -748,8 +675,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "shares", 0],
                         ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "ul", 1],
-                        ["getElementsByTagName", "li", null]
+                        ["getElementsByTagName", "ul", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -766,6 +692,17 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     target: ["length"],
                     type: "property",
                     value: 0
+                },
+                {
+                    node: [
+                        ["getModalsByModalType", "shares", 0],
+                        ["getElementsByClassName", "body", 0],
+                        ["getElementsByTagName", "h3", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["innerHTML"],
+                    type: "property",
+                    value: "There are no <strong>user</strong> connections at this time."
                 }
             ]
         },
@@ -1137,385 +1074,6 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
             ]
         },
 
-        //open shares on user VM3
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "shares", 0]
-                ],
-                qualifier: "greater",
-                target: ["clientHeight"],
-                type: "property",
-                value: 200
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getElementsByClassName", "all-shares", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 open shares modal of all shares",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "ul", 0],
-                        ["getElementsByTagName", "li", null]
-                    ],
-                    qualifier: "is",
-                    target: ["length"],
-                    type: "property",
-                    value: 2
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "ul", 1],
-                        ["getElementsByClassName", "user", null]
-                    ],
-                    qualifier: "is",
-                    target: ["length"],
-                    type: "property",
-                    value: 1
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "share", null]
-                    ],
-                    qualifier: "is",
-                    target: ["length"],
-                    type: "property",
-                    value: 0
-                }
-            ]
-        },
-
-        mainMenu("VM3"),
-
-        // open file navigator modal on VM3
-        {
-            delay: {
-                // the file navigator modal is created
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "ul", 0]
-                ],
-                qualifier: "is",
-                target: ["class"],
-                type: "attribute",
-                value: "fileList"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "fileNavigator", null]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 launch 'File Navigator' modal from primary menu",
-            unit: [
-                {
-                    // that file navigation modal contains an address bar
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["placeholder"],
-                    type: "attribute",
-                    value: "Optionally type a file system address here."
-                },
-                {
-                    // the file navigate modal contains a search field
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByTagName", "input", 1]
-                    ],
-                    qualifier: "is",
-                    target: ["placeholder"],
-                    type: "attribute",
-                    value: "⌕ Search"
-                },
-                {
-                    // the file navigate modal contains a status bar
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "status-bar", 0]
-                    ],
-                    qualifier: "contains",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "<p>"
-                },
-                {
-                    // that file navigator modal contains a back button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "header", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "backDirectory"
-                },
-                {
-                    // that file navigator modal contains a reload button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "header", 0],
-                        ["getElementsByTagName", "button", 1]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "reloadDirectory"
-                },
-                {
-                    // that file navigator modal contains a parent navigation button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "header", 0],
-                        ["getElementsByTagName", "button", 2]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "parentDirectory"
-                },
-                {
-                    // that file navigator modal contains a minimize button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "minimize"
-                },
-                {
-                    // that file navigator modal contains a maximize button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 1]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "maximize"
-                },
-                {
-                    // that file navigator modal contains a close button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 2]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "close"
-                },
-                {
-                    // the file navigate modal displays file system results with a directory
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "directory"
-                },
-                {
-                    // that directory contains an expansion button
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "expansion"
-                }
-            ]
-        },
-
-        // change address location of file navigator modal on VM3
-        modalAddress({
-            address: "",
-            index: 0,
-            lastItem: "version.json",
-            machine: "VM3"
-        }),
-        showContextMenu([
-            ["getModalsByModalType", "fileNavigate", 0],
-            ["getElementsByClassName", "body", 0],
-            ["getElementsByTagName", "li", 3],
-            ["getElementsByTagName", "p", 0]
-        ], [], "VM3"),
-
-        // share a directory from VM3
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "share", 0],
-                    ["getElementsByTagName", "button", 1]
-                ],
-                qualifier: "ends",
-                target: ["firstChild", "textContent"],
-                type: "property",
-                value: "documentation"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 0]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 share a directory",
-            unit: []
-        },
-
-        // verify VM3 share from self
-        {
-            interaction: [
-                {
-                    event: "wait",
-                    node: []
-                }
-            ],
-            machine: "self",
-            name: "On self verify shared directory from VM3",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["firstChild", "textContent"],
-                    type: "property",
-                    value: "documentation"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0],
-                        ["getElementsByTagName", "strong", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["firstChild", "textContent"],
-                    type: "property",
-                    value: "(Read Only)"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0],
-                        ["getElementsByTagName", "strong", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "read-only-status"
-                }
-            ]
-        },
-
-        // access VM3's share directory on self
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["getElementsByTagName", "li", 0],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["firstChild", "textContent"],
-                type: "property",
-                value: "api.md"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0]
-                    ]
-                }
-            ],
-            machine: "self",
-            name: "On self open VM3's share",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0],
-                        ["getElementsByTagName", "strong", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["firstChild", "textContent"],
-                    type: "property",
-                    value: "(Read Only)"
-                },
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "user", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0],
-                        ["getElementsByTagName", "strong", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "read-only-status"
-                },
-            ]
-        },
-
         // open file navigate context menu at self
         showContextMenu([
             ["getModalsByModalType", "fileNavigate", 0],
@@ -1525,51 +1083,11 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
         ],
         [], "self"),
 
-        // on self read from a VM3 file
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "textPad", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByTagName", "textarea", 0]
-                ],
-                qualifier: "greater",
-                target: ["clientHeight"],
-                type: "property",
-                value: 200
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 0]
-                    ]
-                }
-            ],
-            machine: "self",
-            name: "On self open a file from VM3",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "textPad", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByTagName", "textarea", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["value"],
-                    type: "property",
-                    value: "<!-- documentation/api - This documentation details"
-                }
-            ]
-        },
-
         // access file navigate modal on self
         {
             delay: {
                 node: [
-                    ["getModalsByModalType", "fileNavigate", 2],
+                    ["getModalsByModalType", "fileNavigate", 1],
                     ["getElementsByClassName", "fileList", 0],
                     ["getElementsByTagName", "li", 0]
                 ],
@@ -1596,8 +1114,8 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
 
         modalAddress({
             address: "/lib/terminal/test/storageBrowser",
-            index: 2,
-            lastItem: "user.json",
+            index: 1,
+            lastItem: "storage.txt",
             machine: "self"
         }),
 
@@ -1901,171 +1419,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
         moveToSandbox(0, "VM1", "file"),
 
         // on self move to sandbox for VM2 modal
-        moveToSandbox(3, "VM2", "file"),
-
-        // on self move to sandbox for VM3 modal
-        moveToSandbox(1, "VM3", "empty-list"),
-
-        // on VM3 move the file navigate modal to the test folder
-        {
-            delay: 
-            {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 0],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["lastChild", null, null],
-                    ["getElementsByTagName", "label", 0]
-                ],
-                qualifier: "ends",
-                target: ["firstChild", "textContent"],
-                type: "property",
-                value: "storageService"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileAddress", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileAddress", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ],
-                    value: filePathEncode("absolute", "lib/terminal/test")
-                },
-                {
-                    event: "blur",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileAddress", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 move the file navigate modal to the test location",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "directory"
-                }
-            ]
-        },
-
-        showContextMenu([
-            ["getModalsByModalType", "fileNavigate", 0],
-            ["getElementsByClassName", "fileList", 0],
-            ["getElementsByTagName", "li", 2],
-            ["getElementsByTagName", "p", 0]
-        ],
-        [], "VM3"),
-
-        // on VM3 add a share
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "shares", 0],
-                    ["getElementsByClassName", "body", 0],
-                    ["getElementsByClassName", "share", 1],
-                    ["getElementsByTagName", "button", 1]
-                ],
-                qualifier: "ends",
-                target: ["firstChild", "textContent"],
-                type: "property",
-                value: "storageBrowser"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "contextMenu", null],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 0]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 share a directory",
-            unit: []
-        },
-
-        // on self close the VM3 modal
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", null]
-                ],
-                qualifier: "is",
-                target: ["length"],
-                type: "property",
-                value: 3
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "close", 0]
-                    ]
-                }
-            ],
-            machine: "self",
-            name: "On self close the VM3 modal",
-            unit: []
-        },
-
-        // on self open a new VM3 file navigate modal from the share
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
-                    ["getElementsByTagName", "h2", 0],
-                    ["getElementsByTagName", "button", 0]
-                ],
-                qualifier: "ends",
-                target: ["lastChild", "textContent"],
-                type: "property",
-                value: "VM3"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "agentList", 1],
-                        ["getElementsByClassName", "user-share", 0]
-                    ]
-                }
-            ],
-            machine: "self",
-            name: "On self open a new VM3 file navigate modal from a share",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: "file"
-                }
-            ]
-        },
+        moveToSandbox(2, "VM2", "file"),
 
         // on self create a new directory on self's modal
         newDirectory("self", 1, "sandbox"),
@@ -2075,146 +1429,6 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
 
         // on self create a new directory on VM2's modal
         newDirectory("self", 2, "sandbox"),
-
-        // on self create a new directory on VM3's modal
-        {
-            delay: {
-                node: [
-                    ["getModalsByModalType", "fileNavigate", 3],
-                    ["getElementsByClassName", "fileList", 0],
-                    ["firstChild", null, null]
-                ],
-                qualifier: "is",
-                target: ["class"],
-                type: "attribute",
-                value: "empty-list"
-            },
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ]
-                },
-                {
-                    event: "keydown",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ],
-                    value: "Control"
-                },
-                {
-                    event: "keydown",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ],
-                    value: "Alt"
-                },
-                {
-                    event: "keydown",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ],
-                    value: "d"
-                },
-                {
-                    event: "keyup",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ],
-                    value: "d"
-                },
-                {
-                    event: "keyup",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ],
-                    value: "Alt"
-                },
-                {
-                    event: "keyup",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "fileList", 0]
-                    ],
-                    value: "Control"
-                },
-                {
-                    event: "click",
-                    node: [
-                        ["getElementById", "newFileItem", null]
-                    ]
-                },
-                {
-                    event: "setValue",
-                    node: [
-                        ["getElementById", "newFileItem", null]
-                    ],
-                    value: "sandbox"
-                },
-                {
-                    event: "blur",
-                    node: [
-                        ["getElementById", "newFileItem", null]
-                    ]
-                }
-            ],
-            machine: "self",
-            name: `On self attempt to create a directory on a read only share`,
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 3],
-                        ["getElementsByClassName", "status-bar", 0],
-                        ["getElementsByTagName", "p", 0]
-                    ],
-                    qualifier: "begins",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "Attempted action \"new\" to location "
-                }
-            ]
-        },
-
-        // make vm3's share full control
-        {
-            interaction: [
-                {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "share", 1],
-                        ["getElementsByTagName", "button", 2]
-                    ]
-                }
-            ],
-            machine: "VM3",
-            name: "On VM3 make the share full access.",
-            unit: [
-                {
-                    node: [
-                        ["getModalsByModalType", "shares", 0],
-                        ["getElementsByClassName", "body", 0],
-                        ["getElementsByClassName", "share", 1],
-                        ["getElementsByTagName", "strong", 0]
-                    ],
-                    qualifier: "is",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "(Full Access)"
-                }
-            ]
-        },
-
-        // on self create a new directory on VM3's modal
-        newDirectory("self", 3, "sandbox"),
 
         // on self move inside VM1's new folder
         {
@@ -2267,7 +1481,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete. 4 files written at size 1"
+                value: "Copying 100.00% complete. 3 files written at size 1"
             },
             interaction: [
                 {
@@ -2308,20 +1522,11 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     ]
                 },
                 {
-                    event: "click",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 1],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
-                        ["getElementsByTagName", "p", 0]
-                    ]
-                },
-                {
                     event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
@@ -2331,7 +1536,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
@@ -2341,7 +1546,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -2534,7 +1739,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete. 4 files written at size 1"
+                value: "Copying 100.00% complete. 3 files written at size 1"
             },
             interaction: [
                 {
@@ -2655,7 +1860,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete. 4 files written at size 1"
+                value: "Copying 100.00% complete. 3 files written at size 1"
             },
             interaction: [
                 {
@@ -2663,7 +1868,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "p", 0]
                     ]
                 },
@@ -2672,7 +1877,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -2682,7 +1887,35 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 2],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ]
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
@@ -2692,17 +1925,7 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "p", 0]
-                    ],
-                    value: "c"
-                },
-                {
-                    event: "keyup",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 4],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -2960,4 +2183,4 @@ const idle = function terminal_test_samples_browserAgents_idle(machine:string, d
         }
     ];
 
-export default browserAgents;
+export default browserDevices;
