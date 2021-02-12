@@ -28,23 +28,9 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-write") {
                         serviceFile.respond.write(serverResponse);
                     } else {
-                        const status:fileStatusMessage = JSON.parse(message.toString()),
-                            type:requestType = (function terminal_fileService_routeFile_route_callback_type():requestType {
-                                if (data.action === "fs-directory") {
-                                    if (data.name === "expand" || data.name === "navigate") {
-                                        return "fs";
-                                    }
-                                    if (data.name.indexOf("loadPage:") === 0) {
-                                        status.address = data.name.replace("loadPage:", "");
-                                        return "fs";
-                                    }
-                                }
-                                if (data.action === "fs-search") {
-                                    return "fs";
-                                }
-                                return "file-list-status";
-                            }());
-                        serviceFile.respond.status(serverResponse, status, type);
+                        const status:fileStatusMessage = JSON.parse(message.toString());
+                        serviceFile.respond.status(serverResponse, status);
+                        serviceFile.statusBroadcast(data, status);
                     }
                 },
                 errorMessage: "",

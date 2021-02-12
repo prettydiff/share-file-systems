@@ -105,9 +105,10 @@ declare global {
             details: (serverResponse:ServerResponse, details:fsDetails) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
-            status: (serverResponse:ServerResponse, status:fileStatusMessage, responseType:requestType) => void;
+            status: (serverResponse:ServerResponse, status:fileStatusMessage) => void;
             write: (serverResponse:ServerResponse) => void;
         };
+        statusBroadcast: (data:systemDataFile|systemDataCopy, status:fileStatusMessage) => void;
         statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;
     }
 }

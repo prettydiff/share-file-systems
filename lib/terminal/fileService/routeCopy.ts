@@ -17,9 +17,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             httpClient({
                 agentType: data.agentType,
-                callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
-                    vars.broadcast("file-list-status", message.toString());
-                },
+                callback: function terminal_fileService_routeCopy_route_callback():void {},
                 errorMessage: "",
                 ip: serverVars[data.agentType][data.agent].ip,
                 payload: dataString,
@@ -49,7 +47,8 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     fileList: [],
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
                 };
-                serviceFile.respond.status(serverResponse, status, "file-list-status");
+                serviceFile.respond.status(serverResponse, status);
+                serviceFile.statusBroadcast(data, status);
             }
         };
     if (data.agentType === "device") {

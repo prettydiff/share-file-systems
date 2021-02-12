@@ -11,6 +11,7 @@ import remove from "../commands/remove.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import vars from "../utilities/vars.js";
+import httpClient from "../server/httpClient.js";
 
 const serviceFile:systemServiceFile = {
     actions: {
@@ -264,11 +265,11 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fileStatusMessage, responseType:requestType):void {
+        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fileStatusMessage):void {
             response({
                 message: JSON.stringify(status),
                 mimeType: "application/json",
-                responseType: responseType,
+                responseType: "fs",
                 serverResponse: serverResponse
             });
         },
@@ -279,6 +280,52 @@ const serviceFile:systemServiceFile = {
                 responseType: "fs",
                 serverResponse: serverResponse
             });
+        }
+    },
+    statusBroadcast: function terminal_fileService_serviceFile_statusBroadcast(data:systemDataFile, status:fileStatusMessage):void {
+        const devices:string[] = Object.keys(serverVars.device),
+            statusString:string = JSON.stringify(status),
+            sendStatus = function terminal_fileService_serviceFile_statusBroadcast_sendStatus(agent:string, type:agentType):void {
+                const net:[string, number] = (serverVars[type][agent] === undefined)
+                    ? ["", 0]
+                    : [serverVars[type][agent].ip, serverVars[type][agent].port];
+                if (net[0] === "") {
+                    return;
+                }
+                httpClient({
+                    agentType: type,
+                    callback: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_callback():void {},
+                    errorMessage: "Failed to send file status broadcast.",
+                    ip: net[0],
+                    payload: statusString,
+                    port: net[1],
+                    requestError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_requestError(errorMessage:nodeError):void {
+                        error(["Error at client request in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                    },
+                    requestType: "file-status-list",
+                    responseError: function terminal_fileService_serviceFile_statusBroadcast_sendStatus_responseError(errorMessage:nodeError):void {
+                        error(["Error at client response in sendStatus of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                    },
+                    responseStream: httpClient.stream
+                });
+            };
+        let a:number = devices.length;
+        if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate" || data.name.indexOf("loadPage:") === 0)) {
+            return;
+        }
+        if (data.action === "fs-search") {
+            return;
+        }
+        do {
+            a = a - 1;
+            if (devices[a] === serverVars.hashDevice) {
+                vars.broadcast("file-list-status", statusString);
+            } else {
+                sendStatus(devices[a], "device");
+            }
+        } while (a > 0);
+        if (data.agentType === "user") {
+            sendStatus(data.agent, "user");
         }
     },
     statusMessage: function terminal_fileService_serviceFile_statusMessage(serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse):void {
@@ -332,23 +379,11 @@ const serviceFile:systemServiceFile = {
                     agentType: data.agentType,
                     fileList: list,
                     message: message
-                },
-                type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
-                    if (data.action === "fs-directory") {
-                        if (data.name === "expand" || data.name === "navigate") {
-                            return "fs";
-                        }
-                        if (data.name.indexOf("loadPage:") === 0) {
-                            status.address = data.name.replace("loadPage:", "");
-                            return "fs";
-                        }
-                    }
-                    if (data.action === "fs-search") {
-                        return "fs";
-                    }
-                    return "file-list-status";
-                }());
-            serviceFile.respond.status(serverResponse, status, type);
+                };
+            if (serverResponse !== null) {
+                serviceFile.respond.status(serverResponse, status);
+            }
+            serviceFile.statusBroadcast(data, status);
         };
         if (dirs === null) {
             const dirConfig:readDirectory = {
