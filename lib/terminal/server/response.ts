@@ -2,11 +2,18 @@
 
 import error from "../utilities/error.js";
 import serverVars from "./serverVars.js";
+import vars from "../utilities/vars.js";
 
 const response = function terminal_server_response(config:responseConfig):void {
     if (config.serverResponse !== null) {
         if (config.serverResponse.writableEnded === true) {
-            error(["Write after end of HTTP response."]);
+            const message:string[] = ["Write after end of HTTP response."];
+            if (typeof config.message === "string") {
+                message.push("");
+                message.push(`${vars.text.cyan}Response message body:${vars.text.none}`);
+                message.push(config.message);
+            }
+            error(message);
         } else {
             const textTypes:string[] = [
                     "application/json",

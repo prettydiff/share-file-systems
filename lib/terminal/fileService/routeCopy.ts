@@ -34,7 +34,9 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             response({
                 message: message,
                 mimeType: type,
-                responseType: "file-list-status",
+                responseType: (type === "text/plain")
+                    ? "response-no-action"
+                    : "file-list-status",
                 serverResponse: serverResponse
             });
         },
@@ -63,7 +65,6 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             menu();
         } else {
             route(serverResponse, data);
-            respond("Copy request transferred to source device.", "text/plain");
         }
     } else {
         //user(serverResponse, data, route);
