@@ -1860,7 +1860,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                 qualifier: "begins",
                 target: ["innerHTML"],
                 type: "property",
-                value: "Copying 100.00% complete. 3 files written at size 1"
+                value: "Copying 100.00% complete. 3 files written at size "
             },
             interaction: [
                 {
@@ -1883,16 +1883,6 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     value: "Control"
                 },
                 {
-                    event: "keydown",
-                    node: [
-                        ["getModalsByModalType", "fileNavigate", 0],
-                        ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "p", 0]
-                    ],
-                    value: "c"
-                },
-                {
                     event: "click",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
@@ -1911,11 +1901,11 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     ]
                 },
                 {
-                    event: "keyup",
+                    event: "keydown",
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "c"
@@ -1925,7 +1915,17 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     node: [
                         ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 4],
+                        ["getElementsByTagName", "li", 3],
+                        ["getElementsByTagName", "p", 0]
+                    ],
+                    value: "c"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getModalsByModalType", "fileNavigate", 0],
+                        ["getElementsByClassName", "fileList", 0],
+                        ["getElementsByTagName", "li", 3],
                         ["getElementsByTagName", "p", 0]
                     ],
                     value: "Control"
@@ -1975,7 +1975,7 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
             unit: [
                 {
                     node: [
-                        ["getModalsByModalType", "fileNavigate", 2],
+                        ["getModalsByModalType", "fileNavigate", 0],
                         ["getElementsByClassName", "fileList", 0],
                         ["getElementsByTagName", "li", 0],
                         ["getElementsByTagName", "label", 0]
@@ -2160,13 +2160,12 @@ const moveToSandbox = function terminal_test_samples_browserDevices_moveToSandbo
                     node: [
                         ["getModalsByModalType", "fileNavigate", 1],
                         ["getElementsByClassName", "fileList", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "label", 0]
+                        ["getElementsByTagName", "li", 0]
                     ],
-                    qualifier: "ends",
-                    target: ["innerHTML"],
-                    type: "property",
-                    value: "sandbox"
+                    qualifier: "is",
+                    target: ["class"],
+                    type: "attribute",
+                    value: "file"
                 },
                 {
                     node: [

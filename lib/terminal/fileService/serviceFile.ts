@@ -336,9 +336,13 @@ const serviceFile:systemServiceFile = {
                         ip: serverVars[type][agent].ip,
                         payload: statusString,
                         port: serverVars[type][agent].port,
-                        requestError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_requestError():void {},
+                        requestError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_requestError(errorMessage:nodeError):void {
+                            error(["Error at client request in statusMessage of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                        },
                         requestType: "file-list-status",
-                        responseError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_responseError():void {},
+                        responseError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_responseError(errorMessage:nodeError):void {
+                            error(["Error at client response in statusMessage of serviceFile", JSON.stringify(data), errorMessage.toString()]);
+                        },
                         responseStream: httpClient.stream
                     });
                 },

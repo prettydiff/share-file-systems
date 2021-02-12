@@ -3,6 +3,7 @@
 
 import { ServerResponse } from "http";
 
+import error from "../utilities/error.js";
 import httpClient from "../server/httpClient.js";
 import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
@@ -19,13 +20,13 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 ip: serverVars[data.agentType][data.agent].ip,
                 payload: dataString,
                 port: serverVars[data.agentType][data.agent].port,
-                requestError: function terminal_fileService_routeCopy_route_requestError():void {
-                    return;
+                requestError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
+                    error(["Error at client request in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
                 },
                 requestType: "copy",
                 responseStream: httpClient.stream,
-                responseError: function terminal_fileService_routeCopy_route_requestError():void {
-                    return;
+                responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
+                    error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
                 }
             });
         },
@@ -65,7 +66,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             respond("Copy request transferred to source device.", "text/plain");
         }
     } else {
-        user(serverResponse, data, route);
+        //user(serverResponse, data, route);
         respond("Copy request transferred to source user.", "text/plain");
     }
 };

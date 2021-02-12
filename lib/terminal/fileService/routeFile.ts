@@ -3,6 +3,7 @@
 
 import { IncomingHttpHeaders, ServerResponse } from "http";
 
+import error from "../utilities/error.js";
 import httpClient from "../server/httpClient.js";
 import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
@@ -67,13 +68,13 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                 ip: serverVars[data.agentType][data.agent].ip,
                 payload: dataString,
                 port: serverVars[data.agentType][data.agent].port,
-                requestError: function terminal_fileService_routeFile_route_requestError():void {
-                    return;
+                requestError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
+                    error(["Error at client request in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
                 },
                 requestType: "fs",
                 responseStream: httpClient.stream,
-                responseError: function terminal_fileService_routeFile_route_requestError():void {
-                    return;
+                responseError: function terminal_fileService_routeFile_route_requestError(errorMessage:nodeError):void {
+                    error(["Error at client response in route of routeFile", JSON.stringify(data), errorMessage.toString()]);
                 }
             });
         };
@@ -86,7 +87,13 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
             route(serverResponse, data);
         }
     } else {
-        user(serverResponse, data, route);
+        //user(serverResponse, data, route);
+        response({
+            message: "User message received at routeFile from client request",
+            mimeType: "text/plain",
+            responseType: "fs",
+            serverResponse: serverResponse
+        });
     }
 };
 

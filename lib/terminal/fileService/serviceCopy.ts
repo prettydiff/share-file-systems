@@ -204,9 +204,13 @@ const serviceCopy:systemServiceCopy = {
                         ip: serverVars[config.data.agentType][config.data.agent].ip,
                         payload: JSON.stringify(payload),
                         port: serverVars[config.data.agentType][config.data.agent].port,
-                        requestError: function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError():void {},
+                        requestError: function terminal_fileService_serviceCopy_requestFiles_requestFile_requestError(errorMessage:nodeError):void {
+                            error(["Error at client request in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                        },
                         requestType: "copy-file",
-                        responseError: function terminal_fileService_serviceCopy_requestFiles_requestFile_responseError():void {},
+                        responseError: function terminal_fileService_serviceCopy_requestFiles_requestFile_responseError(errorMessage:nodeError):void {
+                            error(["Error at client response in requestFile of serviceCopy", JSON.stringify(config.data), errorMessage.toString()]);
+                        },
                         responseStream: writeCallback
                     });
                     if (config.fileData.stream === false) {
@@ -368,9 +372,13 @@ const serviceCopy:systemServiceCopy = {
                                         ip: serverVars[data.agentType][data.copyAgent].ip,
                                         payload: JSON.stringify(payload),
                                         port: serverVars[data.agentType][data.copyAgent].port,
-                                        requestError: function terminal_fileService_serviceCopy_requestList_sendList_requestError():void {},
+                                        requestError: function terminal_fileService_serviceCopy_requestList_sendList_requestError(errorMessage:nodeError):void {
+                                            error(["Error at client request in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
+                                        },
                                         requestType: "copy-request-files",
-                                        responseError: function terminal_fileService_serviceCopy_requestList_sendList_responseError():void {},
+                                        responseError: function terminal_fileService_serviceCopy_requestList_sendList_responseError(errorMessage:nodeError):void {
+                                            error(["Error at client response in sendList of serviceCopy", JSON.stringify(data), errorMessage.toString()]);
+                                        },
                                         responseStream: httpClient.stream
                                     });
                                 }
@@ -593,9 +601,13 @@ const serviceCopy:systemServiceCopy = {
                             ip: serverVars[type][agent].ip,
                             payload: statusString,
                             port: serverVars[type][agent].port,
-                            requestError: function terminal_fileService_serviceCopy_status_requestError():void {},
+                            requestError: function terminal_fileService_serviceCopy_status_requestError(errorMessage:nodeError):void {
+                                error(["Error at client request in status callbackDirectory of serviceCopy", JSON.stringify(config), errorMessage.toString()]);
+                            },
                             requestType: "file-list-status",
-                            responseError: function terminal_fileService_serviceCopy_status_responseError():void {},
+                            responseError: function terminal_fileService_serviceCopy_status_responseError(errorMessage:nodeError):void {
+                                error(["Error at client response in status callbackDirectory of serviceCopy", JSON.stringify(config), errorMessage.toString()]);
+                            },
                             responseStream: httpClient.stream
                         });
                     };
