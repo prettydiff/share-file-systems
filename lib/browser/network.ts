@@ -16,7 +16,7 @@ const network:module_network = {},
                 : "copy";
         return {
             callback: function local_network_fsConfig_callback(responseType:requestType, responseText:string) {
-                if (responseType === "file-list-status" && responseText.charAt(0) === "{") {
+                if (responseType === "file-list-status") {
                     const status:fileStatusMessage = JSON.parse(responseText);
                     util.fileListStatus(status);
                 }

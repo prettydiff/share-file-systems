@@ -88,7 +88,7 @@ declare global {
             sendFile: (serverResponse:ServerResponse, data:copyFileRequest) => void;
         };
         percent: (numerator:number, denominator:number) => string;
-        status: (config:copyStatusConfig, directoryList:directoryList) => void;
+        status: (config:copyStatusConfig) => void;
     }
     interface systemServiceFile {
         actions: {
@@ -105,7 +105,7 @@ declare global {
             details: (serverResponse:ServerResponse, details:fsDetails) => void;
             error: (serverResponse:ServerResponse, message:string) => void;
             read: (serverResponse:ServerResponse, list:stringDataList) => void;
-            text: (serverResponse:ServerResponse, action:fileAction|copyTypes) => void;
+            status: (serverResponse:ServerResponse, status:fileStatusMessage, responseType:requestType) => void;
             write: (serverResponse:ServerResponse) => void;
         };
         statusMessage: (serverResponse:ServerResponse, data:systemDataFile, dirs:directoryResponse) => void;

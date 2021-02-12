@@ -9,7 +9,6 @@ import serverVars from "../server/serverVars.js";
 import serviceFile from "./serviceFile.js";
 import user from "./user.js";
 import response from "../server/response.js";
-import vars from "../utilities/vars.js";
 
 const routeFile = function terminal_fileService_routeFile(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataFile = JSON.parse(dataString),
@@ -29,45 +28,23 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
                     } else if (data.action === "fs-write") {
                         serviceFile.respond.write(serverResponse);
                     } else {
-                        if (data.action === "fs-directory" && (data.name === "expand" || data.name === "navigate")) {
-                            response({
-                                message: message,
-                                mimeType: "application/json",
-                                responseType: "fs",
-                                serverResponse: serverResponse
-                            });
-                        } else {
-                            const messageString:string = message.toString(),
-                                devices:string[] = Object.keys(serverVars.device),
-                                sendStatus = function terminal_fileService_routeFile_route_callback_sendStatus(agent:string):void {
-                                    httpClient({
-                                        agentType: "device",
-                                        callback: function terminal_fileService_routeFile_route_callback_sendStatus_callback():void {},
-                                        errorMessage: "",
-                                        ip: serverVars.device[agent].ip,
-                                        payload: messageString,
-                                        port: serverVars.device[agent].port,
-                                        requestError: function terminal_fileService_routeFile_route_callback_sendStatus_requestError(errorMessage:nodeError):void {
-                                            error(["Error at client request in sendStatus of routeFile", JSON.stringify(data), errorMessage.toString()]);
-                                        },
-                                        requestType: "file-list-status",
-                                        responseError: function terminal_fileService_routeFile_route_callback_sendStatus_responseType(errorMessage:nodeError):void {
-                                            error(["Error at client request in sendStatus of routeFile", JSON.stringify(data), errorMessage.toString()]);
-                                        },
-                                        responseStream: httpClient.stream
-                                    });
-                                };
-                            let a:number = devices.length;
-                            serviceFile.respond.text(serverResponse, data.action);
-                            do {
-                                a = a - 1;
-                                if (devices[a] === serverVars.hashDevice) {
-                                    vars.broadcast("file-list-status", messageString);
-                                } else {
-                                    sendStatus(devices[a]);
+                        const status:fileStatusMessage = JSON.parse(message.toString()),
+                            type:requestType = (function terminal_fileService_routeFile_route_callback_type():requestType {
+                                if (data.action === "fs-directory") {
+                                    if (data.name === "expand" || data.name === "navigate") {
+                                        return "fs";
+                                    }
+                                    if (data.name.indexOf("loadPage:") === 0) {
+                                        status.address = data.name.replace("loadPage:", "");
+                                        return "fs";
+                                    }
                                 }
-                            } while (a > 0);
-                        }
+                                if (data.action === "fs-search") {
+                                    return "fs";
+                                }
+                                return "file-list-status";
+                            }());
+                        serviceFile.respond.status(serverResponse, status, type);
                     }
                 },
                 errorMessage: "",
@@ -93,13 +70,7 @@ const routeFile = function terminal_fileService_routeFile(serverResponse:ServerR
             route(serverResponse, data);
         }
     } else {
-        //user(serverResponse, data, route);
-        response({
-            message: "User message received at routeFile from client request",
-            mimeType: "text/plain",
-            responseType: "fs",
-            serverResponse: serverResponse
-        });
+        user(serverResponse, data, route);
     }
 };
 

@@ -6,7 +6,6 @@ import base64 from "../commands/base64.js";
 import directory from "../commands/directory.js";
 import error from "../utilities/error.js";
 import hash from "../commands/hash.js";
-import httpClient from "../server/httpClient.js";
 import mkdir from "../commands/mkdir.js";
 import remove from "../commands/remove.js";
 import response from "../server/response.js";
@@ -20,7 +19,7 @@ const serviceFile:systemServiceFile = {
                 serverVars.watches[data.location[0]].close();
                 delete serverVars.watches[data.location[0]];
             }
-            serviceFile.respond.text(serverResponse, data.action);
+            serviceFile.statusMessage(serverResponse, data, null);
         },
         destroy: function terminal_fileService_serviceFile_destroy(serverResponse:ServerResponse, data:systemDataFile):void {
             let count:number = 0;
@@ -32,8 +31,7 @@ const serviceFile:systemServiceFile = {
                 remove(value, function terminal_fileService_serviceFile_destroy_each_remove():void {
                     count = count + 1;
                     if (count === data.location.length) {
-                        serviceFile.respond.text(serverResponse, data.action);
-                        serviceFile.statusMessage(null, data, null);
+                        serviceFile.statusMessage(serverResponse, data, null);
                     }
                 });
             });
@@ -58,12 +56,7 @@ const serviceFile:systemServiceFile = {
                         if (result === undefined) {
                             result = "missing";
                         }
-                        if (data.name === "expand" || data.name === "navigate") {
-                            serviceFile.statusMessage(serverResponse, data, result);
-                        } else {
-                            serviceFile.respond.text(serverResponse, data.action);
-                            serviceFile.statusMessage(null, data, result);
-                        }
+                        serviceFile.statusMessage(serverResponse, data, result);
                     }
                 },
                 callback = function terminal_fileService_serviceFile_directory_callback(result:directoryList):void {
@@ -123,14 +116,12 @@ const serviceFile:systemServiceFile = {
         newArtifact: function terminal_fileService_serviceFile_newArtifact(serverResponse:ServerResponse, data:systemDataFile):void {
             if (data.name === "directory") {
                 mkdir(data.location[0], function terminal_fileService_serviceFile_newArtifact_directory():void {
-                    serviceFile.respond.text(serverResponse, data.action);
-                    serviceFile.statusMessage(null, data, null);
+                    serviceFile.statusMessage(serverResponse, data, null);
                 });
             } else if (data.name === "file") {
                 vars.node.fs.writeFile(data.location[0], "", "utf8", function terminal_fileService_serviceFile_newArtifact_file(erNewFile:Error):void {
                     if (erNewFile === null) {
-                        serviceFile.respond.text(serverResponse, data.action);
-                        serviceFile.statusMessage(null, data, null);
+                        serviceFile.statusMessage(serverResponse, data, null);
                     } else {
                         error([erNewFile.toString()]);
                         serviceFile.respond.error(serverResponse, erNewFile.toString());
@@ -214,8 +205,7 @@ const serviceFile:systemServiceFile = {
             newPath.push(data.name);
             vars.node.fs.rename(data.location[0], newPath.join(vars.sep), function terminal_fileService_serviceFile_rename_callback(erRename:Error):void {
                 if (erRename === null) {
-                    serviceFile.respond.text(serverResponse, data.action);
-                    serviceFile.statusMessage(null, data, null);
+                    serviceFile.statusMessage(serverResponse, data, null);
                 } else {
                     error([erRename.toString()]);
                     serviceFile.respond.error(serverResponse, erRename.toString());
@@ -274,11 +264,11 @@ const serviceFile:systemServiceFile = {
                 serverResponse: serverResponse
             });
         },
-        text: function terminal_fileService_serviceFile_respondText(serverResponse:ServerResponse, action:fileAction|copyTypes):void {
+        status: function terminal_fileService_serviceFile_respondStatus(serverResponse:ServerResponse, status:fileStatusMessage, responseType:requestType):void {
             response({
-                message: `Response to file system action ${action}`,
-                mimeType: "text/plain",
-                responseType: "response-no-action",
+                message: JSON.stringify(status),
+                mimeType: "application/json",
+                responseType: responseType,
                 serverResponse: serverResponse
             });
         },
@@ -343,56 +333,22 @@ const serviceFile:systemServiceFile = {
                     fileList: list,
                     message: message
                 },
-                devices:string[] = Object.keys(serverVars.device),
-                statusString:string = JSON.stringify(status),
-                sendStatus = function terminal_fileService_serviceFile_statusMessage_callback_sendStatus(agent:string, type:agentType):void {
-                    httpClient({
-                        agentType: type,
-                        callback: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_callback():void {},
-                        errorMessage: `Error sending status update to ${agent} of type ${type} about location ${status.address} from ${status.agentType} ${status.agent}.`,
-                        ip: serverVars[type][agent].ip,
-                        payload: statusString,
-                        port: serverVars[type][agent].port,
-                        requestError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_requestError(errorMessage:nodeError):void {
-                            error(["Error at client request in statusMessage of serviceFile", JSON.stringify(data), errorMessage.toString()]);
-                        },
-                        requestType: "file-list-status",
-                        responseError: function terminal_fileService_serviceFile_statusMessage_callback_sendStatus_responseError(errorMessage:nodeError):void {
-                            error(["Error at client response in statusMessage of serviceFile", JSON.stringify(data), errorMessage.toString()]);
-                        },
-                        responseStream: httpClient.stream
-                    });
-                },
-                statusResponse = function terminal_fileService_serviceFile_statusMessage_callback_statusResponse(message:string):void {
-                    response({
-                        message: message,
-                        mimeType: "application/json",
-                        responseType: "fs",
-                        serverResponse: serverResponse
-                    });
-                };
-            // if server response object is null then broadcast
-            if (serverResponse === null) {
-                let a:number = devices.length;
-                do {
-                    a = a - 1;
-                    if (devices[a] === serverVars.hashDevice) {
-                        vars.broadcast("file-list-status", statusString);
-                    } else {
-                        sendStatus(devices[a], "device");
+                type:requestType = (function terminal_fileService_statusMessage_callback_type():requestType {
+                    if (data.action === "fs-directory") {
+                        if (data.name === "expand" || data.name === "navigate") {
+                            return "fs";
+                        }
+                        if (data.name.indexOf("loadPage:") === 0) {
+                            status.address = data.name.replace("loadPage:", "");
+                            return "fs";
+                        }
                     }
-                } while (a > 0);
-                if (data.agentType === "user") {
-                    sendStatus(data.agent, "user");
-                }
-            } else {
-                if (data.action === "fs-directory" && data.name.indexOf("loadPage:") === 0) {
-                    status.address = data.name.replace("loadPage:", "");
-                    statusResponse(JSON.stringify(status));
-                } else {
-                    statusResponse(statusString);
-                }
-            }
+                    if (data.action === "fs-search") {
+                        return "fs";
+                    }
+                    return "file-list-status";
+                }());
+            serviceFile.respond.status(serverResponse, status, type);
         };
         if (dirs === null) {
             const dirConfig:readDirectory = {

@@ -9,13 +9,17 @@ import response from "../server/response.js";
 import serverVars from "../server/serverVars.js";
 import serviceCopy from "./serviceCopy.js";
 import user from "./user.js";
+import vars from "../utilities/vars.js";
+import serviceFile from "./serviceFile.js";
 
 const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerResponse, dataString:string):void {
     const data:systemDataCopy = JSON.parse(dataString),
         route = function terminal_fileService_routeCopy_route(serverResponse:ServerResponse, data:systemDataCopy):void {
             httpClient({
                 agentType: data.agentType,
-                callback: function terminal_fileService_routeCopy_route_callback():void {},
+                callback: function terminal_fileService_routeCopy_route_callback(message:string|Buffer):void {
+                    vars.broadcast("file-list-status", message.toString());
+                },
                 errorMessage: "",
                 ip: serverVars[data.agentType][data.agent].ip,
                 payload: dataString,
@@ -28,16 +32,6 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                 responseError: function terminal_fileService_routeCopy_route_requestError(errorMessage:nodeError):void {
                     error(["Error at client response in route of routeCopy", JSON.stringify(data), errorMessage.toString()]);
                 }
-            });
-        },
-        respond = function terminal_fileService_routeCopy_respond(message:string, type:mimeType):void {
-            response({
-                message: message,
-                mimeType: type,
-                responseType: (type === "text/plain")
-                    ? "response-no-action"
-                    : "file-list-status",
-                serverResponse: serverResponse
             });
         },
         menu = function terminal_fileService_routeCopy_menu():void {
@@ -55,7 +49,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
                     fileList: [],
                     message: `Requested action "${data.action.replace("copy-", "")}" is not supported.`
                 };
-                respond(JSON.stringify(status), "application/json");
+                serviceFile.respond.status(serverResponse, status, "file-list-status");
             }
         };
     if (data.agentType === "device") {
@@ -67,8 +61,7 @@ const routeCopy = function terminal_fileService_routeCopy(serverResponse:ServerR
             route(serverResponse, data);
         }
     } else {
-        //user(serverResponse, data, route);
-        respond("Copy request transferred to source user.", "text/plain");
+        user(serverResponse, data, route);
     }
 };
 
